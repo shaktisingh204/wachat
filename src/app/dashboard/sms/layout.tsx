@@ -12,10 +12,13 @@ import { cn } from "@/lib/utils";
 
 const mainNavItems = [
     { href: "/dashboard/sms", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/sms/campaigns", label: "Campaigns", icon: Send },
     { href: "/dashboard/sms/contacts", label: "Contacts", icon: Users },
     { href: "/dashboard/sms/analytics", label: "Analytics", icon: BarChart },
     { href: "/dashboard/sms/settings", label: "Settings", icon: Settings },
+];
+
+const messagingNavItems = [
+     { href: "/dashboard/sms/campaigns", label: "Send SMS", icon: Send },
 ];
 
 const dltNavItems = [
@@ -29,6 +32,7 @@ const dltNavItems = [
 export default function SmsLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isDltSectionActive = dltNavItems.some(item => pathname.startsWith(item.href));
+    const isMessagingSectionActive = messagingNavItems.some(item => pathname.startsWith(item.href));
 
     return (
         <div className="flex flex-col gap-6">
@@ -56,14 +60,40 @@ export default function SmsLayout({ children }: { children: React.ReactNode }) {
                             </Link>
                         </Button>
                     ))}
+                     <Collapsible defaultOpen={isMessagingSectionActive}>
+                        <CollapsibleTrigger asChild>
+                             <Button variant="ghost" className="w-full justify-between group">
+                                <span className="flex items-center gap-2">
+                                     <MessageSquare className="h-4 w-4"/>
+                                    Messaging
+                                </span>
+                                <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]:rotate-90"/>
+                            </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pl-4 pt-1 space-y-1">
+                             {messagingNavItems.map(item => (
+                                <Button 
+                                    key={item.href}
+                                    asChild 
+                                    variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'} 
+                                    className="w-full justify-start h-9"
+                                >
+                                    <Link href={item.href}>
+                                        <item.icon className="mr-2 h-4 w-4" />
+                                        {item.label}
+                                    </Link>
+                                </Button>
+                            ))}
+                        </CollapsibleContent>
+                    </Collapsible>
                      <Collapsible defaultOpen={isDltSectionActive}>
                         <CollapsibleTrigger asChild>
-                             <Button variant="ghost" className="w-full justify-between">
+                             <Button variant="ghost" className="w-full justify-between group">
                                 <span className="flex items-center gap-2">
                                      <Database className="h-4 w-4"/>
                                     DLT Management
                                 </span>
-                                <ChevronRight className="h-4 w-4 transition-transform data-[state=open]:rotate-90"/>
+                                <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]:rotate-90"/>
                             </Button>
                         </CollapsibleTrigger>
                         <CollapsibleContent className="pl-4 pt-1 space-y-1">
