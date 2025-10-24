@@ -1,37 +1,18 @@
 
 'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, FileText, ShoppingCart, Truck, Repeat, BadgeInfo, CreditCard, GitFork } from "lucide-react";
-import { crmMenuItems } from '@/app/dashboard/crm/layout';
-
-const salesNavItems = crmMenuItems.find(item => item.label === 'Sales')?.subItems || [];
+import React from 'react';
 
 export default function SalesLayout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-
-    const activeTab = salesNavItems.find(item => pathname.startsWith(item.href))?.href || "/dashboard/crm/sales/clients";
-
     return (
-        <div className="flex flex-col gap-6 h-full p-4 md:p-6 lg:p-8">
-            <Tabs defaultValue={activeTab} className="w-full">
-                <TabsList className="overflow-x-auto whitespace-nowrap">
-                    {salesNavItems.map(item => (
-                         <TabsTrigger key={item.href} value={item.href} asChild>
-                            <Link href={item.href}>
-                                <item.icon className="mr-2 h-4 w-4"/>
-                                {item.label}
-                            </Link>
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
-            </Tabs>
-            <div className="mt-4 flex-1">
+        <div className="flex flex-col gap-6 h-full">
+            <div>
+                <h1 className="text-3xl font-bold font-headline">Sales</h1>
+                <p className="text-muted-foreground">Manage your clients, quotations, invoices, and sales orders.</p>
+            </div>
+            <div className="flex-1">
                  {children}
             </div>
         </div>
     );
 }
-
