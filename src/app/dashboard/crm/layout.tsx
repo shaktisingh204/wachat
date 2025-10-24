@@ -4,7 +4,6 @@
 import React from 'react';
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
     Users, 
     Handshake, 
@@ -27,6 +26,8 @@ import {
     LayoutDashboard,
     Box
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export const crmMenuItems = [
     { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, exact: true },
@@ -87,26 +88,20 @@ export default function CrmTabLayout({ children }: { children: React.ReactNode }
         const topLevelItem = crmMenuItems.find(item => item.href !== '/dashboard/crm' && pathname.startsWith(item.href) && item.subItems);
         
         if (topLevelItem && topLevelItem.subItems) {
-            const activeTab = topLevelItem.subItems.find(item => {
-                if (item.href === topLevelItem.href) {
-                    return pathname === item.href;
-                }
-                return pathname.startsWith(item.href);
-            })?.href || topLevelItem.href;
-
             return (
-                <Tabs defaultValue={activeTab} className="w-full">
-                    <TabsList className="overflow-x-auto whitespace-nowrap">
-                        {topLevelItem.subItems.map(item => (
-                             <TabsTrigger key={item.href} value={item.href} asChild>
+                <div className="flex items-center gap-2 border-b pb-2 mb-6 overflow-x-auto">
+                    {topLevelItem.subItems.map(item => {
+                         const isActive = item.href === '/dashboard/crm' ? pathname === item.href : pathname.startsWith(item.href);
+                        return (
+                            <Button key={item.href} asChild variant={isActive ? 'soft' : 'ghost'} size="sm" className="shrink-0">
                                 <Link href={item.href}>
                                     <item.icon className="mr-2 h-4 w-4"/>
                                     {item.label}
                                 </Link>
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
-                </Tabs>
+                            </Button>
+                        )
+                    })}
+                </div>
             );
         }
         return null;
@@ -115,7 +110,7 @@ export default function CrmTabLayout({ children }: { children: React.ReactNode }
     return (
         <div className="flex flex-col gap-6 h-full p-4 md:p-6 lg:p-8">
             {renderNav()}
-            <div className="mt-4 flex-1">
+            <div className="flex-1">
                  {children}
             </div>
         </div>
