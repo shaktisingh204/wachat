@@ -25,7 +25,8 @@ export async function saveSmsSettings(prevState: any, formData: FormData): Promi
                 accountSid: formData.get('accountSid') as string,
                 authToken: formData.get('authToken') as string,
                 fromNumber: formData.get('fromNumber') as string,
-            }
+            },
+            dlt: hasAccess.smsProviderSettings?.dlt || []
         };
         
         if (!settings.twilio.accountSid || !settings.twilio.authToken || !settings.twilio.fromNumber) {
@@ -262,7 +263,7 @@ export async function saveDltAccount(prevState: any, formData: FormData): Promis
             status: 'Active',
         };
 
-        if (!newAccount.provider || !newAccount.principalEntityId || !newAccount.apiKey) {
+        if (!newAccount.provider || !newAccount.principalEntityId || !newAccount.apiKey || !newAccount.entityName) {
             return { error: 'All DLT account fields are required.' };
         }
 

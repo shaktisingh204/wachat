@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UploadCloud, FileText, Link, Briefcase, ChevronRight } from "lucide-react";
+import { UploadCloud, FileText, Briefcase, ChevronRight, AlertCircle } from "lucide-react";
 import { useProject } from "@/context/project-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 
 export default function EntityManagementPage() {
     const { activeProject } = useProject();
@@ -40,11 +39,6 @@ export default function EntityManagementPage() {
 
     return (
         <div className="space-y-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline">DLT Entity Management</h1>
-                <p className="text-muted-foreground">View your entity details and manage Telemarketer bindings.</p>
-            </div>
-
             <Card>
                 <CardHeader>
                     <CardTitle>Principal Entity (PE) Details</CardTitle>

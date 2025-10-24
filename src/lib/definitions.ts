@@ -144,8 +144,6 @@ export type DltAccount = {
     apiKey: string;
     entityName?: string;
     status?: 'Active' | 'Pending' | 'Rejected';
-    panDocUrl?: string;
-    gstDocUrl?: string;
 };
 
 export type SmsProviderSettings = {
