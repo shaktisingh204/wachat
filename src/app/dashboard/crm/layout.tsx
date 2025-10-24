@@ -24,7 +24,8 @@ import {
     IndianRupee,
     Star,
     Contact,
-    LayoutDashboard
+    LayoutDashboard,
+    Box
 } from 'lucide-react';
 
 export const crmMenuItems = [
@@ -69,7 +70,7 @@ export const crmMenuItems = [
         icon: Truck, 
         subItems: [
             { href: "/dashboard/crm/inventory", label: "Dashboard", icon: LayoutDashboard },
-            { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Truck },
+            { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Box },
             { href: "/dashboard/crm/inventory/adjustments", label: "Adjustments", icon: Repeat },
         ]
     },
