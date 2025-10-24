@@ -5,10 +5,7 @@
 
 body {
   font-family: 'PT Sans', sans-serif;
-}
-
-.admin-dashboard body {
-    display: flex;
+  overflow: hidden;
 }
 
 @layer base {
@@ -55,11 +52,7 @@ body {
     --sidebar-accent: hsl(var(--primary) / 0.1);
     --sidebar-accent-foreground: hsl(var(--primary));
   }
-.apprailhw{
-  max-height: 48px;
-    max-width: 48px;
-    width: 48px;
-}
+
   .dark {
     --background: 210 10% 15%;
     --foreground: 210 40% 98%;

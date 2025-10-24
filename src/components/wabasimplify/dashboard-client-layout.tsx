@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Star
+    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -73,7 +73,6 @@ const crmMenuItems = [
             { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag },
             { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Bot },
             { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat },
-            { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
         ]
     },
     {
@@ -106,6 +105,7 @@ const crmMenuItems = [
         ]
     },
     { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork },
+    { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
     { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart },
     { href: "/dashboard/crm/settings", label: "Settings", icon: Settings },
     { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
