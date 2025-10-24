@@ -55,6 +55,7 @@ export type CrmForm = {
     submissionCount?: number;
     createdAt: Date;
     updatedAt?: Date;
+    settings: any;
 }
 
 export type EmailModulePermissions = {
@@ -249,6 +250,25 @@ export type EmailCampaign = {
     sentAt?: Date;
     openRate?: number;
     clickRate?: number;
+};
+
+export type SmsContact = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    name: string;
+    phone: string;
+    createdAt: Date;
+};
+
+export type SmsCampaign = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    name: string;
+    message: string;
+    sentAt: Date;
+    recipientCount: number;
+    successCount: number;
+    failedCount: number;
 };
 
 export type EmailMessage = {
