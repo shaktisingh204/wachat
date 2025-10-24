@@ -1,12 +1,11 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '.';
-import type { SmsProviderSettings, Project, SmsCampaign, SmsContact, DltAccount, SmsHeader, DltSmsTemplate } from '@/lib/definitions';
+import type { SmsProviderSettings, Project, SmsCampaign, SmsContact, DltAccount, SmsHeader, DltSmsTemplate, SmsMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import twilio from 'twilio';
 import Papa from 'papaparse';
@@ -27,7 +26,8 @@ export async function saveSmsSettings(prevState: any, formData: FormData): Promi
                 fromNumber: formData.get('fromNumber') as string,
             },
             dlt: hasAccess.smsProviderSettings?.dlt || [],
-            headers: hasAccess.smsProviderSettings?.headers || []
+            headers: hasAccess.smsProviderSettings?.headers || [],
+            dltTemplates: hasAccess.smsProviderSettings?.dltTemplates || []
         };
         
         if (!settings.twilio.accountSid || !settings.twilio.authToken || !settings.twilio.fromNumber) {
@@ -169,15 +169,15 @@ export async function importSmsContacts(prevState: any, formData: FormData): Pro
     }
 }
 
-export async function sendSmsCampaign(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function sendSingleSms(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
-    const campaignName = formData.get('campaignName') as string;
+    const recipient = formData.get('recipient') as string;
     const message = formData.get('message') as string;
-    
-    if (!projectId || !campaignName || !message) {
-        return { error: 'All fields are required.' };
-    }
 
+    if (!projectId || !recipient || !message) {
+        return { error: 'Recipient and message are required.' };
+    }
+    
     const project = await getProjectById(projectId);
     if (!project || !project.smsProviderSettings) {
         return { error: 'SMS provider is not configured for this project.' };
@@ -187,46 +187,153 @@ export async function sendSmsCampaign(prevState: any, formData: FormData): Promi
     if (!accountSid || !authToken || !fromNumber) {
         return { error: 'Twilio settings are incomplete.' };
     }
+
+    const client = twilio(accountSid, authToken);
+    const { db } = await connectToDatabase();
+    
+    const messageToLog: Omit<SmsMessage, '_id'> = {
+        projectId: new ObjectId(projectId),
+        from: fromNumber,
+        to: recipient,
+        body: message,
+        status: 'queued',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    };
+    
+    try {
+        const twilioResponse = await client.messages.create({
+            body: message,
+            from: fromNumber,
+            to: `+${recipient.replace(/\D/g, '')}`
+        });
+
+        messageToLog.smsSid = twilioResponse.sid;
+        messageToLog.status = twilioResponse.status;
+        messageToLog.errorCode = twilioResponse.errorCode;
+        messageToLog.errorMessage = twilioResponse.errorMessage;
+        
+        await db.collection('sms_messages').insertOne(messageToLog as SmsMessage);
+        
+        revalidatePath('/dashboard/sms/campaigns');
+        revalidatePath('/dashboard/sms/message-history');
+        
+        return { message: `Message successfully sent to ${recipient}. SID: ${twilioResponse.sid}` };
+
+    } catch (error: any) {
+        messageToLog.status = 'failed';
+        messageToLog.errorCode = error.code;
+        messageToLog.errorMessage = error.message;
+        await db.collection('sms_messages').insertOne(messageToLog as SmsMessage);
+        
+        revalidatePath('/dashboard/sms/campaigns');
+        revalidatePath('/dashboard/sms/message-history');
+
+        return { error: getErrorMessage(error) };
+    }
+}
+
+export async function sendSmsCampaign(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const campaignName = formData.get('campaignName') as string;
+    const message = formData.get('message') as string;
+    const contactFile = formData.get('contactFile') as File;
+    const scheduledAt = formData.get('scheduledAt') as string;
+
+    if (!projectId || !campaignName || !message || (!contactFile || contactFile.size === 0)) {
+        return { error: 'All fields and a contact file are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.smsProviderSettings) {
+        return { error: 'SMS provider is not configured for this project.' };
+    }
     
     const { db } = await connectToDatabase();
-    const contacts = await db.collection('sms_contacts').find({ projectId: new ObjectId(projectId) }).toArray();
-    
-    if (contacts.length === 0) {
-        return { error: 'No contacts to send to.' };
-    }
-    
-    const client = twilio(accountSid, authToken);
-    let successfulSends = 0;
-    let failedSends = 0;
-    
-    for (const contact of contacts) {
-        try {
-            await client.messages.create({
-                body: message,
-                from: fromNumber,
-                to: `+${contact.phone}` // Assuming numbers are stored without '+'
-            });
-            successfulSends++;
-        } catch (error) {
-            console.error(`Failed to send SMS to ${contact.phone}:`, error);
-            failedSends++;
+    let contacts: any[] = [];
+    try {
+        if (contactFile.name.endsWith('.csv')) {
+            const csvText = await contactFile.text();
+            contacts = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
+        } else {
+            const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
+            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            if (!sheetName) throw new Error('XLSX file has no sheets.');
+            const worksheet = workbook.Sheets[sheetName];
+            contacts = XLSX.utils.sheet_to_json(worksheet);
         }
+    } catch (e) {
+        return { error: 'Failed to parse contact file.' };
     }
-    
+
+    if (contacts.length === 0) return { error: 'No contacts found in the file.' };
+
     const newCampaign: Omit<SmsCampaign, '_id'> = {
         projectId: new ObjectId(projectId),
         name: campaignName,
         message,
         sentAt: new Date(),
         recipientCount: contacts.length,
-        successCount: successfulSends,
-        failedCount: failedSends
+        successCount: 0,
+        failedCount: 0,
+        ...(scheduledAt && { scheduledAt: new Date(scheduledAt), status: 'scheduled' })
     };
+
+    const campaignResult = await db.collection('sms_campaigns').insertOne(newCampaign as any);
     
-    await db.collection('sms_campaigns').insertOne(newCampaign as any);
+    if (scheduledAt) {
+        revalidatePath('/dashboard/sms/campaigns');
+        return { message: `Campaign "${campaignName}" with ${contacts.length} contacts has been scheduled.` };
+    }
+    
+    // If not scheduled, send immediately
+    const { accountSid, authToken, fromNumber } = project.smsProviderSettings.twilio;
+    if (!accountSid || !authToken || !fromNumber) {
+        return { error: 'Twilio settings are incomplete.' };
+    }
+    
+    const client = twilio(accountSid, authToken);
+    let successfulSends = 0;
+    let failedSends = 0;
+    const messagesToLog: Omit<SmsMessage, '_id'>[] = [];
+    
+    const phoneKey = Object.keys(contacts[0])[0]; // Assume first column is phone
+    
+    for (const contact of contacts) {
+        const phone = String(contact[phoneKey] || '').replace(/\D/g, '');
+        if (!phone) {
+            failedSends++;
+            continue;
+        }
+
+        try {
+            const twilioResponse = await client.messages.create({
+                body: message,
+                from: fromNumber,
+                to: `+${phone}`
+            });
+            successfulSends++;
+             messagesToLog.push({
+                projectId: new ObjectId(projectId), campaignId: campaignResult.insertedId, from: fromNumber, to: phone, body: message,
+                smsSid: twilioResponse.sid, status: twilioResponse.status, createdAt: new Date(), updatedAt: new Date()
+            });
+        } catch (error) {
+            failedSends++;
+            messagesToLog.push({
+                projectId: new ObjectId(projectId), campaignId: campaignResult.insertedId, from: fromNumber, to: phone, body: message,
+                status: 'failed', errorCode: (error as any).code, errorMessage: (error as any).message, createdAt: new Date(), updatedAt: new Date()
+            });
+        }
+    }
+    
+    if (messagesToLog.length > 0) {
+        await db.collection('sms_messages').insertMany(messagesToLog as SmsMessage[]);
+    }
+    await db.collection('sms_campaigns').updateOne({ _id: campaignResult.insertedId }, { $set: { successCount: successfulSends, failedCount: failedSends, status: 'sent' } });
     
     revalidatePath('/dashboard/sms/campaigns');
-    revalidatePath('/dashboard/sms');
+    revalidatePath('/dashboard/sms/message-history');
     
     return { message: `Campaign sent! ${successfulSends} successful, ${failedSends} failed.` };
 }
@@ -246,6 +353,45 @@ export async function getSmsCampaigns(projectId: string): Promise<WithId<SmsCamp
         return [];
     }
 }
+
+export async function getSmsHistory(
+    projectId: string,
+    page: number,
+    limit: number,
+    query?: string,
+    status?: string
+): Promise<{ messages: WithId<SmsMessage>[], total: number }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { messages: [], total: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<SmsMessage> = { projectId: new ObjectId(projectId) };
+        if (query) {
+            const queryRegex = { $regex: query, $options: 'i' };
+            filter.$or = [
+                { to: queryRegex },
+                { body: queryRegex }
+            ]
+        }
+        if(status) {
+            filter.status = status;
+        }
+
+        const skip = (page - 1) * limit;
+        const [messages, total] = await Promise.all([
+            db.collection<SmsMessage>('sms_messages').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection('sms_messages').countDocuments(filter)
+        ]);
+
+        return { messages: JSON.parse(JSON.stringify(messages)), total };
+
+    } catch(e) {
+        console.error("Failed to fetch SMS history:", e);
+        return { messages: [], total: 0 };
+    }
+}
+
 
 export async function saveDltAccount(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
@@ -434,3 +580,5 @@ export async function deleteDltTemplate(projectId: string, templateId: string): 
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+    
