@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -322,7 +323,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, 
                     </div>
                 );
             case 'buttons':
-                return (
+                 return (
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="buttons-text">Message Text</Label>
@@ -366,6 +367,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, 
                     </div>
                 );
             case 'api':
+            case 'webhook':
                 return (
                     <Tabs defaultValue="request">
                         <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="request">Request</TabsTrigger><TabsTrigger value="response">Response</TabsTrigger></TabsList>
@@ -492,10 +494,9 @@ const FlowsAndBlocksPanel = ({
     </>
 );
 
-export default function FlowBuilderPage() {
-    const { toast } = useToast();
+function PageContent() {
     const { activeProjectId } = useProject();
-
+    const { toast } = useToast();
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
     const [nodes, setNodes] = useState<FlowNode[]>([]);
@@ -949,6 +950,11 @@ export default function FlowBuilderPage() {
         </div>
     );
 }
+
+export default function FlowBuilderPage() {
+    return <PageContent />;
+}
+
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     if (!sourcePos || !targetPos) return '';
     const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
@@ -998,3 +1004,5 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     
     return null;
 }
+
+    
