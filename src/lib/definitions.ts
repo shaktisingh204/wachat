@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type Website = {
@@ -250,6 +249,21 @@ export type EmailCampaign = {
     sentAt?: Date;
     openRate?: number;
     clickRate?: number;
+};
+
+export type SmsTemplate = {
+    id: string;
+    name: string;
+    content: string;
+    status: 'Approved' | 'Pending' | 'Rejected';
+};
+
+export type SmsActivityLog = {
+    id: string;
+    type: 'Campaign' | 'Single Send';
+    name: string;
+    status: 'Completed' | 'In Progress' | 'Failed';
+    date: Date;
 };
 
 export type SmsContact = {
