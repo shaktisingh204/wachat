@@ -25,14 +25,9 @@ import {
 } from 'lucide-react';
 
 export const crmMenuItems = [
-    { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, component: null },
-    {
-        href: "/dashboard/crm/sales",
-        label: "Sales",
-        icon: Handshake,
-        subItems: [
+    { href: "/dashboard/crm", label: "Dashboard", icon: BarChart },
+    { href: "/dashboard/crm/sales", label: "Sales", icon: Handshake, subItems: [
             { href: "/dashboard/crm/sales/clients", label: "Clients", icon: Building },
-            { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
             { href: "/dashboard/crm/sales/quotations", label: "Quotations", icon: FileText },
             { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText },
             { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingCart },
@@ -43,18 +38,11 @@ export const crmMenuItems = [
             { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
         ]
     },
-    { href: "/dashboard/crm/contacts", label: "Contacts", icon: Users, component: null },
-    { href: "/dashboard/crm/accounts", label: "Accounts", icon: Building, component: null },
-    { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake, component: null },
-    { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban, component: null },
-    {
-        href: "/dashboard/crm/products",
-        label: "Products",
-        icon: ShoppingCart,
-        subItems: [
-            { href: "/dashboard/crm/products", label: "Products", icon: ShoppingCart },
-        ]
-    },
+    { href: "/dashboard/crm/contacts", label: "Contacts", icon: Users },
+    { href: "/dashboard/crm/accounts", label: "Accounts", icon: Building },
+    { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
+    { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban },
+    { href: "/dashboard/crm/products", label: "Products", icon: ShoppingCart },
     { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck, subItems: [
         { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Truck },
         { href: "/dashboard/crm/inventory/adjustments", label: "Adjustments", icon: Repeat },
@@ -66,17 +54,17 @@ export const crmMenuItems = [
         { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes", icon: Repeat },
         { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts", icon: CreditCard },
     ] },
-    { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork, component: null },
-    { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart, component: null },
-    { href: "/dashboard/crm/settings", label: "Settings", icon: Settings, component: null },
-    { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare, component: null },
+    { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork },
+    { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart },
+    { href: "/dashboard/crm/settings", label: "Settings", icon: Settings },
+    { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
 ];
 
 export default function CrmTabLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     const renderNav = () => {
-        const topLevelItem = crmMenuItems.find(item => pathname.startsWith(item.href) && item.subItems);
+        const topLevelItem = crmMenuItems.find(item => item.href !== '/dashboard/crm' && pathname.startsWith(item.href) && item.subItems);
         if (topLevelItem && topLevelItem.subItems) {
             const activeTab = topLevelItem.subItems.find(item => pathname.startsWith(item.href))?.href || topLevelItem.subItems[0]?.href;
             return (
