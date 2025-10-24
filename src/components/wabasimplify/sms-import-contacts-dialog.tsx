@@ -33,10 +33,9 @@ function SubmitButton() {
 
 interface SmsImportContactsDialogProps {
     onImported: () => void;
-    projectId: string;
 }
 
-export function SmsImportContactsDialog({ onImported, projectId }: SmsImportContactsDialogProps) {
+export function SmsImportContactsDialog({ onImported }: SmsImportContactsDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(importSmsContacts, initialState);
   const { toast } = useToast();
@@ -64,7 +63,6 @@ export function SmsImportContactsDialog({ onImported, projectId }: SmsImportCont
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-            <input type="hidden" name="projectId" value={projectId} />
             <DialogHeader>
                 <DialogTitle>Import SMS Contacts</DialogTitle>
                 <DialogDescription>
@@ -86,3 +84,5 @@ export function SmsImportContactsDialog({ onImported, projectId }: SmsImportCont
     </Dialog>
   );
 }
+
+    

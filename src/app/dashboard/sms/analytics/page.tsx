@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import { useEffect, useState, useTransition, useMemo } from 'react';
+import { useEffect, useState, useMemo, useTransition } from 'react';
 import { getSmsCampaigns } from '@/app/actions/sms.actions';
 import type { WithId, SmsCampaign } from '@/lib/definitions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -9,10 +10,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart, Users, Send, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { useProject } from '@/context/project-context';
+import { format, formatDistanceToNow } from 'date-fns';
+import { useSession } from 'next-auth/react';
+import { getSession } from '@/app/actions';
 
-const StatCard = ({ title, value, icon: Icon }: { title: string, value: string | number, icon: React.ElementType }) => (
+const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
@@ -20,6 +22,7 @@ const StatCard = ({ title, value, icon: Icon }: { title: string, value: string |
         </CardHeader>
         <CardContent>
             <div className="text-2xl font-bold">{value}</div>
+            {description && <p className="text-xs text-muted-foreground">{description}</p>}
         </CardContent>
     </Card>
 );
@@ -43,18 +46,15 @@ function AnalyticsPageSkeleton() {
 }
 
 export default function SmsAnalyticsPage() {
-    const { activeProjectId } = useProject();
     const [campaigns, setCampaigns] = useState<WithId<SmsCampaign>[]>([]);
     const [isLoading, startLoading] = useTransition();
 
     useEffect(() => {
-        if (activeProjectId) {
-            startLoading(async () => {
-                const data = await getSmsCampaigns(activeProjectId);
-                setCampaigns(data);
-            });
-        }
-    }, [activeProjectId]);
+        startLoading(async () => {
+            const data = await getSmsCampaigns();
+            setCampaigns(data);
+        });
+    }, []);
     
     const stats = useMemo(() => {
         const totalCampaigns = campaigns.length;
@@ -126,3 +126,5 @@ export default function SmsAnalyticsPage() {
         </div>
     );
 }
+
+    

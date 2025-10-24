@@ -4,7 +4,8 @@
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getSmsContacts } from '@/app/actions/sms.actions';
-import type { SmsContact } from '@/lib/definitions';
+import { getSession } from '@/app/actions';
+import type { SmsContact, Tag, User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,24 +17,21 @@ import { SmsAddContactDialog } from '@/components/wabasimplify/sms-add-contact-d
 import { SmsImportContactsDialog } from '@/components/wabasimplify/sms-import-contacts-dialog';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
-import { useProject } from '@/context/project-context';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+
+const CONTACTS_PER_PAGE = 20;
 
 export default function SmsContactsPage() {
-    const { activeProjectId } = useProject();
     const [contacts, setContacts] = useState<WithId<SmsContact>[]>([]);
     const [isLoading, startTransition] = useTransition();
 
     const [searchQuery, setSearchQuery] = useState('');
 
     const fetchData = useCallback(() => {
-        if (!activeProjectId) return;
         startTransition(async () => {
-            const data = await getSmsContacts(activeProjectId);
+            const data = await getSmsContacts();
             setContacts(data);
         });
-    }, [activeProjectId]);
+    }, []);
 
     useEffect(() => {
         fetchData();
@@ -52,16 +50,6 @@ export default function SmsContactsPage() {
         );
     }, [contacts, searchQuery]);
     
-    if (!activeProjectId) {
-         return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project to manage SMS contacts.</AlertDescription>
-            </Alert>
-        );
-    }
-
     return (
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -70,8 +58,8 @@ export default function SmsContactsPage() {
                     <p className="text-muted-foreground">Manage your SMS contact lists.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <SmsImportContactsDialog projectId={activeProjectId} onImported={fetchData} />
-                    <SmsAddContactDialog projectId={activeProjectId} onAdded={fetchData} />
+                    <SmsImportContactsDialog onImported={fetchData} />
+                    <SmsAddContactDialog onAdded={fetchData} />
                 </div>
             </div>
             
@@ -109,7 +97,7 @@ export default function SmsContactsPage() {
                                     ))
                                 ) : filteredContacts.length > 0 ? (
                                     filteredContacts.map((contact) => (
-                                        <TableRow key={contact._id.toString()}>
+                                        <TableRow key={contact._id.toString()} className="cursor-pointer">
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
                                                     <Avatar>
@@ -135,3 +123,5 @@ export default function SmsContactsPage() {
         </div>
     );
 }
+
+    

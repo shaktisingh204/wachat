@@ -139,7 +139,7 @@ export type EmailSettings = {
 
 export type DltSmsTemplate = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     name: string;
     dltTemplateId: string;
     content: string;
@@ -301,7 +301,7 @@ export type SmsActivityLog = {
 
 export type SmsContact = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     name: string;
     phone: string;
     createdAt: Date;
@@ -309,7 +309,7 @@ export type SmsContact = {
 
 export type SmsMessage = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     smsSid: string;
     campaignId?: ObjectId;
     from: string;
@@ -326,7 +326,7 @@ export type SmsMessage = {
 
 export type SmsCampaign = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     name: string;
     message: string;
     sentAt: Date;
@@ -716,7 +716,6 @@ export type Project = {
         keyId?: string;
         keySecret?: string;
     };
-    smsProviderSettings?: SmsProviderSettings;
 };
 
 export type Template = {
@@ -1070,6 +1069,7 @@ export type User = {
       permissions?: EmailPermissions;
       compliance?: EmailComplianceSettings;
     };
+    smsProviderSettings?: SmsProviderSettings;
 };
 
 export type Invitation = {
@@ -1850,3 +1850,5 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
+
+    

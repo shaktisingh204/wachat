@@ -10,13 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Database, Key, LoaderCircle, AlertCircle } from 'lucide-react';
-import { getProjectById } from '@/app/actions';
+import { Plus, Trash2, Database, Key, LoaderCircle } from 'lucide-react';
+import { getSession } from '@/app/actions';
 import { saveDltAccount, deleteDltAccount } from '@/app/actions/sms.actions';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import type { WithId, Project, DltAccount } from '@/lib/definitions';
-import { useProject } from '@/context/project-context';
+import type { WithId, User, DltAccount } from '@/lib/definitions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,14 +50,12 @@ function SaveButton() {
 }
 
 function DeleteButton({ dltAccountId, onDeleted }: { dltAccountId: string, onDeleted: () => void }) {
-    const { activeProjectId } = useProject();
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
 
     const handleDelete = () => {
-        if (!activeProjectId) return;
         startTransition(async () => {
-            const result = await deleteDltAccount(activeProjectId, dltAccountId);
+            const result = await deleteDltAccount(dltAccountId);
             if(result.success) {
                 toast({ title: 'Success', description: 'DLT account removed.' });
                 onDeleted();
@@ -92,41 +88,40 @@ function DeleteButton({ dltAccountId, onDeleted }: { dltAccountId: string, onDel
 }
 
 export default function DltManagementPage() {
-    const { activeProjectId, activeProject, reloadProject } = useProject();
+    const [sessionUser, setSessionUser] = useState<User | null>(null);
     const [state, formAction] = useActionState(saveDltAccount, saveInitialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     const [selectedProviderId, setSelectedProviderId] = useState('');
     
+    const fetchUser = useCallback(() => {
+        getSession().then(session => {
+            setSessionUser(session?.user || null);
+        });
+    }, []);
+
+    useEffect(() => {
+        fetchUser();
+    }, [fetchUser]);
+
     const selectedProvider = dltProviders.find(p => p.id === selectedProviderId);
     
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
             formRef.current?.reset();
-            reloadProject(); // Re-fetch project data to show new DLT account
+            fetchUser();
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
-    }, [state, toast, reloadProject]);
+    }, [state, toast, fetchUser]);
     
-    if (!activeProjectId) {
-         return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project to manage DLT settings.</AlertDescription>
-            </Alert>
-        );
-    }
-    
-    const connectedAccounts = activeProject?.smsProviderSettings?.dlt || [];
+    const connectedAccounts = sessionUser?.smsProviderSettings?.dlt || [];
 
     return (
         <div className="space-y-8">
             <form action={formAction} ref={formRef}>
-                <input type="hidden" name="projectId" value={activeProjectId} />
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Plus className="h-5 w-5"/>Add New DLT Account</CardTitle>
@@ -193,7 +188,7 @@ export default function DltManagementPage() {
                                         <TableCell>{acc.principalEntityId}</TableCell>
                                         <TableCell><Badge>{acc.status || 'Active'}</Badge></TableCell>
                                         <TableCell className="text-right">
-                                             <DeleteButton dltAccountId={acc._id.toString()} onDeleted={reloadProject} />
+                                             <DeleteButton dltAccountId={acc._id.toString()} onDeleted={fetchUser} />
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -209,4 +204,5 @@ export default function DltManagementPage() {
         </div>
     )
 }
- 
+
+    

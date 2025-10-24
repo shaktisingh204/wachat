@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { LoaderCircle, Save, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveSmsSettings } from '@/app/actions/sms.actions';
-import type { WithId, Project } from '@/lib/definitions';
+import type { WithId, User } from '@/lib/definitions';
 
 const initialState = { message: null, error: undefined };
 
@@ -32,13 +32,13 @@ function SubmitButton() {
 }
 
 interface SmsSettingsFormProps {
-  project: WithId<Project>;
+  user: WithId<User>;
 }
 
-export function SmsSettingsForm({ project }: SmsSettingsFormProps) {
+export function SmsSettingsForm({ user }: SmsSettingsFormProps) {
     const [state, formAction] = useActionState(saveSmsSettings, initialState);
     const { toast } = useToast();
-    const settings = project.smsProviderSettings?.twilio;
+    const settings = user.smsProviderSettings?.twilio;
     
     useEffect(() => {
         if (state.message) {
@@ -51,7 +51,6 @@ export function SmsSettingsForm({ project }: SmsSettingsFormProps) {
 
     return (
         <form action={formAction}>
-            <input type="hidden" name="projectId" value={project._id.toString()} />
             <Card className="card-gradient card-gradient-blue">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -81,3 +80,5 @@ export function SmsSettingsForm({ project }: SmsSettingsFormProps) {
         </form>
     );
 }
+
+    

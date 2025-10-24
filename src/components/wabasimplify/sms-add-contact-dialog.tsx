@@ -33,10 +33,9 @@ function SubmitButton() {
 
 interface SmsAddContactDialogProps {
     onAdded: () => void;
-    projectId: string;
 }
 
-export function SmsAddContactDialog({ onAdded, projectId }: SmsAddContactDialogProps) {
+export function SmsAddContactDialog({ onAdded }: SmsAddContactDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addSmsContact, initialState);
   const { toast } = useToast();
@@ -64,7 +63,6 @@ export function SmsAddContactDialog({ onAdded, projectId }: SmsAddContactDialogP
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-             <input type="hidden" name="projectId" value={projectId} />
             <DialogHeader>
                 <DialogTitle>Add New SMS Contact</DialogTitle>
                 <DialogDescription>Manually add a contact to your SMS list.</DialogDescription>
@@ -76,7 +74,7 @@ export function SmsAddContactDialog({ onAdded, projectId }: SmsAddContactDialogP
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" name="phone" type="tel" placeholder="e.g., 919876543210" required />
+                    <Input id="phone" name="phone" type="tel" placeholder="e.g. 919876543210" required />
                     <p className="text-xs text-muted-foreground">Include country code, without the '+' symbol.</p>
                 </div>
             </div>
@@ -89,3 +87,5 @@ export function SmsAddContactDialog({ onAdded, projectId }: SmsAddContactDialogP
     </Dialog>
   );
 }
+
+    

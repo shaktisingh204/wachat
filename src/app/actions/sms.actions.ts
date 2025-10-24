@@ -5,19 +5,16 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '.';
-import type { SmsProviderSettings, Project, SmsCampaign, SmsContact, DltAccount, SmsHeader, DltSmsTemplate, SmsMessage } from '@/lib/definitions';
+import { getSession } from '.';
+import type { SmsProviderSettings, User, SmsCampaign, SmsContact, DltAccount, SmsHeader, DltSmsTemplate, SmsMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import twilio from 'twilio';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 
 export async function saveSmsSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    if (!projectId) return { error: 'Project ID is missing.' };
-
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied or project not found.' };
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
 
     try {
         const settings: SmsProviderSettings = {
@@ -26,9 +23,9 @@ export async function saveSmsSettings(prevState: any, formData: FormData): Promi
                 authToken: formData.get('authToken') as string,
                 fromNumber: formData.get('fromNumber') as string,
             },
-            dlt: hasAccess.smsProviderSettings?.dlt || [],
-            headers: hasAccess.smsProviderSettings?.headers || [],
-            dltTemplates: hasAccess.smsProviderSettings?.dltTemplates || []
+            dlt: session.user.smsProviderSettings?.dlt || [],
+            headers: session.user.smsProviderSettings?.headers || [],
+            dltTemplates: session.user.smsProviderSettings?.dltTemplates || []
         };
         
         if (!settings.twilio.accountSid || !settings.twilio.authToken || !settings.twilio.fromNumber) {
@@ -36,8 +33,8 @@ export async function saveSmsSettings(prevState: any, formData: FormData): Promi
         }
 
         const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $set: { smsProviderSettings: settings } }
         );
 
@@ -49,14 +46,14 @@ export async function saveSmsSettings(prevState: any, formData: FormData): Promi
     }
 }
 
-export async function getSmsContacts(projectId: string): Promise<WithId<SmsContact>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getSmsContacts(): Promise<WithId<SmsContact>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
         const contacts = await db.collection<SmsContact>('sms_contacts')
-            .find({ projectId: new ObjectId(projectId) })
+            .find({ userId: new ObjectId(session.user._id) })
             .sort({ createdAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(contacts));
@@ -67,15 +64,12 @@ export async function getSmsContacts(projectId: string): Promise<WithId<SmsConta
 }
 
 export async function addSmsContact(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    if (!projectId) return { error: 'Project ID is missing.' };
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
     
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied.' };
-
     try {
         const newContact = {
-            projectId: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             phone: (formData.get('phone') as string).replace(/\D/g, ''),
             createdAt: new Date(),
@@ -96,11 +90,8 @@ export async function addSmsContact(prevState: any, formData: FormData): Promise
 }
 
 export async function importSmsContacts(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    if (!projectId) return { error: 'Project ID is missing.' };
-    
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied.' };
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
     
     const contactFile = formData.get('contactFile') as File;
     if (!contactFile || contactFile.size === 0) {
@@ -108,6 +99,7 @@ export async function importSmsContacts(prevState: any, formData: FormData): Pro
     }
     
     const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id);
 
     const processContacts = (contacts: any[]): Promise<number> => {
         return new Promise<number>(async (resolve, reject) => {
@@ -124,10 +116,10 @@ export async function importSmsContacts(prevState: any, formData: FormData): Pro
 
                 return {
                     updateOne: {
-                        filter: { phone, projectId: new ObjectId(projectId) },
+                        filter: { phone, userId },
                         update: {
                             $set: { name },
-                            $setOnInsert: { phone, projectId: new ObjectId(projectId), createdAt: new Date() }
+                            $setOnInsert: { phone, userId, createdAt: new Date() }
                         },
                         upsert: true
                     }
@@ -171,20 +163,22 @@ export async function importSmsContacts(prevState: any, formData: FormData): Pro
 }
 
 export async function sendSingleSms(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication failed.' };
+    
     const recipient = formData.get('recipient') as string;
     const message = formData.get('message') as string;
 
-    if (!projectId || !recipient || !message) {
+    if (!recipient || !message) {
         return { error: 'Recipient and message are required.' };
     }
     
-    const project = await getProjectById(projectId);
-    if (!project || !project.smsProviderSettings) {
-        return { error: 'SMS provider is not configured for this project.' };
+    const settings = session.user.smsProviderSettings;
+    if (!settings) {
+        return { error: 'SMS provider is not configured for this account.' };
     }
 
-    const { accountSid, authToken, fromNumber } = project.smsProviderSettings.twilio;
+    const { accountSid, authToken, fromNumber } = settings.twilio;
     if (!accountSid || !authToken || !fromNumber) {
         return { error: 'Twilio settings are incomplete.' };
     }
@@ -193,7 +187,7 @@ export async function sendSingleSms(prevState: any, formData: FormData): Promise
     const { db } = await connectToDatabase();
     
     const messageToLog: Omit<SmsMessage, '_id'> = {
-        projectId: new ObjectId(projectId),
+        userId: new ObjectId(session.user._id),
         from: fromNumber,
         to: recipient,
         body: message,
@@ -235,19 +229,21 @@ export async function sendSingleSms(prevState: any, formData: FormData): Promise
 }
 
 export async function sendSmsCampaign(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication failed.' };
+
     const campaignName = formData.get('campaignName') as string;
     const message = formData.get('message') as string;
     const contactFile = formData.get('contactFile') as File;
     const scheduledAt = formData.get('scheduledAt') as string;
 
-    if (!projectId || !campaignName || !message || (!contactFile || contactFile.size === 0)) {
+    if (!campaignName || !message || (!contactFile || contactFile.size === 0)) {
         return { error: 'All fields and a contact file are required.' };
     }
 
-    const project = await getProjectById(projectId);
-    if (!project || !project.smsProviderSettings) {
-        return { error: 'SMS provider is not configured for this project.' };
+    const settings = session.user.smsProviderSettings;
+    if (!settings) {
+        return { error: 'SMS provider is not configured for this account.' };
     }
     
     const { db } = await connectToDatabase();
@@ -271,7 +267,7 @@ export async function sendSmsCampaign(prevState: any, formData: FormData): Promi
     if (contacts.length === 0) return { error: 'No contacts found in the file.' };
 
     const newCampaign: Omit<SmsCampaign, '_id'> = {
-        projectId: new ObjectId(projectId),
+        userId: new ObjectId(session.user._id),
         name: campaignName,
         message,
         sentAt: new Date(),
@@ -288,8 +284,7 @@ export async function sendSmsCampaign(prevState: any, formData: FormData): Promi
         return { message: `Campaign "${campaignName}" with ${contacts.length} contacts has been scheduled.` };
     }
     
-    // If not scheduled, send immediately
-    const { accountSid, authToken, fromNumber } = project.smsProviderSettings.twilio;
+    const { accountSid, authToken, fromNumber } = settings.twilio;
     if (!accountSid || !authToken || !fromNumber) {
         return { error: 'Twilio settings are incomplete.' };
     }
@@ -299,7 +294,7 @@ export async function sendSmsCampaign(prevState: any, formData: FormData): Promi
     let failedSends = 0;
     const messagesToLog: Omit<SmsMessage, '_id'>[] = [];
     
-    const phoneKey = Object.keys(contacts[0])[0]; // Assume first column is phone
+    const phoneKey = Object.keys(contacts[0])[0]; 
     
     for (const contact of contacts) {
         const phone = String(contact[phoneKey] || '').replace(/\D/g, '');
@@ -316,13 +311,13 @@ export async function sendSmsCampaign(prevState: any, formData: FormData): Promi
             });
             successfulSends++;
              messagesToLog.push({
-                projectId: new ObjectId(projectId), campaignId: campaignResult.insertedId, from: fromNumber, to: phone, body: message,
+                userId: new ObjectId(session.user._id), campaignId: campaignResult.insertedId, from: fromNumber, to: phone, body: message,
                 smsSid: twilioResponse.sid, status: twilioResponse.status, createdAt: new Date(), updatedAt: new Date()
             });
         } catch (error) {
             failedSends++;
             messagesToLog.push({
-                projectId: new ObjectId(projectId), campaignId: campaignResult.insertedId, from: fromNumber, to: phone, body: message,
+                userId: new ObjectId(session.user._id), campaignId: campaignResult.insertedId, from: fromNumber, to: phone, body: message,
                 status: 'failed', errorCode: (error as any).code, errorMessage: (error as any).message, createdAt: new Date(), updatedAt: new Date()
             });
         }
@@ -340,28 +335,30 @@ export async function sendSmsCampaign(prevState: any, formData: FormData): Promi
 }
 
 export async function sendSmsTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication failed.' };
+
     const recipient = formData.get('recipient') as string;
     const templateId = formData.get('dltTemplateId') as string;
     const headerId = formData.get('headerId') as string;
 
-    if (!projectId || !recipient || !templateId || !headerId) {
+    if (!recipient || !templateId || !headerId) {
         return { error: 'Recipient, template, and header are required.' };
     }
     
-    const project = await getProjectById(projectId);
-    if (!project || !project.smsProviderSettings) {
-        return { error: 'SMS provider is not configured for this project.' };
+    const settings = session.user.smsProviderSettings;
+    if (!settings) {
+        return { error: 'SMS provider is not configured for this account.' };
     }
 
-    const { accountSid, authToken, fromNumber } = project.smsProviderSettings.twilio;
+    const { accountSid, authToken, fromNumber } = settings.twilio;
     if (!accountSid || !authToken || !fromNumber) {
         return { error: 'Twilio settings are incomplete.' };
     }
     
-    const template = project.smsProviderSettings.dltTemplates?.find(t => t.dltTemplateId === templateId);
+    const template = settings.dltTemplates?.find(t => t.dltTemplateId === templateId);
     if (!template) {
-        return { error: 'Selected DLT template not found in project settings.' };
+        return { error: 'Selected DLT template not found in user settings.' };
     }
     
     let messageBody = template.content;
@@ -378,7 +375,7 @@ export async function sendSmsTemplate(prevState: any, formData: FormData): Promi
     const { db } = await connectToDatabase();
     
     const messageToLog: Omit<SmsMessage, '_id'> = {
-        projectId: new ObjectId(projectId),
+        userId: new ObjectId(session.user._id),
         from: headerId,
         to: recipient,
         body: messageBody,
@@ -411,14 +408,14 @@ export async function sendSmsTemplate(prevState: any, formData: FormData): Promi
     }
 }
 
-export async function getSmsCampaigns(projectId: string): Promise<WithId<SmsCampaign>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getSmsCampaigns(): Promise<WithId<SmsCampaign>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
         const campaigns = await db.collection<SmsCampaign>('sms_campaigns')
-            .find({ projectId: new ObjectId(projectId) })
+            .find({ userId: new ObjectId(session.user._id) })
             .sort({ sentAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(campaigns));
@@ -428,18 +425,17 @@ export async function getSmsCampaigns(projectId: string): Promise<WithId<SmsCamp
 }
 
 export async function getSmsHistory(
-    projectId: string,
     page: number,
     limit: number,
     query?: string,
     status?: string
 ): Promise<{ messages: WithId<SmsMessage>[], total: number }> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { messages: [], total: 0 };
+    const session = await getSession();
+    if (!session?.user) return { messages: [], total: 0 };
 
     try {
         const { db } = await connectToDatabase();
-        const filter: Filter<SmsMessage> = { projectId: new ObjectId(projectId) };
+        const filter: Filter<SmsMessage> = { userId: new ObjectId(session.user._id) };
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
             filter.$or = [
@@ -467,18 +463,15 @@ export async function getSmsHistory(
 
 
 export async function saveDltAccount(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    if (!projectId) return { error: 'Project ID is missing.' };
-
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied or project not found.' };
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
 
     try {
         const newAccount: DltAccount = {
             _id: new ObjectId(),
             provider: formData.get('provider') as string,
             principalEntityId: formData.get('principalEntityId') as string,
-            apiKey: formData.get('apiKey') as string, // In a real app, encrypt this
+            apiKey: formData.get('apiKey') as string,
             entityName: formData.get('entityName') as string,
             status: 'Active',
         };
@@ -488,8 +481,8 @@ export async function saveDltAccount(prevState: any, formData: FormData): Promis
         }
 
         const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $push: { 'smsProviderSettings.dlt': newAccount } }
         );
 
@@ -502,16 +495,16 @@ export async function saveDltAccount(prevState: any, formData: FormData): Promis
 }
 
 
-export async function deleteDltAccount(projectId: string, dltAccountId: string): Promise<{ success: boolean; error?: string }> {
-    if (!projectId || !dltAccountId) return { success: false, error: 'Project and DLT Account IDs are required.' };
+export async function deleteDltAccount(dltAccountId: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
 
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { success: false, error: 'Access denied or project not found.' };
+    if (!dltAccountId) return { success: false, error: 'DLT Account ID is required.' };
 
     try {
         const { db } = await connectToDatabase();
-        const result = await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        const result = await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $pull: { 'smsProviderSettings.dlt': { _id: new ObjectId(dltAccountId) } } }
         );
 
@@ -527,18 +520,15 @@ export async function deleteDltAccount(projectId: string, dltAccountId: string):
     }
 }
 
-export async function getSmsHeaders(projectId: string): Promise<WithId<SmsHeader>[]> {
-    const project = await getProjectById(projectId);
-    if (!project) return [];
-    return project.smsProviderSettings?.headers || [];
+export async function getSmsHeaders(): Promise<WithId<SmsHeader>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    return session.user.smsProviderSettings?.headers || [];
 }
 
 export async function saveSmsHeader(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    if (!projectId) return { error: 'Project ID is missing.' };
-
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied.' };
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
 
     try {
         const newHeader: Omit<SmsHeader, '_id'> = {
@@ -557,12 +547,10 @@ export async function saveSmsHeader(prevState: any, formData: FormData): Promise
 
         const { db } = await connectToDatabase();
         
-        // This simulates submitting to DLT portal. In a real scenario, this would be an API call.
-        // For now, we'll just add it with a PENDING status.
         newHeader.status = 'APPROVED'; // Forcing APPROVED for demo purposes.
 
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $push: { 'smsProviderSettings.headers': { ...newHeader, _id: new ObjectId() } as any } }
         );
 
@@ -573,15 +561,16 @@ export async function saveSmsHeader(prevState: any, formData: FormData): Promise
     }
 }
 
-export async function deleteSmsHeader(projectId: string, headerId: string): Promise<{ success: boolean; error?: string }> {
-     if (!projectId || !headerId) return { success: false, error: 'Project and Header IDs are required.' };
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { success: false, error: 'Access denied.' };
+export async function deleteSmsHeader(headerId: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    if (!headerId) return { success: false, error: 'Header ID is required.' };
 
     try {
         const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $pull: { 'smsProviderSettings.headers': { _id: new ObjectId(headerId) } } }
         );
         revalidatePath('/dashboard/sms/header-management');
@@ -591,24 +580,21 @@ export async function deleteSmsHeader(projectId: string, headerId: string): Prom
     }
 }
 
-export async function getDltTemplates(projectId: string): Promise<WithId<DltSmsTemplate>[]> {
-    const project = await getProjectById(projectId);
-    if (!project) return [];
-    return project.smsProviderSettings?.dltTemplates || [];
+export async function getDltTemplates(): Promise<WithId<DltSmsTemplate>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    return session.user.smsProviderSettings?.dltTemplates || [];
 }
 
 export async function saveDltTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    if (!projectId) return { error: 'Project ID is missing.' };
-
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied.' };
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
 
     const variables = (formData.get('variables') as string).split(',').map(v => v.trim()).filter(Boolean);
 
     try {
         const newTemplate: Omit<DltSmsTemplate, '_id'> = {
-            projectId: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             dltTemplateId: formData.get('dltTemplateId') as string,
             content: formData.get('content') as string,
@@ -624,8 +610,8 @@ export async function saveDltTemplate(prevState: any, formData: FormData): Promi
 
         const { db } = await connectToDatabase();
         
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $push: { 'smsProviderSettings.dltTemplates': { ...newTemplate, _id: new ObjectId() } as any } }
         );
 
@@ -636,15 +622,16 @@ export async function saveDltTemplate(prevState: any, formData: FormData): Promi
     }
 }
 
-export async function deleteDltTemplate(projectId: string, templateId: string): Promise<{ success: boolean; error?: string }> {
-     if (!projectId || !templateId) return { success: false, error: 'Project and Template IDs are required.' };
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { success: false, error: 'Access denied.' };
+export async function deleteDltTemplate(templateId: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    
+    if (!templateId) return { success: false, error: 'Template ID is required.' };
 
     try {
         const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $pull: { 'smsProviderSettings.dltTemplates': { _id: new ObjectId(templateId) } } }
         );
         revalidatePath('/dashboard/sms/template-management');
@@ -653,3 +640,5 @@ export async function deleteDltTemplate(projectId: string, templateId: string): 
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+    
