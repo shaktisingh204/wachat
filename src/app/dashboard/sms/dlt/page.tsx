@@ -1,14 +1,34 @@
+
 'use client';
 
-import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Database, Key } from 'lucide-react';
+import { Plus, Trash2, Database, Key, LoaderCircle, AlertCircle } from 'lucide-react';
+import { getProjectById } from '@/app/actions';
+import { saveDltAccount, deleteDltAccount } from '@/app/actions/sms.actions';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import type { WithId, Project, DltAccount } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 
 const dltProviders = [
     { id: 'airtel', name: 'Airtel' },
@@ -19,44 +39,96 @@ const dltProviders = [
     { id: 'other', name: 'Other' },
 ];
 
+const saveInitialState = { message: null, error: null };
+
+function SaveButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Key className="mr-2 h-4 w-4" />}
+            Connect Account
+        </Button>
+    )
+}
+
 export default function DltManagementPage() {
-    const [connectedAccounts, setConnectedAccounts] = useState<any[]>([]);
+    const { activeProjectId, activeProject, reloadProject } = useProject();
+    const [state, formAction] = useActionState(saveDltAccount, saveInitialState);
+    const { toast } = useToast();
+    const formRef = useRef<HTMLFormElement>(null);
+    const [isDeleting, startDeleteTransition] = useTransition();
+
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Success', description: state.message });
+            formRef.current?.reset();
+            reloadProject(); // Re-fetch project data to show new DLT account
+        }
+        if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, reloadProject]);
     
+    const handleDelete = (dltAccountId: string) => {
+        if (!activeProjectId) return;
+        startDeleteTransition(async () => {
+            const result = await deleteDltAccount(activeProjectId, dltAccountId);
+            if(result.success) {
+                toast({ title: 'Success', description: 'DLT account removed.' });
+                reloadProject();
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    }
+
+    if (!activeProjectId) {
+         return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertDescription>Please select a project to manage DLT settings.</AlertDescription>
+            </Alert>
+        );
+    }
+    
+    const connectedAccounts = activeProject?.smsProviderSettings?.dlt || [];
+
     return (
         <div className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Plus className="h-5 w-5"/>Add New DLT Account</CardTitle>
-                    <CardDescription>Connect your registered DLT account to sync headers and templates.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
+            <form action={formAction} ref={formRef}>
+                <input type="hidden" name="projectId" value={activeProjectId} />
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Plus className="h-5 w-5"/>Add New DLT Account</CardTitle>
+                        <CardDescription>Connect your registered DLT account to sync headers and templates.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="dlt-provider">Select DLT Provider</Label>
+                                <Select name="provider" required>
+                                    <SelectTrigger id="dlt-provider"><SelectValue placeholder="Select a provider..."/></SelectTrigger>
+                                    <SelectContent>
+                                        {dltProviders.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="principal-id">Principal Entity ID</Label>
+                                <Input id="principal-id" name="principalEntityId" placeholder="Your 19-digit DLT Principal Entity ID" required />
+                            </div>
+                        </div>
                         <div className="space-y-2">
-                            <Label htmlFor="dlt-provider">Select DLT Provider</Label>
-                            <Select>
-                                <SelectTrigger id="dlt-provider"><SelectValue placeholder="Select a provider..."/></SelectTrigger>
-                                <SelectContent>
-                                    {dltProviders.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+                            <Label htmlFor="api-key">API Key / Credentials</Label>
+                            <Input id="api-key" name="apiKey" type="password" placeholder="Enter your API Key" required />
                         </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="principal-id">Principal Entity ID</Label>
-                            <Input id="principal-id" placeholder="Your 19-digit DLT Principal Entity ID" />
-                        </div>
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="api-key">API Key / Credentials</Label>
-                        <Input id="api-key" type="password" placeholder="Enter your API Key" />
-                    </div>
-                </CardContent>
-                <CardFooter>
-                    <Button disabled>
-                        <Key className="mr-2 h-4 w-4" />
-                        Connect Account
-                    </Button>
-                </CardFooter>
-            </Card>
+                    </CardContent>
+                    <CardFooter>
+                       <SaveButton />
+                    </CardFooter>
+                </Card>
+            </form>
 
             <Card>
                 <CardHeader>
@@ -75,12 +147,29 @@ export default function DltManagementPage() {
                         <TableBody>
                             {connectedAccounts.length > 0 ? (
                                 connectedAccounts.map(acc => (
-                                    <TableRow key={acc.id}>
-                                        <TableCell>{acc.provider}</TableCell>
-                                        <TableCell>{acc.entityId}</TableCell>
+                                    <TableRow key={acc._id.toString()}>
+                                        <TableCell className="capitalize">{acc.provider}</TableCell>
+                                        <TableCell>{acc.principalEntityId}</TableCell>
                                         <TableCell><Badge>Connected</Badge></TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                             <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete DLT Account?</AlertDialogTitle>
+                                                        <AlertDialogDescription>Are you sure you want to remove this account? This will not affect your DLT registration.</AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDelete(acc._id.toString())} disabled={isDeleting}>
+                                                            {isDeleting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </TableCell>
                                     </TableRow>
                                 ))

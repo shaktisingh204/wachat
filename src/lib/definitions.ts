@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type Website = {
@@ -136,12 +137,20 @@ export type EmailSettings = {
     };
 }
 
+export type DltAccount = {
+    _id: ObjectId;
+    provider: string;
+    principalEntityId: string;
+    apiKey: string;
+};
+
 export type SmsProviderSettings = {
     twilio: {
         accountSid: string;
         authToken: string;
         fromNumber: string;
-    }
+    },
+    dlt?: DltAccount[];
 }
 
 export type CrmTask = {
