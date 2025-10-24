@@ -258,6 +258,8 @@ export async function saveDltAccount(prevState: any, formData: FormData): Promis
             provider: formData.get('provider') as string,
             principalEntityId: formData.get('principalEntityId') as string,
             apiKey: formData.get('apiKey') as string, // In a real app, encrypt this
+            entityName: formData.get('entityName') as string,
+            status: 'Active',
         };
 
         if (!newAccount.provider || !newAccount.principalEntityId || !newAccount.apiKey) {
