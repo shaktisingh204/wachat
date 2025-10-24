@@ -207,17 +207,18 @@ const emailMenuItems = [
 
 const smsMenuItems = [
     { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/sms/contacts', label: 'Contacts', icon: Users },
     {
         href: "/dashboard/sms/messaging",
         label: "Messaging",
         icon: MessageSquare,
         subItems: [
-             { href: "/dashboard/sms/campaigns", label: "Send SMS", icon: Send },
-             { href: "/dashboard/sms/message-history", label: "Message History", icon: History },
-             { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports", icon: FileText },
+             { href: "/dashboard/sms/campaigns", label: "Send SMS" },
+             { href: "/dashboard/sms/message-history", label: "Message History" },
+             { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports" },
         ]
     },
+    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: Send },
+    { href: '/dashboard/sms/contacts', label: 'Contacts', icon: Users },
     {
         href: '/dashboard/sms/dlt',
         label: 'DLT Management',
@@ -230,8 +231,8 @@ const smsMenuItems = [
         ]
     },
     { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
-    { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
     { href: '/dashboard/sms/integrations', label: 'Integrations', icon: Zap },
+    { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
 ];
 
 const apiMenuItems = [
@@ -405,7 +406,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     return (
         <SidebarProvider>
-            <div className={cn("flex h-screen w-full flex-col bg-muted/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
+            <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-muted/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
                 <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
                     <div className="flex items-center gap-2">
                          <SidebarTrigger>
