@@ -338,6 +338,78 @@ export async function sendSmsCampaign(prevState: any, formData: FormData): Promi
     return { message: `Campaign sent! ${successfulSends} successful, ${failedSends} failed.` };
 }
 
+export async function sendSmsTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const recipient = formData.get('recipient') as string;
+    const templateId = formData.get('dltTemplateId') as string;
+    const headerId = formData.get('headerId') as string;
+
+    if (!projectId || !recipient || !templateId || !headerId) {
+        return { error: 'Recipient, template, and header are required.' };
+    }
+    
+    const project = await getProjectById(projectId);
+    if (!project || !project.smsProviderSettings) {
+        return { error: 'SMS provider is not configured for this project.' };
+    }
+
+    const { accountSid, authToken, fromNumber } = project.smsProviderSettings.twilio;
+    if (!accountSid || !authToken || !fromNumber) {
+        return { error: 'Twilio settings are incomplete.' };
+    }
+    
+    const template = project.smsProviderSettings.dltTemplates?.find(t => t.dltTemplateId === templateId);
+    if (!template) {
+        return { error: 'Selected DLT template not found in project settings.' };
+    }
+    
+    let messageBody = template.content;
+    const variables = template.variables || [];
+    for(const variable of variables) {
+        const varValue = formData.get(variable) as string;
+        if (!varValue) {
+            return { error: `Value for variable "${variable}" is missing.` };
+        }
+        messageBody = messageBody.replace('{#var#}', varValue);
+    }
+    
+    const client = twilio(accountSid, authToken);
+    const { db } = await connectToDatabase();
+    
+    const messageToLog: Omit<SmsMessage, '_id'> = {
+        projectId: new ObjectId(projectId),
+        from: headerId,
+        to: recipient,
+        body: messageBody,
+        dltTemplateId: templateId,
+        senderId: headerId,
+        status: 'queued',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    };
+    
+    try {
+        const twilioResponse = await client.messages.create({
+            body: messageBody,
+            from: headerId,
+            to: `+${recipient.replace(/\D/g, '')}`
+        });
+
+        messageToLog.smsSid = twilioResponse.sid;
+        messageToLog.status = twilioResponse.status;
+        
+        await db.collection('sms_messages').insertOne(messageToLog as SmsMessage);
+        return { message: `Template message successfully sent to ${recipient}.` };
+
+    } catch (error: any) {
+        messageToLog.status = 'failed';
+        messageToLog.errorCode = error.code;
+        messageToLog.errorMessage = error.message;
+        await db.collection('sms_messages').insertOne(messageToLog as SmsMessage);
+        return { error: getErrorMessage(error) };
+    }
+}
+
 export async function getSmsCampaigns(projectId: string): Promise<WithId<SmsCampaign>[]> {
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return [];
@@ -580,5 +652,3 @@ export async function deleteDltTemplate(projectId: string, templateId: string): 
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
-    

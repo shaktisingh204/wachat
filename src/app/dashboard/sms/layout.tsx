@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, MessageSquare, Send, Users, BarChart, Settings, Database, ChevronRight, FileText, History } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Send, Users, BarChart, Settings, Database, ChevronRight, FileText, History, Zap } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,6 +14,7 @@ const mainNavItems = [
     { href: "/dashboard/sms/contacts", label: "Contacts", icon: Users },
     { href: "/dashboard/sms/analytics", label: "Analytics", icon: BarChart },
     { href: "/dashboard/sms/settings", label: "Settings", icon: Settings },
+    { href: "/dashboard/sms/integrations", label: "Integrations", icon: Zap },
 ];
 
 const messagingNavItems = [
