@@ -142,6 +142,10 @@ export type DltAccount = {
     provider: string;
     principalEntityId: string;
     apiKey: string;
+    entityName?: string;
+    status?: 'Active' | 'Pending' | 'Rejected';
+    panDocUrl?: string;
+    gstDocUrl?: string;
 };
 
 export type SmsProviderSettings = {
@@ -655,7 +659,7 @@ export type Project = {
     adAccountId?: string;
     facebookPageId?: string;
     facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
-    facebookWelcomeMessageSettings?: FacebookWelcomeMessageSettings;
+    facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
     widgetSettings?: WhatsAppWidgetSettings;
     tags?: Tag[];
