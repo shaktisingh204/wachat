@@ -208,18 +208,6 @@ const emailMenuItems = [
 const smsMenuItems = [
     { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
     {
-        href: "/dashboard/sms/messaging",
-        label: "Messaging",
-        icon: MessageSquare,
-        subItems: [
-             { href: "/dashboard/sms/campaigns", label: "Send SMS" },
-             { href: "/dashboard/sms/message-history", label: "Message History" },
-             { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports" },
-        ]
-    },
-    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: Send },
-    { href: '/dashboard/sms/contacts', label: 'Contacts', icon: Users },
-    {
         href: '/dashboard/sms/dlt',
         label: 'DLT Management',
         icon: Database,
@@ -230,7 +218,16 @@ const smsMenuItems = [
             { href: "/dashboard/sms/template-management", label: "Template Management" },
         ]
     },
-    { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
+    {
+        href: "/dashboard/sms/messaging",
+        label: "Messaging",
+        icon: MessageSquare,
+        subItems: [
+             { href: "/dashboard/sms/campaigns", label: "Send SMS" },
+             { href: "/dashboard/sms/message-history", label: "Message History" },
+             { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports" },
+        ]
+    },
     { href: '/dashboard/sms/integrations', label: 'Integrations', icon: Zap },
     { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
 ];
