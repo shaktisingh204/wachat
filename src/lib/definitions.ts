@@ -307,6 +307,23 @@ export type SmsContact = {
     createdAt: Date;
 };
 
+export type SmsMessage = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    smsSid: string;
+    campaignId?: ObjectId;
+    from: string;
+    to: string;
+    body: string;
+    status: 'queued' | 'sending' | 'sent' | 'failed' | 'delivered' | 'undelivered' | 'canceled';
+    dltTemplateId?: string;
+    senderId?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    errorCode?: number;
+    errorMessage?: string;
+};
+
 export type SmsCampaign = {
     _id: ObjectId;
     projectId: ObjectId;
