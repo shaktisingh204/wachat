@@ -4,12 +4,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, MessageSquare, Send, Users, BarChart, Settings } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Send, Users, BarChart, Settings, Database } from "lucide-react";
 
 const navItems = [
     { href: "/dashboard/sms", label: "Dashboard", icon: LayoutDashboard },
     { href: "/dashboard/sms/campaigns", label: "Campaigns", icon: Send },
     { href: "/dashboard/sms/contacts", label: "Contacts", icon: Users },
+    { href: "/dashboard/sms/dlt", label: "Connect DLT", icon: Database },
+    { href: "/dashboard/sms/entity-management", label: "Entity Management", icon: Database },
     { href: "/dashboard/sms/analytics", label: "Analytics", icon: BarChart },
     { href: "/dashboard/sms/settings", label: "Settings", icon: Settings },
 ];
@@ -29,7 +31,7 @@ export default function SmsLayout({ children }: { children: React.ReactNode }) {
                 </p>
             </div>
             <Tabs defaultValue={pathname} className="w-full">
-                <TabsList>
+                <TabsList className="grid w-full grid-cols-7">
                     {navItems.map(item => (
                          <TabsTrigger key={item.href} value={item.href} asChild>
                             <Link href={item.href}>

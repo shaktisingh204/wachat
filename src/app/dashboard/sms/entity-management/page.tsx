@@ -1,0 +1,83 @@
+
+'use client';
+
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { UploadCloud, FileText, Link, Briefcase, ChevronRight } from "lucide-react";
+
+export default function EntityManagementPage() {
+    return (
+        <div className="space-y-8">
+            <div>
+                <h1 className="text-3xl font-bold font-headline">DLT Entity Management</h1>
+                <p className="text-muted-foreground">View your Principal Entity details and manage Telemarketer bindings.</p>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Principal Entity (PE) Details</CardTitle>
+                    <CardDescription>
+                        This information is synced from the DLT portal.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Entity Name</Label>
+                        <p className="font-semibold">Your Business Name Pvt. Ltd.</p>
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Principal Entity ID</Label>
+                        <p className="font-mono">1234567890123456789</p>
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Status</Label>
+                        <Badge variant="default">Active</Badge>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Briefcase />PE-TM Binding</CardTitle>
+                        <CardDescription>Manage your Telemarketer bindings. Your Telemarketer ID with us is: <span className="font-mono bg-muted p-1 rounded-md">TM12345</span></CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">Log in to your DLT portal and add our Telemarketer ID to authorize us to send SMS on your behalf.</p>
+                    </CardContent>
+                    <CardFooter>
+                         <Button variant="outline" asChild>
+                            <a href="#" target="_blank" rel="noopener noreferrer">Go to DLT Portal <ChevronRight className="ml-2 h-4 w-4"/></a>
+                         </Button>
+                    </CardFooter>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><FileText />KYC Documents</CardTitle>
+                        <CardDescription>Upload and manage your KYC documents for DLT verification.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="pan-doc">PAN Card</Label>
+                            <Input id="pan-doc" type="file" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="gst-doc">GST Certificate</Label>
+                            <Input id="gst-doc" type="file" />
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                         <Button>
+                            <UploadCloud className="mr-2 h-4 w-4" />
+                            Upload Documents
+                         </Button>
+                    </CardFooter>
+                </Card>
+            </div>
+        </div>
+    )
+}
