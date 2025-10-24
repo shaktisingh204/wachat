@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '.';
-import type { SmsProviderSettings, Project, SmsCampaign, SmsContact, DltAccount, SmsHeader } from '@/lib/definitions';
+import type { SmsProviderSettings, Project, SmsCampaign, SmsContact, DltAccount, SmsHeader, DltSmsTemplate } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import twilio from 'twilio';
 import Papa from 'papaparse';
@@ -366,6 +366,69 @@ export async function deleteSmsHeader(projectId: string, headerId: string): Prom
             { $pull: { 'smsProviderSettings.headers': { _id: new ObjectId(headerId) } } }
         );
         revalidatePath('/dashboard/sms/header-management');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getDltTemplates(projectId: string): Promise<WithId<DltSmsTemplate>[]> {
+    const project = await getProjectById(projectId);
+    if (!project) return [];
+    return project.smsProviderSettings?.dltTemplates || [];
+}
+
+export async function saveDltTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    if (!projectId) return { error: 'Project ID is missing.' };
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: 'Access denied.' };
+
+    const variables = (formData.get('variables') as string).split(',').map(v => v.trim()).filter(Boolean);
+
+    try {
+        const newTemplate: Omit<DltSmsTemplate, '_id'> = {
+            projectId: new ObjectId(projectId),
+            name: formData.get('name') as string,
+            dltTemplateId: formData.get('dltTemplateId') as string,
+            content: formData.get('content') as string,
+            type: formData.get('type') as DltSmsTemplate['type'],
+            variables: variables,
+            status: 'APPROVED',
+            createdAt: new Date(),
+        };
+
+        if (!newTemplate.name || !newTemplate.dltTemplateId || !newTemplate.content || !newTemplate.type) {
+            return { error: 'All fields are required.' };
+        }
+
+        const { db } = await connectToDatabase();
+        
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $push: { 'smsProviderSettings.dltTemplates': { ...newTemplate, _id: new ObjectId() } as any } }
+        );
+
+        revalidatePath('/dashboard/sms/template-management');
+        return { message: `Template "${newTemplate.name}" added successfully.` };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteDltTemplate(projectId: string, templateId: string): Promise<{ success: boolean; error?: string }> {
+     if (!projectId || !templateId) return { success: false, error: 'Project and Template IDs are required.' };
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $pull: { 'smsProviderSettings.dltTemplates': { _id: new ObjectId(templateId) } } }
+        );
+        revalidatePath('/dashboard/sms/template-management');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };

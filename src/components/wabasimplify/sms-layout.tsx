@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from "next/link";
@@ -58,12 +57,12 @@ export default function SmsLayout({ children }: { children: React.ReactNode }) {
                     ))}
                      <Collapsible defaultOpen={isDltSectionActive}>
                         <CollapsibleTrigger asChild>
-                             <Button variant="ghost" className="w-full justify-between">
+                             <Button variant="ghost" className="w-full justify-between group">
                                 <span className="flex items-center gap-2">
                                      <Database className="h-4 w-4"/>
                                     DLT Management
                                 </span>
-                                <ChevronRight className="h-4 w-4 transition-transform data-[state=open]:rotate-90"/>
+                                <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]:rotate-90"/>
                             </Button>
                         </CollapsibleTrigger>
                         <CollapsibleContent className="pl-4 pt-1 space-y-1">
