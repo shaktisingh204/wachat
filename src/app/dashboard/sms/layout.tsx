@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, MessageSquare, Send, Users, BarChart, Settings, Database, ChevronRight, FileText } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Send, Users, BarChart, Settings, Database, ChevronRight, FileText, History } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,8 @@ const mainNavItems = [
 
 const messagingNavItems = [
      { href: "/dashboard/sms/campaigns", label: "Send SMS", icon: Send },
+     { href: "/dashboard/sms/message-history", label: "Message History", icon: History },
+     { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports", icon: FileText },
 ];
 
 const dltNavItems = [
