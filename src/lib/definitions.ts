@@ -975,6 +975,7 @@ export type User = {
     facebookUserAccessToken?: string;
     activeProjectId?: string;
     crmIndustry?: string;
+    appRailPosition?: 'left' | 'top';
     crm?: {
       whatsappProjectId?: ObjectId;
       permissions?: CrmPermissions;

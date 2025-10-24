@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useActionState, useRef } from 'react';
@@ -11,8 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, LoaderCircle, Save, KeyRound, User as UserIcon } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, KeyRound, User as UserIcon, Layout, Rows } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const profileInitialState = { message: null, error: null };
 const passwordInitialState = { message: null, error: null };
@@ -61,6 +63,54 @@ function ProfileForm({ user }: { user: Omit<User, 'password'> }) {
             </CardFooter>
         </form>
     )
+}
+
+function LayoutForm({ user }: { user: Omit<User, 'password'> }) {
+    const [state, formAction] = useActionState(handleUpdateUserProfile, profileInitialState);
+    const { toast } = useToast();
+    
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Success!', description: 'Layout preference saved. It will be applied on the next page refresh.' });
+        }
+        if (state?.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast]);
+
+    return (
+         <form action={formAction}>
+             <input type="hidden" name="name" value={user.name} />
+            <CardHeader>
+                <CardTitle>Layout Preferences</CardTitle>
+                <CardDescription>Customize the dashboard layout to your liking.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 <div className="space-y-2">
+                    <Label>App Rail Position</Label>
+                    <RadioGroup name="appRailPosition" defaultValue={user.appRailPosition || 'left'} className="grid grid-cols-2 gap-4 pt-2">
+                        <div>
+                            <RadioGroupItem value="left" id="pos-left" className="sr-only"/>
+                            <Label htmlFor="pos-left" className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
+                                <Layout className="mb-3 h-6 w-6"/>
+                                Left Sidebar
+                            </Label>
+                        </div>
+                        <div>
+                            <RadioGroupItem value="top" id="pos-top" className="sr-only"/>
+                            <Label htmlFor="pos-top" className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
+                                <Rows className="mb-3 h-6 w-6"/>
+                                Top Header
+                            </Label>
+                        </div>
+                    </RadioGroup>
+                </div>
+            </CardContent>
+            <CardFooter>
+                <SubmitButton icon={Save}>Save Layout</SubmitButton>
+            </CardFooter>
+        </form>
+    );
 }
 
 function PasswordForm() {
@@ -191,6 +241,7 @@ export default function ProfilePage() {
              <div className="grid md:grid-cols-2 gap-8 items-start">
                 <Card><ProfileForm user={user} /></Card>
                 <Card><PasswordForm /></Card>
+                <Card className="md:col-span-2"><LayoutForm user={user} /></Card>
             </div>
         </div>
     )

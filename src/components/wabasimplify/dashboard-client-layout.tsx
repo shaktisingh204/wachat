@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -39,7 +40,7 @@ import {
 import { Drawer, DrawerTrigger } from '../ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '../ui/separator';
 
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
@@ -251,7 +252,6 @@ const FullPageSkeleton = () => (
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const { 
-        projects = [],
         activeProject,
         activeProjectName,
         sessionUser,
@@ -260,6 +260,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const [activeApp, setActiveApp] = React.useState('whatsapp');
     const [isSparklesEnabled, setIsSparklesEnabled] = React.useState(false);
+    const appRailPosition = sessionUser?.appRailPosition || 'left';
 
     React.useEffect(() => {
         getDiwaliThemeStatus().then(status => setIsSparklesEnabled(status.enabled));
@@ -280,8 +281,6 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
     const isWebsiteBuilderPage = pathname.includes('/builder');
-    
-    const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
   
     const currentUserRole = React.useMemo(() => {
         if (!sessionUser || !activeProject) return 'owner'; 
@@ -340,6 +339,38 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         )
     }
 
+    const AppRail = () => (
+        <Sidebar className="w-16 bg-sidebar-background border-sidebar-border">
+            <SidebarHeader>
+                <SabNodeLogo className="w-8 h-8" />
+            </SidebarHeader>
+            <SidebarContent>
+                <SidebarMenu>
+                    {appIcons.map(app => (
+                        <SidebarMenuItem key={app.id}>
+                            <SidebarMenuButton asChild isActive={activeApp === app.id} tooltip={app.label}>
+                                <Link href={app.href}><app.icon /></Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+            </SidebarContent>
+        </Sidebar>
+    );
+    
+    const HeaderAppRail = () => (
+        <nav className="hidden items-center gap-1 md:flex">
+           {appIcons.map(app => (
+                <Button key={app.id} asChild variant={activeApp === app.id ? 'secondary' : 'ghost'} size="sm">
+                    <Link href={app.href} className="flex items-center gap-2">
+                        <app.icon className="h-4 w-4"/>
+                        {app.label}
+                    </Link>
+                </Button>
+           ))}
+        </nav>
+    );
+
     return (
         <SidebarProvider>
             <div className="flex h-screen w-full flex-col bg-muted/30">
@@ -353,17 +384,12 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         <Link href="/dashboard" className="hidden font-bold sm:inline-block">
                           SabNode
                         </Link>
-                        <Separator orientation="vertical" className="h-6 mx-2 hidden md:block" />
-                        <nav className="hidden items-center gap-1 md:flex">
-                           {appIcons.map(app => (
-                                <Button key={app.id} asChild variant={activeApp === app.id ? 'secondary' : 'ghost'} size="sm">
-                                    <Link href={app.href} className="flex items-center gap-2">
-                                        <app.icon className="h-4 w-4"/>
-                                        {app.label}
-                                    </Link>
-                                </Button>
-                           ))}
-                        </nav>
+                        {appRailPosition === 'top' && (
+                            <>
+                                <Separator orientation="vertical" className="h-6 mx-2 hidden md:block" />
+                                <HeaderAppRail />
+                            </>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -372,7 +398,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                                 <Avatar>
-                                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
+                                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" data-ai-hint="person avatar"/>
                                     <AvatarFallback>{sessionUser?.name.charAt(0) || 'U'}</AvatarFallback>
                                 </Avatar>
                                 </Button>
@@ -390,7 +416,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 </header>
 
                 <div className="flex flex-1 overflow-hidden">
+                    {appRailPosition === 'left' && <AppRail />}
                     <Sidebar className="hidden md:flex">
+                        <SidebarHeader>
+                            {/* Can be used for project switcher */}
+                        </SidebarHeader>
                         <SidebarContent>
                         {activeApp === 'whatsapp' && (
                             <SidebarMenu>

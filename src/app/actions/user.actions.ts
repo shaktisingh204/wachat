@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -423,8 +424,9 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
 
     const name = formData.get('name') as string;
     const tagsJSON = formData.get('tags') as string | null;
+    const appRailPosition = formData.get('appRailPosition') as 'left' | 'top' | null;
 
-    if (!name && !tagsJSON) {
+    if (!name && !tagsJSON && !appRailPosition) {
         return { error: 'No data provided to update.' };
     }
 
@@ -434,6 +436,9 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
         const updateData: any = {};
         if (name) {
             updateData.name = name;
+        }
+        if (appRailPosition) {
+            updateData.appRailPosition = appRailPosition;
         }
         if (tagsJSON) {
             // This ensures we save tags with ObjectIDs if they are new
