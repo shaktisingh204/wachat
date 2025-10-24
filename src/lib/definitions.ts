@@ -137,6 +137,14 @@ export type EmailSettings = {
     };
 }
 
+export type SmsHeader = {
+    _id: ObjectId;
+    name: string; // The 6-character header
+    type: 'Transactional' | 'Promotional' | 'Service';
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    createdAt: Date;
+};
+
 export type DltAccount = {
     _id: ObjectId;
     provider: string;
@@ -153,6 +161,7 @@ export type SmsProviderSettings = {
         fromNumber: string;
     },
     dlt?: DltAccount[];
+    headers?: SmsHeader[];
 }
 
 export type CrmTask = {

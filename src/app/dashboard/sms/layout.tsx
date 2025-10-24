@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from "next/link";
@@ -12,6 +13,7 @@ const navItems = [
     { href: "/dashboard/sms/contacts", label: "Contacts", icon: Users },
     { href: "/dashboard/sms/dlt", label: "Connect DLT", icon: Database },
     { href: "/dashboard/sms/entity-management", label: "Entity Management", icon: Database },
+    { href: "/dashboard/sms/header-management", label: "Header Mgmt", icon: Database },
     { href: "/dashboard/sms/analytics", label: "Analytics", icon: BarChart },
     { href: "/dashboard/sms/settings", label: "Settings", icon: Settings },
 ];
@@ -31,7 +33,7 @@ export default function SmsLayout({ children }: { children: React.ReactNode }) {
                 </p>
             </div>
             <Tabs defaultValue={pathname} className="w-full">
-                <TabsList className="grid w-full grid-cols-7">
+                <TabsList className="grid w-full grid-cols-8">
                     {navItems.map(item => (
                          <TabsTrigger key={item.href} value={item.href} asChild>
                             <Link href={item.href}>
