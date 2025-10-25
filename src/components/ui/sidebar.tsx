@@ -88,8 +88,8 @@ export const SidebarMenu = React.forwardRef<HTMLUListElement, React.HTMLAttribut
 });
 SidebarMenu.displayName = 'SidebarMenu';
 
-export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.HTMLAttributes<HTMLLIElement>>((props, ref) => (
-  <li ref={ref} {...props} />
+export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.HTMLAttributes<HTMLLIElement>>(({className, ...props}, ref) => (
+  <li ref={ref} className={cn('w-full', className)} {...props} />
 ));
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
@@ -107,7 +107,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
       <Button
         ref={ref}
         variant={isActive ? 'sidebar-active' : 'ghost'}
-        className={cn('w-full', isOpen ? 'justify-start' : 'h-10 justify-center')}
+        className={cn('w-full', isOpen ? 'justify-start' : 'h-12 w-12 justify-center')}
         asChild={asChild}
         {...props}
       />
