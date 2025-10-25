@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -6,7 +7,7 @@ import { getProjectById, getSession } from '@/app/actions';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Broadcast, MessageSquareReply, Users, AtSign, ClipboardList } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProject } from '@/context/project-context';
 import { ProjectSettingsForm } from '@/components/wabasimplify/project-settings-form';
@@ -28,13 +29,13 @@ function SettingsPageSkeleton() {
 }
 
 export default function WachatSettingsPage() {
-    const { activeProject, activeProjectId, isLoadingProject } = useProject();
+    const { activeProject, isLoadingProject } = useProject();
     const [user, setUser] = useState<(Omit<User, 'password'> & { plan?: WithId<Plan> | null }) | null>(null);
 
     useEffect(() => {
         getSession().then(session => {
             if (session?.user) {
-                setUser(session.user);
+                setUser(session.user as any);
             }
         });
     }, []);
