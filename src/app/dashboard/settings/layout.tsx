@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -54,5 +55,6 @@ export default function SettingsLayout({
                 {children}
             </main>
         </div>
+    </div>
   );
 }
