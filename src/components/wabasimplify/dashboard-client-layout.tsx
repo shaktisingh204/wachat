@@ -56,7 +56,7 @@ const wachatMenuItems = [
   { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: WaPayIcon, roles: ['owner', 'admin'] },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings, roles: ['owner', 'admin'] },
+  { href: '/dashboard/settings', label: 'Project Settings', icon: Settings, roles: ['owner', 'admin'] },
 ];
 
 const crmMenuItems = [
@@ -377,7 +377,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild tooltip="User Settings">
-                            <Link href="/dashboard/settings">
+                            <Link href="/dashboard/user/settings">
                                 <Settings className="h-4 w-4" />
                                 <span className="sr-only">Settings</span>
                             </Link>
@@ -436,7 +436,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                 <DropdownMenuSeparator/>
-                                <DropdownMenuItem asChild><Link href="/dashboard/settings/profile">Profile</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
                                 <DropdownMenuSeparator/>
                                 <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
