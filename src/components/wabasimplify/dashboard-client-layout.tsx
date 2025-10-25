@@ -377,7 +377,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild tooltip="User Settings">
-                            <Link href="/dashboard/user/settings">
+                            <Link href="/dashboard/settings">
                                 <Settings className="h-4 w-4" />
                                 <span className="sr-only">Settings</span>
                             </Link>
@@ -436,7 +436,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                 <DropdownMenuSeparator/>
-                                <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/dashboard/settings/profile">Profile</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
                                 <DropdownMenuSeparator/>
                                 <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
@@ -564,5 +564,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </ProjectProvider>
     );
 }
-
-    
