@@ -1,19 +1,14 @@
+
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-// This page is deprecated and now lives at /dashboard/settings/profile
-// This component will redirect users to avoid 404s from old links.
-export default function DeprecatedUserSettingsPage() {
+// This page redirects to the default settings tab.
+export default function UserSettingsRedirectPage() {
     const router = useRouter();
     useEffect(() => {
-        router.replace('/dashboard/settings/profile');
+        router.replace('/dashboard/user/settings/profile');
     }, [router]);
-
-    return (
-        <div>
-            <p>Redirecting to new settings page...</p>
-        </div>
-    );
+    return null; 
 }
