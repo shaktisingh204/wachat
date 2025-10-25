@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -27,7 +26,7 @@ import {
     View,
     Server,
     Variable,
-    File,
+    File as FileIcon,
     LoaderCircle,
     BookOpen,
     PanelLeft,
@@ -47,7 +46,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getTemplates } from '@/app/actions/whatsapp.actions';
 import { saveFlow, getFlowById, getFlowsForProject, deleteFlow } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
@@ -70,11 +68,6 @@ type ButtonConfig = {
     id: string;
     type: 'QUICK_REPLY';
     text: string;
-};
-
-type CarouselSection = {
-    title: string;
-    products: { product_retailer_id: string }[];
 };
 
 const blockTypes = [
@@ -246,403 +239,268 @@ const NodeComponent = ({
         </div>
     );
 };
-// Other components and functions (PropertiesPanel, FlowsAndBlocksPanel, etc.)
-// These will be defined below and are assumed to be correct for this fix.
-export const dynamic = 'force-dynamic';
 
-function PageContent() {
-    const { activeProjectId } = useProject();
+const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, metaFlows, allFlows, currentFlow }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void; deleteNode: (id: string) => void, templates: WithId<Template>[], metaFlows: WithId<MetaFlow>[], allFlows: WithId<Flow>[], currentFlow: WithId<Flow> | null }) => {
+    if (!selectedNode) return null;
+    
     const { toast } = useToast();
-    const [flows, setFlows] = useState<WithId<Flow>[]>([]);
-    const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
-    const [nodes, setNodes] = useState<FlowNode[]>([]);
-    const [edges, setEdges] = useState<FlowEdge[]>([]);
-    const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-    const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
-    const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-    const [isLoading, startLoadingTransition] = useTransition();
-    const [isSaving, startSaveTransition] = useTransition();
-    const [isGenerating, startGenerateTransition] = useTransition();
-    
-    // UI state
-    const [isTestFlowOpen, setIsTestFlowOpen] = useState(false);
-    const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
-    const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
-    
-    // Canvas state
-    const [pan, setPan] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [isPanning, setIsPanning] = useState(false);
-    const viewportRef = useRef<HTMLDivElement>(null);
-    const [draggingNode, setDraggingNode] = useState<string | null>(null);
-    const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
-    const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-    const [isFullScreen, setIsFullScreen] = useState(false);
-    
-     const [aiPrompt, setAiPrompt] = useState('');
 
-    const fetchFlows = useCallback((projectId: string) => {
-        startLoadingTransition(async () => {
-            const [flowsData, templatesData, metaFlowsData] = await Promise.all([
-                getFlowsForProject(projectId),
-                getTemplates(projectId),
-                getMetaFlows(projectId),
-            ]);
-            setFlows(flowsData);
-            setTemplates(templatesData);
-            setMetaFlows(metaFlowsData);
-            if (flowsData.length > 0 && !currentFlow) {
-                handleSelectFlow(flowsData[0]._id.toString());
-            } else if (flowsData.length === 0) {
-                handleCreateNewFlow();
-            }
-        });
-    }, [currentFlow]); // dependency array is correct
-
-    useEffect(() => {
-        if (activeProjectId) {
-            fetchFlows(activeProjectId);
-        }
-    }, [activeProjectId, fetchFlows]);
-    
-     const handleSelectFlow = async (flowId: string) => {
-        const flow = await getFlowById(flowId);
-        setCurrentFlow(flow);
-        setNodes(flow?.nodes || []);
-        setEdges(flow?.edges || []);
-        setSelectedNodeId(null);
-        setIsBlocksSheetOpen(false);
-    }
-    
-    const handleCreateNewFlow = () => {
-        setCurrentFlow(null);
-        setNodes([{ id: 'start', type: 'start', data: { label: 'Start Flow' }, position: { x: 50, y: 150 } }]);
-        setEdges([]);
-        setSelectedNodeId('start');
-    }
-
-    const addNode = (type: NodeType) => {
-        const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 300;
-        const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
-
-        const newNode: FlowNode = {
-            id: `${type}-${Date.now()}`,
-            type,
-            data: { 
-                label: `New ${type}`,
-                apiRequest: { method: 'GET', url: '', headers: '', body: '', responseMappings: [] } 
-            },
-            position: { x: centerOfViewX, y: centerOfViewY },
-        };
-        setNodes(prev => [...prev, newNode]);
-        setSelectedNodeId(newNode.id);
-        setIsBlocksSheetOpen(false);
+    const handleDataChange = (field: keyof any, value: any) => {
+        updateNodeData(selectedNode.id, { [field]: value });
     };
 
-    const updateNodeData = (id: string, data: Partial<any>) => {
-        setNodes(prev => prev.map(node => 
-            node.id === id ? { ...node, data: { ...node.data, ...data } } : node
-        ));
+    const handleButtonChange = (index: number, field: 'text', value: string) => {
+        const newButtons: ButtonConfig[] = [...(selectedNode.data.buttons || [])];
+        newButtons[index] = { ...newButtons[index], [field]: value };
+        handleDataChange('buttons', newButtons);
     };
 
-    const deleteNode = (id: string) => {
-        setNodes(prev => prev.filter(node => node.id !== id));
-        setEdges(prev => prev.filter(edge => edge.source !== id && edge.target !== id));
-        if (selectedNodeId === id) setSelectedNodeId(null);
-        setIsPropsSheetOpen(false);
-    };
-
-    const handleSaveFlow = async () => {
-        if (!activeProjectId) return;
-        const flowName = (document.getElementById('flow-name-input') as HTMLInputElement)?.value;
-        if (!flowName) return;
-        const startNode = nodes.find(n => n.type === 'start');
-        const triggerKeywords = startNode?.data.triggerKeywords?.split(',').map((k:string) => k.trim()).filter(Boolean) || [];
-        
-        startSaveTransition(async () => {
-             const result = await saveFlow({
-                flowId: currentFlow?._id.toString(),
-                projectId: activeProjectId,
-                name: flowName,
-                nodes,
-                edges,
-                triggerKeywords
-            });
-            if(result.error) toast({title: "Error", description: result.error, variant: 'destructive'});
-            else {
-                toast({title: "Success", description: result.message});
-                if(result.flowId) {
-                    await handleSelectFlow(result.flowId);
-                }
-                fetchFlows(activeProjectId);
-            }
-        });
-    }
-
-    const handleDeleteFlow = async (flowId: string) => {
-        if (!activeProjectId) return;
-        const result = await deleteFlow(flowId);
-        if(result.error) toast({title: "Error", description: result.error, variant: 'destructive'});
-        else {
-            toast({title: "Success", description: result.message});
-            fetchFlows(activeProjectId);
-            if(currentFlow?._id.toString() === flowId) {
-                handleCreateNewFlow();
-            }
-        }
-    }
-    
-     const handleGenerateFlow = async () => {
-        if (!aiPrompt.trim()) return;
-        startGenerateTransition(async () => {
-            const result = await generateFlowBuilderFlow({ prompt: aiPrompt });
-            setNodes(result.nodes);
-            setEdges(result.edges);
-            setCurrentFlow(null); // It's a new unsaved flow
-            setAiPrompt('');
-            toast({title: 'Flow Generated!', description: 'Your new workflow is ready on the canvas.'})
-        });
-    }
-    
-    // ... all the other handlers ...
-    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDraggingNode(nodeId);
-    };
-    
-    const handleCanvasMouseDown = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            e.preventDefault();
-            setIsPanning(true);
-        }
-    };
-
-    const handleCanvasMouseMove = (e: React.MouseEvent) => {
-        if (isPanning) {
-            setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
-        } else if (draggingNode) {
-            setNodes(prev => prev.map(n => 
-                n.id === draggingNode
-                    ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } 
-                    : n
-            ));
-        }
-        
-        if (connecting && viewportRef.current) {
-            const rect = viewportRef.current.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom });
-        }
-    };
-
-    const handleCanvasMouseUp = () => {
-        setIsPanning(false);
-        setDraggingNode(null);
-    };
-
-    const handleCanvasClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            if (connecting) {
-                setConnecting(null);
-            } else {
-                setSelectedNodeId(null);
-            }
-        }
-    }
-
-    const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!viewportRef.current) return;
-        
-        const isOutputHandle = handleId.includes('output') || handleId.includes('-btn-');
-
-        if (isOutputHandle) {
-            const sourceNode = nodes.find(n => n.id === nodeId);
-            if(sourceNode){
-                const handlePos = getNodeHandlePosition(sourceNode, handleId);
-                if (handlePos) {
-                    setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
-                }
-            }
-        } else if (connecting && !isOutputHandle) {
-            if (connecting.sourceNodeId === nodeId) {
-                setConnecting(null);
-                return;
-            }
-
-            const newEdge: FlowEdge = {
-                id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`,
-                source: connecting.sourceNodeId,
-                target: nodeId,
-                sourceHandle: connecting.sourceHandleId,
-                targetHandle: handleId
-            };
-            
-            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
-            
-            const sourceHasSingleOutput = !connecting.sourceHandleId.includes('btn-') && !connecting.sourceHandleId.includes('output-yes') && !connecting.sourceHandleId.includes('output-no');
-            if (sourceHasSingleOutput) {
-                const edgesWithoutExistingSource = edgesWithoutExistingTarget.filter(e => e.source !== connecting.sourceNodeId);
-                setEdges([...edgesWithoutExistingSource, newEdge]);
-            } else {
-                setEdges([...edgesWithoutExistingTarget, newEdge]);
-            }
-            
-            setConnecting(null);
-        }
-    };
-
-    const handleWheel = (e: React.WheelEvent) => {
-        e.preventDefault();
-        if (!viewportRef.current) return;
-    
-        const rect = viewportRef.current.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-    
-        const zoomFactor = -0.001;
-        const newZoom = Math.max(0.2, Math.min(2, zoom + e.deltaY * zoomFactor));
-        
-        const worldX = (mouseX - pan.x) / zoom;
-        const worldY = (mouseY - pan.y) / zoom;
-        
-        const newPanX = mouseX - worldX * newZoom;
-        const newPanY = mouseY - worldY * newZoom;
-    
-        setZoom(newZoom);
-        setPan({ x: newPanX, y: newPanY });
-    };
-
-    useEffect(() => {
-        if (selectedNodeId) {
-            setIsPropsSheetOpen(true);
-        }
-    }, [selectedNodeId]);
-
-    const handleZoomControls = (direction: 'in' | 'out' | 'reset') => {
-        if(direction === 'reset') {
-            setZoom(1);
-            setPan({ x: 0, y: 0 });
+    const addFlowButton = () => {
+        const currentButtons = selectedNode.data.buttons || [];
+        if (currentButtons.length >= 3) {
+            toast({ title: "Limit Reached", description: "WhatsApp allows a maximum of 3 Quick Reply buttons.", variant: "destructive" });
             return;
         }
-        setZoom(prevZoom => {
-            const newZoom = direction === 'in' ? prevZoom * 1.2 : prevZoom / 1.2;
-            return Math.max(0.2, Math.min(2, newZoom));
-        });
+        const newButtons: ButtonConfig[] = [...currentButtons, { id: `btn-${Date.now()}`, type: 'QUICK_REPLY', text: '' }];
+        handleDataChange('buttons', newButtons);
     };
 
-    const handleToggleFullScreen = () => {
-        if (!document.fullscreenElement) {
-            viewportRef.current?.requestFullscreen().catch(err => {
-                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-            });
-        } else {
-            document.exitFullscreen?.();
+    const removeFlowButton = (index: number) => {
+        const newButtons = (selectedNode.data.buttons || []).filter((_: any, i: number) => i !== index);
+        handleDataChange('buttons', newButtons);
+    };
+    
+     const handleApiChange = (field: keyof any, value: any) => {
+        const currentApiRequest = selectedNode.data.apiRequest || {};
+        const newApiRequest = { ...currentApiRequest, [field]: value };
+        handleDataChange('apiRequest', newApiRequest);
+    };
+
+    const handleMappingChange = (index: number, field: 'variable' | 'path', value: string) => {
+        const mappings = [...(selectedNode.data.apiRequest?.responseMappings || [])];
+        mappings[index] = { ...mappings[index], [field]: value };
+        handleApiChange('responseMappings', mappings);
+    };
+
+    const addMapping = () => {
+        const mappings = [...(selectedNode.data.apiRequest?.responseMappings || []), { variable: '', path: '' }];
+        handleApiChange('responseMappings', mappings);
+    };
+
+    const removeMapping = (index: number) => {
+        const mappings = (selectedNode.data.apiRequest?.responseMappings || []).filter((_: any, i: number) => i !== index);
+        handleApiChange('responseMappings', mappings);
+    };
+
+    const renderProperties = () => {
+        switch (selectedNode.type) {
+            case 'start':
+                return <Input id="trigger-keywords" placeholder="e.g., help, menu" value={selectedNode.data.triggerKeywords || ''} onChange={(e) => handleDataChange('triggerKeywords', e.target.value)} />;
+            case 'text':
+                return <Textarea id="text-content" placeholder="Enter your message here..." value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />;
+            case 'image':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2"><Label htmlFor="image-url">Image URL</Label><Input id="image-url" placeholder="https://example.com/image.png" value={selectedNode.data.imageUrl || ''} onChange={(e) => handleDataChange('imageUrl', e.target.value)} /></div>
+                        <div className="space-y-2"><Label htmlFor="image-caption">Caption (Optional)</Label><Textarea id="image-caption" placeholder="A caption for your image..." value={selectedNode.data.caption || ''} onChange={(e) => handleDataChange('caption', e.target.value)} /></div>
+                    </div>
+                );
+            case 'buttons':
+                 return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="buttons-text">Message Text</Label>
+                            <Textarea id="buttons-text" placeholder="Choose an option:" value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Buttons (max 3)</Label>
+                            <div className="space-y-3">
+                                {(selectedNode.data.buttons || []).map((btn: ButtonConfig, index: number) => (
+                                    <div key={btn.id || index} className="flex items-center gap-2">
+                                        <Input placeholder="Button Text" value={btn.text} onChange={(e) => handleButtonChange(index, 'text', e.target.value)} maxLength={20} />
+                                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeFlowButton(index)}><Trash2 className="h-3 w-3"/></Button>
+                                    </div>
+                                ))}
+                            </div>
+                            <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addFlowButton}><Plus className="mr-2 h-4 w-4"/>Add Button</Button>
+                        </div>
+                    </div>
+                );
+            case 'input':
+                 return (
+                    <div className="space-y-4">
+                        <div className="space-y-2"><Label htmlFor="input-text">Question to Ask</Label><Textarea id="input-text" placeholder="e.g., What is your name?" value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} /></div>
+                        <div className="space-y-2"><Label htmlFor="input-variable">Save Answer to Variable</Label><Input id="input-variable" placeholder="e.g., user_name" value={selectedNode.data.variableToSave || ''} onChange={(e) => handleDataChange('variableToSave', e.target.value)} /><p className="text-xs text-muted-foreground">Use {'{{user_name}}'} in later steps.</p></div>
+                    </div>
+                 );
+            case 'delay':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2"><Label htmlFor="delay-seconds">Delay (seconds)</Label><Input id="delay-seconds" type="number" min="1" value={selectedNode.data.delaySeconds || 1} onChange={(e) => handleDataChange('delaySeconds', parseFloat(e.target.value))} /></div>
+                        <div className="flex items-center space-x-2"><Switch id="typing-indicator" checked={selectedNode.data.showTyping} onCheckedChange={(checked) => handleDataChange('showTyping', checked)} /><Label htmlFor="typing-indicator">Show typing indicator</Label></div>
+                    </div>
+                );
+             case 'condition':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2"><Label>Condition Type</Label><RadioGroup value={selectedNode.data.conditionType || 'variable'} onValueChange={(val) => handleDataChange('conditionType', val)} className="flex gap-4 pt-1"><div className="flex items-center space-x-2"><RadioGroupItem value="variable" id="type-variable" /><Label htmlFor="type-variable" className="font-normal">Variable</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="user_response" id="type-user-response" /><Label htmlFor="type-user-response" className="font-normal">User Response</Label></div></RadioGroup><p className="text-xs text-muted-foreground">"User Response" will pause the flow and wait for the user's next message.</p></div>
+                        {(selectedNode.data.conditionType === 'variable' || !selectedNode.data.conditionType) && <div className="space-y-2"><Label htmlFor="condition-variable">Variable to Check</Label><Input id="condition-variable" placeholder="e.g., {{user_name}}" value={selectedNode.data.variable || ''} onChange={(e) => handleDataChange('variable', e.target.value)} /></div>}
+                        <div className="space-y-2"><Label htmlFor="condition-operator">Operator</Label><Select value={selectedNode.data.operator || 'equals'} onValueChange={(val) => handleDataChange('operator', val)}><SelectTrigger id="condition-operator"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Does not equal</SelectItem><SelectItem value="contains">Contains</SelectItem><SelectItem value="is_one_of">Is one of (comma-sep)</SelectItem><SelectItem value="is_not_one_of">Is not one of (comma-sep)</SelectItem><SelectItem value="greater_than">Is greater than</SelectItem><SelectItem value="less_than">Is less than</SelectItem></SelectContent></Select></div>
+                        <div className="space-y-2"><Label htmlFor="condition-value">Value to Compare Against</Label><Input id="condition-value" placeholder="e.g., confirmed" value={selectedNode.data.value || ''} onChange={(e) => handleDataChange('value', e.target.value)} /></div>
+                    </div>
+                );
+            case 'api':
+            case 'webhook':
+                 return (
+                    <Tabs defaultValue="request">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="request">Request</TabsTrigger>
+                            <TabsTrigger value="response">Response</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="request" className="space-y-4 pt-2">
+                            <Select value={selectedNode.data.apiRequest?.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="GET">GET</SelectItem>
+                                    <SelectItem value="POST">POST</SelectItem>
+                                    <SelectItem value="PUT">PUT</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
+                            <Textarea placeholder='Headers (JSON format)\n{\n  "Authorization": "Bearer ..."\n}' className="font-mono text-xs h-24" value={selectedNode.data.apiRequest?.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} />
+                            <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
+                        </TabsContent>
+                        <TabsContent value="response" className="space-y-4 pt-2">
+                            <Label>Save Response to Variables</Label>
+                            <div className="space-y-3">
+                                {(selectedNode.data.apiRequest?.responseMappings || []).map((mapping: any, index: number) => (
+                                    <div key={index} className="p-2 border rounded-md space-y-2 relative bg-background">
+                                        <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeMapping(index)}>
+                                            <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                        <Input placeholder="Variable Name (e.g. user_email)" value={mapping.variable || ''} onChange={(e) => handleMappingChange(index, 'variable', e.target.value)} />
+                                        <Input placeholder="Response Path (e.g. data.email)" value={mapping.path || ''} onChange={(e) => handleMappingChange(index, 'path', e.target.value)} />
+                                    </div>
+                                ))}
+                            </div>
+                            <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addMapping}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Add Mapping
+                            </Button>
+                            <p className="text-xs text-muted-foreground">e.g., to access a field, use {'{{variable_name}}'}</p>
+                        </TabsContent>
+                    </Tabs>
+                );
+            case 'sendTemplate':
+                return <div className="space-y-2"><Label>Template</Label><Select value={selectedNode.data.templateId || ''} onValueChange={(val) => handleDataChange('templateId', val)}><SelectTrigger><SelectValue placeholder="Select a template..." /></SelectTrigger><SelectContent>{templates.map(t => <SelectItem key={t._id.toString()} value={t._id.toString()}>{t.name}</SelectItem>)}</SelectContent></Select></div>;
+            case 'triggerMetaFlow':
+                 return <div className="space-y-4"><div className="space-y-2"><Label>Meta Flow to Trigger</Label><Select value={selectedNode.data.metaFlowId || ''} onValueChange={(val) => handleDataChange('metaFlowId', val)}><SelectTrigger><SelectValue placeholder="Select a Meta Flow..." /></SelectTrigger><SelectContent>{metaFlows.map(f => <SelectItem key={f._id.toString()} value={f._id.toString()}>{f.name}</SelectItem>)}</SelectContent></Select></div><div className="space-y-2"><Label>Header</Label><Input value={selectedNode.data.header || ''} onChange={(e) => handleDataChange('header', e.target.value)} /></div><div className="space-y-2"><Label>Body</Label><Input value={selectedNode.data.body || ''} onChange={(e) => handleDataChange('body', e.target.value)} /></div><div className="space-y-2"><Label>Footer</Label><Input value={selectedNode.data.footer || ''} onChange={(e) => handleDataChange('footer', e.target.value)} /></div></div>;
+            case 'triggerFlow':
+                 return <div className="space-y-2"><Label>Flow to Trigger</Label><Select value={selectedNode.data.flowId || ''} onValueChange={(val) => handleDataChange('flowId', val)}><SelectTrigger><SelectValue placeholder="Select a flow..." /></SelectTrigger><SelectContent>{allFlows.filter(f => f._id.toString() !== currentFlow?._id.toString()).map(f => <SelectItem key={f._id.toString()} value={f._id.toString()}>{f.name}</SelectItem>)}</SelectContent></Select></div>;
+            case 'payment':
+                 return <div className="space-y-4"><div className="space-y-2"><Label>Amount (INR)</Label><Input type="number" step="0.01" placeholder="e.g. 500" value={selectedNode.data.paymentAmount || ''} onChange={(e) => handleDataChange('paymentAmount', e.target.value)} /></div><div className="space-y-2"><Label>Description</Label><Textarea placeholder="e.g. Payment for Order #123" value={selectedNode.data.paymentDescription || ''} onChange={(e) => handleDataChange('paymentDescription', e.target.value)} /></div></div>;
+            default:
+                return <p className="text-sm text-muted-foreground italic">No properties to configure for this block type.</p>;
         }
     };
 
-    useEffect(() => {
-        const handleFullScreenChange = () => setIsFullScreen(!!document.fullscreenElement);
-        document.addEventListener('fullscreenchange', handleFullScreenChange);
-        return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
-    }, []);
-
-    const selectedNode = nodes.find(n => n.id === selectedNodeId);
-
-     if (!activeProjectId) {
-        return (
-            <div className="flex flex-col gap-8 h-full items-center justify-center">
-                <Alert variant="destructive" className="max-w-md">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>
-                        Please select a project from the main dashboard to use the Flow Builder.
-                    </AlertDescription>
-                </Alert>
-            </div>
-        )
-    }
-    
-    // ... The rest of the JSX for rendering the flow builder
     return (
-        <div className="flex h-full w-full flex-col gap-4">
-            {/* The rest of the component's JSX */}
-             <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">
-                <CardContent className="p-2">
-                    <div className="flex items-center gap-2">
-                        <Wand2 className="h-5 w-5 text-muted-foreground shrink-0" />
-                        <Input 
-                            placeholder="Describe your workflow and let AI build it..." 
-                            className="border-none shadow-none focus-visible:ring-0" 
-                            value={aiPrompt}
-                            onChange={(e) => setAiPrompt(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleGenerateFlow()}
-                        />
-                        <Button onClick={handleGenerateFlow} disabled={isGenerating || !aiPrompt.trim()}>
-                            {isGenerating && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
-                            Generate
-                        </Button>
+        <Card className="h-full flex flex-col">
+            <CardHeader>
+                <CardTitle>Properties</CardTitle>
+                <CardDescription>Configure the '{selectedNode.data.label}' block.</CardDescription>
+            </CardHeader>
+            <ScrollArea className="flex-1">
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="node-label">Block Label</Label>
+                        <Input id="node-label" value={selectedNode.data.label || ''} onChange={(e) => handleDataChange('label', e.target.value)} />
                     </div>
+                    <Separator />
+                    {renderProperties()}
                 </CardContent>
-            </Card>
-        </div>
+            </ScrollArea>
+            {selectedNode.type !== 'start' && (
+                <CardFooter className="border-t pt-4">
+                     <Button variant="destructive" className="w-full" onClick={() => deleteNode(selectedNode.id)}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Block
+                    </Button>
+                </CardFooter>
+            )}
+        </Card>
     );
-}
-
-export default function FlowBuilderPage() {
-    return <PageContent />;
-}
-
-const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
-    if (!sourcePos || !targetPos) return '';
-    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
-    return path;
 };
 
-const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
-    if (!node || !handleId) return null;
+const FlowsAndBlocksPanel = ({ 
+    isLoading,
+    flows,
+    currentFlow,
+    handleSelectFlow,
+    handleDeleteFlow,
+    handleCreateNewFlow,
+    addNode,
+} : {
+    isLoading: boolean;
+    flows: WithId<Flow>[];
+    currentFlow: WithId<Flow> | null;
+    handleSelectFlow: (id: string) => void;
+    handleDeleteFlow: (id: string) => void;
+    handleCreateNewFlow: () => void;
+    addNode: (type: NodeType) => void;
+}) => (
+    <>
+        <Card>
+            <CardHeader className="flex-row items-center justify-between p-3">
+                <CardTitle className="text-base">Flows</CardTitle>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCreateNewFlow}><Plus/></Button>
+            </CardHeader>
+            <CardContent className="p-2 pt-0">
+                <ScrollArea className="h-40">
+                    {isLoading && flows.length === 0 ? <Skeleton className="h-full w-full"/> : 
+                        flows.map(flow => (
+                            <div key={flow._id.toString()} className="flex items-center group">
+                                <Button 
+                                    variant="ghost" 
+                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && 'bg-muted font-semibold')}
+                                    onClick={() => handleSelectFlow(flow._id.toString())}
+                                >
+                                    <File className="mr-2 h-4 w-4"/>
+                                    {flow.name}
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}>
+                                    <Trash2 className="h-4 w-4"/>
+                                </Button>
+                            </div>
+                        ))
+                    }
+                </ScrollArea>
+            </CardContent>
+        </Card>
+        <Card className="flex-1 flex flex-col">
+            <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
+            <CardContent className="space-y-2 p-2 pt-0 flex-1 min-h-0">
+                <ScrollArea className="h-full">
+                    {blockTypes.map(({ type, label, icon: Icon }) => (
+                        <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => addNode(type as NodeType)}>
+                            <Icon className="mr-2 h-4 w-4" />
+                            {label}
+                        </Button>
+                    ))}
+                </ScrollArea>
+            </CardContent>
+        </Card>
+    </>
+);
+```
+  </change>
+  <change>
+    <file>src/app/dashboard/flow-builder/page.tsx</file>
+    <content><![CDATA[
+'use client';
 
-    const NODE_WIDTH = 256;
-    const x = node.position.x;
-    const y = node.position.y;
-    
-    // Consistent height for simple nodes
-    let nodeHeight = 60; 
-    
-    if (node.type === 'condition') nodeHeight = 80;
-    if (node.type === 'buttons') {
-        const buttonCount = (node.data.buttons || []).length;
-        nodeHeight = 60 + (buttonCount * 20); // Base height + height per button
-    }
+import { FlowBuilder } from '@/components/wabasimplify/flow-builder';
 
-    if (handleId.endsWith('-input')) {
-        return { x: x, y: y + nodeHeight / 2 };
-    }
-    if (handleId.endsWith('-output-main')) {
-        return { x: x + NODE_WIDTH, y: y + nodeHeight / 2 };
-    }
-    if (handleId.endsWith('-output-yes')) {
-        return { x: x + NODE_WIDTH, y: y + nodeHeight * (1/3) };
-    }
-    if (handleId.endsWith('-output-no')) {
-        return { x: x + NODE_WIDTH, y: y + nodeHeight * (2/3) };
-    }
-    if (handleId.includes('-btn-')) {
-        const buttonIndex = parseInt(handleId.split('-btn-')[1], 10);
-        const totalButtons = (node.data.buttons || []).length;
-        const topPosition = totalButtons > 1 ? (nodeHeight / (totalButtons + 1)) * (buttonIndex + 1) : nodeHeight / 2;
-        return { x: x + NODE_WIDTH, y: y + topPosition };
-    }
-    
-    // Fallback for generic output handles from older data structures
-    if (handleId.includes('output')) {
-        return { x: x + NODE_WIDTH, y: y + nodeHeight / 2 };
-    }
-    
-    return null;
+export default function FlowBuilderPage() {
+    return <FlowBuilder />;
 }
