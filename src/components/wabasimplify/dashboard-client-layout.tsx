@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database
+    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -208,8 +208,8 @@ const emailMenuItems = [
 const smsMenuItems = [
     { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
     {
-        href: '/dashboard/sms/dlt',
-        label: 'DLT Management',
+        href: "/dashboard/sms/dlt",
+        label: "DLT Management",
         icon: Database,
         subItems: [
             { href: "/dashboard/sms/dlt", label: "Connect DLT Account" },
@@ -257,6 +257,11 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe },
 ];
 
+const userSettingsItems = [
+    { href: '/dashboard/user/settings/profile', label: 'Profile', icon: UserIcon },
+    { href: '/dashboard/user/settings/ui', label: 'UI Preferences', icon: Brush },
+];
+
 const FullPageSkeleton = () => (
     <div className="flex h-screen w-screen bg-background p-2 gap-2">
         <div className="w-16 rounded-lg bg-card p-2"><Skeleton className="h-full w-full"/></div>
@@ -294,6 +299,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { currentApp = 'website-builder'; }
         else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
         else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
+        else if (pathname.startsWith('/dashboard/user/settings')) { currentApp = 'user-settings'; }
         setActiveApp(currentApp);
     }, [pathname]);
 
@@ -516,6 +522,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         {activeApp === 'seo-suite' && (
                             <SidebarMenu>
                                 {seoMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'user-settings' && (
+                             <SidebarMenu>
+                                {userSettingsItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         </SidebarContent>
