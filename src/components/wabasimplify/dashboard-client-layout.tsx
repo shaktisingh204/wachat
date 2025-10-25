@@ -300,6 +300,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
         else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
         else if (pathname.startsWith('/dashboard/user/settings')) { currentApp = 'user-settings'; }
+        else if (pathname.startsWith('/dashboard/settings')) { currentApp = 'whatsapp'; } // Treat Wachat settings as part of whatsapp
         setActiveApp(currentApp);
     }, [pathname]);
 
