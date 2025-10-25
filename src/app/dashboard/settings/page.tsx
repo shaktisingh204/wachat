@@ -1,10 +1,8 @@
 
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import type { WithId } from 'mongodb';
-import { getProjectById, getSession } from '@/app/actions';
-import type { Project, User, Plan } from '@/lib/definitions';
+import { useEffect, useState } from 'react';
+import type { WithId, Project, User, Plan } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -15,6 +13,7 @@ import { AutoReplySettingsTab } from '@/components/wabasimplify/auto-reply-setti
 import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
 import { UserAttributesSettingsTab } from '@/components/wabasimplify/user-attributes-settings-tab';
 import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
+import { getSession } from '@/app/actions';
 
 function SettingsPageSkeleton() {
     return (
