@@ -232,7 +232,7 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
     if (!hasAccess) return { error: "Access denied." };
     
     try {
-        const attributes = JSON.parse(attributesJSON);
+        const attributes = attributesJSON ? JSON.parse(attributesJSON) : [];
         
         const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
@@ -603,3 +603,5 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+    
