@@ -93,9 +93,20 @@ export default function PlanEditorPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="space-y-2 lg:col-span-2">
+                        <div className="space-y-2">
                             <Label htmlFor="name">Plan Name</Label>
                             <Input id="name" name="name" defaultValue={plan?.name} required placeholder="e.g., Pro Tier" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="appCategory">Plan Category</Label>
+                             <Select name="appCategory" defaultValue={plan?.appCategory}>
+                                <SelectTrigger id="appCategory"><SelectValue placeholder="Select a category..." /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="All-In-One">All-In-One</SelectItem>
+                                    <SelectItem value="Wachat">Wachat</SelectItem>
+                                    <SelectItem value="CRM">CRM</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="price">Price (per month)</Label>

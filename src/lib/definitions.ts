@@ -1033,6 +1033,7 @@ export type Plan = {
     name: string;
     price: number;
     currency: string;
+    appCategory?: 'All-In-One' | 'Wachat' | 'CRM';
     isPublic: boolean;
     isDefault: boolean;
     projectLimit: number;
