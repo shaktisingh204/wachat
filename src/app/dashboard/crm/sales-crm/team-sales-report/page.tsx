@@ -1,6 +1,7 @@
+
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -72,7 +73,7 @@ export default function TeamSalesReportPage() {
         setPipelineId('');
         setLeadSource('');
         setAssigneeId('');
-    }
+    };
 
     const ReportStat = ({ label, value, subValue }: { label: string, value: string | number, subValue?: string }) => (
         <div className="p-3 bg-muted rounded-lg text-center">
