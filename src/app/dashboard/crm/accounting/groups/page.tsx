@@ -34,9 +34,9 @@ const accountTypes = ['Asset', 'Liability', 'Income', 'Expense', 'Capital'];
 const categoryMap: Record<string, string[]> = {
     Asset: ['FDR', 'Bank_Accounts', 'Cash_In_Hand', 'Loans_and_Advances', 'Accounts_receivable_(Sundry_Debtors)', 'TDS', 'Deposits', 'Stock_In_Hand', 'Security', 'Machinery', 'Land', 'Vehicle', 'Current_Assets', 'Fixed_Assets', 'Buildings'],
     Liability: ['Bank_OD_A/c', 'Branch_/_Divisions', 'Current_Liabilities', 'Duties_and_Taxes', 'Loans', 'Provisions', 'Reserves_and_Surplus', 'Secured_Loans', 'Accounts_Payable_(Sundry_Creditors)', 'Suspense_A/c', 'Unsecured_Loans', 'Legal_HR_Expenses'],
-    Income: ['Sales', 'Other_Income', 'Interest_Income'],
-    Expense: ['Purchase', 'Direct_Expenses', 'Indirect_Expenses', 'Depreciation'],
-    Capital: ['Capital_Account', 'Retained_Earnings'],
+    Income: ['Direct_Incomes', 'Indirect_Incomes', 'Sales_Accounts'],
+    Expense: ['Administrative_Expenses', 'Depreciation_Expenses', 'Direct_Expenses', 'Employees_Cost', 'Financial_Expenses', 'Indirect_Expenses', 'Misc_Expenses', 'Promotional_Expenses', 'Purchase_Accounts', 'Cost_Of_Goods_Sold'],
+    Capital: ['Capital_Accounts', 'Equities'],
 };
 
 function SubmitButton() {
