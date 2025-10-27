@@ -21,6 +21,7 @@ import { ChevronLeft, LoaderCircle, Save } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { planFeatureMap } from '@/lib/plans';
+export const dynamic = 'force-dynamic';
 
 const initialState = { message: null, error: null };
 

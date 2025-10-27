@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -17,6 +18,7 @@ import { Eye, Search, LoaderCircle, Copy } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
+export const dynamic = 'force-dynamic';
 
 const LOGS_PER_PAGE = 20;
 

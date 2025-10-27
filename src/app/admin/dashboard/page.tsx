@@ -1,9 +1,10 @@
 
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Briefcase, CheckSquare, Server, AlertTriangle, MessageSquare, Send, GitFork, ServerCog, Edit, Users } from 'lucide-react';
 import type { Metadata } from 'next';
-import { getProjectsForAdmin } from '@/app/actions/user.actions';
-import { getAdminDashboardStats } from '@/app/actions/admin.actions';
+import { getProjectsForAdmin, getWhatsAppProjectsForAdmin } from '@/app/actions/user.actions';
+import { getAdminDashboardStats, getAdminSession } from '@/app/actions/admin.actions';
 import { getPlans } from '@/app/actions/plan.actions';
 import type { Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -26,6 +27,7 @@ import { AdminUpdateCreditsButton } from '@/components/wabasimplify/admin-update
 import { AdminUpdateMpsButton } from '@/components/wabasimplify/admin-update-mps-button';
 import { AdminAssignPlanDialog } from '@/components/wabasimplify/admin-assign-plan-dialog';
 import { getAllBroadcasts } from '@/app/actions';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,8 +54,14 @@ export default async function AdminDashboardPage({
         page?: string;
     };
 }) {
-  const query = searchParams?.query || '';
-  const currentPage = Number(searchParams?.page) || 1;
+  const session = await getAdminSession();
+  if (!session.isAdmin) {
+    redirect('/admin-login');
+  }
+
+  const sp = await searchParams;
+  const query = sp?.query || '';
+  const currentPage = Number(sp?.page) || 1;
   
   const { projects, total: totalProjects } = await getProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query);
   const { broadcasts: recentBroadcasts } = await getAllBroadcasts(1, 5);
