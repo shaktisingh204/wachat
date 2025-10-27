@@ -304,16 +304,18 @@ export async function generateBalanceSheetData() {
     }
 }
 
-export async function generateTrialBalanceData() {
+export async function generateTrialBalanceData(startDate?: Date, endDate?: Date) {
     const session = await getSession();
     if (!session?.user) return null;
     
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
+
+        const dateFilter = (startDate && endDate) ? { date: { $gte: startDate, $lte: endDate } } : {};
         
         const accounts = await db.collection('crm_chart_of_accounts').find({ userId }).toArray();
-        const voucherEntries = await db.collection('crm_voucher_entries').find({ userId }).toArray();
+        const voucherEntries = await db.collection('crm_voucher_entries').find({ userId, ...dateFilter }).toArray();
         
         const data = accounts.map(account => {
             const openingBalance = account.balanceType === 'Cr' ? -account.openingBalance : account.openingBalance;

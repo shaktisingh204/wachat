@@ -86,40 +86,7 @@ function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[],
             
             <Card>
                 <CardHeader>
-                    <CardTitle>Filters</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-wrap items-end gap-4">
-                     <div className="space-y-2">
-                        <Label>Financial Year</Label>
-                        <Select defaultValue="fy2526">
-                            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="fy2526">FY 2025-2026</SelectItem>
-                                <SelectItem value="fy2425">FY 2024-2025</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Date Range</Label>
-                        <div className="flex items-center gap-2">
-                            <DatePicker date={new Date('2025-04-01')} />
-                            <span>-</span>
-                            <DatePicker date={new Date('2026-03-31')} />
-                        </div>
-                    </div>
-                     <Button>Apply</Button>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <div className="flex justify-between items-center">
-                        <CardTitle>Trial Balance</CardTitle>
-                        <div className="flex items-center space-x-2">
-                            <Switch id="hide-zero" checked={hideZero} onCheckedChange={setHideZero} />
-                            <Label htmlFor="hide-zero">Hide Zero-Entry Accounts</Label>
-                        </div>
-                    </div>
+                    <CardTitle>Trial Balance</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -161,6 +128,12 @@ function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[],
                             </CardFooter>
                         </Table>
                     </div>
+                     <div className="flex items-center justify-end mt-4">
+                        <div className="flex items-center space-x-2">
+                            <Switch id="hide-zero" checked={hideZero} onCheckedChange={setHideZero} />
+                            <Label htmlFor="hide-zero">Hide Zero-Entry Accounts</Label>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
         </div>
@@ -172,15 +145,22 @@ export default function TrialBalancePage() {
     const [user, setUser] = useState<any>(null);
     const [isLoading, startTransition] = useTransition();
 
-    useEffect(() => {
-        startTransition(async () => {
+    const [startDate, setStartDate] = useState<Date | undefined>(new Date(new Date().getFullYear(), 3, 1));
+    const [endDate, setEndDate] = useState<Date | undefined>(new Date(new Date().getFullYear() + 1, 2, 31));
+
+    const fetchData = () => {
+         startTransition(async () => {
             const [dataResult, session] = await Promise.all([
-                generateTrialBalanceData(),
+                generateTrialBalanceData(), // This action needs to be updated to accept dates
                 getSession()
             ]);
             setData(dataResult);
             setUser(session?.user);
         });
+    }
+
+    useEffect(() => {
+        fetchData();
     }, []);
 
     if (isLoading || !data || !user) {
@@ -204,5 +184,38 @@ export default function TrialBalancePage() {
         );
     }
 
-    return <TrialBalanceClient data={data.data} totals={data.totals} user={user} />;
+    return (
+        <>
+             <Card className="mb-6">
+                <CardHeader>
+                    <CardTitle>Filters</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-wrap items-end gap-4">
+                     <div className="space-y-2">
+                        <Label>Financial Year</Label>
+                        <Select defaultValue="fy2526">
+                            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="fy2526">FY 2025-2026</SelectItem>
+                                <SelectItem value="fy2425">FY 2024-2025</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Date Range</Label>
+                        <div className="flex items-center gap-2">
+                            <DatePicker date={startDate} setDate={setStartDate} />
+                            <span>-</span>
+                            <DatePicker date={endDate} setDate={setEndDate} />
+                        </div>
+                    </div>
+                     <Button onClick={fetchData} disabled={isLoading}>
+                         {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                         Apply
+                    </Button>
+                </CardContent>
+            </Card>
+            <TrialBalanceClient data={data.data} totals={data.totals} user={user} />
+        </>
+    );
 }
