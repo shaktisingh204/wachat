@@ -210,7 +210,8 @@ export type CrmDeal = {
     userId: ObjectId;
     accountId?: ObjectId;
     contactIds?: ObjectId[];
-    name: string;
+    name: string; // This will store the "Lead Subject"
+    description?: string;
     value: number;
     currency: string;
     stage: string;
@@ -225,6 +226,7 @@ export type CrmDeal = {
         author: string;
     }[];
     products?: { name: string; quantity: number; price: number }[];
+    labels?: string[];
 };
 
 export type CrmAccount = {
@@ -1103,7 +1105,7 @@ export type Plan = {
     flowLimit: number;
     metaFlowLimit: number;
     cannedMessageLimit: number;
-    signupCredits?: number;
+    signupCredits?: signupCredits;
     messageCosts: PlanMessageCosts;
     features: PlanFeaturePermissions;
     createdAt: Date;
@@ -1918,5 +1920,3 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
-
-    
