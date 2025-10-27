@@ -71,7 +71,6 @@ export default function VoucherBookDetailPage() {
                 <CardHeader>
                     <div className="flex justify-between items-center">
                          <CardTitle>Voucher Entries (0 Found)</CardTitle>
-                         <Button variant="outline" size="sm">Show/Hide Columns</Button>
                     </div>
                 </CardHeader>
                 <CardContent>

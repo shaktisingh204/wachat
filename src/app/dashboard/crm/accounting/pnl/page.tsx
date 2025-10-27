@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Download, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useState, useEffect, useTransition } from 'react';
-import { generateProfitAndLossData } from '@/app/actions/crm-accounting.actions';
+import { generateProfitAndLossData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
 import { format } from "date-fns";
 
@@ -88,7 +89,6 @@ const PnlClient = ({ data }: { data: any }) => {
                 </CardContent>
                 <CardFooter className="flex justify-between text-sm text-muted-foreground">
                     <p>Showing 1 to 5 of 5 Clients</p>
-                    <Button variant="link" size="sm">Show/Hide Columns</Button>
                 </CardFooter>
             </Card>
         </div>
