@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from '@/components/ui/badge';
 import { PlusCircle, Download, SlidersHorizontal, MoreVertical, Edit, FilePlus, Eye } from 'lucide-react';
 import { CheckCircle, XCircle } from 'lucide-react';
+import { CreateVoucherBookDialog } from '@/components/wabasimplify/create-voucher-book-dialog';
 
 const mockVoucherBooks = [
   {
@@ -47,7 +48,7 @@ export default function VoucherBooksPage() {
                             <CardDescription>Manage your accounting voucher books.</CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
-                             <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4" /> New Voucher Book</Button>
+                             <CreateVoucherBookDialog />
                              <Select defaultValue="fy2526">
                                 <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
                                 <SelectContent>
