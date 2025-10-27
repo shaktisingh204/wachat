@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, ShoppingBag, LoaderCircle } from "lucide-react";
+import { Plus, ShoppingBag, LoaderCircle, Globe } from "lucide-react";
 import Link from 'next/link';
 import { getSalesOrders } from '@/app/actions/crm-sales-orders.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
