@@ -1,10 +1,10 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Eye, Edit } from 'lucide-react';
-import React from 'react';
+import Link from 'next/link';
 
 const pipelineStages = [
     { name: 'Open', count: 0 },
@@ -28,7 +28,11 @@ export default function SalesPipelinePage() {
                 <div className="flex gap-2">
                     <Button variant="outline"><Eye className="mr-2 h-4 w-4" /> View Leads</Button>
                     <Button variant="outline"><Edit className="mr-2 h-4 w-4" /> Edit Pipeline</Button>
-                    <Button><Plus className="mr-2 h-4 w-4" /> New Pipeline</Button>
+                    <Button asChild>
+                        <Link href="/dashboard/crm/sales-crm/pipelines/new">
+                            <Plus className="mr-2 h-4 w-4" /> New Pipeline
+                        </Link>
+                    </Button>
                 </div>
             </div>
 
