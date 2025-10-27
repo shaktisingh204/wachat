@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
 import { Download, MoreVertical, Edit, FilePlus, Eye, LoaderCircle } from 'lucide-react';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { CreateVoucherBookDialog } from '@/components/wabasimplify/create-voucher-book-dialog';
