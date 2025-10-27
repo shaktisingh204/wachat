@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -8,16 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DatePicker } from "@/components/ui/date-picker";
 import { Download, SlidersHorizontal, Trash2, Search, Target } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateLeadSourceReportData } from '@/app/actions/crm-reports.actions';
+import { generateLeadSourceReportData, generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';
 import { LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import { useToast } from "@/hooks/use-toast";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
-import { format } from "date-fns";
 
 export default function LeadSourceReportPage() {
     const [reportData, setReportData] = useState<any[]>([]);
+    const [users, setUsers] = useState<any[]>([]);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useToast();
 
@@ -29,13 +27,17 @@ export default function LeadSourceReportPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const data = await generateLeadSourceReportData({
-                createdFrom: startDate,
-                createdTo: endDate,
-                pipelineId,
-                assigneeId
-            });
-            setReportData(data);
+            const [leadSourceData, teamData] = await Promise.all([
+                generateLeadSourceReportData({
+                    createdFrom: startDate,
+                    createdTo: endDate,
+                    pipelineId,
+                    assigneeId
+                }),
+                 generateTeamSalesReportData({}) // To get users for the filter
+            ]);
+            setReportData(leadSourceData);
+            setUsers(teamData.users);
         });
     }, [startDate, endDate, pipelineId, assigneeId]);
 
@@ -63,6 +65,13 @@ export default function LeadSourceReportPage() {
         document.body.removeChild(link);
     };
 
+    const clearFilters = () => {
+        setStartDate(undefined);
+        setEndDate(undefined);
+        setPipelineId('');
+        setAssigneeId('');
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -81,13 +90,14 @@ export default function LeadSourceReportPage() {
                     <div className="space-y-1"><Label>Lead Created At</Label><DatePicker date={startDate} setDate={setStartDate} placeholder="Start Date" /></div>
                     <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={endDate} setDate={setEndDate} placeholder="End Date" /></div>
                     <div className="space-y-1"><Label>Pipeline</Label><Select value={pipelineId} onValueChange={setPipelineId}><SelectTrigger><SelectValue placeholder="All Pipelines"/></SelectTrigger><SelectContent><SelectItem value="sales">Sales Pipeline</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label>Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees"/></SelectTrigger><SelectContent /></Select></div>
+                    <div className="space-y-1"><Label>Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees"/></SelectTrigger><SelectContent>{users.map(u => <SelectItem key={u.salespersonId} value={u.salespersonId}>{u.salespersonName}</SelectItem>)}</SelectContent></Select></div>
                 </CardContent>
-                 <CardFooter>
+                 <CardFooter className="gap-2">
                     <Button onClick={fetchData} disabled={isLoading}>
                          {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                         Apply Filters
                     </Button>
+                    <Button variant="ghost" onClick={clearFilters}>Clear Filters</Button>
                 </CardFooter>
             </Card>
 
@@ -110,7 +120,7 @@ export default function LeadSourceReportPage() {
                                     <TableHead>Lost Leads</TableHead>
                                     <TableHead>Not Serviceable</TableHead>
                                     <TableHead>Avg. Deal Value</TableHead>
-                                    <TableHead>Avg. Closure Time (Days)</TableHead>
+                                    <TableHead>Avg Lead Closure Time (Days)</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

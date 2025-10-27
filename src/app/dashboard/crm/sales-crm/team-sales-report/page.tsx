@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,20 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Download, SlidersHorizontal, Trash2 } from "lucide-react";
-import { useState, useEffect, useTransition } from 'react';
+import { Download, SlidersHorizontal, Trash2, LineChart, CheckCircle, XCircle } from "lucide-react";
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';
 import { LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import { useToast } from "@/hooks/use-toast";
-
-const ReportStat = ({ label, value, subValue }: { label: string, value: string | number, subValue?: string }) => (
-    <div className="p-3 bg-muted rounded-lg text-center">
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-2xl font-bold">{value}</p>
-        {subValue && <p className="text-xs text-muted-foreground">{subValue}</p>}
-    </div>
-);
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 
 export default function TeamSalesReportPage() {
     const [reportData, setReportData] = useState<any[]>([]);
@@ -28,20 +21,42 @@ export default function TeamSalesReportPage() {
     const [isLoading, startTransition] = useTransition();
     const { toast } = useToast();
 
-    useEffect(() => {
+    // Filters State
+    const [startDate, setStartDate] = useState<Date | undefined>();
+    const [endDate, setEndDate] = useState<Date | undefined>();
+    const [pipelineId, setPipelineId] = useState<string>('');
+    const [leadSource, setLeadSource] = useState<string>('');
+    const [assigneeId, setAssigneeId] = useState<string>('');
+
+    const fetchData = useCallback(() => {
         startTransition(async () => {
-            const { data, users } = await generateTeamSalesReportData({});
+            const { data, users } = await generateTeamSalesReportData({
+                createdFrom: startDate,
+                createdTo: endDate,
+                pipelineId,
+                leadSource,
+                assigneeId
+            });
             setReportData(data);
             setUsers(users);
-        })
-    }, []);
+        });
+    }, [startDate, endDate, pipelineId, leadSource, assigneeId]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const handleDownload = () => {
         if (reportData.length === 0) {
             toast({ title: 'No Data', description: 'There is no report data to download.'});
             return;
         }
-        const csv = Papa.unparse(reportData);
+        const csv = Papa.unparse(reportData.map(d => ({
+            ...d,
+            conversionRate: d.conversionRate.toFixed(1) + '%',
+            totalRevenue: d.totalRevenue.toFixed(2),
+            avgDealValue: d.avgDealValue.toFixed(2)
+        })));
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -50,6 +65,22 @@ export default function TeamSalesReportPage() {
         link.click();
         document.body.removeChild(link);
     };
+
+    const clearFilters = () => {
+        setStartDate(undefined);
+        setEndDate(undefined);
+        setPipelineId('');
+        setLeadSource('');
+        setAssigneeId('');
+    }
+
+    const ReportStat = ({ label, value, subValue }: { label: string, value: string | number, subValue?: string }) => (
+        <div className="p-3 bg-muted rounded-lg text-center">
+            <p className="text-sm text-muted-foreground">{label}</p>
+            <p className="text-2xl font-bold">{value}</p>
+            {subValue && <p className="text-xs text-muted-foreground">{subValue}</p>}
+        </div>
+    );
 
     return (
         <div className="space-y-6">
@@ -62,17 +93,18 @@ export default function TeamSalesReportPage() {
                     <CardTitle>Filters</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="space-y-1"><Label>Lead Created At *</Label><DatePicker /></div>
-                    <div className="space-y-1"><Label>Lead Closed At</Label><DatePicker /></div>
-                    <div className="space-y-1"><Label>Pipeline *</Label><Select defaultValue="sales"><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="sales">Sales Pipeline</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label>Source</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent/></Select></div>
-                    <div className="space-y-1"><Label>Label</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent/></Select></div>
-                    <div className="space-y-1"><Label>Assigned To</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent/></Select></div>
-                    <div className="flex items-end gap-2">
-                        <Button className="w-full">Apply Filters</Button>
-                        <Button variant="ghost" size="icon"><Trash2 className="h-5 w-5"/></Button>
-                    </div>
+                    <div className="space-y-1"><Label>Lead Created At</Label><DatePicker date={startDate} setDate={setStartDate} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={endDate} setDate={setEndDate} placeholder="End Date" /></div>
+                    <div className="space-y-1"><Label>Pipeline</Label><Select value={pipelineId} onValueChange={setPipelineId}><SelectTrigger><SelectValue placeholder="All Pipelines"/></SelectTrigger><SelectContent><SelectItem value="sales">Sales Pipeline</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-1"><Label>Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees"/></SelectTrigger><SelectContent>{users.map(u => <SelectItem key={u._id} value={u._id}>{u.name}</SelectItem>)}</SelectContent></Select></div>
                 </CardContent>
+                 <CardFooter className="gap-2">
+                    <Button onClick={fetchData} disabled={isLoading}>
+                         {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                        Apply Filters
+                    </Button>
+                    <Button variant="ghost" onClick={clearFilters}>Clear Filters</Button>
+                </CardFooter>
             </Card>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
