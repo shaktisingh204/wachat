@@ -1,3 +1,4 @@
+
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { getEcommShopBySlug, getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
@@ -25,7 +26,7 @@ async function SearchResults({ slug, query }: { slug: string, query: string }) {
     );
 }
 
-export default function SearchPage({ params, searchParams }: { params: { slug: string }, searchParams: { q: string } }) {
+export default async function SearchPage({ params, searchParams }: { params: { slug: string }, searchParams: { q: string } }) {
     return (
         <Suspense fallback={<div>Loading search results...</div>}>
             <SearchResults slug={params.slug} query={searchParams.q} />
