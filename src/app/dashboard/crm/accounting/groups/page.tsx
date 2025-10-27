@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { LoaderCircle, Plus, Trash2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -24,7 +24,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
 const saveInitialState = { message: null, error: null };
@@ -39,53 +38,64 @@ const categoryMap: Record<string, string[]> = {
     Capital: ['Capital_Accounts', 'Equities'],
 };
 
-function SubmitButton() {
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
         <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Submit
+            {isEditing ? 'Save Changes' : 'Submit'}
         </Button>
     )
 }
 
-function CreateGroupDialog({ onGroupCreated }: { onGroupCreated: () => void }) {
-    const [open, setOpen] = useState(false);
+function AccountGroupDialog({ 
+    isOpen, 
+    onOpenChange, 
+    onSave, 
+    initialData 
+}: { 
+    isOpen: boolean; 
+    onOpenChange: (open: boolean) => void;
+    onSave: () => void; 
+    initialData: WithId<CrmAccountGroup> | null 
+}) {
+    const isEditing = !!initialData;
     const [state, formAction] = useActionState(saveCrmAccountGroup, saveInitialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
-    const [selectedType, setSelectedType] = useState('');
+    const [selectedType, setSelectedType] = useState(initialData?.type || '');
+
+    useEffect(() => {
+        setSelectedType(initialData?.type || '');
+    }, [initialData]);
 
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
-            formRef.current?.reset();
-            setOpen(false);
-            onGroupCreated();
+            onSave();
+            onOpenChange(false);
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
-    }, [state, toast, onGroupCreated]);
+    }, [state, toast, onSave, onOpenChange]);
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button><Plus className="mr-2 h-4 w-4" /> New Account Group</Button>
-            </DialogTrigger>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent>
                 <form action={formAction} ref={formRef}>
+                    {isEditing && <input type="hidden" name="groupId" value={initialData?._id.toString()} />}
                     <DialogHeader>
-                        <DialogTitle>Create New Account Group</DialogTitle>
+                        <DialogTitle>{isEditing ? 'Edit' : 'Create New'} Account Group</DialogTitle>
                     </DialogHeader>
                     <div className="py-4 space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">Account Group Name *</Label>
-                            <Input id="name" name="name" placeholder="Type Account Group Name" required />
+                            <Input id="name" name="name" placeholder="Type Account Group Name" required defaultValue={initialData?.name} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="type">Type</Label>
-                            <Select name="type" required onValueChange={setSelectedType}>
+                            <Select name="type" required onValueChange={setSelectedType} defaultValue={initialData?.type}>
                                 <SelectTrigger><SelectValue placeholder="Select a type..."/></SelectTrigger>
                                 <SelectContent>
                                     {accountTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
@@ -95,7 +105,7 @@ function CreateGroupDialog({ onGroupCreated }: { onGroupCreated: () => void }) {
                          {selectedType && categoryMap[selectedType] && (
                             <div className="space-y-2">
                                 <Label htmlFor="category">Category</Label>
-                                <Select name="category" required>
+                                <Select name="category" required defaultValue={initialData?.category}>
                                     <SelectTrigger><SelectValue placeholder="Select a category..."/></SelectTrigger>
                                     <SelectContent>
                                         {categoryMap[selectedType].map(cat => <SelectItem key={cat} value={cat}>{cat.replace(/_/g, ' ')}</SelectItem>)}
@@ -105,8 +115,8 @@ function CreateGroupDialog({ onGroupCreated }: { onGroupCreated: () => void }) {
                         )}
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                        <SubmitButton />
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <SubmitButton isEditing={isEditing} />
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -118,6 +128,8 @@ export default function AccountGroupsPage() {
     const [groups, setGroups] = useState<WithId<CrmAccountGroup>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useToast();
+    const [editingGroup, setEditingGroup] = useState<WithId<CrmAccountGroup> | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -139,56 +151,70 @@ export default function AccountGroupsPage() {
             toast({ title: 'Error', description: result.error, variant: 'destructive' });
         }
     };
+    
+    const handleOpenDialog = (group: WithId<CrmAccountGroup> | null) => {
+        setEditingGroup(group);
+        setIsDialogOpen(true);
+    };
 
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                    <CardTitle>Account Groups</CardTitle>
-                    <CardDescription>A list of all account groups in your CRM.</CardDescription>
-                </div>
-                <CreateGroupDialog onGroupCreated={fetchData} />
-            </CardHeader>
-            <CardContent>
-                <div className="border rounded-md">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Group Name</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Category</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isLoading ? (
-                                <TableRow><TableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
-                            ) : groups.length > 0 ? (
-                                groups.map(group => (
-                                    <TableRow key={group._id.toString()}>
-                                        <TableCell className="font-medium">{group.name}</TableCell>
-                                        <TableCell>{group.type}</TableCell>
-                                        <TableCell>{group.category?.replace(/_/g, ' ')}</TableCell>
-                                        <TableCell className="text-right">
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader><AlertDialogTitle>Delete Group?</AlertDialogTitle><AlertDialogDescription>Are you sure you want to delete the "{group.name}" group?</AlertDialogDescription></AlertDialogHeader>
-                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(group._id.toString())}>Delete</AlertDialogAction></AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow><TableCell colSpan={4} className="h-24 text-center">No account groups found.</TableCell></TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-            </CardContent>
-        </Card>
+        <>
+            <AccountGroupDialog 
+                isOpen={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                onSave={fetchData}
+                initialData={editingGroup}
+            />
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Account Groups</CardTitle>
+                        <CardDescription>A list of all account groups in your CRM.</CardDescription>
+                    </div>
+                    <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4" /> New Account Group</Button>
+                </CardHeader>
+                <CardContent>
+                    <div className="border rounded-md">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Group Name</TableHead>
+                                    <TableHead>Type</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {isLoading ? (
+                                    <TableRow><TableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
+                                ) : groups.length > 0 ? (
+                                    groups.map(group => (
+                                        <TableRow key={group._id.toString()}>
+                                            <TableCell className="font-medium">{group.name}</TableCell>
+                                            <TableCell>{group.type}</TableCell>
+                                            <TableCell>{group.category?.replace(/_/g, ' ')}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(group)}><Edit className="h-4 w-4"/></Button>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader><AlertDialogTitle>Delete Group?</AlertDialogTitle><AlertDialogDescription>Are you sure you want to delete the "{group.name}" group?</AlertDialogDescription></AlertDialogHeader>
+                                                        <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(group._id.toString())}>Delete</AlertDialogAction></AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow><TableCell colSpan={4} className="h-24 text-center">No account groups found.</TableCell></TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
+            </Card>
+        </>
     );
 }
