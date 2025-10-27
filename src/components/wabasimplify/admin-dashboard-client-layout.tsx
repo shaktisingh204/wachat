@@ -168,7 +168,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
             </div>
             </header>
             <div className="flex-1 min-h-0">
-                <main className="flex-1 p-2 md:p-4 lg:p-8 overflow-y-auto">
+                <main className="h-full overflow-y-auto p-2 md:p-4 lg:p-8">
                     <React.Suspense fallback={<Skeleton className="h-full w-full" />}>
                         {children}
                     </React.Suspense>
