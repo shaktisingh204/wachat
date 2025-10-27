@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { CrmAccountGroup } from '@/lib/definitions';
+import type { CrmAccountGroup, CrmChartOfAccount } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function getCrmAccountGroups(): Promise<WithId<CrmAccountGroup>[]> {
@@ -93,6 +93,87 @@ export async function deleteCrmAccountGroup(groupId: string): Promise<{ success:
             userId: new ObjectId(session.user._id)
         });
         revalidatePath('/dashboard/crm/accounting/groups');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+export async function getCrmChartOfAccounts(): Promise<WithId<CrmChartOfAccount>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const accounts = await db.collection<CrmChartOfAccount>('crm_chart_of_accounts')
+            .find({ userId: new ObjectId(session.user._id) })
+            .sort({ name: 1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(accounts));
+    } catch (e) {
+        console.error("Failed to fetch Chart of Accounts:", e);
+        return [];
+    }
+}
+
+export async function saveCrmChartOfAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+
+    const accountId = formData.get('accountId') as string | null;
+    const isEditing = !!accountId;
+
+    try {
+        const accountData: Partial<Omit<CrmChartOfAccount, '_id'>> = {
+            userId: new ObjectId(session.user._id),
+            name: formData.get('name') as string,
+            accountGroupId: new ObjectId(formData.get('accountGroupId') as string),
+            openingBalance: Number(formData.get('openingBalance')),
+            description: formData.get('description') as string | undefined,
+            status: formData.get('status') === 'on' ? 'Active' : 'Inactive',
+        };
+
+        if (!accountData.name || !accountData.accountGroupId) {
+            return { error: 'Account Name and Group are required.' };
+        }
+
+        const { db } = await connectToDatabase();
+        
+        if (isEditing) {
+            await db.collection('crm_chart_of_accounts').updateOne(
+                { _id: new ObjectId(accountId!) },
+                { $set: accountData }
+            );
+        } else {
+            await db.collection('crm_chart_of_accounts').insertOne({
+                ...accountData,
+                createdAt: new Date()
+            } as CrmChartOfAccount);
+        }
+        
+        revalidatePath('/dashboard/crm/accounting/charts');
+        return { message: 'Account saved successfully.' };
+    } catch(e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteCrmChartOfAccount(accountId: string): Promise<{ success: boolean, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: "Access denied" };
+
+    if (!accountId || !ObjectId.isValid(accountId)) {
+        return { success: false, error: 'Invalid Account ID' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('crm_chart_of_accounts').deleteOne({
+            _id: new ObjectId(accountId),
+            userId: new ObjectId(session.user._id)
+        });
+        revalidatePath('/dashboard/crm/accounting/charts');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
