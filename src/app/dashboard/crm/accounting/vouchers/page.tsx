@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -8,17 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from "@/components/ui/badge";
-import { Download, MoreVertical, Edit, FilePlus, Eye, LoaderCircle } from 'lucide-react';
+import { Download, MoreVertical, Edit, FilePlus, Eye, LoaderCircle, ChevronDown, PlusCircle } from 'lucide-react';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { CreateVoucherBookDialog } from '@/components/wabasimplify/create-voucher-book-dialog';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
 import { getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
 import type { CrmVoucherBook } from '@/lib/definitions';
+import Papa from 'papaparse';
+import { useToast } from '@/hooks/use-toast';
 
 export default function VoucherBooksPage() {
     const [books, setBooks] = useState<WithId<CrmVoucherBook>[]>([]);
     const [isLoading, startTransition] = useTransition();
+    const { toast } = useToast();
 
     const fetchBooks = useCallback(() => {
         startTransition(async () => {
@@ -30,31 +32,56 @@ export default function VoucherBooksPage() {
     useEffect(() => {
         fetchBooks();
     }, [fetchBooks]);
+    
+    const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
+        if (format === 'csv') {
+            const csv = Papa.unparse(books.map(book => ({
+                "Voucher Book": book.name,
+                "Type": book.type,
+                "Entries": book.entryCount || 0,
+                "Last Entry Date": book.lastEntryDate ? new Date(book.lastEntryDate).toLocaleDateString() : 'N/A'
+            })));
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'voucher-books.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            toast({ title: "Not Implemented", description: `Export to ${format.toUpperCase()} is not yet available.` });
+        }
+    };
 
 
     return (
         <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">Voucher Books</h1>
+                    <p className="text-muted-foreground">Manage your accounting voucher books.</p>
+                </div>
+                 <div className="flex items-center gap-2">
+                     <CreateVoucherBookDialog onSave={fetchBooks} />
+                     <Select defaultValue="fy2526">
+                        <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="fy2526">FY 2025-2026</SelectItem>
+                            <SelectItem value="fy2425">FY 2024-2025</SelectItem>
+                        </SelectContent>
+                    </Select>
+                     <DropdownMenu>
+                        <DropdownMenuTrigger asChild><Button variant="outline"><Download className="mr-2 h-4 w-4"/>Download As<ChevronDown className="ml-2 h-4 w-4"/></Button></DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
             <Card>
-                <CardHeader>
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                        <div>
-                            <CardTitle>Voucher Books</CardTitle>
-                            <CardDescription>Manage your accounting voucher books.</CardDescription>
-                        </div>
-                        <div className="flex items-center gap-2">
-                             <CreateVoucherBookDialog onSave={fetchBooks} />
-                             <Select defaultValue="fy2526">
-                                <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="fy2526">FY 2025-2026</SelectItem>
-                                    <SelectItem value="fy2425">FY 2024-2025</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <Button variant="outline"><Download className="mr-2 h-4 w-4" />Download CSV</Button>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                     <div className="border rounded-md">
                         <Table>
                             <TableHeader>

@@ -1,17 +1,19 @@
-
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, SlidersHorizontal, Trash2 } from 'lucide-react';
+import { Download, SlidersHorizontal, Trash2, ChevronDown } from 'lucide-react';
 import { DatePicker } from "@/components/ui/date-picker";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect, useTransition } from "react";
 import { generateTrialBalanceData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useToast } from "@/hooks/use-toast";
+import Papa from "papaparse";
 
 type TrialBalanceEntry = {
     accountId: string;
@@ -33,6 +35,30 @@ const yourBusinessDetails = {
 function TrialBalanceClient({ data, totals }: { data: TrialBalanceEntry[], totals: any }) {
     const [hideZero, setHideZero] = useState(false);
     const filteredData = hideZero ? data.filter(d => d.totalDebit > 0 || d.totalCredit > 0) : data;
+    const { toast } = useToast();
+
+    const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
+        if (format === 'csv') {
+            const csvData = filteredData.map(entry => ({
+                "Account": entry.accountName,
+                "Opening Balance": `${Math.abs(entry.openingBalance).toFixed(2)} ${entry.openingBalanceType}`,
+                "Debit": entry.totalDebit.toFixed(2),
+                "Credit": entry.totalCredit.toFixed(2),
+                "Closing Balance": `${Math.abs(entry.closingBalance).toFixed(2)} ${entry.closingBalanceType}`
+            }));
+            const csv = Papa.unparse(csvData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'trial-balance.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            toast({ title: "Not Implemented", description: `Export to ${format.toUpperCase()} is not yet available.`});
+        }
+    };
+
 
     return (
         <div className="space-y-6">
@@ -47,7 +73,16 @@ function TrialBalanceClient({ data, totals }: { data: TrialBalanceEntry[], total
                         <p className="text-sm text-muted-foreground">GSTIN: {yourBusinessDetails.gstin}</p>
                     </div>
                 </div>
-                 <Button variant="outline"><Download className="mr-2 h-4 w-4"/>Download PDF</Button>
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline"><Download className="mr-2 h-4 w-4"/>Download As<ChevronDown className="ml-2 h-4 w-4"/></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                        <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                        <DropdownMenuItem disabled>PDF</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </header>
             
             <Card>

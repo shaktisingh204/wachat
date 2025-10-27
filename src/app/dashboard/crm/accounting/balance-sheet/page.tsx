@@ -1,3 +1,4 @@
+'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Download, ChevronDown, View } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { generateBalanceSheetData } from "@/app/actions/crm-accounting.actions";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState, useTransition } from "react";
+import Papa from "papaparse";
+import { LoaderCircle } from "lucide-react";
 
 const StatCard = ({ title, value }: { title: string; value: string }) => (
     <div className="bg-muted/50 p-4 rounded-lg">
@@ -15,9 +20,30 @@ const StatCard = ({ title, value }: { title: string; value: string }) => (
 );
 
 const BalanceSheetClient = ({ data }: { data: any }) => {
+    const { toast } = useToast();
     const { summary, entries } = data;
 
     const totalAll = Math.abs(summary.totalAssets) + Math.abs(summary.totalLiabilities) + Math.abs(summary.totalCapital);
+
+    const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
+        if (format === 'csv') {
+            const csvData = entries.map((entry: any) => ({
+                "Accounts": entry.isSub ? `  ${entry.account}` : entry.account,
+                "Amount": entry.amount.toFixed(2),
+                "% of Total": totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'
+            }));
+            const csv = Papa.unparse(csvData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'balance-sheet.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            toast({ title: "Not Implemented", description: `Export to ${format.toUpperCase()} is not yet available.`});
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -27,10 +53,6 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
                     <p className="text-muted-foreground">A snapshot of your company's financial health.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 border rounded-md p-1">
-                        <Button variant="ghost" size="sm">Vertical View</Button>
-                        <Button variant="secondary" size="sm">Horizontal View</Button>
-                    </div>
                      <Select defaultValue="fy2526">
                         <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -47,9 +69,9 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            <DropdownMenuItem>PDF</DropdownMenuItem>
-                            <DropdownMenuItem>XLS</DropdownMenuItem>
-                            <DropdownMenuItem>CSV</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -100,11 +122,27 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
     )
 }
 
-export default async function BalanceSheetPage() {
-    const data = await generateBalanceSheetData();
-    
-    if (!data) {
+export default function BalanceSheetPage() {
+    const [data, setData] = useState<any>(null);
+    const [isLoading, startTransition] = useTransition();
+
+    useEffect(() => {
+        startTransition(async () => {
+            const result = await generateBalanceSheetData();
+            setData(result);
+        });
+    }, []);
+
+    if (isLoading || !data) {
         return (
+            <div className="flex justify-center items-center h-full">
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        );
+    }
+    
+    if (!data.summary) {
+         return (
             <div className="text-center py-10">
                 <p>Could not generate balance sheet data. Please ensure you have accounts and transactions.</p>
             </div>
