@@ -218,6 +218,7 @@ export type CrmDeal = {
     closeDate?: Date;
     probability?: number;
     ownerId?: ObjectId; // User ID
+    leadSource?: string;
     createdAt: Date;
     updatedAt?: Date;
     notes?: {
@@ -1106,7 +1107,7 @@ export type Plan = {
     flowLimit: number;
     metaFlowLimit: number;
     cannedMessageLimit: number;
-    signupCredits?: signupCredits;
+    signupCredits?: number;
     messageCosts: PlanMessageCosts;
     features: PlanFeaturePermissions;
     createdAt: Date;

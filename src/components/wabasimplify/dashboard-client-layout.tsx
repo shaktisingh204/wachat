@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -16,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -111,7 +112,8 @@ const crmMenuItems = [
         label: "Sales CRM",
         icon: BarChart2,
         subItems: [
-            { href: "/dashboard/crm/sales-crm/all-pipelines", label: "All Pipelines" },
+            { href: "/dashboard/crm/sales-crm/pipelines", label: "Sales Pipelines" },
+            { href: "/dashboard/crm/sales-crm/all-pipelines", label: "All Sales Pipelines" },
             { href: "/dashboard/crm/sales-crm/forms", label: "Forms" },
             { href: "/dashboard/crm/sales-crm/all-leads", label: "All Leads" },
             { href: "/dashboard/crm/sales-crm/leads-summary", label: "Leads Summary" },

@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter, Sort } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { CrmContact, CrmPermissions, User, CrmAccount } from '@/lib/definitions';
+import type { CrmContact, CrmPermissions, User, CrmAccount, CrmDeal } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -130,6 +130,7 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
             company: formData.get('company') as string,
             jobTitle: formData.get('jobTitle') as string,
             status: (formData.get('status') as CrmContact['status']) || 'new_lead',
+            leadSource: formData.get('leadSource') as string,
             notes: [],
             createdAt: new Date(),
         };
