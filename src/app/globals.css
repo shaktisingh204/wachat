@@ -3,11 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'PT Sans', sans-serif;
-  overflow: hidden;
-}
-
 @layer base {
   :root {
     --background: 210 17% 98%;
@@ -96,7 +91,7 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-hidden font-sans;
   }
 }
 

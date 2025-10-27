@@ -23,9 +23,8 @@ export default {
         'glass-gradient-dark': 'linear-gradient(180deg, hsla(220,10%,18%,0.8), hsla(220,10%,12%,0.2))',
       },
       fontFamily: {
-        sans: ['var(--font-sans)', ...fontFamily.sans],
-        body: ['PT Sans', 'sans-serif'],
-        headline: ['PT Sans', 'sans-serif'],
+        sans: ["var(--font-sans)", ...fontFamily.sans],
+        headline: ["var(--font-sans)", ...fontFamily.sans],
         code: ['monospace'],
       },
       colors: {
