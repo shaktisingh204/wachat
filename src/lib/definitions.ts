@@ -367,6 +367,17 @@ export type CrmAccountGroup = {
     createdAt: Date;
 };
 
+export type CrmChartOfAccount = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    accountGroupId: ObjectId;
+    openingBalance: number;
+    description?: string;
+    status: 'Active' | 'Inactive';
+    createdAt: Date;
+};
+
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;
@@ -405,7 +416,7 @@ export type PhoneNumberProfile = {
     profile_picture_url: string;
     websites: string[];
     vertical: string;
-}
+};
 
 export type WeeklyOperatingHours = {
     day_of_week: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
