@@ -11,7 +11,7 @@ import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-butt
 import { CreditPurchaseButton } from '@/components/wabasimplify/credit-purchase-button';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { Plan, WithId } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -29,10 +29,37 @@ const creditPacks = [
     { credits: 30000, amount: 2500, description: 'Business Pack' },
 ];
 
+const PlanCard = ({ plan, currentPlanId, projectId }: { plan: WithId<Plan>, currentPlanId?: string, projectId: string }) => {
+    return (
+        <Card key={plan._id.toString()} className={cn("flex flex-col w-80", currentPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
+            <CardHeader className="flex-grow">
+                <CardTitle>{plan.name}</CardTitle>
+                <div className="text-4xl font-bold pt-4">{plan.currency || 'INR'} {plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
+                <CardDescription>
+                    + Mkt: INR {plan.messageCosts?.marketing ?? 'N/A'} | Util: INR {plan.messageCosts?.utility ?? 'N/A'} | Auth: INR {plan.messageCosts?.authentication ?? 'N/A'}
+                </CardDescription>
+            </CardHeader>
+            <Separator />
+            <CardContent className="pt-6 space-y-4">
+                <ul className="space-y-3">
+                    <PlanFeature included={true}>{plan.projectLimit > 0 ? `${plan.projectLimit} Project(s)` : 'Unlimited Projects'}</PlanFeature>
+                    <PlanFeature included={true}>{plan.agentLimit > 0 ? `${plan.agentLimit} Agent(s) per Project` : 'Unlimited Agents'}</PlanFeature>
+                    <PlanFeature included={true}>{plan.templateLimit > 0 ? `${plan.templateLimit} Templates` : 'Unlimited Templates'}</PlanFeature>
+                    <PlanFeature included={true}>{plan.flowLimit > 0 ? `${plan.flowLimit} Flows` : 'Unlimited Flows'}</PlanFeature>
+                    <PlanFeature included={plan.features.apiAccess}>API Access</PlanFeature>
+                </ul>
+            </CardContent>
+            <CardFooter className="mt-auto">
+               <PlanPurchaseButton plan={plan} currentPlanId={currentPlanId} projectId={projectId} />
+            </CardFooter>
+        </Card>
+    );
+};
+
 export default function BillingPage() {
     const [isClient, setIsClient] = useState(false);
     const { sessionUser, activeProjectId } = useProject();
-    const [plans, setPlans] = useState<any[]>([]);
+    const [plans, setPlans] = useState<WithId<Plan>[]>([]);
 
     useEffect(() => {
         setIsClient(true);
@@ -44,23 +71,22 @@ export default function BillingPage() {
         fetchData();
     }, []);
 
+    const categorizedPlans = useMemo(() => {
+        const allInOne = plans.filter(p => p.name.toLowerCase().includes('all-in-one'));
+        const wachat = plans.filter(p => p.name.toLowerCase().includes('wachat'));
+        const crm = plans.filter(p => p.name.toLowerCase().includes('crm'));
+        return { allInOne, wachat, crm };
+    }, [plans]);
+
     const userPlanId = sessionUser?.plan?._id;
-    const userPlanFeatures = sessionUser?.plan?.features;
 
-    const { allowedFeatures, notAllowedFeatures } = React.useMemo(() => {
-        if (!userPlanFeatures) return { allowedFeatures: [], notAllowedFeatures: [] };
-        const allowed: any[] = [];
-        const notAllowed: any[] = [];
-        planFeatureMap.forEach(feature => {
-            if (userPlanFeatures[feature.id]) {
-                allowed.push(feature);
-            } else {
-                notAllowed.push(feature);
-            }
-        });
-        return { allowedFeatures: allowed, notAllowedFeatures: notAllowed };
-    }, [userPlanFeatures]);
-
+    if (!isClient || !sessionUser || !activeProjectId) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <p>Loading user and project data...</p>
+            </div>
+        )
+    }
 
     return (
         <div className="flex flex-col gap-8">
@@ -76,49 +102,6 @@ export default function BillingPage() {
                     </Link>
                 </Button>
             </div>
-
-            {userPlanFeatures && (
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Features in Your Plan</CardTitle>
-                        <CardDescription>
-                            Your current plan <span className="font-bold text-primary">{sessionUser?.plan?.name}</span> includes the following apps and features.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-3">Allowed Apps</h3>
-                             <ScrollArea className="w-full whitespace-nowrap">
-                                <div className="flex w-max space-x-4 pb-4">
-                                     {allowedFeatures.map(feature => (
-                                        <div key={feature.id} className="text-center w-28 flex flex-col items-center">
-                                            <div className="w-16 h-16 rounded-lg bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center">
-                                                <feature.icon className="h-8 w-8" />
-                                            </div>
-                                            <p className="mt-2 text-xs font-medium">{feature.name}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                                <ScrollBar orientation="horizontal" />
-                            </ScrollArea>
-                        </div>
-                        <Separator />
-                        <div>
-                             <h3 className="text-lg font-semibold mb-3">Not Allowed Apps</h3>
-                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                {notAllowedFeatures.map(feature => (
-                                    <div key={feature.id} className="text-center group cursor-pointer" onClick={() => document.getElementById('upgrade')?.scrollIntoView({ behavior: 'smooth' })}>
-                                        <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center mx-auto text-muted-foreground/50 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
-                                             <feature.icon className="h-8 w-8" />
-                                        </div>
-                                        <p className="mt-2 text-xs text-muted-foreground transition-colors group-hover:text-primary">{feature.name}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
             
             <Card>
                 <CardHeader>
@@ -144,40 +127,50 @@ export default function BillingPage() {
             </Card>
 
             <Separator />
+            
+            <div id="upgrade" className="space-y-8">
+                <div>
+                    <h2 className="text-2xl font-bold font-headline">All-In-One Plans</h2>
+                    <p className="text-muted-foreground">Get access to all features with a single subscription.</p>
+                </div>
+                 <ScrollArea className="w-full whitespace-nowrap">
+                    <div className="flex w-max space-x-6 pb-4">
+                        {categorizedPlans.allInOne.map((plan: WithId<Plan>) => (
+                           <PlanCard key={plan._id.toString()} plan={plan} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+                
+                 <Separator />
 
-            <div id="upgrade">
-                <h2 className="text-2xl font-bold font-headline">Upgrade Your Plan</h2>
-                <p className="text-muted-foreground">Unlock more features and increase your limits by upgrading your plan.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-                {plans.map((plan: WithId<Plan>) => (
-                    <Card key={plan._id.toString()} className={cn("flex flex-col", userPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
-                        <CardHeader className="flex-grow">
-                            <CardTitle>{plan.name}</CardTitle>
-                            <div className="text-4xl font-bold pt-4">{plan.currency || 'INR'} {plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
-                            <CardDescription>
-                                + Mkt: INR {plan.messageCosts?.marketing ?? 'N/A'} | Util: INR {plan.messageCosts?.utility ?? 'N/A'} | Auth: INR {plan.messageCosts?.authentication ?? 'N/A'}
-                            </CardDescription>
-                        </CardHeader>
-                        <Separator />
-                        <CardContent className="pt-6 space-y-4">
-                            <ul className="space-y-3">
-                                <PlanFeature included={true}>{plan.projectLimit > 0 ? `${plan.projectLimit} Project(s)` : 'Unlimited Projects'}</PlanFeature>
-                                <PlanFeature included={true}>{plan.agentLimit > 0 ? `${plan.agentLimit} Agent(s) per Project` : 'Unlimited Agents'}</PlanFeature>
-                                <PlanFeature included={true}>{plan.templateLimit > 0 ? `${plan.templateLimit} Templates` : 'Unlimited Templates'}</PlanFeature>
-                                <PlanFeature included={true}>{plan.flowLimit > 0 ? `${plan.flowLimit} Flows` : 'Unlimited Flows'}</PlanFeature>
-                                <PlanFeature included={true}>{plan.metaFlowLimit > 0 ? `${plan.metaFlowLimit} Meta Flows` : 'Unlimited Meta Flows'}</PlanFeature>
-                                <PlanFeature included={plan.features.campaigns}>Broadcast Campaigns</PlanFeature>
-                                <PlanFeature included={plan.features.liveChat}>Live Chat</PlanFeature>
-                                <PlanFeature included={plan.features.flowBuilder}>Flow Builder</PlanFeature>
-                                <PlanFeature included={plan.features.apiAccess}>API Access</PlanFeature>
-                            </ul>
-                        </CardContent>
-                        <CardFooter className="mt-auto">
-                           {isClient && activeProjectId && <PlanPurchaseButton plan={plan} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />}
-                        </CardFooter>
-                    </Card>
-                ))}
+                <div>
+                    <h2 className="text-2xl font-bold font-headline">Wachat Suite Plans</h2>
+                    <p className="text-muted-foreground">Plans focused on WhatsApp Business API features.</p>
+                </div>
+                 <ScrollArea className="w-full whitespace-nowrap">
+                    <div className="flex w-max space-x-6 pb-4">
+                        {categorizedPlans.wachat.map((plan: WithId<Plan>) => (
+                           <PlanCard key={plan._id.toString()} plan={plan} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+                
+                <Separator />
+                
+                <div>
+                    <h2 className="text-2xl font-bold font-headline">CRM Suite Plans</h2>
+                    <p className="text-muted-foreground">Plans focused on Customer Relationship Management.</p>
+                </div>
+                 <ScrollArea className="w-full whitespace-nowrap">
+                    <div className="flex w-max space-x-6 pb-4">
+                        {categorizedPlans.crm.map((plan: WithId<Plan>) => (
+                           <PlanCard key={plan._id.toString()} plan={plan} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        ))}
+                    </div>
+                     <ScrollBar orientation="horizontal" />
+                </ScrollArea>
             </div>
         </div>
     );
