@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted: () => void }) {
     const { toast } = useToast();
@@ -148,7 +149,11 @@ function AccountsTable({ accounts, isLoading, onEdit, onDelete }: { accounts: Wi
                     ) : accounts.length > 0 ? (
                         accounts.map(acc => (
                             <TableRow key={acc._id.toString()}>
-                                <TableCell className="font-medium">{acc.name}</TableCell>
+                                <TableCell className="font-medium">
+                                    <Link href="#" className="hover:underline text-primary">
+                                        {acc.name}
+                                    </Link>
+                                </TableCell>
                                 <TableCell>{acc.accountGroupName || 'N/A'}</TableCell>
                                 <TableCell>{acc.accountGroupCategory?.replace(/_/g, ' ')}</TableCell>
                                 <TableCell><Badge variant="outline">{acc.accountGroupType}</Badge></TableCell>
