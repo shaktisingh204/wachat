@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil
+    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -72,7 +72,7 @@ const crmMenuItems = [
             { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText },
             { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts", icon: CreditCard },
             { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag },
-            { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Bot },
+            { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Bot }, // Should be Truck?
             { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat },
         ]
     },
@@ -104,6 +104,20 @@ const crmMenuItems = [
             { href: "/dashboard/crm/accounting/income-statement", label: "Income Statement" },
             { href: "/dashboard/crm/accounting/day-book", label: "Day Book" },
             { href: "/dashboard/crm/accounting/cash-flow", label: "Cash Flow Statement" },
+        ]
+    },
+     {
+        href: "/dashboard/crm/sales-crm",
+        label: "Sales CRM",
+        icon: BarChart2,
+        subItems: [
+            { href: "/dashboard/crm/sales-crm/all-pipelines", label: "All Pipelines" },
+            { href: "/dashboard/crm/sales-crm/forms", label: "Forms" },
+            { href: "/dashboard/crm/sales-crm/all-leads", label: "All Leads" },
+            { href: "/dashboard/crm/sales-crm/leads-summary", label: "Leads Summary" },
+            { href: "/dashboard/crm/sales-crm/team-sales-report", label: "Team Sales Report" },
+            { href: "/dashboard/crm/sales-crm/client-performance-report", label: "Client Performance Report" },
+            { href: "/dashboard/crm/sales-crm/lead-source-report", label: "Lead Source Report" },
         ]
     },
     { href: "/dashboard/crm/contacts", label: "Contacts", icon: Users },
