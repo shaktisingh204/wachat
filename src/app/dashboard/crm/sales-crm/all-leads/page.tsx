@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -149,9 +150,7 @@ export default function AllLeadsPage() {
                                     <TableRow key={lead.id}>
                                         <TableCell><Checkbox checked={selectedLeads.includes(lead.id)} onCheckedChange={(checked) => setSelectedLeads(prev => checked ? [...prev, lead.id] : prev.filter(id => id !== lead.id))} /></TableCell>
                                         <TableCell>{lead.pipeline}</TableCell>
-                                        <TableCell>
-                                            <div className="font-medium">{lead.contactName}</div>
-                                        </TableCell>
+                                        <TableCell><div className="font-medium">{lead.contactName}</div></TableCell>
                                         <TableCell>{lead.organisation}</TableCell>
                                         <TableCell>{lead.designation}</TableCell>
                                         <TableCell>{lead.email}</TableCell>
@@ -160,25 +159,23 @@ export default function AllLeadsPage() {
                                         <TableCell>{lead.customerCountry}</TableCell>
                                         <TableCell>{lead.city}</TableCell>
                                         <TableCell>{lead.state}</TableCell>
-                                        <TableCell>{new Date(lead.createdAt).toLocaleDateString()}</TableCell>
+                                        <TableCell>{lead.createdAt}</TableCell>
                                         <TableCell><Badge variant="secondary">{lead.status}</Badge></TableCell>
                                         <TableCell>{lead.leadSource}</TableCell>
-                                        <TableCell>{new Date(lead.lastUpdate).toLocaleDateString()}</TableCell>
+                                        <TableCell>{lead.lastUpdate}</TableCell>
                                         <TableCell>{lead.budget}</TableCell>
                                         <TableCell>{lead.subject}</TableCell>
                                         <TableCell>{lead.creator}</TableCell>
                                         <TableCell>{lead.assignee}</TableCell>
-                                        <TableCell>{new Date(lead.followUp).toLocaleDateString()}</TableCell>
+                                        <TableCell>{lead.followUp}</TableCell>
                                         <TableCell>{lead.lastCommentBy}</TableCell>
-                                        <TableCell><Button variant="link" asChild className="p-0 h-auto"><a href={`https://wa.me/${lead.phone}`} target="_blank" rel="noopener noreferrer"><LinkIcon className="h-4 w-4"/></a></Button></TableCell>
+                                        <TableCell><Button variant="link" asChild className="p-0 h-auto"><a href={`https://wa.me/${lead.phone.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer"><LinkIcon className="h-4 w-4"/></a></Button></TableCell>
                                         <TableCell>{lead.firstResponse}</TableCell>
                                         <TableCell>{lead.lastInternalNote}</TableCell>
-                                        <TableCell>{new Date(lead.nextActivity).toLocaleDateString()}</TableCell>
+                                        <TableCell>{lead.nextActivity}</TableCell>
                                         <TableCell>{lead.dateClosed}</TableCell>
                                         <TableCell className="max-w-xs truncate">{lead.description}</TableCell>
-                                        <TableCell>
-                                            {lead.labels.map(l => <Badge key={l}>{l}</Badge>)}
-                                        </TableCell>
+                                        <TableCell>{lead.labels.map(l => <Badge key={l}>{l}</Badge>)}</TableCell>
                                         <TableCell>{lead.duplicate}</TableCell>
                                         <TableCell className="text-right">
                                              <DropdownMenu>
