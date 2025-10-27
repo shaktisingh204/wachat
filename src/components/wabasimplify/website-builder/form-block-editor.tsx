@@ -18,6 +18,7 @@ import * as LucideIcons from 'lucide-react';
 import type { FormField } from '@/lib/definitions';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Card } from '@/components/ui/card';
 
 const iconNames = Object.keys(LucideIcons).filter(key => typeof (LucideIcons as any)[key] === 'object' && /^[A-Z]/.test(key));
 
@@ -89,7 +90,7 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                     <AccordionItem value="general">
                         <AccordionTrigger>General</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
-                             <div className="space-y-2"><Label>Form Title</Label><Input value={settings.title || 'Contact Us'} onChange={(e) => handleUpdate('title', e.target.value)} /></div>
+                             <div className="space-y-2"><Label>Form Title</Label><Input value={settings.title || 'Contact Form'} onChange={(e) => handleUpdate('title', e.target.value)} /></div>
                              <div className="space-y-2"><Label>Description</Label><Textarea value={settings.description || ''} onChange={(e) => handleUpdate('description', e.target.value)} /></div>
                              <div className="space-y-2"><Label>Button ID</Label><Input value={settings.buttonId || ''} onChange={(e) => handleUpdate('buttonId', e.target.value)} placeholder="e.g. my-form-submit"/></div>
                         </AccordionContent>
@@ -253,3 +254,5 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
         </Tabs>
     );
 }
+
+    
