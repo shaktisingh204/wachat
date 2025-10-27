@@ -1,6 +1,8 @@
+
 'use client';
 
-import { useState, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import {
   Dialog,
   DialogContent,
@@ -16,15 +18,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LoaderCircle, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { saveVoucherBook } from '@/app/actions/crm-vouchers.actions';
 
 const voucherTypes = [
     'Contra', 'Journal', 'Reversing Journal', 'Payment', 'Receipt', 
     'Debit Note', 'Credit Note', 'Sales', 'Purchase', 'Reimbursement'
 ];
 
-function SubmitButton() {
-  const [pending, setPending] = useState(false); // Mock pending state
+const initialState = { message: null, error: null };
 
+function SubmitButton() {
+  const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -33,18 +37,22 @@ function SubmitButton() {
   );
 }
 
-export function CreateVoucherBookDialog() {
+export function CreateVoucherBookDialog({ onSave }: { onSave: () => void }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [state, formAction] = useActionState(saveVoucherBook, initialState);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // For now, just show a success message and close
-    toast({ title: "Success", description: "Voucher book created (simulation)." });
-    setOpen(false);
-    formRef.current?.reset();
-  }
+  useEffect(() => {
+    if (state.message) {
+      toast({ title: 'Success', description: state.message });
+      onSave();
+      setOpen(false);
+    }
+    if (state.error) {
+      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }
+  }, [state, toast, onSave]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -52,7 +60,7 @@ export function CreateVoucherBookDialog() {
         <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4" /> New Voucher Book</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <form onSubmit={handleSubmit} ref={formRef}>
+        <form action={formAction} ref={formRef}>
           <DialogHeader>
             <DialogTitle>Create New Voucher Book</DialogTitle>
           </DialogHeader>
