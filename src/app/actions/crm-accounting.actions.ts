@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -172,6 +173,38 @@ export async function getCrmChartOfAccountById(accountId: string): Promise<WithI
     }
 }
 
+export async function getVoucherEntriesForAccount(accountId: string, startDate?: Date, endDate?: Date): Promise<any[]> {
+    const session = await getSession();
+    if (!session?.user || !ObjectId.isValid(accountId)) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const accountObjectId = new ObjectId(accountId);
+
+        const dateFilter = (startDate && endDate) ? { date: { $gte: startDate, $lte: endDate } } : {};
+        const filter = {
+            userId,
+            ...dateFilter,
+            $or: [
+                { 'debitEntries.accountId': accountObjectId },
+                { 'creditEntries.accountId': accountObjectId }
+            ]
+        };
+
+        const entries = await db.collection<CrmVoucherEntry>('crm_voucher_entries')
+            .find(filter)
+            .sort({ date: 1 })
+            .toArray();
+
+        return JSON.parse(JSON.stringify(entries));
+    } catch(e) {
+        console.error("Failed to fetch voucher entries for account:", e);
+        return [];
+    }
+}
+
+
 export async function saveCrmChartOfAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
@@ -210,6 +243,7 @@ export async function saveCrmChartOfAccount(prevState: any, formData: FormData):
         }
         
         revalidatePath('/dashboard/crm/accounting/charts');
+        revalidatePath(`/dashboard/crm/accounting/charts/${accountId}`);
         return { message: 'Account saved successfully.' };
     } catch(e: any) {
         return { error: getErrorMessage(e) };
