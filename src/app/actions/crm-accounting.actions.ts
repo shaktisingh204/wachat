@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -414,4 +415,60 @@ export async function generateProfitAndLossData(startDate?: Date, endDate?: Date
         console.error("Failed to generate P&L data:", e);
         return null;
     }
+}
+
+
+export async function generateIncomeStatementData(startDate?: Date, endDate?: Date) {
+    const session = await getSession();
+    if (!session?.user) return { incomeData: [], expenseData: [], netSurplus: 0 };
+    
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id);
+    const dateFilter = (startDate && endDate) ? { date: { $gte: startDate, $lte: endDate } } : {};
+    const filter = { userId, ...dateFilter };
+
+    const accounts = await db.collection<WithId<CrmChartOfAccount>>('crm_chart_of_accounts').find({ userId }).toArray();
+    const groups = await db.collection<WithId<CrmAccountGroup>>('crm_account_groups').find({ userId, type: { $in: ['Income', 'Expense'] } }).toArray();
+    const voucherEntries = await db.collection<WithId<CrmVoucherEntry>>('crm_voucher_entries').find(filter).toArray();
+
+    const accountBalances: Record<string, number> = {};
+
+    for (const account of accounts) {
+        let balance = 0;
+        voucherEntries.forEach(entry => {
+            entry.debitEntries.forEach(debit => {
+                if (debit.accountId.equals(account._id)) balance += debit.amount;
+            });
+            entry.creditEntries.forEach(credit => {
+                if (credit.accountId.equals(account._id)) balance -= credit.amount;
+            });
+        });
+        accountBalances[account._id.toString()] = balance;
+    }
+    
+    const processGroup = (type: 'Income' | 'Expense') => {
+        return groups.filter(g => g.type === type).map(group => {
+            const groupAccounts = accounts.filter(a => a.accountGroupId.equals(group._id));
+            const groupTotal = groupAccounts.reduce((sum, acc) => sum + (accountBalances[acc._id.toString()] || 0), 0);
+
+            return {
+                groupName: group.name,
+                category: group.category,
+                accounts: groupAccounts.map(acc => ({
+                    accountName: acc.name,
+                    balance: accountBalances[acc._id.toString()] || 0
+                })),
+                total: groupTotal
+            };
+        }).filter(g => g.accounts.length > 0 || g.total !== 0);
+    };
+
+    const incomeData = processGroup('Income');
+    const expenseData = processGroup('Expense');
+
+    const totalIncome = incomeData.reduce((sum, group) => sum + group.total, 0);
+    const totalExpense = expenseData.reduce((sum, group) => sum + group.total, 0);
+    const netSurplus = -totalIncome - totalExpense; // Incomes are credits (negative)
+
+    return { incomeData, expenseData, netSurplus };
 }
