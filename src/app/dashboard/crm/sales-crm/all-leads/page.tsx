@@ -1,8 +1,8 @@
 
 'use client';
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -22,8 +22,11 @@ import {
     MessageSquare,
     Eye
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DatePicker } from "@/components/ui/date-picker";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getSession } from "@/app/actions";
+import type { User } from "@/lib/definitions";
 
 const leads = [
     { id: 1, name: "Prospect A", email: "prospect.a@example.com", owner: "You", status: "New", nextActivity: "2024-10-25", score: 85, source: "Website" },
@@ -39,12 +42,23 @@ const FilterBadge = ({ children }: { children: React.ReactNode }) => (
 
 export default function AllLeadsPage() {
     const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
+    const [user, setUser] = useState<User | null>(null);
+    
+    useEffect(() => {
+        getSession().then(session => {
+            if (session?.user) {
+                setUser(session.user as User);
+            }
+        });
+    }, []);
 
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">WAPLIA DIGITAL SOLUTIONS Leads</h1>
+                    <h1 className="text-3xl font-bold font-headline">
+                         {user?.businessProfile?.name ? `${user.businessProfile.name} Leads` : 'All Leads'}
+                    </h1>
                 </div>
                 <Button>
                     <Plus className="mr-2 h-4 w-4" />
