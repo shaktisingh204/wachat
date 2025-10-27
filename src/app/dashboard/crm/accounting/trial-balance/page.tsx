@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Download, SlidersHorizontal, Trash2, ChevronDown, Building, AlertCircle } from 'lucide-react';
 import { DatePicker } from "@/components/ui/date-picker";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label';
+import { Label } from '@/components/ui/label';
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { generateTrialBalanceData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
