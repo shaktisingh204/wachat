@@ -1,7 +1,7 @@
 
 'use client';
 
-import { getWhatsAppProjectsForAdmin } from '@/app/actions/project.actions';
+import { getWhatsAppProjectsForAdmin } from '@/app/actions/user.actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
