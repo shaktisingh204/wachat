@@ -141,6 +141,60 @@ export async function getProjectsForAdmin(
     }
 }
 
+export async function getWhatsAppProjectsForAdmin(
+    page: number = 1,
+    limit: number = 20,
+    query?: string,
+    userId?: string
+): Promise<{ projects: WithId<Project & { owner: { name: string; email: string } }>[], total: number, users: WithId<User>[] }> {
+    try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<Project> = { wabaId: { $exists: true, $ne: null } };
+        
+        if (query) {
+             filter.name = { $regex: query, $options: 'i' };
+        }
+        if (userId) {
+            filter.userId = new ObjectId(userId);
+        }
+        
+        const skip = (page - 1) * limit;
+
+        const pipeline: any[] = [
+            { $match: filter },
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'ownerInfo'
+                }
+            },
+            { $unwind: { path: '$ownerInfo', preserveNullAndEmptyArrays: true } },
+            { $addFields: { 'owner.name': '$ownerInfo.name', 'owner.email': '$ownerInfo.email' } },
+            { $project: { ownerInfo: 0 } }
+        ];
+        
+        const [projects, total, users] = await Promise.all([
+             db.collection<Project>('projects').aggregate(pipeline).toArray(),
+             db.collection('projects').countDocuments(filter),
+             db.collection('users').find({}).project({ name: 1, email: 1 }).toArray()
+        ]);
+
+        return { 
+            projects: JSON.parse(JSON.stringify(projects)), 
+            total: total,
+            users: JSON.parse(JSON.stringify(users))
+        };
+    } catch(e) {
+        console.error("Failed to get WhatsApp projects for admin:", e);
+        return { projects: [], total: 0, users: [] };
+    }
+}
+
 export async function handleDeleteUserProject(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) {
