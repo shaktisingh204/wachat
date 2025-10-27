@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -261,5 +262,49 @@ export async function setDiwaliThemeStatus(enabled: boolean): Promise<{ success:
     } catch (error) {
         console.error("Failed to set Diwali theme status:", error);
         return { success: false, error: 'Database error occurred.' };
+    }
+}
+
+export async function setAppLogo(prevState: any, formData: FormData): Promise<{ success?: boolean; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+    
+    const logoUrl = formData.get('logoUrl') as string;
+    if (!logoUrl) {
+        // Allow clearing the logo
+        try {
+            const { db } = await connectToDatabase();
+            await db.collection('system_settings').updateOne(
+                { _id: 'app_logo' },
+                { $set: { url: '' } },
+                { upsert: true }
+            );
+            revalidatePath('/', 'layout');
+            return { success: true };
+        } catch (error) {
+            console.error("Failed to clear app logo:", error);
+            return { error: 'Database error occurred.' };
+        }
+    }
+
+    try {
+        // Validate URL format
+        new URL(logoUrl);
+    } catch (_) {
+        return { error: 'Invalid URL format provided.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('system_settings').updateOne(
+            { _id: 'app_logo' },
+            { $set: { url: logoUrl } },
+            { upsert: true }
+        );
+        revalidatePath('/', 'layout');
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to set app logo:", error);
+        return { error: 'Database error occurred.' };
     }
 }
