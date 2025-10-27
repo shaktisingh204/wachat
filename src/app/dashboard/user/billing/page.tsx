@@ -16,7 +16,8 @@ import { useEffect, useState, useMemo } from 'react';
 import type { Plan, WithId, User } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
     <li className="flex items-center gap-3">
@@ -128,24 +129,30 @@ export default function BillingPage() {
 
     const PlanFeaturesGrid = () => (
         <Card>
-            <CardHeader>
-                <CardTitle>Features Included in Your Plan</CardTitle>
-                <CardDescription>An overview of features available on your current <span className="font-semibold text-primary">{sessionUser?.plan?.name || 'plan'}</span>.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {planFeatureMap.map(feature => {
-                        const isAllowed = sessionUser?.plan?.features?.[feature.id as keyof typeof sessionUser.plan.features] ?? true;
-                        const Icon = feature.icon;
-                        return (
-                             <div key={feature.id} className="flex items-center gap-3">
-                                {isAllowed ? <Check className="h-5 w-5 text-primary flex-shrink-0" /> : <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />}
-                                <span className={cn("text-sm", !isAllowed && "text-muted-foreground line-through")}>{feature.name}</span>
-                            </div>
-                        )
-                    })}
-                </div>
-            </CardContent>
+            <Accordion type="single" collapsible>
+                <AccordionItem value="item-1" className="border-b-0">
+                    <AccordionTrigger className="p-6">
+                        <div className="text-left">
+                            <CardTitle>Features Included in Your Plan</CardTitle>
+                            <CardDescription className="mt-2">An overview of features available on your current <span className="font-semibold text-primary">{sessionUser?.plan?.name || 'plan'}</span>.</CardDescription>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 pt-0">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {planFeatureMap.map(feature => {
+                                const isAllowed = sessionUser?.plan?.features?.[feature.id as keyof typeof sessionUser.plan.features] ?? true;
+                                const Icon = feature.icon;
+                                return (
+                                    <div key={feature.id} className="flex items-center gap-3">
+                                        {isAllowed ? <Check className="h-5 w-5 text-primary flex-shrink-0" /> : <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />}
+                                        <span className={cn("text-sm", !isAllowed && "text-muted-foreground line-through")}>{feature.name}</span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
         </Card>
     );
 
