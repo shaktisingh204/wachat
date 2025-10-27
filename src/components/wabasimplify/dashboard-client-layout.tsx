@@ -260,6 +260,7 @@ const seoMenuItems = [
 const userSettingsItems = [
     { href: '/dashboard/user/settings/profile', label: 'Profile', icon: UserIcon },
     { href: '/dashboard/user/settings/ui', label: 'UI Preferences', icon: Brush },
+    { href: '/dashboard/user/billing', label: 'Billing & Plans', icon: CreditCard },
 ];
 
 const FullPageSkeleton = () => (
@@ -299,7 +300,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { currentApp = 'website-builder'; }
         else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
         else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
-        else if (pathname.startsWith('/dashboard/user/settings')) { currentApp = 'user-settings'; }
+        else if (pathname.startsWith('/dashboard/user/settings') || pathname.startsWith('/dashboard/user/billing')) { currentApp = 'user-settings'; }
         else if (pathname.startsWith('/dashboard/settings')) { currentApp = 'whatsapp'; } // Treat Wachat settings as part of whatsapp
         setActiveApp(currentApp);
     }, [pathname]);
@@ -383,14 +384,6 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
              <SidebarFooter>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip="Billing & Plans">
-                            <Link href="/dashboard/billing">
-                                <CreditCard className="h-4 w-4" />
-                                <span className="sr-only">Billing</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
                         <SidebarMenuButton asChild tooltip="User Settings">
                             <Link href="/dashboard/user/settings">
                                 <Settings className="h-4 w-4" />
@@ -452,7 +445,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                 <DropdownMenuSeparator/>
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
-                                <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
                                 <DropdownMenuSeparator/>
                                 <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
                             </DropdownMenuContent>
