@@ -92,7 +92,9 @@ export default function VoucherBooksPage() {
                                         <TableCell>{book.createdBy}</TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end items-center gap-1">
-                                                <Button variant="ghost" size="sm">Open</Button>
+                                                <Button asChild variant="ghost" size="sm">
+                                                    <Link href={`/dashboard/crm/accounting/vouchers/${book.id}`}>Open</Link>
+                                                </Button>
                                                 <Button variant="ghost" size="sm">Edit</Button>
                                                 <Button asChild variant="default" size="sm">
                                                     <Link href="/dashboard/crm/accounting/vouchers/new">New Entry</Link>
