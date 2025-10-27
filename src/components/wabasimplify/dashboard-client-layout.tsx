@@ -383,6 +383,14 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
              <SidebarFooter>
                 <SidebarMenu>
                     <SidebarMenuItem>
+                        <SidebarMenuButton asChild tooltip="Billing & Plans">
+                            <Link href="/dashboard/billing">
+                                <CreditCard className="h-4 w-4" />
+                                <span className="sr-only">Billing</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
                         <SidebarMenuButton asChild tooltip="User Settings">
                             <Link href="/dashboard/user/settings">
                                 <Settings className="h-4 w-4" />
