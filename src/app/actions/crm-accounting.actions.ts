@@ -135,6 +135,43 @@ export async function getCrmChartOfAccounts(): Promise<WithId<any>[]> {
     }
 }
 
+export async function getCrmChartOfAccountById(accountId: string): Promise<WithId<any> | null> {
+    const session = await getSession();
+    if (!session?.user || !ObjectId.isValid(accountId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const accounts = await db.collection<CrmChartOfAccount>('crm_chart_of_accounts')
+            .aggregate([
+                { $match: { _id: new ObjectId(accountId), userId: new ObjectId(session.user._id) } },
+                { $limit: 1 },
+                {
+                    $lookup: {
+                        from: 'crm_account_groups',
+                        localField: 'accountGroupId',
+                        foreignField: '_id',
+                        as: 'accountGroupInfo'
+                    }
+                },
+                { $unwind: { path: '$accountGroupInfo', preserveNullAndEmptyArrays: true } },
+                {
+                    $addFields: {
+                        accountGroupName: '$accountGroupInfo.name',
+                        accountGroupCategory: '$accountGroupInfo.category',
+                        accountGroupType: '$accountGroupInfo.type',
+                    }
+                },
+                { $project: { accountGroupInfo: 0 } }
+            ]).toArray();
+
+        if (accounts.length === 0) return null;
+        return JSON.parse(JSON.stringify(accounts[0]));
+    } catch (e) {
+        console.error("Failed to fetch Chart of Account by ID:", e);
+        return null;
+    }
+}
+
 export async function saveCrmChartOfAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
