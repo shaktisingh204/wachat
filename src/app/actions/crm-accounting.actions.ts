@@ -172,6 +172,7 @@ export async function getCrmChartOfAccountById(accountId: string): Promise<WithI
     }
 }
 
+
 export async function saveCrmChartOfAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
@@ -234,5 +235,72 @@ export async function deleteCrmChartOfAccount(accountId: string): Promise<{ succ
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function generateBalanceSheetData() {
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const accounts = await db.collection('crm_chart_of_accounts').aggregate([
+            { $match: { userId } },
+            { $lookup: { from: 'crm_account_groups', localField: 'accountGroupId', foreignField: '_id', as: 'group' } },
+            { $unwind: '$group' }
+        ]).toArray();
+
+        const voucherEntries = await db.collection('crm_voucher_entries').find({ userId }).toArray();
+        
+        const accountBalances: { [key: string]: number } = {};
+
+        for (const account of accounts) {
+            let balance = account.balanceType === 'Cr' ? -account.openingBalance : account.openingBalance;
+            
+            for (const entry of voucherEntries) {
+                for (const debit of entry.debitEntries) {
+                    if (debit.accountId.equals(account._id)) {
+                        balance += debit.amount;
+                    }
+                }
+                for (const credit of entry.creditEntries) {
+                    if (credit.accountId.equals(account._id)) {
+                        balance -= credit.amount;
+                    }
+                }
+            }
+            accountBalances[account._id.toString()] = balance;
+        }
+        
+        let totalAssets = 0, totalLiabilities = 0, totalCapital = 0;
+        
+        for (const account of accounts) {
+            const balance = accountBalances[account._id.toString()];
+            if (account.group.type === 'Asset') totalAssets += balance;
+            if (account.group.type === 'Liability') totalLiabilities += -balance; // Liabilities are credits, so flip sign
+            if (account.group.type === 'Capital') totalCapital += -balance; // Capital is credit, flip sign
+        }
+
+        const debtToEquity = totalCapital > 0 ? (totalLiabilities / totalCapital) * 100 : 0;
+
+        return {
+            summary: {
+                totalAssets,
+                totalLiabilities,
+                totalCapital,
+                debtToEquity,
+            },
+            entries: [
+                { account: 'Asset', amount: totalAssets, isMain: true },
+                { account: 'Liablities and equities', amount: totalLiabilities + totalCapital, isMain: true },
+                { account: 'Liability', amount: totalLiabilities, isMain: false, isSub: true },
+                { account: 'Capital', amount: totalCapital, isMain: false, isSub: true },
+            ]
+        };
+    } catch (e) {
+        console.error("Failed to generate balance sheet data:", e);
+        return null;
     }
 }

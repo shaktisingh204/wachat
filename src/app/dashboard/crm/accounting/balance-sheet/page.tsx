@@ -1,17 +1,11 @@
 
-'use client';
-
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, ChevronDown, View } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { generateBalanceSheetData } from "@/app/actions/crm-accounting.actions";
 
 const StatCard = ({ title, value }: { title: string; value: string }) => (
     <div className="bg-muted/50 p-4 rounded-lg">
@@ -20,23 +14,10 @@ const StatCard = ({ title, value }: { title: string; value: string }) => (
     </div>
 );
 
-const balanceSheetData = {
-    summary: {
-        totalAssets: 0,
-        totalLiabilities: 0,
-        totalCapital: 0,
-        debtToEquity: 0,
-    },
-    entries: [
-        { account: 'Asset', amount: 0, percentage: '0.00%', isMain: true },
-        { account: 'Liablities and equities', amount: 0, percentage: '0.00%', isMain: true },
-        { account: 'Liability', amount: 0, percentage: '0.00%', isMain: false, isSub: true },
-        { account: 'Capital', amount: 0, percentage: '0.00%', isMain: false, isSub: true },
-    ]
-};
+const BalanceSheetClient = ({ data }: { data: any }) => {
+    const { summary, entries } = data;
 
-export default function BalanceSheetPage() {
-    const { summary, entries } = balanceSheetData;
+    const totalAll = Math.abs(summary.totalAssets) + Math.abs(summary.totalLiabilities) + Math.abs(summary.totalCapital);
 
     return (
         <div className="space-y-6">
@@ -99,11 +80,11 @@ export default function BalanceSheetPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {entries.map((entry, index) => (
+                                {entries.map((entry: any, index: number) => (
                                     <TableRow key={index} className={entry.isMain ? 'bg-muted/50 font-semibold' : ''}>
                                         <TableCell className={entry.isSub ? 'pl-8' : ''}>{entry.account}</TableCell>
                                         <TableCell className="text-right font-mono">₹{entry.amount.toFixed(2)}</TableCell>
-                                        <TableCell className="text-right font-mono">{entry.percentage}</TableCell>
+                                        <TableCell className="text-right font-mono">{totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'}%</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -117,4 +98,18 @@ export default function BalanceSheetPage() {
             </Card>
         </div>
     )
+}
+
+export default async function BalanceSheetPage() {
+    const data = await generateBalanceSheetData();
+    
+    if (!data) {
+        return (
+            <div className="text-center py-10">
+                <p>Could not generate balance sheet data. Please ensure you have accounts and transactions.</p>
+            </div>
+        );
+    }
+    
+    return <BalanceSheetClient data={data} />;
 }
