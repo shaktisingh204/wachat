@@ -1,13 +1,19 @@
-
 import { notFound } from 'next/navigation';
 import { getCrmChartOfAccountById } from '@/app/actions/crm-accounting.actions';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, SlidersHorizontal, Trash2 } from 'lucide-react';
+import { ArrowLeft, Download, SlidersHorizontal, Trash2, Edit, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
 
 export default async function AccountDetailPage({ params }: { params: { accountId: string } }) {
     const account = await getCrmChartOfAccountById(params.accountId);
@@ -40,6 +46,18 @@ export default async function AccountDetailPage({ params }: { params: { accountI
                                 <SelectItem value="fy2425">FY 2024-2025</SelectItem>
                             </SelectContent>
                         </Select>
+                         <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline">
+                                    Actions
+                                    <ChevronDown className="ml-2 h-4 w-4"/>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem>View Statement</DropdownMenuItem>
+                                <DropdownMenuItem>Edit Account</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                         <Button variant="outline"><Download className="mr-2 h-4 w-4" />Download CSV</Button>
                     </div>
                 </div>
