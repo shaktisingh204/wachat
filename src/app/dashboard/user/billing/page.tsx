@@ -5,7 +5,8 @@ import { Check, X, History, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getSession, handleInitiatePayment } from '@/app/actions';
-import { getPlans, planFeatureMap } from '@/lib/plans';
+import { getPlans } from '@/app/actions/plan.actions';
+import { planFeatureMap } from '@/lib/plans';
 import { Separator } from '@/components/ui/separator';
 import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
 import { CreditPurchaseButton } from '@/components/wabasimplify/credit-purchase-button';
@@ -90,17 +91,28 @@ export default function BillingPage() {
     }, []);
 
     const categorizedPlans = useMemo(() => {
-        return {
-            allInOne: plans.filter(p => p.appCategory === 'All-In-One'),
-            wachat: plans.filter(p => p.appCategory === 'Wachat'),
-            crm: plans.filter(p => p.appCategory === 'CRM'),
-            meta: plans.filter(p => p.appCategory === 'Meta'),
-            instagram: plans.filter(p => p.appCategory === 'Instagram'),
-            email: plans.filter(p => p.appCategory === 'Email'),
-            sms: plans.filter(p => p.appCategory === 'SMS'),
-            urlShortener: plans.filter(p => p.appCategory === 'URL Shortener'),
-            qrCodeGenerator: plans.filter(p => p.appCategory === 'QR Code Generator'),
+        const categories: Record<string, WithId<Plan>[]> = {
+            'All-In-One': [],
+            'Wachat': [],
+            'CRM': [],
+            'Meta': [],
+            'Instagram': [],
+            'Email': [],
+            'SMS': [],
+            'URL Shortener': [],
+            'QR Code Generator': []
         };
+
+        plans.forEach(p => {
+            const categoryKey = p.appCategory || 'All-In-One';
+            if (categories[categoryKey]) {
+                categories[categoryKey].push(p);
+            } else {
+                categories['All-In-One'].push(p);
+            }
+        });
+        
+        return categories;
     }, [plans]);
 
     const userPlanId = sessionUser?.plan?._id;
@@ -112,6 +124,29 @@ export default function BillingPage() {
             </div>
         )
     }
+
+    const PlanFeaturesGrid = () => (
+        <Card>
+            <CardHeader>
+                <CardTitle>Features Included in Your Plan</CardTitle>
+                <CardDescription>An overview of features available on your current <span className="font-semibold text-primary">{sessionUser?.plan?.name || 'plan'}</span>.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {planFeatureMap.map(feature => {
+                        const isAllowed = sessionUser?.plan?.features?.[feature.id as keyof typeof sessionUser.plan.features] ?? true;
+                        const Icon = feature.icon;
+                        return (
+                             <div key={feature.id} className="flex items-center gap-3">
+                                {isAllowed ? <Check className="h-5 w-5 text-primary flex-shrink-0" /> : <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />}
+                                <span className={cn("text-sm", !isAllowed && "text-muted-foreground line-through")}>{feature.name}</span>
+                            </div>
+                        )
+                    })}
+                </div>
+            </CardContent>
+        </Card>
+    );
 
     return (
         <div className="flex flex-col gap-8">
@@ -128,6 +163,8 @@ export default function BillingPage() {
                 </Button>
             </div>
             
+            <PlanFeaturesGrid />
+
             <Card>
                 <CardHeader>
                     <CardTitle>Buy Credits</CardTitle>
@@ -154,15 +191,15 @@ export default function BillingPage() {
             <Separator />
             
             <div id="upgrade" className="space-y-8">
-                <PlanCategorySection title="All-In-One Plans" plans={categorizedPlans.allInOne} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="Wachat Suite Plans" plans={categorizedPlans.wachat} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="CRM Suite Plans" plans={categorizedPlans.crm} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="Meta Suite Plans" plans={categorizedPlans.meta} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="Instagram Suite Plans" plans={categorizedPlans.instagram} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="Email Suite Plans" plans={categorizedPlans.email} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="SMS Suite Plans" plans={categorizedPlans.sms} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="URL Shortener Plans" plans={categorizedPlans.urlShortener} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="QR Code Generator Plans" plans={categorizedPlans.qrCodeGenerator} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="All-In-One Plans" plans={categorizedPlans['All-In-One']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Wachat Suite Plans" plans={categorizedPlans['Wachat']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="CRM Suite Plans" plans={categorizedPlans['CRM']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Meta Suite Plans" plans={categorizedPlans['Meta']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Instagram Suite Plans" plans={categorizedPlans['Instagram']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Email Suite Plans" plans={categorizedPlans['Email']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="SMS Suite Plans" plans={categorizedPlans['SMS']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="URL Shortener Plans" plans={categorizedPlans['URL Shortener']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="QR Code Generator Plans" plans={categorizedPlans['QR Code Generator']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
             </div>
         </div>
     );
