@@ -125,7 +125,6 @@ const crmMenuItems = [
     { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
     { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban },
     { href: "/dashboard/crm/products", label: "Products", icon: ShoppingBag },
-    { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
     {
         href: '/dashboard/crm/inventory',
         label: 'Inventory',
