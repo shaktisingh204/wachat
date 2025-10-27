@@ -1,35 +1,26 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, LoaderCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-
-type Stage = {
-  id: string;
-  name: string;
-  chance: number;
-};
-
-type Pipeline = {
-  id: string;
-  name: string;
-  stages: Stage[];
-};
+import { useToast } from '@/hooks/use-toast';
+import type { CrmPipeline, CrmPipelineStage } from '@/lib/definitions';
+import { saveCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 
 interface EditPipelinesDialogProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
-    initialPipelines?: Pipeline[];
+    initialPipelines?: CrmPipeline[];
     isCreating?: boolean;
 }
 
-const defaultStages: Stage[] = [
+const defaultStages: CrmPipelineStage[] = [
   { id: uuidv4(), name: 'Open', chance: 10 },
   { id: uuidv4(), name: 'Contacted', chance: 20 },
   { id: uuidv4(), name: 'Proposal Sent', chance: 50 },
@@ -38,17 +29,22 @@ const defaultStages: Stage[] = [
 ];
 
 export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPipelines = [], isCreating = false }: EditPipelinesDialogProps) {
-    const [pipelines, setPipelines] = useState<Pipeline[]>(initialPipelines);
-    const [activePipelineId, setActivePipelineId] = useState<string | null>(initialPipelines[0]?.id || null);
+    const [pipelines, setPipelines] = useState<CrmPipeline[]>([]);
+    const [activePipelineId, setActivePipelineId] = useState<string | null>(null);
+    const [isSaving, startSavingTransition] = useTransition();
+    const { toast } = useToast();
 
     useEffect(() => {
-        if (isCreating && isOpen) {
-            const newPipeline = { id: uuidv4(), name: 'New Sales Pipeline', stages: defaultStages };
-            setPipelines([newPipeline]);
-            setActivePipelineId(newPipeline.id);
-        } else {
-            setPipelines(initialPipelines);
-            setActivePipelineId(initialPipelines[0]?.id || null);
+        if (isOpen) {
+            if (isCreating) {
+                const newPipeline = { id: uuidv4(), name: 'New Sales Pipeline', stages: defaultStages };
+                const newPipelines = [...initialPipelines, newPipeline];
+                setPipelines(newPipelines);
+                setActivePipelineId(newPipeline.id);
+            } else {
+                setPipelines(initialPipelines.length > 0 ? initialPipelines : [{ id: uuidv4(), name: 'Sales Pipeline', stages: defaultStages }]);
+                setActivePipelineId(initialPipelines[0]?.id || null);
+            }
         }
     }, [isOpen, isCreating, initialPipelines]);
 
@@ -57,7 +53,7 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
     const handlePipelineNameChange = (id: string, newName: string) => {
         setPipelines(prev => prev.map(p => p.id === id ? { ...p, name: newName } : p));
     };
-
+    
     const handleStageChange = (pipelineId: string, stageId: string, field: 'name' | 'chance', value: string | number) => {
         setPipelines(prev => prev.map(p => {
             if (p.id === pipelineId) {
@@ -87,10 +83,16 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
     }
 
     const handleSave = () => {
-        // Here you would call a server action to save the pipelines state
-        console.log("Saving pipelines:", pipelines);
-        onSuccess();
-        onOpenChange(false);
+        startSavingTransition(async () => {
+            const result = await saveCrmPipelines(pipelines);
+            if (result.success) {
+                toast({ title: 'Success', description: 'Pipelines saved successfully.' });
+                onSuccess();
+                onOpenChange(false);
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
     };
 
     return (
@@ -140,9 +142,14 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button onClick={handleSave}>Save Changes</Button>
+                    <Button onClick={handleSave} disabled={isSaving}>
+                        {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                        Save Changes
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
     );
 }
+
+    
