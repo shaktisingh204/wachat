@@ -6,7 +6,7 @@ import type { WithId } from 'mongodb';
 import { getCrmAccountGroups, saveCrmAccountGroup, deleteCrmAccountGroup } from '@/app/actions/crm-accounting.actions';
 import type { CrmAccountGroup } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import Papa from 'papaparse';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -126,6 +127,43 @@ function AccountGroupDialog({
     );
 }
 
+function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted: () => void }) {
+    const { toast } = useToast();
+    const [isPending, startTransition] = useTransition();
+
+    const handleDelete = () => {
+        startTransition(async () => {
+            const result = await deleteCrmAccountGroup(account._id.toString());
+            if (result.success) {
+                toast({ title: 'Success', description: 'Account group deleted.' });
+                onDeleted();
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    }
+
+    return (
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Account Group?</AlertDialogTitle>
+                    <AlertDialogDescription>Are you sure you want to delete the "{account.name}" account group? This will also delete all accounts within this group.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Delete
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    )
+}
+
 export default function AccountGroupsPage() {
     const [groups, setGroups] = useState<WithId<CrmAccountGroup>[]>([]);
     const [isLoading, startTransition] = useTransition();
@@ -144,16 +182,6 @@ export default function AccountGroupsPage() {
         fetchData();
     }, [fetchData]);
 
-    const handleDelete = async (groupId: string) => {
-        const result = await deleteCrmAccountGroup(groupId);
-        if (result.success) {
-            toast({ title: 'Success', description: 'Account group deleted.' });
-            fetchData();
-        } else {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        }
-    };
-    
     const handleOpenDialog = (group: WithId<CrmAccountGroup> | null) => {
         setEditingGroup(group);
         setIsDialogOpen(true);
@@ -195,8 +223,8 @@ export default function AccountGroupsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                            <DropdownMenuItem disabled onSelect={() => handleDownload('xls')}>XLS</DropdownMenuItem>
-                            <DropdownMenuItem disabled onSelect={() => handleDownload('pdf')}>PDF</DropdownMenuItem>
+                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -224,15 +252,7 @@ export default function AccountGroupsPage() {
                                             <TableCell>{group.category?.replace(/_/g, ' ')}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(group)}><Edit className="h-4 w-4"/></Button>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader><AlertDialogTitle>Delete Group?</AlertDialogTitle><AlertDialogDescription>Are you sure you want to delete the "{group.name}" group?</AlertDialogDescription></AlertDialogHeader>
-                                                        <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(group._id.toString())}>Delete</AlertDialogAction></AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
+                                                <DeleteButton account={group} onDeleted={fetchData} />
                                             </TableCell>
                                         </TableRow>
                                     ))
