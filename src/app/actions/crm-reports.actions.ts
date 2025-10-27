@@ -188,3 +188,71 @@ export async function generateTeamSalesReportData(filters: {
         return { data: [], users: [] };
     }
 }
+
+export async function generateClientPerformanceReportData(filters: {
+    createdFrom?: Date;
+    createdTo?: Date;
+    pipelineId?: string;
+    assigneeId?: string;
+}): Promise<any[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const accounts = await db.collection<CrmAccount>('crm_accounts').find({ userId }).toArray();
+        const accountIds = accounts.map(a => a._id);
+
+        const dealsFilter: Filter<CrmDeal> = { userId, accountId: { $in: accountIds } };
+        if (filters.createdFrom && filters.createdTo) {
+            dealsFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
+        }
+        if (filters.assigneeId) {
+            dealsFilter.ownerId = new ObjectId(filters.assigneeId);
+        }
+
+        const deals = await db.collection<CrmDeal>('crm_deals').find(dealsFilter).toArray();
+        
+        const report = accounts.map(account => {
+            const accountDeals = deals.filter(d => d.accountId?.equals(account._id));
+            
+            const totalLeads = accountDeals.length;
+            const openLeads = accountDeals.filter(d => !['Won', 'Lost', 'Not Serviceable'].includes(d.stage)).length;
+            const closedLeads = accountDeals.filter(d => d.stage === 'Won').length;
+            const lostLeads = accountDeals.filter(d => d.stage === 'Lost').length;
+            const notServiceable = accountDeals.filter(d => d.stage === 'Not Serviceable').length;
+            
+            const totalRevenue = closedLeads > 0 
+                ? accountDeals.filter(d => d.stage === 'Won').reduce((sum, d) => sum + d.value, 0) 
+                : 0;
+
+            const conversionRate = (closedLeads + lostLeads) > 0 ? (closedLeads / (closedLeads + lostLeads)) * 100 : 0;
+            const avgDealValue = closedLeads > 0 ? totalRevenue / closedLeads : 0;
+            const lastLeadActivityOn = accountDeals.length > 0 
+                ? new Date(Math.max(...accountDeals.map(d => new Date(d.updatedAt || d.createdAt).getTime()))) 
+                : null;
+            
+            return {
+                clientId: account._id.toString(),
+                clientName: account.name,
+                totalRevenue,
+                leadConversionRate: conversionRate,
+                leadsGenerated: totalLeads,
+                openLeads,
+                closedLeads,
+                lostLeads,
+                notServiceable,
+                avgDealValue,
+                lastLeadActivityOn,
+            };
+        });
+
+        return JSON.parse(JSON.stringify(report));
+
+    } catch (e) {
+        console.error("Error generating client performance report:", e);
+        return [];
+    }
+}
