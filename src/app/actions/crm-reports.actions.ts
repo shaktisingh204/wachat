@@ -67,24 +67,20 @@ export async function getLeadsSummaryData(filters: {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
         
-        // Base filters for all queries
-        const baseDealFilter: any = { userId };
-
-        // For now, we are not applying the filters from the UI, but this is where they would go.
-        // if (filters.pipelineId) ...
-        // if (filters.leadSource) ...
-        // etc.
+        const baseDealFilter: Filter<CrmDeal> = { userId };
+        if (filters.leadSource) baseDealFilter.leadSource = filters.leadSource;
+        if (filters.assigneeId) baseDealFilter.ownerId = new ObjectId(filters.assigneeId);
+        if (filters.createdFrom && filters.createdTo) {
+            baseDealFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
+        }
         
         const deals = await db.collection<CrmDeal>('crm_deals').find(baseDealFilter).toArray();
 
-        // 1. Summary Cards Data
         const newLeads = deals.filter(d => d.stage === 'New' || d.stage === 'Open').length;
         const closedLeads = deals.filter(d => d.stage === 'Won' || d.stage === 'Lost').length;
-        // Mocking scheduled/overdue as they depend on Tasks which are not linked yet.
         const scheduledLeads = 0; 
         const overdueLeads = 0;
 
-        // 2. Pipeline Stage Summary & Chart Data
         const pipelines = session.user.crmPipelines || [{ id: 'default', name: 'Sales Pipeline', stages: [{id: '1', name:'Open', chance: 10}, {id: '2', name:'Contacted', chance: 20}, {id: '3', name:'Proposal Sent', chance: 50}, {id: '4', name:'Deal Done', chance: 100}, {id: '5', name:'Lost', chance: 0}, {id: '6', name:'Not Serviceable', chance: 0}] }];
         const activePipeline = pipelines.find(p => p.id === (filters.pipelineId || pipelines[0].id)) || pipelines[0];
 
@@ -100,9 +96,9 @@ export async function getLeadsSummaryData(filters: {
             };
         });
 
-        // 3. Data for filters
-        const leadSources = [...new Set(deals.map(d => d.leadSource).filter(Boolean))];
-        const assignees = [...new Set(deals.map(d => d.ownerId).filter(Boolean))]; // Needs user collection join to get names
+        const allUsersUnderAccount = await db.collection<User>('users').find({}).project({ name: 1 }).toArray();
+
+        const leadSources = (await db.collection('crm_deals').distinct('leadSource', { userId })) as string[];
 
         return {
             summary: {
@@ -115,7 +111,7 @@ export async function getLeadsSummaryData(filters: {
             filtersData: {
                 pipelines,
                 leadSources,
-                assignees: [{_id: session.user._id, name: "You"}] // Mocked
+                assignees: allUsersUnderAccount.map(u => ({_id: u._id.toString(), name: u.name })),
             }
         };
 
@@ -142,8 +138,8 @@ export async function generateTeamSalesReportData(filters: {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
 
-        // For now, we'll consider all users under the main account as 'salespeople'
-        const users = await db.collection<User>('users').find({}).project({ name: 1, email: 1 }).toArray();
+        const currentUser = await db.collection<User>('users').findOne({ _id: userId }, { projection: { name: 1, email: 1 } });
+        const users = currentUser ? [currentUser] : [];
 
         const dealsFilter: Filter<CrmDeal> = { userId };
         if (filters.createdFrom && filters.createdTo) {
@@ -152,8 +148,7 @@ export async function generateTeamSalesReportData(filters: {
         if (filters.assigneeId) {
             dealsFilter.ownerId = new ObjectId(filters.assigneeId);
         }
-        // Add more filters as needed
-
+        
         const deals = await db.collection<CrmDeal>('crm_deals').find(dealsFilter).toArray();
 
         const report = users.map(user => {
