@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Key, LoaderCircle, Trash2, CheckCircle, Copy } from 'lucide-react';
+import { Key, LoaderCircle, Trash2, CheckCircle, Copy, BookOpen, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -86,7 +86,7 @@ export default function UrlShortenerSettingsPage() {
 
      useEffect(() => {
         fetchData();
-    }, [fetchData]);
+    }, []);
 
     useEffect(() => {
         if (addState.success) {
