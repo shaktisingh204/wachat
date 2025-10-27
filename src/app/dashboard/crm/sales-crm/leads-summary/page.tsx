@@ -1,8 +1,6 @@
-
-
 'use client';
 
-import { useState, useEffect, useTransition, useMemo } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -43,13 +41,37 @@ export default function LeadsSummaryPage() {
     const [summaryData, setSummaryData] = useState<any>(null);
     const [isLoading, startTransition] = useTransition();
 
-    useEffect(() => {
+    // Filters State
+    const [filters, setFilters] = useState({
+        pipelineId: '',
+        leadSource: '',
+        assigneeId: '',
+        createdFrom: undefined as Date | undefined,
+        createdTo: undefined as Date | undefined,
+    });
+
+    const fetchData = useCallback(() => {
         startTransition(async () => {
-            const data = await getLeadsSummaryData({});
+            const data = await getLeadsSummaryData(filters);
             setSummaryData(data);
         });
-    }, []);
+    }, [filters]);
 
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+    
+    const handleFilterChange = (key: keyof typeof filters, value: any) => {
+        setFilters(prev => ({...prev, [key]: value}));
+    };
+    
+    const resetFilters = () => {
+        setFilters({
+            pipelineId: '', leadSource: '', assigneeId: '',
+            createdFrom: undefined, createdTo: undefined,
+        });
+    };
+    
     if (isLoading || !summaryData) {
         return <PageSkeleton />;
     }
@@ -81,22 +103,26 @@ export default function LeadsSummaryPage() {
                     <CardTitle>Filters</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <Select><SelectTrigger><SelectValue placeholder="Sales Pipeline"/></SelectTrigger><SelectContent>{(filtersData.pipelines || []).map((p: any) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
-                    <Select><SelectTrigger><SelectValue placeholder="Lead Source"/></SelectTrigger><SelectContent>{(filtersData.leadSources || []).map((s: string) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
-                    <Select><SelectTrigger><SelectValue placeholder="Assigned To"/></SelectTrigger><SelectContent>{(filtersData.assignees || []).map((a: any) => <SelectItem key={a._id} value={a._id}>{a.name}</SelectItem>)}</SelectContent></Select>
-                    <DatePicker placeholder="Lead created date" />
-                    <DatePicker placeholder="Lead updated date" />
-                    <DatePicker placeholder="Lead closed date" />
-                    <Select><SelectTrigger><SelectValue placeholder="Current Lead Stages"/></SelectTrigger><SelectContent/></Select>
-                    <Select><SelectTrigger><SelectValue placeholder="Labels"/></SelectTrigger><SelectContent/></Select>
+                    <Select value={filters.pipelineId} onValueChange={v => handleFilterChange('pipelineId', v)}><SelectTrigger><SelectValue placeholder="Sales Pipeline"/></SelectTrigger><SelectContent>{(filtersData.pipelines || []).map((p: any) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
+                    <Select value={filters.leadSource} onValueChange={v => handleFilterChange('leadSource', v)}><SelectTrigger><SelectValue placeholder="Lead Source"/></SelectTrigger><SelectContent>{(filtersData.leadSources || []).map((s: string) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select>
+                    <Select value={filters.assigneeId} onValueChange={v => handleFilterChange('assigneeId', v)}><SelectTrigger><SelectValue placeholder="Assigned To"/></SelectTrigger><SelectContent>{(filtersData.assignees || []).map((a: any) => <SelectItem key={a._id} value={a._id}>{a.name}</SelectItem>)}</SelectContent></Select>
+                    <DatePicker date={filters.createdFrom} setDate={d => handleFilterChange('createdFrom', d)} placeholder="Lead created from" />
+                    <DatePicker date={filters.createdTo} setDate={d => handleFilterChange('createdTo', d)} placeholder="Lead created to" />
                 </CardContent>
+                 <CardFooter>
+                    <Button onClick={fetchData} disabled={isLoading}>
+                        {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                        Apply Filters
+                    </Button>
+                </CardFooter>
             </Card>
             
-            <div className="flex flex-wrap gap-2 items-center">
+             <div className="flex flex-wrap gap-2 items-center">
                 <span className="text-sm font-semibold">Applied Filters:</span>
-                <Badge variant="secondary" className="gap-1">Pipeline: <span className="font-bold">Sales Pipeline</span></Badge>
-                <Badge variant="secondary" className="gap-1">Assignee: <span className="font-bold">Waplia Digital Solutions</span></Badge>
-                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">Reset all filters</Button>
+                 {filters.pipelineId && <Badge variant="secondary">Pipeline</Badge>}
+                 {filters.assigneeId && <Badge variant="secondary">Assignee</Badge>}
+                 {(filters.createdFrom || filters.createdTo) && <Badge variant="secondary">Date</Badge>}
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={resetFilters}>Reset all filters</Button>
             </div>
 
             <Card>

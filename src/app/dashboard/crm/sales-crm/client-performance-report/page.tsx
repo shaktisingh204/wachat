@@ -1,24 +1,22 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Download, SlidersHorizontal, Trash2, LineChart, CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateClientPerformanceReportData } from '@/app/actions/crm-reports.actions';
+import { generateClientPerformanceReportData, generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';
 import { LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
+import { format } from "date-fns";
 
 export default function ClientPerformanceReportPage() {
     const [reportData, setReportData] = useState<any[]>([]);
+    const [users, setUsers] = useState<any[]>([]);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useToast();
 
@@ -30,13 +28,17 @@ export default function ClientPerformanceReportPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const data = await generateClientPerformanceReportData({
-                createdFrom: startDate,
-                createdTo: endDate,
-                pipelineId,
-                assigneeId
-            });
-            setReportData(data);
+            const [{ data, users }, clientData] = await Promise.all([
+                generateTeamSalesReportData({}), // to get users for filter
+                generateClientPerformanceReportData({
+                    createdFrom: startDate,
+                    createdTo: endDate,
+                    pipelineId,
+                    assigneeId,
+                })
+            ]);
+            setUsers(users);
+            setReportData(clientData);
         });
     }, [startDate, endDate, pipelineId, assigneeId]);
 
@@ -65,6 +67,13 @@ export default function ClientPerformanceReportPage() {
         document.body.removeChild(link);
     };
 
+    const clearFilters = () => {
+        setStartDate(undefined);
+        setEndDate(undefined);
+        setPipelineId('');
+        setAssigneeId('');
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -83,13 +92,14 @@ export default function ClientPerformanceReportPage() {
                     <div className="space-y-1"><Label>Lead Created At</Label><DatePicker date={startDate} setDate={setStartDate} placeholder="Start Date" /></div>
                     <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={endDate} setDate={setEndDate} placeholder="End Date" /></div>
                     <div className="space-y-1"><Label>Pipeline</Label><Select value={pipelineId} onValueChange={setPipelineId}><SelectTrigger><SelectValue placeholder="All Pipelines"/></SelectTrigger><SelectContent><SelectItem value="sales">Sales Pipeline</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label>Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees"/></SelectTrigger><SelectContent /></Select></div>
+                    <div className="space-y-1"><Label>Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees"/></SelectTrigger><SelectContent>{users.map(u => <SelectItem key={u.salespersonId} value={u.salespersonId}>{u.salespersonName}</SelectItem>)}</SelectContent></Select></div>
                 </CardContent>
-                 <CardFooter>
+                 <CardFooter className="gap-2">
                     <Button onClick={fetchData} disabled={isLoading}>
                          {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                         Apply Filters
                     </Button>
+                    <Button variant="ghost" onClick={clearFilters}>Clear Filters</Button>
                 </CardFooter>
             </Card>
 
