@@ -1,6 +1,7 @@
 
 
 'use server';
+export const runtime = 'nodejs';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
@@ -78,8 +79,14 @@ export async function handleAdminLogin(prevState: any, formData: FormData): Prom
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
         const adminSessionToken = await createAdminSessionToken();
         const cookieStore = await cookies();
-        cookieStore.set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
-        redirect('/admin/dashboard');
+        cookieStore.set('admin_session', adminSessionToken, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'lax', 
+            path: '/',
+            maxAge: 86400, // 1 day in seconds
+        });
+        return redirect('/admin/dashboard');
     }
 
     return { error: 'Invalid admin credentials.' };

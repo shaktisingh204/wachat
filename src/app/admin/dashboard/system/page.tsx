@@ -11,6 +11,7 @@ import { SyncLocalTemplatesButton } from "@/components/wabasimplify/sync-local-t
 import { WebhookProcessingToggle } from "@/components/wabasimplify/webhook-processing-toggle";
 import { DiwaliThemeToggle } from "@/components/wabasimplify/diwali-theme-toggle";
 import { AppLogoForm } from "@/components/wabasimplify/admin-logo-form";
+export const dynamic = 'force-dynamic';
 
 export default async function SystemHealthPage() {
     const phonePeSettings = await getPaymentGatewaySettings();

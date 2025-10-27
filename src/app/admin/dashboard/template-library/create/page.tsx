@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -8,6 +9,8 @@ import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProjectById } from '@/app/actions';
+
+export const dynamic = 'force-dynamic';
 
 const LoadingSkeleton = () => (
     <div className="flex flex-col gap-8">

@@ -352,7 +352,7 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
         const cookieStore = await cookies();
         cookieStore.set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
-        redirect('/dashboard');
+        return redirect('/dashboard');
 
     } catch (e: any) {
         return { error: e.message || 'An unexpected server error occurred.' };
@@ -392,7 +392,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
             email,
             password: hashedPassword,
             createdAt: new Date(),
-            ...(defaultPlan && { planId: defaultPlan._id, credits: defaultPlan.signupCredits || 0 }),
+            ...(defaultPlan && { planId: defaultPlan._id, credits: defaultPlan?.signupCredits || 0 }),
         };
 
         const result = await db.collection('users').insertOne(newUser as User);
@@ -401,7 +401,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
         const cookieStore = await cookies();
         cookieStore.set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
-        redirect('/dashboard');
+        return redirect('/dashboard');
         
     } catch (e: any) {
         return { error: e.message || 'An unexpected error occurred during signup.' };
