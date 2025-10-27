@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LoaderCircle, Save, ArrowLeft, UserPlus } from 'lucide-react';
+import { LoaderCircle, Save, ArrowLeft, UserPlus, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
