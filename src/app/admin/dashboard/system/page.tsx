@@ -1,4 +1,5 @@
 
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubscribeAllButton } from "@/components/wabasimplify/subscribe-all-button";
 import { ShieldCheck } from "lucide-react";
@@ -9,6 +10,7 @@ import { getPaymentGatewaySettings } from "@/app/actions";
 import { SyncLocalTemplatesButton } from "@/components/wabasimplify/sync-local-templates-button";
 import { WebhookProcessingToggle } from "@/components/wabasimplify/webhook-processing-toggle";
 import { DiwaliThemeToggle } from "@/components/wabasimplify/diwali-theme-toggle";
+import { AppLogoForm } from "@/components/wabasimplify/admin-logo-form";
 
 export default async function SystemHealthPage() {
     const phonePeSettings = await getPaymentGatewaySettings();
@@ -43,6 +45,10 @@ export default async function SystemHealthPage() {
                     <DiwaliThemeToggle />
                 </CardContent>
             </Card>
+
+            <Separator />
+            
+            <AppLogoForm />
 
             <Separator />
 
