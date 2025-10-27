@@ -1,11 +1,13 @@
+
 import { NextResponse, type NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
     const response = NextResponse.redirect(new URL('/admin-login', request.url));
     
+    const cookieStore = await cookies();
     // The most secure and reliable way to "log out" is to clear the session cookie.
-    cookies().set({
+    cookieStore.set({
         name: 'admin_session',
         value: '',
         path: '/',

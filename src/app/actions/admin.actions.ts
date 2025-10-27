@@ -11,7 +11,7 @@ import { checkRateLimit } from '@/lib/rate-limiter';
 import { headers } from 'next/headers';
 
 export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('admin_session')?.value;
     
     if (!sessionCookie) {
@@ -76,7 +76,8 @@ export async function handleAdminLogin(prevState: any, formData: FormData): Prom
 
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
         const adminSessionToken = await createAdminSessionToken();
-        await cookies().set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        const cookieStore = await cookies();
+        cookieStore.set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
         redirect('/admin/dashboard');
     }
 

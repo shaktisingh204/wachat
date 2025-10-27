@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -324,7 +323,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
 }
 
 export async function handleLogin(prevState: any, formData: FormData): Promise<{ error?: string }> {
-    const headersList = headers();
+    const headersList = await headers();
     const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
 
     const { success, error } = await checkRateLimit(`login:${ip}`, 10, 60 * 1000); // 10 attempts per minute
@@ -350,7 +349,8 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
         }
 
         const sessionToken = await createSessionToken({ userId: user._id.toString(), email: user.email });
-        await cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        const cookieStore = await cookies();
+        cookieStore.set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
         redirect('/dashboard');
 
@@ -360,7 +360,7 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
 }
 
 export async function handleSignup(prevState: any, formData: FormData): Promise<{ error?: string }> {
-    const headersList = headers();
+    const headersList = await headers();
     const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
 
     const { success, error } = await checkRateLimit(`signup:${ip}`, 5, 60 * 60 * 1000); // 5 signups per hour
@@ -398,7 +398,8 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
         const result = await db.collection('users').insertOne(newUser as User);
 
         const sessionToken = await createSessionToken({ userId: result.insertedId.toString(), email: newUser.email });
-        await cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        const cookieStore = await cookies();
+        cookieStore.set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
         redirect('/dashboard');
         
@@ -414,7 +415,8 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
-    const sessionToken = cookies().get('session')?.value;
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('session')?.value;
     if (!sessionToken) return null;
 
     const payload = await verifyJwt(sessionToken);

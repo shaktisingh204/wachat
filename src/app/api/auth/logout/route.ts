@@ -5,7 +5,7 @@ import { decodeJwt } from 'jose';
 import { connectToDatabase } from '@/lib/mongodb';
 
 export async function GET(request: NextRequest) {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const sessionToken = cookieStore.get('session')?.value;
 
     if (sessionToken) {
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
     const response = NextResponse.redirect(new URL('/login', request.url));
-    response.cookies.set({
+    cookieStore.set({
         name: 'session',
         value: '',
         path: '/',
