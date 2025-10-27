@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -171,7 +170,6 @@ export async function getCrmChartOfAccountById(accountId: string): Promise<WithI
         return null;
     }
 }
-
 
 export async function saveCrmChartOfAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const session = await getSession();
@@ -353,6 +351,67 @@ export async function generateTrialBalanceData() {
         
     } catch (e) {
         console.error("Failed to generate trial balance data:", e);
+        return null;
+    }
+}
+
+export async function generateProfitAndLossData(startDate?: Date, endDate?: Date) {
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const dateFilter = (startDate && endDate) ? { date: { $gte: startDate, $lte: endDate } } : {};
+        const filter = { userId, ...dateFilter };
+
+        const accounts = await db.collection('crm_chart_of_accounts').aggregate([
+            { $match: { userId } },
+            { $lookup: { from: 'crm_account_groups', localField: 'accountGroupId', foreignField: '_id', as: 'group' } },
+            { $unwind: '$group' }
+        ]).toArray();
+
+        const voucherEntries = await db.collection('crm_voucher_entries').find(filter).toArray();
+
+        let totalIncome = 0;
+        let totalCogs = 0;
+        let totalExpense = 0;
+
+        for (const account of accounts) {
+            const closingBalance = voucherEntries.reduce((balance, entry) => {
+                const debit = entry.debitEntries.reduce((sum, d) => d.accountId.equals(account._id) ? sum + d.amount : sum, 0);
+                const credit = entry.creditEntries.reduce((sum, c) => c.accountId.equals(account._id) ? sum + c.amount : sum, 0);
+                return balance + debit - credit;
+            }, 0);
+
+            if (account.group.type === 'Income') totalIncome += -closingBalance; // Incomes are credits
+            if (account.group.category === 'Cost_Of_Goods_Sold' || account.group.category === 'Purchase_Accounts') totalCogs += closingBalance;
+            if (account.group.type === 'Expense' && account.group.category !== 'Cost_Of_Goods_Sold' && account.group.category !== 'Purchase_Accounts') totalExpense += closingBalance;
+        }
+
+        const grossProfit = totalIncome - totalCogs;
+        const netProfit = grossProfit - totalExpense;
+
+        return {
+            summary: {
+                totalIncome,
+                totalCogs,
+                totalExpense,
+                grossProfit,
+                netProfit,
+            },
+            entries: [
+                { account: 'Income', amount: totalIncome },
+                { account: 'Cost of Goods Sold', amount: totalCogs },
+                { account: 'Gross Profit', amount: grossProfit, isMain: true },
+                { account: 'Expense', amount: totalExpense },
+                { account: 'Net Profit', amount: netProfit, isMain: true },
+            ]
+        };
+
+    } catch (e) {
+        console.error("Failed to generate P&L data:", e);
         return null;
     }
 }
