@@ -17,8 +17,9 @@ import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
 import { getCrmChartOfAccounts } from '@/app/actions/crm-accounting.actions';
+import { saveVoucherEntry, getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
 import type { WithId } from 'mongodb';
-import type { CrmChartOfAccount } from '@/lib/definitions';
+import type { CrmChartOfAccount, CrmVoucherBook } from '@/lib/definitions';
 
 const initialState = { message: null, error: null };
 
@@ -32,7 +33,7 @@ function SaveButton({ disabled }: { disabled: boolean }) {
   );
 }
 
-type VoucherEntry = {
+type VoucherEntryItem = {
     id: string;
     accountId: string;
     remark?: string;
@@ -40,7 +41,7 @@ type VoucherEntry = {
     amount: number;
 };
 
-const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurrency }: { title: string, items: VoucherEntry[], setItems: React.Dispatch<React.SetStateAction<VoucherEntry[]>>, accounts: WithId<CrmChartOfAccount>[], currency: string, setCurrency: (c: string) => void }) => {
+const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurrency }: { title: string, items: VoucherEntryItem[], setItems: React.Dispatch<React.SetStateAction<VoucherEntryItem[]>>, accounts: WithId<CrmChartOfAccount>[], currency: string, setCurrency: (c: string) => void }) => {
     const handleAddItem = () => {
         setItems([...items, { id: uuidv4(), accountId: '', currency, amount: 0 }]);
     };
@@ -51,7 +52,7 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
         }
     };
 
-    const handleItemChange = (id: string, field: keyof VoucherEntry, value: string | number) => {
+    const handleItemChange = (id: string, field: keyof VoucherEntryItem, value: string | number) => {
         setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
 
@@ -114,24 +115,44 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
 }
 
 export default function NewVoucherPage() {
+    const [state, formAction] = useActionState(saveVoucherEntry, initialState);
+    const router = useRouter();
+    const { toast } = useToast();
+    
     const [accounts, setAccounts] = useState<WithId<CrmChartOfAccount>[]>([]);
+    const [voucherBooks, setVoucherBooks] = useState<WithId<CrmVoucherBook>[]>([]);
     const [voucherDate, setVoucherDate] = useState<Date | undefined>(new Date());
     const [currency, setCurrency] = useState('INR');
     
-    const [debitEntries, setDebitEntries] = useState<VoucherEntry[]>([{ id: uuidv4(), accountId: '', currency, amount: 0 }]);
-    const [creditEntries, setCreditEntries] = useState<VoucherEntry[]>([{ id: uuidv4(), accountId: '', currency, amount: 0 }]);
+    const [debitEntries, setDebitEntries] = useState<VoucherEntryItem[]>([{ id: uuidv4(), accountId: '', currency, amount: 0 }]);
+    const [creditEntries, setCreditEntries] = useState<VoucherEntryItem[]>([{ id: uuidv4(), accountId: '', currency, amount: 0 }]);
 
     useEffect(() => {
         getCrmChartOfAccounts().then(setAccounts);
+        getVoucherBooks().then(setVoucherBooks);
     }, []);
+
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Success!', description: state.message });
+            router.push('/dashboard/crm/accounting/vouchers');
+        }
+        if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, router]);
 
     const totalDebits = debitEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
     const totalCredits = creditEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
     const difference = totalDebits - totalCredits;
 
     return (
-        <form>
-             <div className="bg-muted/30">
+        <form action={formAction}>
+            <input type="hidden" name="debitEntries" value={JSON.stringify(debitEntries)} />
+            <input type="hidden" name="creditEntries" value={JSON.stringify(creditEntries)} />
+            <input type="hidden" name="date" value={voucherDate?.toISOString()} />
+
+            <div className="bg-muted/30">
                 <div className="container mx-auto p-4 md:p-8">
                      <header className="flex justify-between items-center mb-6">
                          <div>
@@ -146,23 +167,25 @@ export default function NewVoucherPage() {
                     <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
                         <CardContent className="p-0">
                             <header className="text-center mb-8">
-                                <h1 className="text-3xl font-bold text-primary">Receipt Voucher Book Voucher Entry</h1>
-                                <p className="text-muted-foreground">Receipt</p>
+                                <h1 className="text-3xl font-bold text-primary">New Voucher Entry</h1>
+                                <p className="text-muted-foreground">Record a new journal entry.</p>
                             </header>
                             
                             <Separator className="my-8"/>
 
                             <section className="grid md:grid-cols-3 gap-4 text-sm mb-8">
-                                <div className="space-y-1"><Label htmlFor="fy">Select FY *</Label>
-                                    <Select defaultValue="fy2526" name="financialYear">
-                                        <SelectTrigger id="fy"><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="fy2526">FY 2025-2026</SelectItem>
-                                            <SelectItem value="fy2425">FY 2024-2025</SelectItem>
-                                        </SelectContent>
+                                 <div className="space-y-1">
+                                    <Label htmlFor="voucherBookId">Voucher Book *</Label>
+                                    <Select name="voucherBookId" required>
+                                        <SelectTrigger id="voucherBookId"><SelectValue placeholder="Select a book..."/></SelectTrigger>
+                                        <SelectContent>{voucherBooks.map(book => <SelectItem key={book._id.toString()} value={book._id.toString()}>{book.name}</SelectItem>)}</SelectContent>
                                     </Select>
                                 </div>
-                                <div className="space-y-1"><Label htmlFor="date">Date *</Label><DatePicker id="date" date={voucherDate} setDate={setVoucherDate} /></div>
+                                <div className="space-y-1">
+                                    <Label htmlFor="voucherNumber">Voucher Number *</Label>
+                                    <Input id="voucherNumber" name="voucherNumber" required placeholder="e.g. V-001" />
+                                </div>
+                                <div className="space-y-1"><Label>Date *</Label><DatePicker date={voucherDate} setDate={setVoucherDate} /></div>
                                 <div className="space-y-1 md:col-span-3"><Label htmlFor="note">Note</Label><Textarea id="note" name="note" placeholder="Add a Note" /></div>
                             </section>
                             
@@ -191,4 +214,3 @@ export default function NewVoucherPage() {
         </form>
     );
 }
-

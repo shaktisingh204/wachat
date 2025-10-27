@@ -379,6 +379,32 @@ export type CrmChartOfAccount = {
     createdAt: Date;
 };
 
+export type CrmVoucherBook = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    type: 'Contra' | 'Journal' | 'Reversing Journal' | 'Payment' | 'Receipt' | 'Debit Note' | 'Credit Note' | 'Sales' | 'Purchase' | 'Reimbursement';
+    isDefault?: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    entryCount?: number;
+    lastEntryDate?: Date;
+};
+
+export type CrmVoucherEntry = {
+    _id: ObjectId;
+    userId: ObjectId;
+    voucherBookId: ObjectId;
+    voucherNumber: string;
+    date: Date;
+    note?: string;
+    debitEntries: { accountId: ObjectId; amount: number; remark?: string; }[];
+    creditEntries: { accountId: ObjectId; amount: number; remark?: string; }[];
+    totalDebit: number;
+    totalCredit: number;
+    createdAt: Date;
+};
+
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;
