@@ -29,36 +29,50 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
 
+    const groupId = formData.get('groupId') as string | null;
+    const isEditing = !!groupId;
+
     try {
-        const newGroup: Omit<CrmAccountGroup, '_id' | 'createdAt'> = {
+        const groupData: Partial<Omit<CrmAccountGroup, '_id'>> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             type: formData.get('type') as CrmAccountGroup['type'],
             category: formData.get('category') as string,
         };
 
-        if (!newGroup.name || !newGroup.type || !newGroup.category) {
+        if (!groupData.name || !groupData.type || !groupData.category) {
             return { error: 'All fields are required.' };
         }
 
         const { db } = await connectToDatabase();
         
-        const existing = await db.collection('crm_account_groups').findOne({
-            userId: newGroup.userId,
-            name: newGroup.name,
-        });
+        const existingFilter: Filter<CrmAccountGroup> = {
+            userId: groupData.userId,
+            name: groupData.name,
+        };
+        if (isEditing) {
+            existingFilter._id = { $ne: new ObjectId(groupId!) };
+        }
+        const existing = await db.collection('crm_account_groups').findOne(existingFilter);
 
         if (existing) {
-            return { error: `An account group named "${newGroup.name}" already exists.`};
+            return { error: `An account group named "${groupData.name}" already exists.`};
         }
 
-        await db.collection('crm_account_groups').insertOne({
-            ...newGroup,
-            createdAt: new Date()
-        } as CrmAccountGroup);
+        if (isEditing) {
+            await db.collection('crm_account_groups').updateOne(
+                { _id: new ObjectId(groupId!) },
+                { $set: groupData }
+            );
+        } else {
+            await db.collection('crm_account_groups').insertOne({
+                ...groupData,
+                createdAt: new Date()
+            } as CrmAccountGroup);
+        }
         
         revalidatePath('/dashboard/crm/accounting/groups');
-        return { message: 'Account group created successfully.' };
+        return { message: 'Account group saved successfully.' };
     } catch(e: any) {
         return { error: getErrorMessage(e) };
     }
