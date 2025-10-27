@@ -117,7 +117,7 @@ export default function BillingPage() {
 
     const userPlanId = sessionUser?.plan?._id;
 
-    if (!isClient || !sessionUser || !activeProjectId) {
+    if (!isClient || !sessionUser) {
         return (
             <div className="flex items-center justify-center h-full">
                 <p>Loading user and project data...</p>
@@ -191,16 +191,24 @@ export default function BillingPage() {
             <Separator />
             
             <div id="upgrade" className="space-y-8">
-                <PlanCategorySection title="All-In-One Plans" plans={categorizedPlans['All-In-One']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="Wachat Suite Plans" plans={categorizedPlans['Wachat']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="CRM Suite Plans" plans={categorizedPlans['CRM']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="Meta Suite Plans" plans={categorizedPlans['Meta']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="Instagram Suite Plans" plans={categorizedPlans['Instagram']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="Email Suite Plans" plans={categorizedPlans['Email']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="SMS Suite Plans" plans={categorizedPlans['SMS']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="URL Shortener Plans" plans={categorizedPlans['URL Shortener']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                <PlanCategorySection title="QR Code Generator Plans" plans={categorizedPlans['QR Code Generator']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                {activeProjectId ? (
+                    <>
+                        <PlanCategorySection title="All-In-One Plans" plans={categorizedPlans['All-In-One']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        <PlanCategorySection title="Wachat Suite Plans" plans={categorizedPlans['Wachat']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        <PlanCategorySection title="CRM Suite Plans" plans={categorizedPlans['CRM']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        <PlanCategorySection title="Meta Suite Plans" plans={categorizedPlans['Meta']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        <PlanCategorySection title="Instagram Suite Plans" plans={categorizedPlans['Instagram']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        <PlanCategorySection title="Email Suite Plans" plans={categorizedPlans['Email']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        <PlanCategorySection title="SMS Suite Plans" plans={categorizedPlans['SMS']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        <PlanCategorySection title="URL Shortener Plans" plans={categorizedPlans['URL Shortener']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                        <PlanCategorySection title="QR Code Generator Plans" plans={categorizedPlans['QR Code Generator']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                    </>
+                ) : (
+                    <p className="text-center text-muted-foreground">Select a project from the dashboard to manage its plan.</p>
+                )}
             </div>
         </div>
     );
 }
+
+    
