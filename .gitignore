@@ -13,7 +13,7 @@
 # testing
 /coverage
 /src/app/actions.ts
-
+/src/app/actions/whatsapp.actions.ts
 # next.js
 /.next/
 /out/
