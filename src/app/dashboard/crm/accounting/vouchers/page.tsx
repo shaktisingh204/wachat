@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -10,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { PlusCircle, Download, SlidersHorizontal, MoreVertical, Edit, FilePlus, Eye } from 'lucide-react';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { CreateVoucherBookDialog } from '@/components/wabasimplify/create-voucher-book-dialog';
+import Link from 'next/link';
 
 const mockVoucherBooks = [
   {
@@ -92,7 +94,9 @@ export default function VoucherBooksPage() {
                                             <div className="flex justify-end items-center gap-1">
                                                 <Button variant="ghost" size="sm">Open</Button>
                                                 <Button variant="ghost" size="sm">Edit</Button>
-                                                <Button variant="default" size="sm">New Entry</Button>
+                                                <Button asChild variant="default" size="sm">
+                                                    <Link href="/dashboard/crm/accounting/vouchers/new">New Entry</Link>
+                                                </Button>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4"/></Button>
