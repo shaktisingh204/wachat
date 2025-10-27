@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { CrmAccountGroup, CrmChartOfAccount } from '@/lib/definitions';
+import type { CrmAccountGroup, CrmChartOfAccount, CrmVoucherEntry } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function getCrmAccountGroups(): Promise<WithId<CrmAccountGroup>[]> {
@@ -200,7 +200,7 @@ export async function saveCrmChartOfAccount(prevState: any, formData: FormData):
         
         if (isEditing && ObjectId.isValid(accountId)) {
             await db.collection('crm_chart_of_accounts').updateOne(
-                { _id: new ObjectId(accountId!) },
+                { _id: new ObjectId(accountId!), userId: new ObjectId(session.user._id) },
                 { $set: accountData }
             );
         } else {
@@ -301,6 +301,58 @@ export async function generateBalanceSheetData() {
         };
     } catch (e) {
         console.error("Failed to generate balance sheet data:", e);
+        return null;
+    }
+}
+
+export async function generateTrialBalanceData() {
+    const session = await getSession();
+    if (!session?.user) return null;
+    
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        
+        const accounts = await db.collection('crm_chart_of_accounts').find({ userId }).toArray();
+        const voucherEntries = await db.collection('crm_voucher_entries').find({ userId }).toArray();
+        
+        const data = accounts.map(account => {
+            const openingBalance = account.balanceType === 'Cr' ? -account.openingBalance : account.openingBalance;
+            
+            const totalDebit = voucherEntries.reduce((sum, entry) =>
+                sum + entry.debitEntries.reduce((entrySum, debit) =>
+                    debit.accountId.equals(account._id) ? entrySum + debit.amount : entrySum, 0), 0);
+            
+            const totalCredit = voucherEntries.reduce((sum, entry) =>
+                sum + entry.creditEntries.reduce((entrySum, credit) =>
+                    credit.accountId.equals(account._id) ? entrySum + credit.amount : entrySum, 0), 0);
+                
+            const closingBalance = openingBalance + totalDebit - totalCredit;
+            
+            return {
+                accountId: account._id.toString(),
+                accountName: account.name,
+                openingBalance: Math.abs(openingBalance),
+                openingBalanceType: openingBalance >= 0 ? 'Dr' : 'Cr' as 'Dr' | 'Cr',
+                totalDebit,
+                totalCredit,
+                closingBalance: Math.abs(closingBalance),
+                closingBalanceType: closingBalance >= 0 ? 'Dr' : 'Cr' as 'Dr' | 'Cr',
+            }
+        });
+
+        const totals = data.reduce((acc, curr) => {
+            acc.totalOpening += (curr.openingBalanceType === 'Dr' ? curr.openingBalance : -curr.openingBalance);
+            acc.totalDebit += curr.totalDebit;
+            acc.totalCredit += curr.totalCredit;
+            acc.totalClosing += (curr.closingBalanceType === 'Dr' ? curr.closingBalance : -curr.closingBalance);
+            return acc;
+        }, { totalOpening: 0, totalDebit: 0, totalCredit: 0, totalClosing: 0 });
+        
+        return { data, totals };
+        
+    } catch (e) {
+        console.error("Failed to generate trial balance data:", e);
         return null;
     }
 }
