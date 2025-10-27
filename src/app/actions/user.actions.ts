@@ -502,15 +502,16 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
             }));
             updateData.tags = parsedTags;
         }
-
-        if (businessName || businessAddress || businessGstin) {
+        
+        // This is the corrected part
+        if (businessName !== null || businessAddress !== null || businessGstin !== null) {
             updateData.businessProfile = {
-                name: businessName,
-                address: businessAddress,
-                gstin: businessGstin
-            }
+                name: businessName || undefined,
+                address: businessAddress || undefined,
+                gstin: businessGstin || undefined,
+            };
         }
-
+        
         if (Object.keys(updateData).length === 0) {
             return { error: 'No data provided to update.' };
         }
@@ -528,6 +529,8 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
         revalidatePath('/dashboard/settings');
         revalidatePath('/dashboard/url-shortener/settings');
         revalidatePath('/dashboard/user/settings/profile');
+        revalidatePath('/dashboard/crm/accounting/trial-balance');
+        revalidatePath('/dashboard/crm/accounting/income-statement');
         return { message: 'Profile updated successfully.' };
 
     } catch (e: any) {
@@ -579,3 +582,5 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
+    
