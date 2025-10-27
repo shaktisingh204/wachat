@@ -22,12 +22,12 @@ import type { CrmChartOfAccount } from '@/lib/definitions';
 
 const initialState = { message: null, error: null };
 
-function SaveButton() {
+function SaveButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending || disabled}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Save Voucher
+      Submit
     </Button>
   );
 }
@@ -35,41 +35,99 @@ function SaveButton() {
 type VoucherEntry = {
     id: string;
     accountId: string;
-    debit: number;
-    credit: number;
+    remark?: string;
+    currency: string;
+    amount: number;
 };
 
+const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurrency }: { title: string, items: VoucherEntry[], setItems: React.Dispatch<React.SetStateAction<VoucherEntry[]>>, accounts: WithId<CrmChartOfAccount>[], currency: string, setCurrency: (c: string) => void }) => {
+    const handleAddItem = () => {
+        setItems([...items, { id: uuidv4(), accountId: '', currency, amount: 0 }]);
+    };
+
+    const handleRemoveItem = (id: string) => {
+        if (items.length > 1) {
+            setItems(items.filter(item => item.id !== id));
+        }
+    };
+
+    const handleItemChange = (id: string, field: keyof VoucherEntry, value: string | number) => {
+        setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+    };
+
+    const totalAmount = items.reduce((sum, item) => sum + Number(item.amount), 0);
+
+    return (
+        <section>
+            <div className="flex justify-between items-baseline mb-2">
+                 <h3 className="font-semibold text-lg">{title}</h3>
+                 <p className="text-sm font-medium">Total: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</p>
+            </div>
+            <div className="space-y-3">
+                {items.map((item, index) => (
+                    <div key={item.id} className="p-3 border rounded-lg bg-muted/50 space-y-3">
+                        <div className="flex justify-between items-center">
+                            <Label>Item {index + 1}</Label>
+                            {items.length > 1 && (
+                                <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveItem(item.id)}>
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                            )}
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <Label className="text-xs">Account *</Label>
+                                <Select value={item.accountId} onValueChange={(val) => handleItemChange(item.id, 'accountId', val)} required>
+                                    <SelectTrigger><SelectValue placeholder="Search from an Account..." /></SelectTrigger>
+                                    <SelectContent>
+                                        {accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                             <div className="space-y-1">
+                                <Label className="text-xs">Remark</Label>
+                                <Input placeholder="Add Remark" value={item.remark || ''} onChange={e => handleItemChange(item.id, 'remark', e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <Label className="text-xs">Currency *</Label>
+                                <Select value={item.currency} onValueChange={(val) => handleItemChange(item.id, 'currency', val)}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="INR">Indian Rupee (INR, ₹)</SelectItem>
+                                        <SelectItem value="USD">US Dollar (USD, $)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                             <div className="space-y-1">
+                                <Label className="text-xs">Amount *</Label>
+                                <Input type="number" value={item.amount} onChange={e => handleItemChange(item.id, 'amount', Number(e.target.value))} required />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+             <Button type="button" variant="outline" size="sm" className="mt-3" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4"/>Add Line Item</Button>
+        </section>
+    );
+}
+
 export default function NewVoucherPage() {
-    // const [state, formAction] = useActionState(saveVoucher, initialState);
-    const router = useRouter();
-    const { toast } = useToast();
-    
     const [accounts, setAccounts] = useState<WithId<CrmChartOfAccount>[]>([]);
     const [voucherDate, setVoucherDate] = useState<Date | undefined>(new Date());
-    const [entries, setEntries] = useState<VoucherEntry[]>([
-        { id: uuidv4(), accountId: '', debit: 0, credit: 0 },
-        { id: uuidv4(), accountId: '', debit: 0, credit: 0 },
-    ]);
+    const [currency, setCurrency] = useState('INR');
     
+    const [debitEntries, setDebitEntries] = useState<VoucherEntry[]>([{ id: uuidv4(), accountId: '', currency, amount: 0 }]);
+    const [creditEntries, setCreditEntries] = useState<VoucherEntry[]>([{ id: uuidv4(), accountId: '', currency, amount: 0 }]);
+
     useEffect(() => {
         getCrmChartOfAccounts().then(setAccounts);
     }, []);
 
-    const totalDebits = entries.reduce((sum, entry) => sum + Number(entry.debit), 0);
-    const totalCredits = entries.reduce((sum, entry) => sum + Number(entry.credit), 0);
+    const totalDebits = debitEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
+    const totalCredits = creditEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
     const difference = totalDebits - totalCredits;
-
-    const handleAddEntry = () => {
-        setEntries([...entries, { id: uuidv4(), accountId: '', debit: 0, credit: 0 }]);
-    };
-
-    const handleRemoveEntry = (id: string) => {
-        setEntries(entries.filter(e => e.id !== id));
-    };
-
-    const handleEntryChange = (id: string, field: keyof VoucherEntry, value: string | number) => {
-        setEntries(entries.map(e => e.id === id ? { ...e, [field]: value } : e));
-    };
 
     return (
         <form>
@@ -82,87 +140,50 @@ export default function NewVoucherPage() {
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" type="button">Save As Draft</Button>
-                             <SaveButton />
+                             <SaveButton disabled={difference !== 0} />
                         </div>
                      </header>
                     <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
                         <CardContent className="p-0">
-                            <header className="mb-8">
-                                <h1 className="text-3xl font-bold text-primary">New Voucher Entry</h1>
+                            <header className="text-center mb-8">
+                                <h1 className="text-3xl font-bold text-primary">Receipt Voucher Book Voucher Entry</h1>
+                                <p className="text-muted-foreground">Receipt</p>
                             </header>
                             
                             <Separator className="my-8"/>
 
                             <section className="grid md:grid-cols-3 gap-4 text-sm mb-8">
-                                <div className="space-y-1"><Label className="text-xs">Voucher Type</Label><Input value="Journal" disabled /></div>
-                                <div className="space-y-1"><Label className="text-xs">Voucher No.</Label><Input name="voucherNumber" defaultValue="JOU-00001" className="h-8" maxLength={50} /></div>
-                                <div className="space-y-1"><Label className="text-xs">Date *</Label><DatePicker date={voucherDate} setDate={setVoucherDate} /></div>
-                            </section>
-
-                            <section>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-muted">
-                                            <tr className="border-b">
-                                                <th className="p-3 text-left font-medium">Account</th>
-                                                <th className="p-3 text-right font-medium">Debit</th>
-                                                <th className="p-3 text-right font-medium">Credit</th>
-                                                <th className="p-3 w-12"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {entries.map((entry, index) => (
-                                                <tr key={entry.id} className="border-b">
-                                                    <td className="p-2">
-                                                        <Select value={entry.accountId} onValueChange={(val) => handleEntryChange(entry.id, 'accountId', val)}>
-                                                            <SelectTrigger><SelectValue placeholder="Select Account..."/></SelectTrigger>
-                                                            <SelectContent>
-                                                                {accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </td>
-                                                    <td className="p-2"><Input type="number" step="0.01" className="w-32 text-right" value={entry.debit} onChange={(e) => handleEntryChange(entry.id, 'debit', e.target.value)} /></td>
-                                                    <td className="p-2"><Input type="number" step="0.01" className="w-32 text-right" value={entry.credit} onChange={(e) => handleEntryChange(entry.id, 'credit', e.target.value)} /></td>
-                                                    <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveEntry(entry.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                        <tfoot>
-                                            <tr className="border-t font-bold">
-                                                <td className="p-3 text-right">Total</td>
-                                                <td className="p-3 text-right">{totalDebits.toFixed(2)}</td>
-                                                <td className="p-3 text-right">{totalCredits.toFixed(2)}</td>
-                                                <td></td>
-                                            </tr>
-                                             {difference !== 0 && (
-                                                <tr className="border-t">
-                                                    <td className="p-3 text-right text-destructive">Difference</td>
-                                                    <td className="p-3 text-right font-semibold text-destructive">{difference > 0 ? difference.toFixed(2) : '-'}</td>
-                                                    <td className="p-3 text-right font-semibold text-destructive">{difference < 0 ? Math.abs(difference).toFixed(2) : '-'}</td>
-                                                    <td></td>
-                                                </tr>
-                                            )}
-                                        </tfoot>
-                                    </table>
+                                <div className="space-y-1"><Label htmlFor="fy">Select FY *</Label>
+                                    <Select defaultValue="fy2526" name="financialYear">
+                                        <SelectTrigger id="fy"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="fy2526">FY 2025-2026</SelectItem>
+                                            <SelectItem value="fy2425">FY 2024-2025</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
-                                 <div className="p-4 space-y-2">
-                                    <Button type="button" variant="outline" size="sm" onClick={handleAddEntry}><PlusCircle className="mr-2 h-4 w-4"/>Add New Line</Button>
-                                </div>
+                                <div className="space-y-1"><Label htmlFor="date">Date *</Label><DatePicker id="date" date={voucherDate} setDate={setVoucherDate} /></div>
+                                <div className="space-y-1 md:col-span-3"><Label htmlFor="note">Note</Label><Textarea id="note" name="note" placeholder="Add a Note" /></div>
                             </section>
-
-                            <Separator className="my-8"/>
                             
-                            <section className="mt-8 space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Narration (Optional)</Label>
-                                    <Textarea name="narration" placeholder="Add a description for this entry..." />
+                            <LineItemsSection title="Debit Accounts" items={debitEntries} setItems={setDebitEntries} accounts={accounts} currency={currency} setCurrency={setCurrency} />
+
+                             <Separator className="my-8"/>
+
+                            <LineItemsSection title="Credit Accounts" items={creditEntries} setItems={setCreditEntries} accounts={accounts} currency={currency} setCurrency={setCurrency} />
+
+                             <Separator className="my-8"/>
+                            
+                             <div className="flex justify-end font-semibold text-lg p-4">
+                                <div className="w-full max-w-sm space-y-2">
+                                     <div className="flex justify-between"><span>Total Debit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalDebits)}</span></div>
+                                     <div className="flex justify-between"><span>Total Credit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalCredits)}</span></div>
+                                     {difference !== 0 && (
+                                        <div className="flex justify-between text-destructive pt-2 border-t"><span>Difference</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(Math.abs(difference))}</span></div>
+                                     )}
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Attachments (Optional)</Label>
-                                    <Input type="file" multiple />
-                                </div>
-                            </section>
+                             </div>
+
                         </CardContent>
                     </Card>
                 </div>
