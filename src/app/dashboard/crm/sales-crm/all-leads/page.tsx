@@ -20,17 +20,19 @@ import {
     Mail,
     Phone,
     MessageSquare,
-    Eye
+    Eye,
+    Link as LinkIcon
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getSession } from "@/app/actions";
 import type { User } from "@/lib/definitions";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const leads = [
-    { id: 1, name: "Prospect A", email: "prospect.a@example.com", owner: "You", status: "New", nextActivity: "2024-10-25", score: 85, source: "Website" },
-    { id: 2, name: "Prospect B", email: "prospect.b@example.com", owner: "You", status: "Open", nextActivity: "2024-10-26", score: 65, source: "Referral" },
+    { id: 1, pipeline: 'Sales Pipeline', contactName: "Aisha Ahmed", organisation: 'Acme Inc.', designation: 'Marketing Head', email: "prospect.a@example.com", phone: '+919876543210', contactCountry: 'India', customerCountry: 'India', city: 'Mumbai', state: 'Maharashtra', createdAt: '2024-10-22', status: "New", leadSource: "Website", lastUpdate: '2024-10-23', budget: '$5,000', subject: 'New Website Project', creator: 'You', assignee: 'You', followUp: '2024-10-28', lastCommentBy: 'You', nextActivity: "2024-10-25", score: 85, dateClosed: '-', description: 'Interested in a full redesign.', labels: ['Hot Lead'], duplicate: 'No', firstResponse: '2 hours', lastInternalNote: 'Sent proposal' },
+    { id: 2, pipeline: 'Sales Pipeline', contactName: "David Chen", organisation: 'Innovate LLC', designation: 'CTO', email: "prospect.b@example.com", phone: '+14155552671', contactCountry: 'USA', customerCountry: 'USA', city: 'San Francisco', state: 'CA', createdAt: '2024-10-21', status: "Open", leadSource: "Referral", lastUpdate: '2024-10-24', budget: '$12,000', subject: 'API Integration', creator: 'Jane', assignee: 'You', followUp: '2024-10-27', lastCommentBy: 'Jane', nextActivity: "2024-10-26", score: 65, dateClosed: '-', description: 'Needs to connect their system.', labels: [], duplicate: 'No', firstResponse: '30 mins', lastInternalNote: 'Scheduled a demo call' },
 ];
 
 const FilterBadge = ({ children }: { children: React.ReactNode }) => (
@@ -103,17 +105,39 @@ export default function AllLeadsPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="border rounded-md">
+                    <ScrollArea className="w-full whitespace-nowrap">
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-12"><Checkbox onCheckedChange={(checked) => setSelectedLeads(checked ? leads.map(l => l.id) : [])}/></TableHead>
-                                    <TableHead>Lead</TableHead>
-                                    <TableHead>Owner</TableHead>
+                                    <TableHead>Pipeline</TableHead>
+                                    <TableHead>Contact Name</TableHead>
+                                    <TableHead>Organisation Name</TableHead>
+                                    <TableHead>Designation</TableHead>
+                                    <TableHead>Email</TableHead>
+                                    <TableHead>Phone</TableHead>
+                                    <TableHead>Contact Country</TableHead>
+                                    <TableHead>Customer Country</TableHead>
+                                    <TableHead>Customer City</TableHead>
+                                    <TableHead>State</TableHead>
+                                    <TableHead>Created At</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Next Activity</TableHead>
-                                    <TableHead>Score</TableHead>
                                     <TableHead>Lead Source</TableHead>
+                                    <TableHead>Last Update</TableHead>
+                                    <TableHead>Budget</TableHead>
+                                    <TableHead>Subject</TableHead>
+                                    <TableHead>Creator</TableHead>
+                                    <TableHead>Assignee</TableHead>
+                                    <TableHead>Follow Up Date</TableHead>
+                                    <TableHead>Last Comment By</TableHead>
+                                    <TableHead>WhatsApp Link</TableHead>
+                                    <TableHead>First Response Time</TableHead>
+                                    <TableHead>Last Internal Note</TableHead>
+                                    <TableHead>Next Activity</TableHead>
+                                    <TableHead>Date Closed</TableHead>
+                                    <TableHead>Lead Description</TableHead>
+                                    <TableHead>Labels</TableHead>
+                                    <TableHead>Duplicate</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -121,15 +145,38 @@ export default function AllLeadsPage() {
                                 {leads.map(lead => (
                                     <TableRow key={lead.id}>
                                         <TableCell><Checkbox checked={selectedLeads.includes(lead.id)} onCheckedChange={(checked) => setSelectedLeads(prev => checked ? [...prev, lead.id] : prev.filter(id => id !== lead.id))} /></TableCell>
+                                        <TableCell>{lead.pipeline}</TableCell>
                                         <TableCell>
-                                            <div className="font-medium">{lead.name}</div>
-                                            <div className="text-xs text-muted-foreground">{lead.email}</div>
+                                            <div className="font-medium">{lead.contactName}</div>
                                         </TableCell>
-                                        <TableCell>{lead.owner}</TableCell>
+                                        <TableCell>{lead.organisation}</TableCell>
+                                        <TableCell>{lead.designation}</TableCell>
+                                        <TableCell>{lead.email}</TableCell>
+                                        <TableCell>{lead.phone}</TableCell>
+                                        <TableCell>{lead.contactCountry}</TableCell>
+                                        <TableCell>{lead.customerCountry}</TableCell>
+                                        <TableCell>{lead.city}</TableCell>
+                                        <TableCell>{lead.state}</TableCell>
+                                        <TableCell>{new Date(lead.createdAt).toLocaleDateString()}</TableCell>
                                         <TableCell><Badge variant="secondary">{lead.status}</Badge></TableCell>
+                                        <TableCell>{lead.leadSource}</TableCell>
+                                        <TableCell>{new Date(lead.lastUpdate).toLocaleDateString()}</TableCell>
+                                        <TableCell>{lead.budget}</TableCell>
+                                        <TableCell>{lead.subject}</TableCell>
+                                        <TableCell>{lead.creator}</TableCell>
+                                        <TableCell>{lead.assignee}</TableCell>
+                                        <TableCell>{new Date(lead.followUp).toLocaleDateString()}</TableCell>
+                                        <TableCell>{lead.lastCommentBy}</TableCell>
+                                        <TableCell><Button variant="link" asChild className="p-0 h-auto"><a href={`https://wa.me/${lead.phone}`} target="_blank"><LinkIcon className="h-4 w-4"/></a></Button></TableCell>
+                                        <TableCell>{lead.firstResponse}</TableCell>
+                                        <TableCell>{lead.lastInternalNote}</TableCell>
                                         <TableCell>{new Date(lead.nextActivity).toLocaleDateString()}</TableCell>
-                                        <TableCell><span className="font-bold text-primary">{lead.score}</span></TableCell>
-                                        <TableCell>{lead.source}</TableCell>
+                                        <TableCell>{lead.dateClosed}</TableCell>
+                                        <TableCell className="max-w-xs truncate">{lead.description}</TableCell>
+                                        <TableCell>
+                                            {lead.labels.map(l => <Badge key={l}>{l}</Badge>)}
+                                        </TableCell>
+                                        <TableCell>{lead.duplicate}</TableCell>
                                         <TableCell className="text-right">
                                              <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -150,7 +197,8 @@ export default function AllLeadsPage() {
                                 ))}
                             </TableBody>
                         </Table>
-                    </div>
+                         <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
                 </CardContent>
             </Card>
         </div>
