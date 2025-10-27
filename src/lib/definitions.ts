@@ -260,6 +260,7 @@ export type CrmContact = {
     avatarUrl?: string;
     status: 'new_lead' | 'contacted' | 'qualified' | 'unqualified' | 'customer' | 'imported';
     leadScore?: number;
+    leadSource?: string;
     assignedTo?: string; // User ID or name
     lastActivity?: Date;
     notes?: {
@@ -1699,7 +1700,7 @@ export type CrmVendor = {
     bankAccountDetails?: BankAccountDetails;
     showEmailInInvoice?: boolean;
     showPhoneInInvoice?: boolean;
-    attachments?: string[];
+    attachments?: string[]; // URLs
     createdAt: Date;
     updatedAt: Date;
 };
