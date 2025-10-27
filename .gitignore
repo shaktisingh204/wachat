@@ -17,6 +17,8 @@
 /src/app/actions/qr-code.actions.ts
 /src/app/actions/contact.actions.ts
 /src/app/actions/broadcast.actions.ts
+/src/app/actions/email.actions.ts
+/src/app/actions/facebook.actions.ts
 # next.js
 /.next/
 /out/
