@@ -1033,7 +1033,7 @@ export type Plan = {
     name: string;
     price: number;
     currency: string;
-    appCategory?: 'All-In-One' | 'Wachat' | 'CRM';
+    appCategory?: 'All-In-One' | 'Wachat' | 'CRM' | 'Meta' | 'Instagram' | 'Email' | 'SMS' | 'URL Shortener' | 'QR Code Generator';
     isPublic: boolean;
     isDefault: boolean;
     projectLimit: number;
@@ -1851,5 +1851,3 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
-
-    

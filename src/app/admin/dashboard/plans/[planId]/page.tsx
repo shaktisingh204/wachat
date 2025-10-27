@@ -105,6 +105,12 @@ export default function PlanEditorPage() {
                                     <SelectItem value="All-In-One">All-In-One</SelectItem>
                                     <SelectItem value="Wachat">Wachat</SelectItem>
                                     <SelectItem value="CRM">CRM</SelectItem>
+                                    <SelectItem value="Meta">Meta Suite</SelectItem>
+                                    <SelectItem value="Instagram">Instagram Suite</SelectItem>
+                                    <SelectItem value="Email">Email</SelectItem>
+                                    <SelectItem value="SMS">SMS</SelectItem>
+                                    <SelectItem value="URL Shortener">URL Shortener</SelectItem>
+                                    <SelectItem value="QR Code Generator">QR Code Generator</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
