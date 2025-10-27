@@ -79,7 +79,7 @@ const blockTypes = [
     { type: 'condition', label: 'Add Condition', icon: GitFork },
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'api', label: 'Call API', icon: ArrowRightLeft },
-    { type: 'language', label: 'Set Language', icon: BrainCircuit },
+    { type: 'language', label: 'Set Language', icon: BrainCircuit, isNew: true },
     { type: 'carousel', label: 'Product Carousel', icon: View, isNew: true },
     { type: 'sendTemplate', label: 'Send Template', icon: FileTextIcon, isNew: true },
     { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: ServerCog, isNew: true },
@@ -318,7 +318,12 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, 
                             <div className="space-y-3">
                                 {(selectedNode.data.buttons || []).map((btn: ButtonConfig, index: number) => (
                                     <div key={btn.id || index} className="flex items-center gap-2">
-                                        <Input placeholder="Button Text" value={btn.text} onChange={(e) => handleButtonChange(index, 'text', e.target.value)} maxLength={20} />
+                                        <Input 
+                                            placeholder="Button Text" 
+                                            value={btn.text} 
+                                            onChange={(e) => handleButtonChange(index, 'text', e.target.value)} 
+                                            maxLength={20}
+                                        />
                                         <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeFlowButton(index)}><Trash2 className="h-3 w-3"/></Button>
                                     </div>
                                 ))}
@@ -392,6 +397,10 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, 
                         </TabsContent>
                     </Tabs>
                 );
+            case 'carousel':
+                 return <div className="space-y-2"><Label>Header Text</Label><Input value={selectedNode.data.headerText || ''} onChange={(e) => handleDataChange('headerText', e.target.value)} maxLength={60} /><Label>Body Text</Label><Textarea value={selectedNode.data.bodyText || ''} onChange={(e) => handleDataChange('bodyText', e.target.value)} maxLength={1024} required /><Label>Footer Text</Label><Input value={selectedNode.data.footerText || ''} onChange={(e) => handleDataChange('footerText', e.target.value)} maxLength={60} /><Label>Catalog ID</Label><Input value={selectedNode.data.catalogId || ''} onChange={(e) => handleDataChange('catalogId', e.target.value)} required /><Label>Sections</Label>{/* Add section editor here */}</div>;
+            case 'language':
+                 return <div className="space-y-4"><div className="space-y-2"><Label>Mode</Label><RadioGroup value={selectedNode.data.mode || 'automatic'} onValueChange={(v) => handleDataChange('mode', v)}><div className="flex items-center space-x-2"><RadioGroupItem value="automatic" id="lang-auto" /><Label htmlFor="lang-auto">Automatic</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="manual" id="lang-manual" /><Label htmlFor="lang-manual">Manual</Label></div></RadioGroup></div>{selectedNode.data.mode === 'manual' && (<><div className="space-y-2"><Label>Prompt Message</Label><Textarea value={selectedNode.data.promptMessage || ''} onChange={(e) => handleDataChange('promptMessage', e.target.value)} /></div><div className="space-y-2"><Label>Languages (comma-sep)</Label><Input placeholder="English, Spanish, French" value={selectedNode.data.languages || ''} onChange={(e) => handleDataChange('languages', e.target.value)} /></div></>)}</div>;
             case 'sendTemplate':
                 return <div className="space-y-2"><Label>Template</Label><Select value={selectedNode.data.templateId || ''} onValueChange={(val) => handleDataChange('templateId', val)}><SelectTrigger><SelectValue placeholder="Select a template..." /></SelectTrigger><SelectContent>{templates.map(t => <SelectItem key={t._id.toString()} value={t._id.toString()}>{t.name}</SelectItem>)}</SelectContent></Select></div>;
             case 'triggerMetaFlow':
@@ -539,4 +548,3 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     
     return null;
 }
-```
