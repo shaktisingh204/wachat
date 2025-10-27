@@ -43,6 +43,7 @@ export * from './crm-credit-notes.actions';
 export * from './crm-forms.actions';
 export * from './crm-accounting.actions';
 export * from './crm-vouchers.actions';
+export * from './crm-pipelines.actions';
 export * from './email.actions';
 export * from './sms.actions';
 export * from './seo.actions';
@@ -59,3 +60,5 @@ export async function dummyAction() {
     'use server';
     // This function does nothing.
 }
+
+    

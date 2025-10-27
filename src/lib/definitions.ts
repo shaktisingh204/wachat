@@ -78,6 +78,18 @@ export type EmailPermissions = {
     }
 };
 
+export type CrmPipelineStage = {
+    id: string;
+    name: string;
+    chance: number;
+};
+
+export type CrmPipeline = {
+    id: string;
+    name: string;
+    stages: CrmPipelineStage[];
+};
+
 export type CrmAutomationNode = {
     id: string;
     type: string;
@@ -1109,6 +1121,7 @@ export type User = {
     facebookUserAccessToken?: string;
     activeProjectId?: string;
     crmIndustry?: string;
+    crmPipelines?: CrmPipeline[];
     appRailPosition?: 'left' | 'top';
     businessProfile?: {
         name?: string;
@@ -1905,3 +1918,5 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
+
+    
