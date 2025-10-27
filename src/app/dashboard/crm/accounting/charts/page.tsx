@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -150,7 +151,7 @@ function AccountsTable({ accounts, isLoading, onEdit, onDelete }: { accounts: Wi
                         accounts.map(acc => (
                             <TableRow key={acc._id.toString()}>
                                 <TableCell className="font-medium">
-                                    <Link href="#" className="hover:underline text-primary">
+                                    <Link href={`/dashboard/crm/accounting/charts/${acc._id.toString()}`} className="hover:underline text-primary">
                                         {acc.name}
                                     </Link>
                                 </TableCell>
