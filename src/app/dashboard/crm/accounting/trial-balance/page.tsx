@@ -9,7 +9,7 @@ import { Download, SlidersHorizontal, Trash2, ChevronDown, Building, AlertCircle
 import { DatePicker } from "@/components/ui/date-picker";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useCallback } from "react";
 import { generateTrialBalanceData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -38,15 +38,16 @@ function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[],
     const businessProfile = user?.businessProfile;
 
     const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
+        const dataToExport = filteredData.map(entry => ({
+            "Account": entry.accountName,
+            "Opening Balance": `${Math.abs(entry.openingBalance).toFixed(2)} ${entry.openingBalanceType}`,
+            "Debit": entry.totalDebit.toFixed(2),
+            "Credit": entry.totalCredit.toFixed(2),
+            "Closing Balance": `${Math.abs(entry.closingBalance).toFixed(2)} ${entry.closingBalanceType}`
+        }));
+        
         if (format === 'csv') {
-            const csvData = filteredData.map(entry => ({
-                "Account": entry.accountName,
-                "Opening Balance": `${Math.abs(entry.openingBalance).toFixed(2)} ${entry.openingBalanceType}`,
-                "Debit": entry.totalDebit.toFixed(2),
-                "Credit": entry.totalCredit.toFixed(2),
-                "Closing Balance": `${Math.abs(entry.closingBalance).toFixed(2)} ${entry.closingBalanceType}`
-            }));
-            const csv = Papa.unparse(csvData);
+            const csv = Papa.unparse(dataToExport);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -145,24 +146,32 @@ export default function TrialBalancePage() {
     const [user, setUser] = useState<any>(null);
     const [isLoading, startTransition] = useTransition();
 
-    const [startDate, setStartDate] = useState<Date | undefined>(new Date(new Date().getFullYear(), 3, 1));
-    const [endDate, setEndDate] = useState<Date | undefined>(new Date(new Date().getFullYear() + 1, 2, 31));
+    const defaultStartDate = new Date(new Date().getFullYear(), 3, 1);
+    const defaultEndDate = new Date(new Date().getFullYear() + 1, 2, 31);
+    const [startDate, setStartDate] = useState<Date | undefined>(defaultStartDate);
+    const [endDate, setEndDate] = useState<Date | undefined>(defaultEndDate);
 
-    const fetchData = () => {
+    const fetchData = useCallback(() => {
          startTransition(async () => {
             const [dataResult, session] = await Promise.all([
-                generateTrialBalanceData(), // This action needs to be updated to accept dates
+                generateTrialBalanceData(startDate, endDate),
                 getSession()
             ]);
             setData(dataResult);
             setUser(session?.user);
         });
-    }
+    }, [startDate, endDate]);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [fetchData]);
 
+    const handleClearFilters = () => {
+        setStartDate(defaultStartDate);
+        setEndDate(defaultEndDate);
+        fetchData();
+    }
+    
     if (isLoading || !data || !user) {
         return (
             <div className="flex justify-center items-center h-full">
@@ -186,32 +195,37 @@ export default function TrialBalancePage() {
 
     return (
         <>
-             <Card className="mb-6">
+            <Card className="mb-6">
                 <CardHeader>
                     <CardTitle>Filters</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-wrap items-end gap-4">
-                     <div className="space-y-2">
-                        <Label>Financial Year</Label>
-                        <Select defaultValue="fy2526">
-                            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="fy2526">FY 2025-2026</SelectItem>
-                                <SelectItem value="fy2425">FY 2024-2025</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Date Range</Label>
-                        <div className="flex items-center gap-2">
+                    <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                            <Label>Financial Year</Label>
+                            <Select defaultValue="fy2526">
+                                <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="fy2526">FY 2025-2026</SelectItem>
+                                    <SelectItem value="fy2425">FY 2024-2025</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Start Date</Label>
                             <DatePicker date={startDate} setDate={setStartDate} />
-                            <span>-</span>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>End Date</Label>
                             <DatePicker date={endDate} setDate={setEndDate} />
                         </div>
                     </div>
                      <Button onClick={fetchData} disabled={isLoading}>
                          {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                          Apply
+                    </Button>
+                    <Button variant="outline" onClick={handleClearFilters} disabled={isLoading}>
+                        <Trash2 className="mr-2 h-4 w-4" />Clear Filters
                     </Button>
                 </CardContent>
             </Card>
