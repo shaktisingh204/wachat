@@ -1,10 +1,11 @@
+
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, SlidersHorizontal, Trash2, ChevronDown } from 'lucide-react';
+import { Download, SlidersHorizontal, Trash2, ChevronDown, Building, AlertCircle } from 'lucide-react';
 import { DatePicker } from "@/components/ui/date-picker";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,9 @@ import { LoaderCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
+import { getSession } from "@/app/actions";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Link from 'next/link';
 
 type TrialBalanceEntry = {
     accountId: string;
@@ -26,16 +30,12 @@ type TrialBalanceEntry = {
     closingBalanceType: 'Cr' | 'Dr';
 };
 
-const yourBusinessDetails = {
-    name: 'WAPLIA DIGITAL SOLUTIONS',
-    address: 'D-829, Malviya Nagar, Jaipur, India - 302017',
-    gstin: '08FNSPK2133N1ZE',
-};
-
-function TrialBalanceClient({ data, totals }: { data: TrialBalanceEntry[], totals: any }) {
+function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[], totals: any, user: any }) {
     const [hideZero, setHideZero] = useState(false);
     const filteredData = hideZero ? data.filter(d => d.totalDebit > 0 || d.totalCredit > 0) : data;
     const { toast } = useToast();
+    
+    const businessProfile = user?.businessProfile;
 
     const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
         if (format === 'csv') {
@@ -59,18 +59,17 @@ function TrialBalanceClient({ data, totals }: { data: TrialBalanceEntry[], total
         }
     };
 
-
     return (
         <div className="space-y-6">
             <header className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-primary text-primary-foreground flex items-center justify-center rounded-full text-3xl font-bold">
-                        W
+                        {businessProfile?.name?.charAt(0) || 'B'}
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold">{yourBusinessDetails.name}</h1>
-                        <p className="text-sm text-muted-foreground">{yourBusinessDetails.address}</p>
-                        <p className="text-sm text-muted-foreground">GSTIN: {yourBusinessDetails.gstin}</p>
+                        <h1 className="text-xl font-bold">{businessProfile?.name || 'Your Business'}</h1>
+                        <p className="text-sm text-muted-foreground">{businessProfile?.address || 'Your Address'}</p>
+                        <p className="text-sm text-muted-foreground">GSTIN: {businessProfile?.gstin || 'N/A'}</p>
                     </div>
                 </div>
                  <DropdownMenu>
@@ -170,22 +169,40 @@ function TrialBalanceClient({ data, totals }: { data: TrialBalanceEntry[], total
 
 export default function TrialBalancePage() {
     const [data, setData] = useState<{data: TrialBalanceEntry[], totals: any} | null>(null);
+    const [user, setUser] = useState<any>(null);
     const [isLoading, startTransition] = useTransition();
 
     useEffect(() => {
         startTransition(async () => {
-            const result = await generateTrialBalanceData();
-            setData(result);
+            const [dataResult, session] = await Promise.all([
+                generateTrialBalanceData(),
+                getSession()
+            ]);
+            setData(dataResult);
+            setUser(session?.user);
         });
     }, []);
 
-    if (isLoading || !data) {
+    if (isLoading || !data || !user) {
         return (
             <div className="flex justify-center items-center h-full">
                 <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
+    
+    if (!user.businessProfile?.name || !user.businessProfile.address) {
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Business Profile Incomplete</AlertTitle>
+                <AlertDescription>
+                    Please complete your business profile in the user settings to view accounting reports.
+                    <Button asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></Button>
+                </AlertDescription>
+            </Alert>
+        );
+    }
 
-    return <TrialBalanceClient data={data.data} totals={data.totals} />;
+    return <TrialBalanceClient data={data.data} totals={data.totals} user={user} />;
 }

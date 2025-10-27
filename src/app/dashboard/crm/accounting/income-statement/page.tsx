@@ -1,16 +1,20 @@
+
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, ChevronDown } from 'lucide-react';
+import { Download, ChevronDown, Building, AlertCircle } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useState, useEffect, useTransition, Fragment } from 'react';
 import { generateIncomeStatementData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
+import { getSession } from "@/app/actions";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import Link from 'next/link';
 
 type AccountData = {
     accountName: string;
@@ -23,12 +27,6 @@ type GroupData = {
     accounts: AccountData[];
     total: number;
 }
-
-const yourBusinessDetails = {
-    name: 'WAPLIA DIGITAL SOLUTIONS',
-    address: 'D-829, Malviya Nagar, Jaipur, Rajasthan, India - 302017',
-    gstin: '08FNSPK2133N1ZE',
-};
 
 const DataRow = ({ label, value, level = 0 }: { label: string; value?: number; level?: number }) => (
     <TableRow className={level === 0 ? 'font-bold bg-muted/50' : ''}>
@@ -52,17 +50,14 @@ const Section = ({ title, data }: { title: string, data: GroupData[] }) => {
 
                 return (
                     <Fragment key={mainGroup}>
-                        <DataRow label={mainGroup} level={1} />
+                        <DataRow label={mainGroup} level={1} value={-subGroupTotal} />
                         {subGroups.map(group => (
                             <Fragment key={group.groupName}>
-                                <DataRow label={group.groupName} level={2} />
                                 {group.accounts.map(acc => (
-                                    <DataRow key={acc.accountName} label={acc.accountName} value={-acc.balance} level={3} />
+                                    <DataRow key={acc.accountName} label={acc.accountName} value={-acc.balance} level={2} />
                                 ))}
-                                <DataRow label={`Total for ${group.groupName}`} value={-group.total} level={2} />
                             </Fragment>
                         ))}
-                        <DataRow label={`Total for ${mainGroup}`} value={-subGroupTotal} level={1} />
                     </Fragment>
                 )
             })}
@@ -73,13 +68,18 @@ const Section = ({ title, data }: { title: string, data: GroupData[] }) => {
 
 export default function IncomeStatementPage() {
     const [data, setData] = useState<{ incomeData: GroupData[], expenseData: GroupData[], netSurplus: number } | null>(null);
+    const [user, setUser] = useState<any>(null);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useToast();
 
     useEffect(() => {
         startTransition(async () => {
-            const result = await generateIncomeStatementData();
-            setData(result);
+            const [dataResult, session] = await Promise.all([
+                generateIncomeStatementData(),
+                getSession()
+            ]);
+            setData(dataResult);
+            setUser(session?.user);
         });
     }, []);
 
@@ -118,7 +118,7 @@ export default function IncomeStatementPage() {
     };
 
 
-    if (isLoading || !data) {
+    if (isLoading || !data || !user) {
         return (
             <div className="flex justify-center items-center h-full">
                 <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -126,18 +126,32 @@ export default function IncomeStatementPage() {
         );
     }
     
+     if (!user.businessProfile?.name || !user.businessProfile.address) {
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Business Profile Incomplete</AlertTitle>
+                <AlertDescription>
+                    Please complete your business profile in the user settings to view accounting reports.
+                    <Button asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></Button>
+                </AlertDescription>
+            </Alert>
+        );
+    }
+    
     const { incomeData, expenseData, netSurplus } = data;
+    const businessProfile = user.businessProfile;
 
     return (
         <div className="space-y-6">
             <header className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-primary text-primary-foreground flex items-center justify-center rounded-full text-3xl font-bold">
-                        W
+                        {businessProfile?.name?.charAt(0) || 'B'}
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold">{yourBusinessDetails.name}</h1>
-                        <p className="text-sm text-muted-foreground">GSTIN: {yourBusinessDetails.gstin}</p>
+                        <h1 className="text-xl font-bold">{businessProfile.name}</h1>
+                        <p className="text-sm text-muted-foreground">GSTIN: {businessProfile.gstin}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">

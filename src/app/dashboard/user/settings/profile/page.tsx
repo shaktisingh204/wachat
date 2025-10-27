@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useFormStatus } from 'react-dom';
 import { handleUpdateUserProfile, handleChangePassword, getSession } from '@/app/actions';
 import type { User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,8 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, LoaderCircle, Save, KeyRound, User as UserIcon } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, KeyRound, User as UserIcon, Building } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 
 const profileInitialState = { message: null, error: null };
 const passwordInitialState = { message: null, error: null };
@@ -28,7 +30,7 @@ function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; ico
 }
 
 function ProfileForm({ user }: { user: Omit<User, 'password'> }) {
-    const [state, formAction] = useFormState(handleUpdateUserProfile, profileInitialState);
+    const [state, formAction] = useActionState(handleUpdateUserProfile, profileInitialState);
     const { toast } = useToast();
     
     useEffect(() => {
@@ -63,8 +65,45 @@ function ProfileForm({ user }: { user: Omit<User, 'password'> }) {
     )
 }
 
+function BusinessProfileForm({ user }: { user: Omit<User, 'password'> }) {
+    const [state, formAction] = useActionState(handleUpdateUserProfile, profileInitialState);
+    const { toast } = useToast();
+    
+    useEffect(() => {
+        if (state?.message) toast({ title: 'Success!', description: state.message });
+        if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }, [state, toast]);
+
+    return (
+        <form action={formAction}>
+             <input type="hidden" name="name" value={user.name} /> 
+            <CardHeader>
+                <CardTitle>Business Profile</CardTitle>
+                <CardDescription>This information will be used in invoices, vouchers, and other accounting documents.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 <div className="space-y-2">
+                    <Label htmlFor="businessName">Business Name</Label>
+                    <Input id="businessName" name="businessName" defaultValue={user.businessProfile?.name} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="businessAddress">Address</Label>
+                    <Textarea id="businessAddress" name="businessAddress" defaultValue={user.businessProfile?.address} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="businessGstin">GSTIN</Label>
+                    <Input id="businessGstin" name="businessGstin" defaultValue={user.businessProfile?.gstin} />
+                </div>
+            </CardContent>
+            <CardFooter>
+                <SubmitButton icon={Save}>Save Business Profile</SubmitButton>
+            </CardFooter>
+        </form>
+    );
+}
+
 function PasswordForm() {
-    const [state, formAction] = useFormState(handleChangePassword, passwordInitialState);
+    const [state, formAction] = useActionState(handleChangePassword, passwordInitialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -139,6 +178,20 @@ function ProfilePageSkeleton() {
                     </CardFooter>
                 </Card>
             </div>
+             <Card>
+                <CardHeader>
+                    <Skeleton className="h-6 w-1/3" />
+                    <Skeleton className="h-4 w-2/3 mt-2" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </CardContent>
+                 <CardFooter>
+                    <Skeleton className="h-10 w-48" />
+                </CardFooter>
+            </Card>
         </div>
     );
 }
@@ -181,6 +234,7 @@ export default function ProfilePage() {
                 <Card><ProfileForm user={user} /></Card>
                 <Card><PasswordForm /></Card>
             </div>
+            <Card><BusinessProfileForm user={user} /></Card>
         </div>
     )
 }
