@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -21,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { LoaderCircle, Save } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 const saveInitialState = { message: null, error: null };
 
@@ -29,7 +31,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
     return (
         <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
-            {isEditing ? 'Save Changes' : 'Create Account'}
+            {isEditing ? 'Save Changes' : 'Submit'}
         </Button>
     )
 }
@@ -61,7 +63,7 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="sm:max-w-lg">
                 <form action={formAction} ref={formRef}>
                     {isEditing && <input type="hidden" name="accountId" value={initialData?._id.toString()} />}
                     <DialogHeader>
@@ -70,32 +72,27 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                     <div className="py-4 space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">Account Name *</Label>
-                            <Input id="name" name="name" placeholder="e.g. Sales Revenue" required defaultValue={initialData?.name} />
+                            <Input id="name" name="name" placeholder="Type Account Name" required defaultValue={initialData?.name} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="accountGroupId">Account Group *</Label>
                              <Select name="accountGroupId" required defaultValue={initialData?.accountGroupId.toString()}>
                                 <SelectTrigger><SelectValue placeholder="Select a group..."/></SelectTrigger>
                                 <SelectContent>
-                                    {accountGroups.map(group => <SelectItem key={group._id.toString()} value={group._id.toString()}>{group.name}</SelectItem>)}
+                                    {accountGroups.map(group => (
+                                        <SelectItem key={group._id.toString()} value={group._id.toString()}>
+                                            {group.name} [{group.category?.replace(/_/g, ' ')}]
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
-                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="openingBalance">Opening Balance *</Label>
-                                <Input id="openingBalance" name="openingBalance" type="number" step="0.01" required defaultValue={initialData?.openingBalance || 0} />
-                            </div>
-                             <div className="space-y-2">
-                                <Label>Balance Type *</Label>
-                                <div className="grid grid-cols-2 gap-2">
-                                     <Select name="balanceType" defaultValue={initialData?.balanceType || "Dr"}>
-                                        <SelectTrigger><SelectValue/></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Dr">Dr (Debit)</SelectItem>
-                                            <SelectItem value="Cr">Cr (Credit)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                        
+                        <div>
+                             <Label className="font-semibold">Opening Balances</Label>
+                             <div className="grid grid-cols-[1fr,auto,1fr] items-end gap-2 mt-2">
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Currency</Label>
                                     <Select name="currency" defaultValue={initialData?.currency || "INR"}>
                                         <SelectTrigger><SelectValue/></SelectTrigger>
                                         <SelectContent>
@@ -104,8 +101,21 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                                         </SelectContent>
                                     </Select>
                                 </div>
-                            </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Opening CR/DR *</Label>
+                                     <RadioGroup name="balanceType" defaultValue={initialData?.balanceType || "Dr"} className="flex gap-4 pt-2">
+                                        <div className="flex items-center space-x-2"><RadioGroupItem value="Cr" id="type-cr"/><Label htmlFor="type-cr" className="font-normal">CR</Label></div>
+                                        <div className="flex items-center space-x-2"><RadioGroupItem value="Dr" id="type-dr"/><Label htmlFor="type-dr" className="font-normal">DR</Label></div>
+                                    </RadioGroup>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Opening Balance *</Label>
+                                    <Input id="openingBalance" name="openingBalance" type="number" step="0.01" required defaultValue={initialData?.openingBalance || 0} />
+                                </div>
+                             </div>
+                             <Button variant="link" className="p-0 h-auto mt-2 text-xs" disabled>Add Opening Balance in Other Currency</Button>
                         </div>
+
                         <div className="space-y-2">
                             <Label htmlFor="description">Description (Optional)</Label>
                             <Textarea id="description" name="description" defaultValue={initialData?.description} />
