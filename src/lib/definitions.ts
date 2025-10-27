@@ -358,6 +358,15 @@ export type EmailConversation = {
     messages: EmailMessage[];
 };
 
+export type CrmAccountGroup = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    type: 'Asset' | 'Liability' | 'Income' | 'Expense' | 'Capital';
+    category: string;
+    createdAt: Date;
+};
+
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;

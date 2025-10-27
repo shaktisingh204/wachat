@@ -1,22 +1,194 @@
 
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import type { WithId } from 'mongodb';
+import { getCrmAccountGroups, saveCrmAccountGroup, deleteCrmAccountGroup } from '@/app/actions/crm-accounting.actions';
+import type { CrmAccountGroup } from '@/lib/definitions';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
+const saveInitialState = { message: null, error: null };
+
+const accountTypes = ['Asset', 'Liability', 'Income', 'Expense', 'Capital'];
+
+const categoryMap: Record<string, string[]> = {
+    Asset: ['FDR', 'Bank_Accounts', 'Cash_In_Hand', 'Loans_and_Advances', 'Accounts_receivable_(Sundry_Debtors)', 'TDS', 'Deposits', 'Stock_In_Hand', 'Security', 'Machinery', 'Land', 'Vehicle', 'Current_Assets', 'Fixed_Assets', 'Buildings'],
+    Liability: ['Bank_OD_A/c', 'Branch_/_Divisions', 'Current_Liabilities', 'Duties_and_Taxes', 'Loans', 'Provisions', 'Reserves_and_Surplus', 'Secured_Loans', 'Accounts_Payable_(Sundry_Creditors)', 'Suspense_A/c', 'Unsecured_Loans', 'Legal_HR_Expenses'],
+    Income: ['Sales', 'Other_Income', 'Interest_Income'],
+    Expense: ['Purchase', 'Direct_Expenses', 'Indirect_Expenses', 'Depreciation'],
+    Capital: ['Capital_Account', 'Retained_Earnings'],
+};
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Submit
+        </Button>
+    )
+}
+
+function CreateGroupDialog({ onGroupCreated }: { onGroupCreated: () => void }) {
+    const [open, setOpen] = useState(false);
+    const [state, formAction] = useActionState(saveCrmAccountGroup, saveInitialState);
+    const { toast } = useToast();
+    const formRef = useRef<HTMLFormElement>(null);
+    const [selectedType, setSelectedType] = useState('');
+
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Success!', description: state.message });
+            formRef.current?.reset();
+            setOpen(false);
+            onGroupCreated();
+        }
+        if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, onGroupCreated]);
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button><Plus className="mr-2 h-4 w-4" /> New Account Group</Button>
+            </DialogTrigger>
+            <DialogContent>
+                <form action={formAction} ref={formRef}>
+                    <DialogHeader>
+                        <DialogTitle>Create New Account Group</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Account Group Name *</Label>
+                            <Input id="name" name="name" placeholder="Type Account Group Name" required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="type">Type</Label>
+                            <Select name="type" required onValueChange={setSelectedType}>
+                                <SelectTrigger><SelectValue placeholder="Select a type..."/></SelectTrigger>
+                                <SelectContent>
+                                    {accountTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         {selectedType && categoryMap[selectedType] && (
+                            <div className="space-y-2">
+                                <Label htmlFor="category">Category</Label>
+                                <Select name="category" required>
+                                    <SelectTrigger><SelectValue placeholder="Select a category..."/></SelectTrigger>
+                                    <SelectContent>
+                                        {categoryMap[selectedType].map(cat => <SelectItem key={cat} value={cat}>{cat.replace(/_/g, ' ')}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+                        <SubmitButton />
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 export default function AccountGroupsPage() {
+    const [groups, setGroups] = useState<WithId<CrmAccountGroup>[]>([]);
+    const [isLoading, startTransition] = useTransition();
+    const { toast } = useToast();
+
+    const fetchData = useCallback(() => {
+        startTransition(async () => {
+            const data = await getCrmAccountGroups();
+            setGroups(data);
+        });
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const handleDelete = async (groupId: string) => {
+        const result = await deleteCrmAccountGroup(groupId);
+        if (result.success) {
+            toast({ title: 'Success', description: 'Account group deleted.' });
+            fetchData();
+        } else {
+            toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        }
+    };
+
     return (
-        <div className="flex justify-center items-center h-full">
-            <Card className="text-center max-w-2xl">
-                <CardHeader>
-                    <CardTitle className="mt-4 text-2xl">Account Groups</CardTitle>
-                    <CardDescription>
-                        Coming Soon: Organize your chart of accounts into logical groups for better reporting.
-                    </CardDescription>
-                </CardHeader>
-                 <CardContent>
-                    <p className="text-muted-foreground">This feature is under development.</p>
-                </CardContent>
-            </Card>
-        </div>
-    )
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Account Groups</CardTitle>
+                    <CardDescription>A list of all account groups in your CRM.</CardDescription>
+                </div>
+                <CreateGroupDialog onGroupCreated={fetchData} />
+            </CardHeader>
+            <CardContent>
+                <div className="border rounded-md">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Group Name</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                <TableRow><TableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
+                            ) : groups.length > 0 ? (
+                                groups.map(group => (
+                                    <TableRow key={group._id.toString()}>
+                                        <TableCell className="font-medium">{group.name}</TableCell>
+                                        <TableCell>{group.type}</TableCell>
+                                        <TableCell>{group.category?.replace(/_/g, ' ')}</TableCell>
+                                        <TableCell className="text-right">
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader><AlertDialogTitle>Delete Group?</AlertDialogTitle><AlertDialogDescription>Are you sure you want to delete the "{group.name}" group?</AlertDialogDescription></AlertDialogHeader>
+                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(group._id.toString())}>Delete</AlertDialogAction></AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow><TableCell colSpan={4} className="h-24 text-center">No account groups found.</TableCell></TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+        </Card>
+    );
 }
