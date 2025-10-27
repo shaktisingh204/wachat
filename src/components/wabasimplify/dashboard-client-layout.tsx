@@ -90,6 +90,22 @@ const crmMenuItems = [
             { href: "/dashboard/crm/purchases/hire", label: "Hire The Best Vendors", icon: Star },
         ]
     },
+    {
+        href: "/dashboard/crm/accounting",
+        label: "Accounting",
+        icon: Database,
+        subItems: [
+            { href: "/dashboard/crm/accounting/groups", label: "Account Groups" },
+            { href: "/dashboard/crm/accounting/charts", label: "Chart of Accounts" },
+            { href: "/dashboard/crm/accounting/vouchers", label: "Voucher Books" },
+            { href: "/dashboard/crm/accounting/balance-sheet", label: "Balance Sheet" },
+            { href: "/dashboard/crm/accounting/trial-balance", label: "Trial Balance" },
+            { href: "/dashboard/crm/accounting/pnl", label: "Profit and Loss" },
+            { href: "/dashboard/crm/accounting/income-statement", label: "Income Statement" },
+            { href: "/dashboard/crm/accounting/day-book", label: "Day Book" },
+            { href: "/dashboard/crm/accounting/cash-flow", label: "Cash Flow Statement" },
+        ]
+    },
     { href: "/dashboard/crm/contacts", label: "Contacts", icon: Users },
     { href: "/dashboard/crm/accounts", label: "Accounts", icon: Building },
     { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
