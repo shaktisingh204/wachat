@@ -11,16 +11,11 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, TrendingUp } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Separator } from '@/components/ui/separator';
 
-const iconNames = Object.keys(LucideIcons).filter(key => 
-    typeof (LucideIcons as any)[key] === 'object' && 
-    key !== 'createLucideIcon' && 
-    key !== 'icons' &&
-    /^[A-Z]/.test(key)
-);
+const iconNames = Object.keys(LucideIcons).filter(key => typeof (LucideIcons as any)[key] === 'object' && /^[A-Z]/.test(key));
 
 const hoverAnimationOptions = [
     { value: 'none', label: 'None' }, { value: 'grow', label: 'Grow' }, { value: 'shrink', label: 'Shrink' },
