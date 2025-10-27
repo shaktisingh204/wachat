@@ -49,6 +49,7 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
             name: formData.get('name') as string,
             price: Number(formData.get('price')),
             currency: formData.get('currency') as string,
+            appCategory: formData.get('appCategory') as Plan['appCategory'],
             isPublic: formData.get('isPublic') === 'on',
             isDefault: formData.get('isDefault') === 'on',
             projectLimit: Number(formData.get('projectLimit')),
