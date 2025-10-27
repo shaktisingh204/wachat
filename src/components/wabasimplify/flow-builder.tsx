@@ -40,7 +40,8 @@ import {
     Maximize,
     Minimize,
     CreditCard,
-    Wand2
+    Wand2,
+    PackageCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -74,7 +75,7 @@ const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'carousel', label: 'Carousel', icon: View },
+    { type: 'carousel', label: 'Product Carousel', icon: View },
     { type: 'payment', label: 'Request Payment', icon: CreditCard },
     { type: 'language', label: 'Set Language', icon: BrainCircuit },
     { type: 'input', label: 'Get User Input', icon: Type },
@@ -240,7 +241,7 @@ const NodeComponent = ({
     );
 };
 
-const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, metaFlows, allFlows, currentFlow }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void; deleteNode: (id: string) => void, templates: WithId<Template>[], metaFlows: WithId<MetaFlow>[], allFlows: WithId<Flow>[], currentFlow: WithId<Flow> | null }) => {
+const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, metaFlows, allFlows, currentFlow }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void, deleteNode: (id: string) => void, templates: WithId<Template>[], metaFlows: WithId<MetaFlow>[], allFlows: WithId<Flow>[], currentFlow: WithId<Flow> | null }) => {
     if (!selectedNode) return null;
     
     const { toast } = useToast();
@@ -298,8 +299,8 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, 
                 return <Input id="trigger-keywords" placeholder="e.g., help, menu" value={selectedNode.data.triggerKeywords || ''} onChange={(e) => handleDataChange('triggerKeywords', e.target.value)} />;
             case 'text':
                 return <Textarea id="text-content" placeholder="Enter your message here..." value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />;
-            case 'image':
-                return (
+             case 'image':
+                 return (
                     <div className="space-y-4">
                         <div className="space-y-2"><Label htmlFor="image-url">Image URL</Label><Input id="image-url" placeholder="https://example.com/image.png" value={selectedNode.data.imageUrl || ''} onChange={(e) => handleDataChange('imageUrl', e.target.value)} /></div>
                         <div className="space-y-2"><Label htmlFor="image-caption">Caption (Optional)</Label><Textarea id="image-caption" placeholder="A caption for your image..." value={selectedNode.data.caption || ''} onChange={(e) => handleDataChange('caption', e.target.value)} /></div>
@@ -358,21 +359,21 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, 
                             <TabsTrigger value="response">Response</TabsTrigger>
                         </TabsList>
                         <TabsContent value="request" className="space-y-4 pt-2">
-                            <Select value={selectedNode.data.apiRequest?.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}>
+                             <Select value={selectedNode.data.apiRequest?.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="GET">GET</SelectItem>
                                     <SelectItem value="POST">POST</SelectItem>
                                     <SelectItem value="PUT">PUT</SelectItem>
                                 </SelectContent>
-                            </Select>
-                            <Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
-                            <Textarea placeholder='Headers (JSON format)\n{\n  "Authorization": "Bearer ..."\n}' className="font-mono text-xs h-24" value={selectedNode.data.apiRequest?.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} />
-                            <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
+                             </Select>
+                             <Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
+                             <Textarea placeholder='Headers (JSON format)\n{\n  "Authorization": "Bearer ..."\n}' className="font-mono text-xs h-24" value={selectedNode.data.apiRequest?.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} />
+                             <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
                         </TabsContent>
                         <TabsContent value="response" className="space-y-4 pt-2">
                             <Label>Save Response to Variables</Label>
-                            <div className="space-y-3">
+                             <div className="space-y-3">
                                 {(selectedNode.data.apiRequest?.responseMappings || []).map((mapping: any, index: number) => (
                                     <div key={index} className="p-2 border rounded-md space-y-2 relative bg-background">
                                         <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeMapping(index)}>
@@ -492,15 +493,52 @@ const FlowsAndBlocksPanel = ({
         </Card>
     </>
 );
-```
-  </change>
-  <change>
-    <file>src/app/dashboard/flow-builder/page.tsx</file>
-    <content><![CDATA[
-'use client';
 
-import { FlowBuilder } from '@/components/wabasimplify/flow-builder';
+const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
+    if (!sourcePos || !targetPos) return '';
+    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return path;
+};
 
-export default function FlowBuilderPage() {
-    return <FlowBuilder />;
+const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
+    if (!node || !handleId) return null;
+    let nodeHeight = 80;
+    
+    if (node.type === 'buttons') {
+        const buttonCount = (node.data.buttons || []).length;
+        nodeHeight = 80 + (buttonCount * 28);
+    }
+
+    const x = node.position.x;
+    const y = node.position.y;
+    
+    if (handleId.endsWith('-input')) {
+        return { x: x, y: y + nodeHeight / 2 };
+    }
+    if (handleId.endsWith('-output-main')) {
+        return { x: x + 256, y: y + nodeHeight / 2 };
+    }
+    if (handleId.endsWith('-output-yes')) {
+        return { x: x + 256, y: y + nodeHeight * (1/3) };
+    }
+    if (handleId.endsWith('-output-no')) {
+        return { x: x + 256, y: y + nodeHeight * (2/3) };
+    }
+    if (handleId.includes('-btn-')) {
+        const buttonIndex = parseInt(handleId.split('-btn-')[1], 10);
+        const totalButtons = (node.data.buttons || []).length;
+        const topPosition = totalButtons > 1 ? (80 + ((nodeHeight - 80) / (totalButtons + 1)) * (buttonIndex + 1)) : 80 + (nodeHeight - 80) / 2;
+        return { x: x + 256, y: y + topPosition };
+    }
+    
+    if (handleId.includes('output')) {
+        return { x: x + 256, y: y + nodeHeight / 2 };
+    }
+    
+    return null;
 }
+```
+- `src/components/wabasimplify/flow-builder.tsx` is being deleted because I have merged its logic into the `src/app/dashboard/flow-builder/page.tsx` file to resolve previous issues.
+
+Here are the changes to the files.
