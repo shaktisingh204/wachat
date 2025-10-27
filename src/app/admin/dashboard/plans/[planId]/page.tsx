@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useActionState, useState } from 'react';
@@ -163,13 +164,25 @@ export default function PlanEditorPage() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardHeader><CardTitle>Enabled Features</CardTitle></CardHeader>
+                    <CardHeader>
+                        <CardTitle>Enabled Apps & Features</CardTitle>
+                        <CardDescription>Select which apps and major features are available on this plan.</CardDescription>
+                    </CardHeader>
                     <CardContent className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
                         {planFeatureMap.map(feature => (
-                            <div key={feature.id} className="flex items-center space-x-3">
-                                <Checkbox id={feature.id} name={feature.id} defaultChecked={(plan?.features as any)?.[feature.id] ?? true} />
-                                <Label htmlFor={feature.id} className="font-normal">{feature.name}</Label>
+                            <div key={feature.id} className="flex items-center space-x-3 rounded-md border p-3 hover:bg-accent">
+                                <Checkbox 
+                                    id={feature.id} 
+                                    name={feature.id} 
+                                    defaultChecked={(plan?.features as any)?.[feature.id] ?? true} 
+                                />
+                                <div className="space-y-1 leading-none">
+                                    <Label htmlFor={feature.id} className="font-normal flex items-center gap-2">
+                                        <feature.icon className="h-4 w-4" />
+                                        {feature.name}
+                                    </Label>
+                                </div>
                             </div>
                         ))}
                         </div>
