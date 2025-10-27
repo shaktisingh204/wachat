@@ -1,10 +1,11 @@
+
 'use client';
 
-import { Check, X, History } from 'lucide-react';
+import { Check, X, History, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getSession, handleInitiatePayment } from '@/app/actions';
-import { getPlans } from '@/app/actions/plan.actions';
+import { getPlans, planFeatureMap } from '@/app/actions/plan.actions';
 import { Separator } from '@/components/ui/separator';
 import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
 import { CreditPurchaseButton } from '@/components/wabasimplify/credit-purchase-button';
@@ -13,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import type { Plan, WithId } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
     <li className="flex items-center gap-3">
@@ -43,6 +45,22 @@ export default function BillingPage() {
     }, []);
 
     const userPlanId = sessionUser?.plan?._id;
+    const userPlanFeatures = sessionUser?.plan?.features;
+
+    const { allowedFeatures, notAllowedFeatures } = React.useMemo(() => {
+        if (!userPlanFeatures) return { allowedFeatures: [], notAllowedFeatures: [] };
+        const allowed: any[] = [];
+        const notAllowed: any[] = [];
+        planFeatureMap.forEach(feature => {
+            if (userPlanFeatures[feature.id]) {
+                allowed.push(feature);
+            } else {
+                notAllowed.push(feature);
+            }
+        });
+        return { allowedFeatures: allowed, notAllowedFeatures: notAllowed };
+    }, [userPlanFeatures]);
+
 
     return (
         <div className="flex flex-col gap-8">
@@ -58,6 +76,49 @@ export default function BillingPage() {
                     </Link>
                 </Button>
             </div>
+
+            {userPlanFeatures && (
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Features in Your Plan</CardTitle>
+                        <CardDescription>
+                            Your current plan <span className="font-bold text-primary">{sessionUser?.plan?.name}</span> includes the following apps and features.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div>
+                            <h3 className="text-lg font-semibold mb-3">Allowed Apps</h3>
+                             <ScrollArea className="w-full whitespace-nowrap">
+                                <div className="flex w-max space-x-4 pb-4">
+                                     {allowedFeatures.map(feature => (
+                                        <div key={feature.id} className="text-center w-28 flex flex-col items-center">
+                                            <div className="w-16 h-16 rounded-lg bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center">
+                                                <feature.icon className="h-8 w-8" />
+                                            </div>
+                                            <p className="mt-2 text-xs font-medium">{feature.name}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                                <ScrollBar orientation="horizontal" />
+                            </ScrollArea>
+                        </div>
+                        <Separator />
+                        <div>
+                             <h3 className="text-lg font-semibold mb-3">Not Allowed Apps</h3>
+                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                {notAllowedFeatures.map(feature => (
+                                    <div key={feature.id} className="text-center group cursor-pointer" onClick={() => document.getElementById('upgrade')?.scrollIntoView({ behavior: 'smooth' })}>
+                                        <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center mx-auto text-muted-foreground/50 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                                             <feature.icon className="h-8 w-8" />
+                                        </div>
+                                        <p className="mt-2 text-xs text-muted-foreground transition-colors group-hover:text-primary">{feature.name}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
             
             <Card>
                 <CardHeader>
@@ -84,12 +145,12 @@ export default function BillingPage() {
 
             <Separator />
 
-            <div>
+            <div id="upgrade">
                 <h2 className="text-2xl font-bold font-headline">Upgrade Your Plan</h2>
                 <p className="text-muted-foreground">Unlock more features and increase your limits by upgrading your plan.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-                {plans.map((plan: WithId<Plan>, index) => (
+                {plans.map((plan: WithId<Plan>) => (
                     <Card key={plan._id.toString()} className={cn("flex flex-col", userPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
                         <CardHeader className="flex-grow">
                             <CardTitle>{plan.name}</CardTitle>

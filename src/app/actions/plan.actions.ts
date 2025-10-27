@@ -7,7 +7,7 @@ import { ObjectId, type Filter, WithId } from 'mongodb';
 import { getAdminSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Plan, PlanFeaturePermissions, TemplateCategory } from '@/lib/definitions';
-import { planFeaturesDefaults } from '@/lib/plans';
+import { planFeaturesDefaults, planFeatureMap } from '@/lib/plans';
 
 export async function getPlans(filter?: Filter<Plan>): Promise<WithId<Plan>[]> {
     try {
@@ -172,3 +172,5 @@ export async function deleteTemplateCategory(id: string): Promise<{ message?: st
         return { error: 'Failed to delete category.' };
     }
 }
+
+export { planFeatureMap };
