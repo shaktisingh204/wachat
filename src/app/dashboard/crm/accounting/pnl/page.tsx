@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -11,17 +10,41 @@ import { useState, useEffect, useTransition } from 'react';
 import { generateProfitAndLossData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
 import { format } from "date-fns";
+import Papa from 'papaparse';
+import { useToast } from "@/hooks/use-toast";
+
 
 const StatCard = ({ title, value, percentage, isProfit }: { title: string; value: string; percentage?: string, isProfit?: boolean }) => (
     <div className="bg-muted/50 p-4 rounded-lg text-center">
         <p className="text-sm text-muted-foreground">{title}</p>
-        <p className={`text-2xl font-bold ${isProfit ? (parseFloat(value) >= 0 ? 'text-primary' : 'text-destructive') : ''}`}>{value}</p>
+        <p className={`text-2xl font-bold ${isProfit ? (parseFloat(value.replace(/[^0-9.-]+/g,"")) >= 0 ? 'text-primary' : 'text-destructive') : ''}`}>{value}</p>
         {percentage && <p className="text-xs text-muted-foreground">{percentage}</p>}
     </div>
 );
 
 const PnlClient = ({ data }: { data: any }) => {
     const { summary, entries } = data;
+    const { toast } = useToast();
+    
+    const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
+        if (format === 'csv') {
+            const csvData = entries.map((entry: any) => ({
+                "Account": entry.account,
+                "Amount": entry.amount.toFixed(2),
+                "% of Total": summary.totalIncome > 0 ? ((entry.amount / summary.totalIncome) * 100).toFixed(2) : '0.00'
+            }));
+            const csv = Papa.unparse(csvData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'profit-and-loss.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            toast({ title: "Not Implemented", description: `Export to ${format.toUpperCase()} is not yet available.`});
+        }
+    };
     
     return (
         <div className="space-y-6">
@@ -31,7 +54,6 @@ const PnlClient = ({ data }: { data: any }) => {
                     <p className="text-muted-foreground">An overview of your business's profitability.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">Add a comparison period</Button>
                      <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline">
@@ -41,9 +63,9 @@ const PnlClient = ({ data }: { data: any }) => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            <DropdownMenuItem>PDF</DropdownMenuItem>
-                            <DropdownMenuItem>XLS</DropdownMenuItem>
-                            <DropdownMenuItem>CSV</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -87,9 +109,6 @@ const PnlClient = ({ data }: { data: any }) => {
                         </Table>
                     </div>
                 </CardContent>
-                <CardFooter className="flex justify-between text-sm text-muted-foreground">
-                    <p>Showing 1 to 5 of 5 Clients</p>
-                </CardFooter>
             </Card>
         </div>
     )

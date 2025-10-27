@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
@@ -13,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LoaderCircle, Plus, Trash2, Edit } from 'lucide-react';
+import { LoaderCircle, Plus, Trash2, Edit, Download, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -25,6 +24,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import Papa from 'papaparse';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
 
 const saveInitialState = { message: null, error: null };
 
@@ -156,6 +158,21 @@ export default function AccountGroupsPage() {
         setEditingGroup(group);
         setIsDialogOpen(true);
     };
+    
+    const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
+        if (format === 'csv') {
+            const csv = Papa.unparse(groups.map(({ name, type, category }) => ({ Name: name, Type: type, Category: category.replace(/_/g, ' ') })));
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'account-groups.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            toast({ title: "Not Implemented", description: `Export to ${format.toUpperCase()} is not yet available.`});
+        }
+    };
 
     return (
         <>
@@ -165,15 +182,27 @@ export default function AccountGroupsPage() {
                 onSave={fetchData}
                 initialData={editingGroup}
             />
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle>Account Groups</CardTitle>
-                        <CardDescription>A list of all account groups in your CRM.</CardDescription>
-                    </div>
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">Account Groups</h1>
+                    <p className="text-muted-foreground">A list of all account groups in your CRM.</p>
+                </div>
+                 <div className="flex items-center gap-2">
                     <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4" /> New Account Group</Button>
-                </CardHeader>
-                <CardContent>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline"><Download className="mr-2 h-4 w-4"/>Download As<ChevronDown className="ml-2 h-4 w-4"/></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                            <DropdownMenuItem disabled onSelect={() => handleDownload('xls')}>XLS</DropdownMenuItem>
+                            <DropdownMenuItem disabled onSelect={() => handleDownload('pdf')}>PDF</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
+            <Card>
+                <CardContent className="pt-6">
                     <div className="border rounded-md">
                         <Table>
                             <TableHeader>

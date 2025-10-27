@@ -1,7 +1,7 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
 import type { WithId } from 'mongodb';
 import { getCrmChartOfAccounts, deleteCrmChartOfAccount } from '@/app/actions/crm-accounting.actions';
 import { getCrmAccountGroups } from '@/app/actions/crm-accounting.actions';
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, LoaderCircle, Edit, Trash2 } from 'lucide-react';
+import { Plus, LoaderCircle, Edit, Trash2, Download, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CrmChartOfAccountDialog } from '@/components/wabasimplify/crm-chart-of-account-dialog';
 import {
@@ -26,6 +26,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import Papa from 'papaparse';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted: () => void }) {
     const { toast } = useToast();
@@ -91,6 +93,26 @@ export default function ChartOfAccountsPage() {
         setIsDialogOpen(true);
     };
 
+    const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
+        const dataToExport = accounts.map(acc => ({
+            "Account Name": acc.name,
+            "Account Group": acc.accountGroupName || 'N/A',
+            "Category": acc.accountGroupCategory?.replace(/_/g, ' '),
+            "Type": acc.accountGroupType,
+            "Opening Balance": `${acc.openingBalance} ${acc.balanceType}`
+        }));
+        if (format === 'csv') {
+            const csv = Papa.unparse(dataToExport);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'chart-of-accounts.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
     const activeAccounts = accounts.filter(acc => acc.status === 'Active');
     const inactiveAccounts = accounts.filter(acc => acc.status === 'Inactive');
 
@@ -103,15 +125,25 @@ export default function ChartOfAccountsPage() {
                 accountGroups={groups}
                 initialData={editingAccount}
             />
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle>Chart of Accounts</CardTitle>
-                        <CardDescription>Manage your company's financial accounts.</CardDescription>
-                    </div>
+             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">Chart of Accounts</h1>
+                    <p className="text-muted-foreground">Manage your company's financial accounts.</p>
+                </div>
+                 <div className="flex items-center gap-2">
                     <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4" /> New Account</Button>
-                </CardHeader>
-                <CardContent>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild><Button variant="outline"><Download className="mr-2 h-4 w-4"/>Download As<ChevronDown className="ml-2 h-4 w-4"/></Button></DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
+            <Card>
+                <CardContent className="pt-6">
                     <Tabs defaultValue="active">
                         <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="active">Active ({activeAccounts.length})</TabsTrigger>

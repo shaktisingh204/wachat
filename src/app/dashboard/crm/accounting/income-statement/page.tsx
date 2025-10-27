@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -7,10 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, Fragment } from 'react';
 import { generateIncomeStatementData } from "@/app/actions/crm-accounting.actions";
-import { getSession } from "@/app/actions";
 import { LoaderCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import Papa from "papaparse";
 
 type AccountData = {
     accountName: string;
@@ -51,19 +51,19 @@ const Section = ({ title, data }: { title: string, data: GroupData[] }) => {
                 const subGroupTotal = subGroups.reduce((sum, g) => sum + g.total, 0);
 
                 return (
-                    <React.Fragment key={mainGroup}>
+                    <Fragment key={mainGroup}>
                         <DataRow label={mainGroup} level={1} />
                         {subGroups.map(group => (
-                            <React.Fragment key={group.groupName}>
+                            <Fragment key={group.groupName}>
                                 <DataRow label={group.groupName} level={2} />
                                 {group.accounts.map(acc => (
                                     <DataRow key={acc.accountName} label={acc.accountName} value={-acc.balance} level={3} />
                                 ))}
                                 <DataRow label={`Total for ${group.groupName}`} value={-group.total} level={2} />
-                            </React.Fragment>
+                            </Fragment>
                         ))}
                         <DataRow label={`Total for ${mainGroup}`} value={-subGroupTotal} level={1} />
-                    </React.Fragment>
+                    </Fragment>
                 )
             })}
             <DataRow label={`Total for ${title}`} value={-total} />
@@ -74,6 +74,7 @@ const Section = ({ title, data }: { title: string, data: GroupData[] }) => {
 export default function IncomeStatementPage() {
     const [data, setData] = useState<{ incomeData: GroupData[], expenseData: GroupData[], netSurplus: number } | null>(null);
     const [isLoading, startTransition] = useTransition();
+    const { toast } = useToast();
 
     useEffect(() => {
         startTransition(async () => {
@@ -81,6 +82,41 @@ export default function IncomeStatementPage() {
             setData(result);
         });
     }, []);
+
+    const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
+        if (!data) return;
+        if (format === 'csv') {
+            let csvData: any[] = [];
+            const addSectionToCsv = (title: string, sectionData: GroupData[]) => {
+                csvData.push({ Account: title, Balance: '' });
+                const total = sectionData.reduce((sum, group) => sum + group.total, 0);
+                 sectionData.forEach(group => {
+                     csvData.push({ Account: `  ${group.groupName}`, Balance: '' });
+                     group.accounts.forEach(acc => {
+                         csvData.push({ Account: `    ${acc.accountName}`, Balance: (-acc.balance).toFixed(2) });
+                     });
+                     csvData.push({ Account: `  Total for ${group.groupName}`, Balance: (-group.total).toFixed(2) });
+                });
+                csvData.push({ Account: `Total for ${title}`, Balance: (-total).toFixed(2) });
+            };
+            
+            addSectionToCsv("Income", data.incomeData);
+            addSectionToCsv("Expense", data.expenseData);
+            csvData.push({ Account: 'Net Surplus', Balance: data.netSurplus.toFixed(2) });
+
+            const csv = Papa.unparse(csvData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'income-statement.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+             toast({ title: "Not Implemented", description: `Export to ${format.toUpperCase()} is not yet available.`});
+        }
+    };
+
 
     if (isLoading || !data) {
         return (
@@ -121,8 +157,9 @@ export default function IncomeStatementPage() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            <DropdownMenuItem>PDF</DropdownMenuItem>
-                            <DropdownMenuItem>XLS</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
