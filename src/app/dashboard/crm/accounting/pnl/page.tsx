@@ -4,14 +4,16 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, ChevronDown } from 'lucide-react';
+import { Download, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateProfitAndLossData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
 import { format } from "date-fns";
 import Papa from 'papaparse';
 import { useToast } from "@/hooks/use-toast";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 
 
 const StatCard = ({ title, value, percentage, isProfit }: { title: string; value: string; percentage?: string, isProfit?: boolean }) => (
@@ -22,7 +24,7 @@ const StatCard = ({ title, value, percentage, isProfit }: { title: string; value
     </div>
 );
 
-const PnlClient = ({ data }: { data: any }) => {
+const PnlClient = ({ data, startDate, endDate }: { data: any, startDate?: Date, endDate?: Date }) => {
     const { summary, entries } = data;
     const { toast } = useToast();
     
@@ -53,29 +55,15 @@ const PnlClient = ({ data }: { data: any }) => {
                     <h1 className="text-3xl font-bold font-headline">Profit & Loss</h1>
                     <p className="text-muted-foreground">An overview of your business's profitability.</p>
                 </div>
-                <div className="flex items-center gap-2">
-                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">
-                                <Download className="mr-2 h-4 w-4"/>
-                                Download As
-                                <ChevronDown className="ml-2 h-4 w-4"/>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
             </div>
 
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
                         <CardTitle>Summary</CardTitle>
-                         <p className="text-sm text-muted-foreground">For period: {format(new Date(), 'dd MMM, yyyy')} - {format(new Date(), 'dd MMM, yyyy')}</p>
+                         <p className="text-sm text-muted-foreground">
+                            For period: {startDate ? format(startDate, 'dd MMM, yyyy') : '...'} - {endDate ? format(endDate, 'dd MMM, yyyy') : '...'}
+                        </p>
                     </div>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -87,7 +75,25 @@ const PnlClient = ({ data }: { data: any }) => {
             </Card>
 
             <Card>
-                 <CardContent className="pt-6">
+                 <CardHeader>
+                     <div className="flex justify-end">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline">
+                                    <Download className="mr-2 h-4 w-4"/>
+                                    Download As
+                                    <ChevronDown className="ml-2 h-4 w-4"/>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                                <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                                <DropdownMenuItem disabled>PDF</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                 </CardHeader>
+                 <CardContent>
                     <div className="border rounded-md">
                         <Table>
                             <TableHeader>
@@ -117,13 +123,19 @@ const PnlClient = ({ data }: { data: any }) => {
 export default function PnlPage() {
     const [data, setData] = useState<any>(null);
     const [isLoading, startTransition] = useTransition();
+    const [startDate, setStartDate] = useState<Date | undefined>(new Date(new Date().getFullYear(), 0, 1));
+    const [endDate, setEndDate] = useState<Date | undefined>(new Date());
 
-    useEffect(() => {
+    const fetchData = useCallback(() => {
         startTransition(async () => {
-            const result = await generateProfitAndLossData();
+            const result = await generateProfitAndLossData(startDate, endDate);
             setData(result);
         });
-    }, []);
+    }, [startDate, endDate]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     if (isLoading || !data) {
         return (
@@ -141,5 +153,32 @@ export default function PnlPage() {
         )
     }
 
-    return <PnlClient data={data} />;
+    return (
+        <>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4" /> Filters</Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-96 space-y-4">
+                    <div className="space-y-2">
+                        <Label>Start Date</Label>
+                        <DatePicker date={startDate} setDate={setStartDate} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>End Date</Label>
+                        <DatePicker date={endDate} setDate={setEndDate} />
+                    </div>
+                    <div className="flex justify-end">
+                        <Button onClick={fetchData} disabled={isLoading}>
+                            {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                            Apply
+                        </Button>
+                    </div>
+                </PopoverContent>
+            </Popover>
+            <div className="mt-6">
+                <PnlClient data={data} startDate={startDate} endDate={endDate} />
+            </div>
+        </>
+    );
 }

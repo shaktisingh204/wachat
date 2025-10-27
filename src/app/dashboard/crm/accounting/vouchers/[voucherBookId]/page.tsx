@@ -1,18 +1,23 @@
-
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Download, SlidersHorizontal, Trash2 } from 'lucide-react';
+import { ArrowLeft, Download, SlidersHorizontal, Trash2, ChevronDown } from 'lucide-react';
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+
 
 export default function VoucherBookDetailPage() {
     const params = useParams();
     const voucherBookId = params.voucherBookId as string;
+    const [startDate, setStartDate] = useState<Date | undefined>();
+    const [endDate, setEndDate] = useState<Date | undefined>();
 
     // In a real application, you would fetch the voucher book details using the ID
     const mockVoucherBook = {
@@ -32,13 +37,6 @@ export default function VoucherBookDetailPage() {
                         <p className="text-muted-foreground">Voucher Book Type: {mockVoucherBook.type}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Select defaultValue="fy2526">
-                            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="fy2526">FY 2025-2026</SelectItem>
-                                <SelectItem value="fy2425">FY 2024-2025</SelectItem>
-                            </SelectContent>
-                        </Select>
                         <Button variant="outline"><Download className="mr-2 h-4 w-4" />Download CSV</Button>
                     </div>
                 </div>
@@ -49,21 +47,37 @@ export default function VoucherBookDetailPage() {
                     <div>
                         <h3 className="text-lg font-semibold">Filters</h3>
                          <div className="flex items-center gap-2 text-sm mt-2">
-                            <Select defaultValue="no">
-                                <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="no">Reversed: No</SelectItem>
-                                    <SelectItem value="yes">Reversed: Yes</SelectItem>
-                                    <SelectItem value="all">Reversed: All</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4" />More Filters</Button>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4" />More Filters</Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-96 space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Start Date</Label>
+                                        <DatePicker date={startDate} setDate={setStartDate} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>End Date</Label>
+                                        <DatePicker date={endDate} setDate={setEndDate} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Reversed</Label>
+                                         <Select defaultValue="no">
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="no">No</SelectItem>
+                                                <SelectItem value="yes">Yes</SelectItem>
+                                                <SelectItem value="all">All</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <Button>Apply</Button>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
                             <Button variant="ghost"><Trash2 className="mr-2 h-4 w-4" />Clear All Filters</Button>
                         </div>
-                    </div>
-                     <div className="flex items-center gap-2 text-sm text-muted-foreground self-end">
-                        <span>Applied Filters:</span>
-                        <span>None</span>
                     </div>
                 </div>
             </div>

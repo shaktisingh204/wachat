@@ -21,6 +21,7 @@ export default function VoucherBooksPage() {
     const [books, setBooks] = useState<WithId<CrmVoucherBook>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useToast();
+    const [financialYear, setFinancialYear] = useState('fy2526');
 
     const fetchBooks = useCallback(() => {
         startTransition(async () => {
@@ -63,7 +64,7 @@ export default function VoucherBooksPage() {
                 </div>
                  <div className="flex items-center gap-2">
                      <CreateVoucherBookDialog onSave={fetchBooks} />
-                     <Select defaultValue="fy2526">
+                     <Select value={financialYear} onValueChange={setFinancialYear}>
                         <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="fy2526">FY 2025-2026</SelectItem>

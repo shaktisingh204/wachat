@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Download, SlidersHorizontal, Trash2, ChevronDown, Building, AlertCircle } from 'lucide-react';
 import { DatePicker } from "@/components/ui/date-picker";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label';
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { generateTrialBalanceData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
@@ -18,6 +17,7 @@ import Papa from "papaparse";
 import { getSession } from "@/app/actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from 'next/link';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type TrialBalanceEntry = {
     accountId: string;
@@ -169,8 +169,13 @@ export default function TrialBalancePage() {
     const handleClearFilters = () => {
         setStartDate(defaultStartDate);
         setEndDate(defaultEndDate);
-        fetchData();
     }
+
+    useEffect(() => {
+        if (startDate === defaultStartDate && endDate === defaultEndDate) {
+            fetchData();
+        }
+    }, [startDate, endDate, defaultStartDate, defaultEndDate, fetchData]);
     
     if (isLoading || !data || !user) {
         return (
@@ -195,41 +200,32 @@ export default function TrialBalancePage() {
 
     return (
         <>
-            <Card className="mb-6">
-                <CardHeader>
-                    <CardTitle>Filters</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-wrap items-end gap-4">
-                    <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <Label>Financial Year</Label>
-                            <Select defaultValue="fy2526">
-                                <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="fy2526">FY 2025-2026</SelectItem>
-                                    <SelectItem value="fy2425">FY 2024-2025</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Start Date</Label>
-                            <DatePicker date={startDate} setDate={setStartDate} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>End Date</Label>
-                            <DatePicker date={endDate} setDate={setEndDate} />
-                        </div>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4" /> Filters</Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-96 space-y-4">
+                     <div className="space-y-2">
+                        <Label>Start Date</Label>
+                        <DatePicker date={startDate} setDate={setStartDate} />
                     </div>
-                     <Button onClick={fetchData} disabled={isLoading}>
-                         {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
-                         Apply
-                    </Button>
-                    <Button variant="outline" onClick={handleClearFilters} disabled={isLoading}>
-                        <Trash2 className="mr-2 h-4 w-4" />Clear Filters
-                    </Button>
-                </CardContent>
-            </Card>
-            <TrialBalanceClient data={data.data} totals={data.totals} user={user} />
+                    <div className="space-y-2">
+                        <Label>End Date</Label>
+                        <DatePicker date={endDate} setDate={setEndDate} />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <Button variant="ghost" onClick={handleClearFilters}>Clear</Button>
+                        <Button onClick={fetchData} disabled={isLoading}>
+                             {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                             Apply
+                        </Button>
+                    </div>
+                </PopoverContent>
+            </Popover>
+
+            <div className="mt-6">
+                <TrialBalanceClient data={data.data} totals={data.totals} user={user} />
+            </div>
         </>
     );
 }
