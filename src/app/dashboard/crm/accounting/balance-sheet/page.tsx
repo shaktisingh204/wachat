@@ -8,7 +8,7 @@ import { Download, ChevronDown, View } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { generateBalanceSheetData } from "@/app/actions/crm-accounting.actions";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useCallback } from "react";
 import Papa from "papaparse";
 import { LoaderCircle } from "lucide-react";
 
@@ -52,29 +52,6 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
                     <h1 className="text-3xl font-bold font-headline">Balance Sheet</h1>
                     <p className="text-muted-foreground">A snapshot of your company's financial health.</p>
                 </div>
-                <div className="flex items-center gap-2">
-                     <Select defaultValue="fy2526">
-                        <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="fy2526">FY 2025-2026</SelectItem>
-                            <SelectItem value="fy2425">FY 2024-2025</SelectItem>
-                        </SelectContent>
-                    </Select>
-                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">
-                                <Download className="mr-2 h-4 w-4"/>
-                                Download As
-                                <ChevronDown className="ml-2 h-4 w-4"/>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
             </div>
 
             <Card>
@@ -91,7 +68,25 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
             </Card>
 
             <Card>
-                 <CardContent className="pt-6">
+                 <CardHeader>
+                    <div className="flex justify-end">
+                         <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline">
+                                    <Download className="mr-2 h-4 w-4"/>
+                                    Download As
+                                    <ChevronDown className="ml-2 h-4 w-4"/>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                                <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                                <DropdownMenuItem disabled>PDF</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </CardHeader>
+                 <CardContent>
                     <div className="border rounded-md">
                         <Table>
                             <TableHeader>
@@ -126,12 +121,16 @@ export default function BalanceSheetPage() {
     const [data, setData] = useState<any>(null);
     const [isLoading, startTransition] = useTransition();
 
-    useEffect(() => {
+    const fetchData = useCallback(() => {
         startTransition(async () => {
             const result = await generateBalanceSheetData();
             setData(result);
         });
     }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     if (isLoading || !data) {
         return (
