@@ -1,83 +1,23 @@
+// This file is deprecated. The billing history page has been moved.
+// To prevent 404 errors, we'll redirect to the new location.
 
+'use client';
 
-import { getTransactionsForUser } from '@/app/actions';
-import type { Transaction } from '@/lib/definitions';
-import type { WithId } from 'mongodb';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { ChevronLeft, Receipt } from 'lucide-react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { LoaderCircle } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
-
-const getStatusVariant = (status: Transaction['status']) => {
-    switch (status) {
-        case 'SUCCESS': return 'default';
-        case 'FAILED': return 'destructive';
-        case 'PENDING': return 'secondary';
-        default: return 'outline';
-    }
-};
-
-export default async function BillingHistoryPage() {
-    const transactions = await getTransactionsForUser();
+export default function DeprecatedBillingHistoryPage() {
+    const router = useRouter();
+    useEffect(() => {
+        router.replace('/dashboard/user/billing/history');
+    }, [router]);
 
     return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <Button variant="ghost" asChild className="mb-4 -ml-4">
-                    <Link href="/dashboard/billing"><ChevronLeft className="mr-2 h-4 w-4" />Back to Billing</Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline">Billing History</h1>
-                <p className="text-muted-foreground">A record of all your plan upgrades and credit purchases.</p>
-            </div>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Your Transactions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Transaction ID</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {transactions.length > 0 ? (
-                                    transactions.map((t) => (
-                                        <TableRow key={t._id.toString()}>
-                                            <TableCell>{new Date(t.createdAt).toLocaleString()}</TableCell>
-                                            <TableCell className="font-medium">{t.description}</TableCell>
-                                            <TableCell>₹{(t.amount / 100).toFixed(2)}</TableCell>
-                                            <TableCell><Badge variant={getStatusVariant(t.status)}>{t.status}</Badge></TableCell>
-                                            <TableCell className="font-mono text-xs">{t._id.toString()}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-48 text-center">
-                                            <div className="flex flex-col items-center gap-4">
-                                                <Receipt className="h-12 w-12 text-muted-foreground" />
-                                                <p className="text-muted-foreground">You don't have any transactions yet.</p>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+        <div className="flex flex-col items-center justify-center h-full text-center">
+            <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
+            <h1 className="text-xl font-semibold">This page has moved</h1>
+            <p className="text-muted-foreground">Redirecting you to the new user settings page...</p>
         </div>
     );
 }
-
-    

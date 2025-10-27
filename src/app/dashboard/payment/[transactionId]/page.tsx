@@ -30,7 +30,7 @@ export default async function PaymentStatusPage({ params }: { params: { transact
                     </CardContent>
                     <CardFooter className="flex justify-center">
                         <Button asChild>
-                            <Link href="/dashboard/billing">Back to Billing</Link>
+                            <Link href="/dashboard/user/billing">Back to Billing</Link>
                         </Button>
                     </CardFooter>
                 </Card>
@@ -52,7 +52,7 @@ export default async function PaymentStatusPage({ params }: { params: { transact
                 <CardContent>
                     <CardDescription>
                        {isSuccess 
-                        ? "Your plan has been upgraded successfully! You can now enjoy all the new features."
+                        ? "Your purchase was successful! Your account has been updated."
                         : "There was a problem with your payment. Your plan has not been changed. Please try again or contact support."
                        }
                     </CardDescription>
@@ -62,7 +62,7 @@ export default async function PaymentStatusPage({ params }: { params: { transact
                 </CardContent>
                 <CardFooter className="flex justify-center">
                     <Button asChild>
-                        <Link href="/dashboard/billing">Back to Billing</Link>
+                        <Link href="/dashboard/user/billing">Back to Billing</Link>
                     </Button>
                 </CardFooter>
             </Card>
