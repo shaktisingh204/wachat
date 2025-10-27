@@ -3,7 +3,7 @@ module.exports = {
   apps: [
     {
       name: 'sabnode-web',
-      script: 'node_modules/next/dist/bin/next',
+      script: 'node_modules/.bin/next',
       args: 'start -p 3001',
       instances: 1,
       exec_mode: 'fork',
@@ -13,8 +13,9 @@ module.exports = {
     },
     {
       name: 'sabnode-worker-low',
-      script: 'worker.js',
-      instances: 1, // A single worker for smaller jobs
+      script: './worker.js',
+      args: 'low-priority-broadcasts',
+      instances: 1,
       exec_mode: 'cluster',
       env: {
         NODE_ENV: 'production',
@@ -23,8 +24,9 @@ module.exports = {
     },
     {
       name: 'sabnode-worker-high',
-      script: 'worker.js',
-      instances: 2, // Two workers for larger jobs
+      script: './worker.js',
+      args: 'high-priority-broadcasts',
+      instances: 2,
       exec_mode: 'cluster',
       env: {
         NODE_ENV: 'production',
