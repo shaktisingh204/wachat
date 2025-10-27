@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -26,7 +27,9 @@ import {
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Checkbox } from "@/components/ui/checkbox";
-import { getSession, getCrmDeals, getCrmContacts } from "@/app/actions";
+import { getSession } from "@/app/actions";
+import { getCrmDeals } from "@/app/actions/crm-deals.actions";
+import { getCrmContacts } from "@/app/actions/crm.actions";
 import type { User, WithId, CrmDeal, CrmContact } from "@/lib/definitions";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from 'next/link';
@@ -37,11 +40,6 @@ import Papa from "papaparse";
 import { useToast } from "@/hooks/use-toast";
 
 const leadsPerPage = 20;
-
-const leads = [
-    { id: 1, pipeline: 'Sales Pipeline', contactName: "Aisha Ahmed", organisation: 'Acme Inc.', designation: 'Marketing Head', email: "prospect.a@example.com", phone: '+919876543210', contactCountry: 'India', customerCountry: 'India', city: 'Mumbai', state: 'Maharashtra', createdAt: '2024-10-22', status: "New", leadSource: "Website", lastUpdate: '2024-10-23', budget: '$5,000', subject: 'New Website Project', creator: 'You', assignee: 'You', followUp: '2024-10-28', lastCommentBy: 'You', nextActivity: "2024-10-25", score: 85, dateClosed: '-', description: 'Interested in a full redesign.', labels: ['Hot Lead'], duplicate: 'No', firstResponse: '2 hours', lastInternalNote: 'Sent proposal' },
-    { id: 2, pipeline: 'Sales Pipeline', contactName: "David Chen", organisation: 'Innovate LLC', designation: 'CTO', email: "prospect.b@example.com", phone: '+14155552671', contactCountry: 'USA', customerCountry: 'USA', city: 'San Francisco', state: 'CA', createdAt: '2024-10-21', status: "Open", leadSource: "Referral", lastUpdate: '2024-10-24', budget: '$12,000', subject: 'API Integration', creator: 'Jane', assignee: 'You', followUp: '2024-10-27', lastCommentBy: 'Jane', nextActivity: "2024-10-26", score: 65, dateClosed: '-', description: 'Needs to connect their system.', labels: [], duplicate: 'No', firstResponse: '30 mins', lastInternalNote: 'Scheduled a demo call' },
-];
 
 const FilterBadge = ({ children, onRemove }: { children: React.ReactNode, onRemove: () => void }) => (
     <Badge variant="secondary" className="flex items-center gap-1">
@@ -197,7 +195,7 @@ export default function AllLeadsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-12"><Checkbox onCheckedChange={(checked) => setSelectedLeads(checked ? leads.map(l => l.id) : [])}/></TableHead>
+                                    <TableHead className="w-12"><Checkbox onCheckedChange={(checked) => setSelectedLeads(checked ? deals.map(l => l.id) : [])}/></TableHead>
                                     <TableHead>Contact Name</TableHead>
                                     <TableHead>Organisation Name</TableHead>
                                     <TableHead>Status</TableHead>
@@ -251,3 +249,4 @@ export default function AllLeadsPage() {
         </div>
     );
 }
+    

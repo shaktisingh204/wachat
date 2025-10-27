@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label';
 import { LoaderCircle, Save, ArrowLeft, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
-import { getCrmAccounts, getCrmPipelines } from '@/app/actions';
+import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import type { WithId, CrmAccount, CrmPipeline } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -221,3 +222,4 @@ export default function AddLeadPage() {
         </div>
     );
 }
+    
