@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type Website = {
@@ -1109,6 +1110,12 @@ export type User = {
     activeProjectId?: string;
     crmIndustry?: string;
     appRailPosition?: 'left' | 'top';
+    businessProfile?: {
+        name?: string;
+        address?: string;
+        gstin?: string;
+        pan?: string;
+    };
     crm?: {
       whatsappProjectId?: ObjectId;
       permissions?: CrmPermissions;

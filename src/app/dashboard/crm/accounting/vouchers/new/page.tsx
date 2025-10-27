@@ -1,17 +1,18 @@
 
+
 'use client';
 
 import { useState, useEffect, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,6 +21,8 @@ import { getCrmChartOfAccounts } from '@/app/actions/crm-accounting.actions';
 import { saveVoucherEntry, getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
 import type { WithId } from 'mongodb';
 import type { CrmChartOfAccount, CrmVoucherBook } from '@/lib/definitions';
+import { getSession } from '@/app/actions';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const initialState = { message: null, error: null };
 
@@ -119,6 +122,7 @@ export default function NewVoucherPage() {
     const router = useRouter();
     const { toast } = useToast();
     
+    const [user, setUser] = useState<any>(null);
     const [accounts, setAccounts] = useState<WithId<CrmChartOfAccount>[]>([]);
     const [voucherBooks, setVoucherBooks] = useState<WithId<CrmVoucherBook>[]>([]);
     const [voucherDate, setVoucherDate] = useState<Date | undefined>(new Date());
@@ -128,6 +132,7 @@ export default function NewVoucherPage() {
     const [creditEntries, setCreditEntries] = useState<VoucherEntryItem[]>([{ id: uuidv4(), accountId: '', currency, amount: 0 }]);
 
     useEffect(() => {
+        getSession().then(session => setUser(session?.user));
         getCrmChartOfAccounts().then(setAccounts);
         getVoucherBooks().then(setVoucherBooks);
     }, []);
@@ -145,6 +150,8 @@ export default function NewVoucherPage() {
     const totalDebits = debitEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
     const totalCredits = creditEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
     const difference = totalDebits - totalCredits;
+    
+    const businessProfile = user?.businessProfile;
 
     return (
         <form action={formAction}>
@@ -171,6 +178,17 @@ export default function NewVoucherPage() {
                                 <p className="text-muted-foreground">Record a new journal entry.</p>
                             </header>
                             
+                            {!businessProfile?.name && (
+                                <Alert variant="destructive" className="mb-6">
+                                    <AlertCircle className="h-4 w-4"/>
+                                    <AlertTitle>Business Profile Incomplete</AlertTitle>
+                                    <AlertDescription>
+                                        Please complete your business profile to use accounting features.
+                                        <Button asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></Button>
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+
                             <Separator className="my-8"/>
 
                             <section className="grid md:grid-cols-3 gap-4 text-sm mb-8">

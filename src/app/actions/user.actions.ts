@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -478,32 +479,40 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };
 
-    const name = formData.get('name') as string;
-    const tagsJSON = formData.get('tags') as string | null;
-    const appRailPosition = formData.get('appRailPosition') as 'left' | 'top' | null;
-
-    if (!name && !tagsJSON && !appRailPosition) {
-        return { error: 'No data provided to update.' };
-    }
-
     try {
         const { db } = await connectToDatabase();
         
         const updateData: any = {};
-        if (name) {
-            updateData.name = name;
-        }
-        if (appRailPosition) {
-            updateData.appRailPosition = appRailPosition;
-        }
+        
+        const name = formData.get('name') as string;
+        const tagsJSON = formData.get('tags') as string | null;
+        const appRailPosition = formData.get('appRailPosition') as 'left' | 'top' | null;
+
+        const businessName = formData.get('businessName') as string | null;
+        const businessAddress = formData.get('businessAddress') as string | null;
+        const businessGstin = formData.get('businessGstin') as string | null;
+
+        if (name) updateData.name = name;
+        if (appRailPosition) updateData.appRailPosition = appRailPosition;
         if (tagsJSON) {
-            // This ensures we save tags with ObjectIDs if they are new
             const parsedTags = JSON.parse(tagsJSON).map((tag: any) => ({
                 _id: tag._id && !tag._id.startsWith('temp_') ? new ObjectId(tag._id) : new ObjectId(),
                 name: tag.name,
                 color: tag.color
             }));
             updateData.tags = parsedTags;
+        }
+
+        if (businessName || businessAddress || businessGstin) {
+            updateData.businessProfile = {
+                name: businessName,
+                address: businessAddress,
+                gstin: businessGstin
+            }
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return { error: 'No data provided to update.' };
         }
 
         const result = await db.collection('users').updateOne(
@@ -518,6 +527,7 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
         revalidatePath('/dashboard/profile');
         revalidatePath('/dashboard/settings');
         revalidatePath('/dashboard/url-shortener/settings');
+        revalidatePath('/dashboard/user/settings/profile');
         return { message: 'Profile updated successfully.' };
 
     } catch (e: any) {
