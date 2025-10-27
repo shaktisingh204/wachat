@@ -13,9 +13,10 @@ import { CreditPurchaseButton } from '@/components/wabasimplify/credit-purchase-
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState, useMemo } from 'react';
-import type { Plan, WithId } from '@/lib/definitions';
+import type { Plan, WithId, User } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
     <li className="flex items-center gap-3">
@@ -30,7 +31,7 @@ const creditPacks = [
     { credits: 30000, amount: 2500, description: 'Business Pack' },
 ];
 
-const PlanCard = ({ plan, currentPlanId, projectId }: { plan: WithId<Plan>, currentPlanId?: string, projectId: string }) => {
+const PlanCard = ({ plan, currentPlanId, projectId }: { plan: WithId<Plan>, currentPlanId?: string, projectId?: string | null }) => {
     return (
         <Card key={plan._id.toString()} className={cn("flex flex-col w-80", currentPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
             <CardHeader className="flex-grow">
@@ -57,7 +58,7 @@ const PlanCard = ({ plan, currentPlanId, projectId }: { plan: WithId<Plan>, curr
     );
 };
 
-const PlanCategorySection = ({ title, plans, currentPlanId, projectId }: { title: string; plans: WithId<Plan>[]; currentPlanId?: string, projectId: string }) => {
+const PlanCategorySection = ({ title, plans, currentPlanId, projectId }: { title: string; plans: WithId<Plan>[]; currentPlanId?: string, projectId?: string | null }) => {
     if (plans.length === 0) return null;
     return (
         <div className="space-y-4">
@@ -95,8 +96,8 @@ export default function BillingPage() {
             'All-In-One': [],
             'Wachat': [],
             'CRM': [],
-            'Meta': [],
-            'Instagram': [],
+            'Meta Suite': [],
+            'Instagram Suite': [],
             'Email': [],
             'SMS': [],
             'URL Shortener': [],
@@ -120,7 +121,7 @@ export default function BillingPage() {
     if (!isClient || !sessionUser) {
         return (
             <div className="flex items-center justify-center h-full">
-                <p>Loading user and project data...</p>
+                <p>Loading user and plan data...</p>
             </div>
         )
     }
@@ -191,24 +192,16 @@ export default function BillingPage() {
             <Separator />
             
             <div id="upgrade" className="space-y-8">
-                {activeProjectId ? (
-                    <>
-                        <PlanCategorySection title="All-In-One Plans" plans={categorizedPlans['All-In-One']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        <PlanCategorySection title="Wachat Suite Plans" plans={categorizedPlans['Wachat']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        <PlanCategorySection title="CRM Suite Plans" plans={categorizedPlans['CRM']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        <PlanCategorySection title="Meta Suite Plans" plans={categorizedPlans['Meta']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        <PlanCategorySection title="Instagram Suite Plans" plans={categorizedPlans['Instagram']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        <PlanCategorySection title="Email Suite Plans" plans={categorizedPlans['Email']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        <PlanCategorySection title="SMS Suite Plans" plans={categorizedPlans['SMS']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        <PlanCategorySection title="URL Shortener Plans" plans={categorizedPlans['URL Shortener']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        <PlanCategorySection title="QR Code Generator Plans" plans={categorizedPlans['QR Code Generator']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                    </>
-                ) : (
-                    <p className="text-center text-muted-foreground">Select a project from the dashboard to manage its plan.</p>
-                )}
+                <PlanCategorySection title="All-In-One Plans" plans={categorizedPlans['All-In-One']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Wachat Suite Plans" plans={categorizedPlans['Wachat']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="CRM Suite Plans" plans={categorizedPlans['CRM']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Meta Suite Plans" plans={categorizedPlans['Meta Suite']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Instagram Suite Plans" plans={categorizedPlans['Instagram Suite']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Email Suite Plans" plans={categorizedPlans['Email']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="SMS Suite Plans" plans={categorizedPlans['SMS']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="URL Shortener Plans" plans={categorizedPlans['URL Shortener']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="QR Code Generator Plans" plans={categorizedPlans['QR Code Generator']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
             </div>
         </div>
     );
 }
-
-    
