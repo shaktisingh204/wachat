@@ -16,10 +16,10 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon
+    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
@@ -53,7 +53,7 @@ const wachatMenuItems = [
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
   { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'] },
   { href: '/dashboard/integrations', label: 'Integrations', icon: Zap, roles: ['owner', 'admin'] },
-  { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: WaPayIcon, roles: ['owner', 'admin'] },
+  { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'] },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
   { href: '/dashboard/settings', label: 'Project Settings', icon: Settings, roles: ['owner', 'admin'] },
@@ -300,7 +300,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { currentApp = 'website-builder'; }
         else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
         else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
-        else if (pathname.startsWith('/dashboard/user/settings') || pathname.startsWith('/dashboard/user/billing')) { currentApp = 'user-settings'; }
+        else if (pathname.startsWith('/dashboard/user')) { currentApp = 'user-settings'; }
         else if (pathname.startsWith('/dashboard/settings')) { currentApp = 'whatsapp'; } // Treat Wachat settings as part of whatsapp
         setActiveApp(currentApp);
     }, [pathname]);
@@ -323,7 +323,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'email', icon: Mail, label: 'Email', href: '/dashboard/email' },
         { id: 'sms', icon: MessageSquare, label: 'SMS', href: '/dashboard/sms' },
         { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
-        { id: 'website-builder', icon: Brush, label: 'Website', href: '/dashboard/website-builder' },
+        // { id: 'website-builder', icon: Brush, label: 'Website', href: '/dashboard/website-builder' },
         { id: 'url-shortener', icon: LinkIcon, label: 'Links', href: '/dashboard/url-shortener' },
         { id: 'qr-code-maker', icon: QrCode, label: 'QR Codes', href: '/dashboard/qr-code-maker' },
         { id: 'seo-suite', icon: SeoIcon, label: 'SEO', href: '/dashboard/seo' },
@@ -341,7 +341,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         return (
             <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive} tooltip={item.label} className={cn(isSubItem && "pl-10")}>
-                    <Link href={item.href}>{LinkIcon && <LinkIcon />}<span>{item.label}</span></Link>
+                    <Link href={item.href}>{LinkIcon && <LinkIcon />}<span>{item.label}</span>{item.new && <Badge className="ml-auto">New</Badge>}</Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>
         );
@@ -375,7 +375,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                     {appIcons.map(app => (
                         <SidebarMenuItem key={app.id}>
                             <SidebarMenuButton asChild isActive={activeApp === app.id} tooltip={app.label}>
-                                <Link href={app.href} className="h-48px"><app.icon /></Link>
+                                <Link href={app.href} className="h-12"><app.icon /></Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     ))}

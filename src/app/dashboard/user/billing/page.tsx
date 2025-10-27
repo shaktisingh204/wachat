@@ -5,7 +5,7 @@ import { Check, X, History, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getSession, handleInitiatePayment } from '@/app/actions';
-import { getPlans, planFeatureMap } from '@/app/actions/plan.actions';
+import { getPlans, planFeatureMap } from '@/lib/plans';
 import { Separator } from '@/components/ui/separator';
 import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
 import { CreditPurchaseButton } from '@/components/wabasimplify/credit-purchase-button';
@@ -56,6 +56,24 @@ const PlanCard = ({ plan, currentPlanId, projectId }: { plan: WithId<Plan>, curr
     );
 };
 
+const PlanCategorySection = ({ title, plans, currentPlanId, projectId }: { title: string; plans: WithId<Plan>[]; currentPlanId?: string, projectId: string }) => {
+    if (plans.length === 0) return null;
+    return (
+        <div className="space-y-4">
+            <h2 className="text-2xl font-bold font-headline">{title}</h2>
+            <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex w-max space-x-6 pb-4">
+                    {plans.map((plan: WithId<Plan>) => (
+                       <PlanCard key={plan._id.toString()} plan={plan} currentPlanId={currentPlanId} projectId={projectId} />
+                    ))}
+                </div>
+                <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+            <Separator />
+        </div>
+    );
+}
+
 export default function BillingPage() {
     const [isClient, setIsClient] = useState(false);
     const { sessionUser, activeProjectId } = useProject();
@@ -72,10 +90,17 @@ export default function BillingPage() {
     }, []);
 
     const categorizedPlans = useMemo(() => {
-        const allInOne = plans.filter(p => p.name.toLowerCase().includes('all-in-one'));
-        const wachat = plans.filter(p => p.name.toLowerCase().includes('wachat'));
-        const crm = plans.filter(p => p.name.toLowerCase().includes('crm'));
-        return { allInOne, wachat, crm };
+        return {
+            allInOne: plans.filter(p => p.appCategory === 'All-In-One'),
+            wachat: plans.filter(p => p.appCategory === 'Wachat'),
+            crm: plans.filter(p => p.appCategory === 'CRM'),
+            meta: plans.filter(p => p.appCategory === 'Meta'),
+            instagram: plans.filter(p => p.appCategory === 'Instagram'),
+            email: plans.filter(p => p.appCategory === 'Email'),
+            sms: plans.filter(p => p.appCategory === 'SMS'),
+            urlShortener: plans.filter(p => p.appCategory === 'URL Shortener'),
+            qrCodeGenerator: plans.filter(p => p.appCategory === 'QR Code Generator'),
+        };
     }, [plans]);
 
     const userPlanId = sessionUser?.plan?._id;
@@ -129,48 +154,15 @@ export default function BillingPage() {
             <Separator />
             
             <div id="upgrade" className="space-y-8">
-                <div>
-                    <h2 className="text-2xl font-bold font-headline">All-In-One Plans</h2>
-                    <p className="text-muted-foreground">Get access to all features with a single subscription.</p>
-                </div>
-                 <ScrollArea className="w-full whitespace-nowrap">
-                    <div className="flex w-max space-x-6 pb-4">
-                        {categorizedPlans.allInOne.map((plan: WithId<Plan>) => (
-                           <PlanCard key={plan._id.toString()} plan={plan} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" />
-                </ScrollArea>
-                
-                 <Separator />
-
-                <div>
-                    <h2 className="text-2xl font-bold font-headline">Wachat Suite Plans</h2>
-                    <p className="text-muted-foreground">Plans focused on WhatsApp Business API features.</p>
-                </div>
-                 <ScrollArea className="w-full whitespace-nowrap">
-                    <div className="flex w-max space-x-6 pb-4">
-                        {categorizedPlans.wachat.map((plan: WithId<Plan>) => (
-                           <PlanCard key={plan._id.toString()} plan={plan} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" />
-                </ScrollArea>
-                
-                <Separator />
-                
-                <div>
-                    <h2 className="text-2xl font-bold font-headline">CRM Suite Plans</h2>
-                    <p className="text-muted-foreground">Plans focused on Customer Relationship Management.</p>
-                </div>
-                 <ScrollArea className="w-full whitespace-nowrap">
-                    <div className="flex w-max space-x-6 pb-4">
-                        {categorizedPlans.crm.map((plan: WithId<Plan>) => (
-                           <PlanCard key={plan._id.toString()} plan={plan} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
-                        ))}
-                    </div>
-                     <ScrollBar orientation="horizontal" />
-                </ScrollArea>
+                <PlanCategorySection title="All-In-One Plans" plans={categorizedPlans.allInOne} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Wachat Suite Plans" plans={categorizedPlans.wachat} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="CRM Suite Plans" plans={categorizedPlans.crm} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Meta Suite Plans" plans={categorizedPlans.meta} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Instagram Suite Plans" plans={categorizedPlans.instagram} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="Email Suite Plans" plans={categorizedPlans.email} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="SMS Suite Plans" plans={categorizedPlans.sms} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="URL Shortener Plans" plans={categorizedPlans.urlShortener} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
+                <PlanCategorySection title="QR Code Generator Plans" plans={categorizedPlans.qrCodeGenerator} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />
             </div>
         </div>
     );
