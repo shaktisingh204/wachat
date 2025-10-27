@@ -46,7 +46,7 @@ export function Sidebar({ className, children }: { className?: string; children:
   const { isMobile, isOpen, setIsOpen } = useSidebar();
 
   const sidebarContent = (
-    <div className="flex h-full flex-col">{children}</div>
+    <div className="flex h-full  flex-col">{children}</div>
   );
 
   if (isMobile) {
@@ -60,7 +60,7 @@ export function Sidebar({ className, children }: { className?: string; children:
   }
 
   return (
-    <aside className={cn('flex h-full h-48px flex-col bg-card rounded-lg shadow-sm transition-[width]', isOpen ? 'w-60' : 'w-0 hidden', className)}>
+    <aside className={cn('flex h-full  flex-col bg-card rounded-lg shadow-sm transition-[width]', isOpen ? 'w-60' : 'w-0 hidden', className)}>
       {sidebarContent}
     </aside>
   );
