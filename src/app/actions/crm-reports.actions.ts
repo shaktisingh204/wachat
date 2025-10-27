@@ -4,8 +4,8 @@
 
 import { getSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId, type WithId } from 'mongodb';
-import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline } from '@/lib/definitions';
+import { ObjectId, type WithId, Filter } from 'mongodb';
+import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User } from '@/lib/definitions';
 
 export async function generateClientReportData(): Promise<{ success: boolean; data?: any[]; error?: string }> {
     const session = await getSession();
@@ -125,3 +125,66 @@ export async function getLeadsSummaryData(filters: {
     }
 }
 
+
+export async function generateTeamSalesReportData(filters: {
+    createdFrom?: Date;
+    createdTo?: Date;
+    pipelineId?: string;
+    leadSource?: string;
+    assigneeId?: string;
+}): Promise<{data: any[], users: any[]}> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { data: [], users: [] };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        // For now, we'll consider all users under the main account as 'salespeople'
+        const users = await db.collection<User>('users').find({}).project({ name: 1, email: 1 }).toArray();
+
+        const dealsFilter: Filter<CrmDeal> = { userId };
+        if (filters.createdFrom && filters.createdTo) {
+            dealsFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
+        }
+        if (filters.assigneeId) {
+            dealsFilter.ownerId = new ObjectId(filters.assigneeId);
+        }
+        // Add more filters as needed
+
+        const deals = await db.collection<CrmDeal>('crm_deals').find(dealsFilter).toArray();
+
+        const report = users.map(user => {
+            const userDeals = deals.filter(d => d.ownerId?.toString() === user._id.toString());
+            const totalLeads = userDeals.length;
+            const openLeads = userDeals.filter(d => !['Won', 'Lost', 'Not Serviceable'].includes(d.stage)).length;
+            const closedLeads = userDeals.filter(d => d.stage === 'Won').length;
+            const lostLeads = userDeals.filter(d => d.stage === 'Lost').length;
+            const notServiceable = userDeals.filter(d => d.stage === 'Not Serviceable').length;
+            const totalRevenue = closedLeads > 0 ? userDeals.filter(d => d.stage === 'Won').reduce((sum, d) => sum + d.value, 0) : 0;
+
+            return {
+                salespersonId: user._id.toString(),
+                salespersonName: user.name,
+                salespersonEmail: user.email,
+                totalLeads,
+                openLeads,
+                closedLeads,
+                lostLeads,
+                notServiceable,
+                conversionRate: (closedLeads + lostLeads) > 0 ? (closedLeads / (closedLeads + lostLeads)) * 100 : 0,
+                avgClosureTime: 0, // Placeholder
+                firstResponseMedian: 0, // Placeholder
+                totalRevenue,
+                avgDealValue: closedLeads > 0 ? totalRevenue / closedLeads : 0,
+            };
+        });
+
+        return { data: JSON.parse(JSON.stringify(report)), users: JSON.parse(JSON.stringify(users)) };
+    } catch (e) {
+        console.error("Error generating team sales report:", e);
+        return { data: [], users: [] };
+    }
+}
