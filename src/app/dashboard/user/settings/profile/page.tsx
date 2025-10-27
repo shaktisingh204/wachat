@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect, useState, useRef, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useState, useRef } from 'react';
+import { useActionState, useFormStatus } from 'react-dom';
 import { handleUpdateUserProfile, handleChangePassword, getSession } from '@/app/actions';
 import type { User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +39,13 @@ function ProfileForm({ user }: { user: Omit<User, 'password'> }) {
 
     return (
         <form action={formAction}>
+            {/* Pass all existing user settings to avoid them being overwritten */}
+            <input type="hidden" name="tags" value={JSON.stringify(user.tags || [])} />
+            <input type="hidden" name="appRailPosition" value={user.appRailPosition || 'left'} />
+            <input type="hidden" name="businessName" value={user.businessProfile?.name || ''} />
+            <input type="hidden" name="businessAddress" value={user.businessProfile?.address || ''} />
+            <input type="hidden" name="businessGstin" value={user.businessProfile?.gstin || ''} />
+
             <CardHeader>
                 <CardTitle>User Profile</CardTitle>
                 <CardDescription>Manage your name and view your account details.</CardDescription>
@@ -75,7 +82,11 @@ function BusinessProfileForm({ user }: { user: Omit<User, 'password'> }) {
 
     return (
         <form action={formAction}>
-             <input type="hidden" name="name" value={user.name} /> 
+            {/* Pass all existing user settings to avoid them being overwritten */}
+            <input type="hidden" name="name" value={user.name} />
+            <input type="hidden" name="tags" value={JSON.stringify(user.tags || [])} />
+            <input type="hidden" name="appRailPosition" value={user.appRailPosition || 'left'} />
+
             <CardHeader>
                 <CardTitle>Business Profile</CardTitle>
                 <CardDescription>This information will be used in invoices, vouchers, and other accounting documents.</CardDescription>
