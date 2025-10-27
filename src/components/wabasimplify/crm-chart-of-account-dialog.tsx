@@ -81,9 +81,30 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                                 </SelectContent>
                             </Select>
                         </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="openingBalance">Opening Balance *</Label>
-                            <Input id="openingBalance" name="openingBalance" type="number" step="0.01" required defaultValue={initialData?.openingBalance || 0} />
+                         <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="openingBalance">Opening Balance *</Label>
+                                <Input id="openingBalance" name="openingBalance" type="number" step="0.01" required defaultValue={initialData?.openingBalance || 0} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label>Balance Type *</Label>
+                                <div className="grid grid-cols-2 gap-2">
+                                     <Select name="balanceType" defaultValue={initialData?.balanceType || "Dr"}>
+                                        <SelectTrigger><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Dr">Dr (Debit)</SelectItem>
+                                            <SelectItem value="Cr">Cr (Credit)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <Select name="currency" defaultValue={initialData?.currency || "INR"}>
+                                        <SelectTrigger><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="INR">INR</SelectItem>
+                                            <SelectItem value="USD">USD</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="description">Description (Optional)</Label>

@@ -23,8 +23,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 
-function DeleteButton({ account, onDeleted }: { account: WithId<CrmChartOfAccount>, onDeleted: () => void }) {
+function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted: () => void }) {
     const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
 
@@ -62,11 +63,11 @@ function DeleteButton({ account, onDeleted }: { account: WithId<CrmChartOfAccoun
 }
 
 export default function ChartOfAccountsPage() {
-    const [accounts, setAccounts] = useState<WithId<CrmChartOfAccount>[]>([]);
+    const [accounts, setAccounts] = useState<WithId<any>[]>([]);
     const [groups, setGroups] = useState<WithId<CrmAccountGroup>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [editingAccount, setEditingAccount] = useState<WithId<CrmChartOfAccount> | null>(null);
+    const [editingAccount, setEditingAccount] = useState<WithId<any> | null>(null);
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -83,17 +84,13 @@ export default function ChartOfAccountsPage() {
         fetchData();
     }, [fetchData]);
     
-    const handleOpenDialog = (account: WithId<CrmChartOfAccount> | null) => {
+    const handleOpenDialog = (account: WithId<any> | null) => {
         setEditingAccount(account);
         setIsDialogOpen(true);
     };
 
     const activeAccounts = accounts.filter(acc => acc.status === 'Active');
     const inactiveAccounts = accounts.filter(acc => acc.status === 'Inactive');
-
-    const getGroupName = (groupId: string) => {
-        return groups.find(g => g._id.toString() === groupId)?.name || 'N/A';
-    };
 
     return (
         <>
@@ -119,10 +116,10 @@ export default function ChartOfAccountsPage() {
                             <TabsTrigger value="inactive">Inactive ({inactiveAccounts.length})</TabsTrigger>
                         </TabsList>
                         <TabsContent value="active" className="mt-4">
-                            <AccountsTable accounts={activeAccounts} isLoading={isLoading} getGroupName={getGroupName} onEdit={handleOpenDialog} onDelete={fetchData} />
+                            <AccountsTable accounts={activeAccounts} isLoading={isLoading} onEdit={handleOpenDialog} onDelete={fetchData} />
                         </TabsContent>
                          <TabsContent value="inactive" className="mt-4">
-                            <AccountsTable accounts={inactiveAccounts} isLoading={isLoading} getGroupName={getGroupName} onEdit={handleOpenDialog} onDelete={fetchData} />
+                            <AccountsTable accounts={inactiveAccounts} isLoading={isLoading} onEdit={handleOpenDialog} onDelete={fetchData} />
                         </TabsContent>
                     </Tabs>
                 </CardContent>
@@ -131,7 +128,7 @@ export default function ChartOfAccountsPage() {
     );
 }
 
-function AccountsTable({ accounts, isLoading, getGroupName, onEdit, onDelete }: { accounts: WithId<CrmChartOfAccount>[], isLoading: boolean, getGroupName: (id: string) => string, onEdit: (acc: any) => void, onDelete: () => void }) {
+function AccountsTable({ accounts, isLoading, onEdit, onDelete }: { accounts: WithId<any>[], isLoading: boolean, onEdit: (acc: any) => void, onDelete: () => void }) {
     return (
          <div className="border rounded-md">
             <Table>
@@ -139,19 +136,25 @@ function AccountsTable({ accounts, isLoading, getGroupName, onEdit, onDelete }: 
                     <TableRow>
                         <TableHead>Account Name</TableHead>
                         <TableHead>Account Group</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Type</TableHead>
                         <TableHead className="text-right">Opening Balance</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {isLoading ? (
-                        <TableRow><TableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
+                        <TableRow><TableCell colSpan={6} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
                     ) : accounts.length > 0 ? (
                         accounts.map(acc => (
                             <TableRow key={acc._id.toString()}>
                                 <TableCell className="font-medium">{acc.name}</TableCell>
-                                <TableCell>{getGroupName(acc.accountGroupId.toString())}</TableCell>
-                                <TableCell className="text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(acc.openingBalance)}</TableCell>
+                                <TableCell>{acc.accountGroupName || 'N/A'}</TableCell>
+                                <TableCell>{acc.accountGroupCategory?.replace(/_/g, ' ')}</TableCell>
+                                <TableCell><Badge variant="outline">{acc.accountGroupType}</Badge></TableCell>
+                                <TableCell className="text-right font-mono">
+                                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: acc.currency || 'INR' }).format(acc.openingBalance)} {acc.balanceType || 'Dr'}
+                                </TableCell>
                                 <TableCell className="text-right">
                                     <Button variant="ghost" size="icon" onClick={() => onEdit(acc)}><Edit className="h-4 w-4"/></Button>
                                     <DeleteButton account={acc} onDeleted={onDelete} />
@@ -159,7 +162,7 @@ function AccountsTable({ accounts, isLoading, getGroupName, onEdit, onDelete }: 
                             </TableRow>
                         ))
                     ) : (
-                        <TableRow><TableCell colSpan={4} className="h-24 text-center">No accounts in this category.</TableCell></TableRow>
+                        <TableRow><TableCell colSpan={6} className="h-24 text-center">No accounts in this category.</TableCell></TableRow>
                     )}
                 </TableBody>
             </Table>

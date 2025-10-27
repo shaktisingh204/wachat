@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type Website = {
@@ -373,6 +372,8 @@ export type CrmChartOfAccount = {
     name: string;
     accountGroupId: ObjectId;
     openingBalance: number;
+    balanceType: 'Cr' | 'Dr';
+    currency: string;
     description?: string;
     status: 'Active' | 'Inactive';
     createdAt: Date;

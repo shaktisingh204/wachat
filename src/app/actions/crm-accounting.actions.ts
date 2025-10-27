@@ -50,7 +50,7 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
             userId: groupData.userId,
             name: groupData.name,
         };
-        if (isEditing) {
+        if (isEditing && ObjectId.isValid(groupId)) {
             existingFilter._id = { $ne: new ObjectId(groupId!) };
         }
         const existing = await db.collection('crm_account_groups').findOne(existingFilter);
@@ -59,7 +59,7 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
             return { error: `An account group named "${groupData.name}" already exists.`};
         }
 
-        if (isEditing) {
+        if (isEditing && ObjectId.isValid(groupId)) {
             await db.collection('crm_account_groups').updateOne(
                 { _id: new ObjectId(groupId!) },
                 { $set: groupData }
@@ -100,16 +100,34 @@ export async function deleteCrmAccountGroup(groupId: string): Promise<{ success:
 }
 
 
-export async function getCrmChartOfAccounts(): Promise<WithId<CrmChartOfAccount>[]> {
+export async function getCrmChartOfAccounts(): Promise<WithId<any>[]> {
     const session = await getSession();
     if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
         const accounts = await db.collection<CrmChartOfAccount>('crm_chart_of_accounts')
-            .find({ userId: new ObjectId(session.user._id) })
-            .sort({ name: 1 })
-            .toArray();
+            .aggregate([
+                { $match: { userId: new ObjectId(session.user._id) } },
+                { $sort: { name: 1 } },
+                {
+                    $lookup: {
+                        from: 'crm_account_groups',
+                        localField: 'accountGroupId',
+                        foreignField: '_id',
+                        as: 'accountGroupInfo'
+                    }
+                },
+                { $unwind: { path: '$accountGroupInfo', preserveNullAndEmptyArrays: true } },
+                {
+                    $addFields: {
+                        accountGroupName: '$accountGroupInfo.name',
+                        accountGroupCategory: '$accountGroupInfo.category',
+                        accountGroupType: '$accountGroupInfo.type',
+                    }
+                },
+                { $project: { accountGroupInfo: 0 } }
+            ]).toArray();
         return JSON.parse(JSON.stringify(accounts));
     } catch (e) {
         console.error("Failed to fetch Chart of Accounts:", e);
@@ -130,6 +148,8 @@ export async function saveCrmChartOfAccount(prevState: any, formData: FormData):
             name: formData.get('name') as string,
             accountGroupId: new ObjectId(formData.get('accountGroupId') as string),
             openingBalance: Number(formData.get('openingBalance')),
+            balanceType: formData.get('balanceType') as 'Cr' | 'Dr',
+            currency: formData.get('currency') as string,
             description: formData.get('description') as string | undefined,
             status: formData.get('status') === 'on' ? 'Active' : 'Inactive',
         };
@@ -140,7 +160,7 @@ export async function saveCrmChartOfAccount(prevState: any, formData: FormData):
 
         const { db } = await connectToDatabase();
         
-        if (isEditing) {
+        if (isEditing && ObjectId.isValid(accountId)) {
             await db.collection('crm_chart_of_accounts').updateOne(
                 { _id: new ObjectId(accountId!) },
                 { $set: accountData }
