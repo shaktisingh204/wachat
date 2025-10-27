@@ -75,16 +75,16 @@ const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'carousel', label: 'Product Carousel', icon: View },
-    { type: 'payment', label: 'Request Payment', icon: CreditCard },
-    { type: 'language', label: 'Set Language', icon: BrainCircuit },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'api', label: 'Call API', icon: ArrowRightLeft },
-    { type: 'sendTemplate', label: 'Send Template', icon: FileTextIcon },
-    { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: ServerCog },
-    { type: 'triggerFlow', label: 'Trigger Flow', icon: GitFork },
+    { type: 'language', label: 'Set Language', icon: BrainCircuit },
+    { type: 'carousel', label: 'Product Carousel', icon: View, isNew: true },
+    { type: 'sendTemplate', label: 'Send Template', icon: FileTextIcon, isNew: true },
+    { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: ServerCog, isNew: true },
+    { type: 'triggerFlow', label: 'Trigger Flow', icon: GitFork, isNew: true },
+    { type: 'payment', label: 'Request Payment', icon: CreditCard, isNew: true },
 ];
 
 const NodePreview = ({ node }: { node: FlowNode }) => {
@@ -178,7 +178,7 @@ const NodeComponent = ({
             className={cn(
                 "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 flex items-center justify-center",
                 position === 'left' && "-left-2 top-1/2 -translate-y-1/2",
-                position === 'right' && "-right-2 top-1/2 -translate-y-1/2",
+                position === 'right' && "-right-2",
             )} 
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id); }}
@@ -221,21 +221,21 @@ const NodeComponent = ({
                 )}
             </Card>
 
-            {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} />}
+            {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} style={{top: '50%', transform: 'translateY(-50%)'}} />}
             
             {node.type === 'condition' || node.type === 'payment' ? (
                 <>
-                     <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%' }} />
-                     <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%' }} />
+                     <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%', transform: 'translateY(-50%)' }} />
+                     <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%', transform: 'translateY(-50%)' }} />
                 </>
             ) : node.type === 'buttons' ? (
                 (node.data.buttons || []).map((btn: ButtonConfig, index: number) => {
                     const totalButtons = node.data.buttons.length;
                     const topPosition = totalButtons > 1 ? `${(100 / (totalButtons + 1)) * (index + 1)}%` : '50%';
-                    return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition }} />;
+                    return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition, transform: 'translateY(-50%)' }} />;
                 })
             ) : (
-                 node.type !== 'addToCart' && <Handle position="right" id={`${node.id}-output-main`} />
+                 <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
             )}
         </div>
     );
@@ -482,10 +482,11 @@ const FlowsAndBlocksPanel = ({
             <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
             <CardContent className="space-y-2 p-2 pt-0 flex-1 min-h-0">
                 <ScrollArea className="h-full">
-                    {blockTypes.map(({ type, label, icon: Icon }) => (
+                    {blockTypes.map(({ type, label, icon: Icon, isNew }) => (
                         <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => addNode(type as NodeType)}>
                             <Icon className="mr-2 h-4 w-4" />
                             {label}
+                            {isNew && <Badge variant="secondary" className="ml-auto text-xs">New</Badge>}
                         </Button>
                     ))}
                 </ScrollArea>
@@ -539,6 +540,3 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     return null;
 }
 ```
-- `src/components/wabasimplify/flow-builder.tsx` is being deleted because I have merged its logic into the `src/app/dashboard/flow-builder/page.tsx` file to resolve previous issues.
-
-Here are the changes to the files.
