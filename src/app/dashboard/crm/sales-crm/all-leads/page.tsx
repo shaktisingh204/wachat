@@ -29,6 +29,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { getSession } from "@/app/actions";
 import type { User } from "@/lib/definitions";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import Link from 'next/link';
 
 const leads = [
     { id: 1, pipeline: 'Sales Pipeline', contactName: "Aisha Ahmed", organisation: 'Acme Inc.', designation: 'Marketing Head', email: "prospect.a@example.com", phone: '+919876543210', contactCountry: 'India', customerCountry: 'India', city: 'Mumbai', state: 'Maharashtra', createdAt: '2024-10-22', status: "New", leadSource: "Website", lastUpdate: '2024-10-23', budget: '$5,000', subject: 'New Website Project', creator: 'You', assignee: 'You', followUp: '2024-10-28', lastCommentBy: 'You', nextActivity: "2024-10-25", score: 85, dateClosed: '-', description: 'Interested in a full redesign.', labels: ['Hot Lead'], duplicate: 'No', firstResponse: '2 hours', lastInternalNote: 'Sent proposal' },
@@ -62,9 +63,11 @@ export default function AllLeadsPage() {
                          {user?.businessProfile?.name ? `${user.businessProfile.name} Leads` : 'All Leads'}
                     </h1>
                 </div>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Lead
+                 <Button asChild>
+                    <Link href="/dashboard/crm/sales-crm/all-leads/new">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Lead
+                    </Link>
                 </Button>
             </div>
             
@@ -167,7 +170,7 @@ export default function AllLeadsPage() {
                                         <TableCell>{lead.assignee}</TableCell>
                                         <TableCell>{new Date(lead.followUp).toLocaleDateString()}</TableCell>
                                         <TableCell>{lead.lastCommentBy}</TableCell>
-                                        <TableCell><Button variant="link" asChild className="p-0 h-auto"><a href={`https://wa.me/${lead.phone}`} target="_blank"><LinkIcon className="h-4 w-4"/></a></Button></TableCell>
+                                        <TableCell><Button variant="link" asChild className="p-0 h-auto"><a href={`https://wa.me/${lead.phone}`} target="_blank" rel="noopener noreferrer"><LinkIcon className="h-4 w-4"/></a></Button></TableCell>
                                         <TableCell>{lead.firstResponse}</TableCell>
                                         <TableCell>{lead.lastInternalNote}</TableCell>
                                         <TableCell>{new Date(lead.nextActivity).toLocaleDateString()}</TableCell>

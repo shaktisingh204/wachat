@@ -100,6 +100,7 @@ export async function addCrmLeadAndDeal(prevState: any, formData: FormData): Pro
                 company: formData.get('organisation') as string,
                 jobTitle: formData.get('designation') as string,
                 status: 'new_lead',
+                leadSource: formData.get('leadSource') as string,
                 createdAt: new Date(),
             };
             const result = await db.collection('crm_contacts').insertOne(newContact as CrmContact);

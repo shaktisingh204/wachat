@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
@@ -18,6 +19,13 @@ import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const initialState = { message: null, error: null };
+
+const leadSources = [
+    "Direct", "Quotation", "Self Lead", "Website", "Telephonic", "Social Media",
+    "Referral", "Industry Expo", "Website Form", "IndiaMart Direct", 
+    "IndiaMart Consumed Buy Lead", "IndiaMart Preferred Number Service", "Other",
+    "IndiaMart Catalogue View", "IndiaMart Others", "Facebook Meta"
+];
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -165,6 +173,17 @@ export default function AddLeadPage() {
                         <div className="space-y-2">
                             <Label htmlFor="description">Additional Description</Label>
                             <Textarea id="description" name="description" placeholder="Add all additional details, including links that may be helpful" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="leadSource">Lead Source</Label>
+                            <Select name="leadSource">
+                                <SelectTrigger id="leadSource"><SelectValue placeholder="Select lead source..."/></SelectTrigger>
+                                <SelectContent>
+                                    {leadSources.map(source => (
+                                        <SelectItem key={source} value={source}>{source}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
