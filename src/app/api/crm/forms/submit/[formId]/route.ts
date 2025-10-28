@@ -1,8 +1,9 @@
 
+
 'use server';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { CrmForm, CrmContact, CrmDeal, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
@@ -11,23 +12,26 @@ import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 
-async function mockGetSession(userId: ObjectId) {
-    const { db } = await connectToDatabase();
-    const user = await db.collection('users').findOne({ _id: userId });
-    if (!user) return null;
-    return {
-        user: {
-            ...user,
-            _id: user._id,
-        }
-    };
-}
-
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
+
+async function mockGetSession(userId: ObjectId) {
+    const { db } = await connectToDatabase();
+    const user = await db.collection<User>('users').findOne({ _id: userId }, { projection: { password: 0 } });
+    if (!user) return null;
+    
+    const plan = user.planId ? await db.collection('plans').findOne({ _id: user.planId }) : await db.collection('plans').findOne({ isDefault: true });
+
+    return {
+        user: {
+            ...user,
+            plan,
+        }
+    };
+}
 
 export async function POST(
     request: NextRequest,
@@ -61,7 +65,7 @@ export async function POST(
             submittedAt: new Date(),
         });
         
-        const user = await db.collection<User>('users').findOne({ _id: form.userId });
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(form.userId) });
         if (!user) {
             return NextResponse.json({ error: 'Form owner not found.' }, { status: 500, headers: corsHeaders });
         }
@@ -111,7 +115,7 @@ export async function POST(
 
         // Temporarily modify the server action to accept the mocked session
         const originalGetSession = require('@/app/actions').getSession;
-        (require('@/app/actions') as any).getSession = async () => ({ user: user });
+        (require('@/app/actions') as any).getSession = async () => mockGetSession(new ObjectId(form.userId));
 
         const result = await addCrmLeadAndDeal(null, leadAndDealData);
 

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useTransition } from 'react';
@@ -14,7 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Trash2, ArrowLeft, Save, LoaderCircle, Eye } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Save, LoaderCircle, Eye, Code2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
 import { CrmFormFieldEditor } from '@/components/wabasimplify/crm-form-field-editor';
@@ -24,6 +25,7 @@ import type { WithId, CrmForm, FormField } from '@/lib/definitions';
 import { useRouter } from 'next/navigation';
 import { StyleSettingsPanel } from '@/components/wabasimplify/website-builder/style-settings-panel';
 import Image from 'next/image';
+import { CodeBlock } from './code-block';
 
 const defaultFields: FormField[] = [
     { id: uuidv4(), type: 'text', label: 'Name', required: true, columnWidth: '50%', fieldId: 'name' },
@@ -90,6 +92,8 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
     };
     
     const selectedField = fields.find(f => f.id === selectedFieldId);
+    
+    const embedScript = `<div data-sabnode-form-id="${initialForm?._id.toString()}"></div>\n<script src="${process.env.NEXT_PUBLIC_APP_URL}/api/crm/forms/embed/${initialForm?._id.toString()}.js" async defer></script>`;
 
     return (
         <div className="h-full flex flex-col">
@@ -151,10 +155,10 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                  <aside className="col-span-3 border-l p-4 overflow-y-auto">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold">Properties</h2>
-                         {selectedField && (
+                         {selectedFieldId && (
                             <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
+                                Form Settings
                             </Button>
                         )}
                     </div>
@@ -165,43 +169,38 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                             onRemove={() => removeField(selectedFieldId!)}
                         />
                     ) : (
-                         <Accordion type="multiple" className="w-full" defaultValue={['general']}>
-                            <AccordionItem value="general">
-                                <AccordionTrigger>General Form Settings</AccordionTrigger>
-                                <AccordionContent className="space-y-4 pt-2">
-                                     <div className="space-y-2">
-                                        <Label>Form Title</Label>
-                                        <Input value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} />
-                                    </div>
-                                     <div className="space-y-2">
-                                        <Label>Form Description</Label>
-                                        <Textarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Submit Button Text</Label>
-                                        <Input value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} />
-                                    </div>
-                                     <div className="space-y-2">
-                                        <Label>Success Message</Label>
-                                        <Textarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} />
-                                    </div>
-                                     <div className="space-y-2">
-                                        <Label>Logo URL</Label>
-                                        <Input value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} />
-                                    </div>
-                                     <div className="space-y-2">
-                                        <Label>Footer Text (HTML allowed)</Label>
-                                        <Textarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} />
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                            <AccordionItem value="style">
-                                <AccordionTrigger>Form Styles</AccordionTrigger>
-                                <AccordionContent>
-                                    <StyleSettingsPanel settings={settings} onUpdate={setSettings} />
-                                </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
+                         <Tabs defaultValue="general">
+                            <TabsList className="grid w-full grid-cols-3">
+                                <TabsTrigger value="general">General</TabsTrigger>
+                                <TabsTrigger value="style">Style</TabsTrigger>
+                                <TabsTrigger value="embed">Embed</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="general" className="mt-4">
+                                <Accordion type="multiple" className="w-full" defaultValue={['general_settings']}>
+                                    <AccordionItem value="general_settings">
+                                        <AccordionTrigger>General Settings</AccordionTrigger>
+                                        <AccordionContent className="space-y-4 pt-2">
+                                            <div className="space-y-2"><Label>Form Title</Label><Input value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Form Description</Label><Textarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Submit Button Text</Label><Input value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Success Message</Label><Textarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Logo URL</Label><Input value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Footer Text (HTML allowed)</Label><Textarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
+                            </TabsContent>
+                            <TabsContent value="style" className="mt-4">
+                                 <StyleSettingsPanel settings={settings} onUpdate={setSettings} />
+                            </TabsContent>
+                             <TabsContent value="embed" className="mt-4">
+                                <div className="space-y-4">
+                                    <h3 className="font-semibold">Embed on your Website</h3>
+                                    <p className="text-sm text-muted-foreground">Copy and paste this code snippet where you want the form to appear on your website.</p>
+                                    <CodeBlock code={embedScript} language="html" />
+                                </div>
+                            </TabsContent>
+                        </Tabs>
                     )}
                 </aside>
             </div>
