@@ -94,15 +94,18 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     
     const { control, handleSubmit, formState: { errors } } = formHook;
 
-    async function onSubmit(data: any) {
+    async function onSubmit(data: z.infer<typeof validationSchema>) {
         startTransition(async () => {
             setSubmissionStatus('submitting');
             setErrorMessage('');
             try {
+                // Correctly clone the data to prevent mutation errors on read-only objects
+                const dataToSend = JSON.parse(JSON.stringify(data));
+                
                 const response = await fetch(`/api/crm/forms/submit/${form._id.toString()}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
+                    body: JSON.stringify(dataToSend),
                 });
                 const result = await response.json();
                 if (!response.ok) {
@@ -142,6 +145,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         background-color: ${settings.buttonBgColor || 'hsl(var(--primary))'};
         font-family: ${settings.buttonTypography?.fontFamily};
         border-radius: ${settings.buttonBorderRadius}px;
+        padding: ${settings.buttonPadding}px;
         border-style: ${settings.buttonBorderType || 'none'};
         box-shadow: ${settings.buttonBoxShadow === 'none' ? 'none' : 'var(--tw-shadow)'};
       }
@@ -174,7 +178,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
                         return (
                             <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
-                                {field.labelPosition !== 'hidden' && <Label htmlFor={fieldName} style={{color: settings.labelColor, fontFamily: settings.labelTypography?.fontFamily, marginBottom: field.labelPosition !== 'inline' ? `${settings.labelSpacing || 8}px` : '0'}} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0')}>{field.label} {field.required && '*'}</Label>}
+                                {field.labelPosition !== 'hidden' && <Label htmlFor={fieldName} style={{color: settings.labelColor, fontFamily: settings.labelTypography?.fontFamily, marginBottom: field.labelPosition !== 'inline' ? `${settings.labelSpacing || 8}px` : '0'}} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label} {field.required && '*'}</Label>}
                                 <div className="w-full">
                                     <Controller
                                         name={fieldName}
@@ -194,7 +198,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                             }
                                         }}
                                     />
-                                    {field.description && <p className="text-xs pt-1 text-muted-foreground">{field.description}</p>}
+                                    {field.description && <p className="text-xs pt-1" style={{color: settings.descriptionColor, fontFamily: settings.descriptionTypography?.fontFamily}}>{field.description}</p>}
                                     {errors[fieldName] && <p className="text-sm font-medium text-destructive">{errors[fieldName]?.message as string}</p>}
                                 </div>
                             </div>
