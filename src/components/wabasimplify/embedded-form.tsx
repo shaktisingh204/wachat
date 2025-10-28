@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
 import type { FormField, WithId, CrmForm } from '@/lib/definitions';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import Image from 'next/image';
 
 interface EmbeddedFormProps {
   form: WithId<CrmForm>;
@@ -120,6 +121,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
     const uniqueId = `form-${form._id.toString()}`;
     const dynamicStyles = `
+      body { background-color: transparent !important; }
       #${uniqueId} .form-field {
         color: ${settings.fieldColor || 'inherit'};
         background-color: ${settings.fieldBgColor || 'transparent'};
@@ -131,8 +133,8 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         border-style: ${settings.fieldBorderType || 'solid'};
       }
       #${uniqueId} .form-field:focus {
-        border-color: ${settings.fieldFocusBorderColor || 'hsl(var(--ring))'} !important;
-        box-shadow: 0 0 0 1px ${settings.fieldFocusBorderColor || 'hsl(var(--ring))'} !important;
+        border-color: ${settings.fieldFocusBorderColor || 'hsl(var(--primary))'} !important;
+        box-shadow: 0 0 0 1px ${settings.fieldFocusBorderColor || 'hsl(var(--primary))'} !important;
       }
       #${uniqueId} .submit-button {
         color: ${settings.buttonColor || 'hsl(var(--primary-foreground))'};
@@ -140,6 +142,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         font-family: ${settings.buttonTypography?.fontFamily};
         border-radius: ${settings.buttonBorderRadius}px;
         border-style: ${settings.buttonBorderType || 'none'};
+        box-shadow: ${settings.buttonBoxShadow === 'none' ? 'none' : 'var(--tw-shadow)'};
       }
        #${uniqueId} .submit-button:hover {
         color: ${settings.buttonHoverColor};
@@ -153,6 +156,11 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     return (
         <div ref={containerRef} id={uniqueId}>
             <style>{dynamicStyles}</style>
+            <div className="text-center mb-6">
+                {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
+                <h1 className="text-2xl font-bold mt-4">{settings.title || 'Form Title'}</h1>
+                <p className="text-muted-foreground">{settings.description}</p>
+            </div>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
                     {(settings.fields || []).map((field: FormField) => {
@@ -164,8 +172,8 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                         const fieldName = field.fieldId || field.id;
 
                         return (
-                            <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'])}>
-                                <Label htmlFor={fieldName}>{field.label}</Label>
+                            <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
+                                {field.labelPosition !== 'hidden' && <Label htmlFor={fieldName} style={{color: settings.labelColor, fontFamily: settings.labelTypography?.fontFamily, marginBottom: field.labelPosition !== 'inline' ? `${settings.labelSpacing || 8}px` : '0'}} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0')}>{field.label} {field.required && '*'}</Label>}
                                 <div className="w-full">
                                     <Controller
                                         name={fieldName}
@@ -185,20 +193,22 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                             }
                                         }}
                                     />
-                                    {errors[fieldName] && <p className="text-sm font-medium text-destructive mt-1">{errors[fieldName]?.message as string}</p>}
+                                    {field.description && <p className="text-xs pt-1 text-muted-foreground">{field.description}</p>}
+                                    {errors[fieldName] && <p className="text-sm font-medium text-destructive">{errors[fieldName]?.message as string}</p>}
                                 </div>
                             </div>
                         )
                     })}
+                     {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
                 </div>
-                {submissionStatus === 'error' && <div className="p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
-                <div style={{display: 'flex', justifyContent: settings.buttonAlign || 'flex-start'}}>
+                 <div style={{display: 'flex', justifyContent: settings.buttonAlign || 'flex-start', flexDirection: 'column', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start' }}>
                     <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                         {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`}}/>}
                         {settings.submitButtonText || 'Submit'}
                         {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`}}/>}
                     </Button>
+                    {settings.footerText && <p className="text-xs text-muted-foreground text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
                 </div>
             </form>
         </div>
