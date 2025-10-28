@@ -120,7 +120,12 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     }
 
     if (successMessage) {
-        return <div ref={containerRef} className="p-8 text-center border-2 border-dashed rounded-lg text-green-600 border-green-200 bg-green-50"><CheckCircle className="mx-auto h-12 w-12" /><h3 className="mt-4 text-lg font-semibold">{successMessage}</h3></div>;
+        return (
+            <div ref={containerRef} className="p-8 text-center border-2 border-dashed rounded-lg text-green-600 border-green-200 bg-green-50">
+                <CheckCircle className="mx-auto h-12 w-12" />
+                <h3 className="mt-4 text-lg font-semibold">{successMessage}</h3>
+            </div>
+        );
     }
 
     const uniqueId = `form-${form._id.toString()}`;
@@ -140,7 +145,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         border-width: ${settings.fieldBorderWidth || 1}px;
         border-style: ${settings.fieldBorderType || 'solid'};
       }
-       #${uniqueId} .form-field:focus-visible {
+       #${uniqueId} .form-field:focus {
         border-color: ${settings.fieldFocusBorderColor || 'hsl(var(--primary))'} !important;
         box-shadow: 0 0 0 1px ${settings.fieldFocusBorderColor || 'hsl(var(--primary))'} !important;
       }
@@ -149,6 +154,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         background-color: ${settings.buttonBgColor || 'hsl(var(--primary))'};
         font-family: ${settings.buttonTypography?.fontFamily};
         border-radius: ${settings.buttonBorderRadius}px;
+        padding: ${settings.buttonPadding}px;
         border-style: ${settings.buttonBorderType || 'none'};
         box-shadow: ${settings.buttonBoxShadow === 'none' ? 'none' : 'var(--tw-shadow)'};
       }
@@ -220,7 +226,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                         {settings.footerText && <p className="text-xs text-muted-foreground text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
                     </div>
                 </form>
-            </div>
+            </Card>
         </div>
     );
 };
