@@ -17,6 +17,17 @@ interface CrmFormFieldEditorProps {
     onRemove: () => void;
 }
 
+const crmFieldMappingOptions = [
+    { value: 'name', label: 'Contact Name' },
+    { value: 'email', label: 'Contact Email' },
+    { value: 'phone', label: 'Contact Phone' },
+    { value: 'organisation', label: 'Organisation Name' },
+    { value: 'designation', label: 'Designation' },
+    { value: 'dealName', label: 'Lead Subject' },
+    { value: 'description', label: 'Lead Description' },
+    { value: 'leadSource', label: 'Lead Source' },
+];
+
 export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEditorProps) {
     const handleUpdate = (prop: keyof FormField, value: any) => {
         onUpdate({ [prop]: value });
@@ -26,16 +37,38 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
         <div className="space-y-4">
             <div className="space-y-2">
                 <Label>Field Type</Label>
-                <p className="font-medium bg-muted p-2 rounded-md">{field.type}</p>
+                <Select value={field.type} onValueChange={(val) => handleUpdate('type', val)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="text">Text</SelectItem>
+                        <SelectItem value="email">Email</SelectItem>
+                        <SelectItem value="textarea">Text Area</SelectItem>
+                        <SelectItem value="number">Number</SelectItem>
+                        <SelectItem value="select">Select</SelectItem>
+                        <SelectItem value="checkbox">Checkbox</SelectItem>
+                        <SelectItem value="radio">Radio Group</SelectItem>
+                        <SelectItem value="date">Date</SelectItem>
+                        <SelectItem value="file">File Upload</SelectItem>
+                        <SelectItem value="acceptance">Acceptance</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
             <div className="space-y-2">
                 <Label htmlFor="field-label">Label</Label>
                 <Input id="field-label" value={field.label} onChange={(e) => handleUpdate('label', e.target.value)} />
             </div>
-            <div className="space-y-2">
-                <Label htmlFor="field-id">Field ID</Label>
-                <Input id="field-id" value={field.fieldId || ''} disabled readOnly />
-                <p className="text-xs text-muted-foreground">This is a fixed ID that maps to your CRM.</p>
+             <div className="space-y-2">
+                <Label htmlFor="fieldId">Map to CRM Field</Label>
+                <Select value={field.fieldId || ''} onValueChange={(val) => handleUpdate('fieldId', val)}>
+                    <SelectTrigger id="fieldId"><SelectValue placeholder="Select a CRM field..."/></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="">-- None --</SelectItem>
+                        {crmFieldMappingOptions.map(opt => (
+                             <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                 <p className="text-xs text-muted-foreground">Select which lead property this input should save to.</p>
             </div>
              <div className="space-y-2">
                 <Label htmlFor="field-placeholder">Placeholder</Label>
@@ -57,7 +90,7 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
                 <Label htmlFor="field-required">Required</Label>
             </div>
             <Button variant="destructive" onClick={onRemove} className="w-full">
-                Remove Field
+                Delete Field
             </Button>
         </div>
     );
