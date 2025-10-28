@@ -26,6 +26,11 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
     const uniqueId = React.useId().replace(/:/g, "");
 
     const dynamicStyles = `
+      #preview-${uniqueId} {
+        max-width: ${settings.formWidth || 480}px;
+        margin-left: auto;
+        margin-right: auto;
+      }
       #preview-${uniqueId} .form-field-preview {
         color: ${settings.fieldColor};
         background-color: ${settings.fieldBgColor};
@@ -50,7 +55,7 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
     const SubmitIcon = settings.buttonIcon ? LucideIcons[settings.buttonIcon] : null;
 
     return (
-        <Card className="shadow-md w-full max-w-lg" id={`preview-${uniqueId}`}>
+        <Card className="shadow-md w-full" id={`preview-${uniqueId}`}>
             <style>{dynamicStyles}</style>
             <CardHeader>
                 <CardTitle>{title}</CardTitle>

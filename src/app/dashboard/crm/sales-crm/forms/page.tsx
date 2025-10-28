@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -126,8 +127,16 @@ export default function CrmFormsPage() {
                                         <TableCell><Badge variant="default">Published</Badge></TableCell>
                                         <TableCell>{formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })}</TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
-                                            <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" asChild>
+                                                <a href={`/embed/crm-form/${form._id.toString()}`} target="_blank" rel="noopener noreferrer">
+                                                    <Eye className="h-4 w-4" />
+                                                </a>
+                                            </Button>
+                                            <Button variant="ghost" size="icon" asChild>
+                                                <Link href={`/dashboard/crm/sales-crm/forms/${form._id.toString()}/edit`}>
+                                                    <Edit className="h-4 w-4" />
+                                                </Link>
+                                            </Button>
                                             <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
                                         </TableCell>
                                     </TableRow>
