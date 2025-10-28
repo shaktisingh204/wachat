@@ -23,7 +23,6 @@ async function mockGetSession(userId: ObjectId) {
     };
 }
 
-
 export async function POST(
     request: NextRequest,
     { params }: { params: { formId: string } }
@@ -104,14 +103,9 @@ export async function POST(
             leadAndDealData.append('accountId', accountId);
         }
 
-        const session = await mockGetSession(form.userId);
-        if (!session) {
-             return NextResponse.json({ error: 'Could not authenticate form owner.' }, { status: 500 });
-        }
-        
         // Temporarily modify the server action to accept the mocked session
         const originalGetSession = require('@/app/actions').getSession;
-        (require('@/app/actions') as any).getSession = async () => session;
+        (require('@/app/actions') as any).getSession = async () => ({ user: user });
 
         const result = await addCrmLeadAndDeal(null, leadAndDealData);
 
