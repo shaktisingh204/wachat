@@ -23,6 +23,12 @@ async function mockGetSession(userId: ObjectId) {
     };
 }
 
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 export async function POST(
     request: NextRequest,
     { params }: { params: { formId: string } }
@@ -33,11 +39,11 @@ export async function POST(
     try {
         formData = await request.json();
     } catch (e) {
-        return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400, headers: corsHeaders });
     }
 
     if (!ObjectId.isValid(formId)) {
-        return NextResponse.json({ error: 'Invalid Form ID.' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid Form ID.' }, { status: 400, headers: corsHeaders });
     }
 
     try {
@@ -45,7 +51,7 @@ export async function POST(
         
         const form = await getCrmFormById(formId);
         if (!form) {
-            return NextResponse.json({ error: 'Form not found.' }, { status: 404 });
+            return NextResponse.json({ error: 'Form not found.' }, { status: 404, headers: corsHeaders });
         }
         
         await db.collection('crm_form_submissions').insertOne({
@@ -57,7 +63,7 @@ export async function POST(
         
         const user = await db.collection<User>('users').findOne({ _id: form.userId });
         if (!user) {
-            return NextResponse.json({ error: 'Form owner not found.' }, { status: 500 });
+            return NextResponse.json({ error: 'Form owner not found.' }, { status: 500, headers: corsHeaders });
         }
         
         // --- Map form data to lead and deal fields ---
@@ -121,10 +127,18 @@ export async function POST(
         revalidatePath('/dashboard/crm/sales-crm/all-leads');
         revalidatePath('/dashboard/crm/deals');
 
-        return NextResponse.json({ success: true, message: form.settings.successMessage || 'Submission successful.' });
+        return NextResponse.json({ success: true, message: form.settings.successMessage || 'Submission successful.' }, { headers: corsHeaders });
 
     } catch (e: any) {
         console.error("CRM Form Submission Error:", e);
-        return NextResponse.json({ error: getErrorMessage(e) }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(e) }, { status: 500, headers: corsHeaders });
     }
+}
+
+// Handle preflight requests for CORS
+export async function OPTIONS(request: NextRequest) {
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders
+    });
 }
