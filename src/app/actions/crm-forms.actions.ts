@@ -125,37 +125,20 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
             submittedAt: new Date(),
         });
         
-        const leadData = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                leadData.append(key, String(value));
-            }
-        });
-        
-        // Add deal name and pipeline info
-        leadData.append('name', `Lead from ${form.name}`);
-        const defaultPipeline = (user.crmPipelines || [])[0];
-        if (defaultPipeline) {
-            leadData.append('pipelineId', defaultPipeline.id);
-            const defaultStage = defaultPipeline.stages[0];
-            if (defaultStage) {
-                leadData.append('stage', defaultStage.name);
-            }
-        }
-        
         // Find or create account
+        let accountId: ObjectId | undefined;
         if (formData.organisation) {
              let account = await db.collection('crm_accounts').findOne({ name: formData.organisation, userId: form.userId });
             if (!account) {
                 const newAccount = { userId: form.userId, name: formData.organisation, createdAt: new Date(), status: 'active' };
                 const result = await db.collection('crm_accounts').insertOne(newAccount as any);
-                leadData.append('accountId', result.insertedId.toString());
+                accountId = result.insertedId;
             } else {
-                 leadData.append('accountId', account._id.toString());
+                 accountId = account._id;
             }
         }
 
-        // Replicate addCrmLeadAndDeal logic here, but with server-side context
+        // Find or create contact
         const email = formData.email as string;
         if (!email) return { success: false, error: "Email is required in form submission.", message: '' };
 
@@ -172,6 +155,7 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
             status: 'new_lead',
             leadSource: `Form: ${form.name}`,
             createdAt: new Date(),
+            accountId: accountId,
         };
 
         if (existingContact) {
@@ -181,17 +165,22 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
             contact = { ...contactData, _id: result.insertedId } as WithId<CrmContact>;
         }
 
+        const defaultPipeline = (user.crmPipelines || [])[0];
+        const defaultStage = defaultPipeline?.stages[0]?.name;
+
+        // Create the deal
         const newDeal: Partial<CrmDeal> = {
             userId: user._id,
             name: formData.dealName || `Lead from ${form.name}`,
-            stage: leadData.get('stage') as string,
+            stage: defaultStage,
             description: formData.description,
-            accountId: leadData.get('accountId') ? new ObjectId(leadData.get('accountId') as string) : undefined,
+            accountId: accountId,
             contactIds: [contact._id],
             createdAt: new Date(),
             value: 0,
-            currency: 'INR',
-            pipelineId: leadData.get('pipelineId') as string,
+            currency: 'INR', // Default currency
+            pipelineId: defaultPipeline?.id,
+            leadSource: `Form: ${form.name}`,
         };
 
         await db.collection('crm_deals').insertOne(newDeal as any);

@@ -27,6 +27,7 @@ import Image from 'next/image';
 import { CodeBlock } from './code-block';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
+
 const defaultFields: FormField[] = [
     { id: uuidv4(), type: 'text', label: 'Name', required: true, columnWidth: '50%', fieldId: 'name' },
     { id: uuidv4(), type: 'email', label: 'Email', required: true, columnWidth: '50%', fieldId: 'email' },
@@ -66,7 +67,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
 
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) return;
-        const items = JSON.parse(JSON.stringify(fields));
+        const items = JSON.parse(JSON.stringify(fields)); // Deep copy
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
         setFields(items);
@@ -105,10 +106,8 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                 toast({ title: 'Success', description: 'Form saved successfully!' });
                 if (result.formId && !initialForm) {
                     router.push(`/dashboard/crm/sales-crm/forms/${result.formId}/edit`);
-                } else if (!result.formId && initialForm) {
-                    router.push(`/dashboard/crm/sales-crm/forms/${initialForm._id}/edit`);
                 } else {
-                     router.push('/dashboard/crm/sales-crm/forms');
+                     router.refresh(); // Refresh current page to get new initialForm data
                 }
             }
         });
@@ -130,7 +129,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                     <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
                 </div>
                 <div className="flex items-center gap-2">
-                     {initialForm?._id && (
+                    {initialForm?._id && (
                         <>
                             <Button variant="outline" asChild>
                                 <a href={`/embed/crm-form/${initialForm._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>

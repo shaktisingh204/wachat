@@ -121,7 +121,7 @@ export default function AddLeadPage() {
         return <NewLeadSkeleton />;
     }
 
-    const tagOptions = (user.tags || []).filter(tag => tag && tag._id).map(tag => ({
+    const tagOptions = (user.tags || []).filter(tag => tag?._id).map(tag => ({
         value: tag._id.toString(),
         label: tag.name,
         color: tag.color,
