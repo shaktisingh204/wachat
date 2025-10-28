@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -57,7 +58,8 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
     return (
         <Card className="shadow-md w-full" id={`preview-${uniqueId}`}>
             <style>{dynamicStyles}</style>
-            <CardHeader>
+            <CardHeader className="items-center text-center">
+                 {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain" />}
                 <CardTitle>{title}</CardTitle>
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
@@ -94,12 +96,13 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                     );
                 })}
             </CardContent>
-            <CardFooter style={{justifyContent: settings.buttonAlign || 'flex-start'}}>
+            <CardFooter style={{flexDirection: 'column', justifyContent: settings.buttonAlign || 'flex-start', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start' }}>
                 <Button disabled className="w-full submit-button-preview" size={settings.buttonSize}>
                     {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`}}/>}
                     {settings.submitButtonText || 'Submit'}
                     {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`}}/>}
                 </Button>
+                {settings.footerText && <p className="text-xs text-muted-foreground text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
             </CardFooter>
         </Card>
     );
