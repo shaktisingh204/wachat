@@ -136,12 +136,11 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         background-color: ${settings.fieldBgColor || 'transparent'};
         border-color: ${settings.fieldBorderColor || 'hsl(var(--input))'};
         border-radius: ${settings.fieldBorderRadius}px;
-        padding: ${settings.fieldPadding}px;
         font-family: ${settings.fieldTypography?.fontFamily};
         border-width: ${settings.fieldBorderWidth || 1}px;
         border-style: ${settings.fieldBorderType || 'solid'};
       }
-      #${uniqueId} .form-field:focus {
+       #${uniqueId} .form-field:focus-visible {
         border-color: ${settings.fieldFocusBorderColor || 'hsl(var(--primary))'} !important;
         box-shadow: 0 0 0 1px ${settings.fieldFocusBorderColor || 'hsl(var(--primary))'} !important;
       }
@@ -150,7 +149,6 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         background-color: ${settings.buttonBgColor || 'hsl(var(--primary))'};
         font-family: ${settings.buttonTypography?.fontFamily};
         border-radius: ${settings.buttonBorderRadius}px;
-        padding: ${settings.buttonPadding}px;
         border-style: ${settings.buttonBorderType || 'none'};
         box-shadow: ${settings.buttonBoxShadow === 'none' ? 'none' : 'var(--tw-shadow)'};
       }
@@ -190,7 +188,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                             name={fieldName}
                                             control={control}
                                             render={({ field: controllerField }) => {
-                                                const commonProps = { ...controllerField, id: fieldName, placeholder: field.placeholder, className: cn('form-field', sizeClasses) };
+                                                const commonProps = { ...controllerField, id: fieldName, placeholder: field.placeholder, className: cn('form-field w-full', sizeClasses) };
                                                 const fieldOptions = (field.options || '').split('\n').map(o => o.trim());
 
                                                 switch(field.type) {

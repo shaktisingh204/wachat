@@ -1,3 +1,4 @@
+
 // /src/app/api/crm/forms/embed/[formId]/route.js
 
 import { NextResponse } from 'next/server';
@@ -19,8 +20,7 @@ export async function GET(request, { params }) {
     }
 
     const form = await getCrmFormById(formIdFromServer);
-    const formWidth = form?.settings?.formWidth;
-
+    const settings = form?.settings || {};
 
     const script = `
 (function() {
@@ -44,11 +44,6 @@ export async function GET(request, { params }) {
     iframe.style.border = 'none';
     iframe.style.width = '100%';
     iframe.style.height = '500px'; // Initial height
-    if (${formWidth ? `"${formWidth}"` : null}) {
-        iframe.style.maxWidth = '${formWidth}px';
-    }
-    iframe.style.marginLeft = 'auto';
-    iframe.style.marginRight = 'auto';
     
     formContainer.innerHTML = '';
     formContainer.appendChild(iframe);
@@ -60,7 +55,6 @@ export async function GET(request, { params }) {
             iframe.style.height = (event.data.height + 20) + 'px';
         }
     });
-
 })();
     `;
 

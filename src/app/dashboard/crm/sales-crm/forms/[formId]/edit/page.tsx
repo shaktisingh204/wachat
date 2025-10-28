@@ -4,7 +4,7 @@
 import { Suspense, useEffect, useState, useTransition, useMemo } from 'react';
 import { getCrmFormById, saveCrmForm } from '@/app/actions/crm-forms.actions';
 import { notFound, useParams } from 'next/navigation';
-import { CrmFormBuilder } from '@/components/wabasimplify/crm-form-builder';
+import { CrmFormBuilder } from '@/components/wabasimplify/website-builder/crm-form-builder';
 import type { WithId, CrmForm } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
