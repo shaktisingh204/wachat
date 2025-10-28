@@ -30,7 +30,21 @@ const crmFieldMappingOptions = [
 
 export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEditorProps) {
     const handleUpdate = (prop: keyof FormField, value: any) => {
-        onUpdate({ [prop]: value });
+        const newFieldData: Partial<FormField> = { [prop]: value };
+
+        // Smart defaults based on field type
+        if (prop === 'type') {
+            const fieldIdSuggestion = crmFieldMappingOptions.find(opt => opt.value.toLowerCase().includes(value.toLowerCase()));
+            if (fieldIdSuggestion) {
+                newFieldData.fieldId = fieldIdSuggestion.value;
+                newFieldData.label = fieldIdSuggestion.label;
+                newFieldData.placeholder = `Enter ${fieldIdSuggestion.label.toLowerCase()}`;
+            } else {
+                newFieldData.label = `New ${value} field`;
+            }
+        }
+        
+        onUpdate(newFieldData);
     };
 
     return (
@@ -54,7 +68,7 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
                 </Select>
             </div>
             <div className="space-y-2">
-                <Label htmlFor="field-label">Label</Label>
+                <Label htmlFor="field-label">Label {field.required && <span className="text-destructive">*</span>}</Label>
                 <Input id="field-label" value={field.label} onChange={(e) => handleUpdate('label', e.target.value)} />
             </div>
              <div className="space-y-2">
@@ -62,7 +76,7 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
                 <Select value={field.fieldId || ''} onValueChange={(val) => handleUpdate('fieldId', val)}>
                     <SelectTrigger id="fieldId"><SelectValue placeholder="Select a CRM field..."/></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">-- None --</SelectItem>
+                        <SelectItem value="">-- None (Custom Field) --</SelectItem>
                         {crmFieldMappingOptions.map(opt => (
                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                         ))}
