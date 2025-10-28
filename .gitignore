@@ -22,6 +22,7 @@
 /src/app/actions/calling.actions.ts
 /src/app/actions/custom-ecommerce.actions.ts
 /src/app/actions/instagram.actions.ts
+/src/app/actions/admin.actions.ts
 # next.js
 /.next/
 /out/

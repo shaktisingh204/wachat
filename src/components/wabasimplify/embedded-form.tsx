@@ -18,6 +18,7 @@ import * as LucideIcons from 'lucide-react';
 import type { FormField, WithId, CrmForm } from '@/lib/definitions';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Image from 'next/image';
+import { Card } from '../ui/card';
 
 interface EmbeddedFormProps {
   form: WithId<CrmForm>;
@@ -141,6 +142,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         background-color: ${settings.fieldBgColor || 'transparent'};
         border-color: ${settings.fieldBorderColor || 'hsl(var(--input))'};
         border-radius: ${settings.fieldBorderRadius}px;
+        padding: ${settings.fieldPadding}px;
         font-family: ${settings.fieldTypography?.fontFamily};
         border-width: ${settings.fieldBorderWidth || 1}px;
         border-style: ${settings.fieldBorderType || 'solid'};
@@ -171,13 +173,13 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         <div ref={containerRef} className="p-2">
             <style>{dynamicStyles}</style>
             <Card className="shadow-md w-full" id={uniqueId}>
-                <div className="text-center my-6">
-                    {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
-                    <h1 className="text-2xl font-bold mt-4">{settings.title || 'Form Title'}</h1>
-                    <p className="text-muted-foreground">{settings.description}</p>
-                </div>
-                <form onSubmit={handleSubmit(onSubmit)} className="p-6 pt-0">
-                    <div className="grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
+                 <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="text-center my-6 px-6">
+                        {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
+                        <h1 className="text-2xl font-bold mt-4">{settings.title || 'Form Title'}</h1>
+                        <p className="text-muted-foreground">{settings.description}</p>
+                    </div>
+                    <div className="p-6 pt-0 grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
                         {(settings.fields || []).map((field: FormField) => {
                             const widthClasses: { [key: string]: string } = { '100%': 'col-span-12', '50%': 'col-span-12 sm:col-span-6', '33.33%': 'col-span-12 sm:col-span-4', '25%': 'col-span-12 sm:col-span-3' };
                             const sizeClasses = { sm: 'h-8 text-xs', md: 'h-10 text-sm', lg: 'h-12 text-base'}[field.size || 'md'];
@@ -216,7 +218,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                         })}
                         {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
                     </div>
-                    <div style={{display: 'flex', justifyContent: settings.buttonAlign || 'flex-start', flexDirection: 'column', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start', paddingTop: '1.5rem' }}>
+                    <div className="p-6 pt-0" style={{display: 'flex', justifyContent: settings.buttonAlign || 'flex-start', flexDirection: 'column', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start' }}>
                         <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
                             {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                             {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}

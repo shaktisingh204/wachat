@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Plus, Trash2, ArrowLeft, Save, LoaderCircle, Eye, Code2, ListPlus } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
-import { CrmFormFieldEditor } from '@/components/wabasimplify/website-builder/crm-form-field-editor';
+import { CrmFormFieldEditor } from '@/components/wabasimplify/crm-form-field-editor';
 import { saveCrmForm } from '@/app/actions/crm-forms.actions';
 import { CrmFormPreview } from '@/components/wabasimplify/crm-form-preview';
 import type { WithId, CrmForm, FormField } from '@/lib/definitions';

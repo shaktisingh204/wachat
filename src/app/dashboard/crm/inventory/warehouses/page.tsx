@@ -19,11 +19,13 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogDescription
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const saveInitialState = { message: null, error: null };
 

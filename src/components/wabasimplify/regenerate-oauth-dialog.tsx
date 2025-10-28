@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -21,6 +20,7 @@ import { handleRegenerateOauthLink } from '@/app/actions/whatsapp.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, Project, PaymentConfiguration } from '@/lib/definitions';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
+import { ScrollArea } from '../ui/scroll-area';
 
 const initialState = { message: null, error: undefined, oauth_url: undefined };
 
@@ -56,7 +56,6 @@ export function RegenerateOauthDialog({ project, config }: RegenerateOauthDialog
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      // Reset state when dialog closes
       formRef.current?.reset();
     }
     setOpen(isOpen);
@@ -85,7 +84,7 @@ export function RegenerateOauthDialog({ project, config }: RegenerateOauthDialog
                 </Button>
             </DialogFooter>
         </DialogContent>
-    );
+    )
   }
 
   return (
@@ -106,18 +105,20 @@ export function RegenerateOauthDialog({ project, config }: RegenerateOauthDialog
               This will generate a new onboarding link for "{config.configuration_name}".
             </DialogDescription>
           </DialogHeader>
-          <div className="py-6">
-            <div className="space-y-2">
-              <Label htmlFor="redirect_url">Redirect URL</Label>
-              <Input
-                id="redirect_url"
-                name="redirect_url"
-                type="url"
-                placeholder="https://your-site.com/payment/callback"
-                required
-              />
+          <ScrollArea className="max-h-[60vh] -mx-6 my-4 px-6">
+            <div className="py-6">
+                <div className="space-y-2">
+                <Label htmlFor="redirect_url">Redirect URL</Label>
+                <Input
+                    id="redirect_url"
+                    name="redirect_url"
+                    type="url"
+                    placeholder="https://your-site.com/payment/callback"
+                    required
+                />
+                </div>
             </div>
-          </div>
+          </ScrollArea>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
@@ -127,4 +128,3 @@ export function RegenerateOauthDialog({ project, config }: RegenerateOauthDialog
     </Dialog>
   );
 }
-
