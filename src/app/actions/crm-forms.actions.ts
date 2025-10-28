@@ -124,66 +124,55 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
             submittedAt: new Date(),
         });
         
-        // --- Map form data to lead data ---
-        const emailFieldId = form.fields.find(f => f.type === 'email')?.fieldId || 'email';
-        const nameFieldId = form.fields.find(f => f.label.toLowerCase().includes('name'))?.fieldId || 'name';
-        const phoneFieldId = form.fields.find(f => f.type === 'tel')?.fieldId || 'phone';
-        const companyFieldId = form.fields.find(f => f.label.toLowerCase().includes('company'))?.fieldId || 'company';
-        const messageFieldId = form.fields.find(f => f.type === 'textarea')?.fieldId || 'message';
-
-        const leadData = {
-            email: formData[emailFieldId] || '',
-            contactName: formData[nameFieldId] || formData[emailFieldId],
-            phone: formData[phoneFieldId] || '',
-            organisation: formData[companyFieldId] || '',
-            designation: '', // Not typically in a simple form
-            
-            name: `Lead from ${form.name}`,
-            description: formData[messageFieldId] || 'Form Submission',
-            leadSource: `Form: ${form.name}`,
-        };
-
+        const leadData = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                leadData.append(key, String(value));
+            }
+        });
+        
+        // Add deal name and pipeline info
+        leadData.append('name', `Lead from ${form.name}`);
         const defaultPipeline = (user.crmPipelines || [])[0];
         if (defaultPipeline) {
-            leadData.pipelineId = defaultPipeline.id;
+            leadData.append('pipelineId', defaultPipeline.id);
             const defaultStage = defaultPipeline.stages[0];
             if (defaultStage) {
-                leadData.stage = defaultStage.name;
+                leadData.append('stage', defaultStage.name);
             }
         }
         
-        let accountId;
-        if (leadData.organisation) {
-            let account = await db.collection('crm_accounts').findOne({ name: leadData.organisation, userId: form.userId });
+        // Find or create account
+        if (formData.organisation) {
+             let account = await db.collection('crm_accounts').findOne({ name: formData.organisation, userId: form.userId });
             if (!account) {
-                const newAccount = { userId: form.userId, name: leadData.organisation, createdAt: new Date(), status: 'active' };
+                const newAccount = { userId: form.userId, name: formData.organisation, createdAt: new Date(), status: 'active' };
                 const result = await db.collection('crm_accounts').insertOne(newAccount as any);
-                accountId = result.insertedId.toString();
+                leadData.append('accountId', result.insertedId.toString());
             } else {
-                 accountId = account._id.toString();
+                 leadData.append('accountId', account._id.toString());
             }
-            leadData.accountId = accountId;
         }
 
-        // We can't directly call a server action that uses `useActionState` internally.
-        // We'll replicate the core logic of `addCrmLeadAndDeal` here.
-        const contactEmail = leadData.email;
-        if (!contactEmail) return { success: false, error: "Email is required.", message: '' };
-        
+        // Replicate addCrmLeadAndDeal logic here, but with server-side context
+        const email = leadData.get('email') as string;
+        if (!email) return { success: false, error: "Email is required in form submission.", message: '' };
+
         let contact: WithId<CrmContact>;
-        const existingContact = await db.collection<CrmContact>('crm_contacts').findOne({ email: contactEmail, userId: user._id });
+        const existingContact = await db.collection<CrmContact>('crm_contacts').findOne({ email, userId: user._id });
 
         if (existingContact) {
             contact = existingContact;
         } else {
-            const newContactData: Partial<CrmContact> = {
+             const newContactData: Partial<CrmContact> = {
                 userId: user._id,
-                name: leadData.contactName,
-                email: contactEmail,
-                phone: leadData.phone,
-                company: leadData.organisation,
+                name: leadData.get('name') as string || email,
+                email: email,
+                phone: leadData.get('phone') as string,
+                company: leadData.get('organisation') as string,
+                jobTitle: leadData.get('designation') as string,
                 status: 'new_lead',
-                leadSource: leadData.leadSource,
+                leadSource: `Form: ${form.name}`,
                 createdAt: new Date(),
             };
             const result = await db.collection('crm_contacts').insertOne(newContactData as CrmContact);
@@ -192,19 +181,18 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
 
         const newDeal: Partial<CrmDeal> = {
             userId: user._id,
-            name: leadData.name,
-            stage: leadData.stage,
-            description: leadData.description,
-            accountId: accountId ? new ObjectId(accountId) : undefined,
+            name: leadData.get('name') as string,
+            stage: leadData.get('stage') as string,
+            description: leadData.get('description') as string,
+            accountId: leadData.get('accountId') ? new ObjectId(leadData.get('accountId') as string) : undefined,
             contactIds: [contact._id],
             createdAt: new Date(),
             value: 0,
             currency: 'INR',
-            pipelineId: leadData.pipelineId,
+            pipelineId: leadData.get('pipelineId') as string,
         };
 
         await db.collection('crm_deals').insertOne(newDeal as any);
-
         await db.collection('crm_forms').updateOne({ _id: form._id }, { $inc: { submissionCount: 1 } });
         
         revalidatePath('/dashboard/crm/sales-crm/all-leads');
@@ -212,7 +200,7 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
 
         return { success: true, message: form.settings.successMessage || 'Submission successful.' };
     } catch (e) {
-        console.error("CRM Form Submission Error:", e);
+        console.error("CRM Form Submission API Error:", e);
         return { success: false, error: getErrorMessage(e), message: '' };
     }
 }
