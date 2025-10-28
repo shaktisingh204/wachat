@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,19 +17,19 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-async function mockGetSession(userId: ObjectId) {
-    const { db } = await connectToDatabase();
-    const user = await db.collection<User>('users').findOne({ _id: userId }, { projection: { password: 0 } });
-    if (!user) return null;
-    
-    const plan = user.planId ? await db.collection('plans').findOne({ _id: user.planId }) : await db.collection('plans').findOne({ isDefault: true });
+async function getMockSession(userId: ObjectId) {
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne({ _id: userId }, { projection: { password: 0 } });
+        if (!user) return null;
+        
+        const plan = user.planId ? await db.collection('plans').findOne({ _id: user.planId }) : await db.collection('plans').findOne({ isDefault: true });
 
-    return {
-        user: {
-            ...user,
-            plan,
-        }
-    };
+        return { user: { ...user, plan } };
+    } catch (e) {
+        console.error("Failed to generate mock session:", e);
+        return null;
+    }
 }
 
 export async function POST(
@@ -70,7 +69,6 @@ export async function POST(
             return NextResponse.json({ error: 'Form owner not found.' }, { status: 500, headers: corsHeaders });
         }
         
-        // --- Map form data to lead and deal fields ---
         const emailFieldId = form.fields.find(f => f.type === 'email')?.fieldId || 'email';
         const nameFieldId = form.fields.find(f => f.label.toLowerCase().includes('name'))?.fieldId || 'name';
         const phoneFieldId = form.fields.find(f => f.type === 'tel')?.fieldId || 'phone';
@@ -115,7 +113,7 @@ export async function POST(
 
         // Temporarily modify the server action to accept the mocked session
         const originalGetSession = require('@/app/actions').getSession;
-        (require('@/app/actions') as any).getSession = async () => mockGetSession(new ObjectId(form.userId));
+        (require('@/app/actions') as any).getSession = () => getMockSession(new ObjectId(form.userId));
 
         const result = await addCrmLeadAndDeal(null, leadAndDealData);
 
@@ -124,6 +122,7 @@ export async function POST(
 
         if (result.error) {
             console.error("Error creating lead from form submission:", result.error);
+            // Optionally, you could decide not to throw here and still count submission as success
         }
 
         await db.collection('crm_forms').updateOne({ _id: form._id }, { $inc: { submissionCount: 1 } });
