@@ -127,7 +127,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     const dynamicStyles = `
       body { background-color: transparent !important; }
       #${uniqueId} {
-        max-width: ${settings.formWidth || 480}px;
+        max-width: ${settings.formWidth || 480}px !important;
         margin-left: auto !important;
         margin-right: auto !important;
       }
@@ -164,13 +164,13 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     return (
         <div ref={containerRef} className="p-2">
             <style>{dynamicStyles}</style>
-            <div id={uniqueId}>
-                <div className="text-center mb-6">
+            <Card className="shadow-md w-full" id={uniqueId}>
+                <div className="text-center my-6">
                     {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
                     <h1 className="text-2xl font-bold mt-4">{settings.title || 'Form Title'}</h1>
                     <p className="text-muted-foreground">{settings.description}</p>
                 </div>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="p-6 pt-0">
                     <div className="grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
                         {(settings.fields || []).map((field: FormField) => {
                             const widthClasses: { [key: string]: string } = { '100%': 'col-span-12', '50%': 'col-span-12 sm:col-span-6', '33.33%': 'col-span-12 sm:col-span-4', '25%': 'col-span-12 sm:col-span-3' };
@@ -182,7 +182,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
                             return (
                                 <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
-                                    {field.labelPosition !== 'hidden' && <Label htmlFor={fieldName} style={{color: settings.labelColor, fontFamily: settings.labelTypography?.fontFamily, marginBottom: field.labelPosition !== 'inline' ? `${settings.labelSpacing || 8}px` : '0'}} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label} {field.required && '*'}</Label>}
+                                    {field.labelPosition !== 'hidden' && <Label htmlFor={fieldName} style={{color: settings.labelColor, fontFamily: settings.labelTypography?.fontFamily, marginBottom: field.labelPosition !== 'inline' ? `${settings.labelSpacing || 8}px` : '0'}} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0', (field.type === 'checkbox' || field.type === 'acceptance') && 'hidden')}>{field.label} {field.required && '*'}</Label>}
                                     <div className="w-full">
                                         <Controller
                                             name={fieldName}
@@ -210,7 +210,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                         })}
                         {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
                     </div>
-                    <div style={{display: 'flex', justifyContent: settings.buttonAlign || 'flex-start', flexDirection: 'column', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start', paddingTop: '1rem' }}>
+                    <div style={{display: 'flex', justifyContent: settings.buttonAlign || 'flex-start', flexDirection: 'column', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start', paddingTop: '1.5rem' }}>
                         <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
                             {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                             {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}

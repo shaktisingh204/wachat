@@ -1,4 +1,3 @@
-
 // /src/app/api/crm/forms/embed/[formId]/route.js
 
 import { NextResponse } from 'next/server';
@@ -20,7 +19,18 @@ export async function GET(request, { params }) {
     }
 
     const form = await getCrmFormById(formIdFromServer);
-    const settings = form?.settings || {};
+    if (!form) {
+        return new NextResponse('Form not found.', { status: 404 });
+    }
+    const settings = form.settings || {};
+    
+    const dynamicStyles = `
+      #sabnode-form-iframe-${formIdFromServer} {
+        border: none;
+        width: 100%;
+        height: 500px;
+      }
+    `;
 
     const script = `
 (function() {
@@ -38,18 +48,20 @@ export async function GET(request, { params }) {
         console.error('SabNode Forms: Container for formId ' + formId + ' not found.');
         return;
     }
+
+    const styleTag = document.createElement('style');
+    styleTag.innerHTML = \`${dynamicStyles}\`;
+    document.head.appendChild(styleTag);
     
     const iframe = document.createElement('iframe');
     iframe.src = '${appUrl}/embed/crm-form/' + formId;
-    iframe.style.border = 'none';
-    iframe.style.width = '100%';
-    iframe.style.height = '500px'; // Initial height
+    iframe.id = 'sabnode-form-iframe-' + formId;
     
     formContainer.innerHTML = '';
     formContainer.appendChild(iframe);
 
     window.addEventListener('message', function(event) {
-        if (event.origin !== '${appUrl}') return;
+        if (event.origin !== new URL('${appUrl}').origin) return;
 
         if (event.data.type === 'sabnodeFormHeight' && event.data.formId === formId) {
             iframe.style.height = (event.data.height + 20) + 'px';

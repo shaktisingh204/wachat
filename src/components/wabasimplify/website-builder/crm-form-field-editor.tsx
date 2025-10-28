@@ -30,21 +30,7 @@ const crmFieldMappingOptions = [
 
 export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEditorProps) {
     const handleUpdate = (prop: keyof FormField, value: any) => {
-        const newFieldData: Partial<FormField> = { [prop]: value };
-
-        // Smart defaults based on field type
-        if (prop === 'type') {
-            const fieldIdSuggestion = crmFieldMappingOptions.find(opt => opt.value.toLowerCase().includes(value.toLowerCase()));
-            if (fieldIdSuggestion) {
-                newFieldData.fieldId = fieldIdSuggestion.value;
-                newFieldData.label = fieldIdSuggestion.label;
-                newFieldData.placeholder = `Enter ${fieldIdSuggestion.label.toLowerCase()}`;
-            } else {
-                newFieldData.label = `New ${value} field`;
-            }
-        }
-        
-        onUpdate(newFieldData);
+        onUpdate({ [prop]: value });
     };
 
     return (
