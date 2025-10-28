@@ -126,6 +126,11 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     const uniqueId = `form-${form._id.toString()}`;
     const dynamicStyles = `
       body { background-color: transparent !important; }
+      #${uniqueId} {
+        max-width: ${settings.formWidth || 480}px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
       #${uniqueId} .form-field {
         color: ${settings.fieldColor || 'inherit'};
         background-color: ${settings.fieldBgColor || 'transparent'};
@@ -159,63 +164,65 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     const SubmitIcon = settings.buttonIcon ? LucideIcons[settings.buttonIcon] : null;
 
     return (
-        <div ref={containerRef} id={uniqueId} className="p-2">
+        <div ref={containerRef} className="p-2">
             <style>{dynamicStyles}</style>
-            <div className="text-center mb-6">
-                {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
-                <h1 className="text-2xl font-bold mt-4">{settings.title || 'Form Title'}</h1>
-                <p className="text-muted-foreground">{settings.description}</p>
-            </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
-                    {(settings.fields || []).map((field: FormField) => {
-                        const widthClasses: { [key: string]: string } = { '100%': 'col-span-12', '50%': 'col-span-12 sm:col-span-6', '33.33%': 'col-span-12 sm:col-span-4', '25%': 'col-span-12 sm:col-span-3' };
-                        const sizeClasses = { sm: 'h-8 text-xs', md: 'h-10 text-sm', lg: 'h-12 text-base'}[field.size || 'md'];
-                        
-                        if (field.type === 'hidden') return <Controller key={field.id} name={field.fieldId || field.id} control={control} render={({ field: controllerField }) => <input type="hidden" {...controllerField} />} />;
-                        
-                        const fieldName = field.fieldId || field.id;
+            <div id={uniqueId}>
+                <div className="text-center mb-6">
+                    {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
+                    <h1 className="text-2xl font-bold mt-4">{settings.title || 'Form Title'}</h1>
+                    <p className="text-muted-foreground">{settings.description}</p>
+                </div>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    <div className="grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
+                        {(settings.fields || []).map((field: FormField) => {
+                            const widthClasses: { [key: string]: string } = { '100%': 'col-span-12', '50%': 'col-span-12 sm:col-span-6', '33.33%': 'col-span-12 sm:col-span-4', '25%': 'col-span-12 sm:col-span-3' };
+                            const sizeClasses = { sm: 'h-8 text-xs', md: 'h-10 text-sm', lg: 'h-12 text-base'}[field.size || 'md'];
+                            
+                            if (field.type === 'hidden') return <Controller key={field.id} name={field.fieldId || field.id} control={control} render={({ field: controllerField }) => <input type="hidden" {...controllerField} />} />;
+                            
+                            const fieldName = field.fieldId || field.id;
 
-                        return (
-                            <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
-                                {field.labelPosition !== 'hidden' && <Label htmlFor={fieldName} style={{color: settings.labelColor, fontFamily: settings.labelTypography?.fontFamily, marginBottom: field.labelPosition !== 'inline' ? `${settings.labelSpacing || 8}px` : '0'}} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label} {field.required && '*'}</Label>}
-                                <div className="w-full">
-                                    <Controller
-                                        name={fieldName}
-                                        control={control}
-                                        render={({ field: controllerField }) => {
-                                            const commonProps = { ...controllerField, id: fieldName, placeholder: field.placeholder, className: cn('form-field', sizeClasses) };
-                                            const fieldOptions = (field.options || '').split('\n').map(o => o.trim());
+                            return (
+                                <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
+                                    {field.labelPosition !== 'hidden' && <Label htmlFor={fieldName} style={{color: settings.labelColor, fontFamily: settings.labelTypography?.fontFamily, marginBottom: field.labelPosition !== 'inline' ? `${settings.labelSpacing || 8}px` : '0'}} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label} {field.required && '*'}</Label>}
+                                    <div className="w-full">
+                                        <Controller
+                                            name={fieldName}
+                                            control={control}
+                                            render={({ field: controllerField }) => {
+                                                const commonProps = { ...controllerField, id: fieldName, placeholder: field.placeholder, className: cn('form-field', sizeClasses) };
+                                                const fieldOptions = (field.options || '').split('\n').map(o => o.trim());
 
-                                            switch(field.type) {
-                                                case 'textarea': return <Textarea {...commonProps} />;
-                                                case 'select': return <Select onValueChange={controllerField.onChange} defaultValue={controllerField.value}><SelectTrigger className={cn('form-field', sizeClasses)}><SelectValue placeholder={field.placeholder || "Select..."} /></SelectTrigger><SelectContent>{fieldOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent></Select>;
-                                                case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.label}</Label></div>;
-                                                case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
-                                                case 'radio': return <RadioGroup onValueChange={controllerField.onChange} defaultValue={controllerField.value} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><RadioGroupItem value={opt} id={`${fieldName}-${opt}`} /><Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
-                                                case 'file': return <Input {...commonProps} type="file" accept={field.allowedFileTypes} multiple={field.multiple} />;
-                                                default: return <Input {...commonProps} type={field.type} />;
-                                            }
-                                        }}
-                                    />
-                                    {field.description && <p className="text-xs pt-1" style={{color: settings.descriptionColor, fontFamily: settings.descriptionTypography?.fontFamily}}>{field.description}</p>}
-                                    {errors[fieldName] && <p className="text-sm font-medium text-destructive">{errors[fieldName]?.message as string}</p>}
+                                                switch(field.type) {
+                                                    case 'textarea': return <Textarea {...commonProps} />;
+                                                    case 'select': return <Select onValueChange={controllerField.onChange} defaultValue={controllerField.value}><SelectTrigger className={cn('form-field', sizeClasses)}><SelectValue placeholder={field.placeholder || "Select..."} /></SelectTrigger><SelectContent>{fieldOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent></Select>;
+                                                    case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.label}</Label></div>;
+                                                    case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
+                                                    case 'radio': return <RadioGroup onValueChange={controllerField.onChange} defaultValue={controllerField.value} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><RadioGroupItem value={opt} id={`${fieldName}-${opt}`} /><Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
+                                                    case 'file': return <Input {...commonProps} type="file" accept={field.allowedFileTypes} multiple={field.multiple} />;
+                                                    default: return <Input {...commonProps} type={field.type} />;
+                                                }
+                                            }}
+                                        />
+                                        {field.description && <p className="text-xs pt-1" style={{color: settings.descriptionColor, fontFamily: settings.descriptionTypography?.fontFamily}}>{field.description}</p>}
+                                        {errors[fieldName] && <p className="text-sm font-medium text-destructive">{errors[fieldName]?.message as string}</p>}
+                                    </div>
                                 </div>
-                            </div>
-                        )
-                    })}
-                     {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
-                </div>
-                 <div style={{display: 'flex', justifyContent: settings.buttonAlign || 'flex-start', flexDirection: 'column', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start', paddingTop: '1rem' }}>
-                    <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
-                        {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
-                        {settings.submitButtonText || 'Submit'}
-                        {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
-                    </Button>
-                    {settings.footerText && <p className="text-xs text-muted-foreground text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
-                </div>
-            </form>
+                            )
+                        })}
+                        {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
+                    </div>
+                    <div style={{display: 'flex', justifyContent: settings.buttonAlign || 'flex-start', flexDirection: 'column', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start', paddingTop: '1rem' }}>
+                        <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
+                            {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                            {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
+                            {settings.submitButtonText || 'Submit'}
+                            {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
+                        </Button>
+                        {settings.footerText && <p className="text-xs text-muted-foreground text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };
