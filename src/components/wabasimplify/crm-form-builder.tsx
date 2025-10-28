@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useTransition } from 'react';
@@ -26,12 +25,36 @@ import { useRouter } from 'next/navigation';
 import { StyleSettingsPanel } from '@/components/wabasimplify/website-builder/style-settings-panel';
 import Image from 'next/image';
 import { CodeBlock } from './code-block';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
 
 const defaultFields: FormField[] = [
     { id: uuidv4(), type: 'text', label: 'Name', required: true, columnWidth: '50%', fieldId: 'name' },
     { id: uuidv4(), type: 'email', label: 'Email', required: true, columnWidth: '50%', fieldId: 'email' },
     { id: uuidv4(), type: 'textarea', label: 'Message', required: false, columnWidth: '100%', fieldId: 'message' },
 ];
+
+function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed Code</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl overflow-hidden">
+                 <DialogHeader>
+                    <DialogTitle>Embed Form on Your Website</DialogTitle>
+                    <DialogDescription>
+                        Copy and paste this code snippet where you want the form to appear on your website.
+                    </DialogDescription>
+                </DialogHeader>
+                 <div className="py-4">
+                    <CodeBlock code={embedScript} language="html" />
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 
 export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> }) {
     const router = useRouter();
@@ -106,9 +129,12 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                 </div>
                 <div className="flex items-center gap-2">
                     {initialForm?._id && (
-                        <Button variant="outline" asChild>
-                            <a href={`/embed/crm-form/${initialForm._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>
-                        </Button>
+                        <>
+                            <Button variant="outline" asChild>
+                                <a href={`/embed/crm-form/${initialForm._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>
+                            </Button>
+                            <CodeEmbedDialog embedScript={embedScript} />
+                        </>
                     )}
                     <Button onClick={handleSave} disabled={isSaving}>
                         {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
@@ -170,10 +196,9 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                         />
                     ) : (
                          <Tabs defaultValue="general">
-                            <TabsList className="grid w-full grid-cols-3">
+                            <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="general">General</TabsTrigger>
                                 <TabsTrigger value="style">Style</TabsTrigger>
-                                <TabsTrigger value="embed">Embed</TabsTrigger>
                             </TabsList>
                             <TabsContent value="general" className="mt-4">
                                 <Accordion type="multiple" className="w-full" defaultValue={['general_settings']}>
@@ -192,13 +217,6 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                             </TabsContent>
                             <TabsContent value="style" className="mt-4">
                                  <StyleSettingsPanel settings={settings} onUpdate={setSettings} />
-                            </TabsContent>
-                             <TabsContent value="embed" className="mt-4">
-                                <div className="space-y-4">
-                                    <h3 className="font-semibold">Embed on your Website</h3>
-                                    <p className="text-sm text-muted-foreground">Copy and paste this code snippet where you want the form to appear on your website.</p>
-                                    <CodeBlock code={embedScript} language="html" />
-                                </div>
                             </TabsContent>
                         </Tabs>
                     )}
