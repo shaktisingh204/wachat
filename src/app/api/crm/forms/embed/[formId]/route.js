@@ -18,6 +18,9 @@ export async function GET(request, { params }) {
          return new NextResponse('App URL not configured.', { status: 500 });
     }
 
+    const form = await getCrmFormById(formId);
+    const formWidth = form?.settings?.formWidth || 480;
+
     const script = `
 (function() {
     const formContainer = document.querySelector('[data-sabnode-form-id="${formId}"]');
@@ -29,6 +32,7 @@ export async function GET(request, { params }) {
     const iframe = document.createElement('iframe');
     iframe.src = "${appUrl}/embed/crm-form/${formId}";
     iframe.style.width = '100%';
+    iframe.style.maxWidth = '${formWidth}px';
     iframe.style.height = '500px'; // Default height, can be adjusted
     iframe.style.border = 'none';
     iframe.scrolling = 'no';
