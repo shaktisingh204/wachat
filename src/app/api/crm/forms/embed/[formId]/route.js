@@ -1,14 +1,13 @@
-
 // /src/app/api/crm/forms/embed/[formId]/route.js
 
 import { NextResponse } from 'next/server';
 
 export async function GET(request, { params }) {
     const rawFormId = params.formId;
-    const formId = rawFormId.endsWith('.js') ? rawFormId.slice(0, -3) : rawFormId;
+    const formIdFromServer = rawFormId.endsWith('.js') ? rawFormId.slice(0, -3) : rawFormId;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
-    if (!formId) {
+    if (!formIdFromServer) {
         return new NextResponse('Form ID not provided.', { status: 400 });
     }
     
@@ -18,6 +17,15 @@ export async function GET(request, { params }) {
 
     const script = `
 (function() {
+    const scriptTag = document.currentScript;
+    const rawFormId = scriptTag.src.split('/').pop();
+    const formId = rawFormId.endsWith('.js') ? rawFormId.slice(0, -3) : rawFormId;
+
+    if (!formId) {
+        console.error('SabNode Forms: Could not determine formId from script tag.');
+        return;
+    }
+    
     const formContainer = document.querySelector('[data-sabnode-form-id="' + formId + '"]');
     if (!formContainer) {
         console.error('SabNode Forms: Container for formId ' + formId + ' not found.');
