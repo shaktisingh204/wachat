@@ -23,6 +23,7 @@ import { CrmFormPreview } from '@/components/wabasimplify/crm-form-preview';
 import type { WithId, CrmForm, FormField } from '@/lib/definitions';
 import { useRouter } from 'next/navigation';
 import { StyleSettingsPanel } from '@/components/wabasimplify/website-builder/style-settings-panel';
+import Image from 'next/image';
 
 const defaultFields: FormField[] = [
     { id: uuidv4(), type: 'text', label: 'Name', required: true, columnWidth: '50%', fieldId: 'name' },
@@ -36,7 +37,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
     const [isSaving, startSaving] = useTransition();
 
     const [formName, setFormName] = useState(initialForm?.name || 'New Form');
-    const [fields, setFields] = useState<FormField[]>(initialForm?.fields || defaultFields);
+    const [fields, setFields] = useState<FormField[]>(initialForm?.settings.fields || defaultFields);
     const [settings, setSettings] = useState(initialForm?.settings || { title: 'Contact Us', submitButtonText: 'Send Message' });
     const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
 
@@ -139,7 +140,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                     </div>
                 </div>
                 <main className="col-span-6 bg-muted/50 overflow-y-auto p-4 md:p-8">
-                     <CrmFormPreview settings={{ ...settings, fields }} />
+                     <CrmFormPreview settings={{...settings, fields}} />
                 </main>
                  <aside className="col-span-3 border-l p-4 overflow-y-auto">
                     <h2 className="text-lg font-semibold mb-4">Properties</h2>
@@ -150,7 +151,43 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                             onRemove={() => removeField(selectedFieldId!)}
                         />
                     ) : (
-                         <StyleSettingsPanel settings={settings} onUpdate={setSettings} />
+                         <Accordion type="multiple" className="w-full" defaultValue={['general']}>
+                            <AccordionItem value="general">
+                                <AccordionTrigger>General Form Settings</AccordionTrigger>
+                                <AccordionContent className="space-y-4 pt-2">
+                                     <div className="space-y-2">
+                                        <Label>Form Title</Label>
+                                        <Input value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label>Form Description</Label>
+                                        <Textarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Submit Button Text</Label>
+                                        <Input value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label>Success Message</Label>
+                                        <Textarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label>Logo URL</Label>
+                                        <Input value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label>Footer Text (HTML allowed)</Label>
+                                        <Textarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} />
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="style">
+                                <AccordionTrigger>Form Styles</AccordionTrigger>
+                                <AccordionContent>
+                                    <StyleSettingsPanel settings={settings} onUpdate={setSettings} />
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
                     )}
                 </aside>
             </div>
