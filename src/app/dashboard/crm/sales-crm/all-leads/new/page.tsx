@@ -79,7 +79,7 @@ export default function AddLeadPage() {
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
     const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
 
-    const fetchData = () => {
+    const fetchData = useCallback(() => {
         startLoading(async () => {
             const [accountsData, pipelinesData, sessionData] = await Promise.all([
                 getCrmAccounts(),
@@ -90,15 +90,15 @@ export default function AddLeadPage() {
             setPipelines(pipelinesData);
             setUser(sessionData?.user || null);
 
-            if(pipelinesData.length > 0) {
+            if(pipelinesData.length > 0 && !selectedPipelineId) {
                 setSelectedPipelineId(pipelinesData[0].id);
             }
         })
-    }
+    }, [selectedPipelineId]);
     
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [fetchData]);
 
     useEffect(() => {
         if (state.message) {
@@ -122,7 +122,7 @@ export default function AddLeadPage() {
     }
 
     const tagOptions = (user.tags || []).map(tag => ({
-        value: tag._id,
+        value: tag._id.toString(),
         label: tag.name,
         color: tag.color,
     }));
