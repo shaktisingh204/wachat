@@ -61,9 +61,9 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Building className="mr-2 h-4 w-4" />
-          New Client
+        <Button variant="outline">
+          <Plus className="mr-2 h-4 w-4" />
+          New Prospect
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
