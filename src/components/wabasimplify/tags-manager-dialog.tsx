@@ -48,7 +48,6 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
 
     useEffect(() => {
         if(isOpen) {
-            // Deep copy to avoid direct state mutation
             setTags(JSON.parse(JSON.stringify(user.tags || [])));
         }
     }, [isOpen, user.tags]);
@@ -67,7 +66,7 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
     const handleAddTag = () => {
         setTags(prev => [
             ...prev,
-            { _id: `temp_${Date.now()}`, name: '', color: '#CCCCCC' }
+            { _id: `temp_${uuidv4()}`, name: '', color: '#CCCCCC' }
         ]);
     };
     
@@ -84,13 +83,11 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
         const currentTags = JSON.parse(formData.get('tags') as string || '[]') as Tag[];
         const names = currentTags.map(t => t.name.trim().toLowerCase());
         
-        // Check for empty tag names
         if (names.some(name => name === '')) {
             setValidationError('Label names cannot be empty. Please fill them in or remove the blank labels.');
             return;
         }
 
-        // Check for duplicate tag names
         const uniqueNames = new Set(names);
         if (uniqueNames.size !== names.length) {
             setValidationError('Label names must be unique. Please remove or rename duplicates.');
