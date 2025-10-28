@@ -30,7 +30,7 @@ export default function EmbeddedFormPage({ params }: { params: { formId: string 
     }
 
     return (
-        <main className="min-h-screen bg-muted p-4 md:p-8">
+        <main className="min-h-screen bg-transparent p-0">
             <EmbeddedForm form={form} />
         </main>
     )
