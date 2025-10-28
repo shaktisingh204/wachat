@@ -7,7 +7,6 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
 import type { CrmForm, CrmContact, CrmDeal, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-import { addCrmLeadAndDeal } from './crm-deals.actions';
 
 export async function getCrmForms(
     page: number = 1,

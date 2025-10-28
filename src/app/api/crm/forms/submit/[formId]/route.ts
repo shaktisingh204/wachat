@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { handleFormSubmission } from '@/app/actions/crm-forms.actions';
+import { getErrorMessage } from '@/lib/utils';
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -32,7 +33,7 @@ export async function POST(
 
     } catch (e: any) {
         console.error("CRM Form Submission API Error:", e);
-        return NextResponse.json({ error: e.message || 'An internal server error occurred.' }, { status: 500, headers: corsHeaders });
+        return NextResponse.json({ error: getErrorMessage(e) || 'An internal server error occurred.' }, { status: 500, headers: corsHeaders });
     }
 }
 
