@@ -3,18 +3,22 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getCrmContactById } from '@/app/actions/crm.actions';
-import type { CrmContact, WithId } from '@/lib/definitions';
+import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
+import { getCrmDeals } from '@/app/actions/crm-deals.actions';
+import type { CrmContact, WithId, CrmAccount, CrmDeal, CrmTask } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, User, Briefcase, Mail, Phone, MessageSquare, Plus, FileText, Calendar } from 'lucide-react';
+import { ArrowLeft, User, Briefcase, Mail, Phone, MessageSquare, Plus, FileText, Calendar, Handshake } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
+import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 function ContactDetailPageSkeleton() {
     return (
@@ -25,7 +29,8 @@ function ContactDetailPageSkeleton() {
                     <Skeleton className="h-64 w-full" />
                 </div>
                 <div className="md:col-span-2 space-y-4">
-                    <Skeleton className="h-96 w-full" />
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-64 w-full" />
                 </div>
             </div>
         </div>
@@ -37,6 +42,8 @@ export default function CrmContactDetailPage() {
     const router = useRouter();
     const contactId = params.contactId as string;
     const [contact, setContact] = useState<WithId<CrmContact> | null>(null);
+    const [account, setAccount] = useState<WithId<CrmAccount> | null>(null);
+    const [deals, setDeals] = useState<WithId<CrmDeal>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const [isComposeOpen, setIsComposeOpen] = useState(false);
 
@@ -45,6 +52,14 @@ export default function CrmContactDetailPage() {
             startTransition(async () => {
                 const fetchedContact = await getCrmContactById(contactId);
                 setContact(fetchedContact);
+                if (fetchedContact?.accountId) {
+                    const fetchedAccount = await getCrmAccountById(fetchedContact.accountId.toString());
+                    setAccount(fetchedAccount);
+                }
+                if (fetchedContact) {
+                    const allDeals = await getCrmDeals();
+                    setDeals(allDeals.filter(d => d.contactIds?.some(id => id.toString() === fetchedContact._id.toString())));
+                }
             });
         }
     }, [contactId]);
@@ -72,7 +87,7 @@ export default function CrmContactDetailPage() {
                 isOpen={isComposeOpen} 
                 onOpenChange={setIsComposeOpen}
                 initialTo={contact.email}
-                initialSubject={`Regarding your inquiry with ${contact.company || 'us'}`}
+                initialSubject={`Following up`}
             />
             <div className="space-y-6">
                  <div>
@@ -107,7 +122,12 @@ export default function CrmContactDetailPage() {
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-3"><Mail className="h-4 w-4 text-muted-foreground"/><a href={`mailto:${contact.email}`} className="text-primary hover:underline">{contact.email}</a></div>
                                     <div className="flex items-center gap-3"><Phone className="h-4 w-4 text-muted-foreground"/><span>{contact.phone || 'N/A'}</span></div>
-                                    <div className="flex items-center gap-3"><Briefcase className="h-4 w-4 text-muted-foreground"/><span>{contact.company || 'N/A'}</span></div>
+                                    {account && (
+                                        <div className="flex items-center gap-3">
+                                            <Briefcase className="h-4 w-4 text-muted-foreground"/>
+                                            <Link href={`/dashboard/crm/accounts/${account._id.toString()}`} className="text-primary hover:underline">{account.name}</Link>
+                                        </div>
+                                    )}
                                 </div>
                                 <Separator />
                                  <div className="space-y-2">
@@ -127,25 +147,26 @@ export default function CrmContactDetailPage() {
                     </div>
                     <div className="lg:col-span-2">
                         <Card>
-                            <CardHeader><CardTitle>Activity Timeline</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>Associated Deals</CardTitle></CardHeader>
                             <CardContent>
-                                <div className="relative pl-6">
-                                    <div className="absolute left-[11px] top-0 h-full w-0.5 bg-border"></div>
-                                     <div className="space-y-8">
-                                        <div className="flex items-start gap-4 relative">
-                                            <div className="absolute left-[-23px] top-1.5 h-4 w-4 rounded-full bg-primary flex items-center justify-center ring-4 ring-background"><Calendar className="h-2 w-2 text-primary-foreground"/></div>
-                                            <div><p className="font-medium">Lead Created</p><p className="text-xs text-muted-foreground">{new Date(contact.createdAt).toLocaleString()}</p></div>
-                                        </div>
-                                        <div className="flex items-start gap-4 relative">
-                                            <div className="absolute left-[-23px] top-1.5 h-4 w-4 rounded-full bg-blue-500 flex items-center justify-center ring-4 ring-background"><FileText className="h-2 w-2 text-white"/></div>
-                                            <div><p className="font-medium">Note Added</p><p className="text-sm text-muted-foreground mt-1 bg-muted p-2 rounded-md">Followed up regarding pricing. Sent proposal.</p><p className="text-xs text-muted-foreground mt-1">2 days ago</p></div>
-                                        </div>
-                                         <div className="flex items-start gap-4 relative">
-                                            <div className="absolute left-[-23px] top-1.5 h-4 w-4 rounded-full bg-green-500 flex items-center justify-center ring-4 ring-background"><MessageSquare className="h-2 w-2 text-white"/></div>
-                                            <div><p className="font-medium">Conversation Started</p><p className="text-sm text-muted-foreground mt-1">Contact initiated a chat on WhatsApp.</p><p className="text-xs text-muted-foreground mt-1">{formatDistanceToNow(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), { addSuffix: true })}</p></div>
-                                        </div>
-                                    </div>
-                                </div>
+                               <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Deal Name</TableHead>
+                                        <TableHead>Stage</TableHead>
+                                        <TableHead className="text-right">Value</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {deals.length > 0 ? deals.map(deal => (
+                                        <TableRow key={deal._id.toString()} onClick={() => router.push(`/dashboard/crm/deals/${deal._id.toString()}`)} className="cursor-pointer">
+                                            <TableCell className="font-medium">{deal.name}</TableCell>
+                                            <TableCell><Badge variant="secondary">{deal.stage}</Badge></TableCell>
+                                            <TableCell className="text-right font-mono">{new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency }).format(deal.value)}</TableCell>
+                                        </TableRow>
+                                    )) : <TableRow><TableCell colSpan={3} className="text-center">No deals associated with this contact.</TableCell></TableRow>}
+                                </TableBody>
+                               </Table>
                             </CardContent>
                         </Card>
                     </div>
