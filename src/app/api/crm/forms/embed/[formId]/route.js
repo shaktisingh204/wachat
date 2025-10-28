@@ -127,15 +127,15 @@ export async function GET(request, { params }) {
                 border-style: \${settings.fieldBorderType || 'solid'};
                 width: 100%;
               }
-               #sabnode-form-\${formId} .submit-button {
+              #sabnode-form-\${formId} .submit-button {
                 color: \${settings.buttonColor};
                 background-color: \${settings.buttonBgColor};
                 border-radius: \${settings.buttonBorderRadius}px;
                 padding: \${settings.buttonPadding}px;
-                border-style: \${settings.buttonBorderType || 'none'};
+                border: none;
               }
             \`;
-            formContainer.appendChild(styleEl);
+            document.head.appendChild(styleEl);
 
             if (settings.logoUrl) {
                 formEl.appendChild(createEl('img', { src: settings.logoUrl, alt: 'Logo', style: { margin: '0 auto 1rem', height: '60px', objectFit: 'contain' }}));
@@ -188,6 +188,7 @@ export async function GET(request, { params }) {
                 });
             });
 
+            formContainer.innerHTML = ''; // Clear previous content
             formContainer.appendChild(formEl);
             formContainer.id = 'sabnode-form-' + formId;
             formContainer.style.maxWidth = \`\${settings.formWidth || 480}px\`;
