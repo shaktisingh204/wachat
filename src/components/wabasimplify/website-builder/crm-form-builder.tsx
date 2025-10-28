@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Plus, Trash2, ArrowLeft, Save, LoaderCircle, Eye, Code2, ListPlus } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
-import { CrmFormFieldEditor } from '@/components/wabasimplify/crm-form-field-editor';
+import { CrmFormFieldEditor } from '@/components/wabasimplify/website-builder/crm-form-field-editor';
 import { saveCrmForm } from '@/app/actions/crm-forms.actions';
 import { CrmFormPreview } from '@/components/wabasimplify/crm-form-preview';
 import type { WithId, CrmForm, FormField } from '@/lib/definitions';
@@ -27,11 +27,10 @@ import Image from 'next/image';
 import { CodeBlock } from './code-block';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
-
 const defaultFields: FormField[] = [
     { id: uuidv4(), type: 'text', label: 'Name', required: true, columnWidth: '50%', fieldId: 'name' },
     { id: uuidv4(), type: 'email', label: 'Email', required: true, columnWidth: '50%', fieldId: 'email' },
-    { id: uuidv4(), type: 'textarea', label: 'Message', required: false, columnWidth: '100%', fieldId: 'message' },
+    { id: uuidv4(), type: 'textarea', label: 'Message', required: false, columnWidth: '100%', fieldId: 'description' },
 ];
 
 function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
@@ -55,6 +54,32 @@ function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
     );
 }
 
+const crmFieldMappingOptions = [
+    { value: 'name', label: 'Contact Name' },
+    { value: 'email', label: 'Contact Email' },
+    { value: 'phone', label: 'Contact Phone' },
+    { value: 'organisation', label: 'Organisation Name' },
+    { value: 'designation', label: 'Designation' },
+    { value: 'dealName', label: 'Lead Subject' },
+    { value: 'description', label: 'Lead Description' },
+    { value: 'leadSource', label: 'Lead Source' },
+];
+
+const availableFieldTypes = [
+    { type: 'text', label: 'Text' },
+    { type: 'email', label: 'Email' },
+    { type: 'textarea', label: 'Text Area' },
+    { type: 'number', label: 'Number' },
+    { type: 'select', label: 'Select' },
+    { type: 'checkbox', label: 'Checkbox' },
+    { type: 'radio', label: 'Radio Group' },
+    { type: 'date', label: 'Date' },
+    { type: 'file', label: 'File Upload' },
+    { type: 'acceptance', label: 'Acceptance' },
+    { type: 'hidden', label: 'Hidden' },
+    { type: 'html', label: 'HTML' },
+];
+
 export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> }) {
     const router = useRouter();
     const { toast } = useToast();
@@ -67,21 +92,44 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
 
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) return;
-        const items = JSON.parse(JSON.stringify(fields)); // Deep copy
+        const items = JSON.parse(JSON.stringify(fields));
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
         setFields(items);
     };
 
     const addField = (type: FormField['type']) => {
-        const newField: FormField = {
+        const newField: Partial<FormField> = {
             id: uuidv4(),
             type,
             label: `New ${type} field`,
             required: false,
             columnWidth: '100%',
+            size: 'md',
+            labelPosition: 'above'
         };
-        setFields([...fields, newField]);
+
+        const existingFieldIds = fields.map(f => f.fieldId).filter(Boolean);
+        const uniqueFieldInfo = crmFieldMappingOptions.find(opt => opt.value === type);
+        
+        if (uniqueFieldInfo && existingFieldIds.includes(uniqueFieldInfo.value)) {
+            toast({ title: 'Field already exists', description: `Your form already contains a field mapped to "${uniqueFieldInfo.label}".`, variant: 'destructive'});
+            return;
+        }
+
+        if(type === 'email') {
+            newField.label = 'Email';
+            newField.fieldId = 'email';
+            newField.placeholder = 'Enter your email';
+            newField.required = true;
+        } else if (type === 'text' && !existingFieldIds.includes('name')) {
+             newField.label = 'Name';
+             newField.fieldId = 'name';
+             newField.placeholder = 'Enter your name';
+             newField.required = true;
+        }
+
+        setFields([...fields, newField as FormField]);
     };
     
     const removeField = (id: string) => {
@@ -107,7 +155,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                 if (result.formId && !initialForm) {
                     router.push(`/dashboard/crm/sales-crm/forms/${result.formId}/edit`);
                 } else {
-                     router.refresh(); // Refresh current page to get new initialForm data
+                     router.refresh();
                 }
             }
         });
@@ -148,7 +196,20 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                     <div className="space-y-4">
                         <h2 className="text-lg font-semibold">Form Fields</h2>
                         <p className="text-sm text-muted-foreground">Drag to reorder fields.</p>
-                        <Button variant="outline" size="sm" onClick={() => addField('text')}><Plus className="mr-2 h-4 w-4"/>Add Field</Button>
+                         <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="w-full">
+                                    <Plus className="mr-2 h-4 w-4"/>Add Field
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                {availableFieldTypes.map(field => (
+                                     <DropdownMenuItem key={field.type} onSelect={() => addField(field.type as FormField['type'])}>
+                                        {field.label}
+                                     </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                         <DragDropContext onDragEnd={onDragEnd}>
                             <Droppable droppableId="form-fields">
                                 {(provided) => (
