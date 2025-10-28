@@ -24,8 +24,9 @@ import type { WithId, CrmForm, FormField } from '@/lib/definitions';
 import { useRouter } from 'next/navigation';
 import { StyleSettingsPanel } from '@/components/wabasimplify/website-builder/style-settings-panel';
 import Image from 'next/image';
-import { CodeBlock } from './code-block';
+import { CodeBlock } from '../code-block';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
 
 const defaultFields: FormField[] = [
     { id: uuidv4(), type: 'text', label: 'Name', required: true, columnWidth: '50%', fieldId: 'name' },
@@ -53,6 +54,7 @@ function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
         </Dialog>
     );
 }
+
 
 const crmFieldMappingOptions = [
     { value: 'name', label: 'Contact Name' },
@@ -110,7 +112,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
         };
 
         const existingFieldIds = fields.map(f => f.fieldId).filter(Boolean);
-        const uniqueFieldInfo = crmFieldMappingOptions.find(opt => opt.value === type);
+        const uniqueFieldInfo = crmFieldMappingOptions.find(opt => opt.value.toLowerCase() === type);
         
         if (uniqueFieldInfo && existingFieldIds.includes(uniqueFieldInfo.value)) {
             toast({ title: 'Field already exists', description: `Your form already contains a field mapped to "${uniqueFieldInfo.label}".`, variant: 'destructive'});
@@ -224,8 +226,8 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                                         onClick={() => setSelectedFieldId(field.id)}
                                                     >
                                                         <Card className={`p-3 cursor-pointer hover:bg-muted ${selectedFieldId === field.id ? 'ring-2 ring-primary' : ''}`}>
-                                                            <p className="font-semibold text-sm">{field.label || 'Untitled Field'}</p>
-                                                            <p className="text-xs text-muted-foreground">{field.type} {field.required && '*'}</p>
+                                                            <p className="font-semibold text-sm">{field.label || 'Untitled Field'} {field.required && '*'}</p>
+                                                            <p className="text-xs text-muted-foreground">{field.type}</p>
                                                         </Card>
                                                     </div>
                                                 )}
