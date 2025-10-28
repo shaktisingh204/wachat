@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useTransition } from 'react';
+import React, { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +26,7 @@ import { StyleSettingsPanel } from '@/components/wabasimplify/website-builder/st
 import Image from 'next/image';
 import { CodeBlock } from '../code-block';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 
 const defaultFields: FormField[] = [
@@ -38,7 +39,7 @@ function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed Code</Button>
+                <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl overflow-hidden">
                  <DialogHeader>
@@ -54,7 +55,6 @@ function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
         </Dialog>
     );
 }
-
 
 const crmFieldMappingOptions = [
     { value: 'name', label: 'Contact Name' },
@@ -112,14 +112,14 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
         };
 
         const existingFieldIds = fields.map(f => f.fieldId).filter(Boolean);
-        const uniqueFieldInfo = crmFieldMappingOptions.find(opt => opt.value.toLowerCase() === type);
-        
-        if (uniqueFieldInfo && existingFieldIds.includes(uniqueFieldInfo.value)) {
-            toast({ title: 'Field already exists', description: `Your form already contains a field mapped to "${uniqueFieldInfo.label}".`, variant: 'destructive'});
+        const mappedOption = crmFieldMappingOptions.find(opt => opt.value.toLowerCase() === type);
+
+        if (mappedOption && existingFieldIds.includes(mappedOption.value)) {
+            toast({ title: 'Field already exists', description: `Your form already contains a field mapped to "${mappedOption.label}".`, variant: 'destructive'});
             return;
         }
 
-        if(type === 'email') {
+        if (type === 'email') {
             newField.label = 'Email';
             newField.fieldId = 'email';
             newField.placeholder = 'Enter your email';

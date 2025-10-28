@@ -153,7 +153,7 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
             company: formData.organisation,
             jobTitle: formData.designation,
             status: 'new_lead',
-            leadSource: `Form: ${form.name}`,
+            leadSource: formData.leadSource || `Form: ${form.name}`,
             createdAt: new Date(),
             accountId: accountId,
         };
