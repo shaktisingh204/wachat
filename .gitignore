@@ -19,6 +19,8 @@
 /src/app/actions/broadcast.actions.ts
 /src/app/actions/email.actions.ts
 /src/app/actions/facebook.actions.ts
+/src/app/actions/calling.actions.ts
+/src/app/actions/custom-ecommerce.actions.ts
 # next.js
 /.next/
 /out/
