@@ -80,7 +80,11 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
             } else {
                 toast({ title: 'Success', description: 'Form saved successfully!' });
-                router.push('/dashboard/crm/sales-crm/forms');
+                if (result.formId) {
+                    router.push(`/dashboard/crm/sales-crm/forms/${result.formId}/edit`);
+                } else {
+                     router.push('/dashboard/crm/sales-crm/forms');
+                }
             }
         });
     };
@@ -97,9 +101,11 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                     <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" asChild>
-                         <a href={`/embed/crm-form/${initialForm?._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>
-                    </Button>
+                    {initialForm?._id && (
+                        <Button variant="outline" asChild>
+                            <a href={`/embed/crm-form/${initialForm._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>
+                        </Button>
+                    )}
                     <Button onClick={handleSave} disabled={isSaving}>
                         {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Form
@@ -143,7 +149,15 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                      <CrmFormPreview settings={{...settings, fields}} />
                 </main>
                  <aside className="col-span-3 border-l p-4 overflow-y-auto">
-                    <h2 className="text-lg font-semibold mb-4">Properties</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold">Properties</h2>
+                         {selectedField && (
+                            <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back
+                            </Button>
+                        )}
+                    </div>
                     {selectedField ? (
                         <CrmFormFieldEditor
                             field={selectedField}
