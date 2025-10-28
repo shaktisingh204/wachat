@@ -21,6 +21,7 @@
 /src/app/actions/facebook.actions.ts
 /src/app/actions/calling.actions.ts
 /src/app/actions/custom-ecommerce.actions.ts
+/src/app/actions/instagram.actions.ts
 # next.js
 /.next/
 /out/
