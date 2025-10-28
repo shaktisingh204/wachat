@@ -309,3 +309,14 @@ export async function setAppLogo(prevState: any, formData: FormData): Promise<{ 
         return { error: 'Database error occurred.' };
     }
 }
+
+export async function getAppLogoUrl(): Promise<string | null> {
+    try {
+        const { db } = await connectToDatabase();
+        const logoSetting = await db.collection('system_settings').findOne({ _id: 'app_logo' });
+        return logoSetting?.url || process.env.NEXT_PUBLIC_LOGO_URL || null;
+    } catch (error) {
+        console.error("Failed to get app logo URL:", error);
+        return process.env.NEXT_PUBLIC_LOGO_URL || null;
+    }
+}
