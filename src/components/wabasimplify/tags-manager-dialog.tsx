@@ -23,11 +23,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 const initialState = { message: null, error: null };
 
-function SubmitButton() {
+function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
+    <Button type="submit" disabled={pending || disabled}>
+      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Tags
     </Button>
   );
@@ -36,7 +36,7 @@ function SubmitButton() {
 interface TagsManagerDialogProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
-    user: (Omit<User, 'password'>);
+    user: (Omit<User, 'password'> & { _id: string, tags?: Tag[] });
     onTagsUpdated: () => void;
 }
 
@@ -44,9 +44,11 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
     const [state, formAction] = useActionState(handleUpdateUserProfile, initialState);
     const { toast } = useToast();
     const [tags, setTags] = useState<Tag[]>([]);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     useEffect(() => {
         if(isOpen) {
+            // Deep copy to avoid direct state mutation
             setTags(JSON.parse(JSON.stringify(user.tags || [])));
         }
     }, [isOpen, user.tags]);
@@ -71,16 +73,38 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
     
     const handleTagChange = (id: string, field: 'name' | 'color', value: string) => {
         setTags(prev => prev.map(tag => (tag._id === id ? { ...tag, [field]: value } : tag)));
+        setValidationError(null); // Clear error on change
     };
     
     const handleRemoveTag = (id: string) => {
         setTags(prev => prev.filter(tag => tag._id !== id));
     };
+    
+    const validateAndSubmit = (formData: FormData) => {
+        const currentTags = JSON.parse(formData.get('tags') as string || '[]') as Tag[];
+        const names = currentTags.map(t => t.name.trim().toLowerCase());
+        
+        // Check for empty tag names
+        if (names.some(name => name === '')) {
+            setValidationError('Label names cannot be empty. Please fill them in or remove the blank labels.');
+            return;
+        }
+
+        // Check for duplicate tag names
+        const uniqueNames = new Set(names);
+        if (uniqueNames.size !== names.length) {
+            setValidationError('Label names must be unique. Please remove or rename duplicates.');
+            return;
+        }
+        
+        setValidationError(null);
+        formAction(formData);
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-lg">
-                <form action={formAction}>
+                <form action={validateAndSubmit}>
                     <input type="hidden" name="name" value={user.name} />
                     <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color })).filter(t => t.name.trim()))} />
                     <DialogHeader>
@@ -117,14 +141,14 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
                             <Plus className="mr-2 h-4 w-4" />
                             Add Label
                         </Button>
+                        {validationError && <p className="text-sm text-destructive">{validationError}</p>}
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                        <SubmitButton />
+                        <SubmitButton disabled={!!validationError} />
                     </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
     );
 }
-
