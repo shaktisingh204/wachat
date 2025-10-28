@@ -103,7 +103,7 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
             <DialogContent className="sm:max-w-lg">
                 <form action={validateAndSubmit}>
                     <input type="hidden" name="name" value={user.name} />
-                    <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color })).filter(t => t.name.trim()))} />
+                    <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color, _id: t._id })).filter(t => t.name.trim()))} />
                     <DialogHeader>
                         <DialogTitle>Manage Labels</DialogTitle>
                         <DialogDescription>Create, edit, or delete your custom labels.</DialogDescription>
