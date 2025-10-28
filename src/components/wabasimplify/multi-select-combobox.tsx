@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -94,7 +93,7 @@ export function MultiSelectCombobox({
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandInput placeholder="Search tags..." />
           <CommandList>
             <CommandEmpty>No options found.</CommandEmpty>
             <CommandGroup>
