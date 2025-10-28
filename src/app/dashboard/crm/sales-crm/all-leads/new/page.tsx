@@ -7,19 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LoaderCircle, Save, ArrowLeft, UserPlus } from 'lucide-react';
+import { LoaderCircle, Save, ArrowLeft, UserPlus, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
+import { getSession } from '@/app/actions';
 import type { WithId, CrmAccount, CrmPipeline, Tag, User } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getSession } from '@/app/actions';
 import { MultiSelectCombobox } from '@/components/wabasimplify/multi-select-combobox';
+import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
+import { TagsManagerDialog } from '@/components/wabasimplify/tags-manager-dialog';
 
 const initialState = { message: null, error: null };
 
@@ -75,8 +77,9 @@ export default function AddLeadPage() {
     const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string, tags?: Tag[] }) | null>(null);
     const [selectedPipelineId, setSelectedPipelineId] = useState<string>('');
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+    const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
 
-    useEffect(() => {
+    const fetchData = () => {
         startLoading(async () => {
             const [accountsData, pipelinesData, sessionData] = await Promise.all([
                 getCrmAccounts(),
@@ -91,6 +94,10 @@ export default function AddLeadPage() {
                 setSelectedPipelineId(pipelinesData[0].id);
             }
         })
+    }
+    
+    useEffect(() => {
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -102,14 +109,19 @@ export default function AddLeadPage() {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, router]);
+    
+    const handleTagUpdate = async () => {
+        const session = await getSession();
+        setUser(session?.user || null);
+    }
 
     const selectedPipeline = pipelines.find(p => p.id === selectedPipelineId);
     
-    if (isLoading) {
+    if (isLoading || !user) {
         return <NewLeadSkeleton />;
     }
 
-    const tagOptions = (user?.tags || []).map(tag => ({
+    const tagOptions = (user.tags || []).map(tag => ({
         value: tag._id,
         label: tag.name,
         color: tag.color,
@@ -117,6 +129,14 @@ export default function AddLeadPage() {
 
     return (
         <div className="max-w-4xl mx-auto">
+            {user && (
+                <TagsManagerDialog
+                    isOpen={isTagManagerOpen}
+                    onOpenChange={setIsTagManagerOpen}
+                    user={user}
+                    onTagsUpdated={handleTagUpdate}
+                />
+            )}
             <div>
                 <Button variant="ghost" asChild className="mb-2 -ml-4">
                     <Link href="/dashboard/crm/sales-crm/all-leads"><ArrowLeft className="mr-2 h-4 w-4" />Back to All Leads</Link>
@@ -165,9 +185,12 @@ export default function AddLeadPage() {
                         </div>
                         <h3 className="font-semibold text-lg border-b pb-2 mt-6">Deal Details</h3>
                          <div className="space-y-2">
-                            <Label htmlFor="organisation">Prospect Organisation *</Label>
+                             <div className="flex justify-between items-center">
+                                <Label htmlFor="organisation">Prospect Organisation *</Label>
+                                <CrmAddClientDialog onClientAdded={fetchData} />
+                             </div>
                             <Select name="accountId" required>
-                                <SelectTrigger id="organisation"><SelectValue placeholder="Select an existing company or type to create new..." /></SelectTrigger>
+                                <SelectTrigger id="organisation"><SelectValue placeholder="Select an existing company..." /></SelectTrigger>
                                 <SelectContent>
                                     {accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}
                                 </SelectContent>
@@ -175,7 +198,7 @@ export default function AddLeadPage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="designation">Designation</Label>
-                            <Input id="designation" name="jobTitle" placeholder="Designation, role or position of the lead" />
+                            <Input id="designation" name="designation" placeholder="Designation, role or position of the lead" />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="leadSubject">Lead Subject *</Label>
@@ -217,7 +240,13 @@ export default function AddLeadPage() {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label>Labels</Label>
+                            <div className="flex justify-between items-center">
+                                <Label>Labels</Label>
+                                <Button variant="link" size="sm" type="button" onClick={() => setIsTagManagerOpen(true)}>
+                                    <Plus className="mr-1 h-3 w-3"/>
+                                    New Label
+                                </Button>
+                            </div>
                              <MultiSelectCombobox 
                                 options={tagOptions} 
                                 selected={selectedTagIds}
