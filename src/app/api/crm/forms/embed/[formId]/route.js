@@ -1,3 +1,4 @@
+
 // NOTE: This is a '.js' file because Next.js Route Handlers have better
 // support for raw responses in JavaScript files.
 
@@ -5,7 +6,8 @@ import { NextResponse } from 'next/server';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
 
 export async function GET(request, { params }) {
-    const { formId } = params;
+    const rawFormId = params.formId;
+    const formId = rawFormId.endsWith('.js') ? rawFormId.slice(0, -3) : rawFormId;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!formId) {
