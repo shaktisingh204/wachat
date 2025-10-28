@@ -26,18 +26,11 @@ import { StyleSettingsPanel } from '@/components/wabasimplify/website-builder/st
 import Image from 'next/image';
 import { CodeBlock } from './code-block';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
-import * as LucideIcons from 'lucide-react';
 
-const availableFields: Omit<FormField, 'id'>[] = [
-    { fieldId: 'name', label: 'Name', type: 'text', required: true, columnWidth: '100%' },
-    { fieldId: 'email', label: 'Email', type: 'email', required: true, columnWidth: '100%' },
-    { fieldId: 'phone', label: 'Phone', type: 'tel', required: false, columnWidth: '100%' },
-    { fieldId: 'organisation', label: 'Organisation', type: 'text', required: false, columnWidth: '100%' },
-    { fieldId: 'designation', label: 'Designation', type: 'text', required: false, columnWidth: '100%' },
-    { fieldId: 'dealName', label: 'Lead Subject', type: 'text', required: false, columnWidth: '100%' },
-    { fieldId: 'description', label: 'Description', type: 'textarea', required: false, columnWidth: '100%' },
-    { fieldId: 'leadSource', label: 'Lead Source', type: 'text', required: false, columnWidth: '100%' },
+const defaultFields: FormField[] = [
+    { id: uuidv4(), type: 'text', label: 'Name', required: true, columnWidth: '50%', fieldId: 'name' },
+    { id: uuidv4(), type: 'email', label: 'Email', required: true, columnWidth: '50%', fieldId: 'email' },
+    { id: uuidv4(), type: 'textarea', label: 'Message', required: false, columnWidth: '100%', fieldId: 'message' },
 ];
 
 function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
@@ -67,27 +60,27 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
     const [isSaving, startSaving] = useTransition();
 
     const [formName, setFormName] = useState(initialForm?.name || 'New Form');
-    const [fields, setFields] = useState<FormField[]>(initialForm?.settings.fields || []);
+    const [fields, setFields] = useState<FormField[]>(initialForm?.settings.fields || defaultFields);
     const [settings, setSettings] = useState(initialForm?.settings || { title: 'Contact Us', submitButtonText: 'Send Message' });
     const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
 
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) return;
-        const items = Array.from(fields);
+        const items = JSON.parse(JSON.stringify(fields));
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
         setFields(items);
     };
 
-    const handleFieldToggle = (fieldId: string, checked: boolean) => {
-        if (checked) {
-            const fieldToAdd = availableFields.find(f => f.fieldId === fieldId);
-            if (fieldToAdd) {
-                setFields(prev => [...prev, { ...fieldToAdd, id: uuidv4() }]);
-            }
-        } else {
-            setFields(prev => prev.filter(f => f.fieldId !== fieldId));
-        }
+    const addField = (type: FormField['type']) => {
+        const newField: FormField = {
+            id: uuidv4(),
+            type,
+            label: `New ${type} field`,
+            required: false,
+            columnWidth: '100%',
+        };
+        setFields([...fields, newField]);
     };
     
     const removeField = (id: string) => {
@@ -110,8 +103,10 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
             } else {
                 toast({ title: 'Success', description: 'Form saved successfully!' });
-                if (result.formId) {
+                if (result.formId && !initialForm) {
                     router.push(`/dashboard/crm/sales-crm/forms/${result.formId}/edit`);
+                } else if (!result.formId && initialForm) {
+                    router.push(`/dashboard/crm/sales-crm/forms/${initialForm._id}/edit`);
                 } else {
                      router.push('/dashboard/crm/sales-crm/forms');
                 }
@@ -153,7 +148,8 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                  <div className="col-span-3 border-r p-4 overflow-y-auto">
                     <div className="space-y-4">
                         <h2 className="text-lg font-semibold">Form Fields</h2>
-                        <p className="text-sm text-muted-foreground">Select the fields to include in your form. Drag to reorder.</p>
+                        <p className="text-sm text-muted-foreground">Drag to reorder fields.</p>
+                        <Button variant="outline" size="sm" onClick={() => addField('text')}><Plus className="mr-2 h-4 w-4"/>Add Field</Button>
                         <DragDropContext onDragEnd={onDragEnd}>
                             <Droppable droppableId="form-fields">
                                 {(provided) => (
@@ -203,9 +199,8 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                         />
                     ) : (
                          <Tabs defaultValue="general">
-                            <TabsList className="grid w-full grid-cols-3">
+                            <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="general">General</TabsTrigger>
-                                <TabsTrigger value="fields">Fields</TabsTrigger>
                                 <TabsTrigger value="style">Style</TabsTrigger>
                             </TabsList>
                             <TabsContent value="general" className="mt-4">
@@ -222,26 +217,6 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                         </AccordionContent>
                                     </AccordionItem>
                                 </Accordion>
-                            </TabsContent>
-                             <TabsContent value="fields" className="mt-4">
-                                <div className="space-y-2">
-                                    <Label>Available Fields</Label>
-                                    <p className="text-xs text-muted-foreground">Select fields to add to your form.</p>
-                                    <Card>
-                                        <CardContent className="p-3 space-y-2">
-                                            {availableFields.map(field => (
-                                                <div key={field.fieldId} className="flex items-center space-x-2">
-                                                    <Checkbox
-                                                        id={`field-toggle-${field.fieldId}`}
-                                                        checked={fields.some(f => f.fieldId === field.fieldId)}
-                                                        onCheckedChange={(checked) => handleFieldToggle(field.fieldId!, !!checked)}
-                                                    />
-                                                    <Label htmlFor={`field-toggle-${field.fieldId}`} className="font-normal">{field.label}</Label>
-                                                </div>
-                                            ))}
-                                        </CardContent>
-                                    </Card>
-                                </div>
                             </TabsContent>
                             <TabsContent value="style" className="mt-4">
                                  <StyleSettingsPanel settings={settings} onUpdate={setSettings} />

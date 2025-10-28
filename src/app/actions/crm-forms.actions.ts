@@ -77,6 +77,7 @@ export async function saveCrmForm(data: {
                 { $set: formData }
             );
             revalidatePath('/dashboard/crm/sales-crm/forms');
+            revalidatePath(`/dashboard/crm/sales-crm/forms/${data.formId}/edit`);
             return { message: 'Form updated successfully.', formId: data.formId };
         }
     } catch (e: any) {
@@ -155,35 +156,36 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
         }
 
         // Replicate addCrmLeadAndDeal logic here, but with server-side context
-        const email = leadData.get('email') as string;
+        const email = formData.email as string;
         if (!email) return { success: false, error: "Email is required in form submission.", message: '' };
 
         let contact: WithId<CrmContact>;
         const existingContact = await db.collection<CrmContact>('crm_contacts').findOne({ email, userId: user._id });
 
+        const contactData: Partial<CrmContact> = {
+            userId: user._id,
+            name: formData.name || email,
+            email: email,
+            phone: formData.phone,
+            company: formData.organisation,
+            jobTitle: formData.designation,
+            status: 'new_lead',
+            leadSource: `Form: ${form.name}`,
+            createdAt: new Date(),
+        };
+
         if (existingContact) {
             contact = existingContact;
         } else {
-             const newContactData: Partial<CrmContact> = {
-                userId: user._id,
-                name: leadData.get('name') as string || email,
-                email: email,
-                phone: leadData.get('phone') as string,
-                company: leadData.get('organisation') as string,
-                jobTitle: leadData.get('designation') as string,
-                status: 'new_lead',
-                leadSource: `Form: ${form.name}`,
-                createdAt: new Date(),
-            };
-            const result = await db.collection('crm_contacts').insertOne(newContactData as CrmContact);
-            contact = { ...newContactData, _id: result.insertedId } as WithId<CrmContact>;
+            const result = await db.collection('crm_contacts').insertOne(contactData as CrmContact);
+            contact = { ...contactData, _id: result.insertedId } as WithId<CrmContact>;
         }
 
         const newDeal: Partial<CrmDeal> = {
             userId: user._id,
-            name: leadData.get('name') as string,
+            name: formData.dealName || `Lead from ${form.name}`,
             stage: leadData.get('stage') as string,
-            description: leadData.get('description') as string,
+            description: formData.description,
             accountId: leadData.get('accountId') ? new ObjectId(leadData.get('accountId') as string) : undefined,
             contactIds: [contact._id],
             createdAt: new Date(),
