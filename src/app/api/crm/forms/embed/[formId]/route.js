@@ -1,4 +1,3 @@
-
 // NOTE: This is a '.js' file because Next.js Route Handlers have better
 // support for raw responses in JavaScript files.
 
