@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -10,18 +8,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Plus, FileText, LoaderCircle } from 'lucide-react';
 import { getQuotations } from '@/app/actions/crm-quotations.actions';
-import type { WithId, CrmQuotation } from '@/lib/definitions';
+import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import type { WithId, CrmQuotation, CrmAccount } from '@/lib/definitions';
 import Link from 'next/link';
 
 export default function QuotationsPage() {
     const [quotations, setQuotations] = useState<WithId<CrmQuotation>[]>([]);
+    const [accountsMap, setAccountsMap] = useState<Map<string, string>>(new Map());
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const data = await getQuotations();
-            setQuotations(data.quotations);
+            const [quotationsData, accountsData] = await Promise.all([
+                getQuotations(),
+                getCrmAccounts()
+            ]);
+            setQuotations(quotationsData.quotations);
+            const newMap = new Map(accountsData.accounts.map(acc => [acc._id.toString(), acc.name]));
+            setAccountsMap(newMap);
         });
     }, []);
 
@@ -83,7 +88,7 @@ export default function QuotationsPage() {
                                     quotations.map(q => (
                                         <TableRow key={q._id.toString()} className="cursor-pointer" onClick={() => { /* router.push(`/dashboard/crm/sales/quotations/${q._id.toString()}`) */ }}>
                                             <TableCell className="font-medium">{q.quotationNumber}</TableCell>
-                                            <TableCell>Client Name Placeholder</TableCell>
+                                            <TableCell>{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
                                             <TableCell>{new Date(q.quotationDate).toLocaleDateString()}</TableCell>
                                             <TableCell><Badge variant={getStatusVariant(q.status)}>{q.status}</Badge></TableCell>
                                             <TableCell className="text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
