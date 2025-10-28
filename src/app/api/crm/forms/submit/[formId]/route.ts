@@ -9,6 +9,19 @@ import { getErrorMessage } from '@/lib/utils';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
 import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+
+async function mockGetSession(userId: ObjectId) {
+    const { db } = await connectToDatabase();
+    const user = await db.collection('users').findOne({ _id: userId });
+    if (!user) return null;
+    return {
+        user: {
+            ...user,
+            _id: user._id,
+        }
+    };
+}
 
 
 export async function POST(
@@ -36,7 +49,6 @@ export async function POST(
             return NextResponse.json({ error: 'Form not found.' }, { status: 404 });
         }
         
-        // Log the submission
         await db.collection('crm_form_submissions').insertOne({
             formId: form._id,
             userId: form.userId,
@@ -62,12 +74,10 @@ export async function POST(
         leadAndDealData.append('phone', formData[phoneFieldId] || '');
         leadAndDealData.append('organisation', formData[companyFieldId] || '');
         
-        // Use the form name or a default as the deal name
         leadAndDealData.append('name', `Lead from ${form.name}`); 
         leadAndDealData.append('description', formData[messageFieldId] || 'Form Submission');
         leadAndDealData.append('leadSource', `Form: ${form.name}`);
         
-        // Use default pipeline and stage from the user's CRM settings
         const defaultPipeline = (user.crmPipelines || [])[0];
         if (defaultPipeline) {
             leadAndDealData.append('pipelineId', defaultPipeline.id);
@@ -77,32 +87,43 @@ export async function POST(
             }
         }
         
-        // Find or create account based on company name
         const companyName = formData[companyFieldId];
+        let accountId;
         if (companyName) {
             let account = await db.collection('crm_accounts').findOne({ name: companyName, userId: form.userId });
             if (!account) {
                 const newAccount = { userId: form.userId, name: companyName, createdAt: new Date(), status: 'active' };
                 const result = await db.collection('crm_accounts').insertOne(newAccount as any);
-                leadAndDealData.append('accountId', result.insertedId.toString());
+                accountId = result.insertedId.toString();
             } else {
-                 leadAndDealData.append('accountId', account._id.toString());
+                 accountId = account._id.toString();
             }
         }
 
-        // --- Call the server action to create the lead and deal ---
-        // We have to mock the session for the server action since this is an API route
+        if (accountId) {
+            leadAndDealData.append('accountId', accountId);
+        }
+
+        const session = await mockGetSession(form.userId);
+        if (!session) {
+             return NextResponse.json({ error: 'Could not authenticate form owner.' }, { status: 500 });
+        }
+        
+        // Temporarily modify the server action to accept the mocked session
+        const originalGetSession = require('@/app/actions').getSession;
+        (require('@/app/actions') as any).getSession = async () => session;
+
         const result = await addCrmLeadAndDeal(null, leadAndDealData);
+
+        // Restore original function
+        (require('@/app/actions') as any).getSession = originalGetSession;
 
         if (result.error) {
             console.error("Error creating lead from form submission:", result.error);
-            // Don't fail the user submission, just log the error server-side
         }
 
-        // Increment submission count
         await db.collection('crm_forms').updateOne({ _id: form._id }, { $inc: { submissionCount: 1 } });
         
-        // Revalidate paths to show the new lead
         revalidatePath('/dashboard/crm/sales-crm/all-leads');
         revalidatePath('/dashboard/crm/deals');
 
