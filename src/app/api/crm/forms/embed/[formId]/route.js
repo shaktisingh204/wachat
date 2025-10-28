@@ -1,3 +1,4 @@
+
 // /src/app/api/crm/forms/embed/[formId]/route.js
 
 import { NextResponse } from 'next/server';
@@ -17,9 +18,9 @@ export async function GET(request, { params }) {
 
     const script = `
 (function() {
-    const formContainer = document.querySelector('[data-sabnode-form-id="${formId}"]');
+    const formContainer = document.querySelector('[data-sabnode-form-id="' + formId + '"]');
     if (!formContainer) {
-        console.error('SabNode Forms: Container for formId ${formId} not found.');
+        console.error('SabNode Forms: Container for formId ' + formId + ' not found.');
         return;
     }
 
@@ -51,7 +52,7 @@ export async function GET(request, { params }) {
     function renderField(field, settings) {
         const fieldName = field.fieldId || field.id;
         const sizeClasses = { sm: 'h-8 text-xs', md: 'h-10 text-sm', lg: 'h-12 text-base'}[field.size || 'md'];
-        const commonProps = { id: \`sabnode-\${fieldName}\`, name: fieldName, placeholder: field.placeholder, className: \`sabnode-form-field \${sizeClasses}\`, required: field.required };
+        const commonProps = { id: 'sabnode-' + fieldName, name: fieldName, placeholder: field.placeholder, className: 'sabnode-form-field ' + sizeClasses, required: field.required };
         
         let inputElement;
 
@@ -64,7 +65,7 @@ export async function GET(request, { params }) {
                 break;
             case 'radio':
                 inputElement = createEl('div', { className: 'sabnode-radio-group' }, (field.options || '').split('\\n').map(o => {
-                    const optId = \`sabnode-\${fieldName}-\${o.trim()}\`;
+                    const optId = 'sabnode-' + fieldName + '-' + o.trim();
                     return createEl('div', { className: 'sabnode-radio-item' }, [
                         createEl('input', { type: 'radio', id: optId, name: fieldName, value: o.trim() }),
                         createEl('label', { htmlFor: optId, textContent: o.trim() })
@@ -84,7 +85,7 @@ export async function GET(request, { params }) {
         
         const label = field.labelPosition !== 'hidden' ? createEl('label', { htmlFor: commonProps.id, textContent: field.label + (field.required ? ' *' : '') }) : null;
         
-        const fieldContainer = createEl('div', { className: \`sabnode-field-wrapper sabnode-field-type-\${field.type}\`}, [
+        const fieldContainer = createEl('div', { className: 'sabnode-field-wrapper sabnode-field-type-' + field.type}, [
             label,
             inputElement,
         ]);
@@ -94,7 +95,7 @@ export async function GET(request, { params }) {
 
 
     // --- Main Logic ---
-    fetch(\`${appUrl}/api/crm/forms/data/\${formId}\`)
+    fetch('${appUrl}/api/crm/forms/data/' + formId)
         .then(response => {
             if (!response.ok) throw new Error('Failed to fetch form data.');
             return response.json();
@@ -161,7 +162,7 @@ export async function GET(request, { params }) {
                 const formData = new FormData(formEl);
                 const data = Object.fromEntries(formData.entries());
                 
-                fetch(\`${appUrl}/api/crm/forms/submit/\${formId}\`, {
+                fetch('${appUrl}/api/crm/forms/submit/' + formId, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -169,7 +170,7 @@ export async function GET(request, { params }) {
                 .then(res => res.json())
                 .then(result => {
                     if (result.error) throw new Error(result.error);
-                    formContainer.innerHTML = \`<div style="padding: 2rem; text-align: center; border: 1px solid #ccc; border-radius: 8px;">\${result.message || 'Submission successful!'}</div>\`;
+                    formContainer.innerHTML = '<div style="padding: 2rem; text-align: center; border: 1px solid #ccc; border-radius: 8px;">' + (result.message || 'Submission successful!') + '</div>';
                 })
                 .catch(err => {
                     submitButton.textContent = 'Submit';
@@ -180,7 +181,7 @@ export async function GET(request, { params }) {
             });
 
             formContainer.appendChild(formEl);
-            formContainer.id = \`sabnode-form-\${formId}\`;
+            formContainer.id = 'sabnode-form-' + formId;
             formContainer.style.maxWidth = \`\${settings.formWidth || 480}px\`;
             formContainer.style.margin = '0 auto';
 
@@ -190,4 +191,11 @@ export async function GET(request, { params }) {
             formContainer.textContent = 'Error loading form.';
         });
 })();
-    
+    `;
+
+    return new NextResponse(script, {
+        headers: {
+            'Content-Type': 'application/javascript; charset=utf-8',
+        },
+    });
+}
