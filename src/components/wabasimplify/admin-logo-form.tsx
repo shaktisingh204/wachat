@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef } from 'react';
@@ -11,6 +12,7 @@ import { LoaderCircle, Save, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { setAppLogo } from '@/app/actions/admin.actions';
 import { useRouter } from 'next/navigation';
+import { Separator } from '../ui/separator';
 
 const initialState = { success: false, error: undefined };
 
@@ -47,13 +49,24 @@ export function AppLogoForm() {
                         <ImageIcon className="h-5 w-5"/>
                         Application Logo
                     </CardTitle>
-                    <CardDescription>Set a custom logo for the application. Leave blank to reset to the default.</CardDescription>
+                    <CardDescription>Set a custom logo for the application. You can either upload a file or provide a public URL. Leave both blank to reset to default.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="logoFile">Upload Logo File</Label>
+                        <Input id="logoFile" name="logoFile" type="file" accept="image/png, image/jpeg, image/svg+xml, image/webp" />
+                    </div>
+                     <div className="relative my-4">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-card px-2 text-muted-foreground">Or</span>
+                        </div>
+                    </div>
                     <div className="space-y-2">
                         <Label htmlFor="logoUrl">Logo URL</Label>
                         <Input id="logoUrl" name="logoUrl" placeholder="https://example.com/logo.png" />
-                        <p className="text-xs text-muted-foreground">Provide a public URL to your logo image.</p>
                     </div>
                 </CardContent>
                 <CardFooter>
