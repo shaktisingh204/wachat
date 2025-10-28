@@ -276,35 +276,30 @@ export async function setAppLogo(prevState: any, formData: FormData): Promise<{ 
     if (!isAdmin) return { error: 'Permission denied.' };
     
     const logoUrl = formData.get('logoUrl') as string;
-    if (!logoUrl) {
-        // Allow clearing the logo
-        try {
-            const { db } = await connectToDatabase();
-            await db.collection('system_settings').updateOne(
-                { _id: 'app_logo' },
-                { $set: { url: '' } },
-                { upsert: true }
-            );
-            revalidatePath('/', 'layout');
-            return { success: true };
-        } catch (error) {
-            console.error("Failed to clear app logo:", error);
-            return { error: 'Database error occurred.' };
-        }
-    }
+    const logoFile = formData.get('logoFile') as File;
+    let finalLogoUrl = '';
 
-    try {
-        // Validate URL format
-        new URL(logoUrl);
-    } catch (_) {
-        return { error: 'Invalid URL format provided.' };
+    if (logoFile && logoFile.size > 0) {
+        try {
+            const buffer = Buffer.from(await logoFile.arrayBuffer());
+            finalLogoUrl = `data:${logoFile.type};base64,${buffer.toString('base64')}`;
+        } catch (e: any) {
+            return { error: 'Failed to process uploaded file.' };
+        }
+    } else if (logoUrl) {
+         try {
+            new URL(logoUrl);
+            finalLogoUrl = logoUrl;
+        } catch (_) {
+            return { error: 'Invalid URL format provided.' };
+        }
     }
 
     try {
         const { db } = await connectToDatabase();
         await db.collection('system_settings').updateOne(
             { _id: 'app_logo' },
-            { $set: { url: logoUrl } },
+            { $set: { url: finalLogoUrl } },
             { upsert: true }
         );
         revalidatePath('/', 'layout');
