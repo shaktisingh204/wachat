@@ -7,17 +7,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LoaderCircle, Save, ArrowLeft, UserPlus, Globe } from 'lucide-react';
+import { LoaderCircle, Save, ArrowLeft, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
-import type { WithId, CrmAccount, CrmPipeline } from '@/lib/definitions';
+import type { WithId, CrmAccount, CrmPipeline, Tag, User } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getSession } from '@/app/actions';
+import { MultiSelectCombobox } from '@/components/wabasimplify/multi-select-combobox';
 
 const initialState = { message: null, error: null };
 
@@ -70,16 +72,21 @@ export default function AddLeadPage() {
 
     const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
     const [pipelines, setPipelines] = useState<CrmPipeline[]>([]);
+    const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string, tags?: Tag[] }) | null>(null);
     const [selectedPipelineId, setSelectedPipelineId] = useState<string>('');
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
     useEffect(() => {
         startLoading(async () => {
-            const [accountsData, pipelinesData] = await Promise.all([
+            const [accountsData, pipelinesData, sessionData] = await Promise.all([
                 getCrmAccounts(),
-                getCrmPipelines()
+                getCrmPipelines(),
+                getSession(),
             ]);
             setAccounts(accountsData.accounts);
             setPipelines(pipelinesData);
+            setUser(sessionData?.user || null);
+
             if(pipelinesData.length > 0) {
                 setSelectedPipelineId(pipelinesData[0].id);
             }
@@ -102,6 +109,12 @@ export default function AddLeadPage() {
         return <NewLeadSkeleton />;
     }
 
+    const tagOptions = (user?.tags || []).map(tag => ({
+        value: tag._id,
+        label: tag.name,
+        color: tag.color,
+    }));
+
     return (
         <div className="max-w-4xl mx-auto">
             <div>
@@ -110,6 +123,7 @@ export default function AddLeadPage() {
                 </Button>
             </div>
             <form action={formAction} ref={formRef}>
+                <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -125,7 +139,20 @@ export default function AddLeadPage() {
                                 <Label htmlFor="contactName">Contact Name *</Label>
                                 <Input id="contactName" name="contactName" required placeholder="Full name of the lead contact" />
                             </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="email">Email *</Label>
+                                <Input id="email" name="email" type="email" required placeholder="Email address of the lead" />
+                            </div>
+                        </div>
+                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
+                                <Label htmlFor="phone">Phone</Label>
+                                <div className="flex items-center">
+                                    <span className="p-2 border rounded-l-md bg-muted">+91</span>
+                                    <Input id="phone" name="phone" className="rounded-l-none" />
+                                </div>
+                            </div>
+                             <div className="space-y-2">
                                 <Label htmlFor="contactCountry">Contact Country *</Label>
                                 <Select name="contactCountry" defaultValue="India" required>
                                     <SelectTrigger id="contactCountry"><SelectValue /></SelectTrigger>
@@ -135,23 +162,6 @@ export default function AddLeadPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                        </div>
-                         <div className="grid md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="city">Customer City</Label>
-                                <Input id="city" name="city" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="phone">Phone</Label>
-                                <div className="flex items-center">
-                                    <span className="p-2 border rounded-l-md bg-muted">+91</span>
-                                    <Input id="phone" name="phone" className="rounded-l-none" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email *</Label>
-                            <Input id="email" name="email" type="email" required placeholder="Email address of the lead" />
                         </div>
                         <h3 className="font-semibold text-lg border-b pb-2 mt-6">Deal Details</h3>
                          <div className="space-y-2">
@@ -208,10 +218,12 @@ export default function AddLeadPage() {
                         </div>
                         <div className="space-y-2">
                             <Label>Labels</Label>
-                            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                                {/* Placeholder for label component */}
-                                <p>Label selection coming soon.</p>
-                            </div>
+                             <MultiSelectCombobox 
+                                options={tagOptions} 
+                                selected={selectedTagIds}
+                                onSelectionChange={setSelectedTagIds}
+                                placeholder="Select labels..."
+                            />
                         </div>
                     </CardContent>
                     <CardFooter>
@@ -222,4 +234,3 @@ export default function AddLeadPage() {
         </div>
     );
 }
-    

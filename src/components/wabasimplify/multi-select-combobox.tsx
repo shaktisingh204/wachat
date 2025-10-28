@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -19,6 +20,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '../ui/scroll-area';
 
 export type MultiSelectOption = {
   value: string;
@@ -68,10 +70,19 @@ export function MultiSelectCombobox({
                   <Badge
                     key={option.value}
                     variant="secondary"
-                    className="rounded-sm px-1 font-normal"
+                    className="rounded-sm px-2 py-1 font-normal flex items-center gap-1"
                     style={option.color ? { backgroundColor: option.color, color: '#fff' } : {}}
                   >
                     {option.label}
+                    <button
+                        type="button"
+                        className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                        onKeyDown={(e) => { if (e.key === "Enter") handleSelect(option.value); }}
+                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        onClick={(e) => { e.stopPropagation(); handleSelect(option.value); }}
+                    >
+                      <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                    </button>
                   </Badge>
                 ))
             ) : (
@@ -87,24 +98,26 @@ export function MultiSelectCombobox({
           <CommandList>
             <CommandEmpty>No options found.</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.label}
-                  onSelect={() => handleSelect(option.value)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selected.includes(option.value) ? "opacity-100" : "opacity-0"
+              <ScrollArea className="max-h-60">
+                {options.map((option) => (
+                  <CommandItem
+                    key={option.value}
+                    value={option.label}
+                    onSelect={() => handleSelect(option.value)}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selected.includes(option.value) ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {option.color && (
+                      <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: option.color }} />
                     )}
-                  />
-                  {option.color && (
-                    <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: option.color }} />
-                  )}
-                  {option.label}
-                </CommandItem>
-              ))}
+                    {option.label}
+                  </CommandItem>
+                ))}
+              </ScrollArea>
             </CommandGroup>
           </CommandList>
         </Command>

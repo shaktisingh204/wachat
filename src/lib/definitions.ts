@@ -219,6 +219,7 @@ export type CrmDeal = {
     probability?: number;
     ownerId?: ObjectId; // User ID
     leadSource?: string;
+    pipelineId?: string;
     createdAt: Date;
     updatedAt?: Date;
     notes?: {

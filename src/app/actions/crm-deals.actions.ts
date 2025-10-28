@@ -82,17 +82,25 @@ export async function addCrmLeadAndDeal(prevState: any, formData: FormData): Pro
     try {
         const { db } = await connectToDatabase();
         
-        // 1. Create or find the Contact
         const email = formData.get('email') as string;
         if (!email) return { error: "Email is required." };
+
+        const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
         
         let contact: WithId<CrmContact>;
         const existingContact = await db.collection<CrmContact>('crm_contacts').findOne({ email, userId: new ObjectId(session.user._id) });
         
         if (existingContact) {
             contact = existingContact;
+            // Add tags to existing contact if any are provided
+            if (tagIds.length > 0) {
+                await db.collection('crm_contacts').updateOne(
+                    { _id: contact._id },
+                    { $addToSet: { tags: { $each: tagIds } } }
+                );
+            }
         } else {
-            const newContact: Omit<CrmContact, '_id'> = {
+            const newContactData: Partial<CrmContact> = {
                 userId: new ObjectId(session.user._id),
                 name: formData.get('contactName') as string,
                 email: email,
@@ -102,13 +110,13 @@ export async function addCrmLeadAndDeal(prevState: any, formData: FormData): Pro
                 status: 'new_lead',
                 leadSource: formData.get('leadSource') as string,
                 createdAt: new Date(),
+                tags: tagIds,
             };
-            const result = await db.collection('crm_contacts').insertOne(newContact as CrmContact);
-            contact = { ...newContact, _id: result.insertedId };
+            const result = await db.collection('crm_contacts').insertOne(newContactData as CrmContact);
+            contact = { ...newContactData, _id: result.insertedId } as WithId<CrmContact>;
         }
 
-        // 2. Create the Deal
-        const newDeal: Omit<CrmDeal, '_id'> = {
+        const newDeal: Partial<CrmDeal> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             stage: formData.get('stage') as string,
@@ -117,7 +125,9 @@ export async function addCrmLeadAndDeal(prevState: any, formData: FormData): Pro
             contactIds: [contact._id],
             createdAt: new Date(),
             value: 0,
-            currency: 'INR'
+            currency: 'INR',
+            pipelineId: formData.get('pipelineId') as string,
+            labels: tagIds, // Using tags as labels for the deal
         };
 
         await db.collection('crm_deals').insertOne(newDeal as any);
