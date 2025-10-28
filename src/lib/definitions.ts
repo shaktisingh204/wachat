@@ -702,7 +702,7 @@ export type EcommShop = {
     accountPageLayout?: WebsiteBlock[];
     ordersPageLayout?: WebsiteBlock[];
     profilePageLayout?: WebsiteBlock[];
-    addressBookPageLayout?: WebsiteBlock[];
+    addressBookPageLayout?: WebsiteBookPageLayout[];
     wishlistPageLayout?: WebsiteBlock[];
     returnsPageLayout?: WebsiteBlock[];
     downloadsPageLayout?: WebsiteBlock[];
@@ -1647,15 +1647,32 @@ export type EcommProduct = {
   name: string;
   description?: string;
   price: number;
-  stock?: number;
   imageUrl?: string;
-  sku?: string;
-  category?: string;
-  subcategory?: string;
   variants?: EcommProductVariant[];
   inventory?: { warehouseId: ObjectId, stock: number }[];
   createdAt: Date;
   updatedAt: Date;
+  
+  // New detailed fields
+  sku?: string;
+  hsnSac?: string;
+  itemType?: 'goods' | 'service';
+  unit?: string;
+  buyingPrice?: number;
+  landedCost?: number;
+  taxRate?: number;
+  manageStock?: boolean;
+  stockInHand?: number;
+  committedStock?: number;
+  reorderPoint?: number;
+  overstockPoint?: number;
+  dimensions?: { length?: number; breadth?: number; height?: number; volume?: number; };
+  weight?: { gross?: number; net?: number; };
+  totalSoldQuantity?: number;
+  totalPurchaseQuantity?: number;
+  isPackageItem?: boolean;
+  tags?: string[];
+  stock?: number; // legacy
 };
 
 export type CrmWarehouse = {

@@ -40,20 +40,50 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
         const variantsString = formData.get('variants') as string;
         const variants = variantsString ? JSON.parse(variantsString) : [];
 
-        const productData: Partial<EcommProduct> = {
+        const productData: Partial<Omit<EcommProduct, '_id' | 'createdAt'>> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             description: formData.get('description') as string,
             price: parseFloat(formData.get('price') as string),
             sku: formData.get('sku') as string,
+            hsnSac: formData.get('hsnSac') as string,
+            itemType: formData.get('itemType') as 'goods' | 'service',
+            unit: formData.get('unit') as string,
             category: formData.get('category') as string,
             subcategory: formData.get('subcategory') as string,
+            tags: (formData.get('tags') as string)?.split(',').map(t => t.trim()).filter(Boolean),
+            isPackageItem: formData.get('isPackageItem') === 'on',
+            
+            // Pricing
+            buyingPrice: parseFloat(formData.get('buyingPrice') as string),
+            landedCost: parseFloat(formData.get('landedCost') as string),
+            taxRate: parseFloat(formData.get('taxRate') as string),
+            
+            // Stock
+            manageStock: formData.get('manageStock') === 'on',
+            stockInHand: parseInt(formData.get('stockInHand') as string, 10),
+            committedStock: parseInt(formData.get('committedStock') as string, 10),
+            reorderPoint: parseInt(formData.get('reorderPoint') as string, 10),
+            overstockPoint: parseInt(formData.get('overstockPoint') as string, 10),
+            
+            // Dimensions
+            dimensions: {
+                length: parseFloat(formData.get('length') as string),
+                breadth: parseFloat(formData.get('breadth') as string),
+                height: parseFloat(formData.get('height') as string),
+                volume: parseFloat(formData.get('volume') as string),
+            },
+            weight: {
+                gross: parseFloat(formData.get('grossWeight') as string),
+                net: parseFloat(formData.get('netWeight') as string),
+            },
+
             variants: variants,
             updatedAt: new Date(),
         };
 
         if (!productData.name || isNaN(productData.price)) {
-            return { error: 'Product name and price are required.' };
+            return { error: 'Product name and selling price are required.' };
         }
         
         const imageFile = formData.get('imageFile') as File | null;
@@ -62,6 +92,7 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
             const dataUri = `data:${imageFile.type};base64,${buffer.toString('base64')}`;
             productData.imageUrl = dataUri;
         } else if (isEditing) {
+            // Keep existing image if not uploading a new one
             productData.imageUrl = formData.get('imageUrl') as string;
         }
 
@@ -74,14 +105,14 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
             );
         } else {
             productData.createdAt = new Date();
-            // When creating a new product, we also initialize its inventory across all warehouses for this user
             const warehouses = await db.collection('crm_warehouses').find({ userId: new ObjectId(session.user._id) }).toArray();
             productData.inventory = warehouses.map(w => ({ warehouseId: w._id, stock: 0 }));
 
             await db.collection('crm_products').insertOne(productData as EcommProduct);
         }
         
-        revalidatePath('/dashboard/crm/products');
+        revalidatePath('/dashboard/crm/inventory/items');
+        revalidatePath(`/dashboard/crm/inventory/items/${productId}/edit`);
         return { message: `Product "${productData.name}" saved successfully!` };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -103,7 +134,7 @@ export async function deleteCrmProduct(productId: string): Promise<{ success: bo
         // Also delete any related stock adjustments
         await db.collection('crm_stock_adjustments').deleteMany({ productId: new ObjectId(productId) });
 
-        revalidatePath(`/dashboard/crm/products`);
+        revalidatePath(`/dashboard/crm/inventory/items`);
         revalidatePath('/dashboard/crm/inventory/adjustments');
         return { success: true };
     } catch (e) {
