@@ -1,10 +1,15 @@
 
+'use server';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { CrmForm, CrmContact } from '@/lib/definitions';
+import type { CrmForm, CrmContact, CrmDeal, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
+import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
+import { revalidatePath } from 'next/cache';
+
 
 export async function POST(
     request: NextRequest,
@@ -39,50 +44,67 @@ export async function POST(
             submittedAt: new Date(),
         });
         
-        // Find or create a contact based on email
-        const emailFieldId = form.fields.find(f => f.type === 'email')?.fieldId || 'email';
-        const email = formData[emailFieldId];
+        const user = await db.collection<User>('users').findOne({ _id: form.userId });
+        if (!user) {
+            return NextResponse.json({ error: 'Form owner not found.' }, { status: 500 });
+        }
         
-        if (email) {
-            const nameFieldId = form.fields.find(f => f.label.toLowerCase().includes('name'))?.fieldId || 'name';
-            const name = formData[nameFieldId] || email;
-            
-            const contactUpdate = {
-                $set: {
-                    name,
-                    ...formData, // Add all form data to the contact
-                },
-                $setOnInsert: {
-                    userId: form.userId,
-                    email,
-                    createdAt: new Date(),
-                    status: 'new_lead',
-                }
-            };
-            
-            await db.collection<CrmContact>('crm_contacts').updateOne(
-                { userId: form.userId, email: email },
-                contactUpdate,
-                { upsert: true }
-            );
+        // --- Map form data to lead and deal fields ---
+        const emailFieldId = form.fields.find(f => f.type === 'email')?.fieldId || 'email';
+        const nameFieldId = form.fields.find(f => f.label.toLowerCase().includes('name'))?.fieldId || 'name';
+        const phoneFieldId = form.fields.find(f => f.type === 'tel')?.fieldId || 'phone';
+        const companyFieldId = form.fields.find(f => f.label.toLowerCase().includes('company'))?.fieldId || 'company';
+        const messageFieldId = form.fields.find(f => f.type === 'textarea')?.fieldId || 'message';
+
+        const leadAndDealData = new FormData();
+        leadAndDealData.append('email', formData[emailFieldId] || '');
+        leadAndDealData.append('contactName', formData[nameFieldId] || formData[emailFieldId]);
+        leadAndDealData.append('phone', formData[phoneFieldId] || '');
+        leadAndDealData.append('organisation', formData[companyFieldId] || '');
+        
+        // Use the form name or a default as the deal name
+        leadAndDealData.append('name', `Lead from ${form.name}`); 
+        leadAndDealData.append('description', formData[messageFieldId] || 'Form Submission');
+        leadAndDealData.append('leadSource', `Form: ${form.name}`);
+        
+        // Use default pipeline and stage from the user's CRM settings
+        const defaultPipeline = (user.crmPipelines || [])[0];
+        if (defaultPipeline) {
+            leadAndDealData.append('pipelineId', defaultPipeline.id);
+            const defaultStage = defaultPipeline.stages[0];
+            if (defaultStage) {
+                leadAndDealData.append('stage', defaultStage.name);
+            }
+        }
+        
+        // Find or create account based on company name
+        const companyName = formData[companyFieldId];
+        if (companyName) {
+            let account = await db.collection('crm_accounts').findOne({ name: companyName, userId: form.userId });
+            if (!account) {
+                const newAccount = { userId: form.userId, name: companyName, createdAt: new Date(), status: 'active' };
+                const result = await db.collection('crm_accounts').insertOne(newAccount as any);
+                leadAndDealData.append('accountId', result.insertedId.toString());
+            } else {
+                 leadAndDealData.append('accountId', account._id.toString());
+            }
+        }
+
+        // --- Call the server action to create the lead and deal ---
+        // We have to mock the session for the server action since this is an API route
+        const result = await addCrmLeadAndDeal(null, leadAndDealData);
+
+        if (result.error) {
+            console.error("Error creating lead from form submission:", result.error);
+            // Don't fail the user submission, just log the error server-side
         }
 
         // Increment submission count
         await db.collection('crm_forms').updateOne({ _id: form._id }, { $inc: { submissionCount: 1 } });
         
-        // Handle webhook action if configured
-        if(form.settings.webhookUrl) {
-            try {
-                await fetch(form.settings.webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-            } catch (webhookError) {
-                console.error("Failed to send form webhook:", webhookError);
-                // Log this error but don't fail the entire submission
-            }
-        }
+        // Revalidate paths to show the new lead
+        revalidatePath('/dashboard/crm/sales-crm/all-leads');
+        revalidatePath('/dashboard/crm/deals');
 
         return NextResponse.json({ success: true, message: form.settings.successMessage || 'Submission successful.' });
 
