@@ -191,7 +191,9 @@ export async function GET(request, { params }) {
             formContainer.innerHTML = ''; // Clear previous content
             formContainer.appendChild(formEl);
             formContainer.id = 'sabnode-form-' + formId;
-            formContainer.style.maxWidth = \`\${settings.formWidth || 480}px\`;
+            if (settings.formWidth) {
+                formContainer.style.maxWidth = \`\${settings.formWidth}px\`;
+            }
             formContainer.style.margin = '0 auto';
 
         })
