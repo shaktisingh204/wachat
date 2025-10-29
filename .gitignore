@@ -29,6 +29,8 @@
 /src/app/actions/project.actions.ts
 /src/app/actions/template.actions.ts
 /src/components/wabasimplify/whatsapp.actions.ts
+/src/app/actions/crm-tasks.actions.ts
+/src/app/actions/custom-ecommerce-flow.actions.ts
 # next.js
 /.next/
 /out/
