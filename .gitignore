@@ -36,7 +36,8 @@
 /src/app/actions/notification.actions.ts
 /src/app/actions/integrations.actions.ts
 /src/app/actions/url-shortener.actions.ts
-
+/src/app/actions/crm.actions.ts
+/src/components/wabasimplify/meta-flow-editor/
 # next.js
 /.next/
 /out/

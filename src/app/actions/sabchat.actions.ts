@@ -39,9 +39,18 @@ export async function getOrCreateChatSession(userId: string, email: string, visi
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(userId);
+        const headersList = headers();
+        const ipAddress = headersList.get('x-forwarded-for') ?? headersList.get('x-real-ip') ?? 'N/A';
+        const userAgent = headersList.get('user-agent') ?? 'N/A';
+        const page = headersList.get('referer') ?? 'N/A';
+
 
         if (visitorId) {
-            const existingSession = await db.collection<SabChatSession>('sabchat_sessions').findOne({ userId: userObjectId, visitorId });
+            const existingSession = await db.collection<SabChatSession>('sabchat_sessions').findOneAndUpdate(
+                { userId: userObjectId, visitorId },
+                { $set: { updatedAt: new Date(), 'visitorInfo.ip': ipAddress, 'visitorInfo.userAgent': userAgent, 'visitorInfo.page': page } },
+                { returnDocument: 'after' }
+            );
             if (existingSession) {
                 return { sessionId: existingSession._id.toString(), isNew: false };
             }
@@ -58,8 +67,9 @@ export async function getOrCreateChatSession(userId: string, email: string, visi
             history: [],
             visitorInfo: {
                 email,
-                ip: headers().get('x-forwarded-for') ?? 'N/A',
-                userAgent: headers().get('user-agent') ?? 'N/A',
+                ip: ipAddress,
+                userAgent,
+                page,
             }
         });
         
@@ -86,13 +96,34 @@ export async function getChatHistory(sessionId: string, userId: string): Promise
 export async function postChatMessage(sessionId: string, sender: 'visitor' | 'agent', content: string): Promise<{ success: boolean, error?: string }> {
     if (!ObjectId.isValid(sessionId)) return { success: false, error: 'Invalid session ID' };
     
-    const session = await getSession();
+    let session = await getSession(); // Agent session
+    let userId;
+
     if (sender === 'agent' && !session?.user) {
         return { success: false, error: 'Agent not authenticated' };
     }
-
+    
     try {
         const { db } = await connectToDatabase();
+        const chatSession = await db.collection('sabchat_sessions').findOne({ _id: new ObjectId(sessionId) });
+
+        if (!chatSession) {
+            return { success: false, error: 'Session not found' };
+        }
+        
+        userId = chatSession.userId;
+        if(sender === 'visitor') {
+             const headersList = headers();
+            const ipAddress = headersList.get('x-forwarded-for') ?? headersList.get('x-real-ip') ?? 'N/A';
+            const userAgent = headersList.get('user-agent') ?? 'N/A';
+            const page = headersList.get('referer') ?? 'N/A';
+            
+            await db.collection('sabchat_sessions').updateOne(
+                { _id: new ObjectId(sessionId) },
+                { $set: { 'visitorInfo.ip': ipAddress, 'visitorInfo.userAgent': userAgent, 'visitorInfo.page': page } }
+            );
+        }
+
         const newMesage: SabChatMessage = {
             _id: new ObjectId(),
             sender,
@@ -129,7 +160,7 @@ export async function getChatSessionsForUser(): Promise<WithId<SabChatSession>[]
         const sessions = await db.collection<SabChatSession>('sabchat_sessions')
             .find({ userId: new ObjectId(session.user._id) })
             .sort({ updatedAt: -1 })
-            .project({ history: 0 }) // Exclude history for list view performance
+            .project({ history: { $slice: -1 } }) // Get only the last message for the snippet
             .toArray();
         return JSON.parse(JSON.stringify(sessions));
     } catch (e) {
@@ -151,5 +182,29 @@ export async function getFullChatSession(sessionId: string): Promise<WithId<SabC
         return chatSession ? JSON.parse(JSON.stringify(chatSession)) : null;
     } catch(e) {
         return null;
+    }
+}
+
+export async function getLiveVisitors(): Promise<WithId<SabChatSession>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+        const visitors = await db.collection<SabChatSession>('sabchat_sessions')
+            .find({ 
+                userId: new ObjectId(session.user._id),
+                updatedAt: { $gte: fiveMinutesAgo }
+            })
+            .project({ history: 0 }) // Exclude history for performance
+            .sort({ updatedAt: -1 })
+            .toArray();
+            
+        return JSON.parse(JSON.stringify(visitors));
+    } catch (e) {
+        console.error("Failed to get live visitors:", getErrorMessage(e));
+        return [];
     }
 }
