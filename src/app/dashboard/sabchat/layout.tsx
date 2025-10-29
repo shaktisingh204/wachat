@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { BarChart, Handshake, ShoppingBag, Briefcase, Database, ChevronDown, FileText, Landmark, Users as UsersIcon, MessageSquare, Wrench, Settings, BarChart2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 const navItems = [
     { href: "/dashboard/sabchat/inbox", label: "Inbox", icon: MessageSquare },
@@ -23,6 +24,17 @@ export default function SabChatLayout({ children }: { children: React.ReactNode 
 
     return (
         <div className="w-full">
+             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+                        <SabChatIcon className="h-8 w-8 text-primary"/>
+                        sabChat
+                    </h1>
+                    <p className="text-muted-foreground mt-2">
+                        Your live chat and customer support suite.
+                    </p>
+                </div>
+            </div>
             <div className="flex justify-start items-center gap-1 border-b">
                 {navItems.map(item => {
                     const isActive = pathname.startsWith(item.href);
