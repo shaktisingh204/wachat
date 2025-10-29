@@ -16,9 +16,9 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon} from 'lucide-react';
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle} from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
@@ -171,6 +171,10 @@ const sabChatMenuItems = [
     { href: '/dashboard/sabchat/visitors', label: 'Live Visitors', icon: Users },
     { href: '/dashboard/sabchat/analytics', label: 'Analytics', icon: BarChart },
     { href: '/dashboard/sabchat/widget', label: 'Widget Setup', icon: Wrench },
+    { href: '/dashboard/sabchat/auto-reply', label: 'Auto Reply', icon: Bot },
+    { href: '/dashboard/sabchat/quick-replies', label: 'Quick Replies', icon: LifeBuoy },
+    { href: '/dashboard/sabchat/ai-replies', label: 'AI Replies', icon: Bot },
+    { href: '/dashboard/sabchat/faq', label: 'FAQ', icon: HelpCircle },
     { href: '/dashboard/sabchat/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -370,7 +374,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         setActiveApp(currentApp);
     }, [pathname]);
 
-    const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
+    const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban') || pathname.startsWith('/dashboard/sabchat/inbox');
     const isWebsiteBuilderPage = pathname.includes('/builder');
   
     const currentUserRole = React.useMemo(() => {
@@ -382,7 +386,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     const appIcons = [
         { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/dashboard' },
-        { id: 'sabchat', icon: MessageSquare, label: 'sabChat', href: '/dashboard/sabchat' },
+        { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
         { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
         { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM' },
