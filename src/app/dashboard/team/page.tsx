@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 
 export default function TeamRedirectPage() {
     useEffect(() => {
-        redirect('/dashboard/crm/team/manage-users');
+        redirect('/dashboard/team/manage-users');
     }, []);
     return null; 
 }

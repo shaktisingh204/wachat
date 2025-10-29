@@ -2,10 +2,10 @@
 'use client';
 
 import { useState, useEffect, useRef, useActionState, useTransition } from 'react';
-import type { WithId, Project, User, Plan, Agent } from '@/lib/definitions';
+import type { WithId, Project, User, Plan, Agent, Invitation } from '@/lib/definitions';
 import { handleInviteAgent, handleRemoveAgent, getProjectById } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,10 +20,10 @@ import Link from 'next/link';
 const removeAgentInitialState = { message: null, error: null };
 const inviteAgentInitialState = { message: null, error: null };
 
-function RemoveAgentButton({ agent, projectId, onAgentRemoved }: { agent: Agent, projectId: string, onAgentRemoved: () => void }) {
+function RemoveAgentForm({ agent, project, onAgentRemoved }: { agent: any, project: WithId<Project>, onAgentRemoved: () => void }) {
     const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
-    const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
+    const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
         if (state?.message) {
@@ -37,9 +37,9 @@ function RemoveAgentButton({ agent, projectId, onAgentRemoved }: { agent: Agent,
 
     return (
          <form action={formAction}>
-            <input type="hidden" name="projectId" value={projectId} />
+            <input type="hidden" name="projectId" value={project._id.toString()} />
             <input type="hidden" name="agentUserId" value={agent.userId.toString()} />
-            <Button type="submit" variant="destructive" size="icon" disabled={isPending}>
+            <Button type="submit" variant="destructive" size="sm" disabled={isPending}>
                {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </Button>
         </form>
@@ -48,7 +48,7 @@ function RemoveAgentButton({ agent, projectId, onAgentRemoved }: { agent: Agent,
 
 function InviteAgentForm({ project, isDisabled, onAgentInvited }: { project: WithId<Project>, isDisabled: boolean, onAgentInvited: () => void }) {
     const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
-    const { pending } = useFormStatus();
+    const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -72,7 +72,7 @@ function InviteAgentForm({ project, isDisabled, onAgentInvited }: { project: Wit
             <CardContent>
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="projectId" value={project._id.toString()} />
-                <div className="grid grid-cols-1 sm:grid-cols-[1fr,1fr,auto] gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" name="email" type="email" placeholder="Enter agent's email" required />
@@ -87,18 +87,17 @@ function InviteAgentForm({ project, isDisabled, onAgentInvited }: { project: Wit
                             </SelectContent>
                         </Select>
                     </div>
-                     <div className="flex items-end">
-                        <Button type="submit" disabled={pending || isDisabled} className="w-full">
-                          {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                          Invite Agent
-                        </Button>
-                    </div>
                 </div>
+                <Button type="submit" disabled={isPending || isDisabled} className="mt-4">
+                  {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                  Invite Agent
+                </Button>
             </form>
             </CardContent>
         </Card>
     );
 }
+
 
 export default function ManageUsersPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
@@ -147,7 +146,7 @@ export default function ManageUsersPage() {
                 <div className="p-4 bg-muted/50 rounded-lg space-y-2 text-sm text-muted-foreground">
                     <h4 className="font-semibold text-card-foreground">Team Management</h4>
                     <p>Invite team members to assist with managing this project.</p>
-                    <p>Your current <span className="font-semibold capitalize text-primary">{project.plan?.name || 'plan'}</span> plan allows for <span className="font-semibold text-primary">{limit}</span> team members. There are currently <span className="font-semibold text-primary">{project.agents?.length || 0}</span> team member(s) assigned.</p>
+                    <p>Your current <span className="font-semibold capitalize text-primary">{project.plan?.name || 'plan'}</span> plan allows for <span className="font-semibold text-primary">{limit}</span> team members. There are currently <span className="font-semibold text-primary">{project.agents?.length || 0}</span> team member(s) assigned to this project.</p>
                     {limit < 10 && (
                         <p className="font-semibold">
                             <Link href="/dashboard/user/billing" className="text-primary hover:underline">Upgrade your plan</Link> to invite more team members! 🚀
@@ -166,7 +165,7 @@ export default function ManageUsersPage() {
                                     <div className="flex items-center gap-4">
                                         <Avatar>
                                             <AvatarImage src={`https://i.pravatar.cc/150?u=${agent.email}`} alt={agent.name} />
-                                            <AvatarFallback>{agent.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                            <AvatarFallback>{agent.name.substring(0, 2).toUpperCase()} </AvatarFallback>
                                         </Avatar>
                                         <div className="space-y-0.5">
                                             <p className="text-sm font-medium leading-none">{agent.name}</p>
@@ -175,7 +174,7 @@ export default function ManageUsersPage() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Badge variant="outline">{agent.role}</Badge>
-                                        <RemoveAgentButton agent={agent} projectId={project._id.toString()} onAgentRemoved={fetchData}/>
+                                        <RemoveAgentForm agent={agent} project={project} onAgentRemoved={fetchData}/>
                                     </div>
                                 </div>
                             ))
