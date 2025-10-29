@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +35,7 @@ import { LoaderCircle, Plus, Trash2, Edit, LifeBuoy } from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import type { SabChatQuickReply } from '@/lib/definitions';
 import { saveSabChatQuickReply, deleteSabChatQuickReply } from '@/app/actions/sabchat.actions';
+import { Badge } from '@/components/ui/badge';
 
 const formInitialState = { message: null, error: null };
 
@@ -134,7 +136,7 @@ export default function QuickRepliesPage() {
                 </div>
             </CardHeader>
             <CardContent>
-                 <div className="border rounded-md">
+                <div className="border rounded-md">
                     <Table>
                         <TableHeader>
                             <TableRow>

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -49,7 +49,7 @@ const FilterBadge = ({ children, onRemove }: { children: React.ReactNode, onRemo
 );
 
 export default function AllLeadsPage() {
-    const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
+    const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
     const [user, setUser] = useState<User | null>(null);
     const [deals, setDeals] = useState<WithId<CrmDeal>[]>([]);
     const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
@@ -195,7 +195,7 @@ export default function AllLeadsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-12"><Checkbox onCheckedChange={(checked) => setSelectedLeads(checked ? deals.map(l => l.id) : [])}/></TableHead>
+                                    <TableHead className="w-12"><Checkbox onCheckedChange={(checked) => setSelectedLeads(checked ? deals.map(l => l._id.toString()) : [])}/></TableHead>
                                     <TableHead>Contact Name</TableHead>
                                     <TableHead>Organisation Name</TableHead>
                                     <TableHead>Status</TableHead>
