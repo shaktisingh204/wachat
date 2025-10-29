@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -90,6 +89,20 @@ const crmMenuItems = [
             { href: "/dashboard/crm/purchases/hire", label: "Hire The Best Vendors", icon: Star },
         ]
     },
+     {
+        href: '/dashboard/crm/inventory',
+        label: 'Inventory',
+        icon: Briefcase,
+        subItems: [
+            { href: "/dashboard/crm/inventory/items", label: "All Items" },
+            { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses" },
+            { href: "/dashboard/crm/inventory/pnl", label: "Product-wise P&L" },
+            { href: "/dashboard/crm/inventory/stock-value", label: "Stock Value Report" },
+            { href: "/dashboard/crm/inventory/batch-expiry", label: "Batch Expiry Report" },
+            { href: "/dashboard/crm/inventory/party-transactions", label: "Party Transactions Report" },
+            { href: "/dashboard/crm/inventory/all-transactions", label: "All Transactions Report" },
+        ]
+    },
     {
         href: "/dashboard/crm/accounting",
         label: "Accounting",
@@ -106,7 +119,7 @@ const crmMenuItems = [
             { href: "/dashboard/crm/accounting/cash-flow", label: "Cash Flow Statement" },
         ]
     },
-     {
+    {
         href: "/dashboard/crm/sales-crm",
         label: "Sales CRM",
         icon: BarChart2,
@@ -121,29 +134,38 @@ const crmMenuItems = [
             { href: "/dashboard/crm/sales-crm/lead-source-report", label: "Lead Source Report" },
         ]
     },
-     {
-        href: '/dashboard/crm/inventory',
-        label: 'Inventory',
-        icon: Briefcase,
+    {
+        href: "/dashboard/crm/banking",
+        label: "Bank & Payments",
+        icon: Landmark,
         subItems: [
-            { href: "/dashboard/crm/inventory/items", label: "All Items" },
-            { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses" },
-            { href: "/dashboard/crm/inventory/pnl", label: "Product-wise P&L" },
-            { href: "/dashboard/crm/inventory/stock-value", label: "Stock Value Report" },
-            { href: "/dashboard/crm/inventory/batch-expiry", label: "Batch Expiry Report" },
-            { href: "/dashboard/crm/inventory/party-transactions", label: "Party Transactions Report" },
-            { href: "/dashboard/crm/inventory/all-transactions", label: "All Transactions Report" },
+            { href: "/dashboard/crm/banking/all", label: "All Payment Accounts" },
+            { href: "/dashboard/crm/banking/bank-accounts", label: "Bank Accounts" },
+            { href: "/dashboard/crm/banking/employee-accounts", label: "Employee Accounts" },
+            { href: "/dashboard/crm/banking/reconciliation", label: "Bank Reconciliation" },
         ]
     },
-    { href: "/dashboard/crm/contacts", label: "Contacts", icon: Users },
-    { href: "/dashboard/crm/accounts", label: "Accounts", icon: Building },
-    { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
-    { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban },
-    { href: "/dashboard/crm/products", label: "Products", icon: ShoppingBag },
-    { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork },
-    { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart },
-    { href: "/dashboard/crm/settings", label: "Settings", icon: Settings },
-    { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
+    {
+        href: "/dashboard/crm/team",
+        label: "Manage Team",
+        icon: Users,
+        subItems: [
+            { href: "/dashboard/crm/team/manage-users", label: "Manage Users" },
+            { href: "/dashboard/crm/team/manage-roles", label: "Manage Team Roles" },
+        ]
+    },
+     {
+        href: "/dashboard/crm/reports",
+        label: "GST Reports",
+        icon: FileText,
+        subItems: [
+            { href: "/dashboard/crm/reports/gstr-1", label: "GSTR-1 Sales Report" },
+            { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report" },
+        ]
+    },
+    { href: "/dashboard/crm/integrations", label: "Integrations", icon: Zap },
+    { href: "/dashboard/crm/hr-payroll", label: "HR and Payroll", icon: UsersIcon },
+    { href: "/dashboard/crm/auto-leads-setup", label: "Auto Leads Setup", icon: Bot },
 ];
 
 
