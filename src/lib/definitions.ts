@@ -402,6 +402,27 @@ export type CrmPaymentAccount = {
     currentBalance?: number; // Calculated field
 };
 
+export type BankStatementTransaction = {
+    _id: ObjectId;
+    bankStatementId: ObjectId;
+    date: Date;
+    description: string;
+    amount: number; // positive for debit, negative for credit
+    balance: number;
+};
+
+export type BankStatement = {
+    _id: ObjectId;
+    userId: ObjectId;
+    accountId: ObjectId;
+    statementDate: Date;
+    startDate: Date;
+    endDate: Date;
+    openingBalance: number;
+    closingBalance: number;
+    transactions: BankStatementTransaction[];
+};
+
 export type CrmAccountGroup = {
     _id: ObjectId;
     userId: ObjectId;
