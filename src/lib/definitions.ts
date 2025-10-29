@@ -375,6 +375,17 @@ export type EmailConversation = {
     messages: EmailMessage[];
 };
 
+export type BankAccountDetails = {
+    accountNumber?: string;
+    accountHolder?: string;
+    ifsc?: string;
+    bankName?: string;
+    accountType?: 'current' | 'savings';
+    currency?: string;
+    swiftCode?: string;
+    ibanCode?: string;
+};
+
 export type CrmPaymentAccount = {
     _id: ObjectId;
     userId: ObjectId;
@@ -385,11 +396,7 @@ export type CrmPaymentAccount = {
     openingBalanceDate: Date;
     isDefault?: boolean;
     currency: string;
-    bankDetails?: {
-        bankName?: string;
-        accountNumber?: string;
-        ifsc?: string;
-    };
+    bankDetails?: BankAccountDetails;
     createdAt: Date;
     updatedAt: Date;
     currentBalance?: number; // Calculated field
@@ -441,6 +448,34 @@ export type CrmVoucherEntry = {
     totalDebit: number;
     totalCredit: number;
     createdAt: Date;
+};
+
+export type CrmVendor = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    displayName?: string;
+    industry?: string;
+    logoUrl?: string;
+    email?: string;
+    phone?: string;
+    country?: string;
+    state?: string;
+    city?: string;
+    pincode?: string;
+    street?: string;
+    gstin?: string;
+    pan?: string;
+    panName?: string;
+    vendorType?: 'individual' | 'company';
+    taxTreatment?: string;
+    subject?: string;
+    bankAccountDetails?: BankAccountDetails;
+    showEmailInInvoice?: boolean;
+    showPhoneInInvoice?: boolean;
+    attachments?: string[]; // URLs
+    createdAt: Date;
+    updatedAt: Date;
 };
 
 export type BusinessCapabilities = {
@@ -722,7 +757,7 @@ export type EcommShop = {
     accountPageLayout?: WebsiteBlock[];
     ordersPageLayout?: WebsiteBlock[];
     profilePageLayout?: WebsiteBlock[];
-    addressBookPageLayout?: WebsiteBookPageLayout[];
+    addressBookPageLayout?: WebsiteBlock[];
     wishlistPageLayout?: WebsiteBlock[];
     returnsPageLayout?: WebsiteBlock[];
     downloadsPageLayout?: WebsiteBlock[];
@@ -1715,45 +1750,6 @@ export type CrmWarehouse = {
     updatedAt: Date;
 };
 
-export type BankAccountDetails = {
-    accountNumber?: string;
-    accountHolder?: string;
-    ifsc?: string;
-    bankName?: string;
-    accountType?: 'current' | 'savings';
-    currency?: string;
-    swiftCode?: string;
-    ibanCode?: string;
-};
-
-export type CrmVendor = {
-    _id: ObjectId;
-    userId: ObjectId;
-    name: string;
-    displayName?: string;
-    industry?: string;
-    logoUrl?: string;
-    email?: string;
-    phone?: string;
-    country?: string;
-    state?: string;
-    city?: string;
-    pincode?: string;
-    street?: string;
-    gstin?: string;
-    pan?: string;
-    panName?: string;
-    vendorType?: 'individual' | 'company';
-    taxTreatment?: string;
-    subject?: string;
-    bankAccountDetails?: BankAccountDetails;
-    showEmailInInvoice?: boolean;
-    showPhoneInInvoice?: boolean;
-    attachments?: string[]; // URLs
-    createdAt: Date;
-    updatedAt: Date;
-};
-
 export type CrmStockAdjustment = {
     _id: ObjectId;
     userId: ObjectId;
@@ -1970,3 +1966,5 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
+
+    
