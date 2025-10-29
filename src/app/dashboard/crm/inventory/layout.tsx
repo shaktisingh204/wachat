@@ -3,41 +3,50 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Truck, Box, Users, Repeat, FilePlus } from "lucide-react";
+import { Truck, Box, Users, Repeat, FilePlus, Package, History, BarChart, CalendarClock, IndianRupee } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 const inventoryNavItems = [
-    { href: "/dashboard/crm/inventory", label: "Dashboard", icon: Truck },
+    { href: "/dashboard/crm/inventory/items", label: "All Items", icon: Package },
     { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Box },
-    { href: "/dashboard/crm/inventory/vendors", label: "Vendors", icon: Users },
     { href: "/dashboard/crm/inventory/adjustments", label: "Adjustments", icon: Repeat },
-    { href: "/dashboard/crm/inventory/purchase-orders", label: "Purchase Orders", icon: FilePlus },
+    { href: "/dashboard/crm/inventory/all-transactions", label: "All Transactions", icon: History },
+    { href: "/dashboard/crm/inventory/pnl", label: "Product P&L", icon: BarChart },
+    { href: "/dashboard/crm/inventory/stock-value", label: "Stock Value Report", icon: IndianRupee },
+    { href: "/dashboard/crm/inventory/batch-expiry", label: "Batch Expiry Report", icon: CalendarClock },
+    { href: "/dashboard/crm/inventory/party-transactions", label: "Party Transactions", icon: Users },
 ];
 
 export default function InventoryLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     return (
-        <div className="flex flex-col gap-6">
-            <div>
-                <h1 className="text-3xl font-bold font-headline">Inventory Management</h1>
-                <p className="text-muted-foreground">Manage your stock levels, warehouses, and suppliers.</p>
+        <div className="grid md:grid-cols-12 gap-8">
+            <div className="md:col-span-3 lg:col-span-2">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Inventory</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-2">
+                         <nav className="flex flex-col gap-1">
+                            {inventoryNavItems.map(item => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${pathname === item.href ? 'bg-muted text-primary' : ''}`}
+                                >
+                                    <item.icon className="h-4 w-4" />
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </nav>
+                    </CardContent>
+                </Card>
             </div>
-            <Tabs value={pathname} className="w-full">
-                <TabsList>
-                    {inventoryNavItems.map(item => (
-                         <TabsTrigger key={item.href} value={item.href} asChild>
-                            <Link href={item.href}>
-                                <item.icon className="mr-2 h-4 w-4"/>
-                                {item.label}
-                            </Link>
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
-            </Tabs>
-            <div className="mt-4">
-                 {children}
-            </div>
+            <main className="md:col-span-9 lg:col-span-10">
+                {children}
+            </main>
         </div>
     );
 }
