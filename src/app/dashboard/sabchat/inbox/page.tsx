@@ -1,21 +1,20 @@
 
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Inbox } from 'lucide-react';
+import { Suspense } from 'react';
+import { SabChatClient } from '@/components/wabasimplify/sabchat-client';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function ChatPageSkeleton() {
+    return <Skeleton className="h-full w-full rounded-xl" />;
+}
 
 export default function SabChatInboxPage() {
     return (
-        <Card className="text-center py-20">
-            <CardHeader>
-                <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                    <Inbox className="h-12 w-12 text-primary" />
-                </div>
-                <CardTitle className="mt-4 text-2xl">Unified Inbox</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground">Coming Soon: View all your website live chats in one place.</p>
-            </CardContent>
-        </Card>
+        <div className="h-full p-0 m-0">
+             <Suspense fallback={<ChatPageSkeleton />}>
+                <SabChatClient />
+            </Suspense>
+        </div>
     );
 }
