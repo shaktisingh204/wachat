@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { CrmPaymentAccount, CrmVoucherEntry } from '@/lib/definitions';
+import type { CrmPaymentAccount, CrmVoucherEntry, BankAccountDetails } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function getCrmPaymentAccounts(): Promise<WithId<CrmPaymentAccount>[]> {
@@ -63,23 +63,35 @@ export async function saveCrmPaymentAccount(prevState: any, formData: FormData):
     const accountType = formData.get('accountType') as CrmPaymentAccount['accountType'];
 
     try {
+        const openingBalanceStr = formData.get('openingBalance') as string;
+        const openingBalance = openingBalanceStr ? Number(openingBalanceStr) : 0;
+        
+        const openingBalanceDateStr = formData.get('openingBalanceDate') as string;
+        const openingBalanceDate = openingBalanceDateStr ? new Date(openingBalanceDateStr) : new Date();
+
+        const bankDetailsString = formData.get('bankAccountDetails') as string | null;
+        let bankDetails: Partial<BankAccountDetails> | undefined;
+        if(bankDetailsString) {
+            try {
+                bankDetails = JSON.parse(bankDetailsString);
+            } catch (e) {
+                console.warn("Could not parse bank account details.");
+            }
+        }
+        
         const accountData: Partial<Omit<CrmPaymentAccount, '_id'>> = {
             userId: new ObjectId(session.user._id),
             accountName: formData.get('accountName') as string,
             accountType,
             status: formData.get('status') === 'on' ? 'active' : 'inactive',
-            openingBalance: Number(formData.get('openingBalance')),
-            openingBalanceDate: new Date(formData.get('openingBalanceDate') as string),
+            openingBalance: isNaN(openingBalance) ? 0 : openingBalance,
+            openingBalanceDate: openingBalanceDate,
             currency: formData.get('currency') as string,
             isDefault: formData.get('isDefault') === 'on',
         };
         
-        if (accountType === 'bank') {
-            accountData.bankDetails = {
-                bankName: formData.get('bankName') as string,
-                accountNumber: formData.get('accountNumber') as string,
-                ifsc: formData.get('ifsc') as string,
-            }
+        if (accountType === 'bank' && bankDetails) {
+            accountData.bankDetails = bankDetails;
         }
         
         if (!accountData.accountName || !accountData.accountType) {
