@@ -133,10 +133,12 @@ export default function BankReconciliationPage() {
             if(entry.type === 'debit') acc.totalBookDebit += amount;
             else acc.totalBookCredit += amount;
             
-            if (matchedBookEntries.has(entry._id)) acc.clearedBookAmount += amount;
-            else acc.unclearedBookAmount += amount;
+            if (matchedBookEntries.has(entry._id)) {
+                if (entry.type === 'debit') acc.clearedBookAmount += amount;
+                else acc.clearedBookAmount -= amount;
+            }
             return acc;
-        }, { totalBookDebit: 0, totalBookCredit: 0, clearedBookAmount: 0, unclearedBookAmount: 0});
+        }, { totalBookDebit: 0, totalBookCredit: 0, clearedBookAmount: 0});
         
         const statementTotals = reconciliationData.statementEntries.reduce((acc, entry) => {
             const amount = entry.amount;
@@ -144,14 +146,25 @@ export default function BankReconciliationPage() {
             else acc.totalStatementCredit += Math.abs(amount);
             
             if (matchedStatementEntries.has(entry._id)) acc.clearedStatementAmount += amount;
-            else acc.unclearedStatementAmount += amount;
             return acc;
-        }, { totalStatementDebit: 0, totalStatementCredit: 0, clearedStatementAmount: 0, unclearedStatementAmount: 0 });
+        }, { totalStatementDebit: 0, totalStatementCredit: 0, clearedStatementAmount: 0 });
 
-        return { ...bookTotals, ...statementTotals };
+        const unclearedBook = reconciliationData.bookEntries.filter(e => !matchedBookEntries.has(e._id)).reduce((sum, e) => sum + (e.type === 'debit' ? e.amount : -e.amount), 0);
+        const unclearedStatement = reconciliationData.statementEntries.filter(e => !matchedStatementEntries.has(e._id)).reduce((sum, e) => sum + e.amount, 0);
+
+        return { 
+            totalBookDebit: bookTotals.totalBookDebit,
+            totalBookCredit: bookTotals.totalBookCredit,
+            clearedBookAmount: bookTotals.clearedBookAmount,
+            unclearedBookAmount: unclearedBook,
+            totalStatementDebit: statementTotals.totalStatementDebit,
+            totalStatementCredit: statementTotals.totalStatementCredit,
+            clearedStatementAmount: statementTotals.clearedStatementAmount,
+            unclearedStatementAmount: unclearedStatement,
+        };
     }, [reconciliationData, matchedBookEntries, matchedStatementEntries]);
     
-    const difference = (clearedBookAmount) - (clearedStatementAmount);
+    const difference = clearedBookAmount - clearedStatementAmount;
 
     return (
         <div className="space-y-6">
@@ -224,169 +237,3 @@ const TransactionTable = ({ title, entries, matchedIds, onMatchToggle, totalDebi
         </CardContent>
     </Card>
 )
-
-```</content>
-  </change>
-  <change>
-    <file>src/app/actions/crm-reconciliation.actions.ts</file>
-    <content><![CDATA[
-'use server';
-
-import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
-import type { CrmVoucherEntry, BankStatement, BankStatementTransaction } from '@/lib/definitions';
-import { getErrorMessage } from '@/lib/utils';
-import Papa from 'papaparse';
-
-export async function importBankStatement(file: File): Promise<{ statementEntries?: any[], error?: string }> {
-    try {
-        const text = await file.text();
-        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
-        
-        // This is a naive parser. In a real app, you'd have mappers for different bank formats.
-        const transactions = parsed.data.map((row: any, index) => {
-            const date = new Date(row['Date'] || row['Transaction Date']);
-            const description = row['Description'] || row['Narration'];
-            const debit = parseFloat(row['Debit'] || row['Withdrawal'] || '0');
-            const credit = parseFloat(row['Credit'] || row['Deposit'] || '0');
-            const amount = credit > 0 ? credit : -debit;
-            
-            if (isNaN(date.getTime()) || !description || isNaN(amount)) {
-                console.warn(`Skipping invalid row ${index + 2}:`, row);
-                return null;
-            }
-
-            return {
-                _id: `stmt-${date.toISOString()}-${index}`, // Temporary unique ID
-                date,
-                description,
-                amount,
-            };
-        }).filter(Boolean);
-        
-        return { statementEntries: transactions };
-    } catch (e) {
-        return { error: getErrorMessage(e) };
-    }
-}
-
-export async function getReconciliationData(accountId: string, startDate: Date, endDate: Date): Promise<{ entries?: any[], error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { error: "Access denied" };
-
-    try {
-        const { db } = await connectToDatabase();
-        const accountObjectId = new ObjectId(accountId);
-
-        const voucherEntries = await db.collection<CrmVoucherEntry>('crm_voucher_entries').find({
-            userId: new ObjectId(session.user._id),
-            date: { $gte: startDate, $lte: endDate },
-            $or: [
-                { 'debitEntries.accountId': accountObjectId },
-                { 'creditEntries.accountId': accountObjectId },
-            ],
-        }).toArray();
-        
-        const bookEntries = voucherEntries.flatMap(entry => {
-            const debits = entry.debitEntries
-                .filter(d => d.accountId.equals(accountObjectId))
-                .map(d => ({ _id: entry._id.toString() + '-dr', date: entry.date, description: entry.note || `Voucher ${entry.voucherNumber}`, type: 'debit', amount: d.amount }));
-
-            const credits = entry.creditEntries
-                .filter(c => c.accountId.equals(accountObjectId))
-                .map(c => ({ _id: entry._id.toString() + '-cr', date: entry.date, description: entry.note || `Voucher ${entry.voucherNumber}`, type: 'credit', amount: c.amount }));
-
-            return [...debits, ...credits];
-        });
-
-        return { entries: bookEntries };
-
-    } catch (e) {
-        return { error: getErrorMessage(e) };
-    }
-}
-
-export async function saveReconciliation(
-    accountId: string, 
-    statementId: string,
-    matchedBookEntryIds: string[],
-    matchedStatementEntryIds: string[]
-): Promise<{ success: boolean, error?: string }> {
-    // This is a placeholder for saving the state of a reconciliation
-    // In a real app, you would save which entries are matched for a given statement and account.
-    return { success: true, error: "Saving functionality is not yet implemented." };
-}
-
-```</content>
-  </change>
-  <change>
-    <file>src/app/actions/index.ts</file>
-    <content><![CDATA[
-// This file is intentionally left blank.
-// Server actions are co-located in their respective feature files (e.g., src/app/actions/project.actions.ts).
-// This file can be used for global actions if needed in the future.
-
-// For backwards compatibility, re-exporting from the new locations
-export * from './user.actions';
-export * from './project.actions';
-export * from './whatsapp.actions';
-export * from './broadcast.actions';
-export * from './webhook.actions';
-export * from './billing.actions';
-export * from './contact.actions';
-export * from './api-keys.actions';
-export * from './url-shortener.actions';
-export * from './qr-code.actions';
-export * from './integrations.actions';
-export * from './flow.actions';
-export * from './meta-flow.actions';
-export * from './facebook.actions';
-export * from './instagram.actions';
-export * from './custom-ecommerce.actions';
-export * from './portfolio.actions';
-export * from './crm.actions';
-export * from './crm-accounts.actions';
-export * from './crm-deals.actions';
-export * from './crm-tasks.actions';
-export * from './crm-email.actions';
-export * from './crm-email-templates.actions';
-export * from './crm-automations.actions';
-export * from './crm-reports.actions';
-export * from './crm-products.actions';
-export * from './crm-warehouses.actions';
-export * from './crm-inventory.actions';
-export * from './crm-vendors.actions';
-export * from './crm-quotations.actions';
-export * from './crm-invoices.actions';
-export * from './crm-payment-receipts.actions';
-export * from './crm-sales-orders.actions';
-export * from './crm-delivery-challans.actions';
-export * from './crm-credit-notes.actions';
-export * from './crm-forms.actions';
-export * from './crm-accounting.actions';
-export * from './crm-vouchers.actions';
-export * from './crm-pipelines.actions';
-export * from './crm-payment-accounts.actions';
-export * from './crm-reconciliation.actions';
-export * from './email.actions';
-export * from './sms.actions';
-export * from './seo.actions';
-export * from './template.actions';
-export * from './calling.actions';
-export * from './catalog.actions';
-export * from './facebook-flow.actions';
-export * from './plan.actions';
-export * from './notification.actions';
-export * from './ai-actions';
-export * from './admin.actions';
-
-
-// This needs to be a server action file, so we export a dummy function
-export async function dummyAction() {
-    'use server';
-    // This function does nothing.
-}
-
-    
