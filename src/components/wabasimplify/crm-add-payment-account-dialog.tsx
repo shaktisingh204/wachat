@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Banknote, Building2, User } from 'lucide-react';
+import Link from 'next/link';
 
 export function CrmAddPaymentAccountDialog() {
   const [open, setOpen] = useState(false);
@@ -22,7 +23,7 @@ export function CrmAddPaymentAccountDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Add Account</Button>
+        <Button>Add Account</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>

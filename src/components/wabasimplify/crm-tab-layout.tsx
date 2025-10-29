@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { BarChart, Handshake, ShoppingBag, Briefcase, Database, ChevronDown } from 'lucide-react';
+import { BarChart, Handshake, ShoppingBag, Briefcase, Database, ChevronDown, FileText, Landmark } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const CrmNavItems = [
@@ -22,6 +22,13 @@ const ReportsNavItems = [
     { href: "/dashboard/crm/reports/gstr-1", label: "GSTR-1 Sales Report" },
     { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report" },
 ];
+
+const bankingNavItems = [
+    { href: "/dashboard/crm/banking/all", label: "All Payment Accounts" },
+    { href: "/dashboard/crm/banking/bank-accounts", label: "Bank Accounts" },
+    { href: "/dashboard/crm/banking/employee-accounts", label: "Employee Accounts" },
+    { href: "/dashboard/crm/banking/reconciliation", label: "Bank Reconciliation" },
+]
 
 export function CrmTabLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -41,6 +48,21 @@ export function CrmTabLayout({ children }: { children: React.ReactNode }) {
                             </Button>
                         )
                     })}
+                     <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="rounded-b-none border-b-2 border-transparent">
+                                <Landmark className="mr-2 h-4 w-4" />
+                                Bank & Payments <ChevronDown className="ml-2 h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            {bankingNavItems.map(item => (
+                                <DropdownMenuItem key={item.href} asChild>
+                                    <Link href={item.href}>{item.label}</Link>
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                      <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="rounded-b-none border-b-2 border-transparent">
