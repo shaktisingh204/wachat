@@ -65,14 +65,14 @@ const crmMenuItems = [
         label: "Sales",
         icon: Handshake,
         subItems: [
-            { href: "/dashboard/crm/sales/clients", label: "Clients & Prospects", icon: Users },
-            { href: "/dashboard/crm/sales/quotations", label: "Quotation & Estimates", icon: FileText },
-            { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoices", icon: FileText },
-            { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText },
-            { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts", icon: CreditCard },
-            { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag },
-            { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Bot }, // Should be Truck?
-            { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat },
+            { href: "/dashboard/crm/sales/clients", label: "Clients & Prospects" },
+            { href: "/dashboard/crm/sales/quotations", label: "Quotation & Estimates" },
+            { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoices" },
+            { href: "/dashboard/crm/sales/invoices", label: "Invoices" },
+            { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts" },
+            { href: "/dashboard/crm/sales/orders", label: "Sales Orders" },
+            { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans" },
+            { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes" },
         ]
     },
     {
@@ -80,13 +80,11 @@ const crmMenuItems = [
         label: 'Purchases',
         icon: ShoppingBag,
         subItems: [
-            { href: "/dashboard/crm/purchases/leads", label: "Vendors Leads", icon: Users },
-            { href: "/dashboard/crm/purchases/vendors", label: "Vendors & Suppliers", icon: Briefcase },
-            { href: "/dashboard/crm/purchases/expenses", label: "Purchases & Expenses", icon: CreditCard },
-            { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders", icon: FileText },
-            { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts", icon: CreditCard },
-            { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes", icon: Repeat },
-            { href: "/dashboard/crm/purchases/hire", label: "Hire The Best Vendors", icon: Star },
+            { href: "/dashboard/crm/purchases/vendors", label: "Vendors & Suppliers" },
+            { href: "/dashboard/crm/purchases/expenses", label: "Purchases & Expenses" },
+            { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders" },
+            { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts" },
+            { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes" },
         ]
     },
      {
@@ -124,10 +122,13 @@ const crmMenuItems = [
         label: "Sales CRM",
         icon: BarChart2,
         subItems: [
-            { href: "/dashboard/crm/sales-crm/pipelines", label: "Sales Pipelines" },
-            { href: "/dashboard/crm/sales-crm/all-pipelines", label: "All Sales Pipelines" },
+            { href: "/dashboard/crm/contacts", label: "Leads & Contacts" },
+            { href: "/dashboard/crm/deals", label: "Deals Pipeline" },
+            { href: "/dashboard/crm/tasks", label: "Tasks" },
+            { href: "/dashboard/crm/automations", label: "Automations" },
+            { href: "/dashboard/crm/sales-crm/pipelines", label: "Manage Pipelines" },
             { href: "/dashboard/crm/sales-crm/forms", label: "Forms" },
-            { href: "/dashboard/crm/sales-crm/all-leads", label: "All Leads" },
+            { href: "/dashboard/crm/analytics", label: "Analytics" },
             { href: "/dashboard/crm/sales-crm/leads-summary", label: "Leads Summary" },
             { href: "/dashboard/crm/sales-crm/team-sales-report", label: "Team Sales Report" },
             { href: "/dashboard/crm/sales-crm/client-performance-report", label: "Client Performance Report" },
@@ -146,15 +147,6 @@ const crmMenuItems = [
         ]
     },
     {
-        href: "/dashboard/crm/team",
-        label: "Manage Team",
-        icon: Users,
-        subItems: [
-            { href: "/dashboard/crm/team/manage-users", label: "Manage Users" },
-            { href: "/dashboard/crm/team/manage-roles", label: "Manage Team Roles" },
-        ]
-    },
-     {
         href: "/dashboard/crm/reports",
         label: "GST Reports",
         icon: FileText,
@@ -165,7 +157,13 @@ const crmMenuItems = [
     },
     { href: "/dashboard/crm/integrations", label: "Integrations", icon: Zap },
     { href: "/dashboard/crm/hr-payroll", label: "HR and Payroll", icon: UsersIcon },
-    { href: "/dashboard/crm/auto-leads-setup", label: "Auto Leads Setup", icon: Bot },
+    { href: "/dashboard/crm/settings", label: "CRM Settings", icon: Settings },
+];
+
+const teamMenuItems = [
+    { href: "/dashboard/team/manage-users", label: "Manage Users", icon: UsersIcon },
+    { href: "/dashboard/team/manage-roles", label: "Manage Roles", icon: ShieldCheck },
+    { href: "/dashboard/team/team-chat", label: "Team Chat", icon: MessageSquare },
 ];
 
 
@@ -284,6 +282,7 @@ const smsMenuItems = [
              { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports" },
         ]
     },
+    { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
     { href: '/dashboard/sms/integrations', label: 'Integrations', icon: Zap },
     { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
 ];
@@ -349,6 +348,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
         else if (pathname.startsWith('/dashboard/instagram')) { currentApp = 'instagram'; }
         else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
+        else if (pathname.startsWith('/dashboard/team')) { currentApp = 'team'; }
         else if (pathname.startsWith('/dashboard/email')) { currentApp = 'email'; }
         else if (pathname.startsWith('/dashboard/sms')) { currentApp = 'sms'; }
         else if (pathname.startsWith('/dashboard/api')) { currentApp = 'api'; }
@@ -376,6 +376,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
         { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
         { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM' },
+        { id: 'team', icon: Users, label: 'Team', href: '/dashboard/team' },
         { id: 'email', icon: Mail, label: 'Email', href: '/dashboard/email' },
         { id: 'sms', icon: MessageSquare, label: 'SMS', href: '/dashboard/sms' },
         { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
@@ -545,6 +546,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         {activeApp === 'crm' && (
                             <SidebarMenu>
                                 {crmMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                         {activeApp === 'team' && (
+                            <SidebarMenu>
+                                {teamMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'email' && (
