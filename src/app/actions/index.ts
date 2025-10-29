@@ -23,6 +23,7 @@ export * from './instagram.actions';
 export * from './custom-ecommerce.actions';
 export * from './portfolio.actions';
 export * from './crm.actions';
+export * from './crm-roles.actions';
 export * from './crm-accounts.actions';
 export * from './crm-deals.actions';
 export * from './crm-tasks.actions';

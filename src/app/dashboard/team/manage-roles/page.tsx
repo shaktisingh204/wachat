@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useTransition, useState, useRef } from 'react';
@@ -11,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { LoaderCircle, Save, ShieldCheck, Settings, Plus, Trash2 } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { getSession } from '@/app/actions';
-import { saveCrmPermissions, saveRole, deleteRole } from '@/app/actions/crm.actions';
+import { saveCrmPermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
 import type { WithId, User } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
