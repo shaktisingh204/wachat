@@ -1,10 +1,11 @@
 
+
 'use server';
 
 import { getSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
-import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote, CrmWarehouse } from '@/lib/definitions';
+import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote, CrmWarehouse, ProductBatch } from '@/lib/definitions';
 
 export async function generateClientReportData(): Promise<{ success: boolean; data?: any[]; error?: string }> {
     const session = await getSession();
@@ -451,4 +452,65 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
         return { data: [], summary: {}, error: 'Failed to generate report.' };
     }
 }
-```
+
+export async function generateBatchExpiryReportData(): Promise<{ data?: any, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const products = await db.collection<EcommProduct>('crm_products')
+            .find({ userId, batchTracking: true, batches: { $exists: true, $ne: [] } })
+            .toArray();
+
+        const now = new Date();
+        const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        const sixtyDays = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+        const ninetyDays = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+        
+        const report = {
+            expired: [] as any[],
+            expiringIn30: [] as any[],
+            expiringIn60: [] as any[],
+            expiringIn90: [] as any[],
+            safe: [] as any[],
+        };
+
+        for (const product of products) {
+            for (const batch of product.batches || []) {
+                if (!batch.expiryDate) continue;
+
+                const expiry = new Date(batch.expiryDate);
+                const baseInfo = {
+                    productId: product._id.toString(),
+                    productName: product.name,
+                    sku: product.sku,
+                    batchId: batch.id,
+                    batchNumber: batch.batchNumber,
+                    stock: batch.stock,
+                    expiryDate: expiry,
+                };
+                
+                if (expiry < now) {
+                    report.expired.push(baseInfo);
+                } else if (expiry <= thirtyDays) {
+                    report.expiringIn30.push(baseInfo);
+                } else if (expiry <= sixtyDays) {
+                    report.expiringIn60.push(baseInfo);
+                } else if (expiry <= ninetyDays) {
+                    report.expiringIn90.push(baseInfo);
+                } else {
+                    report.safe.push(baseInfo);
+                }
+            }
+        }
+        
+        return { data: JSON.parse(JSON.stringify(report)) };
+
+    } catch (e: any) {
+        console.error("Error generating batch expiry report:", e);
+        return { error: 'Failed to generate report data.' };
+    }
+}
