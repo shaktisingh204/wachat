@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatSettings = {
@@ -13,7 +14,6 @@ export type SabChatSettings = {
 
 export type SabChatMessage = {
     _id: ObjectId;
-    sessionId: ObjectId;
     sender: 'visitor' | 'agent';
     agentId?: string;
     type: 'text';
@@ -23,7 +23,7 @@ export type SabChatMessage = {
 
 export type SabChatSession = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     visitorId: string; // From cookie
     status: 'open' | 'closed';
     createdAt: Date;
