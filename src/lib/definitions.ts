@@ -633,7 +633,6 @@ export type OptInOutSettings = {
 export type UserAttribute = {
     id: string;
     name: string;
-    action?: string;
     status: 'ACTIVE' | 'INACTIVE';
 };
 
@@ -641,7 +640,7 @@ export type Agent = {
     userId: ObjectId;
     email: string;
     name: string;
-    role: string;
+    role: 'admin' | 'agent';
 };
 
 export type ApiKey = {
@@ -1759,6 +1758,8 @@ export type EcommProduct = {
   isPackageItem?: boolean;
   tags?: string[];
   stock?: number; // legacy
+  category?: string;
+  subcategory?: string;
 };
 
 export type CrmWarehouse = {
