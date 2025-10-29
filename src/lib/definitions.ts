@@ -1639,6 +1639,14 @@ export type EcommProductVariant = {
   options: string;
 };
 
+export type ProductBatch = {
+    id: string;
+    batchNumber: string;
+    stock: number;
+    expiryDate?: Date;
+    mfgDate?: Date;
+};
+
 export type EcommProduct = {
   _id: ObjectId;
   projectId: ObjectId;
@@ -1662,6 +1670,8 @@ export type EcommProduct = {
   landedCost?: number;
   taxRate?: number;
   manageStock?: boolean;
+  batchTracking?: boolean;
+  batches?: ProductBatch[];
   stockInHand?: number;
   committedStock?: number;
   reorderPoint?: number;
