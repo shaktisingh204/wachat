@@ -1,9 +1,10 @@
+
 'use server';
 
 import { getSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
-import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote } from '@/lib/definitions';
+import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote, CrmWarehouse } from '@/lib/definitions';
 
 export async function generateClientReportData(): Promise<{ success: boolean; data?: any[]; error?: string }> {
     const session = await getSession();
@@ -379,3 +380,75 @@ export async function generateProductPnlData(filters?: any): Promise<{data: any[
         return { data: [], error: 'Failed to generate report.' };
     }
 }
+
+export async function generateStockValueReport(): Promise<{ data: any[], summary: any, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { data: [], summary: {}, error: 'Authentication required.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const [products, warehouses] = await Promise.all([
+            db.collection<EcommProduct>('crm_products').find({ userId, manageStock: true }).toArray(),
+            db.collection<CrmWarehouse>('crm_warehouses').find({ userId }).toArray()
+        ]);
+        
+        const warehouseMap = new Map(warehouses.map(w => [w._id.toString(), w.name]));
+        
+        const reportData: any[] = [];
+        let totalValue = 0;
+        let totalUnits = 0;
+
+        for (const product of products) {
+            const buyingPrice = product.buyingPrice || 0;
+            if (product.inventory && product.inventory.length > 0) {
+                for (const inv of product.inventory) {
+                    if (inv.stock > 0) {
+                        const stockValue = inv.stock * buyingPrice;
+                        reportData.push({
+                            productId: product._id.toString(),
+                            productName: product.name,
+                            sku: product.sku,
+                            warehouseId: inv.warehouseId.toString(),
+                            warehouseName: warehouseMap.get(inv.warehouseId.toString()) || 'Unknown',
+                            stock: inv.stock,
+                            buyingPrice,
+                            stockValue,
+                        });
+                        totalValue += stockValue;
+                        totalUnits += inv.stock;
+                    }
+                }
+            } else if ((product.stock || 0) > 0) {
+                // Fallback for legacy stock field
+                const stockValue = (product.stock || 0) * buyingPrice;
+                reportData.push({
+                    productId: product._id.toString(),
+                    productName: product.name,
+                    sku: product.sku,
+                    warehouseName: 'Default',
+                    stock: product.stock,
+                    buyingPrice,
+                    stockValue,
+                });
+                totalValue += stockValue;
+                totalUnits += product.stock!;
+            }
+        }
+        
+        return {
+            data: JSON.parse(JSON.stringify(reportData)),
+            summary: {
+                totalValue,
+                totalUnits,
+                productCount: products.length,
+            },
+        };
+
+    } catch (e: any) {
+        console.error("Error generating stock value report:", e);
+        return { data: [], summary: {}, error: 'Failed to generate report.' };
+    }
+}
+```
