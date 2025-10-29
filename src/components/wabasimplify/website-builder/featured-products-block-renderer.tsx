@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -51,5 +52,3 @@ export function FeaturedProductsBlockRenderer({ settings, products, shopSlug }: 
         </div>
     );
 };
-
-    

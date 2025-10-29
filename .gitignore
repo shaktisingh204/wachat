@@ -25,7 +25,7 @@
 /src/app/actions/admin.actions.ts
 /src/app/actions/catalog.actions.ts
 /src/app/actions/billing.actions.ts
-
+/src/app/actions/meta-flow.actions.ts
 # next.js
 /.next/
 /out/
