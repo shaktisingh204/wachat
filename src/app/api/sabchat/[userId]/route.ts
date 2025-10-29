@@ -22,61 +22,195 @@ export async function GET(
         }
         
         const settings = user.sabChatSettings || {};
+        
+        if (settings.enabled === false) {
+            return new NextResponse('// Chat widget is disabled by the administrator.', {
+                headers: { 'Content-Type': 'application/javascript' }
+            });
+        }
+        
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
 
         const script = `
             (function() {
                 const config = ${JSON.stringify(settings)};
                 const userId = "${userId}";
-                
-                // --- Don't run on builder preview ---
-                if (window.location.pathname.includes('/website-builder/')) return;
-                
-                const style = document.createElement('style');
-                style.innerHTML = 
-                    '#sabnode-chat-container { position: fixed; right: 20px; bottom: 20px; z-index: 9999; }' +
-                    '#sabnode-chat-button { background-color: ' + (config.widgetColor || '#1f2937') + '; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s; }' +
-                    '#sabnode-chat-button:hover { transform: scale(1.1); }' +
-                    '#sabnode-chat-box { position: absolute; bottom: 80px; right: 0; width: 350px; max-width: calc(100vw - 40px); background: white; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); display: none; flex-direction: column; overflow: hidden; opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s; }' +
-                    '#sabnode-chat-box.sabnode-show { display: flex; opacity: 1; transform: translateY(0); }' +
-                    '.sabnode-chat-header { background: ' + (config.widgetColor || '#1f2937') + '; color: white; padding: 16px; display: flex; align-items: center; gap: 12px; }' +
-                    '.sabnode-chat-header img { width: 40px; height: 40px; border-radius: 50%; }' +
-                    '.sabnode-chat-header .title { font-weight: bold; }' +
-                    '.sabnode-chat-header .subtitle { font-size: 0.8rem; opacity: 0.9; }' +
-                    '.sabnode-chat-body { flex-grow: 1; padding: 16px; background: #f9fafb; overflow-y: auto; }' +
-                    '.sabnode-welcome-msg { background: #f0f2f5; padding: 12px; border-radius: 8px; font-size: 0.9rem; }' +
-                    '.sabnode-chat-footer { padding: 12px; background: white; border-top: 1px solid #eee; }' +
-                    '.sabnode-chat-input { width: 100%; border: 1px solid #ccc; border-radius: 20px; padding: 8px 12px; }';
-                document.head.appendChild(style);
+                let sessionId = localStorage.getItem('sabchat_session_id');
+                let visitorId = localStorage.getItem('sabchat_visitor_id');
+                let chatHistory = [];
 
-                const container = document.createElement('div');
-                container.id = 'sabnode-chat-container';
-                container.innerHTML = \`
-                    <div id="sabnode-chat-box">
-                        <div class="sabnode-chat-header">
-                            <img src="\${config.avatarUrl || 'https://placehold.co/100x100.png'}" alt="Avatar">
-                            <div>
-                                <div class="title">\${config.teamName || 'Support Team'}</div>
+                function createDOM() {
+                    const style = document.createElement('style');
+                    style.innerHTML = 
+                        '#sabnode-chat-container { position: fixed; right: 20px; bottom: 20px; z-index: 9999; }' +
+                        '#sabnode-chat-button { background-color: ' + (config.widgetColor || '#1f2937') + '; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s; }' +
+                        '#sabnode-chat-button:hover { transform: scale(1.1); }' +
+                        '#sabnode-chat-box { position: absolute; bottom: 80px; right: 0; width: 350px; max-width: calc(100vw - 40px); background: white; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); display: none; flex-direction: column; overflow: hidden; opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s; height: 500px; }' +
+                        '#sabnode-chat-box.sabnode-show { display: flex; opacity: 1; transform: translateY(0); }' +
+                        '.sabnode-chat-header { background: ' + (config.widgetColor || '#1f2937') + '; color: white; padding: 16px; display: flex; align-items: center; gap: 12px; }' +
+                        '.sabnode-chat-header img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }' +
+                        '.sabnode-chat-header .title { font-weight: bold; }' +
+                        '.sabnode-chat-body { flex-grow: 1; padding: 16px; background: #f0f2f5; overflow-y: auto; }' +
+                        '.sabnode-chat-footer { padding: 12px; background: white; border-top: 1px solid #eee; }' +
+                        '.sabnode-chat-input { width: 100%; border: 1px solid #ccc; border-radius: 20px; padding: 8px 12px; }' +
+                        '.sabnode-chat-msg { max-width: 80%; padding: 8px 12px; border-radius: 18px; line-height: 1.4; word-wrap: break-word; }' +
+                        '.sabnode-msg-visitor { background: #dcf8c6; border-bottom-right-radius: 4px; align-self: flex-end; }' +
+                        '.sabnode-msg-agent { background: #fff; border-bottom-left-radius: 4px; align-self: flex-start; }' +
+                        '.sabnode-msg-container { display: flex; flex-direction: column; gap: 8px; }';
+                    document.head.appendChild(style);
+
+                    const container = document.createElement('div');
+                    container.id = 'sabnode-chat-container';
+                    document.body.appendChild(container);
+                    
+                    render();
+                    
+                    document.getElementById('sabnode-chat-button').addEventListener('click', () => {
+                        document.getElementById('sabnode-chat-box').classList.toggle('sabnode-show');
+                    });
+                }
+                
+                function renderEmailForm() {
+                    const container = document.getElementById('sabnode-chat-container');
+                    container.innerHTML = \`
+                         <div id="sabnode-chat-box" class="sabnode-show" style="height: auto;">
+                            <div class="sabnode-chat-header">
+                                <img src="\${config.avatarUrl || 'https://placehold.co/100x100.png'}" alt="Avatar">
+                                <div><div class="title">\${config.teamName || 'Support Team'}</div></div>
+                            </div>
+                            <div class="sabnode-chat-body" style="background: #fff; text-align: center;">
+                                <p class="sabnode-welcome-msg" style="text-align: left; margin-bottom: 1rem; background: #f0f2f5;">\${config.welcomeMessage || 'Hello! How can we help?'}</p>
+                                <form id="sabnode-email-form" style="padding: 1rem 0;">
+                                    <input id="sabnode-email-input" type="email" placeholder="Enter your email to start" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; margin-bottom: 8px;"/>
+                                    <button type="submit" style="width: 100%; padding: 10px; border: none; border-radius: 4px; background-color: \${config.widgetColor}; color: #fff; cursor: pointer;">Start Chat</button>
+                                </form>
                             </div>
                         </div>
-                        <div class="sabnode-chat-body">
-                            <div class="sabnode-welcome-msg">\${config.welcomeMessage || 'Hello! How can we help?'}</div>
-                        </div>
-                        <div class="sabnode-chat-footer">
-                            <input class="sabnode-chat-input" placeholder="Type your message..." />
-                        </div>
-                    </div>
-                    <button id="sabnode-chat-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                    </button>
-                \`;
-                document.body.appendChild(container);
+                        <button id="sabnode-chat-button">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                        </button>
+                    \`;
+                    
+                    document.getElementById('sabnode-email-form').addEventListener('submit', handleEmailSubmit);
+                }
 
-                const chatButton = document.getElementById('sabnode-chat-button');
-                const chatBox = document.getElementById('sabnode-chat-box');
-                chatButton.addEventListener('click', () => {
-                    chatBox.classList.toggle('sabnode-show');
-                });
+                function renderChatInterface() {
+                     const container = document.getElementById('sabnode-chat-container');
+                    container.innerHTML = \`
+                        <div id="sabnode-chat-box">
+                            <div class="sabnode-chat-header">
+                                <img src="\${config.avatarUrl || 'https://placehold.co/100x100.png'}" alt="Avatar">
+                                <div><div class="title">\${config.teamName || 'Support Team'}</div></div>
+                            </div>
+                            <div class="sabnode-chat-body" id="sabnode-chat-body">
+                                <div class="sabnode-msg-container" id="sabnode-msg-container">
+                                    <div class="sabnode-welcome-msg">\${config.welcomeMessage || 'Hello! How can we help?'}</div>
+                                </div>
+                            </div>
+                            <div class="sabnode-chat-footer">
+                                <form id="sabnode-msg-form" style="display: flex; gap: 8px;">
+                                    <input id="sabnode-msg-input" class="sabnode-chat-input" placeholder="Type your message..." autocomplete="off" />
+                                    <button type="submit" style="background: none; border: none; cursor: pointer;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="\${config.widgetColor}"><path d="m2 21 21-9L2 3v7l15 2-15 2z"/></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <button id="sabnode-chat-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                        </button>
+                    \`;
+
+                    updateChatHistory();
+                    document.getElementById('sabnode-msg-form').addEventListener('submit', handleMessageSend);
+                }
+                
+                function updateChatHistory() {
+                    const msgContainer = document.getElementById('sabnode-msg-container');
+                    if(!msgContainer) return;
+                    
+                    // Clear old messages except welcome message
+                    msgContainer.innerHTML = \`<div class="sabnode-welcome-msg">\${config.welcomeMessage || 'Hello! How can we help?'}</div>\`;
+
+                    chatHistory.forEach(msg => {
+                        const msgDiv = document.createElement('div');
+                        msgDiv.classList.add('sabnode-chat-msg', msg.sender === 'visitor' ? 'sabnode-msg-visitor' : 'sabnode-msg-agent');
+                        msgDiv.textContent = msg.content;
+                        msgContainer.appendChild(msgDiv);
+                    });
+                    
+                    const chatBody = document.getElementById('sabnode-chat-body');
+                    if(chatBody) chatBody.scrollTop = chatBody.scrollHeight;
+                }
+
+                async function handleEmailSubmit(e) {
+                    e.preventDefault();
+                    const email = document.getElementById('sabnode-email-input').value;
+                    if (!email) return;
+
+                    try {
+                        const res = await fetch('${appUrl}/api/sabchat/session', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId, email, visitorId })
+                        });
+                        const data = await res.json();
+                        if (data.sessionId) {
+                            sessionId = data.sessionId;
+                            visitorId = data.session.visitorId;
+                            localStorage.setItem('sabchat_session_id', sessionId);
+                            localStorage.setItem('sabchat_visitor_id', visitorId);
+                            chatHistory = data.session.history || [];
+                            render();
+                        }
+                    } catch (err) {
+                        console.error("SabChat: Failed to create session", err);
+                    }
+                }
+                
+                async function handleMessageSend(e) {
+                    e.preventDefault();
+                    const input = document.getElementById('sabnode-msg-input');
+                    const content = input.value;
+                    if(!content.trim()) return;
+
+                    input.value = '';
+                    chatHistory.push({ sender: 'visitor', content });
+                    updateChatHistory();
+
+                    await fetch('${appUrl}/api/sabchat/message', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sessionId, content })
+                    });
+                }
+                
+                async function getHistory() {
+                     if (sessionId) {
+                         try {
+                            const res = await fetch(\`\${appUrl}/api/sabchat/history?sessionId=\${sessionId}&userId=\${userId}\`);
+                            const data = await res.json();
+                            chatHistory = data.history || [];
+                            updateChatHistory();
+                         } catch (err) { console.error("Could not fetch history"); }
+                     }
+                }
+
+                function render() {
+                    if (sessionId) {
+                        renderChatInterface();
+                        getHistory();
+                        setInterval(getHistory, 5000);
+                    } else {
+                        renderEmailForm();
+                    }
+                }
+
+                if (document.readyState === "complete") {
+                    createDOM();
+                } else {
+                    window.addEventListener("load", createDOM);
+                }
             })();
         `;
         

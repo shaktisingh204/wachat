@@ -2,13 +2,10 @@
 'use client';
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { BarChart, Handshake, ShoppingBag, Briefcase, Database, ChevronDown, FileText, Landmark, Users as UsersIcon, MessageSquare, Wrench, Settings, BarChart2 } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { MessageSquare, Users as UsersIcon, BarChart, Wrench, Settings, Bot, HelpCircle, LifeBuoy } from 'lucide-react';
 import { SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 const navItems = [
@@ -16,6 +13,10 @@ const navItems = [
     { href: "/dashboard/sabchat/visitors", label: "Visitors", icon: UsersIcon },
     { href: "/dashboard/sabchat/analytics", label: "Analytics", icon: BarChart },
     { href: "/dashboard/sabchat/widget", label: "Widget Setup", icon: Wrench },
+    { href: "/dashboard/sabchat/auto-reply", label: "Auto Reply", icon: Bot },
+    { href: "/dashboard/sabchat/quick-replies", label: "Quick Replies", icon: LifeBuoy },
+    { href: "/dashboard/sabchat/ai-replies", label: "AI Replies", icon: Bot },
+    { href: "/dashboard/sabchat/faq", label: "FAQ", icon: HelpCircle },
     { href: "/dashboard/sabchat/settings", label: "Settings", icon: Settings },
 ];
 
@@ -37,7 +38,7 @@ export default function SabChatLayout({ children }: { children: React.ReactNode 
             </div>
             <div className="flex justify-start items-center gap-1 border-b">
                 {navItems.map(item => {
-                    const isActive = pathname.startsWith(item.href);
+                    const isActive = pathname === item.href;
                     return (
                         <Button key={item.href} asChild variant={isActive ? "secondary" : "ghost"} className="rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary">
                             <Link href={item.href}>
