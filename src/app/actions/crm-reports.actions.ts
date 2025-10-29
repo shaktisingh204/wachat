@@ -4,7 +4,7 @@
 import { getSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
-import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote, CrmWarehouse, ProductBatch, CrmSalesOrder } from '@/lib/definitions';
+import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote, CrmWarehouse, ProductBatch, CrmSalesOrder, CrmStockAdjustment } from '@/lib/definitions';
 
 export async function generateClientReportData(): Promise<{ success: boolean; data?: any[]; error?: string }> {
     const session = await getSession();
@@ -583,4 +583,71 @@ export async function generatePartyTransactionReport(partyId: string, partyType:
     }
 }
 
+export async function generateAllTransactionsReport(filters: {
+    startDate?: Date;
+    endDate?: Date;
+    type?: string;
+}): Promise<{data: any[], error?: string}> {
+    const session = await getSession();
+    if (!session?.user) return { data: [], error: 'Authentication required.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        let transactions: any[] = [];
+
+        const dateFilter = (filters.startDate || filters.endDate) ? {
+            date: {
+                ...(filters.startDate && { $gte: new Date(filters.startDate) }),
+                ...(filters.endDate && { $lte: new Date(filters.endDate) }),
+            },
+        } : {};
+
+        const [invoices, creditNotes, adjustments, accounts, warehouses] = await Promise.all([
+            db.collection<CrmInvoice>('crm_invoices').find({ userId, ...(dateFilter.date && { invoiceDate: dateFilter.date }) }).toArray(),
+            db.collection<CrmCreditNote>('crm_credit_notes').find({ userId, ...(dateFilter.date && { creditNoteDate: dateFilter.date }) }).toArray(),
+            db.collection<CrmStockAdjustment>('crm_stock_adjustments').find({ userId, ...dateFilter }).toArray(),
+            db.collection<CrmAccount>('crm_accounts').find({ userId }).project({ name: 1 }).toArray(),
+            db.collection<CrmWarehouse>('crm_warehouses').find({ userId }).project({ name: 1 }).toArray(),
+        ]);
+        
+        const accountsMap = new Map(accounts.map(a => [a._id.toString(), a.name]));
+        const warehouseMap = new Map(warehouses.map(w => [w._id.toString(), w.name]));
+
+        if (!filters.type || filters.type === 'Sale') {
+            invoices.forEach(inv => inv.lineItems.forEach(item => {
+                transactions.push({ date: inv.invoiceDate, type: 'Sale', itemName: item.name, quantity: -item.quantity, reference: inv.invoiceNumber, partyName: accountsMap.get(inv.accountId.toString()) });
+            }));
+        }
+
+        if (!filters.type || filters.type === 'Sales Return') {
+            creditNotes.forEach(note => note.lineItems.forEach(item => {
+                transactions.push({ date: note.creditNoteDate, type: 'Sales Return', itemName: item.name, quantity: item.quantity, reference: note.creditNoteNumber, partyName: accountsMap.get(note.accountId.toString()) });
+            }));
+        }
+
+        if (!filters.type || filters.type === 'Stock Adjustment') {
+            adjustments.forEach(adj => {
+                // We need to fetch the product name for the adjustment
+                transactions.push({ 
+                    date: adj.date,
+                    type: 'Stock Adjustment',
+                    itemName: `Product ID: ${adj.productId.toString()}`, // Placeholder
+                    quantity: adj.quantity,
+                    reference: adj.reason,
+                    warehouseName: warehouseMap.get(adj.warehouseId.toString()),
+                    partyName: null,
+                });
+            });
+        }
+        
+        transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        return { data: JSON.parse(JSON.stringify(transactions)) };
+
+    } catch (e: any) {
+        console.error("Error generating all transactions report:", e);
+        return { data: [], error: 'Failed to generate report.' };
+    }
+}
     
