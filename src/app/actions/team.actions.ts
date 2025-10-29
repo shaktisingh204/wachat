@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { getSession } from '@/app/actions/user.actions';
@@ -20,14 +19,14 @@ export async function getInvitedUsers(): Promise<WithId<User>[]> {
 
     try {
         const { db } = await connectToDatabase();
-        // An invited user is one whose ID appears in ANY project's agents array where the current user is the owner.
+
         const userProjects = await db.collection('projects').find({ userId: new ObjectId(session.user._id) }).toArray();
         
         let agentUserIds: ObjectId[] = [];
         userProjects.forEach(project => {
             if (project.agents) {
                 project.agents.forEach((agent: any) => {
-                    if (agent.userId && !agentUserIds.some(id => id.equals(agent.userId)))) {
+                    if (agent.userId && !agentUserIds.some(id => id.equals(agent.userId))) {
                         agentUserIds.push(agent.userId);
                     }
                 });
@@ -38,7 +37,6 @@ export async function getInvitedUsers(): Promise<WithId<User>[]> {
         
         const users = await db.collection<User>('users').find({ _id: { $in: agentUserIds } }).project({ password: 0 }).toArray();
         
-        // Add roles to user objects for display
         const usersWithRoles = users.map(user => {
             const roles: Record<string, string> = {};
             userProjects.forEach(project => {
@@ -56,7 +54,6 @@ export async function getInvitedUsers(): Promise<WithId<User>[]> {
         return [];
     }
 }
-
 
 export async function handleInviteAgent(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const email = formData.get('email') as string;
@@ -78,6 +75,10 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
     try {
         const { db } = await connectToDatabase();
         const userProjects = await db.collection('projects').find({ userId: new ObjectId(session.user._id) }).toArray();
+        
+        if (userProjects.length === 0) {
+            return { error: "You must have at least one project to invite a team member." };
+        }
         
         const bulkOps = userProjects.map(project => {
             const isAlreadyAgent = project.agents?.some((agent: any) => agent.userId.equals(invitee._id));
@@ -135,4 +136,3 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
         return { error: 'An unexpected error occurred.' };
     }
 }
-

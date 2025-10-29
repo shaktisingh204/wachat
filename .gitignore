@@ -33,6 +33,7 @@
 /src/app/actions/custom-ecommerce-flow.actions.ts
 /src/app/actions/portfolio.actions.ts
 /src/app/actions/crm-accounting.actions.ts
+/src/app/actions/notification.actions.ts
 # next.js
 /.next/
 /out/
