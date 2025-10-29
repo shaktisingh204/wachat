@@ -34,6 +34,7 @@
 /src/app/actions/portfolio.actions.ts
 /src/app/actions/crm-accounting.actions.ts
 /src/app/actions/notification.actions.ts
+/src/app/actions/integrations.actions.ts
 # next.js
 /.next/
 /out/
