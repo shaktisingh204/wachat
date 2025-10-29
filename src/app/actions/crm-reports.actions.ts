@@ -1,11 +1,9 @@
-
-
 'use server';
 
 import { getSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
-import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User } from '@/lib/definitions';
+import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote } from '@/lib/definitions';
 
 export async function generateClientReportData(): Promise<{ success: boolean; data?: any[]; error?: string }> {
     const session = await getSession();
@@ -318,5 +316,66 @@ export async function generateLeadSourceReportData(filters: {
     } catch (e) {
         console.error("Error generating lead source report:", e);
         return [];
+    }
+}
+
+export async function generateProductPnlData(filters?: any): Promise<{data: any[], error?: string}> {
+    const session = await getSession();
+    if (!session?.user) return { data: [], error: 'Authentication required.' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const [products, invoices, creditNotes] = await Promise.all([
+            db.collection<EcommProduct>('crm_products').find({ userId }).toArray(),
+            db.collection<CrmInvoice>('crm_invoices').find({ userId }).toArray(),
+            db.collection<CrmCreditNote>('crm_credit_notes').find({ userId }).toArray(),
+        ]);
+        
+        const salesData: Record<string, { totalSoldQty: number; totalRevenue: number; }> = {};
+        for(const invoice of invoices) {
+            for(const item of invoice.lineItems) {
+                // Assuming item.name is unique for now. A product ID would be better.
+                if(!salesData[item.name]) salesData[item.name] = { totalSoldQty: 0, totalRevenue: 0 };
+                salesData[item.name].totalSoldQty += item.quantity;
+                salesData[item.name].totalRevenue += item.quantity * item.rate;
+            }
+        }
+        
+        const returnData: Record<string, { totalReturnedQty: number }> = {};
+        for(const note of creditNotes) {
+            for(const item of note.lineItems) {
+                 if(!returnData[item.name]) returnData[item.name] = { totalReturnedQty: 0 };
+                 returnData[item.name].totalReturnedQty += item.quantity;
+            }
+        }
+
+        const report = products.map(product => {
+            const sale = salesData[product.name] || { totalSoldQty: 0, totalRevenue: 0 };
+            const returns = returnData[product.name] || { totalReturnedQty: 0 };
+            const netSoldQty = sale.totalSoldQty - returns.totalReturnedQty;
+            const totalCogs = netSoldQty * (product.buyingPrice || 0);
+            const grossProfit = sale.totalRevenue - totalCogs; // Simplified: ignores returns for now
+            
+            return {
+                productId: product._id.toString(),
+                productName: product.name,
+                sku: product.sku || 'N/A',
+                totalSoldQty: sale.totalSoldQty,
+                totalReturnedQty: returns.totalReturnedQty,
+                netSoldQty: netSoldQty,
+                totalRevenue: sale.totalRevenue,
+                avgSellingPrice: netSoldQty > 0 ? sale.totalRevenue / netSoldQty : 0,
+                totalCogs,
+                grossProfit,
+                grossMargin: sale.totalRevenue > 0 ? (grossProfit / sale.totalRevenue) * 100 : 0
+            }
+        }).filter(item => item.totalSoldQty > 0 || item.totalReturnedQty > 0);
+
+        return { data: JSON.parse(JSON.stringify(report)) };
+    } catch(e: any) {
+        console.error("Error generating product P&L report:", e);
+        return { data: [], error: 'Failed to generate report.' };
     }
 }
