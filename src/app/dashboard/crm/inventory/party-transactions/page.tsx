@@ -23,7 +23,7 @@ type PartyTransaction = {
     rate: number;
 };
 
-export default function PartyTransactionsPage() {
+export default function PartyTransactionsReportPage() {
     const [reportData, setReportData] = useState<PartyTransaction[]>([]);
     const [parties, setParties] = useState<{ id: string, name: string }[]>([]);
     const [isLoading, startTransition] = useTransition();
@@ -164,5 +164,3 @@ export default function PartyTransactionsPage() {
         </div>
     );
 }
-
-    

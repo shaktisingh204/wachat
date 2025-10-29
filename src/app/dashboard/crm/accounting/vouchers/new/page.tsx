@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useActionState, useRef } from 'react';
@@ -18,9 +17,10 @@ import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
 import { getCrmChartOfAccounts } from '@/app/actions/crm-accounting.actions';
+import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.actions';
 import { saveVoucherEntry, getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
 import type { WithId } from 'mongodb';
-import type { CrmChartOfAccount, CrmVoucherBook } from '@/lib/definitions';
+import type { CrmChartOfAccount, CrmVoucherBook, CrmPaymentAccount } from '@/lib/definitions';
 import { getSession } from '@/app/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -44,7 +44,7 @@ type VoucherEntryItem = {
     amount: number;
 };
 
-const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurrency }: { title: string, items: VoucherEntryItem[], setItems: React.Dispatch<React.SetStateAction<VoucherEntryItem[]>>, accounts: WithId<CrmChartOfAccount>[], currency: string, setCurrency: (c: string) => void }) => {
+const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurrency }: { title: string, items: VoucherEntryItem[], setItems: React.Dispatch<React.SetStateAction<VoucherEntryItem[]>>, accounts: (WithId<CrmChartOfAccount> | WithId<CrmPaymentAccount>)[], currency: string, setCurrency: (c: string) => void }) => {
     const handleAddItem = () => {
         setItems([...items, { id: uuidv4(), accountId: '', currency, amount: 0 }]);
     };
@@ -84,7 +84,7 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
                                 <Select value={item.accountId} onValueChange={(val) => handleItemChange(item.id, 'accountId', val)} required>
                                     <SelectTrigger><SelectValue placeholder="Search from an Account..." /></SelectTrigger>
                                     <SelectContent>
-                                        {accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}
+                                        {accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{(acc as any).accountName || acc.name}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -123,7 +123,7 @@ export default function NewVoucherPage() {
     const { toast } = useToast();
     
     const [user, setUser] = useState<any>(null);
-    const [accounts, setAccounts] = useState<WithId<CrmChartOfAccount>[]>([]);
+    const [allAccounts, setAllAccounts] = useState<(WithId<CrmChartOfAccount> | WithId<CrmPaymentAccount>)[]>([]);
     const [voucherBooks, setVoucherBooks] = useState<WithId<CrmVoucherBook>[]>([]);
     const [voucherDate, setVoucherDate] = useState<Date | undefined>(new Date());
     const [currency, setCurrency] = useState('INR');
@@ -133,8 +133,14 @@ export default function NewVoucherPage() {
 
     useEffect(() => {
         getSession().then(session => setUser(session?.user));
-        getCrmChartOfAccounts().then(setAccounts);
-        getVoucherBooks().then(setVoucherBooks);
+        Promise.all([
+            getCrmChartOfAccounts(),
+            getCrmPaymentAccounts(),
+            getVoucherBooks()
+        ]).then(([chartAccs, paymentAccs, books]) => {
+            setAllAccounts([...chartAccs, ...paymentAccs]);
+            setVoucherBooks(books);
+        });
     }, []);
 
     useEffect(() => {
@@ -207,11 +213,11 @@ export default function NewVoucherPage() {
                                 <div className="space-y-1 md:col-span-3"><Label htmlFor="note">Note</Label><Textarea id="note" name="note" placeholder="Add a Note" /></div>
                             </section>
                             
-                            <LineItemsSection title="Debit Accounts" items={debitEntries} setItems={setDebitEntries} accounts={accounts} currency={currency} setCurrency={setCurrency} />
+                            <LineItemsSection title="Debit Accounts" items={debitEntries} setItems={setDebitEntries} accounts={allAccounts} currency={currency} setCurrency={setCurrency} />
 
                              <Separator className="my-8"/>
 
-                            <LineItemsSection title="Credit Accounts" items={creditEntries} setItems={setCreditEntries} accounts={accounts} currency={currency} setCurrency={setCurrency} />
+                            <LineItemsSection title="Credit Accounts" items={creditEntries} setItems={setCreditEntries} accounts={allAccounts} currency={currency} setCurrency={setCurrency} />
 
                              <Separator className="my-8"/>
                             

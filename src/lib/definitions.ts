@@ -375,6 +375,26 @@ export type EmailConversation = {
     messages: EmailMessage[];
 };
 
+export type CrmPaymentAccount = {
+    _id: ObjectId;
+    userId: ObjectId;
+    accountName: string;
+    accountType: 'bank' | 'cash' | 'employee' | 'wallet' | 'other';
+    status: 'active' | 'inactive';
+    openingBalance: number;
+    openingBalanceDate: Date;
+    isDefault?: boolean;
+    currency: string;
+    bankDetails?: {
+        bankName?: string;
+        accountNumber?: string;
+        ifsc?: string;
+    };
+    createdAt: Date;
+    updatedAt: Date;
+    currentBalance?: number; // Calculated field
+};
+
 export type CrmAccountGroup = {
     _id: ObjectId;
     userId: ObjectId;
