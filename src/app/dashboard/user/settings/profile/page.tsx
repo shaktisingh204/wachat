@@ -1,8 +1,9 @@
 
+
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useEffect, useState, useRef, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { handleUpdateUserProfile, handleChangePassword, getSession } from '@/app/actions';
 import type { User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -248,5 +249,3 @@ export default function ProfilePage() {
         </div>
     )
 }
-
-    
