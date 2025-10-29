@@ -59,3 +59,5 @@ firestore-debug.log
 src/components/layout/footer.tsx
 src/components/layout/header.tsx
 src/config/site.ts
+
+/package-lock.json

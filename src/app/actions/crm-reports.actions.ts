@@ -1,11 +1,10 @@
 
-
 'use server';
 
 import { getSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
-import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote, CrmWarehouse, ProductBatch } from '@/lib/definitions';
+import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote, CrmWarehouse, ProductBatch, CrmSalesOrder } from '@/lib/definitions';
 
 export async function generateClientReportData(): Promise<{ success: boolean; data?: any[]; error?: string }> {
     const session = await getSession();
@@ -400,9 +399,11 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
         const reportData: any[] = [];
         let totalValue = 0;
         let totalUnits = 0;
+        let uniqueProductCount = 0;
 
         for (const product of products) {
             const buyingPrice = product.buyingPrice || 0;
+            let productHasStock = false;
             if (product.inventory && product.inventory.length > 0) {
                 for (const inv of product.inventory) {
                     if (inv.stock > 0) {
@@ -419,6 +420,7 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
                         });
                         totalValue += stockValue;
                         totalUnits += inv.stock;
+                        productHasStock = true;
                     }
                 }
             } else if ((product.stock || 0) > 0) {
@@ -435,6 +437,10 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
                 });
                 totalValue += stockValue;
                 totalUnits += product.stock!;
+                productHasStock = true;
+            }
+            if (productHasStock) {
+                uniqueProductCount++;
             }
         }
         
@@ -443,7 +449,7 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
             summary: {
                 totalValue,
                 totalUnits,
-                productCount: products.length,
+                productCount: uniqueProductCount,
             },
         };
 
@@ -514,3 +520,67 @@ export async function generateBatchExpiryReportData(): Promise<{ data?: any, err
         return { error: 'Failed to generate report data.' };
     }
 }
+
+export async function getCrmAccountsForSelection(): Promise<{_id: string, name: string}[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    const { db } = await connectToDatabase();
+    const accounts = await db.collection('crm_accounts').find({ userId: new ObjectId(session.user._id) }, { projection: { name: 1 } }).toArray();
+    return JSON.parse(JSON.stringify(accounts));
+}
+
+export async function getCrmVendorsForSelection(): Promise<{_id: string, name: string}[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    const { db } = await connectToDatabase();
+    const vendors = await db.collection('crm_vendors').find({ userId: new ObjectId(session.user._id) }, { projection: { name: 1 } }).toArray();
+    return JSON.parse(JSON.stringify(vendors));
+}
+
+export async function generatePartyTransactionReport(partyId: string, partyType: 'customer' | 'vendor', startDate?: Date, endDate?: Date): Promise<{data: any[], error?: string}> {
+    const session = await getSession();
+    if (!session?.user) return { data: [], error: 'Authentication required.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const partyObjectId = new ObjectId(partyId);
+
+        let transactions: any[] = [];
+        const dateFilter = (startDate || endDate) ? { 
+            date: { 
+                ...(startDate && { $gte: startDate }),
+                ...(endDate && { $lte: endDate })
+            }
+        } : {};
+
+        if (partyType === 'customer') {
+            const invoices = await db.collection<CrmInvoice>('crm_invoices').find({ userId, accountId: partyObjectId, ...dateFilter }).toArray();
+            const creditNotes = await db.collection<CrmCreditNote>('crm_credit_notes').find({ userId, accountId: partyObjectId, ...dateFilter }).toArray();
+            
+            invoices.forEach(inv => {
+                inv.lineItems.forEach(item => {
+                    transactions.push({ date: inv.invoiceDate, type: 'Sale', reference: inv.invoiceNumber, itemName: item.name, quantity: item.quantity, rate: item.rate });
+                });
+            });
+            creditNotes.forEach(cn => {
+                cn.lineItems.forEach(item => {
+                    transactions.push({ date: cn.creditNoteDate, type: 'Sales Return', reference: cn.creditNoteNumber, itemName: item.name, quantity: -item.quantity, rate: item.rate });
+                });
+            });
+
+        } else { // partyType === 'vendor'
+            // Placeholder for when Purchase Orders and Bills are implemented
+        }
+
+        transactions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        
+        return { data: JSON.parse(JSON.stringify(transactions)) };
+
+    } catch (e: any) {
+        console.error("Error generating party transaction report:", e);
+        return { data: [], error: 'Failed to generate report.' };
+    }
+}
+
+    
