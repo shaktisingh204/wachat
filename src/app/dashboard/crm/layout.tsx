@@ -1,12 +1,12 @@
 
 'use client';
 
-import React, 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Handshake, ShoppingBag, Briefcase, Database, Landmark, Users as UsersIcon, FileText, Settings, Zap } from 'lucide-react';
+import { BarChart, Handshake, ShoppingBag, Briefcase, Database, Landmark, Users as UsersIcon, FileText, Settings, Zap, MessageSquare } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const CrmSidebar = () => {
@@ -14,7 +14,7 @@ const CrmSidebar = () => {
 
     const crmNavItems = [
         { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, exact: true },
-        { href: "/dashboard/crm/sales", label: "Sales", icon: Handshake },
+        { href: "/dashboard/crm/sales-crm", label: "Sales", icon: Handshake },
         { href: "/dashboard/crm/purchases", label: "Purchases", icon: ShoppingBag },
         { href: "/dashboard/crm/inventory", label: "Inventory", icon: Briefcase },
         { href: "/dashboard/crm/accounting", label: "Accounting", icon: Database },
@@ -24,7 +24,6 @@ const CrmSidebar = () => {
         { href: "/dashboard/crm/integrations", label: "Integrations", icon: Zap },
         { href: "/dashboard/crm/hr-payroll", label: "HR and Payroll", icon: UsersIcon },
         { href: "/dashboard/crm/auto-leads-setup", label: "Auto Leads Setup", icon: Zap },
-        { href: "/dashboard/crm/settings", label: "Settings", icon: Settings },
     ];
 
     return (

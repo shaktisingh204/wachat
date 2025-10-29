@@ -28,6 +28,7 @@
 /src/app/actions/meta-flow.actions.ts
 /src/app/actions/project.actions.ts
 /src/app/actions/template.actions.ts
+/src/components/wabasimplify/whatsapp.actions.ts
 # next.js
 /.next/
 /out/
