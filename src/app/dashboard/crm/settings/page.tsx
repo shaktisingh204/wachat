@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -81,10 +80,9 @@ function CrmSettingsPageContent() {
             </div>
             
             <Tabs defaultValue={initialTab}>
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="email">Email Setup</TabsTrigger>
                     <TabsTrigger value="templates">Templates</TabsTrigger>
-                    <TabsTrigger value="permissions" disabled>Permissions (Coming Soon)</TabsTrigger>
                 </TabsList>
                 <TabsContent value="email" className="mt-6 space-y-6">
                     <Card>
@@ -113,9 +111,6 @@ function CrmSettingsPageContent() {
                 </TabsContent>
                 <TabsContent value="templates" className="mt-6">
                     <CrmEmailTemplatesManager />
-                </TabsContent>
-                 <TabsContent value="permissions" className="mt-6">
-                    {/* Permissions form will go here */}
                 </TabsContent>
             </Tabs>
         </div>

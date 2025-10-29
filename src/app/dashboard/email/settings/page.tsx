@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
 import { getProjects, getSession } from '@/app/actions';
-import { getEmailSettings, saveEmailPermissions, saveEmailComplianceSettings } from '@/app/actions/email.actions';
+import { getEmailSettings, saveEmailComplianceSettings } from '@/app/actions/email.actions';
 import { saveCrmProviders } from '@/app/actions/crm.actions';
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
 import type { CrmEmailSettings, Project, WithId, User, EmailComplianceSettings } from '@/lib/definitions';
@@ -80,69 +79,6 @@ function ComplianceForm({ user }: { user: WithId<User> }) {
                         {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Compliance Settings
                     </Button>
-                </CardFooter>
-            </Card>
-        </form>
-    );
-}
-
-function PermissionsForm({ user }: { user: WithId<User> }) {
-    const { toast } = useToast();
-    const [state, formAction] = useActionState(saveEmailPermissions, { message: null, error: undefined });
-    const { pending } = useFormStatus();
-
-    useEffect(() => {
-        if (state.message) toast({ title: 'Success', description: state.message });
-        if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
-    }, [state, toast]);
-
-    const permissions = user.email?.permissions?.agent || {};
-    const modules = [
-        { id: 'contacts', name: 'Contacts' },
-        { id: 'campaigns', name: 'Campaigns' },
-        { id: 'templates', name: 'Templates' },
-    ];
-    const actions = ['view', 'create', 'edit', 'delete'];
-
-    return (
-        <form action={formAction}>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><KeyRound className="h-5 w-5"/>Agent Permissions</CardTitle>
-                    <CardDescription>Define what team members with the 'Agent' role can do within the Email suite.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-lg">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Module</TableHead>
-                                    <TableHead className="text-center">View</TableHead>
-                                    <TableHead className="text-center">Create</TableHead>
-                                    <TableHead className="text-center">Edit</TableHead>
-                                    <TableHead className="text-center">Delete</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {modules.map(module => (
-                                    <TableRow key={module.id}>
-                                        <TableCell className="font-medium">{module.name}</TableCell>
-                                        {actions.map(action => (
-                                            <TableCell key={action} className="text-center">
-                                                <Checkbox
-                                                    name={`${module.id}_${action}`}
-                                                    defaultChecked={(permissions[module.id as keyof typeof permissions] as any)?.[action] ?? false}
-                                                />
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-                <CardFooter>
-                     <Button type="submit" disabled={pending}><Save className="mr-2 h-4 w-4"/>Save Permissions</Button>
                 </CardFooter>
             </Card>
         </form>
@@ -270,10 +206,9 @@ function EmailSettingsPageContent() {
                 <p className="text-muted-foreground">Configure your email accounts for sending.</p>
             </div>
             <Tabs defaultValue={initialTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="email">Email Setup</TabsTrigger>
                     <TabsTrigger value="templates">Templates</TabsTrigger>
-                    <TabsTrigger value="permissions">Permissions</TabsTrigger>
                     <TabsTrigger value="compliance">Compliance</TabsTrigger>
                     <TabsTrigger value="deliverability">Deliverability</TabsTrigger>
                     <TabsTrigger value="integrations">Integrations</TabsTrigger>
@@ -305,9 +240,6 @@ function EmailSettingsPageContent() {
                 </TabsContent>
                 <TabsContent value="templates" className="mt-6">
                     <EmailTemplatesManager />
-                </TabsContent>
-                 <TabsContent value="permissions" className="mt-6">
-                    <PermissionsForm user={user} />
                 </TabsContent>
                 <TabsContent value="compliance" className="mt-6">
                     <ComplianceForm user={user} />

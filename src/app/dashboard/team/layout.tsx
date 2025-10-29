@@ -3,10 +3,9 @@
 
 import React from 'react';
 
-// This secondary layout is no longer needed as navigation is handled by the main CRM layout.
 export default function TeamLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="w-full">
+        <div className="flex flex-col gap-6 h-full">
             {children}
         </div>
     );

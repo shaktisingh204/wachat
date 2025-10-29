@@ -59,4 +59,7 @@ export * from './admin.actions';
 
 
 // This needs to be a server action file, so we export a dummy function
-export async function dummy
+export async function dummyAction() {
+    'use server';
+    // This function does nothing.
+}
