@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Separator } from '@/components/ui/separator';
 
 const removeAgentInitialState = { message: null, error: null };
 const inviteAgentInitialState = { message: null, error: null };
