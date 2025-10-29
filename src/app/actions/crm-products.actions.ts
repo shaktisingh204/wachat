@@ -38,7 +38,9 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
 
     try {
         const variantsString = formData.get('variants') as string;
+        const batchesString = formData.get('batches') as string;
         const variants = variantsString ? JSON.parse(variantsString) : [];
+        const batches = batchesString ? JSON.parse(batchesString) : [];
 
         const productData: Partial<Omit<EcommProduct, '_id' | 'createdAt'>> = {
             userId: new ObjectId(session.user._id),
@@ -78,7 +80,10 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
                 net: parseFloat(formData.get('netWeight') as string),
             },
 
+            // Variants & Batches
             variants: variants,
+            batchTracking: formData.get('batchTracking') === 'on',
+            batches: batches,
             updatedAt: new Date(),
         };
 

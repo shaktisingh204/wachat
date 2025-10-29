@@ -10,7 +10,7 @@ import { ShoppingCart } from 'lucide-react';
 import type { WithId, EcommProduct, EcommShop } from '@/lib/definitions';
 import { useCart } from '@/context/cart-context';
 
-export function ProductCard({ product, shopSettings, shopSlug }: { product: WithId<EcommProduct>, shopSettings: WithId<EcommShop> | null, shopSlug: string }) {
+export function ProductCard({ product, shopSettings, shopSlug }: { product: WithId<EcommProduct>, shopSettings?: WithId<EcommShop> | null, shopSlug: string }) {
   const currency = shopSettings?.currency || 'USD';
   const { addToCart } = useCart();
   
