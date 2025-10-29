@@ -1,6 +1,43 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
+
+export type SabChatSettings = {
+    enabled?: boolean;
+    widgetColor?: string;
+    welcomeMessage?: string;
+    teamName?: string;
+    avatarUrl?: string;
+    awayMessage?: string;
+    officeHours?: any; // To be defined later
+};
+
+export type SabChatMessage = {
+    _id: ObjectId;
+    sessionId: ObjectId;
+    sender: 'visitor' | 'agent';
+    agentId?: string;
+    type: 'text';
+    content: string;
+    timestamp: Date;
+}
+
+export type SabChatSession = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    visitorId: string; // From cookie
+    status: 'open' | 'closed';
+    createdAt: Date;
+    updatedAt: Date;
+    history: SabChatMessage[];
+    visitorInfo?: {
+        name?: string;
+        email?: string;
+        ip?: string;
+        userAgent?: string;
+        page?: string;
+    }
+}
+
 
 export type Website = {
     _id: ObjectId;
@@ -841,6 +878,7 @@ export type Project = {
     facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
     widgetSettings?: WhatsAppWidgetSettings;
+    sabChatSettings?: SabChatSettings;
     tags?: Tag[];
     planId?: ObjectId;
     credits?: number;
@@ -851,7 +889,7 @@ export type Project = {
     plan?: WithId<Plan> | null; // populated by aggregate
     ecommSettings?: {
         abandonedCart: AbandonedCartSettings;
-    },
+    };
     razorpaySettings?: {
         keyId?: string;
         keySecret?: string;
@@ -1302,19 +1340,6 @@ export type Contact = {
     tagIds?: string[];
 }
 
-export type IncomingMessage = {
-    _id: ObjectId;
-    direction: 'in';
-    contactId: ObjectId;
-    projectId: ObjectId;
-    wamid: string;
-    messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive';
-    content: any;
-    isRead: boolean;
-    createdAt: Date;
-}
-
 export type OutgoingMessage = {
     _id: ObjectId;
     direction: 'out';
@@ -1331,6 +1356,19 @@ export type OutgoingMessage = {
         read?: Date;
     };
     error?: string;
+    createdAt: Date;
+}
+
+export type IncomingMessage = {
+    _id: ObjectId;
+    direction: 'in';
+    contactId: ObjectId;
+    projectId: ObjectId;
+    wamid: string;
+    messageTimestamp: Date;
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive';
+    content: any;
+    isRead: boolean;
     createdAt: Date;
 }
 
@@ -1988,5 +2026,3 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
-
-    

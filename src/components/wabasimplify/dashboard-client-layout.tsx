@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, UsersIcon} from 'lucide-react';
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon} from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -164,6 +164,14 @@ const teamMenuItems = [
     { href: "/dashboard/team/manage-users", label: "Manage Users", icon: UsersIcon },
     { href: "/dashboard/team/manage-roles", label: "Manage Roles", icon: ShieldCheck },
     { href: "/dashboard/team/team-chat", label: "Team Chat", icon: MessageSquare },
+];
+
+const sabChatMenuItems = [
+    { href: '/dashboard/sabchat/inbox', label: 'Inbox', icon: Inbox },
+    { href: '/dashboard/sabchat/visitors', label: 'Live Visitors', icon: Users },
+    { href: '/dashboard/sabchat/analytics', label: 'Analytics', icon: BarChart },
+    { href: '/dashboard/sabchat/widget', label: 'Widget Setup', icon: Wrench },
+    { href: '/dashboard/sabchat/settings', label: 'Settings', icon: Settings },
 ];
 
 
@@ -353,6 +361,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         else if (pathname.startsWith('/dashboard/sms')) { currentApp = 'sms'; }
         else if (pathname.startsWith('/dashboard/api')) { currentApp = 'api'; }
         else if (pathname.startsWith('/dashboard/seo')) { currentApp = 'seo-suite'; }
+        else if (pathname.startsWith('/dashboard/sabchat')) { currentApp = 'sabchat'; }
         else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { currentApp = 'website-builder'; }
         else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
         else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
@@ -373,6 +382,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     const appIcons = [
         { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/dashboard' },
+        { id: 'sabchat', icon: MessageSquare, label: 'sabChat', href: '/dashboard/sabchat' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
         { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
         { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM' },
@@ -380,7 +390,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'email', icon: Mail, label: 'Email', href: '/dashboard/email' },
         { id: 'sms', icon: MessageSquare, label: 'SMS', href: '/dashboard/sms' },
         { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
-        // { id: 'website-builder', icon: Brush, label: 'Website', href: '/dashboard/website-builder' },
+        { id: 'website-builder', icon: Brush, label: 'Website', href: '/dashboard/website-builder' },
         { id: 'url-shortener', icon: LinkIcon, label: 'Links', href: '/dashboard/url-shortener' },
         { id: 'qr-code-maker', icon: QrCode, label: 'QR Codes', href: '/dashboard/qr-code-maker' },
         { id: 'seo-suite', icon: SeoIcon, label: 'SEO', href: '/dashboard/seo' },
@@ -522,6 +532,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 {wachatMenuItems.filter(item => item.roles.includes(currentUserRole) && !item.href.includes('[')).map((item) => (
                                     <SidebarItem key={item.href} item={item} />
                                 ))}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'sabchat' && (
+                            <SidebarMenu>
+                                {sabChatMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'facebook' && (

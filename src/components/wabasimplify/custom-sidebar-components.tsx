@@ -56,13 +56,7 @@ export const WaPayIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export const SabNodeBrandLogo = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <g fillRule="evenodd">
-      <path fill="#29B6F6" d="m2.5 16.5 10 15 10-15z"/>
-      <path fill="#AB47BC" d="m15.5 31.5 10-15 10 15z"/>
-      <path fill="#FFA726" d="m28.5 16.5 10 15 10-15z"/>
-    </g>
-  </svg>
+  <SabNodeLogo {...props} />
 );
 
 export const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
