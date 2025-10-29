@@ -33,7 +33,7 @@ export async function saveSabChatSettings(prevState: any, formData: FormData): P
 }
 
 
-export async function getOrCreateChatSession(userId: string, email: string, visitorId?: string | null): Promise<{ sessionId: string, isNew: boolean, error?: string }> {
+export async function getOrCreateChatSession(userId: string, email: string, visitorId?: string | null): Promise<{ sessionId: string, isNew: boolean, error?: string, session?: WithId<SabChatSession> }> {
     if (!ObjectId.isValid(userId)) return { sessionId: '', isNew: false, error: 'Invalid user ID' };
 
     try {
@@ -52,13 +52,13 @@ export async function getOrCreateChatSession(userId: string, email: string, visi
                 { returnDocument: 'after' }
             );
             if (existingSession) {
-                return { sessionId: existingSession._id.toString(), isNew: false };
+                return { sessionId: existingSession._id.toString(), isNew: false, session: existingSession };
             }
         }
         
         const newVisitorId = visitorId || `visitor_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
-        const result = await db.collection('sabchat_sessions').insertOne({
+        const newSessionData: Omit<SabChatSession, '_id'> = {
             userId: userObjectId,
             visitorId: newVisitorId,
             status: 'open',
@@ -71,21 +71,25 @@ export async function getOrCreateChatSession(userId: string, email: string, visi
                 userAgent,
                 page,
             }
-        });
+        };
+
+        const result = await db.collection('sabchat_sessions').insertOne(newSessionData as any);
         
         revalidatePath(`/dashboard/sabchat/inbox`);
-        return { sessionId: result.insertedId.toString(), isNew: true };
+        return { sessionId: result.insertedId.toString(), isNew: true, session: { ...newSessionData, _id: result.insertedId } };
     } catch (e) {
         return { sessionId: '', isNew: false, error: getErrorMessage(e) };
     }
 }
 
-export async function getChatHistory(sessionId: string, userId: string): Promise<SabChatMessage[]> {
-    if (!ObjectId.isValid(sessionId) || !ObjectId.isValid(userId)) return [];
+export async function getChatHistory(sessionId: string): Promise<SabChatMessage[]> {
+    if (!ObjectId.isValid(sessionId)) return [];
     
+    // This action can be called by an agent or a visitor, so we don't check for a user session.
+    // We rely on the obscurity of the session ID.
     try {
         const { db } = await connectToDatabase();
-        const session = await db.collection<SabChatSession>('sabchat_sessions').findOne({ _id: new ObjectId(sessionId), userId: new ObjectId(userId) });
+        const session = await db.collection<SabChatSession>('sabchat_sessions').findOne({ _id: new ObjectId(sessionId) });
         return session?.history || [];
     } catch (e) {
         console.error("Failed to get chat history:", getErrorMessage(e));
@@ -97,7 +101,7 @@ export async function postChatMessage(sessionId: string, sender: 'visitor' | 'ag
     if (!ObjectId.isValid(sessionId)) return { success: false, error: 'Invalid session ID' };
     
     let session = await getSession(); // Agent session
-    let userId;
+    let agentId;
 
     if (sender === 'agent' && !session?.user) {
         return { success: false, error: 'Agent not authenticated' };
@@ -111,7 +115,10 @@ export async function postChatMessage(sessionId: string, sender: 'visitor' | 'ag
             return { success: false, error: 'Session not found' };
         }
         
-        userId = chatSession.userId;
+        if (sender === 'agent' && session?.user?._id.toString() !== chatSession.userId.toString()) {
+            return { success: false, error: "Access denied to this chat session." };
+        }
+        
         if(sender === 'visitor') {
              const headersList = headers();
             const ipAddress = headersList.get('x-forwarded-for') ?? headersList.get('x-real-ip') ?? 'N/A';
@@ -124,20 +131,20 @@ export async function postChatMessage(sessionId: string, sender: 'visitor' | 'ag
             );
         }
 
-        const newMesage: SabChatMessage = {
+        const newMessage: SabChatMessage = {
             _id: new ObjectId(),
             sender,
             type: 'text',
             content,
             timestamp: new Date(),
-            ...(sender === 'agent' && { agentId: session?.user?._id }),
+            ...(sender === 'agent' && { agentId: session?.user?._id.toString() }),
         };
 
         const result = await db.collection('sabchat_sessions').updateOne(
             { _id: new ObjectId(sessionId) },
             { 
-                $push: { history: newMesage },
-                $set: { updatedAt: new Date() }
+                $push: { history: newMessage },
+                $set: { updatedAt: new Date(), status: 'open' }
             }
         );
 
@@ -206,5 +213,72 @@ export async function getLiveVisitors(): Promise<WithId<SabChatSession>[]> {
     } catch (e) {
         console.error("Failed to get live visitors:", getErrorMessage(e));
         return [];
+    }
+}
+
+export async function getSabChatAnalytics() {
+    const session = await getSession();
+    if (!session?.user) {
+        return {
+            totalChats: 0,
+            openChats: 0,
+            closedChats: 0,
+            avgResponseTime: 0,
+            satisfaction: 0,
+            dailyChatVolume: [],
+        }
+    };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const totalChats = await db.collection('sabchat_sessions').countDocuments({ userId });
+        const openChats = await db.collection('sabchat_sessions').countDocuments({ userId, status: 'open' });
+        
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const dailyVolumeData = await db.collection('sabchat_sessions').aggregate([
+            { $match: { userId, createdAt: { $gte: sevenDaysAgo } } },
+            { 
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "UTC" } },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]).toArray();
+        
+        const dailyChatVolume = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateString = d.toISOString().split('T')[0];
+            const dayData = dailyVolumeData.find(item => item._id === dateString);
+            return {
+                date: d.toLocaleString('default', { weekday: 'short' }),
+                count: dayData?.count || 0
+            };
+        }).reverse();
+
+
+        return {
+            totalChats,
+            openChats,
+            closedChats: totalChats - openChats,
+            avgResponseTime: 45, // Mock data
+            satisfaction: 92, // Mock data
+            dailyChatVolume,
+        };
+
+    } catch (e) {
+        console.error("Failed to get sabChat analytics:", getErrorMessage(e));
+         return {
+            totalChats: 0,
+            openChats: 0,
+            closedChats: 0,
+            avgResponseTime: 0,
+            satisfaction: 0,
+            dailyChatVolume: [],
+        };
     }
 }
