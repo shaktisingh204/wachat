@@ -64,22 +64,24 @@ export async function GET(
                     document.body.appendChild(container);
                     
                     render();
-                    
-                    document.getElementById('sabnode-chat-button').addEventListener('click', () => {
-                        document.getElementById('sabnode-chat-box').classList.toggle('sabnode-show');
-                    });
+                }
+
+                function handleToggle() {
+                    const chatBox = document.getElementById('sabnode-chat-box');
+                    if (chatBox) chatBox.classList.toggle('sabnode-show');
                 }
                 
                 function renderEmailForm() {
                     const container = document.getElementById('sabnode-chat-container');
+                    if (!container) return;
                     container.innerHTML = \`
-                         <div id="sabnode-chat-box" class="sabnode-show" style="height: auto;">
+                         <div id="sabnode-chat-box" style="height: auto;">
                             <div class="sabnode-chat-header">
                                 <img src="\${config.avatarUrl || 'https://placehold.co/100x100.png'}" alt="Avatar">
                                 <div><div class="title">\${config.teamName || 'Support Team'}</div></div>
                             </div>
                             <div class="sabnode-chat-body" style="background: #fff; text-align: center;">
-                                <p class="sabnode-welcome-msg" style="text-align: left; margin-bottom: 1rem; background: #f0f2f5;">\${config.welcomeMessage || 'Hello! How can we help?'}</p>
+                                <p class="sabnode-welcome-msg" style="text-align: left; margin-bottom: 1rem; background: #f0f2f5; padding: 8px 12px; border-radius: 18px;">\${config.welcomeMessage || 'Hello! How can we help?'}</p>
                                 <form id="sabnode-email-form" style="padding: 1rem 0;">
                                     <input id="sabnode-email-input" type="email" placeholder="Enter your email to start" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; margin-bottom: 8px;"/>
                                     <button type="submit" style="width: 100%; padding: 10px; border: none; border-radius: 4px; background-color: \${config.widgetColor}; color: #fff; cursor: pointer;">Start Chat</button>
@@ -92,10 +94,12 @@ export async function GET(
                     \`;
                     
                     document.getElementById('sabnode-email-form').addEventListener('submit', handleEmailSubmit);
+                    document.getElementById('sabnode-chat-button').addEventListener('click', handleToggle);
                 }
 
                 function renderChatInterface() {
                      const container = document.getElementById('sabnode-chat-container');
+                     if (!container) return;
                     container.innerHTML = \`
                         <div id="sabnode-chat-box">
                             <div class="sabnode-chat-header">
@@ -123,6 +127,7 @@ export async function GET(
 
                     updateChatHistory();
                     document.getElementById('sabnode-msg-form').addEventListener('submit', handleMessageSend);
+                    document.getElementById('sabnode-chat-button').addEventListener('click', handleToggle);
                 }
                 
                 function updateChatHistory() {
@@ -154,6 +159,7 @@ export async function GET(
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ userId, email, visitorId })
                         });
+                        if (!res.ok) throw new Error('Server responded with an error');
                         const data = await res.json();
                         if (data.sessionId) {
                             sessionId = data.sessionId;
@@ -188,19 +194,24 @@ export async function GET(
                 async function getHistory() {
                      if (sessionId) {
                          try {
-                            const res = await fetch(\`\${appUrl}/api/sabchat/history?sessionId=\${sessionId}&userId=\${userId}\`);
+                            const res = await fetch(\`\${appUrl}/api/sabchat/history?sessionId=\${sessionId}\`);
+                            if (!res.ok) throw new Error('Failed to fetch history');
                             const data = await res.json();
                             chatHistory = data.history || [];
                             updateChatHistory();
-                         } catch (err) { console.error("Could not fetch history"); }
+                         } catch (err) { console.error("Could not fetch history", err); }
                      }
                 }
 
                 function render() {
-                    if (sessionId) {
+                    const email = localStorage.getItem('sabchat_email');
+                    if (sessionId && email) {
                         renderChatInterface();
                         getHistory();
-                        setInterval(getHistory, 5000);
+                        setInterval(getHistory, 5000); // Poll for new messages
+                    } else if (email) {
+                        // Email exists but no session, try to create one
+                        handleEmailSubmit({ preventDefault: () => {} });
                     } else {
                         renderEmailForm();
                     }
