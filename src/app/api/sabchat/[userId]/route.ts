@@ -38,6 +38,7 @@ export async function GET(
                 let sessionId = localStorage.getItem('sabchat_session_id');
                 let visitorId = localStorage.getItem('sabchat_visitor_id');
                 let chatHistory = [];
+                let isWidgetOpen = false;
 
                 function createDOM() {
                     const style = document.createElement('style');
@@ -67,6 +68,7 @@ export async function GET(
                 }
 
                 function handleToggle() {
+                    isWidgetOpen = !isWidgetOpen;
                     const chatBox = document.getElementById('sabnode-chat-box');
                     if (chatBox) chatBox.classList.toggle('sabnode-show');
                 }
@@ -75,7 +77,7 @@ export async function GET(
                     const container = document.getElementById('sabnode-chat-container');
                     if (!container) return;
                     container.innerHTML = \`
-                         <div id="sabnode-chat-box" style="height: auto;">
+                         <div id="sabnode-chat-box" class="\${isWidgetOpen ? 'sabnode-show' : ''}" style="height: auto;">
                             <div class="sabnode-chat-header">
                                 <img src="\${config.avatarUrl || 'https://placehold.co/100x100.png'}" alt="Avatar">
                                 <div><div class="title">\${config.teamName || 'Support Team'}</div></div>
@@ -101,7 +103,7 @@ export async function GET(
                      const container = document.getElementById('sabnode-chat-container');
                      if (!container) return;
                     container.innerHTML = \`
-                        <div id="sabnode-chat-box">
+                        <div id="sabnode-chat-box" class="\${isWidgetOpen ? 'sabnode-show' : ''}">
                             <div class="sabnode-chat-header">
                                 <img src="\${config.avatarUrl || 'https://placehold.co/100x100.png'}" alt="Avatar">
                                 <div><div class="title">\${config.teamName || 'Support Team'}</div></div>
@@ -134,8 +136,7 @@ export async function GET(
                     const msgContainer = document.getElementById('sabnode-msg-container');
                     if(!msgContainer) return;
                     
-                    // Clear old messages except welcome message
-                    msgContainer.innerHTML = \`<div class="sabnode-welcome-msg">\${config.welcomeMessage || 'Hello! How can we help?'}</div>\`;
+                    msgContainer.innerHTML = \`<div class="sabnode-welcome-msg" style="background: #f0f2f5; padding: 8px 12px; border-radius: 18px; margin-bottom: 1rem;">\${config.welcomeMessage || 'Hello! How can we help?'}</div>\`;
 
                     chatHistory.forEach(msg => {
                         const msgDiv = document.createElement('div');
@@ -153,6 +154,12 @@ export async function GET(
                     const email = document.getElementById('sabnode-email-input').value;
                     if (!email) return;
 
+                    localStorage.setItem('sabchat_email', email);
+                    await getOrCreateSession(email);
+                    render();
+                }
+
+                async function getOrCreateSession(email) {
                     try {
                         const res = await fetch('${appUrl}/api/sabchat/session', {
                             method: 'POST',
@@ -167,7 +174,6 @@ export async function GET(
                             localStorage.setItem('sabchat_session_id', sessionId);
                             localStorage.setItem('sabchat_visitor_id', visitorId);
                             chatHistory = data.session.history || [];
-                            render();
                         }
                     } catch (err) {
                         console.error("SabChat: Failed to create session", err);
@@ -210,17 +216,25 @@ export async function GET(
                         getHistory();
                         setInterval(getHistory, 5000); // Poll for new messages
                     } else if (email) {
-                        // Email exists but no session, try to create one
-                        handleEmailSubmit({ preventDefault: () => {} });
+                        getOrCreateSession(email).then(renderChatInterface);
                     } else {
                         renderEmailForm();
                     }
                 }
+                
+                function initialize() {
+                    createDOM();
+                    const email = localStorage.getItem('sabchat_email');
+                    if (email) {
+                        // Immediately create or update session on page load to mark user as "live"
+                        getOrCreateSession(email);
+                    }
+                }
 
                 if (document.readyState === "complete") {
-                    createDOM();
+                    initialize();
                 } else {
-                    window.addEventListener("load", createDOM);
+                    window.addEventListener("load", initialize);
                 }
             })();
         `;
