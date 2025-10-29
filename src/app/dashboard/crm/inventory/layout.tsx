@@ -3,9 +3,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Truck, Box, Users, Repeat, FilePlus, Package, History, BarChart, CalendarClock, IndianRupee } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 const inventoryNavItems = [
     { href: "/dashboard/crm/inventory/items", label: "All Items", icon: Package },
@@ -22,31 +21,22 @@ export default function InventoryLayout({ children }: { children: React.ReactNod
     const pathname = usePathname();
 
     return (
-        <div className="grid md:grid-cols-12 gap-8">
-            <div className="md:col-span-3 lg:col-span-2">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Inventory</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-2">
-                         <nav className="flex flex-col gap-1">
-                            {inventoryNavItems.map(item => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${pathname === item.href ? 'bg-muted text-primary' : ''}`}
-                                >
-                                    <item.icon className="h-4 w-4" />
-                                    {item.label}
-                                </Link>
-                            ))}
-                        </nav>
-                    </CardContent>
-                </Card>
+        <div className="flex flex-col gap-6">
+            <Tabs defaultValue={pathname} className="w-full">
+                <TabsList>
+                    {inventoryNavItems.map(item => (
+                         <TabsTrigger key={item.href} value={item.href} asChild>
+                            <Link href={item.href}>
+                                <item.icon className="mr-2 h-4 w-4"/>
+                                {item.label}
+                            </Link>
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
+            </Tabs>
+            <div className="mt-4">
+                 {children}
             </div>
-            <main className="md:col-span-9 lg:col-span-10">
-                {children}
-            </main>
         </div>
     );
 }
