@@ -14,6 +14,7 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 function PageSkeleton() {
     return (
@@ -103,6 +104,8 @@ export default function AllItemsPage() {
         );
     }
     
+    const currency = user?.plan?.currency || 'USD';
+
     return (
         <div className="flex flex-col gap-8">
              <div className="flex flex-wrap items-center justify-between gap-4">
@@ -152,7 +155,7 @@ export default function AllItemsPage() {
                                 </TableCell>
                                 <TableCell className="font-medium">{product.name}</TableCell>
                                 <TableCell className="font-mono text-xs">{product.sku || 'N/A'}</TableCell>
-                                <TableCell className="text-right font-mono">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: user.plan?.currency || 'INR' }).format(product.price)}</TableCell>
+                                <TableCell className="text-right font-mono">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(product.price)}</TableCell>
                                 <TableCell className="text-right font-medium">
                                     {product.inventory?.reduce((sum, inv) => sum + inv.stock, 0) ?? product.stock ?? 0}
                                 </TableCell>
