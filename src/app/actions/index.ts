@@ -56,6 +56,7 @@ export * from './plan.actions';
 export * from './notification.actions';
 export * from './ai-actions';
 export * from './admin.actions';
+export * from './sabchat.actions';
 
 
 // This needs to be a server action file, so we export a dummy function
