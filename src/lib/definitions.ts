@@ -2,14 +2,35 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type SabChatFaqItem = {
+    _id: ObjectId;
+    question: string;
+    answer: string;
+};
+
+export type SabChatQuickReply = {
+    _id: ObjectId;
+    shortcut: string;
+    message: string;
+};
+
 export type SabChatSettings = {
     enabled?: boolean;
     widgetColor?: string;
-    welcomeMessage?: string;
     teamName?: string;
     avatarUrl?: string;
+    // Auto-reply
+    welcomeEnabled?: boolean;
+    welcomeMessage?: string;
+    awayMessageEnabled?: boolean;
     awayMessage?: string;
-    officeHours?: any; // To be defined later
+    officeHours?: any; 
+    // AI
+    aiEnabled?: boolean;
+    aiContext?: string;
+    faqs?: SabChatFaqItem[];
+    // Agent tools
+    quickReplies?: SabChatQuickReply[];
 };
 
 export type SabChatMessage = {
@@ -878,7 +899,6 @@ export type Project = {
     facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
     widgetSettings?: WhatsAppWidgetSettings;
-    sabChatSettings?: SabChatSettings;
     tags?: Tag[];
     planId?: ObjectId;
     credits?: number;
@@ -1256,6 +1276,7 @@ export type User = {
       compliance?: EmailComplianceSettings;
     };
     smsProviderSettings?: SmsProviderSettings;
+    sabChatSettings?: SabChatSettings;
 };
 
 export type Invitation = {
