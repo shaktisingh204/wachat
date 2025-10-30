@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -106,6 +105,7 @@ export function EmbeddedSignup({ appId, configId, includeCatalog }: EmbeddedSign
       },
       {
         config_id: configId,
+        response_type: 'code', // This was the incorrect value, now fixed.
         scope: scopes.join(','),
         extras: {
             setup: {
