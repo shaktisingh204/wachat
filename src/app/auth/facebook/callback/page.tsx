@@ -8,16 +8,17 @@ import { LoaderCircle, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { getProjectById } from '@/app/actions';
 
 function FacebookCallbackComponent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
-    const [message, setMessage] = useState('Connecting your Facebook account, please wait...');
+    const [message, setMessage] = useState('Connecting your account, please wait...');
 
     useEffect(() => {
         const code = searchParams.get('code');
-        const state = searchParams.get('state') || 'facebook'; // default to facebook if state is missing
+        const state = searchParams.get('state') || 'facebook';
         const errorParam = searchParams.get('error_description');
 
         if (errorParam) {
@@ -29,10 +30,28 @@ function FacebookCallbackComponent() {
             handleFacebookOAuthCallback(code, state)
                 .then(result => {
                     if (result.success) {
-                        setMessage('Connection successful! Redirecting to your dashboard...');
-                        const redirectPath = state === 'instagram' ? '/dashboard/instagram/connections' : '/dashboard/facebook/all-projects';
-                        router.push(redirectPath);
-                        router.refresh();
+                        setMessage('Connection successful! Syncing data and redirecting...');
+                        // The server action now provides the correct redirect path
+                        if (result.redirectPath) {
+                            // If it's a WhatsApp onboarding, we fetch projects to find the new one.
+                            if (state === 'whatsapp') {
+                                setTimeout(() => {
+                                    getProjectById(result.redirectPath as string).then((project) => {
+                                        if (project) {
+                                            localStorage.setItem('activeProjectId', project._id.toString());
+                                            localStorage.setItem('activeProjectName', project.name);
+                                        }
+                                        router.push('/dashboard');
+                                        router.refresh();
+                                    });
+                                }, 2000); // Give a moment for data to sync
+                            } else {
+                                router.push(result.redirectPath);
+                                router.refresh();
+                            }
+                        } else {
+                            setError('Redirect path was not provided by the server.');
+                        }
                     } else {
                         setError(result.error || 'An unknown error occurred during connection.');
                     }
@@ -59,8 +78,8 @@ function FacebookCallbackComponent() {
                     <CardContent>
                         {isConfigError ? (
                             <div className="space-y-4 text-left">
-                                <p className="text-destructive font-semibold text-center">The server is not configured correctly for Facebook authentication.</p>
-                                <p className="text-sm text-muted-foreground">To fix this, you must create a <code>.env.local</code> file in the root directory of the project and add your Facebook App credentials.</p>
+                                <p className="text-destructive font-semibold text-center">The server is not configured correctly for this type of authentication.</p>
+                                <p className="text-sm text-muted-foreground">To fix this, you must create a <code>.env.local</code> file in the root directory of the project and add the correct App credentials.</p>
                                 <div className="p-4 bg-muted rounded-md text-sm font-mono overflow-x-auto">
                                     <pre><code>
                                         # .env.local (create this file in the root of your project)
@@ -68,6 +87,14 @@ function FacebookCallbackComponent() {
                                         NEXT_PUBLIC_FACEBOOK_APP_ID=your_facebook_app_id
                                         {"\n"}
                                         FACEBOOK_APP_SECRET=your_facebook_app_secret
+                                        {"\n"}
+                                        NEXT_PUBLIC_INSTAGRAM_APP_ID=your_instagram_app_id
+                                        {"\n"}
+                                        INSTAGRAM_APP_SECRET=your_instagram_app_secret
+                                        {"\n"}
+                                        NEXT_PUBLIC_META_ONBOARDING_APP_ID=your_whatsapp_onboarding_app_id
+                                        {"\n"}
+                                        META_ONBOARDING_APP_SECRET=your_whatsapp_onboarding_app_secret
                                         {"\n\n"}
                                         # Add other required variables from README.md
                                     </code></pre>
@@ -82,7 +109,7 @@ function FacebookCallbackComponent() {
                     </CardContent>
                     <CardFooter className="flex justify-center">
                         <Button asChild variant="outline">
-                            <Link href="/dashboard/facebook/all-projects">Go Back</Link>
+                            <Link href="/dashboard">Go Back</Link>
                         </Button>
                     </CardFooter>
                 </Card>

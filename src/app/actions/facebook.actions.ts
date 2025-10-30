@@ -12,6 +12,7 @@ import { getProjectById, getSession } from '@/app/actions';
 import { getEcommShopById } from './custom-ecommerce.actions';
 import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
+import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook } from './whatsapp.actions';
 
 
 async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToken: string): Promise<{ success: boolean, error?: string }> {
@@ -71,10 +72,10 @@ export async function handleFacebookPageSetup(data: {
     }
 }
 
-export async function handleFacebookOAuthCallback(code: string, state: string): Promise<{ success: boolean; error?: string }> {
+export async function handleFacebookOAuthCallback(code: string, state: string): Promise<{ success: boolean; error?: string, redirectPath?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied." };
-
+    
     const appConfig = {
         instagram: {
             appId: process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID,
@@ -91,11 +92,10 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
     };
     
     const { appId, appSecret } = appConfig[state as keyof typeof appConfig] || appConfig.facebook;
-
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!appUrl) {
-        return { success: false, error: 'Server is not configured for Facebook authentication. NEXT_PUBLIC_APP_URL is not set.' };
+        return { success: false, error: 'Server is not configured for authentication. NEXT_PUBLIC_APP_URL is not set.' };
     }
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
 
@@ -104,7 +104,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
     }
 
     try {
-        // 1. Exchange code for a short-lived access token
+        // 1. Exchange code for a long-lived access token
         const tokenResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
             params: {
                 client_id: appId,
@@ -116,119 +116,83 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         const shortLivedToken = tokenResponse.data.access_token;
         if (!shortLivedToken) return { success: false, error: 'Failed to obtain access token from Facebook.' };
         
-        // 2. Exchange for a long-lived user token
         const longLivedResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
-            params: {
-                grant_type: 'fb_exchange_token',
-                client_id: appId,
-                client_secret: appSecret,
-                fb_exchange_token: shortLivedToken,
-            }
+            params: { grant_type: 'fb_exchange_token', client_id: appId, client_secret: appSecret, fb_exchange_token: shortLivedToken }
         });
         const longLivedToken = longLivedResponse.data.access_token;
         if (!longLivedToken) return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
 
-        // 2.5 Save user token to user document
+        // Save the long-lived user token
         const { db } = await connectToDatabase();
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user._id) },
             { $set: { facebookUserAccessToken: longLivedToken } }
         );
 
-
-        // 3. Fetch user's business ID
-        let businessId: string | undefined;
-        try {
-            const businessResponse = await axios.get('https://graph.facebook.com/v23.0/me', { 
-                params: { 
-                    fields: 'businesses', 
-                    access_token: longLivedToken 
-                }
-            });
-            if (businessResponse.data?.businesses?.data?.[0]?.id) {
-                businessId = businessResponse.data.businesses.data[0].id;
+        // Fetch associated pages the user has access to
+        const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', { 
+            params: { 
+                fields: 'id,name,access_token', 
+                access_token: longLivedToken 
             }
-        } catch (e) {
-            console.warn("Could not retrieve business ID for user:", getErrorMessage(e));
-        }
-
-        // 4. Fetch user's ad account (optional)
-        let adAccountId: string | undefined;
-        try {
-            const adAccountsResponse = await axios.get('https://graph.facebook.com/v23.0/me/adaccounts', { params: { access_token: longLivedToken }});
-            if (adAccountsResponse.data?.data?.[0]?.id) {
-                adAccountId = adAccountsResponse.data.data[0].id;
-            }
-        } catch (e) {
-            console.warn("Could not retrieve ad account for user:", getErrorMessage(e));
-        }
-
-        // 5. Fetch all pages the user has access to, and get long-lived tokens for each page
-        const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', { params: { fields: 'id,name,access_token', access_token: longLivedToken }});
+        });
         const userPagesWithShortTokens = pagesResponse.data?.data;
 
         if (!userPagesWithShortTokens || userPagesWithShortTokens.length === 0) {
-             return { success: false, error: 'No manageable Facebook Pages found for your account. Please ensure you have granted access to at least one page during the authorization process.' };
+             return { success: false, error: 'No manageable Facebook Pages found. Please ensure you granted access to at least one page.' };
         }
         
-        const userPages = await Promise.all(
+        const validPages = await Promise.all(
             userPagesWithShortTokens.map(async (page: any) => {
                 try {
                     const pageTokenResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
-                        params: {
-                            grant_type: 'fb_exchange_token',
-                            client_id: appId,
-                            client_secret: appSecret,
-                            fb_exchange_token: page.access_token,
-                        }
+                        params: { grant_type: 'fb_exchange_token', client_id: appId, client_secret: appSecret, fb_exchange_token: page.access_token }
                     });
-                    const longLivedPageToken = pageTokenResponse.data.access_token;
-                    return { ...page, access_token: longLivedPageToken };
+                    return { ...page, access_token: pageTokenResponse.data.access_token };
                 } catch (e) {
                     console.error(`Failed to get long-lived token for page ${page.id}`, getErrorMessage(e));
                     return null;
                 }
             })
         );
-        
-        const validPages = userPages.filter(Boolean);
+        const pagesWithTokens = validPages.filter(Boolean);
 
-        // 6. For each page, create or update a project
-        const bulkOps = validPages.map((page: any) => ({
-            updateOne: {
-                filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
-                update: {
-                    $set: {
-                        name: page.name,
-                        accessToken: page.access_token,
-                        adAccountId: adAccountId,
-                        businessId: businessId,
-                        hasCatalogManagement: !!businessId,
+        // Now, based on the state, either create/update Facebook projects or just log info for now
+        if (state === 'facebook' || state === 'instagram') {
+             const adAccountsResponse = await axios.get('https://graph.facebook.com/v23.0/me/adaccounts', { params: { access_token: longLivedToken }});
+             const adAccountId = adAccountsResponse.data?.data?.[0]?.id;
+
+            const bulkOps = pagesWithTokens.map((page: any) => ({
+                updateOne: {
+                    filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
+                    update: {
+                        $set: { name: page.name, accessToken: page.access_token, adAccountId: adAccountId },
+                        $setOnInsert: { userId: new ObjectId(session.user._id), facebookPageId: page.id, createdAt: new Date() }
                     },
-                    $setOnInsert: {
-                        userId: new ObjectId(session.user._id),
-                        facebookPageId: page.id,
-                        phoneNumbers: [],
-                        createdAt: new Date(),
-                        messagesPerSecond: 80,
-                    },
+                    upsert: true,
                 },
-                upsert: true,
-            },
-        }));
-
-        if (bulkOps.length > 0) {
-            await db.collection('projects').bulkWrite(bulkOps);
+            }));
+            if (bulkOps.length > 0) {
+                await db.collection('projects').bulkWrite(bulkOps);
+            }
+            for (const page of pagesWithTokens) {
+                await handleSubscribeFacebookPageWebhook(page.id, page.access_token);
+            }
         }
         
-        // 7. Subscribe each page to webhooks
-        for (const page of validPages) {
-            await handleSubscribeFacebookPageWebhook(page.id, page.access_token);
+        // This is the crucial part that was missing. It determines the redirect path.
+        let redirectPath = '/dashboard';
+        if (state === 'facebook') {
+            redirectPath = '/dashboard/facebook/all-projects';
+        } else if (state === 'instagram') {
+            redirectPath = '/dashboard/instagram/connections';
         }
-
-
+        
+        revalidatePath('/dashboard');
         revalidatePath('/dashboard/facebook/all-projects');
-        return { success: true };
+        revalidatePath('/dashboard/instagram/connections');
+        return { success: true, redirectPath };
+
     } catch(e) {
         console.error("Facebook OAuth Callback failed:", e);
         return { success: false, error: getErrorMessage(e) };
