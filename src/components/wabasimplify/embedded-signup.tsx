@@ -58,7 +58,7 @@ export function EmbeddedSignup({ appId, configId, includeCatalog }: EmbeddedSign
       return;
     }
     
-    const scopes = ['whatsapp_business_management'];
+    const scopes = ['whatsapp_business_management', 'whatsapp_business_messaging'];
     if (includeCatalog) {
         scopes.push('catalog_management', 'business_management');
     }
@@ -105,7 +105,7 @@ export function EmbeddedSignup({ appId, configId, includeCatalog }: EmbeddedSign
       },
       {
         config_id: configId,
-        response_type: 'code', // This was the incorrect value, now fixed.
+        response_type: 'code',
         scope: scopes.join(','),
         extras: {
             setup: {
