@@ -9,10 +9,10 @@ import { LoaderCircle } from 'lucide-react';
 
 interface EmbeddedSignupProps {
   appId: string;
-  includeCatalog: boolean;
+  state?: string;
 }
 
-export function EmbeddedSignup({ appId, includeCatalog }: EmbeddedSignupProps) {
+export function EmbeddedSignup({ appId, state = 'whatsapp' }: EmbeddedSignupProps) {
   const [isClient, setIsClient] = useState(false);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
@@ -29,15 +29,14 @@ export function EmbeddedSignup({ appId, includeCatalog }: EmbeddedSignupProps) {
   }
 
   const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
-  const scopes = ['whatsapp_business_management', 'whatsapp_business_messaging'];
-  if (includeCatalog) {
-      scopes.push('catalog_management', 'business_management');
-  }
-
-  const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes.join(','))}&response_type=code&state=whatsapp`;
+  
+  // WhatsApp onboarding requires a specific set of permissions.
+  const scopes = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
+  
+  const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&state=${state}`;
 
   return (
-    <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90">
+    <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
       <Link href={facebookLoginUrl}>
         <FacebookIcon className="mr-2 h-5 w-5" />
         Connect with Facebook
