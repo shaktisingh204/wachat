@@ -12,16 +12,14 @@ import { Label } from '@/components/ui/label';
 
 export default function SetupPage() {
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
-  const configId = process.env.NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID;
-  const [includeCatalog, setIncludeCatalog] = useState(true);
 
-  if (!appId || !configId) {
+  if (!appId) {
     return (
         <Alert variant="destructive" className="max-w-lg mx-auto">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Configuration Error</AlertTitle>
             <AlertDescription>
-                <p>NEXT_PUBLIC_META_ONBOARDING_APP_ID and NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID must be set in your .env file.</p>
+                <p>NEXT_PUBLIC_META_ONBOARDING_APP_ID must be set in your .env file.</p>
                 <p className="mt-2 text-xs">Please contact the system administrator to configure the integration correctly.</p>
             </AlertDescription>
         </Alert>
@@ -43,19 +41,11 @@ export default function SetupPage() {
                 <CardDescription>Use the secure pop-up to connect your account in a few clicks.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col items-center justify-center text-center gap-6">
-                <EmbeddedSignup appId={appId} configId={configId} includeCatalog={includeCatalog} />
+                <EmbeddedSignup appId={appId} state="whatsapp" />
                 <p className="text-xs text-muted-foreground">
                     You will be redirected to Facebook to authorize the connection.
                 </p>
             </CardContent>
-            <CardFooter>
-                 <div className="flex items-center space-x-2">
-                    <Checkbox id="include-catalog" checked={includeCatalog} onCheckedChange={(checked) => setIncludeCatalog(!!checked)} />
-                    <Label htmlFor="include-catalog" className="text-sm font-normal">
-                        Include permissions for Catalog Management
-                    </Label>
-                </div>
-            </CardFooter>
         </Card>
         <CreateProjectDialog />
       </div>
