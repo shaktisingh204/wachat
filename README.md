@@ -47,14 +47,24 @@ Before you begin, ensure you have the following installed on your system:
     MONGODB_DB=your_mongodb_database_name
     JWT_SECRET=a_long_random_secure_string_for_sessions
 
-    # Meta/Facebook Integration (Required for Facebook & WhatsApp)
-    NEXT_PUBLIC_FACEBOOK_APP_ID=your_facebook_app_id
-    FACEBOOK_APP_SECRET=your_facebook_app_secret
-    NEXT_PUBLIC_META_CONFIG_ID=your_facebook_login_config_id
-
     # This must be your publicly accessible application URL
     NEXT_PUBLIC_APP_URL=https://your-app-domain.com
 
+    # --- Meta/Facebook Integration ---
+
+    # For WhatsApp Account Onboarding (Wachat Suite)
+    NEXT_PUBLIC_META_ONBOARDING_APP_ID=your_whatsapp_onboarding_app_id
+    META_ONBOARDING_APP_SECRET=your_whatsapp_onboarding_app_secret
+    NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID=your_facebook_login_config_id_for_whatsapp
+
+    # For Facebook Page Integration (Meta Suite)
+    NEXT_PUBLIC_FACEBOOK_APP_ID=your_facebook_page_app_id
+    FACEBOOK_APP_SECRET=your_facebook_page_app_secret
+    
+    # For Instagram Integration
+    NEXT_PUBLIC_INSTAGRAM_APP_ID=your_instagram_app_id
+    INSTAGRAM_APP_SECRET=your_instagram_app_secret
+    
     # Meta Webhooks (for receiving messages and updates)
     META_VERIFY_TOKEN=a_random_secure_string_for_webhooks
 

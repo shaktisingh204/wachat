@@ -9,7 +9,7 @@ import { InstagramEmbeddedSignup } from '@/components/wabasimplify/instagram-emb
 import { ManualInstagramSetupDialog } from '@/components/wabasimplify/manual-instagram-setup-dialog';
 
 export default function InstagramSetupPage() {
-  const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+  const appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID;
 
   if (!appId) {
     return (
@@ -17,7 +17,7 @@ export default function InstagramSetupPage() {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Configuration Error</AlertTitle>
             <AlertDescription>
-                <p>NEXT_PUBLIC_FACEBOOK_APP_ID must be set in your .env file.</p>
+                <p>NEXT_PUBLIC_INSTAGRAM_APP_ID must be set in your .env file.</p>
                 <p className="mt-2 text-xs">Please contact the system administrator to configure the integration correctly.</p>
             </AlertDescription>
         </Alert>
@@ -39,7 +39,7 @@ export default function InstagramSetupPage() {
                 <CardDescription>Use the secure pop-up to connect your account in a few clicks.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col items-center justify-center text-center gap-6">
-                <InstagramEmbeddedSignup appId={appId} />
+                <InstagramEmbeddedSignup appId={appId} state="instagram" />
                 <p className="text-xs text-muted-foreground">
                     You will be redirected to Facebook to authorize the connection.
                 </p>

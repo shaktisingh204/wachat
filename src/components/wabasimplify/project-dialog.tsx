@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useActionState } from 'react';
@@ -103,7 +102,7 @@ export function CreateProjectDialog() {
             </div>
              <div className="space-y-2">
               <Label htmlFor="appId">App ID</Label>
-              <Input id="appId" name="appId" placeholder="Your Meta App ID" required />
+              <Input id="appId" name="appId" placeholder="Your Meta App ID" defaultValue={process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="accessToken">Permanent Access Token</Label>

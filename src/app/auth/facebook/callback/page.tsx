@@ -17,6 +17,7 @@ function FacebookCallbackComponent() {
 
     useEffect(() => {
         const code = searchParams.get('code');
+        const state = searchParams.get('state') || 'facebook'; // default to facebook if state is missing
         const errorParam = searchParams.get('error_description');
 
         if (errorParam) {
@@ -25,11 +26,12 @@ function FacebookCallbackComponent() {
         }
 
         if (code) {
-            handleFacebookOAuthCallback(code)
+            handleFacebookOAuthCallback(code, state)
                 .then(result => {
                     if (result.success) {
                         setMessage('Connection successful! Redirecting to your dashboard...');
-                        router.push('/dashboard/facebook/all-projects');
+                        const redirectPath = state === 'instagram' ? '/dashboard/instagram/connections' : '/dashboard/facebook/all-projects';
+                        router.push(redirectPath);
                         router.refresh();
                     } else {
                         setError(result.error || 'An unknown error occurred during connection.');

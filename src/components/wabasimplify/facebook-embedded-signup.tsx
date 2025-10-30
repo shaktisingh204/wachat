@@ -9,9 +9,10 @@ import { LoaderCircle } from 'lucide-react';
 
 interface FacebookEmbeddedSignupProps {
   appId: string;
+  state: string;
 }
 
-export function FacebookEmbeddedSignup({ appId }: FacebookEmbeddedSignupProps) {
+export function FacebookEmbeddedSignup({ appId, state }: FacebookEmbeddedSignupProps) {
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
@@ -29,8 +30,9 @@ export function FacebookEmbeddedSignup({ appId }: FacebookEmbeddedSignupProps) {
     }
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
-    const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging,catalog_management,whatsapp_business_management,whatsapp_business_messaging';
-    const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
+    const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging,catalog_management';
+    
+    const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&state=${state}`;
 
     return (
         <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
