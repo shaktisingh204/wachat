@@ -7,7 +7,7 @@ import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/user.actions';
-import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction } from '@/lib/definitions';
+import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, Plan } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import FormData from 'form-data';
@@ -166,84 +166,6 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
     } catch (e: any) {
         console.error("Failed to update phone number profile:", e);
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
-    }
-}
-
-export async function handleSyncTemplates(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or you do not have access.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        
-        const { wabaId, accessToken } = project;
-
-        const allTemplates: MetaTemplate[] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
-
-        while(nextUrl) {
-            const response = await fetch(nextUrl, { method: 'GET' });
-
-            if (!response.ok) {
-                let reason = 'Unknown API Error';
-                try {
-                    const errorData = await response.json();
-                    reason = errorData?.error?.message || reason;
-                } catch (e) {
-                    reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
-                }
-                return { error: `Failed to fetch templates from Meta: ${reason}` };
-            }
-
-            const templatesResponse: MetaTemplatesResponse = await response.json();
-            
-            if (templatesResponse.data && templatesResponse.data.length > 0) {
-                allTemplates.push(...templatesResponse.data);
-            }
-
-            nextUrl = templatesResponse.paging?.next;
-        }
-        
-        if (allTemplates.length === 0) {
-            return { message: "No templates found in your WhatsApp Business Account to sync." }
-        }
-
-        const templatesToUpsert = allTemplates.map(t => {
-            const bodyComponent = t.components.find(c => c.type === 'BODY');
-            const headerComponent = t.components.find(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format || ''));
-            
-            return {
-                name: t.name,
-                category: t.category,
-                language: t.language,
-                status: t.status,
-                body: bodyComponent?.text || '',
-                projectId: new ObjectId(projectId),
-                metaId: t.id,
-                components: t.components,
-                qualityScore: t.quality_score?.score?.toUpperCase() || 'UNKNOWN',
-                headerSampleUrl: headerComponent?.example?.header_handle?.[0] ? `https://graph.facebook.com/${headerComponent.example.header_handle[0]}` : undefined
-            };
-        });
-
-        const bulkOps = templatesToUpsert.map(template => ({
-            updateOne: {
-                filter: { metaId: template.metaId, projectId: template.projectId },
-                update: { $set: template },
-                upsert: true,
-            }
-        }));
-
-        const result = await db.collection('templates').bulkWrite(bulkOps);
-        const syncedCount = result.upsertedCount + result.modifiedCount;
-        
-        revalidatePath('/dashboard/templates');
-        
-        return { message: `Successfully synced ${syncedCount} template(s).`, count: syncedCount };
-
-    } catch (e: any) {
-        console.error('Template sync failed:', e);
-        return { error: e.message || 'An unexpected error occurred during template sync.' };
     }
 }
 
@@ -886,3 +808,90 @@ export async function getTransactionsForProject(projectId: string): Promise<With
         return [];
     }
 }
+
+export async function handleManualWachatSetup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'You must be logged in to create a project.' };
+    }
+
+    const wabaId = formData.get('wabaId') as string;
+    const appId = formData.get('appId') as string;
+    const accessToken = formData.get('accessToken') as string;
+    const includeCatalog = formData.get('includeCatalog') === 'on';
+
+    if (!wabaId || !appId || !accessToken) {
+        return { error: 'WABA ID, App ID, and Access Token are required.' };
+    }
+
+    try {
+        // We will now attempt to create the project first, and only then try to subscribe the webhook.
+        // This prevents setup failure if the token is valid but lacks webhook permissions.
+        
+        let businessId: string | undefined = undefined;
+        if(includeCatalog) {
+            try {
+                const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
+                    params: { access_token: accessToken }
+                });
+                const businesses = businessesResponse.data.data;
+                if (businesses && businesses.length > 0) {
+                    businessId = businesses[0].id;
+                } else {
+                    console.warn("Could not find a Meta Business Account associated with this token to enable Catalog features.");
+                }
+            } catch(e) {
+                // Non-fatal, just means catalog features might not work
+                console.warn("Could not retrieve business ID for catalog features:", getErrorMessage(e));
+            }
+        }
+        
+        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name&access_token=${accessToken}`);
+        const projectData = await projectDetailsResponse.json();
+
+        if (projectData.error) {
+            return { error: `Meta API Error (fetching project name): ${projectData.error.message}` };
+        }
+
+        const { db } = await connectToDatabase();
+        
+        const existingProject = await db.collection('projects').findOne({ wabaId: wabaId, userId: new ObjectId(session.user._id) });
+        if(existingProject) {
+            return { error: 'A project with this WABA ID already exists for your account.'};
+        }
+
+        const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
+        
+        const newProject: Omit<Project, '_id'> = {
+            userId: new ObjectId(session.user._id),
+            name: projectData.name,
+            wabaId: wabaId,
+            appId: appId,
+            businessId: businessId,
+            accessToken: accessToken,
+            phoneNumbers: [],
+            createdAt: new Date(),
+            messagesPerSecond: 80,
+            planId: defaultPlan?._id,
+            credits: defaultPlan?.signupCredits || 0,
+            hasCatalogManagement: includeCatalog,
+        };
+
+        const result = await db.collection('projects').insertOne(newProject as any);
+        
+        // Attempt to subscribe to webhooks after creation, but don't fail the entire process if it doesn't work.
+        if(result.insertedId) {
+            await handleSyncPhoneNumbers(result.insertedId.toString());
+            await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
+        }
+
+        revalidatePath('/dashboard');
+        
+        return { message: `Project "${projectData.name}" created successfully!` };
+
+    } catch (e: any) {
+        console.error('Manual project creation failed:', e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+    
