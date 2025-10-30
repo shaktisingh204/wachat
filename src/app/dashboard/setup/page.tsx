@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 
 export default function SetupPage() {
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
+  const [includeCatalog, setIncludeCatalog] = useState(true);
 
   if (!appId) {
     return (
@@ -46,6 +47,14 @@ export default function SetupPage() {
                     You will be redirected to Facebook to authorize the connection.
                 </p>
             </CardContent>
+            <CardFooter>
+                 <div className="flex items-center space-x-2">
+                    <Checkbox id="include-catalog" checked={includeCatalog} onCheckedChange={(checked) => setIncludeCatalog(!!checked)} />
+                    <Label htmlFor="include-catalog" className="text-sm font-normal">
+                        Include permissions for Catalog Management
+                    </Label>
+                </div>
+            </CardFooter>
         </Card>
         <CreateProjectDialog />
       </div>
