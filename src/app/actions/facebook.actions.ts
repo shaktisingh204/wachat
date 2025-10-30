@@ -71,12 +71,18 @@ export async function handleFacebookPageSetup(data: {
     }
 }
 
-export async function handleFacebookOAuthCallback(code: string): Promise<{ success: boolean; error?: string }> {
+export async function handleFacebookOAuthCallback(code: string, state: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied." };
 
-    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
-    const appSecret = process.env.FACEBOOK_APP_SECRET;
+    const { appId, appSecret } = (() => {
+        if (state === 'instagram') {
+            return { appId: process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID, appSecret: process.env.INSTAGRAM_APP_SECRET };
+        }
+        // Default to Facebook/Meta Suite credentials
+        return { appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID, appSecret: process.env.FACEBOOK_APP_SECRET };
+    })();
+    
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!appUrl) {
@@ -85,7 +91,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
 
     if (!appId || !appSecret) {
-        return { success: false, error: 'Server is not configured for Facebook authentication. Please ensure NEXT_PUBLIC_FACEBOOK_APP_ID and FACEBOOK_APP_SECRET are set in your environment variables.' };
+        return { success: false, error: `Server is not configured for ${state} authentication. Please ensure credentials are set in your environment variables.` };
     }
 
     try {

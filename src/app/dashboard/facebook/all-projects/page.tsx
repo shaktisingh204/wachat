@@ -5,7 +5,7 @@ import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { getProjects } from '@/app/actions';
 import type { WithId, Project } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
 import { CheckCircle, Facebook, Wrench } from 'lucide-react';
@@ -68,7 +68,7 @@ export default function AllFacebookPagesPage() {
 
     const fetchData = () => {
         startLoading(async () => {
-            const projectsData = await getProjects();
+            const projectsData = await getProjects(undefined, 'facebook');
             setProjects(projectsData);
         });
     }
@@ -105,9 +105,9 @@ export default function AllFacebookPagesPage() {
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-4 items-center justify-center">
                     {appId ? (
-                        <FacebookEmbeddedSignup appId={appId} />
+                        <FacebookEmbeddedSignup appId={appId} state="facebook" />
                     ) : (
-                         <p className="text-sm text-destructive">Admin has not configured Facebook integration.</p>
+                         <p className="text-sm text-destructive">Admin has not configured the Facebook App ID.</p>
                     )}
                     <ManualFacebookSetupDialog onSuccess={fetchData} />
                 </CardContent>

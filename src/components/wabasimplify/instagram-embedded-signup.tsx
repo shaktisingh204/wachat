@@ -9,9 +9,10 @@ import { LoaderCircle } from 'lucide-react';
 
 interface InstagramEmbeddedSignupProps {
   appId: string;
+  state: string;
 }
 
-export function InstagramEmbeddedSignup({ appId }: InstagramEmbeddedSignupProps) {
+export function InstagramEmbeddedSignup({ appId, state }: InstagramEmbeddedSignupProps) {
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
@@ -30,7 +31,7 @@ export function InstagramEmbeddedSignup({ appId }: InstagramEmbeddedSignupProps)
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
     const scopes = 'pages_show_list,instagram_basic,instagram_content_publish,business_management,pages_manage_posts,read_insights,pages_manage_engagement';
-    const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
+    const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&state=${state}`;
 
     return (
         <Button asChild size="lg" className="bg-instagram hover:bg-instagram/90">
