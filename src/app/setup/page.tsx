@@ -11,8 +11,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
 export default function SetupPage() {
-  const appId = process.env.NEXT_PUBLIC_META_APP_ID;
-  const configId = process.env.META_CONFIG_ID;
+  const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
+  const configId = process.env.NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID;
   const [includeCatalog, setIncludeCatalog] = useState(true);
 
   if (!appId || !configId) {
@@ -21,7 +21,7 @@ export default function SetupPage() {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Configuration Error</AlertTitle>
             <AlertDescription>
-                <p>NEXT_PUBLIC_META_APP_ID and META_CONFIG_ID must be set in your .env file.</p>
+                <p>NEXT_PUBLIC_META_ONBOARDING_APP_ID and NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID must be set in your .env file.</p>
                 <p className="mt-2 text-xs">Please contact the system administrator to configure the integration correctly.</p>
             </AlertDescription>
         </Alert>

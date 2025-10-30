@@ -75,14 +75,23 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied." };
 
-    const { appId, appSecret } = (() => {
-        if (state === 'instagram') {
-            return { appId: process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID, appSecret: process.env.INSTAGRAM_APP_SECRET };
+    const appConfig = {
+        instagram: {
+            appId: process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID,
+            appSecret: process.env.INSTAGRAM_APP_SECRET
+        },
+        facebook: {
+            appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
+            appSecret: process.env.FACEBOOK_APP_SECRET
+        },
+        whatsapp: {
+            appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
+            appSecret: process.env.META_ONBOARDING_APP_SECRET,
         }
-        // Default to Facebook/Meta Suite credentials
-        return { appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID, appSecret: process.env.FACEBOOK_APP_SECRET };
-    })();
+    };
     
+    const { appId, appSecret } = appConfig[state as keyof typeof appConfig] || appConfig.facebook;
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!appUrl) {

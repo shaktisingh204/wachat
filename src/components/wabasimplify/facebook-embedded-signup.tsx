@@ -30,7 +30,7 @@ export function FacebookEmbeddedSignup({ appId, state }: FacebookEmbeddedSignupP
     }
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
-    const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging,catalog_management';
+    const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging,catalog_management,instagram_basic,instagram_content_publish';
     
     const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&state=${state}`;
 

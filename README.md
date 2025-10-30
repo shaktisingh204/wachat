@@ -1,3 +1,4 @@
+
 # SabNode - Business Communication & Growth Platform
 
 This document provides a comprehensive guide to setting up, running, and using the SabNode application, including its high-throughput WhatsApp broadcasting system powered by Redpanda/Kafka.
