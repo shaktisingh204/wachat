@@ -4,16 +4,15 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FacebookIcon } from './custom-sidebar-components';
-import { LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
+import { LoaderCircle } from 'lucide-react';
 
 interface EmbeddedSignupProps {
   appId: string;
-  configId: string; // Kept for prop compatibility but unused in new flow
   includeCatalog: boolean;
 }
 
-export function EmbeddedSignup({ appId, configId, includeCatalog }: EmbeddedSignupProps) {
+export function EmbeddedSignup({ appId, includeCatalog }: EmbeddedSignupProps) {
   const [isClient, setIsClient] = useState(false);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
