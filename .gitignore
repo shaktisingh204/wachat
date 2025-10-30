@@ -12,32 +12,7 @@
 
 # testing
 /coverage
-/src/app/actions.ts
-/src/app/actions/whatsapp.actions.ts
-/src/app/actions/qr-code.actions.ts
-/src/app/actions/contact.actions.ts
-/src/app/actions/broadcast.actions.ts
-/src/app/actions/email.actions.ts
-/src/app/actions/facebook.actions.ts
-/src/app/actions/calling.actions.ts
-/src/app/actions/custom-ecommerce.actions.ts
-/src/app/actions/instagram.actions.ts
-/src/app/actions/admin.actions.ts
-/src/app/actions/catalog.actions.ts
-/src/app/actions/billing.actions.ts
-/src/app/actions/meta-flow.actions.ts
-/src/app/actions/project.actions.ts
-/src/app/actions/template.actions.ts
-/src/components/wabasimplify/whatsapp.actions.ts
-/src/app/actions/crm-tasks.actions.ts
-/src/app/actions/custom-ecommerce-flow.actions.ts
-/src/app/actions/portfolio.actions.ts
-/src/app/actions/crm-accounting.actions.ts
-/src/app/actions/notification.actions.ts
-/src/app/actions/integrations.actions.ts
-/src/app/actions/url-shortener.actions.ts
-/src/app/actions/crm.actions.ts
-/src/components/wabasimplify/meta-flow-editor/
+
 # next.js
 /.next/
 /out/
@@ -45,10 +20,53 @@
 # production
 /build
 
+/src/app/actions.ts
 # misc
 .DS_Store
 *.pem
+# **/crm-*.actions.ts
+# /src/app/actions/crm-*.actions.ts
+# /src/app/actions/calling.actions.ts
+# /src/app/actions/custom-ecommerce.actions.ts
+# /src/app/actions/admin.actions.ts
+# /src/app/actions/catalog.actions.ts
+# /src/app/actions/billing.actions.ts
+# /src/app/actions/qr-code.actions.ts
+# /src/app/actions/contact.actions.ts
+# /src/app/actions/broadcast.actions.ts
+# /src/app/actions/email.actions.ts
+# /src/app/actions/crm-accounting.actions.ts
+# /src/app/actions/crm-accounts.actions.ts
+# /src/app/actions/crm-automations.actions.ts
+# /src/app/actions/crm-credit-notes.actions.ts
+# /src/app/actions/crm-deals.actions.ts
+# /src/app/actions/crm-delivery-challans.actions.ts
+# /src/app/actions/crm-email.actions.ts
+# /src/app/actions/crm-email-templates.actions.ts
+# /src/app/actions/crm-forms.actions.ts
+# /src/app/actions/crm-inventory.actions.ts
+# /src/app/actions/crm-invoices.actions.ts
+# /src/app/actions/crm-payment-accounts.actions.ts
+# /src/app/actions/crm-payment-receipts.actions.ts
+# /src/app/actions/crm-pipelines.actions.ts
+# /src/app/actions/crm-products.actions.ts
+# /src/app/actions/crm-quotations.actions.ts
+# /src/app/actions/crm-reconciliation.actions.ts
+# /src/app/actions/crm-reports.actions.ts
+# /src/app/actions/crm-roles.actions.ts
+# /src/app/actions/crm-sales-orders.actions.ts
+# /src/app/actions/crm-tasks.actions.ts
+# /src/app/actions/crm-vendors.actions.ts
+# /src/app/actions/crm-vouchers.actions.ts
+# /src/app/actions/crm-warehouses.actions.ts
+# Ignore all action files by default
+/src/app/actions/*.actions.ts
 
+# But keep social platform related files
+!/src/app/actions/facebook.actions.ts
+!/src/app/actions/facebook-flow.actions.ts
+!/src/app/actions/instagram.actions.ts
+!/src/app/actions/whatsapp.actions.ts
 # debug
 npm-debug.log*
 yarn-debug.log*
