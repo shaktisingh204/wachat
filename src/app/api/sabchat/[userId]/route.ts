@@ -199,7 +199,7 @@ export async function GET(
                     await fetch('${appUrl}/api/sabchat/message', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ sessionId: currentSessionId, content })
+                        body: JSON.stringify({ sessionId: currentSessionId, content, sender: 'visitor' })
                     });
                 }
                 
@@ -257,7 +257,3 @@ export async function GET(
         return new NextResponse('Internal Server Error', { status: 500 });
     }
 }
-
-    
-
-    
