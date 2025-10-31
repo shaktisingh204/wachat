@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -10,9 +11,9 @@ import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
 import { getEcommShopById } from './custom-ecommerce.actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
-import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook } from './whatsapp.actions';
+import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook, handleManualWachatSetup } from './whatsapp.actions';
 
 
 async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToken: string): Promise<{ success: boolean, error?: string }> {
@@ -91,7 +92,8 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         }
     };
     
-    const { appId, appSecret } = appConfig[state as keyof typeof appConfig] || appConfig.facebook;
+    const config = appConfig[state as keyof typeof appConfig] || appConfig.facebook;
+    const { appId, appSecret } = config;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!appUrl) {
@@ -104,14 +106,8 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
     }
 
     try {
-        // 1. Exchange code for a long-lived access token
         const tokenResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
-            params: {
-                client_id: appId,
-                redirect_uri: redirectUri,
-                client_secret: appSecret,
-                code: code,
-            }
+            params: { client_id: appId, redirect_uri: redirectUri, client_secret: appSecret, code: code }
         });
         const shortLivedToken = tokenResponse.data.access_token;
         if (!shortLivedToken) return { success: false, error: 'Failed to obtain access token from Facebook.' };
@@ -122,43 +118,57 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         const longLivedToken = longLivedResponse.data.access_token;
         if (!longLivedToken) return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
 
-        // Save the long-lived user token
         const { db } = await connectToDatabase();
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user._id) },
             { $set: { facebookUserAccessToken: longLivedToken } }
         );
 
-        // Fetch associated pages the user has access to
-        const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', { 
-            params: { 
-                fields: 'id,name,access_token', 
-                access_token: longLivedToken 
+        if (state === 'whatsapp') {
+            const businessesResponse = await axios.get('https://graph.facebook.com/v23.0/me/businesses', { params: { access_token: longLivedToken }});
+            const businessId = businessesResponse.data?.data?.[0]?.id;
+            if (!businessId) {
+                return { success: false, error: "No Meta Business Account found. Please ensure you have a business account connected." };
             }
-        });
-        const userPagesWithShortTokens = pagesResponse.data?.data;
 
-        if (!userPagesWithShortTokens || userPagesWithShortTokens.length === 0) {
-             return { success: false, error: 'No manageable Facebook Pages found. Please ensure you granted access to at least one page.' };
-        }
-        
-        const validPages = await Promise.all(
-            userPagesWithShortTokens.map(async (page: any) => {
-                try {
-                    const pageTokenResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
-                        params: { grant_type: 'fb_exchange_token', client_id: appId, client_secret: appSecret, fb_exchange_token: page.access_token }
-                    });
-                    return { ...page, access_token: pageTokenResponse.data.access_token };
-                } catch (e) {
-                    console.error(`Failed to get long-lived token for page ${page.id}`, getErrorMessage(e));
-                    return null;
-                }
-            })
-        );
-        const pagesWithTokens = validPages.filter(Boolean);
+            const wabasResponse = await axios.get<MetaWabasResponse>(`https://graph.facebook.com/v23.0/${businessId}/whatsapp_business_accounts`, { params: { access_token: longLivedToken } });
+            const wabas = wabasResponse.data.data;
+            if (!wabas || wabas.length === 0) {
+                 return { success: false, error: "No WhatsApp Business Accounts found for your business. Please create one in Meta Business Suite." };
+            }
 
-        // Now, based on the state, either create/update Facebook projects or just log info for now
-        if (state === 'facebook' || state === 'instagram') {
+            for (const waba of wabas) {
+                const formData = new FormData();
+                formData.append('wabaId', waba.id);
+                formData.append('appId', appId);
+                formData.append('accessToken', longLivedToken);
+                await handleManualWachatSetup(null, formData);
+            }
+            revalidatePath('/dashboard');
+            return { success: true, redirectPath: '/dashboard' };
+
+        } else if (state === 'facebook' || state === 'instagram') {
+             const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', { 
+                params: { fields: 'id,name,access_token', access_token: longLivedToken }
+            });
+            const userPagesWithShortTokens = pagesResponse.data?.data;
+            if (!userPagesWithShortTokens || userPagesWithShortTokens.length === 0) {
+                 return { success: false, error: 'No manageable Facebook Pages found. Please ensure you granted access to at least one page.' };
+            }
+            
+            const pagesWithTokens = (await Promise.all(
+                userPagesWithShortTokens.map(async (page: any) => {
+                    try {
+                        const pageTokenResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
+                            params: { grant_type: 'fb_exchange_token', client_id: appId, client_secret: appSecret, fb_exchange_token: page.access_token }
+                        });
+                        return { ...page, access_token: pageTokenResponse.data.access_token };
+                    } catch (e) {
+                        return null;
+                    }
+                })
+            )).filter(Boolean);
+
              const adAccountsResponse = await axios.get('https://graph.facebook.com/v23.0/me/adaccounts', { params: { access_token: longLivedToken }});
              const adAccountId = adAccountsResponse.data?.data?.[0]?.id;
 
@@ -178,23 +188,17 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
             for (const page of pagesWithTokens) {
                 await handleSubscribeFacebookPageWebhook(page.id, page.access_token);
             }
+            
+            let redirectPath = state === 'instagram' ? '/dashboard/instagram/connections' : '/dashboard/facebook/all-projects';
+            revalidatePath('/dashboard/facebook/all-projects');
+            revalidatePath('/dashboard/instagram/connections');
+            return { success: true, redirectPath };
         }
         
-        // This is the crucial part that was missing. It determines the redirect path.
-        let redirectPath = '/dashboard';
-        if (state === 'facebook') {
-            redirectPath = '/dashboard/facebook/all-projects';
-        } else if (state === 'instagram') {
-            redirectPath = '/dashboard/instagram/connections';
-        }
-        
-        revalidatePath('/dashboard');
-        revalidatePath('/dashboard/facebook/all-projects');
-        revalidatePath('/dashboard/instagram/connections');
-        return { success: true, redirectPath };
+        return { success: false, error: 'Invalid state received during authentication.' };
 
     } catch(e) {
-        console.error("Facebook OAuth Callback failed:", e);
+        console.error("Facebook OAuth Callback failed:", getErrorMessage(e));
         return { success: false, error: getErrorMessage(e) };
     }
 }

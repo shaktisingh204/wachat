@@ -79,7 +79,6 @@ export type Website = {
 export type WebsitePage = {
     _id: ObjectId;
     siteId: ObjectId;
-    userId: ObjectId;
     name: string;
     slug: string;
     layout: WebsiteBlock[];
