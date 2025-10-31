@@ -56,7 +56,6 @@ Before you begin, ensure you have the following installed on your system:
     # For WhatsApp Account Onboarding (Wachat Suite)
     NEXT_PUBLIC_META_ONBOARDING_APP_ID=your_whatsapp_onboarding_app_id
     META_ONBOARDING_APP_SECRET=your_whatsapp_onboarding_app_secret
-    NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID=your_facebook_login_config_id_for_whatsapp
 
     # For Facebook Page Integration (Meta Suite)
     NEXT_PUBLIC_FACEBOOK_APP_ID=your_facebook_page_app_id

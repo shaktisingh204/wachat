@@ -29,29 +29,10 @@ function FacebookCallbackComponent() {
         if (code) {
             handleFacebookOAuthCallback(code, state)
                 .then(result => {
-                    if (result.success) {
+                    if (result.success && result.redirectPath) {
                         setMessage('Connection successful! Syncing data and redirecting...');
-                        // The server action now provides the correct redirect path
-                        if (result.redirectPath) {
-                            // If it's a WhatsApp onboarding, we fetch projects to find the new one.
-                            if (state === 'whatsapp') {
-                                setTimeout(() => {
-                                    getProjectById(result.redirectPath as string).then((project) => {
-                                        if (project) {
-                                            localStorage.setItem('activeProjectId', project._id.toString());
-                                            localStorage.setItem('activeProjectName', project.name);
-                                        }
-                                        router.push('/dashboard');
-                                        router.refresh();
-                                    });
-                                }, 2000); // Give a moment for data to sync
-                            } else {
-                                router.push(result.redirectPath);
-                                router.refresh();
-                            }
-                        } else {
-                            setError('Redirect path was not provided by the server.');
-                        }
+                        router.push(result.redirectPath);
+                        router.refresh();
                     } else {
                         setError(result.error || 'An unknown error occurred during connection.');
                     }
