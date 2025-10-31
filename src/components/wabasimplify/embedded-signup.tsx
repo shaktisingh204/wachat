@@ -10,9 +10,10 @@ import { LoaderCircle } from 'lucide-react';
 interface EmbeddedSignupProps {
   appId: string;
   state?: string;
+  includeCatalog?: boolean;
 }
 
-export function EmbeddedSignup({ appId, state = 'whatsapp' }: EmbeddedSignupProps) {
+export function EmbeddedSignup({ appId, state = 'whatsapp', includeCatalog }: EmbeddedSignupProps) {
   const [isClient, setIsClient] = useState(false);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
