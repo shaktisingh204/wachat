@@ -10,10 +10,9 @@ import { LoaderCircle } from 'lucide-react';
 interface EmbeddedSignupProps {
   appId: string;
   state?: string;
-  includeCatalog?: boolean;
 }
 
-export function EmbeddedSignup({ appId, state = 'whatsapp', includeCatalog }: EmbeddedSignupProps) {
+export function EmbeddedSignup({ appId, state = 'whatsapp' }: EmbeddedSignupProps) {
   const [isClient, setIsClient] = useState(false);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
@@ -31,7 +30,7 @@ export function EmbeddedSignup({ appId, state = 'whatsapp', includeCatalog }: Em
 
   const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
   
-  // WhatsApp onboarding requires a specific set of permissions.
+  // These scopes are comprehensive to cover WABA onboarding, messaging, and business discovery.
   const scopes = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
   
   const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&state=${state}`;
