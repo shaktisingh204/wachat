@@ -190,10 +190,16 @@ export async function GET(
                     chatHistory.push({ sender: 'visitor', content });
                     updateChatHistory();
 
+                    const currentSessionId = localStorage.getItem('sabchat_session_id');
+                    if (!currentSessionId) {
+                        console.error("SabChat: No session ID found to send message.");
+                        return;
+                    }
+
                     await fetch('${appUrl}/api/sabchat/message', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ sessionId: localStorage.getItem('sabchat_session_id'), content })
+                        body: JSON.stringify({ sessionId: currentSessionId, content })
                     });
                 }
                 
@@ -251,5 +257,7 @@ export async function GET(
         return new NextResponse('Internal Server Error', { status: 500 });
     }
 }
+
+    
 
     
