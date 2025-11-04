@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { TrendingUp, BarChart, DollarSign, Target } from 'lucide-react';
+import { TrendingUp, BarChart, DollarSign, Target, Users as UsersIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { Skeleton } from "@/components/ui/skeleton";
 
