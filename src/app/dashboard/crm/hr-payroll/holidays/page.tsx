@@ -18,7 +18,7 @@ import { format } from 'date-fns';
 const saveInitialState = { message: null, error: null };
 
 function SaveButton() {
-    const { pending } } from useFormStatus();
+    const { pending } = useFormStatus();
     return <Button type="submit" disabled={pending}>{pending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Add Holiday</Button>;
 }
 
