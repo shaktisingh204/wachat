@@ -22,7 +22,8 @@ export default function QrCodeMakerPage() {
             setIsLoading(true);
             const sessionData = await getSession();
             if (sessionData?.user) {
-                setSession(sessionData);
+                const plainSession = JSON.parse(JSON.stringify(sessionData));
+                setSession(plainSession);
                 const codes = await getQrCodes();
                 setQrCodes(codes);
             }

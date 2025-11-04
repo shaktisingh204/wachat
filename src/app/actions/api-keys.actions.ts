@@ -60,7 +60,7 @@ export async function getApiKeysForUser(): Promise<Omit<ApiKey, 'key'>[]> {
         }
 
         // Never expose the hashed key to the client
-        return user.apiKeys.map(({ key, ...rest }) => rest);
+        return JSON.parse(JSON.stringify(user.apiKeys.map(({ key, ...rest }) => rest)));
 
     } catch (e) {
         return [];
@@ -109,7 +109,7 @@ export async function authenticateApiKey(apiKey: string): Promise<{ success: boo
             { _id: user._id, 'apiKeys._id': storedKey._id },
             { $set: { 'apiKeys.$.lastUsed': new Date() }, $inc: { 'apiKeys.$.requestCount': 1 } }
           );
-          return { success: true, user };
+          return { success: true, user: JSON.parse(JSON.stringify(user)) };
         }
       }
     }

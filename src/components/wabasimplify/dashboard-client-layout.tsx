@@ -710,7 +710,10 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                     return;
                 }
                 const { projects } = await getProjects() || { projects: [] };
-                setInitialData({ user: session.user, projects });
+                // Serialize the data before setting state
+                const plainUser = JSON.parse(JSON.stringify(session.user));
+                const plainProjects = JSON.parse(JSON.stringify(projects));
+                setInitialData({ user: plainUser, projects: plainProjects });
             } catch (error) {
                 console.error("Initialization failed:", error);
                 router.push('/login');
