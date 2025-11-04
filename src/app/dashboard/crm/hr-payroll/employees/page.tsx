@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Plus, Users, Search, Edit } from "lucide-react";
 import Link from 'next/link';
-import { getCrmEmployees } from '@/app/actions';
+import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import { format } from 'date-fns';
 
