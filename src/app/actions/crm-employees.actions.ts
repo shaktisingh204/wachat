@@ -155,6 +155,9 @@ export async function saveCrmEmployee(prevState: any, formData: FormData): Promi
         dateOfJoining: new Date(formData.get('dateOfJoining') as string),
         departmentId: formData.get('departmentId') ? new ObjectId(formData.get('departmentId') as string) : undefined,
         designationId: formData.get('designationId') ? new ObjectId(formData.get('designationId') as string) : undefined,
+        salaryDetails: {
+            grossSalary: Number(formData.get('grossSalary') || 0)
+        }
     };
     
     if (!data.firstName || !data.lastName || !data.email || !data.employeeId || !data.dateOfJoining) {

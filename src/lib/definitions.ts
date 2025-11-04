@@ -605,7 +605,7 @@ export type CrmEmployee = {
         country?: string;
     };
     salaryDetails?: {
-        grossSalary: number;
+        grossSalary?: number;
     };
     createdAt: Date;
     updatedAt: Date;
@@ -675,6 +675,7 @@ export type CrmPayslip = {
     payPeriodEnd: Date;
     earnings: { name: string; amount: number }[];
     deductions: { name: string; amount: number }[];
+    grossSalary: number;
     netPay: number;
     status: 'draft' | 'locked' | 'paid';
     createdAt: Date;
@@ -2151,6 +2152,14 @@ export type CrmCreditNote = {
     total: number;
     createdAt: Date;
     updatedAt: Date;
+};
+
+export type CreditNoteLineItem = {
+    id: string;
+    name: string;
+    description: string;
+    quantity: number;
+    rate: number;
 };
 
 
