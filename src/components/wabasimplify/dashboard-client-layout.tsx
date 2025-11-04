@@ -483,11 +483,12 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     const CollapsibleSidebarItem = ({ item }: { item: any }) => {
         const isOpen = pathname.startsWith(item.href);
+        const Icon = item.icon;
         return (
             <Collapsible defaultOpen={isOpen}>
                 <CollapsibleTrigger asChild>
                      <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
-                        <item.icon /><span>{item.label}</span><ChevronRight className="ml-auto transition-transform group-data-[state=open]:rotate-90"/>
+                        {Icon && <Icon />}<span>{item.label}</span><ChevronRight className="ml-auto transition-transform group-data-[state=open]:rotate-90"/>
                     </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent asChild>
