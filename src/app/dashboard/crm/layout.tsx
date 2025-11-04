@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { BarChart, Handshake, ShoppingBag, Briefcase, Database, ChevronDown, FileText, Landmark, Users as UsersIcon, BarChart2, Star } from 'lucide-react';
+import { BarChart, Handshake, ShoppingBag, Briefcase, Database, ChevronDown, FileText, Landmark, Users as UsersIcon, BarChart2, Star, Settings } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const CrmNavItems = [
@@ -152,6 +152,12 @@ const CrmNavItems = [
                     { href: "/dashboard/crm/hr-payroll/reports/leave", label: "Leave Report" },
                     { href: "/dashboard/crm/hr-payroll/reports/payroll-summary", label: "Payroll Summary" },
                     { href: "/dashboard/crm/hr-payroll/reports/salary-register", label: "Salary Register" },
+                ],
+            },
+            {
+                label: 'HRM Settings',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/settings", label: "All Settings" },
                 ],
             }
         ],
