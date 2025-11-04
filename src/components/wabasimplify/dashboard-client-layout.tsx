@@ -492,7 +492,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 </CollapsibleTrigger>
                 <CollapsibleContent asChild>
                     <SidebarMenu className="pl-4">
-                        {item.subItems.map((subItem: any) => 
+                        {(item.subItems || []).map((subItem: any) => 
                             subItem.subSubItems ? (
                                 <CollapsibleSidebarItem key={subItem.label} item={subItem} />
                             ) : (
