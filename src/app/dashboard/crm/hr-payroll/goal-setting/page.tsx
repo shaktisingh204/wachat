@@ -3,8 +3,7 @@
 
 import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
 import type { WithId } from 'mongodb';
-import { getCrmGoals, saveCrmGoal, deleteCrmGoal } from '@/app/actions/crm-hr.actions';
-import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
+import { getCrmGoals, saveCrmGoal, deleteCrmGoal, getCrmEmployees } from '@/app/actions';
 import type { CrmGoal, CrmEmployee } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';

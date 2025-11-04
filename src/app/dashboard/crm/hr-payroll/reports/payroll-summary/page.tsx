@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Download, IndianRupee, Users, BarChart } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generatePayrollSummaryData } from "@/app/actions/crm-hr-reports.actions";
+import { generatePayrollSummaryData } from "@/app/actions";
 import { LoaderCircle } from "lucide-react";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
