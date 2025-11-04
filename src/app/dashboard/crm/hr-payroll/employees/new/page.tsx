@@ -5,7 +5,7 @@ import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getCrmDepartments, getCrmDesignations, getCrmEmployees } from '@/app/actions';
+import { getCrmDepartments, getCrmDesignations, getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { useEffect, useState } from 'react';
 
 export default function NewEmployeePage() {
