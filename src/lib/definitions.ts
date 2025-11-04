@@ -606,6 +606,7 @@ export type CrmEmployee = {
     };
     salaryDetails?: {
         grossSalary?: number;
+        salaryStructureId?: ObjectId;
     };
     createdAt: Date;
     updatedAt: Date;

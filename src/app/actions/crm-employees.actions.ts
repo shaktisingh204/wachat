@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -156,7 +157,8 @@ export async function saveCrmEmployee(prevState: any, formData: FormData): Promi
         departmentId: formData.get('departmentId') ? new ObjectId(formData.get('departmentId') as string) : undefined,
         designationId: formData.get('designationId') ? new ObjectId(formData.get('designationId') as string) : undefined,
         salaryDetails: {
-            grossSalary: Number(formData.get('grossSalary') || 0)
+            grossSalary: Number(formData.get('grossSalary') || 0),
+            salaryStructureId: formData.get('salaryStructureId') ? new ObjectId(formData.get('salaryStructureId') as string) : undefined,
         }
     };
     
