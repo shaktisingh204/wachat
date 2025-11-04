@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Users, UserPlus, Trophy, DollarSign, Handshake, LoaderCircle } from 'lucide-react';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 

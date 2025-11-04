@@ -2,7 +2,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { handleSyncWabas } from '@/app/actions';
+import { handleSyncWabas } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, LoaderCircle } from 'lucide-react';

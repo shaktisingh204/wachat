@@ -1,6 +1,6 @@
 
 
-import { getTransactionsForUser } from '@/app/actions';
+import { getTransactionsForUser } from '@/app/actions/index.ts';
 import type { Transaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

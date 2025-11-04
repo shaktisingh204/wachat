@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, Save, Trash2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { handleUpdateUserProfile } from '@/app/actions';
+import { handleUpdateUserProfile } from '@/app/actions/index.ts';
 import type { WithId, User, Tag } from '@/lib/definitions';
 import { v4 as uuidv4 } from 'uuid';
 

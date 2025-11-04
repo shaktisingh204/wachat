@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart, Users, Send, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useSession } from 'next-auth/react';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 
 const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <Card>

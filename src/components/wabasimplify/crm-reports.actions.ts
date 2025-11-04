@@ -2,7 +2,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
 import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User } from '@/lib/definitions';

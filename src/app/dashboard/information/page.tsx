@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import type { WithId } from 'mongodb';
 import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { ShortUrl, User, CustomDomain } from '@/lib/definitions';
 import { nanoid } from 'nanoid';
 import { headers } from 'next/headers';

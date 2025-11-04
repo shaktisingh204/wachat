@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getSession, type User } from '@/app/actions';
+import { getSession, type User } from '@/app/actions/index.ts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, ChevronLeft } from 'lucide-react';

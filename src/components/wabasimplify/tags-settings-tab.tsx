@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useActionState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { handleUpdateUserProfile, type User, type Tag } from '@/app/actions';
+import { handleUpdateUserProfile, type User, type Tag } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

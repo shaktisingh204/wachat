@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import type { EcommFlow, EcommFlowNode, EcommFlowEdge } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 

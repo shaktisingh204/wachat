@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { CrmAutomation, CrmAutomationNode, CrmAutomationEdge } from '@/lib/definitions';
 import { generateCrmAutomation as generateFlow } from '@/ai/flows/generate-crm-automation-flow';
 import { z } from 'zod';

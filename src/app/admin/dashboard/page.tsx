@@ -26,7 +26,7 @@ import { cn } from '@/lib/utils';
 import { AdminUpdateCreditsButton } from '@/components/wabasimplify/admin-update-credits-button';
 import { AdminUpdateMpsButton } from '@/components/wabasimplify/admin-update-mps-button';
 import { AdminAssignPlanDialog } from '@/components/wabasimplify/admin-assign-plan-dialog';
-import { getAllBroadcasts } from '@/app/actions';
+import { getAllBroadcasts } from '@/app/actions/index.ts';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';

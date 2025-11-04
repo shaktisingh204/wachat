@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getInitialChatData, getConversation, markConversationAsRead } from '@/app/actions';
+import { getInitialChatData, getConversation, markConversationAsRead } from '@/app/actions/index.ts';
 import { getContactsPageData } from '@/app/actions/contact.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, AnyMessage, Template, User, Plan } from '@/lib/definitions';

@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { getWebhookLogs, handleClearProcessedLogs, getWebhookLogPayload } from '@/app/actions';
+import { getWebhookLogs, handleClearProcessedLogs, getWebhookLogPayload } from '@/app/actions/index.ts';
 import { handleReprocessWebhook } from '@/app/actions/webhook.actions';
 import type { WebhookLogListItem } from '@/lib/definitions';
 

@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { CrmPipeline } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';

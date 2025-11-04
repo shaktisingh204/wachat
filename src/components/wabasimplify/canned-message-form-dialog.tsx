@@ -4,7 +4,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { WithId } from 'mongodb';
-import { saveCannedMessageAction } from '@/app/actions';
+import { saveCannedMessageAction } from '@/app/actions/index.ts';
 import type { CannedMessage } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import {

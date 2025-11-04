@@ -4,7 +4,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { getPaymentConfigurations, getPaymentConfigurationByName, handleDeletePaymentConfiguration } from '@/app/actions/whatsapp.actions';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, Eye, PlusCircle, Settings, Link as LinkIcon, Trash2 } from 'lucide-react';

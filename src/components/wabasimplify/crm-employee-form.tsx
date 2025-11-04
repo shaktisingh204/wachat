@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveCrmEmployee } from '@/app/actions';
+import { saveCrmEmployee } from '@/app/actions/index.ts';
 import type { WithId, CrmEmployee, CrmDepartment, CrmDesignation } from '@/lib/definitions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { DatePicker } from '../ui/date-picker';

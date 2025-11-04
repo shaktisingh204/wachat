@@ -2,7 +2,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { getAllBroadcasts } from '@/app/actions';
+import { getAllBroadcasts } from '@/app/actions/index.ts';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';

@@ -12,7 +12,7 @@ import { AlertCircle, FolderKanban, Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 
 function TasksPageSkeleton() {
     return (

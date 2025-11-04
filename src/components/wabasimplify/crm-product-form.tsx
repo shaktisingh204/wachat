@@ -14,7 +14,7 @@ import { LoaderCircle, Save, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, EcommProduct, EcommProductVariant, User, ProductBatch } from '@/lib/definitions';
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { v4 as uuidv4 } from 'uuid';

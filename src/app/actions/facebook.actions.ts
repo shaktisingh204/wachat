@@ -9,7 +9,7 @@ import FormData from 'form-data';
 
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getSession } from '@/app/actions';
+import { getProjectById, getSession } from '@/app/actions/index.ts';
 import { getEcommShopById } from './custom-ecommerce.actions';
 import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';

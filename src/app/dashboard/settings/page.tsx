@@ -13,7 +13,7 @@ import { AutoReplySettingsTab } from '@/components/wabasimplify/auto-reply-setti
 import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
 import { UserAttributesSettingsTab } from '@/components/wabasimplify/user-attributes-settings-tab';
 import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 
 function SettingsPageSkeleton() {
     return (

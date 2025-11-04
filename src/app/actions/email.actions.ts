@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation, EmailPermissions, EmailComplianceSettings, EmailSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';

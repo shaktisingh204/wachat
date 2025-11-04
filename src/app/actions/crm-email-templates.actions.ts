@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { CrmEmailTemplate } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 

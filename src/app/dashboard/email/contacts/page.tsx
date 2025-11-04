@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getEmailContacts } from '@/app/actions/email.actions';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { EmailContact, Tag, User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';

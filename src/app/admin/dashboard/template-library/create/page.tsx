@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 
 export const dynamic = 'force-dynamic';
 

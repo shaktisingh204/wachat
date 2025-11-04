@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { WithId, Project, User, Plan } from '@/lib/definitions';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProjectContextType {

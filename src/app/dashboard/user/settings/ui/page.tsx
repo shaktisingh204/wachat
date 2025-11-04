@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { handleUpdateUserProfile, getSession } from '@/app/actions';
+import { handleUpdateUserProfile, getSession } from '@/app/actions/index.ts';
 import type { User } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle, Save } from 'lucide-react';

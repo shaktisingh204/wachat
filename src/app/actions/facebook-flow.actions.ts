@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import type { FacebookFlow, FacebookFlowNode, FacebookFlowEdge } from '@/lib/definitions';
 
 export async function getFacebookFlows(projectId: string): Promise<WithId<FacebookFlow>[]> {

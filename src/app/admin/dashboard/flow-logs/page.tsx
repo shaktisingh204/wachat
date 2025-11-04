@@ -3,7 +3,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { getWebhookLogs, getWebhookLogPayload } from '@/app/actions';
+import { getWebhookLogs, getWebhookLogPayload } from '@/app/actions/index.ts';
 import type { FlowLog, FlowLogEntry } from '@/lib/definitions';
 import type { WithId } from "mongodb";
 

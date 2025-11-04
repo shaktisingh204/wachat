@@ -11,7 +11,7 @@ import { ChatMessageInput } from './chat-message-input';
 import { Button } from '../ui/button';
 import { ArrowLeft, Info, LoaderCircle, Check, Phone, Video } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { handleUpdateContactStatus } from '@/app/actions';
+import { handleUpdateContactStatus } from '@/app/actions/index.ts';
 
 interface ChatWindowProps {
     project: WithId<Project>;

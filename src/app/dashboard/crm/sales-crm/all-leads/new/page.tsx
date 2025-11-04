@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { WithId, CrmAccount, CrmPipeline, Tag, User } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';

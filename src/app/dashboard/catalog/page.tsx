@@ -5,7 +5,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { getCatalogs, connectCatalogToWaba } from '@/app/actions/catalog.actions';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import type { Catalog, Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Button } from '@/components/ui/button';

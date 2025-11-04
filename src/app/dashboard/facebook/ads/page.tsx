@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { getAdCampaigns } from '@/app/actions/facebook.actions';
 import type { WithId } from 'mongodb';
 import type { AdCampaign, Project } from '@/lib/definitions';

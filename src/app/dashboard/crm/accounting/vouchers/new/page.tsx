@@ -21,7 +21,7 @@ import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.action
 import { saveVoucherEntry, getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
 import type { WithId } from 'mongodb';
 import type { CrmChartOfAccount, CrmVoucherBook, CrmPaymentAccount } from '@/lib/definitions';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const initialState = { message: null, error: null };

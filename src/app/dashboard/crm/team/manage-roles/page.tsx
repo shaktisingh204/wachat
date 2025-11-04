@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LoaderCircle, Save, ShieldCheck, Settings, Plus, Trash2 } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { saveCrmPermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
 import type { WithId, User } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';

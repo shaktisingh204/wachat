@@ -9,7 +9,7 @@ import { AlertCircle, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { handleCreateTemplate } from '@/app/actions/template.actions';
 import { saveLibraryTemplate, getTemplateCategories } from '@/app/actions/plan.actions';
 import type { WithId } from 'mongodb';

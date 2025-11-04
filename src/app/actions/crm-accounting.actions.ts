@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { CrmAccountGroup, CrmChartOfAccount, CrmVoucherEntry } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 

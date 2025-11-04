@@ -4,7 +4,7 @@
 
 import { useTransition } from 'react';
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Rss, LoaderCircle } from 'lucide-react';

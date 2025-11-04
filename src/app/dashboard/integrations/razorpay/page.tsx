@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import type { Project } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';

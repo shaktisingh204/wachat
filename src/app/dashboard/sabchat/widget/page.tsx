@@ -1,7 +1,7 @@
 
 'use client';
 
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { SabChatWidgetGenerator } from '@/components/wabasimplify/sabchat-widget-generator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';

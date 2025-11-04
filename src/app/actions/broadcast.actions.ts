@@ -10,7 +10,7 @@ import FormData from 'form-data';
 import axios from 'axios';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getSession } from '@/app/actions';
+import { getProjectById, getSession } from '@/app/actions/index.ts';
 import { getErrorMessage } from '@/lib/utils';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import type { Project, BroadcastJob, BroadcastState, Template, Contact, BroadcastAttempt, BroadcastLog } from '@/lib/definitions';

@@ -6,7 +6,7 @@ import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCirc
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
-import { getProjects, getSession } from '@/app/actions';
+import { getProjects, getSession } from '@/app/actions/index.ts';
 import { getEmailSettings, saveEmailComplianceSettings } from '@/app/actions/email.actions';
 import { saveCrmProviders } from '@/app/actions/crm.actions';
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
