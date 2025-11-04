@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Download, SlidersHorizontal, UserCheck, UserX } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateAttendanceReportData } from "@/app/actions";
+import { generateAttendanceReportData } from "@/app/actions/crm-hr-reports.actions";
 import { LoaderCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
