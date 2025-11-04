@@ -3,7 +3,7 @@
 
 import { useActionState, useEffect, useState, useTransition, useCallback, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ListChecks, CalendarDays, Percent, Bell, Shield, Settings, ShieldCheck } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -193,7 +193,7 @@ function AccessControlTab() {
         return <Skeleton className="h-96 w-full" />
     }
 
-    const allRoles = [{ id: 'agent', name: 'Agent', permissions: user.crm?.permissions?.agent }, ...(user.crm?.customRoles || [])];
+    const allRoles = [{ id: 'agent', name: 'Agent', permissions: (user.crm || {}).permissions?.agent }, ...((user.crm || {}).customRoles || [])];
 
     return (
         <form action={formAction}>
