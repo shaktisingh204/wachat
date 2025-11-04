@@ -84,6 +84,50 @@ export async function getCrmLeaveRequests(): Promise<WithId<CrmLeaveRequest>[]> 
     }
 }
 
+export async function applyForCrmLeave(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access Denied' };
+
+    try {
+        const { db } = await connectToDatabase();
+
+        // Find the employee record linked to the current user
+        const employee = await db.collection('crm_employees').findOne({
+            userId: new ObjectId(session.user._id),
+            email: session.user.email,
+        });
+
+        if (!employee) {
+            return { error: 'Your employee profile could not be found. Please contact your administrator.' };
+        }
+
+        const leaveData: Omit<CrmLeaveRequest, '_id' | 'createdAt'> = {
+            userId: new ObjectId(session.user._id),
+            employeeId: employee._id,
+            leaveType: formData.get('leaveType') as string,
+            startDate: new Date(formData.get('startDate') as string),
+            endDate: new Date(formData.get('endDate') as string),
+            reason: formData.get('reason') as string,
+            status: 'Pending',
+        };
+
+        if (!leaveData.leaveType || !leaveData.startDate || !leaveData.endDate || !leaveData.reason) {
+            return { error: 'All fields are required.' };
+        }
+
+        if (leaveData.endDate < leaveData.startDate) {
+            return { error: 'End date cannot be before the start date.' };
+        }
+
+        await db.collection('crm_leave_requests').insertOne({ ...leaveData, createdAt: new Date() });
+
+        revalidatePath('/dashboard/crm/hr-payroll/leave');
+        return { message: 'Leave request submitted successfully.' };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
 export async function approveOrRejectLeave(id: string, status: 'Approved' | 'Rejected'): Promise<{ success: boolean, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access Denied' };
