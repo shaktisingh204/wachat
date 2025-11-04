@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getCrmDesignations, saveCrmDesignation, deleteCrmDesignation } from '@/app/actions/crm-employees.actions';
+import { getCrmDesignations, saveCrmDesignation, deleteCrmDesignation } from '@/app/actions';
 import type { WithId, CrmDesignation } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
