@@ -95,14 +95,25 @@ export type CrmModulePermissions = {
     delete?: boolean;
 };
 
-export type CrmPermissions = {
-    agent: {
-        contacts?: CrmModulePermissions,
-        accounts?: CrmModulePermissions,
-        deals?: CrmModulePermissions,
-        tasks?: CrmModulePermissions,
-    }
+export type CrmRolePermissions = {
+    contacts?: CrmModulePermissions;
+    accounts?: CrmModulePermissions;
+    deals?: CrmModulePermissions;
+    tasks?: CrmModulePermissions;
+    automations?: CrmModulePermissions;
+    reports?: CrmModulePermissions;
 };
+
+export type CrmPermissions = {
+    agent: CrmRolePermissions;
+    [key: string]: CrmRolePermissions; // For custom roles
+};
+
+export type CrmCustomRole = {
+    id: string;
+    name: string;
+};
+
 
 export type CrmForm = {
     _id: ObjectId;
@@ -1416,6 +1427,7 @@ export type User = {
     crm?: {
       whatsappProjectId?: ObjectId;
       permissions?: CrmPermissions;
+      customRoles?: CrmCustomRole[];
     };
     email?: {
       permissions?: EmailPermissions;
