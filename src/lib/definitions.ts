@@ -555,7 +555,7 @@ export type CrmVendor = {
     updatedAt: Date;
 };
 
-// --- HR & Payroll ---
+// --- HR & Payroll Types ---
 export type CrmDepartment = {
     _id: ObjectId;
     userId: ObjectId;
@@ -594,6 +594,37 @@ export type CrmEmployee = {
     };
     createdAt: Date;
     updatedAt: Date;
+};
+
+export type CrmAttendance = {
+    _id: ObjectId;
+    userId: ObjectId;
+    employeeId: ObjectId;
+    date: Date;
+    status: 'Present' | 'Absent' | 'Half Day' | 'Leave';
+    checkIn?: Date;
+    checkOut?: Date;
+    notes?: string;
+};
+
+export type CrmLeaveRequest = {
+    _id: ObjectId;
+    userId: ObjectId;
+    employeeId: ObjectId;
+    leaveType: string;
+    startDate: Date;
+    endDate: Date;
+    reason: string;
+    status: 'Pending' | 'Approved' | 'Rejected';
+    createdAt: Date;
+};
+
+export type CrmHoliday = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    date: Date;
+    createdAt: Date;
 };
 
 
@@ -1755,7 +1786,7 @@ export type FacebookOrder = {
             amount: string;
             currency: string;
             formatted_amount: string;
-        }
+            }
     };
     created: string;
     updated: string;

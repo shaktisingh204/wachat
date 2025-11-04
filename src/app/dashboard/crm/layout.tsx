@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -99,12 +100,15 @@ const CrmNavItems = [
     },
     {
         href: "/dashboard/crm/hr-payroll",
-        label: "HR Management",
+        label: "HR & Payroll",
         icon: UsersIcon,
         subItems: [
             { href: "/dashboard/crm/hr-payroll/employees", label: "Employee Directory" },
             { href: "/dashboard/crm/hr-payroll/departments", label: "Departments" },
             { href: "/dashboard/crm/hr-payroll/designations", label: "Designations" },
+            { href: "/dashboard/crm/hr-payroll/attendance", label: "Attendance" },
+            { href: "/dashboard/crm/hr-payroll/leave", label: "Leave Management" },
+            { href: "/dashboard/crm/hr-payroll/holidays", label: "Holiday List" },
         ],
     },
     {
