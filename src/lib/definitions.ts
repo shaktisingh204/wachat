@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -556,6 +555,48 @@ export type CrmVendor = {
     updatedAt: Date;
 };
 
+// --- HR & Payroll ---
+export type CrmDepartment = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    description?: string;
+};
+
+export type CrmDesignation = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    description?: string;
+};
+
+export type CrmEmployee = {
+    _id: ObjectId;
+    userId: ObjectId;
+    firstName: string;
+    lastName: string;
+    employeeId: string;
+    email: string;
+    phone?: string;
+    status: 'Active' | 'Inactive' | 'Terminated';
+    dateOfJoining: Date;
+    dateOfBirth?: Date;
+    departmentId?: ObjectId;
+    designationId?: ObjectId;
+    reportingManagerId?: ObjectId;
+    personalEmail?: string;
+    address?: {
+        street?: string;
+        city?: string;
+        state?: string;
+        zip?: string;
+        country?: string;
+    };
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;
@@ -895,7 +936,7 @@ export type Project = {
     adAccountId?: string;
     facebookPageId?: string;
     facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
-    facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
+    facebookWelcomeMessageSettings?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
     widgetSettings?: WhatsAppWidgetSettings;
     tags?: Tag[];
@@ -1977,14 +2018,6 @@ export type CrmDeliveryChallan = {
     status: 'Draft' | 'In Transit' | 'Delivered' | 'Returned';
     createdAt: Date;
     updatedAt: Date;
-};
-
-export type CreditNoteLineItem = {
-    id: string;
-    name: string;
-    description: string;
-    quantity: number;
-    rate: number;
 };
 
 export type CrmCreditNote = {
