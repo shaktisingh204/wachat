@@ -669,6 +669,18 @@ export type CrmPayslip = {
     createdAt: Date;
 };
 
+export type CrmGoal = {
+    _id: ObjectId;
+    userId: ObjectId;
+    title: string;
+    description?: string;
+    assigneeId?: ObjectId;
+    targetDate: Date;
+    status: 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' | 'Cancelled';
+    progress: number; // Percentage 0-100
+    createdAt: Date;
+};
+
 export type CrmAppraisalReview = {
     _id: ObjectId;
     userId: ObjectId;
@@ -2173,4 +2185,3 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
-
