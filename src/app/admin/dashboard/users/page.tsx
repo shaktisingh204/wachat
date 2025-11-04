@@ -1,4 +1,5 @@
 
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Metadata } from 'next';
 import { getUsersForAdmin } from '@/app/actions/index.ts';
@@ -14,6 +15,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AdminUserSearch } from '@/components/wabasimplify/admin-user-search';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { WithId, User } from '@/lib/definitions';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +39,9 @@ export default async function AdminUsersPage({
   const { users, total } = await getUsersForAdmin(currentPage, USERS_PER_PAGE, query);
 
   const totalPages = Math.ceil(total / USERS_PER_PAGE);
+
+  const plainUsers = JSON.parse(JSON.stringify(users)) as WithId<User>[];
+
 
   return (
     <div className="flex flex-col gap-4">
@@ -63,8 +68,8 @@ export default async function AdminUsersPage({
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {users.length > 0 ? (
-                    users.map((user) => (
+                {plainUsers.length > 0 ? (
+                    plainUsers.map((user) => (
                     <TableRow key={user._id.toString()}>
                         <TableCell>
                             <div className="flex items-center gap-3">

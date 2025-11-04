@@ -2,114 +2,75 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
-import { createShortUrl } from './url-shortener.actions';
-import type { QrCode, QrCodeWithShortUrl } from '@/lib/definitions';
+import { getSession } from '@/app/actions/index.ts';
+import type { QrCode, ShortUrl, QrCodeWithShortUrl } from '@/lib/definitions';
 import { nanoid } from 'nanoid';
-
 
 export async function createQrCode(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };
 
+    const name = formData.get('name') as string;
+    const dataType = formData.get('dataType') as QrCode['dataType'];
+    const data = JSON.parse(formData.get('data') as string);
+    const config = JSON.parse(formData.get('config') as string);
+    const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
+    const isDynamic = formData.get('isDynamic') === 'on';
+
+    if (!name || !dataType || !data) {
+        return { error: 'Name and data are required.' };
+    }
+    
+    let shortUrlId: ObjectId | undefined = undefined;
+
     try {
         const { db } = await connectToDatabase();
-        
-        const isDynamic = formData.get('isDynamic') === 'on';
-        const dataType = formData.get('dataType') as QrCode['dataType'];
-        const data = JSON.parse(formData.get('data') as string);
-        const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
-
-        // --- Server-side Validation ---
-        if (dataType === 'email') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!data.email || !emailRegex.test(data.email)) {
-                return { error: 'Invalid email address provided.' };
-            }
-            // Sanitize other fields to prevent injection
-            data.emailSubject = data.emailSubject ? data.emailSubject.toString().substring(0, 255) : '';
-            data.emailBody = data.emailBody ? data.emailBody.toString().substring(0, 2000) : '';
-        }
-        if (dataType === 'phone') {
-            const phoneRegex = /^\+?[0-9\s\-()]{7,20}$/;
-            if (!data.phone || !phoneRegex.test(data.phone)) {
-                return { error: 'Invalid phone number provided.' };
-            }
-            data.phone = data.phone.replace(/[^\d+]/g, ''); // Sanitize
-        }
-        if (dataType === 'sms') {
-            const phoneRegex = /^\+?[0-9\s\-()]{7,20}$/;
-            if (!data.sms || !phoneRegex.test(data.sms)) {
-                return { error: 'Invalid phone number for SMS provided.' };
-            }
-            data.sms = data.sms.replace(/[^\d+]/g, ''); // Sanitize
-            data.smsMessage = data.smsMessage ? data.smsMessage.toString().substring(0, 500) : '';
-        }
-        // --- End Validation ---
-
-        let shortUrlId: ObjectId | undefined = undefined;
 
         if (isDynamic && dataType === 'url') {
-            const urlData = JSON.parse(formData.get('data') as string);
-            
-            const shortUrlFormData = new FormData();
-            shortUrlFormData.append('originalUrl', urlData.url);
-            shortUrlFormData.append('tagIds', tagIds.join(','));
-            
-            const shortUrlResult = await createShortUrl({ message: null, error: null, shortUrlId: null }, shortUrlFormData);
-            
-            if (shortUrlResult.error || !shortUrlResult.shortUrlId) {
-                return { error: `Failed to create dynamic link: ${shortUrlResult.error || 'Unknown error'}` };
-            }
-            shortUrlId = new ObjectId(shortUrlResult.shortUrlId);
-        }
-
-        let logoDataUri: string | undefined = undefined;
-        const logoFile = formData.get('logoFile') as File;
-        if (logoFile && logoFile.size > 0) {
-            if (logoFile.size > 100 * 1024) { // 100KB limit
-                return { error: 'Logo image must be under 100KB.' };
-            }
-            const buffer = Buffer.from(await logoFile.arrayBuffer());
-            logoDataUri = `data:${logoFile.type};base64,${buffer.toString('base64')}`;
+            const shortCode = nanoid(7);
+            const newShortUrl: Omit<ShortUrl, '_id'> = {
+                userId: new ObjectId(session.user._id),
+                originalUrl: data.url,
+                shortCode,
+                clickCount: 0,
+                analytics: [],
+                tagIds,
+                createdAt: new Date(),
+            };
+            const result = await db.collection('short_urls').insertOne(newShortUrl as any);
+            shortUrlId = result.insertedId;
         }
 
         const newQrCode: Omit<QrCode, '_id'> = {
             userId: new ObjectId(session.user._id),
-            name: formData.get('name') as string,
+            name,
             dataType,
-            data: data,
-            config: JSON.parse(formData.get('config') as string),
+            data,
+            config,
             tagIds,
             ...(shortUrlId && { shortUrlId }),
-            ...(logoDataUri && { logoDataUri }),
             createdAt: new Date(),
         };
-
-        if (!newQrCode.name) {
-            return { error: 'A name for the QR code is required.' };
-        }
-
-        await db.collection('qrcodes').insertOne(newQrCode as any);
+        
+        await db.collection('qr_codes').insertOne(newQrCode as any);
 
         revalidatePath('/dashboard/qr-code-maker');
         return { message: 'QR Code saved successfully!' };
-
     } catch (e: any) {
-        console.error("Error creating QR code:", e);
         return { error: e.message || 'An unexpected error occurred.' };
     }
 }
 
-export async function getQrCodes(): Promise<WithId<QrCodeWithShortUrl>[]> {
+
+export async function getQrCodes(): Promise<QrCodeWithShortUrl[]> {
     const session = await getSession();
     if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
-        const codes = await db.collection('qrcodes').aggregate([
+        const qrCodes = await db.collection('qr_codes').aggregate([
             { $match: { userId: new ObjectId(session.user._id) } },
             { $sort: { createdAt: -1 } },
             {
@@ -128,9 +89,8 @@ export async function getQrCodes(): Promise<WithId<QrCodeWithShortUrl>[]> {
             }
         ]).toArray();
         
-        return JSON.parse(JSON.stringify(codes));
-    } catch (error) {
-        console.error('Failed to fetch QR codes:', error);
+        return JSON.parse(JSON.stringify(qrCodes));
+    } catch (e) {
         return [];
     }
 }
@@ -138,27 +98,25 @@ export async function getQrCodes(): Promise<WithId<QrCodeWithShortUrl>[]> {
 export async function deleteQrCode(id: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
-    if (!ObjectId.isValid(id)) {
-      return { success: false, error: 'Invalid QR Code ID.' };
-    }
-    
+    if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
+
     try {
         const { db } = await connectToDatabase();
-        const codeToDelete = await db.collection<QrCode>('qrcodes').findOne({ _id: new ObjectId(id) });
-        
-        if (!codeToDelete || codeToDelete.userId.toString() !== session.user._id.toString()) {
+        const qrCode = await db.collection('qr_codes').findOne({ _id: new ObjectId(id), userId: new ObjectId(session.user._id) });
+        if (!qrCode) {
             return { success: false, error: 'QR Code not found or access denied.' };
         }
-        
-        // If it's a dynamic QR code, delete the associated short URL
-        if (codeToDelete.shortUrlId) {
-            await db.collection('short_urls').deleteOne({ _id: codeToDelete.shortUrlId });
-        }
 
-        await db.collection('qrcodes').deleteOne({ _id: new ObjectId(id) });
+        // If it's a dynamic QR code, delete the associated short URL as well
+        if (qrCode.shortUrlId) {
+            await db.collection('short_urls').deleteOne({ _id: qrCode.shortUrlId });
+        }
+        
+        await db.collection('qr_codes').deleteOne({ _id: new ObjectId(id) });
+        
         revalidatePath('/dashboard/qr-code-maker');
         return { success: true };
     } catch (e: any) {
-        return { success: false, error: 'An unexpected error occurred.' };
+        return { success: false, error: 'Failed to delete QR code.' };
     }
 }
