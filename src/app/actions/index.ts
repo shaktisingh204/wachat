@@ -1,4 +1,5 @@
 
+
 // This file is intentionally left blank.
 // Server actions are co-located in their respective feature files (e.g., src/app/actions/project.actions.ts).
 // This file can be used for global actions if needed in the future.
@@ -62,6 +63,7 @@ export * from './team.actions';
 export * from './crm-employees.actions';
 export * from './crm-hr.actions';
 export * from './crm-payroll.actions';
+export * from './crm-hr-reports.actions';
 
 // This needs to be a server action file, so we export a dummy function
 export async function dummyAction() {
