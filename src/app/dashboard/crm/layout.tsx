@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { BarChart, Handshake, ShoppingBag, Briefcase, Database, ChevronDown, FileText, Landmark, Users as UsersIcon } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
+import { BarChart, Handshake, ShoppingBag, Briefcase, Database, ChevronDown, FileText, Landmark, Users as UsersIcon, BarChart2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const CrmNavItems = [
@@ -128,6 +128,15 @@ const CrmNavItems = [
                     { href: "/dashboard/crm/hr-payroll/payslips", label: "Payslips" },
                 ],
             },
+            {
+                label: 'Statutory Compliance',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/pf-esi", label: "PF / ESI Management" },
+                    { href: "/dashboard/crm/hr-payroll/professional-tax", label: "Professional Tax" },
+                    { href: "/dashboard/crm/hr-payroll/tds", label: "TDS" },
+                    { href: "/dashboard/crm/hr-payroll/form-16", label: "Form 16" },
+                ],
+            }
         ],
     },
     {
