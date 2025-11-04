@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -135,6 +134,15 @@ const CrmNavItems = [
                     { href: "/dashboard/crm/hr-payroll/professional-tax", label: "Professional Tax" },
                     { href: "/dashboard/crm/hr-payroll/tds", label: "TDS" },
                     { href: "/dashboard/crm/hr-payroll/form-16", label: "Form 16" },
+                ],
+            },
+            {
+                label: 'Reports & Analytics',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/reports/attendance", label: "Attendance Report" },
+                    { href: "/dashboard/crm/hr-payroll/reports/leave", label: "Leave Report" },
+                    { href: "/dashboard/crm/hr-payroll/reports/payroll-summary", label: "Payroll Summary" },
+                    { href: "/dashboard/crm/hr-payroll/reports/salary-register", label: "Salary Register" },
                 ],
             }
         ],
