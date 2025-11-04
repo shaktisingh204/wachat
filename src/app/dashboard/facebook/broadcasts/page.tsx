@@ -4,7 +4,7 @@
 import { useState, useEffect, useTransition, useCallback, useRef, useActionState } from 'react';
 import type { WithId } from 'mongodb';
 import { getFacebookBroadcasts, handleSendFacebookBroadcast } from '@/app/actions/facebook.actions';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import type { Project, FacebookBroadcast } from '@/lib/definitions';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';

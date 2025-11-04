@@ -4,7 +4,7 @@
 import { useState, useTransition, useEffect, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, Agent, Tag } from '@/lib/definitions';
-import { handleUpdateContactDetails, handleUpdateContactStatus, updateContactTags } from '@/app/actions';
+import { handleUpdateContactDetails, handleUpdateContactStatus, updateContactTags } from '@/app/actions/index.ts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

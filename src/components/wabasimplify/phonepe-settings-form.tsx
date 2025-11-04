@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { savePaymentGatewaySettings } from '@/app/actions';
+import { savePaymentGatewaySettings } from '@/app/actions/index.ts';
 import { type PaymentGatewaySettings } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { WaPayIcon } from '@/components/wabasimplify/custom-sidebar-components';

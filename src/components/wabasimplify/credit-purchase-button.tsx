@@ -3,7 +3,7 @@
 
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { handleInitiateCreditPurchase } from '@/app/actions';
+import { handleInitiateCreditPurchase } from '@/app/actions/index.ts';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';

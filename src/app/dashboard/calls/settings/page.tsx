@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { getApiLogsForProject } from '@/app/actions/calling.actions';
 import type { Project, PhoneNumber } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';

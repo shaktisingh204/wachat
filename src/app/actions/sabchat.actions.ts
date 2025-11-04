@@ -2,7 +2,7 @@
 'use server';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { ObjectId, type WithId } from 'mongodb';
 import type { SabChatSettings, SabChatSession, SabChatMessage } from '@/lib/definitions';
 import { revalidatePath } from 'next/cache';

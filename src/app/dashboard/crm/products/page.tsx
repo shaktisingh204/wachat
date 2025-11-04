@@ -11,7 +11,7 @@ import { getCrmProducts } from '@/app/actions/crm-products.actions';
 import type { WithId, EcommProduct, User, Plan } from '@/lib/definitions';
 import { CrmProductDialog } from '@/components/wabasimplify/crm-product-dialog';
 import { CrmProductCard } from '@/components/wabasimplify/crm-product-card';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 
 function PageSkeleton() {
     return (

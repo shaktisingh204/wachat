@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { User, WithId } from '@/lib/definitions';
 import { SmsSettingsForm } from '@/components/wabasimplify/sms-settings-form';
 import { Skeleton } from '@/components/ui/skeleton';

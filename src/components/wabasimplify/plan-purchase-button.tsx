@@ -3,7 +3,7 @@
 
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { handleInitiatePayment } from '@/app/actions';
+import { handleInitiatePayment } from '@/app/actions/index.ts';
 import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Button } from '@/components/ui/button';

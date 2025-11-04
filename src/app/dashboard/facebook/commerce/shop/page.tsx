@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { LayoutGrid, ExternalLink, AlertCircle, CheckCircle, Store } from 'lucide-react';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { getCommerceMerchantSettings } from '@/app/actions/facebook.actions';
 import type { WithId, Project, CommerceMerchantSettings } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';

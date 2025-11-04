@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, LoaderCircle, History } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { format } from 'date-fns';
 
 const MESSAGES_PER_PAGE = 20;

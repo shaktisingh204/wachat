@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getProjectById, getProjects } from '@/app/actions';
+import { getProjectById, getProjects } from '@/app/actions/index.ts';
 import { getEcommShops } from '@/app/actions/custom-ecommerce.actions';
 import type { WithId, Project, EcommShop } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';

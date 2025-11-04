@@ -4,7 +4,7 @@
 import { useActionState, useEffect, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { handleUpdateFacebookAutomationSettings } from '@/app/actions/facebook.actions';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import type { WithId, Project, FacebookCommentAutoReplySettings, FacebookWelcomeMessageSettings } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';

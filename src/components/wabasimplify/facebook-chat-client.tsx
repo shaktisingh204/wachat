@@ -4,7 +4,7 @@
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getFacebookChatInitialData, getFacebookConversationMessages, markFacebookConversationAsRead, getProjects } from '@/app/actions/facebook.actions';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import type { WithId, Project, FacebookConversation, FacebookMessage, User, Plan } from '@/lib/definitions';
 import { FacebookConversationList } from './facebook-conversation-list';
 import { FacebookChatWindow } from './facebook-chat-window';

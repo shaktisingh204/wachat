@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { ObjectId, type WithId } from 'mongodb';
 import { getErrorMessage } from '@/lib/utils';
 import type { CrmDepartment, CrmDesignation, CrmEmployee } from '@/lib/definitions';

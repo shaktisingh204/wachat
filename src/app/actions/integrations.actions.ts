@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { getErrorMessage } from '@/lib/utils';
 import Razorpay from 'razorpay';
 import type { Project, WhatsAppWidgetSettings, Contact } from '@/lib/definitions';

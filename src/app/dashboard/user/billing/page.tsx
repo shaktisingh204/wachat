@@ -4,7 +4,7 @@
 import { Check, X, History, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { getSession, handleInitiatePayment } from '@/app/actions';
+import { getSession, handleInitiatePayment } from '@/app/actions/index.ts';
 import { getPlans } from '@/app/actions/plan.actions';
 import { planFeatureMap } from '@/lib/plans';
 import { Separator } from '@/components/ui/separator';

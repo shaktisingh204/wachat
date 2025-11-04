@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { getProjects } from '@/app/actions';
+import { getProjects } from '@/app/actions/index.ts';
 import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';

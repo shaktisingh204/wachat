@@ -4,7 +4,7 @@
 import nodemailer from 'nodemailer';
 import { googleAuthClient, outlookAuthClient } from './crm-auth';
 import type { EmailSettings, WithId } from './definitions';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { connectToDatabase } from './mongodb';
 import { saveOAuthTokens } from '@/app/actions/email.actions';
 import { ConfidentialClientApplication } from '@azure/msal-node';

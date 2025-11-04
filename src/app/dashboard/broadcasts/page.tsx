@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, handleStopBroadcast, handleRunCron } from '@/app/actions';
+import { getTemplates, handleStopBroadcast, handleRunCron } from '@/app/actions/index.ts';
 import { handleSyncTemplates } from '@/app/actions/template.actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';

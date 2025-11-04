@@ -2,7 +2,7 @@
 
 import { googleAuthClient } from '@/lib/crm-auth';
 import { saveOAuthTokens } from '@/app/actions/email.actions';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 

@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { saveRandomizerSettings, getRandomizerPosts, deleteRandomizerPost } from '@/app/actions/facebook.actions';
 import type { WithId, Project, RandomizerPost, PostRandomizerSettings } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';

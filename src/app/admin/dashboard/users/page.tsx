@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Metadata } from 'next';
-import { getUsersForAdmin } from '@/app/actions';
+import { getUsersForAdmin } from '@/app/actions/index.ts';
 import {
   Table,
   TableBody,

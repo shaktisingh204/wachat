@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import { Sparkles, Calendar } from 'lucide-react';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import CountdownTimer from '@/components/wabasimplify/countdown-timer';
 
 export default function Home() {

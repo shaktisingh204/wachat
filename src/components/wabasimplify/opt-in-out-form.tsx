@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, Project } from '@/lib/definitions';
-import { handleUpdateOptInOutSettings } from '@/app/actions';
+import { handleUpdateOptInOutSettings } from '@/app/actions/index.ts';
 
 const initialState = { message: null, error: null };
 

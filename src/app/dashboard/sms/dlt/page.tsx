@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Database, Key, LoaderCircle } from 'lucide-react';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { saveDltAccount, deleteDltAccount } from '@/app/actions/sms.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, User, DltAccount } from '@/lib/definitions';

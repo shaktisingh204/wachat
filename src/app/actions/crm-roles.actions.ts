@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
 import { ObjectId } from 'mongodb';

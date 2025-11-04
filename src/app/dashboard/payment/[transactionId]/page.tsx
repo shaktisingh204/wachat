@@ -1,6 +1,6 @@
 
 
-import { getTransactionStatus } from '@/app/actions';
+import { getTransactionStatus } from '@/app/actions/index.ts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import Link from 'next/link';

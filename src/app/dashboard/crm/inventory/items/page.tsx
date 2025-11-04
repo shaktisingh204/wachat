@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, PlusCircle, ShoppingBag, Package, Search, Settings, Edit } from 'lucide-react';
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
 import type { WithId, EcommProduct, User, Plan } from '@/lib/definitions';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';

@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
-import { handleLogin } from '@/app/actions';
+import { handleLogin } from '@/app/actions/index.ts';
 
 const initialState = {
   message: null,

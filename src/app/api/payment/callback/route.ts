@@ -2,7 +2,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getPaymentGatewaySettings } from '@/app/actions';
+import { getPaymentGatewaySettings } from '@/app/actions/index.ts';
 import { type Transaction } from '@/lib/definitions';
 import { createHash } from 'crypto';
 import { ObjectId, type WithId } from 'mongodb';

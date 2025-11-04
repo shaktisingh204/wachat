@@ -11,7 +11,7 @@ import { Copy, CheckCircle, AlertTriangle, RefreshCw, LoaderCircle } from 'lucid
 import { useEffect, useState, useTransition } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import { SubscribeProjectButton } from './subscribe-project-button';

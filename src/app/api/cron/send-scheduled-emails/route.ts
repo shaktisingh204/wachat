@@ -5,7 +5,7 @@ import { ObjectId, WithId } from 'mongodb';
 import type { EmailCampaign } from '@/lib/definitions';
 import { getTransporter } from '@/lib/email-service';
 import { getErrorMessage } from '@/lib/utils';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/app/actions/index.ts';
 
 export const dynamic = 'force-dynamic';
 

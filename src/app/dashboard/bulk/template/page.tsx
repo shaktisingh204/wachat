@@ -4,7 +4,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CreateTemplateForm } from '@/components/wabasimplify/create-template-form';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import type { WithId, Project } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Database, AlertCircle } from 'lucide-react';

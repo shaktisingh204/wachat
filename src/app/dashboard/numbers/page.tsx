@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index.ts';
 import { handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import type { Project, PhoneNumber } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
