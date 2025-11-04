@@ -5,7 +5,7 @@ import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft, LoaderCircle } from 'lucide-react';
-import { getCrmDepartments, getCrmDesignations, getCrmEmployees } from '@/app/actions/crm-employees.actions';
+import { getCrmDepartments, getCrmDesignations, getCrmEmployees } from '@/app/actions';
 import { useEffect, useState, useTransition } from 'react';
 import { useParams } from 'next/navigation';
 import { connectToDatabase } from '@/lib/mongodb';

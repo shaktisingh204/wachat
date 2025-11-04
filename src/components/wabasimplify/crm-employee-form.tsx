@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
@@ -9,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveCrmEmployee } from '@/app/actions/crm-employees.actions';
+import { saveCrmEmployee } from '@/app/actions';
 import type { WithId, CrmEmployee, CrmDepartment, CrmDesignation } from '@/lib/definitions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { DatePicker } from '../ui/date-picker';
