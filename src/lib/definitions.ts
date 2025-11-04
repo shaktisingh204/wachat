@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -627,6 +628,33 @@ export type CrmHoliday = {
     createdAt: Date;
 };
 
+export type CrmSalaryStructure = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    description?: string;
+    isDefault?: boolean;
+    components: {
+        name: string;
+        type: 'earning' | 'deduction';
+        calculationType: 'fixed' | 'percentage';
+        value: number;
+    }[];
+    createdAt: Date;
+};
+
+export type CrmPayslip = {
+    _id: ObjectId;
+    userId: ObjectId;
+    employeeId: ObjectId;
+    payPeriodStart: Date;
+    payPeriodEnd: Date;
+    earnings: { name: string; amount: number }[];
+    deductions: { name: string; amount: number }[];
+    netPay: number;
+    status: 'draft' | 'locked' | 'paid';
+    createdAt: Date;
+};
 
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;

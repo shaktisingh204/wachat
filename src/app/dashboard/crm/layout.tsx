@@ -72,7 +72,7 @@ const CrmNavItems = [
     {
         href: "/dashboard/crm/sales-crm",
         label: "Sales CRM",
-        icon: BarChart,
+        icon: BarChart2,
         subItems: [
             { href: "/dashboard/crm/contacts", label: "Leads & Contacts" },
             { href: "/dashboard/crm/deals", label: "Deals Pipeline" },
@@ -103,12 +103,31 @@ const CrmNavItems = [
         label: "HR & Payroll",
         icon: UsersIcon,
         subItems: [
-            { href: "/dashboard/crm/hr-payroll/employees", label: "Employee Directory" },
-            { href: "/dashboard/crm/hr-payroll/departments", label: "Departments" },
-            { href: "/dashboard/crm/hr-payroll/designations", label: "Designations" },
-            { href: "/dashboard/crm/hr-payroll/attendance", label: "Attendance" },
-            { href: "/dashboard/crm/hr-payroll/leave", label: "Leave Management" },
-            { href: "/dashboard/crm/hr-payroll/holidays", label: "Holiday List" },
+            {
+                label: 'Employee Management',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/employees", label: "Employee Directory" },
+                    { href: "/dashboard/crm/hr-payroll/employees/new", label: "Add Employee" },
+                    { href: "/dashboard/crm/hr-payroll/departments", label: "Departments" },
+                    { href: "/dashboard/crm/hr-payroll/designations", label: "Designations" },
+                ],
+            },
+            {
+                label: 'Attendance & Leave',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/attendance", label: "Daily Attendance" },
+                    { href: "/dashboard/crm/hr-payroll/leave", label: "Leave Management" },
+                    { href: "/dashboard/crm/hr-payroll/holidays", label: "Holiday List" },
+                ],
+            },
+             {
+                label: 'Payroll Management',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/payroll", label: "Generate Payroll" },
+                    { href: "/dashboard/crm/hr-payroll/salary-structure", label: "Salary Structure" },
+                    { href: "/dashboard/crm/hr-payroll/payslips", label: "Payslips" },
+                ],
+            },
         ],
     },
     {
@@ -125,6 +144,10 @@ const CrmNavItems = [
 export default function CrmLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
+    const isSubItemActive = (subItems: any[]) => {
+        return subItems.some(sub => pathname.startsWith(sub.href));
+    }
+
     return (
         <div className="w-full">
             <div className="flex justify-start items-center gap-1 border-b">
@@ -140,11 +163,26 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    {item.subItems.map(subItem => (
-                                        <DropdownMenuItem key={subItem.href} asChild>
-                                            <Link href={subItem.href}>{subItem.label}</Link>
-                                        </DropdownMenuItem>
-                                    ))}
+                                    {item.subItems.map((subItem: any, index: number) => {
+                                        if (subItem.subSubItems) {
+                                            return (
+                                                <div key={index}>
+                                                     <DropdownMenuSeparator />
+                                                     <DropdownMenuLabel>{subItem.label}</DropdownMenuLabel>
+                                                     {subItem.subSubItems.map((subSubItem: any) => (
+                                                        <DropdownMenuItem key={subSubItem.href} asChild>
+                                                            <Link href={subSubItem.href}>{subSubItem.label}</Link>
+                                                        </DropdownMenuItem>
+                                                     ))}
+                                                </div>
+                                            )
+                                        }
+                                        return (
+                                            <DropdownMenuItem key={subItem.href} asChild>
+                                                <Link href={subItem.href}>{subItem.label}</Link>
+                                            </DropdownMenuItem>
+                                        )
+                                    })}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         )
