@@ -593,6 +593,9 @@ export type CrmEmployee = {
         zip?: string;
         country?: string;
     };
+    salaryDetails?: {
+        grossSalary: number;
+    };
     createdAt: Date;
     updatedAt: Date;
 };
@@ -626,6 +629,16 @@ export type CrmHoliday = {
     name: string;
     date: Date;
     createdAt: Date;
+};
+
+export type CrmProfessionalTaxSlab = {
+    _id: ObjectId;
+    userId: ObjectId;
+    state: string;
+    minSalary: number;
+    maxSalary: number;
+    taxAmount: number;
+    createdAt?: Date;
 };
 
 export type CrmSalaryStructure = {
