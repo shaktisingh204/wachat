@@ -482,7 +482,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     }
 
     const CollapsibleSidebarItem = ({ item }: { item: any }) => {
-        const isOpen = pathname.startsWith(item.href);
+        const isOpen = pathname.startsWith(item.href || item.label); // Use href if available, fallback to label for nested groups
         const Icon = item.icon;
         return (
             <Collapsible defaultOpen={isOpen}>
@@ -493,11 +493,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 </CollapsibleTrigger>
                 <CollapsibleContent asChild>
                     <SidebarMenu className="pl-4">
-                        {(item.subItems || []).map((subItem: any) => 
+                        {(item.subItems || item.subSubItems || []).map((subItem: any, index: number) => 
                             subItem.subSubItems ? (
-                                <CollapsibleSidebarItem key={subItem.label} item={subItem} />
+                                <CollapsibleSidebarItem key={subItem.label || index} item={subItem} />
                             ) : (
-                                <SidebarItem key={subItem.href} item={subItem} isSubItem={true} />
+                                <SidebarItem key={subItem.href || index} item={subItem} isSubItem={true} />
                             )
                         )}
                     </SidebarMenu>
