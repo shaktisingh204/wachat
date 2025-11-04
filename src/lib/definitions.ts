@@ -669,6 +669,28 @@ export type CrmPayslip = {
     createdAt: Date;
 };
 
+export type CrmAppraisalReview = {
+    _id: ObjectId;
+    userId: ObjectId;
+    employeeId: ObjectId;
+    reviewerId: ObjectId;
+    reviewDate: Date;
+    status: 'Scheduled' | 'Completed' | 'Cancelled';
+    ratings: {
+        qualityOfWork: number;
+        communication: number;
+        teamwork: number;
+        problemSolving: number;
+        punctuality: number;
+    };
+    strengths: string;
+    areasForImprovement: string;
+    reviewerComments: string;
+    createdAt: Date;
+    updatedAt?: Date;
+};
+
+
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;
@@ -2151,3 +2173,4 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
+

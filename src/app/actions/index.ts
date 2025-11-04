@@ -64,9 +64,12 @@ export * from './crm-employees.actions';
 export * from './crm-hr.actions';
 export * from './crm-payroll.actions';
 export * from './crm-hr-reports.actions';
+export * from './crm-hr-appraisals.actions';
+
 
 // This needs to be a server action file, so we export a dummy function
 export async function dummyAction() {
     'use server';
     // This function does nothing.
 }
+
