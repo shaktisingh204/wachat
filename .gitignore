@@ -60,7 +60,6 @@
 # /src/app/actions/crm-vouchers.actions.ts
 # /src/app/actions/crm-warehouses.actions.ts
 # Ignore all action files by default
-/src/app/actions/*.actions.ts
 
 # But keep social platform related files
 !/src/app/actions/facebook.actions.ts
