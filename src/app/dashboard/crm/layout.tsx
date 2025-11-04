@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -32,13 +31,11 @@ const CrmNavItems = [
         label: 'Purchases',
         icon: ShoppingBag,
         subItems: [
-            { href: "/dashboard/crm/purchases/leads", label: "Vendors Leads" },
             { href: "/dashboard/crm/purchases/vendors", label: "Vendors & Suppliers" },
             { href: "/dashboard/crm/purchases/expenses", label: "Purchases & Expenses" },
             { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders" },
             { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts" },
             { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes" },
-            { href: "/dashboard/crm/purchases/hire", label: "Hire The Best Vendors" },
         ]
     },
      {
@@ -76,10 +73,13 @@ const CrmNavItems = [
         label: "Sales CRM",
         icon: BarChart,
         subItems: [
-            { href: "/dashboard/crm/sales-crm/pipelines", label: "Sales Pipelines" },
-            { href: "/dashboard/crm/sales-crm/all-pipelines", label: "All Sales Pipelines" },
+            { href: "/dashboard/crm/contacts", label: "Leads & Contacts" },
+            { href: "/dashboard/crm/deals", label: "Deals Pipeline" },
+            { href: "/dashboard/crm/tasks", label: "Tasks" },
+            { href: "/dashboard/crm/automations", label: "Automations" },
+            { href: "/dashboard/crm/sales-crm/pipelines", label: "Manage Pipelines" },
             { href: "/dashboard/crm/sales-crm/forms", label: "Forms" },
-            { href: "/dashboard/crm/sales-crm/all-leads", label: "All Leads" },
+            { href: "/dashboard/crm/analytics", label: "Analytics" },
             { href: "/dashboard/crm/sales-crm/leads-summary", label: "Leads Summary" },
             { href: "/dashboard/crm/sales-crm/team-sales-report", label: "Team Sales Report" },
             { href: "/dashboard/crm/sales-crm/client-performance-report", label: "Client Performance Report" },
@@ -96,6 +96,16 @@ const CrmNavItems = [
             { href: "/dashboard/crm/banking/employee-accounts", label: "Employee Accounts" },
             { href: "/dashboard/crm/banking/reconciliation", label: "Bank Reconciliation" },
         ]
+    },
+    {
+        href: "/dashboard/crm/hr-payroll",
+        label: "HR Management",
+        icon: UsersIcon,
+        subItems: [
+            { href: "/dashboard/crm/hr-payroll/employees", label: "Employee Directory" },
+            { href: "/dashboard/crm/hr-payroll/departments", label: "Departments" },
+            { href: "/dashboard/crm/hr-payroll/designations", label: "Designations" },
+        ],
     },
     {
         href: "/dashboard/crm/reports",
