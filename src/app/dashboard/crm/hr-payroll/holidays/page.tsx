@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
