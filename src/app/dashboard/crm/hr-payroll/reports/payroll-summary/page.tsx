@@ -72,14 +72,14 @@ export default function PayrollSummaryPage() {
                 </CardHeader>
                 <CardContent>
                     <ChartContainer config={chartConfig} className="h-64 w-full">
-                        <RechartsBarChart data={summary.monthlyData || []}>
+                        <BarChart data={summary.monthlyData || []}>
                              <CartesianGrid vertical={false} />
                             <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
                             <YAxis />
                             <ChartTooltip content={<ChartTooltipContent />} />
                             <Legend />
                             <RechartsBar dataKey="cost" fill="var(--color-cost)" radius={4} />
-                        </RechartsBarChart>
+                        </BarChart>
                     </ChartContainer>
                 </CardContent>
             </Card>
