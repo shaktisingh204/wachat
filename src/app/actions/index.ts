@@ -59,6 +59,7 @@ export * from './admin.actions';
 export * from './sabchat.actions';
 export * from './team.actions';
 export * from './crm-employees.actions';
+export * from './crm-hr.actions';
 
 // This needs to be a server action file, so we export a dummy function
 export async function dummyAction() {
