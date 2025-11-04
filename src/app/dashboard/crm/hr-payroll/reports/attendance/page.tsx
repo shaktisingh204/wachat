@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Download, SlidersHorizontal, UserCheck, UserX } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateAttendanceReportData } from "@/app/actions/crm-hr-reports.actions";
+import { generateAttendanceReportData } from "@/app/actions";
 import { LoaderCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
@@ -15,7 +15,8 @@ import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 
-const StatCard = ({ title, value }: { title: string, value: string }) => (
+
+const StatCard = ({ title, value }: { title: string; value: string }) => (
     <div className="bg-muted/50 p-4 rounded-lg text-center">
         <p className="text-sm text-muted-foreground">{title}</p>
         <p className="text-2xl font-bold">{value}</p>

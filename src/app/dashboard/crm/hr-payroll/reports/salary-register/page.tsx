@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Download, LoaderCircle } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateSalaryRegisterData } from "@/app/actions/crm-hr-reports.actions";
+import { generateSalaryRegisterData } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
 
