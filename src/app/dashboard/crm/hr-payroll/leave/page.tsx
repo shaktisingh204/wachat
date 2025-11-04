@@ -11,11 +11,13 @@ import type { WithId, CrmLeaveRequest } from '@/lib/definitions';
 import { LoaderCircle, Check, X } from 'lucide-react';
 import { format, formatDistance } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { ApplyForLeaveDialog } from '@/components/wabasimplify/crm-apply-leave-dialog';
 
 export default function LeaveManagementPage() {
     const [requests, setRequests] = useState<WithId<CrmLeaveRequest>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useToast();
+    const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -47,61 +49,68 @@ export default function LeaveManagementPage() {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Leave Management</h1>
-                    <p className="text-muted-foreground">Approve or reject leave requests from your team.</p>
-                </div>
-                <Button disabled>Apply for Leave</Button>
-            </div>
-            
-             <Card>
-                <CardHeader>
-                    <CardTitle>Leave Requests</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Employee</TableHead>
-                                    <TableHead>Leave Dates</TableHead>
-                                    <TableHead>Days</TableHead>
-                                    <TableHead>Reason</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    <TableRow><TableCell colSpan={6} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin"/></TableCell></TableRow>
-                                ) : requests.length > 0 ? (
-                                    requests.map(req => (
-                                        <TableRow key={req._id.toString()}>
-                                            <TableCell className="font-medium">{(req as any).employeeInfo?.firstName} {(req as any).employeeInfo?.lastName}</TableCell>
-                                            <TableCell>{format(new Date(req.startDate), 'dd/MM/yy')} - {format(new Date(req.endDate), 'dd/MM/yy')}</TableCell>
-                                            <TableCell>{formatDistance(new Date(req.endDate), new Date(req.startDate))}</TableCell>
-                                            <TableCell className="text-muted-foreground text-xs">{req.reason}</TableCell>
-                                            <TableCell><Badge variant={getStatusVariant(req.status)}>{req.status}</Badge></TableCell>
-                                            <TableCell className="text-right">
-                                                {req.status === 'Pending' && (
-                                                    <div className="flex gap-2 justify-end">
-                                                        <Button variant="outline" size="icon" onClick={() => handleAction(req._id.toString(), 'Approved')}><Check className="h-4 w-4"/></Button>
-                                                        <Button variant="destructive" size="icon" onClick={() => handleAction(req._id.toString(), 'Rejected')}><X className="h-4 w-4"/></Button>
-                                                    </div>
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow><TableCell colSpan={6} className="h-24 text-center">No leave requests found.</TableCell></TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+        <>
+            <ApplyForLeaveDialog
+                isOpen={isApplyDialogOpen}
+                onOpenChange={setIsApplyDialogOpen}
+                onSuccess={fetchData}
+            />
+            <div className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline">Leave Management</h1>
+                        <p className="text-muted-foreground">Approve or reject leave requests from your team.</p>
                     </div>
-                </CardContent>
-            </Card>
-        </div>
+                    <Button onClick={() => setIsApplyDialogOpen(true)}>Apply for Leave</Button>
+                </div>
+                
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Leave Requests</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="border rounded-md">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Employee</TableHead>
+                                        <TableHead>Leave Dates</TableHead>
+                                        <TableHead>Days</TableHead>
+                                        <TableHead>Reason</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {isLoading ? (
+                                        <TableRow><TableCell colSpan={6} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin"/></TableCell></TableRow>
+                                    ) : requests.length > 0 ? (
+                                        requests.map(req => (
+                                            <TableRow key={req._id.toString()}>
+                                                <TableCell className="font-medium">{(req as any).employeeInfo?.firstName} {(req as any).employeeInfo?.lastName}</TableCell>
+                                                <TableCell>{format(new Date(req.startDate), 'dd/MM/yy')} - {format(new Date(req.endDate), 'dd/MM/yy')}</TableCell>
+                                                <TableCell>{formatDistance(new Date(req.endDate), new Date(req.startDate))}</TableCell>
+                                                <TableCell className="text-muted-foreground text-xs">{req.reason}</TableCell>
+                                                <TableCell><Badge variant={getStatusVariant(req.status)}>{req.status}</Badge></TableCell>
+                                                <TableCell className="text-right">
+                                                    {req.status === 'Pending' && (
+                                                        <div className="flex gap-2 justify-end">
+                                                            <Button variant="outline" size="icon" onClick={() => handleAction(req._id.toString(), 'Approved')}><Check className="h-4 w-4"/></Button>
+                                                            <Button variant="destructive" size="icon" onClick={() => handleAction(req._id.toString(), 'Rejected')}><X className="h-4 w-4"/></Button>
+                                                        </div>
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow><TableCell colSpan={6} className="h-24 text-center">No leave requests found.</TableCell></TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </>
     )
 }
