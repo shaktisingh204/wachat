@@ -147,6 +147,70 @@ const crmMenuItems = [
         ]
     },
     {
+        href: "/dashboard/crm/hr-payroll",
+        label: "HR & Payroll",
+        icon: UsersIcon,
+        subItems: [
+            {
+                label: 'Employee Management',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/employees", label: "Employee Directory" },
+                    { href: "/dashboard/crm/hr-payroll/employees/new", label: "Add Employee" },
+                    { href: "/dashboard/crm/hr-payroll/departments", label: "Departments" },
+                    { href: "/dashboard/crm/hr-payroll/designations", label: "Designations" },
+                ],
+            },
+            {
+                label: 'Attendance & Leave',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/attendance", label: "Daily Attendance" },
+                    { href: "/dashboard/crm/hr-payroll/leave", label: "Leave Management" },
+                    { href: "/dashboard/crm/hr-payroll/holidays", label: "Holiday List" },
+                ],
+            },
+             {
+                label: 'Payroll Management',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/payroll", label: "Generate Payroll" },
+                    { href: "/dashboard/crm/hr-payroll/salary-structure", label: "Salary Structure" },
+                    { href: "/dashboard/crm/hr-payroll/payslips", label: "Payslips" },
+                ],
+            },
+            {
+                label: 'Statutory Compliance',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/pf-esi", label: "PF / ESI Management" },
+                    { href: "/dashboard/crm/hr-payroll/professional-tax", label: "Professional Tax" },
+                    { href: "/dashboard/crm/hr-payroll/tds", label: "TDS" },
+                    { href: "/dashboard/crm/hr-payroll/form-16", label: "Form 16" },
+                ],
+            },
+            {
+                label: 'Performance & Appraisal',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/goal-setting", label: "Goal Setting" },
+                    { href: "/dashboard/crm/hr-payroll/kpi-tracking", label: "KPI Tracking" },
+                    { href: "/dashboard/crm/hr-payroll/appraisal-reviews", label: "Appraisal Reviews" },
+                ],
+            },
+            {
+                label: 'Reports & Analytics',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/reports/attendance", label: "Attendance Report" },
+                    { href: "/dashboard/crm/hr-payroll/reports/leave", label: "Leave Report" },
+                    { href: "/dashboard/crm/hr-payroll/reports/payroll-summary", label: "Payroll Summary" },
+                    { href: "/dashboard/crm/hr-payroll/reports/salary-register", label: "Salary Register" },
+                ],
+            },
+            {
+                label: 'HRM Settings',
+                subSubItems: [
+                    { href: "/dashboard/crm/hr-payroll/settings", label: "All Settings" },
+                ],
+            }
+        ],
+    },
+    {
         href: "/dashboard/crm/reports",
         label: "GST Reports",
         icon: FileText,
@@ -156,7 +220,6 @@ const crmMenuItems = [
         ]
     },
     { href: "/dashboard/crm/integrations", label: "Integrations", icon: Zap },
-    { href: "/dashboard/crm/hr-payroll", label: "HR and Payroll", icon: UsersIcon },
     { href: "/dashboard/crm/settings", label: "CRM Settings", icon: Settings },
 ];
 
@@ -429,7 +492,13 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 </CollapsibleTrigger>
                 <CollapsibleContent asChild>
                     <SidebarMenu className="pl-4">
-                        {item.subItems.map((subItem: any) => <SidebarItem key={subItem.href} item={subItem} isSubItem={true} />)}
+                        {item.subItems.map((subItem: any) => 
+                            subItem.subSubItems ? (
+                                <CollapsibleSidebarItem key={subItem.label} item={subItem} />
+                            ) : (
+                                <SidebarItem key={subItem.href} item={subItem} isSubItem={true} />
+                            )
+                        )}
                     </SidebarMenu>
                 </CollapsibleContent>
             </Collapsible>
@@ -518,6 +587,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
                                 <DropdownMenuSeparator/>
+                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout"><LogOut className="mr-2 h-4 w-4"/>Admin Logout</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
