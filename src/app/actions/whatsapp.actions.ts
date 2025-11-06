@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -28,16 +27,15 @@ export async function getPublicProjectById(projectId: string): Promise<WithId<Pr
     }
 }
 
-export async function handleManualWachatSetup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const session = await getSession();
-    if (!session?.user) {
-        return { error: 'You must be logged in to create a project.' };
-    }
-
-    const wabaId = formData.get('wabaId') as string;
-    const appId = formData.get('appId') as string;
-    const accessToken = formData.get('accessToken') as string;
-    const includeCatalog = formData.get('includeCatalog') === 'on';
+// Internal helper function to avoid formData issues
+async function _createProjectFromWaba(data: {
+    wabaId: string;
+    appId: string;
+    accessToken: string;
+    includeCatalog?: boolean;
+    userId: string;
+}): Promise<{ message?: string; error?: string }> {
+    const { wabaId, appId, accessToken, includeCatalog, userId } = data;
 
     if (!wabaId || !appId || !accessToken) {
         return { error: 'WABA ID, App ID, and Access Token are required.' };
@@ -70,15 +68,16 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
 
         const { db } = await connectToDatabase();
         
-        const existingProject = await db.collection('projects').findOne({ wabaId: wabaId, userId: new ObjectId(session.user._id) });
+        const existingProject = await db.collection('projects').findOne({ wabaId: wabaId, userId: new ObjectId(userId) });
         if(existingProject) {
-            return { error: 'A project with this WABA ID already exists for your account.'};
+            // It's not an error if it already exists during an auth callback, just means it's already set up.
+            return { message: `Project "${projectData.name}" is already connected.` };
         }
 
         const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
         
         const newProject: Omit<Project, '_id'> = {
-            userId: new ObjectId(session.user._id),
+            userId: new ObjectId(userId),
             name: projectData.name,
             wabaId: wabaId,
             appId: appId,
@@ -108,6 +107,24 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
+
+
+export async function handleManualWachatSetup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'You must be logged in to create a project.' };
+    }
+    
+    return await _createProjectFromWaba({
+        wabaId: formData.get('wabaId') as string,
+        appId: formData.get('appId') as string,
+        accessToken: formData.get('accessToken') as string,
+        includeCatalog: formData.get('includeCatalog') === 'on',
+        userId: session.user._id.toString(),
+    });
+}
+
+export { _createProjectFromWaba };
 
 export async function handleSyncPhoneNumbers(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
     const project = await getProjectById(projectId);

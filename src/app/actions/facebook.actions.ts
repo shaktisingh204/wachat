@@ -13,7 +13,7 @@ import { getProjectById, getSession } from '@/app/actions/index.ts';
 import { getEcommShopById } from './custom-ecommerce.actions';
 import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
-import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook, handleManualWachatSetup } from './whatsapp.actions';
+import { _createProjectFromWaba } from './whatsapp.actions';
 
 
 async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToken: string): Promise<{ success: boolean, error?: string }> {
@@ -136,11 +136,16 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
 
             let allWabas: any[] = [];
             for (const business of businesses) {
-                const wabasResponse = await axios.get<MetaWabasResponse>(`https://graph.facebook.com/v23.0/${business.id}/owned_whatsapp_business_accounts`, {
-                    params: { access_token: longLivedToken }
-                });
-                if (wabasResponse.data.data) {
-                    allWabas.push(...wabasResponse.data.data);
+                try {
+                    const wabasResponse = await axios.get<{data: any[]}>(`https://graph.facebook.com/v23.0/${business.id}/owned_whatsapp_business_accounts`, {
+                        params: { access_token: longLivedToken }
+                    });
+                    if (wabasResponse.data.data) {
+                        allWabas.push(...wabasResponse.data.data);
+                    }
+                } catch (e: any) {
+                    // Ignore errors for individual businesses if user doesn't have permissions, but log it.
+                    console.warn(`Could not fetch WABAs for business ${business.id}: ${getErrorMessage(e)}`);
                 }
             }
             
@@ -149,11 +154,12 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
             }
 
             for (const waba of allWabas) {
-                const formData = new FormData();
-                formData.append('wabaId', waba.id);
-                formData.append('appId', appId);
-                formData.append('accessToken', longLivedToken);
-                await handleManualWachatSetup(null, formData);
+                 await _createProjectFromWaba({
+                    wabaId: waba.id,
+                    appId,
+                    accessToken: longLivedToken,
+                    userId: session.user._id.toString(),
+                });
             }
             revalidatePath('/dashboard');
             return { success: true, redirectPath: '/dashboard' };
@@ -1733,6 +1739,3 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
         return { success: false, error: getErrorMessage(e) };
     }
 }
-    
-
-    
