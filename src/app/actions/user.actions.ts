@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -99,10 +100,6 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             .sort({ createdAt: -1 })
             .toArray();
             
-        if (!projects || projects.length === 0) {
-            return [];
-        }
-
         return JSON.parse(JSON.stringify(projects));
     } catch (error) {
         console.error("Failed to fetch projects:", error);
@@ -599,3 +596,5 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
+    
