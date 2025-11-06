@@ -125,16 +125,13 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         );
 
         if (state === 'whatsapp') {
-            const businessesResponse = await axios.get('https://graph.facebook.com/v23.0/me/businesses', { params: { access_token: longLivedToken }});
-            const businessId = businessesResponse.data?.data?.[0]?.id;
-            if (!businessId) {
-                return { success: false, error: "No Meta Business Account found. Please ensure you have a business account connected." };
-            }
-
-            const wabasResponse = await axios.get<MetaWabasResponse>(`https://graph.facebook.com/v23.0/${businessId}/whatsapp_business_accounts`, { params: { access_token: longLivedToken } });
+            const wabasResponse = await axios.get<MetaWabasResponse>(`https://graph.facebook.com/v23.0/me/whatsapp_business_accounts`, {
+                params: { access_token: longLivedToken }
+            });
             const wabas = wabasResponse.data.data;
+            
             if (!wabas || wabas.length === 0) {
-                 return { success: false, error: "No WhatsApp Business Accounts found for your business. Please create one in Meta Business Suite." };
+                 return { success: false, error: "No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions." };
             }
 
             for (const waba of wabas) {
