@@ -125,16 +125,30 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         );
 
         if (state === 'whatsapp') {
-            const wabasResponse = await axios.get<MetaWabasResponse>(`https://graph.facebook.com/v23.0/me/whatsapp_business_accounts`, {
+            const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
                 params: { access_token: longLivedToken }
             });
-            const wabas = wabasResponse.data.data;
+            const businesses = businessesResponse.data.data;
             
-            if (!wabas || wabas.length === 0) {
-                 return { success: false, error: "No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions." };
+            if (!businesses || businesses.length === 0) {
+                 return { success: false, error: "No Meta Business Accounts found for your user. Please ensure your account is connected to a business in Meta Business Suite." };
             }
 
-            for (const waba of wabas) {
+            let allWabas: any[] = [];
+            for (const business of businesses) {
+                const wabasResponse = await axios.get<MetaWabasResponse>(`https://graph.facebook.com/v23.0/${business.id}/owned_whatsapp_business_accounts`, {
+                    params: { access_token: longLivedToken }
+                });
+                if (wabasResponse.data.data) {
+                    allWabas.push(...wabasResponse.data.data);
+                }
+            }
+            
+            if (allWabas.length === 0) {
+                return { success: false, error: "No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions." };
+            }
+
+            for (const waba of allWabas) {
                 const formData = new FormData();
                 formData.append('wabaId', waba.id);
                 formData.append('appId', appId);
