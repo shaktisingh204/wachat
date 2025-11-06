@@ -28,6 +28,7 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
@@ -188,7 +189,7 @@ export default function SalaryStructurePage() {
                                         </TableRow>
                                     ))
                                 ) : (
-                                    <TableRow><TableCell colSpan={3} className="h-24 text-center">No salary structures created yet.</TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={3} className="text-center h-24">No salary structures created yet.</TableCell></TableRow>
                                 )}
                             </TableBody>
                         </Table>
