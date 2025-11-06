@@ -144,7 +144,6 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                         allWabas.push(...wabasResponse.data.data);
                     }
                 } catch (e: any) {
-                    // Ignore errors for individual businesses if user doesn't have permissions, but log it.
                     console.warn(`Could not fetch WABAs for business ${business.id}: ${getErrorMessage(e)}`);
                 }
             }
@@ -153,14 +152,18 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                 return { success: false, error: "No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions." };
             }
 
-            for (const waba of allWabas) {
-                 await _createProjectFromWaba({
-                    wabaId: waba.id,
-                    appId,
-                    accessToken: longLivedToken,
-                    userId: session.user._id.toString(),
-                });
-            }
+            // Await all project creation promises
+            await Promise.all(
+                allWabas.map(async (waba) => {
+                    await _createProjectFromWaba({
+                        wabaId: waba.id,
+                        appId,
+                        accessToken: longLivedToken,
+                        userId: session.user._id.toString(),
+                    });
+                })
+            );
+
             revalidatePath('/dashboard');
             return { success: true, redirectPath: '/dashboard' };
 

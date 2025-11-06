@@ -69,6 +69,7 @@ async function _createProjectFromWaba(data: {
         
         const existingProject = await db.collection('projects').findOne({ wabaId: wabaId, userId: new ObjectId(userId) });
         if(existingProject) {
+            console.log(`Project with WABA ID ${wabaId} already exists for this user. Skipping creation.`);
             return { message: `Project "${projectData.name}" is already connected.` };
         }
 
