@@ -56,10 +56,10 @@ export async function getProjectById(projectId?: string | null, userId?: string)
 }
 
 
-export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<{ projects: WithId<Project>[] }> {
+export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<WithId<Project>[]> {
     const session = await getSession();
     if (!session?.user) {
-        return { projects: [] };
+        return [];
     }
 
     try {
@@ -83,20 +83,19 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             projectFilter.facebookPageId = { $exists: true, $ne: null };
         }
 
-
         const projects = await db.collection<Project>('projects')
             .find(projectFilter)
             .sort({ createdAt: -1 })
             .toArray();
             
         if (!projects || projects.length === 0) {
-            return { projects: [] };
+            return [];
         }
 
-        return { projects: JSON.parse(JSON.stringify(projects)) };
+        return JSON.parse(JSON.stringify(projects));
     } catch (error) {
         console.error("Failed to fetch projects:", error);
-        return { projects: [] };
+        return [];
     }
 }
 
@@ -584,3 +583,4 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
 }
 
     
+

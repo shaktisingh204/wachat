@@ -35,8 +35,8 @@ export default function SelectProjectPage() {
     
     const fetchProjects = useCallback(async () => {
         setIsLoading(true);
-        const data = await getProjects(query);
-        setAllProjects(data.projects || []); // Ensure it's always an array
+        const projectsData = await getProjects(query);
+        setAllProjects(projectsData || []); // Ensure it's always an array
         setIsLoading(false);
     }, [query]);
 
