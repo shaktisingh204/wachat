@@ -15,7 +15,7 @@ import { headers } from 'next/headers';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
 
-export async function getProjectById(projectId: string, userId?: string) {
+export async function getProjectById(projectId?: string | null, userId?: string) {
     if (!ObjectId.isValid(projectId)) {
         console.error("Invalid Project ID in getProjectById:", projectId);
         return null;
@@ -55,6 +55,7 @@ export async function getProjectById(projectId: string, userId?: string) {
     }
 }
 
+
 export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<{ projects: WithId<Project>[] }> {
     const session = await getSession();
     if (!session?.user) {
@@ -80,7 +81,6 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             projectFilter.wabaId = { $exists: true, $ne: null };
         } else if (type === 'facebook') {
             projectFilter.facebookPageId = { $exists: true, $ne: null };
-            projectFilter.wabaId = { $exists: false }; // Exclude whatsapp projects
         }
 
 

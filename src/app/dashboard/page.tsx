@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -34,7 +35,7 @@ export default function SelectProjectPage() {
     
     const fetchProjects = useCallback(async () => {
         setIsLoading(true);
-        const data = await getProjects(query, 'whatsapp');
+        const data = await getProjects(query);
         setAllProjects(data.projects || []); // Ensure it's always an array
         setIsLoading(false);
     }, [query]);
