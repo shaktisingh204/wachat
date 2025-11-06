@@ -709,8 +709,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                     router.push('/login');
                     return;
                 }
-                const { projects } = await getProjects() || { projects: [] };
-                // Serialize the data before setting state
+                const projects = await getProjects() || [];
                 const plainUser = JSON.parse(JSON.stringify(session.user));
                 const plainProjects = JSON.parse(JSON.stringify(projects));
                 setInitialData({ user: plainUser, projects: plainProjects });

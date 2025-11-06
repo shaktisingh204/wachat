@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -15,8 +14,8 @@ import { headers } from 'next/headers';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
 
-export async function getProjectById(projectId?: string | null, userId?: string) {
-    if (!ObjectId.isValid(projectId)) {
+export async function getProjectById(projectId?: string | null, userId?: string): Promise<WithId<Project> | null> {
+    if (!projectId || !ObjectId.isValid(projectId)) {
         console.error("Invalid Project ID in getProjectById:", projectId);
         return null;
     }
@@ -25,27 +24,39 @@ export async function getProjectById(projectId?: string | null, userId?: string)
         const { db } = await connectToDatabase();
         const projectObjectId = new ObjectId(projectId);
 
-        let query: Filter<Project> = { _id: projectObjectId };
-
-        if (!userId) {
+        let userFilterId: ObjectId | null = null;
+        if (userId) {
+            userFilterId = new ObjectId(userId);
+        } else {
             const session = await getSession();
-            if (!session?.user) return null;
-            userId = session.user._id;
+            if (session?.user?._id) {
+                userFilterId = new ObjectId(session.user._id);
+            }
         }
 
-        query = {
-            ...query,
-            $or: [
-                { userId: new ObjectId(userId) },
-                { 'agents.userId': new ObjectId(userId) }
-            ]
-        };
+        if (!userFilterId) {
+            return null; // No authenticated user found
+        }
         
-        const project = await db.collection('projects').findOne(query);
+        const project = await db.collection<WithId<Project>>('projects').findOne({
+             _id: projectObjectId,
+             $or: [
+                { userId: userFilterId },
+                { 'agents.userId': userFilterId }
+            ]
+        });
 
         if (!project) return null;
         
-        const plan = project.planId ? await db.collection('plans').findOne({ _id: project.planId }) : null;
+        let plan: WithId<Plan> | null = null;
+        if (project.planId && ObjectId.isValid(project.planId)) {
+            plan = await db.collection<WithId<Plan>>('plans').findOne({ _id: new ObjectId(project.planId) });
+        }
+        // If the specific plan is not found, or if no planId is set, fall back to the default plan.
+        if (!plan) {
+            plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
+        }
+        
         const finalProject = { ...project, plan };
         
         return JSON.parse(JSON.stringify(finalProject));
@@ -431,7 +442,14 @@ export async function getSession() {
 
         if (!user) return null;
         
-        const plan = user.planId ? await db.collection('plans').findOne({ _id: user.planId }) : await db.collection('plans').findOne({ isDefault: true });
+        let plan: WithId<Plan> | null = null;
+        if (user.planId && ObjectId.isValid(user.planId)) {
+            plan = await db.collection<WithId<Plan>>('plans').findOne({ _id: new ObjectId(user.planId) });
+        }
+        // Fallback to default plan if user's plan is not found or not set
+        if (!plan) {
+            plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
+        }
 
         return {
             user: {
@@ -581,6 +599,3 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
-
-    
-
