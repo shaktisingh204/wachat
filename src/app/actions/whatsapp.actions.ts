@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -90,13 +89,8 @@ async function _createProjectFromWaba(data: {
             hasCatalogManagement: includeCatalog,
         };
 
-        const result = await db.collection('projects').insertOne(newProject as any);
+        await db.collection('projects').insertOne(newProject as any);
         
-        if(result.insertedId) {
-            await handleSyncPhoneNumbers(result.insertedId.toString());
-            await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
-        }
-
         revalidatePath('/dashboard');
         
         return { message: `Project "${projectData.name}" created successfully!` };
@@ -590,6 +584,151 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
 
 // --- PAYMENT ACTIONS ---
 
+export async function handleCreatePaymentConfiguration(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; oauth_url?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    const providerName = formData.get('provider_name') as string;
+    let payload: any = {
+        configuration_name: formData.get('configuration_name'),
+        purpose_code: formData.get('purpose_code'),
+        merchant_category_code: formData.get('merchant_category_code'),
+        provider_name,
+    };
+
+    if (providerName === 'upi_vpa') {
+        payload.merchant_vpa = formData.get('merchant_vpa');
+    } else {
+        payload.redirect_url = formData.get('redirect_url');
+    }
+
+    try {
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configurations`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        if (response.data.oauth_url) {
+            return { message: "Configuration created! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
+        }
+
+        revalidatePath('/dashboard/whatsapp-pay/settings');
+        return { message: "UPI VPA configuration created successfully!" };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleUpdateDataEndpoint(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const configurationName = formData.get('configurationName') as string;
+    const dataEndpointUrl = formData.get('dataEndpointUrl') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    if (!configurationName || !dataEndpointUrl) {
+        return { error: 'Configuration name and endpoint URL are required.' };
+    }
+    
+    try {
+        const payload = { data_endpoint_url: dataEndpointUrl };
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration/${configurationName}`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+        
+        revalidatePath('/dashboard/whatsapp-pay/settings');
+        return { message: "Data endpoint URL updated successfully!" };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleRegenerateOauthLink(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; oauth_url?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const configurationName = formData.get('configuration_name') as string;
+    const redirectUrl = formData.get('redirect_url') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    if (!configurationName || !redirectUrl) {
+        return { error: 'Configuration name and redirect URL are required.' };
+    }
+
+    try {
+        const payload = {
+            configuration_name: configurationName,
+            redirect_url: redirectUrl,
+        };
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/generate_payment_configuration_oauth_link`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        if (response.data.oauth_url) {
+            return { message: "New link generated! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
+        }
+
+        return { error: "Failed to generate OAuth link. No URL was returned." };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleDeletePaymentConfiguration(
+    projectId: string, 
+    configurationName: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { success: false, error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    try {
+        const response = await axios.delete(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration`, {
+            headers: { 'Authorization': `Bearer ${project.accessToken}`, 'Content-Type': 'application/json' },
+            data: { configuration_name: configurationName }
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        revalidatePath('/dashboard/whatsapp-pay/settings');
+        return { success: true };
+
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 export async function handleRequestWhatsAppPayment(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const contactId = formData.get('contactId') as string;
     const amount = formData.get('amount') as string;
@@ -780,92 +919,4 @@ export async function getTransactionsForProject(projectId: string): Promise<With
         return [];
     }
 }
-
-export async function handleManualWachatSetup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const session = await getSession();
-    if (!session?.user) {
-        return { error: 'You must be logged in to create a project.' };
-    }
-
-    const wabaId = formData.get('wabaId') as string;
-    const appId = formData.get('appId') as string;
-    const accessToken = formData.get('accessToken') as string;
-    const includeCatalog = formData.get('includeCatalog') === 'on';
-
-    if (!wabaId || !appId || !accessToken) {
-        return { error: 'WABA ID, App ID, and Access Token are required.' };
-    }
-
-    try {
-        // We will now attempt to create the project first, and only then try to subscribe the webhook.
-        // This prevents setup failure if the token is valid but lacks webhook permissions.
-        
-        let businessId: string | undefined = undefined;
-        if(includeCatalog) {
-            try {
-                const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
-                    params: { access_token: accessToken }
-                });
-                const businesses = businessesResponse.data.data;
-                if (businesses && businesses.length > 0) {
-                    businessId = businesses[0].id;
-                } else {
-                    console.warn("Could not find a Meta Business Account associated with this token to enable Catalog features.");
-                }
-            } catch(e) {
-                // Non-fatal, just means catalog features might not work
-                console.warn("Could not retrieve business ID for catalog features:", getErrorMessage(e));
-            }
-        }
-        
-        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name&access_token=${accessToken}`);
-        const projectData = await projectDetailsResponse.json();
-
-        if (projectData.error) {
-            return { error: `Meta API Error (fetching project name): ${projectData.error.message}` };
-        }
-
-        const { db } = await connectToDatabase();
-        
-        const existingProject = await db.collection('projects').findOne({ wabaId: wabaId, userId: new ObjectId(session.user._id) });
-        if(existingProject) {
-            return { error: 'A project with this WABA ID already exists for your account.'};
-        }
-
-        const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
-        
-        const newProject: Omit<Project, '_id'> = {
-            userId: new ObjectId(session.user._id),
-            name: projectData.name,
-            wabaId: wabaId,
-            appId: appId,
-            businessId: businessId,
-            accessToken: accessToken,
-            phoneNumbers: [],
-            createdAt: new Date(),
-            messagesPerSecond: 80,
-            planId: defaultPlan?._id,
-            credits: defaultPlan?.signupCredits || 0,
-            hasCatalogManagement: includeCatalog,
-        };
-
-        const result = await db.collection('projects').insertOne(newProject as any);
-        
-        // Attempt to subscribe to webhooks after creation, but don't fail the entire process if it doesn't work.
-        if(result.insertedId) {
-            await handleSyncPhoneNumbers(result.insertedId.toString());
-            await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
-        }
-
-        revalidatePath('/dashboard');
-        
-        return { message: `Project "${projectData.name}" created successfully!` };
-
-    } catch (e: any) {
-        console.error('Manual project creation failed:', e);
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
-    }
-}
-    
-
     
