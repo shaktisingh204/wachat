@@ -3,16 +3,17 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { FacebookIcon } from './custom-sidebar-components';
+import { WhatsAppIcon } from './custom-sidebar-components';
 import Link from 'next/link';
 import { LoaderCircle } from 'lucide-react';
 
 interface EmbeddedSignupProps {
   appId: string;
   state?: string;
+  includeCatalog?: boolean;
 }
 
-export function EmbeddedSignup({ appId, state = 'whatsapp' }: EmbeddedSignupProps) {
+export function EmbeddedSignup({ appId, state = 'whatsapp', includeCatalog }: EmbeddedSignupProps) {
   const [isClient, setIsClient] = useState(false);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
@@ -30,17 +31,22 @@ export function EmbeddedSignup({ appId, state = 'whatsapp' }: EmbeddedSignupProp
 
   const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
   
-  // These scopes are comprehensive to cover WABA onboarding, messaging, and business discovery.
-  const scopes = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
+  // Scopes for Wachat should be limited to WhatsApp and business management
+  let scopes = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
+  
+  if (includeCatalog) {
+      scopes += ',catalog_management';
+  }
   
   const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&state=${state}`;
 
   return (
-    <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
-      <Link href={facebookLoginUrl}>
-        <FacebookIcon className="mr-2 h-5 w-5" />
+    <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#25D366]/90 text-white w-full">
+      <a href={facebookLoginUrl} target="_blank" rel="noopener noreferrer">
+        <WhatsAppIcon className="mr-2 h-5 w-5" />
         Connect with Facebook
-      </Link>
+      </a>
     </Button>
   );
 }
+

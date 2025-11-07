@@ -30,17 +30,17 @@ export function InstagramEmbeddedSignup({ appId, state }: InstagramEmbeddedSignu
     }
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
-    // Added whatsapp and business management scopes to ensure a versatile token is acquired.
-    const scopes = 'pages_show_list,instagram_basic,instagram_content_publish,business_management,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging,whatsapp_business_management,whatsapp_business_messaging';
+    // Scopes focused on Instagram and Facebook pages, excluding WhatsApp.
+    const scopes = 'pages_show_list,instagram_basic,instagram_content_publish,instagram_manage_comments,instagram_manage_messages,business_management,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging';
     
     const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&state=${state}`;
 
     return (
         <Button asChild size="lg" className="bg-instagram hover:bg-instagram/90 w-full">
-            <Link href={facebookLoginUrl}>
+            <a href={facebookLoginUrl} target="_blank" rel="noopener noreferrer">
                 <InstagramIcon className="mr-2 h-5 w-5" />
                 Connect with Instagram
-            </Link>
+            </a>
         </Button>
     );
 }
