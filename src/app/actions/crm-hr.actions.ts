@@ -5,7 +5,7 @@ import { getSession } from "@/app/actions/user.actions";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getErrorMessage } from "@/lib/utils";
 import { ObjectId, WithId } from "mongodb";
-import type { CrmAttendance, CrmHoliday, CrmLeaveRequest, CrmGoal } from '@/lib/definitions';
+import type { CrmAttendance, CrmHoliday, CrmLeaveRequest, CrmGoal, CrmProfessionalTaxSlab } from '@/lib/definitions';
 import { revalidatePath } from "next/cache";
 
 export async function getCrmAttendance(date: Date): Promise<WithId<CrmAttendance>[]> {
@@ -271,5 +271,122 @@ export async function deleteCrmGoal(id: string): Promise<{ success: boolean; err
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+// --- Professional Tax Slabs ---
+export async function getCrmPtSlabs(): Promise<WithId<CrmProfessionalTaxSlab>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const slabs = await db.collection<CrmProfessionalTaxSlab>('crm_pt_slabs')
+            .find({ userId: new ObjectId(session.user._id) })
+            .sort({ state: 1, minSalary: 1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(slabs));
+    } catch (e) {
+        console.error("Failed to fetch PT slabs:", e);
+        return [];
+    }
+}
+
+export async function saveCrmPtSlab(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+
+    const slabId = formData.get('slabId') as string | null;
+    const isEditing = !!slabId;
+
+    try {
+        const slabData = {
+            userId: new ObjectId(session.user._id),
+            state: formData.get('state') as string,
+            minSalary: Number(formData.get('minSalary')),
+            maxSalary: Number(formData.get('maxSalary')),
+            taxAmount: Number(formData.get('taxAmount')),
+        };
+
+        if (!slabData.state || isNaN(slabData.minSalary) || isNaN(slabData.maxSalary) || isNaN(slabData.taxAmount)) {
+            return { error: 'All fields are required and must be valid numbers.' };
+        }
+
+        const { db } = await connectToDatabase();
+        if (isEditing && ObjectId.isValid(slabId)) {
+            await db.collection('crm_pt_slabs').updateOne({ _id: new ObjectId(slabId), userId: slabData.userId }, { $set: slabData });
+        } else {
+            await db.collection('crm_pt_slabs').insertOne({ ...slabData, createdAt: new Date() });
+        }
+        
+        revalidatePath('/dashboard/crm/hr-payroll/professional-tax');
+        return { message: 'Professional Tax slab saved successfully.' };
+    } catch(e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteCrmPtSlab(slabId: string): Promise<{ success: boolean, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: "Access denied" };
+
+    if (!slabId || !ObjectId.isValid(slabId)) {
+        return { success: false, error: 'Invalid Slab ID' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('crm_pt_slabs').deleteOne({ _id: new ObjectId(slabId), userId: new ObjectId(session.user._id) });
+        revalidatePath('/dashboard/crm/hr-payroll/professional-tax');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// This should be in crm-hr-reports.actions.ts, but placing here to fix dependency
+export async function generateProfessionalTaxReport(): Promise<any[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const [employees, slabs] = await Promise.all([
+            db.collection('crm_employees').find({ userId, status: 'Active' }).project({ firstName: 1, lastName: 1, 'salaryDetails.grossSalary': 1, 'address.state': 1 }).toArray(),
+            db.collection('crm_pt_slabs').find({ userId }).toArray()
+        ]);
+        
+        const slabsByState = slabs.reduce((acc, slab) => {
+            if (!acc[slab.state]) acc[slab.state] = [];
+            acc[slab.state].push(slab);
+            return acc;
+        }, {} as Record<string, typeof slabs>);
+        
+        return employees.map(emp => {
+            const state = emp.address?.state;
+            const salary = emp.salaryDetails?.grossSalary || 0;
+            let taxAmount = 0;
+
+            if (state && slabsByState[state]) {
+                const applicableSlab = slabsByState[state].find(s => salary >= s.minSalary && salary <= s.maxSalary);
+                if (applicableSlab) {
+                    taxAmount = applicableSlab.taxAmount;
+                }
+            }
+
+            return {
+                employeeId: emp._id.toString(),
+                employeeName: `${emp.firstName} ${emp.lastName}`,
+                state: state || 'N/A',
+                grossSalary: salary,
+                taxAmount,
+            };
+        });
+
+    } catch (e) {
+        console.error("Failed to generate professional tax report:", e);
+        return [];
     }
 }
