@@ -146,6 +146,35 @@ export function PropertiesPanel({ node, onUpdate, deleteNode }: PropertiesPanelP
                 return (<div className="space-y-2"><Label htmlFor="sms-text">SMS Text</Label><Textarea id="sms-text" placeholder="Enter SMS text..." value={node.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" /></div>);
             case 'sendEmail':
                 return (<div className="space-y-4"><div className="space-y-2"><Label htmlFor="email-subject">Email Subject</Label><Input id="email-subject" placeholder="Enter email subject" value={node.data.subject || ''} onChange={(e) => handleDataChange('subject', e.target.value)} /></div><div className="space-y-2"><Label htmlFor="email-body">Email Body (HTML)</Label><Textarea id="email-body" placeholder="Enter email body..." value={node.data.body || ''} onChange={(e) => handleDataChange('body', e.target.value)} className="h-32" /></div></div>);
+             case 'createCrmLead':
+                return (
+                    <div className="space-y-4">
+                        <h4 className="font-medium">Map Contact Info</h4>
+                        <div className="space-y-2"><Label>Contact Name</Label><Input value={node.data.contactName || ''} onChange={e => handleDataChange('contactName', e.target.value)} placeholder="{{variable_for_name}}" /></div>
+                        <div className="space-y-2"><Label>Email</Label><Input value={node.data.email || ''} onChange={e => handleDataChange('email', e.target.value)} placeholder="{{variable_for_email}}" /></div>
+                        <div className="space-y-2"><Label>Phone</Label><Input value={node.data.phone || ''} onChange={e => handleDataChange('phone', e.target.value)} placeholder="{{waId}}" /></div>
+                        <div className="space-y-2"><Label>Company</Label><Input value={node.data.company || ''} onChange={e => handleDataChange('company', e.target.value)} placeholder="Company Name" /></div>
+                        <Separator />
+                        <h4 className="font-medium">Map Deal Info</h4>
+                        <div className="space-y-2"><Label>Deal Name</Label><Input value={node.data.dealName || ''} onChange={e => handleDataChange('dealName', e.target.value)} placeholder="e.g. New Website for {{company}}" /></div>
+                        <div className="space-y-2"><Label>Deal Value</Label><Input value={node.data.dealValue || ''} onChange={e => handleDataChange('dealValue', e.target.value)} placeholder="e.g. 5000" /></div>
+                    </div>
+                );
+            case 'generateShortLink':
+                 return (
+                    <div className="space-y-4">
+                        <div className="space-y-2"><Label>URL to Shorten</Label><Input value={node.data.longUrl || ''} onChange={e => handleDataChange('longUrl', e.target.value)} placeholder="https://example.com/very-long-link" /></div>
+                        <div className="space-y-2"><Label>Custom Alias (Optional)</Label><Input value={node.data.alias || ''} onChange={e => handleDataChange('alias', e.target.value)} placeholder="summer-sale" /></div>
+                        <div className="space-y-2"><Label>Save Link to Variable</Label><Input value={node.data.saveAsVariable || ''} onChange={e => handleDataChange('saveAsVariable', e.target.value)} placeholder="my_short_link" /></div>
+                    </div>
+                );
+            case 'generateQrCode':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2"><Label>Data to Encode</Label><Input value={node.data.qrData || ''} onChange={e => handleDataChange('qrData', e.target.value)} placeholder="https://example.com or {{my_short_link}}"/></div>
+                        <div className="space-y-2"><Label>Save Image URL to Variable</Label><Input value={node.data.saveAsVariable || ''} onChange={e => handleDataChange('saveAsVariable', e.target.value)} placeholder="my_qr_code_url" /></div>
+                    </div>
+                );
             default:
                 return <p className="text-sm text-muted-foreground italic">No properties to configure for this block type.</p>;
         }
@@ -171,5 +200,3 @@ export function PropertiesPanel({ node, onUpdate, deleteNode }: PropertiesPanelP
         </div>
     );
 }
-
-    
