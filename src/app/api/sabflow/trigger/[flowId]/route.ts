@@ -14,9 +14,12 @@ export async function POST(
         return NextResponse.json({ error: 'Invalid Flow ID.' }, { status: 400 });
     }
 
-    let payload;
+    let payload = {};
     try {
-        payload = await request.json();
+        const bodyText = await request.text();
+        if (bodyText) {
+            payload = JSON.parse(bodyText);
+        }
     } catch (e) {
         return NextResponse.json({ error: 'Invalid JSON payload.' }, { status: 400 });
     }
