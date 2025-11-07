@@ -5,9 +5,10 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { SabFlow, SabFlowNode, SabFlowEdge } from '@/lib/definitions';
+import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-import { handleSendMessage } from './whatsapp.actions';
+import { handleSendMessage, findOrCreateContact } from './whatsapp.actions';
+import { sabnodeAppActions } from '@/lib/sabflow-actions';
 
 export async function getSabFlows(): Promise<WithId<SabFlow>[]> {
     const session = await getSession();
@@ -110,21 +111,23 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
         const appId = formData.get('appId') as string;
         const appName = formData.get('appName') as string;
         const connectionName = formData.get('connectionName') as string;
-        const credentialKeys = (formData.get('credentialKeys') as string)?.split(',') || [];
-
-        const credentials: Record<string, any> = {};
-        for (const key of credentialKeys) {
-            credentials[key] = formData.get(key) as string;
-        }
-
+        
+        let credentials: Record<string, any> = {};
         if (formData.get('credentials')) {
             try {
-                Object.assign(credentials, JSON.parse(formData.get('credentials') as string));
-            } catch {
-                // ignore if it's not valid json
+                credentials = JSON.parse(formData.get('credentials') as string);
+            } catch { /* ignore invalid json */ }
+        }
+        
+        const credentialKeysStr = formData.get('credentialKeys') as string | null;
+        if(credentialKeysStr) {
+             const credentialKeys = credentialKeysStr.split(',');
+             for (const key of credentialKeys) {
+                if (formData.has(key)) {
+                    credentials[key] = formData.get(key) as string;
+                }
             }
         }
-
 
         const connectionData = {
             _id: new ObjectId(),
@@ -155,23 +158,65 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
 
 // --- Flow Execution Engine ---
 
-async function executeAction(node: SabFlowNode, context: any) {
-    const { actionName, inputs, connectionId } = node.data;
-    // Here, you would fetch the connection details using connectionId
-    // And then call the appropriate function based on `actionName`
+async function executeAction(node: SabFlowNode, context: any, project: WithId<Project>) {
+    const { actionName, inputs } = node.data;
+    const interpolatedInputs: Record<string, any> = {};
+
+    // Interpolate all input values from the context
+    for(const key in inputs) {
+        if(typeof inputs[key] === 'string') {
+            interpolatedInputs[key] = inputs[key].replace(/{{\s*([^}]+)\s*}}/g, (match: any, varName: string) => {
+                // Simple dot notation accessor for context
+                const keys = varName.split('.');
+                let value = context;
+                for (const k of keys) {
+                    if (value && typeof value === 'object' && k in value) {
+                        value = value[k];
+                    } else {
+                        return match; // Variable not found, return placeholder
+                    }
+                }
+                return value;
+            });
+        } else {
+            interpolatedInputs[key] = inputs[key];
+        }
+    }
     
-    switch(actionName) {
-        case 'send_text':
-            console.log(`Executing send_text: to ${inputs.recipient}, message: ${inputs.message}`);
-            // This is a placeholder for the actual API call
-            // const formData = new FormData();
-            // formData.append('waId', inputs.recipient);
-            // formData.append('messageText', inputs.message);
-            // await handleSendMessage(null, formData);
-            break;
-        // Add cases for all other actions...
-        default:
-            console.log(`Action ${actionName} is not yet implemented.`);
+    // Find the app and action definition to know which function to call
+    const actionApp = sabnodeAppActions.find(app => app.actions.some(a => a.name === actionName));
+    if (!actionApp) {
+        console.error(`Action app not found for action: ${actionName}`);
+        return;
+    }
+
+    // This is a simplified execution block. In a real app, each action would have its own handler.
+    // For now, we will demonstrate the 'send_text' action for Wachat.
+    if (actionApp.appId === 'wachat') {
+        const { db } = await connectToDatabase();
+        const contactResult = await findOrCreateContact(project._id.toString(), project.phoneNumbers[0].id, interpolatedInputs.recipient);
+        if (contactResult.error || !contactResult.contact) {
+            console.error('Failed to find or create contact for SMS action');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('contactId', contactResult.contact._id.toString());
+        formData.append('projectId', project._id.toString());
+        formData.append('phoneNumberId', project.phoneNumbers[0].id);
+        formData.append('waId', interpolatedInputs.recipient);
+
+        switch(actionName) {
+            case 'send_text':
+                formData.append('messageText', interpolatedInputs.message);
+                await handleSendMessage(null, formData);
+                break;
+            // Additional Wachat actions would be implemented here
+            default:
+                console.log(`Wachat action "${actionName}" is defined but not yet implemented in the executor.`);
+        }
+    } else {
+        console.log(`Action app "${actionApp.name}" is defined but not yet implemented in the executor.`);
     }
 }
 
@@ -179,18 +224,28 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
     const flow = await getSabFlowById(flowId);
     if (!flow) throw new Error("Flow not found.");
 
+    const { db } = await connectToDatabase();
+    // Assuming the flow is tied to a user's first project for simplicity
+    const project = await db.collection<Project>('projects').findOne({ userId: flow.userId });
+    if (!project) throw new Error("Could not find a project to execute this flow against.");
+
     let context = { ...triggerPayload };
     let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
+
+    if(!currentNodeId && flow.nodes.length > 0) {
+        // If no trigger node, start with the first node for manual runs
+        currentNodeId = flow.nodes[0].id;
+    }
 
     while (currentNodeId) {
         const currentNode = flow.nodes.find(n => n.id === currentNodeId);
         if (!currentNode) break;
 
         if (currentNode.type === 'action') {
-            await executeAction(currentNode, context);
+            await executeAction(currentNode, context, project);
         }
 
-        // Move to the next node
+        // Move to the next node based on edges
         const edge = flow.edges.find(e => e.source === currentNodeId);
         currentNodeId = edge ? edge.target : null;
     }
