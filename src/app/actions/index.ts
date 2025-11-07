@@ -51,6 +51,7 @@ export * from './email.actions';
 export * from './sms.actions';
 export * from './seo.actions';
 export * from './template.actions';
+export * from './send-template.actions';
 export * from './calling.actions';
 export * from './catalog.actions';
 export * from './facebook-flow.actions';

@@ -65,7 +65,7 @@
 !/src/app/actions/facebook.actions.ts
 !/src/app/actions/facebook-flow.actions.ts
 !/src/app/actions/instagram.actions.ts
-!/src/app/actions/whatsapp.actions.ts
+/src/app/actions/whatsapp.actions.ts
 !/src/app/actions/index.ts
 !/src/app/actions/crm-hr.actions.ts
 /src/components/wabasimplify/meta-flow-editor/
