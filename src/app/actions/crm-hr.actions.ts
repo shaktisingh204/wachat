@@ -5,7 +5,7 @@ import { getSession } from "@/app/actions/user.actions";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getErrorMessage } from "@/lib/utils";
 import { ObjectId, WithId } from "mongodb";
-import type { CrmAttendance, CrmHoliday, CrmLeaveRequest, CrmGoal, CrmProfessionalTaxSlab } from '@/lib/definitions';
+import type { CrmAttendance, CrmHoliday, CrmLeaveRequest, CrmGoal, CrmProfessionalTaxSlab, CrmEmployee } from '@/lib/definitions';
 import { revalidatePath } from "next/cache";
 
 export async function getCrmAttendance(date: Date): Promise<WithId<CrmAttendance>[]> {
@@ -344,7 +344,6 @@ export async function deleteCrmPtSlab(slabId: string): Promise<{ success: boolea
 }
 
 
-// This should be in crm-hr-reports.actions.ts, but placing here to fix dependency
 export async function generateProfessionalTaxReport(): Promise<any[]> {
     const session = await getSession();
     if (!session?.user) return [];
@@ -390,3 +389,5 @@ export async function generateProfessionalTaxReport(): Promise<any[]> {
         return [];
     }
 }
+
+    
