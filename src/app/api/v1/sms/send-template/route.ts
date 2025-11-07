@@ -1,5 +1,4 @@
 
-
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/app/actions/api-keys.actions';
 import { sendSmsTemplate } from '@/app/actions/sms.actions';
@@ -26,14 +25,13 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { projectId, recipient, dltTemplateId, headerId, variables } = body;
+        const { recipient, dltTemplateId, headerId, variables } = body;
 
-        if (!projectId || !recipient || !dltTemplateId || !headerId) {
-            return NextResponse.json({ error: 'projectId, recipient, dltTemplateId, and headerId are required.' }, { status: 400 });
+        if (!recipient || !dltTemplateId || !headerId) {
+            return NextResponse.json({ error: 'recipient, dltTemplateId, and headerId are required.' }, { status: 400 });
         }
 
         const formData = new FormData();
-        formData.append('projectId', projectId);
         formData.append('recipient', recipient);
         formData.append('dltTemplateId', dltTemplateId);
         formData.append('headerId', headerId);
