@@ -32,6 +32,25 @@ import {
   Compass,
   Search,
   Clapperboard,
+  ShieldCheck,
+  Key,
+  BookCopy,
+  Rss,
+  ChevronsUpDown,
+  TrendingUp,
+  PanelLeft,
+  Sparkles,
+  ChevronRight,
+  Database,
+  User as UserIcon,
+  Eye,
+  Link as LinkIcon,
+  QrCode,
+  Users2,
+  UserMinus,
+  UserCheck,
+  Star,
+  LogOut,
 } from 'lucide-react';
 import { WhatsAppIcon, CrmIcon, EmailIcon, SmsIcon, MetaIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
@@ -295,6 +314,101 @@ export const sabnodeAppActions = [
           { name: 'phone', label: 'Phone Number', type: 'text' },
         ],
       },
+      {
+        name: 'mark_as_read',
+        label: 'Mark Message as Read',
+        description: 'Mark a specific message as read.',
+        inputs: [
+          { name: 'messageId', label: 'Message ID (Wamid)', type: 'text' },
+        ],
+      },
+      {
+        name: 'create_group',
+        label: 'Create Group',
+        description: 'Create a new WhatsApp group.',
+        inputs: [
+          { name: 'subject', label: 'Group Subject', type: 'text' },
+        ],
+      },
+      {
+        name: 'update_group_subject',
+        label: 'Update Group Subject',
+        description: 'Change the subject of a group.',
+        inputs: [
+          { name: 'groupId', label: 'Group ID', type: 'text' },
+          { name: 'newSubject', label: 'New Subject', type: 'text' },
+        ],
+      },
+      {
+        name: 'update_group_description',
+        label: 'Update Group Description',
+        description: 'Change the description of a group.',
+        inputs: [
+          { name: 'groupId', label: 'Group ID', type: 'text' },
+          { name: 'newDescription', label: 'New Description', type: 'textarea' },
+        ],
+      },
+      {
+        name: 'add_group_participant',
+        label: 'Add Group Participant',
+        description: 'Add a contact to a group.',
+        inputs: [
+          { name: 'groupId', label: 'Group ID', type: 'text' },
+          { name: 'phone', label: 'Participant Phone Number', type: 'text' },
+        ],
+      },
+      {
+        name: 'remove_group_participant',
+        label: 'Remove Group Participant',
+        description: 'Remove a participant from a group.',
+        inputs: [
+          { name: 'groupId', label: 'Group ID', type: 'text' },
+          { name: 'phone', label: 'Participant Phone Number', type: 'text' },
+        ],
+      },
+      {
+        name: 'promote_to_admin',
+        label: 'Promote to Group Admin',
+        description: 'Make a group participant an admin.',
+        inputs: [
+          { name: 'groupId', label: 'Group ID', type: 'text' },
+          { name: 'phone', label: 'Participant Phone Number', type: 'text' },
+        ],
+      },
+      {
+        name: 'demote_admin',
+        label: 'Demote Group Admin',
+        description: 'Remove admin privileges from a participant.',
+        inputs: [
+          { name: 'groupId', label: 'Group ID', type: 'text' },
+          { name: 'phone', label: 'Participant Phone Number', type: 'text' },
+        ],
+      },
+      {
+        name: 'get_group_info',
+        label: 'Get Group Info',
+        description: 'Retrieve subject and participants of a group.',
+        inputs: [
+          { name: 'groupId', label: 'Group ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'send_group_message',
+        label: 'Send Group Message',
+        description: 'Send a text message to a group.',
+        inputs: [
+          { name: 'groupId', label: 'Group ID', type: 'text' },
+          { name: 'message', label: 'Message Text', type: 'textarea' },
+        ],
+      },
+      {
+        name: 'leave_group',
+        label: 'Leave Group',
+        description: 'Leave a WhatsApp group.',
+        inputs: [
+          { name: 'groupId', label: 'Group ID', type: 'text' },
+        ],
+      }
     ],
   },
   {
