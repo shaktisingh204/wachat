@@ -18,7 +18,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { CodeBlock } from './code-block';
 import { Separator } from '../ui/separator';
 import { Slider } from '../ui/slider';
-import { saveWidgetSettings } from '@/app/actions/integrations.actions';
+import { saveWidgetSettings } from '@/app/actions/widget.actions';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 

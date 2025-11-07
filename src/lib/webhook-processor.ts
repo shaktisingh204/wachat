@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -866,10 +867,9 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                     const result = await createShortUrl(null, formData);
                     if (result.error) {
                         logger.log(`Failed to create Short Link: ${result.error}`);
-                    } else if (result.shortUrlId && result.shortCode) {
+                    } else if (result.shortUrlId) {
                          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
-                         const shortUrl = `${appUrl}/s/${result.shortCode}`;
-                         contact.activeFlow.variables[saveAsVariable] = shortUrl;
+                         contact.activeFlow.variables[saveAsVariable] = `${appUrl}/s/${result.shortCode}`;
                          logger.log(`Created short link and saved to variable "${saveAsVariable}".`);
                     }
                 } catch (e: any) {
