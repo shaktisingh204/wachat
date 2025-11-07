@@ -7,6 +7,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { handleSendMessage } from './whatsapp.actions';
 
 export async function getSabFlows(): Promise<WithId<SabFlow>[]> {
     const session = await getSession();
@@ -38,20 +39,19 @@ export async function getSabFlowById(flowId: string): Promise<WithId<SabFlow> | 
     return flow ? JSON.parse(JSON.stringify(flow)) : null;
 }
 
-export async function saveSabFlow(data: {
-    flowId?: string;
-    name: string;
-    trigger: any;
-    nodes: SabFlowNode[];
-    edges: SabFlowEdge[];
-}): Promise<{ message?: string, error?: string, flowId?: string }> {
+export async function saveSabFlow(prevState: any, data: FormData): Promise<{ message?: string, error?: string, flowId?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
     
-    const { flowId, name, trigger, nodes, edges } = data;
+    const flowId = data.get('flowId') as string | undefined;
+    const name = data.get('name') as string;
+    const trigger = JSON.parse(data.get('trigger') as string);
+    const nodes = JSON.parse(data.get('nodes') as string);
+    const edges = JSON.parse(data.get('edges') as string);
+
     if (!name) return { error: 'Flow Name is required.' };
     
-    const isNew = !flowId;
+    const isNew = !flowId || flowId === 'new';
     
     const flowData: Omit<SabFlow, '_id' | 'createdAt'> = {
         name,
@@ -127,6 +127,7 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
 
 
         const connectionData = {
+            _id: new ObjectId(),
             appId,
             appName,
             connectionName,
@@ -148,5 +149,49 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
         return { message: `${connectionData.appName} account connected successfully.` };
     } catch (e) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+
+// --- Flow Execution Engine ---
+
+async function executeAction(node: SabFlowNode, context: any) {
+    const { actionName, inputs, connectionId } = node.data;
+    // Here, you would fetch the connection details using connectionId
+    // And then call the appropriate function based on `actionName`
+    
+    switch(actionName) {
+        case 'send_text':
+            console.log(`Executing send_text: to ${inputs.recipient}, message: ${inputs.message}`);
+            // This is a placeholder for the actual API call
+            // const formData = new FormData();
+            // formData.append('waId', inputs.recipient);
+            // formData.append('messageText', inputs.message);
+            // await handleSendMessage(null, formData);
+            break;
+        // Add cases for all other actions...
+        default:
+            console.log(`Action ${actionName} is not yet implemented.`);
+    }
+}
+
+export async function runSabFlow(flowId: string, triggerPayload: any) {
+    const flow = await getSabFlowById(flowId);
+    if (!flow) throw new Error("Flow not found.");
+
+    let context = { ...triggerPayload };
+    let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
+
+    while (currentNodeId) {
+        const currentNode = flow.nodes.find(n => n.id === currentNodeId);
+        if (!currentNode) break;
+
+        if (currentNode.type === 'action') {
+            await executeAction(currentNode, context);
+        }
+
+        // Move to the next node
+        const edge = flow.edges.find(e => e.source === currentNodeId);
+        currentNodeId = edge ? edge.target : null;
     }
 }
