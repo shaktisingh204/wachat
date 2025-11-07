@@ -20,6 +20,18 @@ import * as urlShortenerActions from './url-shortener.actions';
 import * as qrCodeActions from './qr-code.actions';
 import * as emailActions from './email.actions';
 import * as smsActions from './sms.actions';
+import * as crmQuotationsActions from './crm-quotations.actions';
+import * as crmInvoicesActions from './crm-invoices.actions';
+import * as crmSalesOrdersActions from './crm-sales-orders.actions';
+import * as crmDeliveryChallansActions from './crm-delivery-challans.actions';
+import * as crmCreditNotesActions from './crm-credit-notes.actions';
+import * as crmVendorsActions from './crm-vendors.actions';
+import * as crmPurchaseOrdersActions from './crm-purchase-orders.actions';
+import * as crmProductsActions from './crm-products.actions';
+import * as crmInventoryActions from './crm-inventory.actions';
+import * as crmEmployeesActions from './crm-employees.actions';
+import * as crmHrActions from './crm-hr.actions';
+import * as crmVouchersActions from './crm-vouchers.actions';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
 
 
@@ -215,50 +227,37 @@ async function executeAction(node: SabFlowNode, context: any, project: WithId<Pr
 
         switch (actionApp.appId) {
             case 'wachat':
-                // Wachat actions often need recipient and message content
                 if (interpolatedInputs.recipient) formData.set('waId', interpolatedInputs.recipient);
                 if (interpolatedInputs.message) formData.set('messageText', interpolatedInputs.message);
-
                 switch(actionName) {
-                    case 'send_text':
-                    case 'send_image':
-                    case 'send_video':
-                    case 'send_document':
-                    case 'send_audio':
-                    case 'send_sticker':
-                    case 'send_location':
-                    case 'send_contact':
-                    case 'send_interactive_buttons':
-                    case 'send_interactive_list':
-                        await wachatActions.handleSendMessage(null, formData);
-                        break;
-                    case 'send_template':
-                        await wachatActions.handleSendTemplateMessage(null, formData);
-                        break;
-                    case 'update_contact':
-                        // This action is slightly different, needs direct mapping
-                        const updateContactData = new FormData();
-                        updateContactData.append('waId', interpolatedInputs.phone);
-                        updateContactData.append('name', interpolatedInputs.name);
-                        updateContactData.append('email', interpolatedInputs.email);
-                        updateContactData.append('projectId', project._id.toString());
-                        updateContactData.append('phoneNumberId', project.phoneNumbers?.[0]?.id || '');
-                        await wachatActions.findOrCreateContact(project._id.toString(), project.phoneNumbers?.[0]?.id || '', interpolatedInputs.phone);
-                        break;
-                    // ... other wachat actions to be implemented here
+                    case 'send_text': case 'send_image': case 'send_video': case 'send_document': case 'send_audio': case 'send_sticker': case 'send_location': case 'send_contact': case 'send_interactive_buttons': case 'send_interactive_list': await wachatActions.handleSendMessage(null, formData); break;
+                    case 'send_template': await wachatActions.handleSendTemplateMessage(null, formData); break;
+                    case 'update_contact': await wachatActions.findOrCreateContact(project._id.toString(), project.phoneNumbers?.[0]?.id || '', interpolatedInputs.phone, interpolatedInputs.name, interpolatedInputs.email); break;
+                    case 'add_tag': await wachatActions.addTagToContact(interpolatedInputs.phone, interpolatedInputs.tagName); break;
+                    case 'remove_tag': await wachatActions.removeTagFromContact(interpolatedInputs.phone, interpolatedInputs.tagName); break;
+                    case 'update_attribute': await wachatActions.updateContactAttribute(interpolatedInputs.phone, interpolatedInputs.attributeName, interpolatedInputs.attributeValue); break;
+                    case 'start_broadcast': await wachatActions.handleStartBroadcast(null, formData); break;
+                    case 'assign_agent': await wachatActions.assignAgentToContact(interpolatedInputs.phone, interpolatedInputs.agentEmail); break;
+                    case 'resolve_conversation': await wachatActions.updateContactStatus(interpolatedInputs.phone, 'resolved'); break;
+                    case 'create_template': await wachatActions.handleCreateTemplate(null, formData); break;
+                    case 'opt_out_contact': await wachatActions.updateContactOptIn(interpolatedInputs.phone, false); break;
+                    case 'opt_in_contact': await wachatActions.updateContactOptIn(interpolatedInputs.phone, true); break;
+                    case 'create_group': await wachatActions.createGroup(formData.get('subject') as string); break;
+                    case 'update_group_subject': await wachatActions.updateGroupInfo(interpolatedInputs.groupId, { subject: interpolatedInputs.newSubject }); break;
+                    case 'update_group_description': await wachatActions.updateGroupInfo(interpolatedInputs.groupId, { description: interpolatedInputs.newDescription }); break;
+                    case 'add_group_participant': await wachatActions.updateGroupParticipants(interpolatedInputs.groupId, [interpolatedInputs.phone], 'add'); break;
+                    case 'remove_group_participant': await wachatActions.updateGroupParticipants(interpolatedInputs.groupId, [interpolatedInputs.phone], 'remove'); break;
+                    case 'promote_to_admin': await wachatActions.updateGroupParticipants(interpolatedInputs.groupId, [interpolatedInputs.phone], 'promote'); break;
+                    case 'demote_admin': await wachatActions.updateGroupParticipants(interpolatedInputs.groupId, [interpolatedInputs.phone], 'demote'); break;
+                    case 'send_group_message': await wachatActions.sendGroupMessage(interpolatedInputs.groupId, interpolatedInputs.message); break;
+                    case 'leave_group': await wachatActions.leaveGroup(interpolatedInputs.groupId); break;
                 }
                 break;
             case 'sabchat':
                  switch(actionName) {
-                    case 'send_message':
-                        await sabChatActions.postChatMessage(interpolatedInputs.sessionId, 'agent', interpolatedInputs.content);
-                        break;
-                    case 'close_session':
-                        await sabChatActions.closeChatSession(interpolatedInputs.sessionId);
-                        break;
-                    case 'add_tag_to_session':
-                        await sabChatActions.addTagToSession(interpolatedInputs.sessionId, interpolatedInputs.tagName);
-                        break;
+                    case 'send_message': await sabChatActions.postChatMessage(interpolatedInputs.sessionId, 'agent', interpolatedInputs.content); break;
+                    case 'close_session': await sabChatActions.closeChatSession(interpolatedInputs.sessionId); break;
+                    case 'add_tag_to_session': await sabChatActions.addTagToSession(interpolatedInputs.sessionId, interpolatedInputs.tagName); break;
                     case 'create_crm_contact':
                         const session = await sabChatActions.getFullChatSession(interpolatedInputs.sessionId);
                         if (session && session.visitorInfo?.email) {
@@ -273,50 +272,38 @@ async function executeAction(node: SabFlowNode, context: any, project: WithId<Pr
                 break;
             case 'crm':
                  switch(actionName) {
-                    case 'create_lead':
-                    case 'create_deal': 
-                         await crmDealsActions.addCrmLeadAndDeal(null, formData);
-                         break;
-                    case 'create_task':
-                        await crmTasksActions.createCrmTask(null, formData);
-                        break;
+                    case 'create_contact': await crmActions.addCrmContact(null, formData); break;
+                    case 'create_account': await crmActions.addCrmClient(null, formData); break;
+                    case 'create_deal': await crmDealsActions.createCrmDeal(null, formData); break;
+                    case 'update_deal_stage': await crmDealsActions.updateCrmDealStage(interpolatedInputs.dealId, interpolatedInputs.stage); break;
+                    case 'create_task': await crmTasksActions.createCrmTask(null, formData); break;
+                    case 'add_note': await crmActions.addCrmNote(null, formData); break;
+                    case 'create_quotation': await crmQuotationsActions.saveQuotation(null, formData); break;
+                    case 'create_invoice': await crmInvoicesActions.saveInvoice(null, formData); break;
+                    case 'create_sales_order': await crmSalesOrdersActions.saveSalesOrder(null, formData); break;
+                    case 'create_delivery_challan': await crmDeliveryChallansActions.saveDeliveryChallan(null, formData); break;
+                    case 'create_credit_note': await crmCreditNotesActions.saveCreditNote(null, formData); break;
+                    case 'create_vendor': await crmVendorsActions.saveCrmVendor(null, formData); break;
+                    case 'create_product': await crmProductsActions.saveCrmProduct(null, formData); break;
+                    case 'add_employee': await crmEmployeesActions.saveCrmEmployee(null, formData); break;
+                    case 'create_leave_request': await crmHrActions.applyForCrmLeave(null, formData); break;
+                    case 'create_journal_voucher': case 'create_payment_voucher': case 'create_receipt_voucher': await crmVouchersActions.saveVoucherEntry(null, formData); break;
                  }
                 break;
             case 'meta':
                 switch(actionName) {
-                    case 'create_text_post':
-                    case 'create_photo_post':
-                    case 'create_video_post':
-                    case 'schedule_post':
-                        await metaActions.handleCreateFacebookPost(null, formData);
-                        break;
-                    case 'update_post':
-                        await metaActions.handleUpdatePost(null, formData);
-                        break;
-                    case 'delete_post':
-                        await metaActions.handleDeletePost(interpolatedInputs.postId, project._id.toString());
-                        break;
-                    case 'post_comment':
-                        await metaActions.handlePostComment(null, formData);
-                        break;
-                    case 'delete_comment':
-                        await metaActions.handleDeleteComment(interpolatedInputs.commentId, project._id.toString());
-                        break;
-                    case 'like_object':
-                        await metaActions.handleLikeObject(interpolatedInputs.objectId, project._id.toString());
-                        break;
-                    case 'send_messenger_message':
-                        await metaActions.sendFacebookMessage(null, formData);
-                        break;
-                    // ... other meta actions
+                    case 'create_text_post': case 'create_photo_post': case 'create_video_post': case 'schedule_post': await metaActions.handleCreateFacebookPost(null, formData); break;
+                    case 'update_post': await metaActions.handleUpdatePost(null, formData); break;
+                    case 'delete_post': await metaActions.handleDeletePost(interpolatedInputs.postId, project._id.toString()); break;
+                    case 'post_comment': await metaActions.handlePostComment(null, formData); break;
+                    case 'delete_comment': await metaActions.handleDeleteComment(interpolatedInputs.commentId, project._id.toString()); break;
+                    case 'like_object': await metaActions.handleLikeObject(interpolatedInputs.objectId, project._id.toString()); break;
+                    case 'send_messenger_message': await metaActions.sendFacebookMessage(null, formData); break;
                 }
                 break;
             case 'instagram':
                  switch(actionName) {
-                    case 'create_image_post':
-                        await instagramActions.createInstagramImagePost(null, formData);
-                        break;
-                    // ... other instagram actions
+                    case 'create_image_post': await instagramActions.createInstagramImagePost(null, formData); break;
                  }
                 break;
             default:
@@ -332,16 +319,24 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
     if (!flow) throw new Error("Flow not found.");
 
     const { db } = await connectToDatabase();
-    // Assuming the flow is tied to a user's first project for simplicity
     const user = await db.collection<User>('users').findOne({ _id: flow.userId });
-    const project = await db.collection<Project>('projects').findOne({ userId: flow.userId });
+    
+    // Find the project based on context if possible, otherwise fallback to the user's first project.
+    const projectIdFromContext = triggerPayload?.projectId || triggerPayload?.project?._id;
+    let project: WithId<Project> | null = null;
+    if (projectIdFromContext) {
+        project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectIdFromContext), userId: flow.userId });
+    }
+    if (!project) {
+        project = await db.collection<Project>('projects').findOne({ userId: flow.userId });
+    }
+    
     if (!project || !user) throw new Error("Could not find a project or user to execute this flow against.");
 
     let context = { ...triggerPayload };
     let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
 
     if(!currentNodeId && flow.nodes.length > 0) {
-        // If no trigger node, start with the first node for manual runs
         currentNodeId = flow.nodes[0].id;
     }
 
@@ -353,7 +348,6 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
             await executeAction(currentNode, context, project, user);
         }
 
-        // Move to the next node based on edges
         const edge = flow.edges.find(e => e.source === currentNodeId);
         currentNodeId = edge ? edge.target : null;
     }
