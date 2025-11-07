@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -93,6 +94,7 @@ export function FlowBuilder() {
 
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     // Canvas state
     const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -411,13 +413,16 @@ export function FlowBuilder() {
     
     return (
         <div className="flex h-[calc(100vh-theme(spacing.20))] bg-muted/30">
-            <div className="hidden md:flex md:w-64 flex-col gap-4 p-2 bg-background border-r">
+             <div className={cn("flex-col gap-4 p-2 bg-background border-r transition-all duration-300", isSidebarCollapsed ? 'hidden' : 'hidden md:flex md:w-64')}>
                 <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
             </div>
             <div className="flex-1 flex flex-col relative">
                  <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
                      <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsBlocksSheetOpen(true)}>
+                            <PanelLeft className="h-5 w-5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="hidden md:flex" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
                             <PanelLeft className="h-5 w-5" />
                         </Button>
                         <Input id="flow-name-input" key={currentFlow?._id.toString()} defaultValue={currentFlow?.name || 'New Flow'} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
