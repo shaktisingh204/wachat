@@ -42,7 +42,7 @@ export default function SetupPage() {
                 <CardDescription>Use the secure pop-up to connect your account in a few clicks.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col items-center justify-center text-center gap-6">
-                <EmbeddedSignup appId={appId} state="whatsapp" />
+                <EmbeddedSignup appId={appId} includeCatalog={includeCatalog} state="whatsapp" />
                 <p className="text-xs text-muted-foreground">
                     You will be redirected to Facebook to authorize the connection.
                 </p>
@@ -61,3 +61,5 @@ export default function SetupPage() {
     </div>
   );
 }
+
+    

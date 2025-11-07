@@ -7,15 +7,16 @@ import { getProjects } from '@/app/actions/index.ts';
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
-import { CheckCircle, Facebook, Wrench } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ManualFacebookSetupDialog } from '@/components/wabasimplify/manual-facebook-setup-dialog';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { AvatarImage } from '@radix-ui/react-avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
+import { CheckCircle, Wrench } from 'lucide-react';
+
 
 function PageSkeleton() {
     return (
@@ -44,7 +45,7 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
         <Card className={cn("flex flex-col card-gradient card-gradient-blue transition-transform hover:-translate-y-1")}>
             <CardHeader className="flex-row items-center gap-4">
                 <Avatar className="h-12 w-12">
-                     <AvatarFallback><Facebook className="h-6 w-6"/></AvatarFallback>
+                     <AvatarFallback><FacebookIcon className="h-6 w-6"/></AvatarFallback>
                 </Avatar>
                 <div>
                     <CardTitle>{project.name}</CardTitle>
@@ -136,3 +137,5 @@ export default function AllFacebookPagesPage() {
         </div>
     );
 }
+
+    

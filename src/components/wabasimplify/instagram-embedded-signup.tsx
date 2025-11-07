@@ -37,10 +37,12 @@ export function InstagramEmbeddedSignup({ appId, state }: InstagramEmbeddedSignu
 
     return (
         <Button asChild size="lg" className="bg-instagram hover:bg-instagram/90 w-full">
-            <a href={facebookLoginUrl} target="_blank" rel="noopener noreferrer">
+            <a href={facebookLoginUrl}>
                 <InstagramIcon className="mr-2 h-5 w-5" />
                 Connect with Instagram
             </a>
         </Button>
     );
 }
+
+    
