@@ -9,10 +9,8 @@ export default function NewSabFlowRedirectPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/dashboard/sabflow/flow-builder/new');
+        router.replace('/dashboard/sabflow/flow-builder/new-flow');
     }, [router]);
     
     return null;
 }
-
-    

@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { Home, ShoppingBag, IndianRupee } from 'lucide-react';
+import { Home, ShoppingBag, IndianRupee, Handshake } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 
 export const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -85,6 +85,9 @@ export const SabChatIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const CrmIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <Handshake {...props} />
+);
 
 export const WachatSidebarTopLogo = (props: React.SVGProps<SVGSVGElement>) => (
     <SabNodeLogo {...props} />
