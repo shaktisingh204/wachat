@@ -9,11 +9,11 @@ import { LoaderCircle } from 'lucide-react';
 
 interface EmbeddedSignupProps {
   appId: string;
-  state?: string;
+  state: string;
   includeCatalog?: boolean;
 }
 
-export function EmbeddedSignup({ appId, state = 'whatsapp', includeCatalog }: EmbeddedSignupProps) {
+export function EmbeddedSignup({ appId, state, includeCatalog }: EmbeddedSignupProps) {
   const [isClient, setIsClient] = useState(false);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
@@ -42,7 +42,7 @@ export function EmbeddedSignup({ appId, state = 'whatsapp', includeCatalog }: Em
 
   return (
     <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#25D366]/90 text-white w-full">
-      <a href={facebookLoginUrl} target="_blank" rel="noopener noreferrer">
+      <a href={facebookLoginUrl}>
         <WhatsAppIcon className="mr-2 h-5 w-5" />
         Connect with Facebook
       </a>
@@ -50,3 +50,4 @@ export function EmbeddedSignup({ appId, state = 'whatsapp', includeCatalog }: Em
   );
 }
 
+    
