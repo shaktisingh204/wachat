@@ -1,3 +1,4 @@
+
 import type { NextConfig } from 'next';
 const webpack = require('webpack');
 
@@ -62,6 +63,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'assets.sabnode.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   webpack: (config, { isServer }) => {
@@ -69,7 +76,7 @@ const nextConfig: NextConfig = {
     config.plugins.push(
       new webpack.IgnorePlugin({
         resourceRegExp:
-          /^(@mongodb-js\/zstd|snappy|kerberos|aws4|@aws-sdk\/credential-providers|mongodb-client-encryption)/,
+          /^(@mongodb-js\/zstd|snappy|kerberos|aws4|@aws-sdk\/credential-providers|mongodb-client-encryption)$/,
       })
     );
 
