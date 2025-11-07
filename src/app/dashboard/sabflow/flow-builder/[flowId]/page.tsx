@@ -22,6 +22,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 
 import {
   ArrowLeft,
@@ -33,9 +36,17 @@ import {
   Trash2,
   Settings,
   GitFork,
-  BookOpen
+  BookOpen,
+  PanelLeft,
+  Maximize,
+  Minimize,
+  ZoomIn,
+  ZoomOut,
+  Frame
 } from 'lucide-react';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { cn } from '@/lib/utils';
+
 
 const initialState = { message: null, error: null };
 
@@ -54,18 +65,46 @@ const triggers = [
     { id: 'app_event', name: 'App Event', icon: PlayCircle },
 ];
 
+const NODE_WIDTH = 288; // 72 in tailwind scale
+const NODE_HEIGHT = 88; // 22 in tailwind scale
+
+const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
+    if (!sourcePos || !targetPos) return '';
+    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return path;
+};
+
+const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
+    if (!node || !handleId) return null;
+    const x = node.position.x;
+    const y = node.position.y;
+
+    if (handleId.endsWith('-input')) {
+        return { x, y: y + NODE_HEIGHT / 2 };
+    }
+    if (handleId.endsWith('-output-main')) {
+        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT / 2 };
+    }
+    if (handleId.endsWith('-output-yes')) {
+        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (1/3) };
+    }
+    if (handleId.endsWith('-output-no')) {
+        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (2/3) };
+    }
+    return null;
+}
+
 function BuilderPageSkeleton() {
     return (
-        <div className="flex flex-col gap-8">
-            <Skeleton className="h-10 w-48"/>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-6">
-                    <Skeleton className="h-32 w-full"/>
-                    <Skeleton className="h-48 w-full"/>
+        <div className="flex h-[calc(100vh-theme(spacing.20))] bg-muted/30">
+            <Skeleton className="w-64 bg-background border-r" />
+            <div className="flex-1 flex flex-col">
+                <Skeleton className="h-16 border-b bg-card" />
+                <div className="flex-1 grid grid-cols-12">
+                    <Skeleton className="col-span-9" />
+                    <Skeleton className="col-span-3 bg-background border-l" />
                 </div>
-                 <div className="lg:col-span-1">
-                     <Skeleton className="h-64 w-full sticky top-24"/>
-                 </div>
             </div>
         </div>
     )
@@ -103,16 +142,29 @@ export default function EditSabFlowPage() {
     const [flowName, setFlowName] = useState('');
     const [trigger, setTrigger] = useState({ type: 'webhook', details: {} });
     const [nodes, setNodes] = useState<SabFlowNode[]>([]);
+    const [edges, setEdges] = useState<SabFlowEdge[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Canvas state
+    const [pan, setPan] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [isPanning, setIsPanning] = useState(false);
+    const viewportRef = useRef<HTMLDivElement>(null);
+    const [draggingNode, setDraggingNode] = useState<string | null>(null);
+    const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
+    const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
     const isNew = flowId === 'new';
 
     const handleCreateNewFlow = useCallback(() => {
+        const triggerNode = { id: 'trigger', type: 'trigger', data: { name: 'Start Flow', triggerType: 'webhook' }, position: { x: 50, y: 150 } };
         setFlowName('New Automation Flow');
         setTrigger({ type: 'webhook', details: {} });
-        setNodes([]);
-        setSelectedNodeId(null);
+        setNodes([triggerNode]);
+        setEdges([]);
+        setSelectedNodeId('trigger');
     }, []);
 
     useEffect(() => {
@@ -125,7 +177,8 @@ export default function EditSabFlowPage() {
                 if(flow) {
                     setFlowName(flow.name);
                     setTrigger(flow.trigger);
-                    setNodes(flow.nodes);
+                    setNodes(flow.nodes.length > 0 ? flow.nodes : [{ id: 'trigger', type: 'trigger', data: { name: 'Start Flow', triggerType: 'webhook' }, position: { x: 50, y: 150 } }]);
+                    setEdges(flow.edges);
                 }
                 setIsLoading(false);
             });
@@ -146,18 +199,15 @@ export default function EditSabFlowPage() {
         }
     }, [state, toast, router, isNew]);
 
-    const handleAddNode = () => {
-        const newNodeId = `action_${Date.now()}`;
+    const handleAddNode = (type: 'action' | 'condition') => {
+        const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 400;
+        const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
+        const newNodeId = `${type}_${Date.now()}`;
         const newNode: SabFlowNode = {
             id: newNodeId,
-            type: 'action',
-            data: {
-                name: `Action ${nodes.length + 1}`,
-                connectionId: '',
-                actionName: '',
-                inputs: {}
-            },
-            position: { x: 0, y: (nodes.length + 1) * 120 }
+            type: type,
+            data: { name: `New ${type}`, connectionId: '', actionName: '', inputs: {} },
+            position: { x: centerOfViewX, y: centerOfViewY }
         };
         setNodes([...nodes, newNode]);
         setSelectedNodeId(newNodeId);
@@ -165,12 +215,69 @@ export default function EditSabFlowPage() {
     
     const handleRemoveNode = (nodeId: string) => {
         setNodes(nodes.filter(n => n.id !== nodeId));
+        setEdges(edges.filter(e => e.source !== nodeId && e.target !== nodeId));
         if(selectedNodeId === nodeId) setSelectedNodeId(null);
     };
 
     const handleNodeChange = (nodeId: string, data: any) => {
         setNodes(nodes.map(n => n.id === nodeId ? {...n, data: {...n.data, ...data}} : n));
     };
+
+    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => { e.preventDefault(); e.stopPropagation(); setDraggingNode(nodeId); };
+    const handleCanvasMouseDown = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { e.preventDefault(); setIsPanning(true); } };
+    const handleCanvasMouseMove = (e: React.MouseEvent) => {
+        if (isPanning) setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
+        else if (draggingNode) setNodes(prev => prev.map(n => n.id === draggingNode ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } : n));
+        if (connecting && viewportRef.current) { const rect = viewportRef.current.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom }); }
+    };
+    const handleCanvasMouseUp = () => { setIsPanning(false); setDraggingNode(null); };
+    const handleCanvasClick = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { if (connecting) setConnecting(null); else setSelectedNodeId(null); }};
+
+    const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
+        e.preventDefault(); e.stopPropagation();
+        if (!viewportRef.current) return;
+        const isOutputHandle = handleId.includes('output');
+        if (isOutputHandle) { const sourceNode = nodes.find(n => n.id === nodeId); if(sourceNode){ const handlePos = getNodeHandlePosition(sourceNode, handleId); if (handlePos) setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });}}
+        else if (connecting && !isOutputHandle) {
+            if (connecting.sourceNodeId === nodeId) { setConnecting(null); return; }
+            const newEdge: SabFlowEdge = { id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`, source: connecting.sourceNodeId, target: nodeId, sourceHandle: connecting.sourceHandleId, targetHandle: handleId };
+            const edgesWithoutExistingSource = edges.filter(e => e.sourceHandle !== connecting.sourceHandleId);
+            setEdges([...edgesWithoutExistingSource, newEdge]);
+            setConnecting(null);
+        }
+    };
+    
+    const handleWheel = (e: React.WheelEvent) => {
+        e.preventDefault();
+        if (!viewportRef.current) return;
+        const rect = viewportRef.current.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const zoomFactor = -0.001;
+        const newZoom = Math.max(0.2, Math.min(2, zoom + e.deltaY * zoomFactor));
+        const worldX = (mouseX - pan.x) / zoom;
+        const worldY = (mouseY - pan.y) / zoom;
+        const newPanX = mouseX - worldX * newZoom;
+        const newPanY = mouseY - worldY * newZoom;
+        setZoom(newZoom);
+        setPan({ x: newPanX, y: newPanY });
+    };
+
+    const handleZoomControls = (direction: 'in' | 'out' | 'reset') => {
+        if(direction === 'reset') { setZoom(1); setPan({ x: 0, y: 0 }); return; }
+        setZoom(prevZoom => Math.max(0.2, Math.min(2, direction === 'in' ? prevZoom * 1.2 : prevZoom / 1.2)));
+    };
+
+    const handleToggleFullScreen = () => {
+        if (!document.fullscreenElement) { viewportRef.current?.requestFullscreen().catch(err => { alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`); }); } 
+        else { document.exitFullscreen?.(); }
+    };
+
+    useEffect(() => {
+        const handleFullScreenChange = () => setIsFullScreen(!!document.fullscreenElement);
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
+    }, []);
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     const selectedApp = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode?.data.connectionId);
@@ -182,127 +289,122 @@ export default function EditSabFlowPage() {
     }
     
     return (
-        <form action={formAction}>
+        <form action={formAction} ref={formRef}>
             <input type="hidden" name="flowId" value={isNew ? 'new' : flowId} />
             <input type="hidden" name="name" value={flowName} />
             <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
             <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
-            <input type="hidden" name="edges" value={JSON.stringify([])} />
+            <input type="hidden" name="edges" value={JSON.stringify(edges)} />
             
             <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                 <SheetContent className="w-full max-w-sm p-0">
-                    <Card className="h-full border-none rounded-none">
-                        <CardHeader><CardTitle>Configure Step</CardTitle></CardHeader>
-                        <CardContent>
-                            {selectedNode ? (
-                                <div className="space-y-4">
-                                    <div className="space-y-2"><Label>Step Name</Label><Input value={selectedNode.data.name} onChange={e => handleNodeChange(selectedNode.id, { name: e.target.value })}/></div>
-                                    <div className="space-y-2">
-                                        <Label>App</Label>
-                                        <Select value={selectedNode.data.connectionId} onValueChange={val => handleNodeChange(selectedNode.id, { connectionId: val, actionName: '', inputs: {} })}>
-                                            <SelectTrigger><SelectValue placeholder="Select a connected app..."/></SelectTrigger>
-                                            <SelectContent>
-                                                {(user?.sabFlowConnections || []).map((conn: any) => (
-                                                    <SelectItem key={conn.connectionName} value={conn.connectionName}>{conn.connectionName}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                     <div className="space-y-2">
-                                        <Label>Action</Label>
-                                        <Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}>
-                                            <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                                            <SelectContent>
-                                                {selectedAppActions.map((action: any) => (
-                                                    <SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    {selectedAction && selectedAction.inputs.map((input: any) => (
-                                        <div key={input.name} className="space-y-2">
-                                            <Label>{input.label}</Label>
-                                            <NodeInput 
-                                                input={input}
-                                                value={selectedNode.data.inputs[input.name]}
-                                                onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-center text-muted-foreground p-8">Select a step to configure it.</div>
-                            )}
-                        </CardContent>
-                    </Card>
+                <SheetContent className="w-full max-w-sm p-0">
+                    {/* Sidebar Content Here */}
                 </SheetContent>
             </Sheet>
 
-            <div className="flex flex-col gap-8">
-                 <div className="flex justify-between items-center">
-                    <div>
-                        <Button variant="ghost" asChild className="-ml-4">
-                            <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="mr-2 h-4 w-4" />Back to Flows</Link>
+            <div className="flex flex-col h-[calc(100vh-theme(spacing.24))]">
+                <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
+                    <div className="flex items-center gap-2">
+                         <Button variant="ghost" asChild className="h-9 px-2">
+                            <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
                         </Button>
-                        <Input 
-                            value={flowName} 
-                            onChange={(e) => setFlowName(e.target.value)}
-                            className="text-3xl font-bold font-headline border-0 shadow-none -ml-3 p-0 h-auto"
-                        />
+                        <Input value={flowName} onChange={(e) => setFlowName(e.target.value)} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
                     </div>
                      <div className="flex items-center gap-2">
-                        <Button variant="outline" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
+                        <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
                         <SaveButton />
                     </div>
-                 </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 items-start">
-                    <div className="lg:col-span-2 space-y-6">
-                        <Card className="card-gradient card-gradient-purple">
-                            <CardHeader><CardTitle>1. Trigger</CardTitle><CardDescription>Select what starts this automation.</CardDescription></CardHeader>
-                            <CardContent>
-                                <Select value={trigger.type} onValueChange={(val) => setTrigger({ ...trigger, type: val })}>
-                                    <SelectTrigger><SelectValue/></SelectTrigger>
-                                    <SelectContent>
-                                        {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            </CardContent>
-                        </Card>
-                        
-                        <div className="flex items-center justify-center">
-                            <div className="h-8 w-px bg-border"/>
+                </header>
+                 <div className="flex-1 grid grid-cols-12 overflow-hidden">
+                    <aside className="col-span-3 border-r bg-background p-4 space-y-4">
+                        <h2 className="font-semibold text-lg">Blocks</h2>
+                         <Button variant="outline" className="w-full justify-start" onClick={() => handleAddNode('action')}><Plus className="mr-2 h-4 w-4"/>Action</Button>
+                         <Button variant="outline" className="w-full justify-start" onClick={() => handleAddNode('condition')}><GitFork className="mr-2 h-4 w-4"/>Condition</Button>
+                    </aside>
+                    <main 
+                        ref={viewportRef}
+                        className="col-span-6 relative overflow-hidden cursor-grab active:cursor-grabbing"
+                        onMouseDown={handleCanvasMouseDown}
+                        onMouseMove={handleCanvasMouseMove}
+                        onMouseUp={handleCanvasMouseUp}
+                        onMouseLeave={handleCanvasMouseUp}
+                        onWheel={handleWheel}
+                        onClick={handleCanvasClick}
+                    >
+                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
+                          <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                            {nodes.map(node => {
+                                const Icon = triggers.find(t => t.id === node.data.triggerType)?.icon || sabnodeAppActions.find(app => app.appId === user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId)?.appId)?.icon || GitFork;
+                                return (
+                                    <div key={node.id} className="absolute" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
+                                        <Card className={`w-72 hover:shadow-lg transition-shadow ${selectedNodeId === node.id ? 'ring-2 ring-primary' : ''}`}>
+                                            <CardHeader className="flex flex-row items-center gap-3 p-3">
+                                                <div className="p-2 bg-muted rounded-md"><Icon className="h-5 w-5 text-muted-foreground"/></div>
+                                                <CardTitle className="text-sm font-medium">{node.data.name}</CardTitle>
+                                            </CardHeader>
+                                        </Card>
+                                        <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />
+                                        {node.type === 'condition' ? (
+                                            <>
+                                                <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
+                                                <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
+                                            </>
+                                        ) : (
+                                            <div id={`${node.id}-output-main`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-main`)} />
+                                        )}
+                                    </div>
+                                )
+                            })}
+                             <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
+                                {edges.map(edge => {
+                                    const sourceNode = nodes.find(n => n.id === edge.source);
+                                    const targetNode = nodes.find(n => n.id === edge.target);
+                                    if(!sourceNode || !targetNode) return null;
+                                    const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
+                                    const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
+                                    if (!sourcePos || !targetPos) return null;
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
+                                })}
+                                {connecting && (
+                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" strokeDasharray="5,5" />
+                                )}
+                            </svg>
                         </div>
-                        
-                        {nodes.map((node, index) => (
-                            <React.Fragment key={node.id}>
-                                 <Card onClick={() => { setSelectedNodeId(node.id); setIsSidebarOpen(true); }} className={`cursor-pointer ${selectedNodeId === node.id ? 'ring-2 ring-primary' : 'hover:border-primary/50'}`}>
-                                    <CardHeader className="flex flex-row items-start justify-between">
-                                        <div>
-                                            <CardTitle>Action {index + 1}: {node.data.name || 'Untitled'}</CardTitle>
-                                            <CardDescription>
-                                                {user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId)?.appName || 'No app selected'}
-                                            </CardDescription>
-                                        </div>
-                                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); handleRemoveNode(node.id) }}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </CardHeader>
-                                </Card>
-                                 <div className="flex items-center justify-center">
-                                    <div className="h-8 w-px bg-border"/>
-                                </div>
-                            </React.Fragment>
-                        ))}
-                        
-                        <div className="flex justify-center">
-                             <Button variant="outline" className="rounded-full" onClick={handleAddNode}>
-                                <Plus className="h-5 w-5"/>
-                            </Button>
+                          <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
-                    </div>
-                 </div>
+                    </main>
+                    <aside className="col-span-3 border-l bg-background p-4 overflow-y-auto">
+                        {selectedNode ? (
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center"><h3 className="text-lg font-semibold">Properties</h3> <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveNode(selectedNode.id)}><Trash2 className="h-4 w-4"/></Button></div>
+                                <div className="space-y-2"><Label>Step Name</Label><Input value={selectedNode.data.name} onChange={e => handleNodeChange(selectedNode.id, { name: e.target.value })}/></div>
+                                {selectedNode.type === 'trigger' && (<div className="space-y-2"><Label>Trigger Type</Label><Select value={selectedNode.data.triggerType} onValueChange={val => handleNodeChange(selectedNode.id, {triggerType: val})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent></Select></div>)}
+                                {selectedNode.type === 'action' && (<>
+                                    <div className="space-y-2"><Label>App</Label><Select value={selectedNode.data.connectionId} onValueChange={val => handleNodeChange(selectedNode.id, { connectionId: val, actionName: '', inputs: {} })}><SelectTrigger><SelectValue placeholder="Select an app..."/></SelectTrigger><SelectContent>{(user?.sabFlowConnections || []).map((conn: any) => (<SelectItem key={conn.connectionName} value={conn.connectionName}>{conn.connectionName}</SelectItem>))}</SelectContent></Select></div>
+                                    <div className="space-y-2"><Label>Action</Label><Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}><SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger><SelectContent>{selectedAppActions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}</SelectContent></Select></div>
+                                    {selectedAction && selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                                </>)}
+                                 {selectedNode.type === 'condition' && (
+                                     <div className="space-y-4">
+                                         <RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4">
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">Match ALL</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">Match ANY</Label></div>
+                                        </RadioGroup>
+                                        <div className="space-y-2">{ (selectedNode.data.rules || []).map((rule: any, index: number) => (<div key={index} className="p-2 border rounded-md space-y-2 relative"><Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => handleNodeChange(selectedNode.id, { rules: selectedNode.data.rules.filter((_: any, i: number) => i !== index)})}><Trash2 className="h-4 w-4"/></Button><Input placeholder="Field (e.g. {{trigger.data.name}})" value={rule.field} onChange={e => { const newRules = [...selectedNode.data.rules]; newRules[index] = {...newRules[index], field: e.target.value}; handleNodeChange(selectedNode.id, {rules: newRules}); }} /><Select value={rule.operator} onValueChange={val => { const newRules = [...selectedNode.data.rules]; newRules[index] = {...newRules[index], operator: val}; handleNodeChange(selectedNode.id, {rules: newRules}); }}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => { const newRules = [...selectedNode.data.rules]; newRules[index] = {...newRules[index], value: e.target.value}; handleNodeChange(selectedNode.id, {rules: newRules}); }}/></div>))}</div>
+                                         <Button variant="outline" size="sm" onClick={() => handleNodeChange(selectedNode.id, { rules: [...(selectedNode.data.rules || []), {field: '', operator: 'equals', value: ''}]})}><Plus className="mr-2 h-4 w-4" />Add Rule</Button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (<div className="text-center text-muted-foreground p-8">Select a step to configure it.</div>)}
+                    </aside>
+                </div>
             </div>
         </form>
     );
 }
+
+    
