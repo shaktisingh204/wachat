@@ -8,41 +8,50 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { WhatsAppIcon } from "@/components/wabasimplify/custom-sidebar-components";
 import { NewConnectionDialog } from '@/components/wabasimplify/new-connection-dialog';
 
 const appCategories = [
     {
         name: 'SabNode Apps',
         apps: [
-            { name: 'Wachat', category: 'WhatsApp API', logo: '/logo.svg' },
-            { name: 'CRM Suite', category: 'Business Management', logo: '/logo.svg' },
-            { name: 'Meta Suite', category: 'Social Media', logo: '/logo.svg' },
+            { id: 'wachat', name: 'Wachat', category: 'WhatsApp API', logo: '/logo.svg' },
+            { id: 'crm', name: 'CRM Suite', category: 'Business Management', logo: '/logo.svg' },
+            { id: 'meta', name: 'Meta Suite', category: 'Social Media', logo: '/logo.svg' },
         ]
     },
     {
         name: 'Popular Apps',
         apps: [
-            { name: 'Google Sheets', category: 'Productivity', logo: '/assets/google-sheets-icon.png' },
-            { name: 'Stripe', category: 'Payment', logo: '/assets/stripe-icon.png' },
-            { name: 'Shopify', category: 'E-Commerce', logo: '/assets/shopify-icon.png' },
-            { name: 'Slack', category: 'Communication', logo: '/assets/slack-icon.png' },
-            { name: 'Gmail', category: 'Email', logo: '/assets/gmail-icon.png' },
-            { name: 'HubSpot', category: 'CRM', logo: '/assets/hubspot-icon.png' },
-            { name: 'Discord', category: 'Communication', logo: '/assets/discord-icon.png' },
-            { name: 'Notion', category: 'Productivity', logo: '/assets/notion-icon.png' },
+            { id: 'google_sheets', name: 'Google Sheets', category: 'Productivity', logo: '/assets/google-sheets-icon.png', connectionType: 'oauth' },
+            { id: 'stripe', name: 'Stripe', category: 'Payment', logo: '/assets/stripe-icon.png', connectionType: 'apikey' },
+            { id: 'shopify', name: 'Shopify', category: 'E-Commerce', logo: '/assets/shopify-icon.png', connectionType: 'apikey' },
+            { id: 'slack', name: 'Slack', category: 'Communication', logo: '/assets/slack-icon.png', connectionType: 'oauth' },
+            { id: 'gmail', name: 'Gmail', category: 'Email', logo: '/assets/gmail-icon.png', connectionType: 'oauth' },
+            { id: 'hubspot', name: 'HubSpot', category: 'CRM', logo: '/assets/hubspot-icon.png', connectionType: 'apikey' },
+            { id: 'discord', name: 'Discord', category: 'Communication', logo: '/assets/discord-icon.png', connectionType: 'oauth' },
+            { id: 'notion', name: 'Notion', category: 'Productivity', logo: '/assets/notion-icon.png', connectionType: 'apikey' },
         ]
     }
 ];
 
 export default function AppConnectionsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedApp, setSelectedApp] = useState<any>(null);
+
+    const handleConnectClick = (app: any) => {
+        setSelectedApp(app);
+        setIsDialogOpen(true);
+    }
+
     return (
         <>
             <NewConnectionDialog 
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
-                appCategories={appCategories}
+                app={selectedApp}
+                onConnectionSaved={() => {
+                    // Here you would refetch the list of connected apps
+                }}
             />
             <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
@@ -50,10 +59,6 @@ export default function AppConnectionsPage() {
                         <h1 className="text-3xl font-bold font-headline">App Connections</h1>
                         <p className="text-muted-foreground">Connect your tools to automate your workflows.</p>
                     </div>
-                     <Button onClick={() => setIsDialogOpen(true)}>
-                        <Plus className="mr-2 h-4 w-4"/>
-                        New Connection
-                    </Button>
                 </div>
                 
                 <Card>
@@ -82,7 +87,7 @@ export default function AppConnectionsPage() {
                                                         </div>
                                                     </CardHeader>
                                                     <CardFooter>
-                                                        <Button className="w-full" disabled>Connect</Button>
+                                                        <Button className="w-full" onClick={() => handleConnectClick(app)}>Connect</Button>
                                                     </CardFooter>
                                                 </Card>
                                             ))}
