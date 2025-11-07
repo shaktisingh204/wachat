@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useActionState, useEffect, useRef } from 'react';
+import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
@@ -19,6 +19,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
 import {
   ArrowLeft,
@@ -27,7 +29,8 @@ import {
   Plus,
   PlayCircle,
   Zap,
-  Trash2
+  Trash2,
+  Settings
 } from 'lucide-react';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
 
@@ -100,9 +103,11 @@ export default function EditSabFlowPage() {
     const [nodes, setNodes] = useState<SabFlowNode[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
+    const isNew = flowId === 'new';
+
     useEffect(() => {
         getSession().then(session => setUser(session?.user));
-        if (flowId && flowId !== 'new') {
+        if (!isNew) {
             getSabFlowById(flowId).then(flow => {
                 if(flow) {
                     setFlowName(flow.name);
@@ -116,21 +121,21 @@ export default function EditSabFlowPage() {
              setNodes([]);
              setIsLoading(false);
         }
-    }, [flowId]);
+    }, [flowId, isNew]);
 
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
-            if (state.flowId) {
+            if (isNew && state.flowId) {
                  router.push(`/dashboard/sabflow/flow-builder/${state.flowId}`);
-            } else {
-                 router.push('/dashboard/sabflow/flow-builder');
+            } else if (!isNew) {
+                router.refresh();
             }
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
-    }, [state, toast, router]);
+    }, [state, toast, router, isNew]);
 
     const handleAddNode = () => {
         const newNodeId = `action_${Date.now()}`;
@@ -168,7 +173,7 @@ export default function EditSabFlowPage() {
     
     return (
         <form action={formAction}>
-            <input type="hidden" name="flowId" value={flowId} />
+            <input type="hidden" name="flowId" value={isNew ? 'new' : flowId} />
             <input type="hidden" name="name" value={flowName} />
             <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
             <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
