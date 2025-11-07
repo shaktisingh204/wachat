@@ -6,8 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import type { WithId } from 'mongodb';
+import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
 import { useEffect, useState } from 'react';
+import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
