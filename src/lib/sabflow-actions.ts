@@ -420,7 +420,7 @@ export const sabnodeAppActions = [
     icon: SabChatIcon,
     actions: [
       { name: 'send_message', label: 'Send Live Chat Message', icon: MessageSquare, description: 'Send a message to a visitor in an active chat session.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'text' }, { name: 'content', label: 'Message Content', type: 'textarea' }] },
-      { name: 'close_session', label: 'Close Chat Session', icon: CheckCircle, description: 'Mark a live chat session as closed.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'text' }] },
+      { name: 'close_session', label: 'Close Chat Session', icon: MessageSquare, description: 'Mark a live chat session as closed.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'text' }] },
       { name: 'get_visitor_details', label: 'Get Visitor Details', icon: UserIcon, description: 'Retrieve information about a visitor.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'text' }] },
       { name: 'update_visitor_details', label: 'Update Visitor Details', icon: Edit, description: 'Update the name or email of a visitor.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'text' }, { name: 'name', label: 'Name (Optional)', type: 'text' }, { name: 'email', label: 'Email (Optional)', type: 'email' }] },
       { name: 'assign_agent', label: 'Assign Chat to Agent', icon: UserCheck, description: 'Assign a chat session to a specific team member.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'text' }, { name: 'agentId', label: 'Agent ID', type: 'text' }] },
