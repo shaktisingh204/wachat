@@ -13,6 +13,7 @@ import {
   File,
   Headphones,
   History,
+  Mail,
   Sticker,
   MapPin,
   Contact,
