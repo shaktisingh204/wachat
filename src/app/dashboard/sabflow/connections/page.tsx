@@ -3,20 +3,31 @@
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { Zap, Plus, Search } from 'lucide-react';
+import { Zap, Plus, Search, GitFork, Briefcase, Mail, MessageSquare, Server, Link as LinkIcon, QrCode, Users } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NewConnectionDialog } from '@/components/wabasimplify/new-connection-dialog';
+import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 const appCategories = [
     {
         name: 'SabNode Apps',
         apps: [
-            { id: 'wachat', name: 'Wachat', category: 'WhatsApp API', logo: '/logo.svg', connectionType: 'internal' },
-            { id: 'crm', name: 'CRM Suite', category: 'Business Management', logo: '/logo.svg', connectionType: 'internal' },
-            { id: 'meta', name: 'Meta Suite', category: 'Social Media', logo: '/logo.svg', connectionType: 'internal' },
+            { id: 'wachat', name: 'Wachat', category: 'WhatsApp API', icon: WhatsAppIcon, connectionType: 'internal' },
+            { id: 'crm', name: 'CRM Suite', category: 'Business Management', icon: Briefcase, connectionType: 'internal' },
+            { id: 'sabchat', name: 'sabChat', category: 'Live Chat', icon: SabChatIcon, connectionType: 'internal' },
+            { id: 'meta', name: 'Meta Suite', category: 'Social Media', icon: MetaIcon, connectionType: 'internal' },
+            { id: 'instagram', name: 'Instagram Suite', category: 'Social Media', icon: InstagramIcon, connectionType: 'internal' },
+            { id: 'sabflow', name: 'SabFlow', category: 'Automation', icon: GitFork, connectionType: 'internal' },
+            { id: 'team', name: 'Team Management', category: 'Productivity', icon: Users, connectionType: 'internal' },
+            { id: 'email', name: 'Email Suite', category: 'Marketing', icon: Mail, connectionType: 'internal' },
+            { id: 'sms', name: 'SMS Suite', category: 'Marketing', icon: MessageSquare, connectionType: 'internal' },
+            { id: 'api', name: 'API & Dev', category: 'Developer Tools', icon: Server, connectionType: 'internal' },
+            { id: 'url-shortener', name: 'URL Shortener', category: 'Utilities', icon: LinkIcon, connectionType: 'internal' },
+            { id: 'qr-code-maker', name: 'QR Code Maker', category: 'Utilities', icon: QrCode, connectionType: 'internal' },
+            { id: 'seo-suite', name: 'SEO Suite', category: 'Marketing', icon: SeoIcon, connectionType: 'internal' },
         ]
     },
     {
@@ -77,20 +88,29 @@ export default function AppConnectionsPage() {
                                     </AccordionTrigger>
                                     <AccordionContent className="p-4 pt-0">
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                            {category.apps.map(app => (
-                                                <Card key={app.name}>
-                                                    <CardHeader className="flex-row items-center gap-4">
-                                                        <Image src={app.logo} alt={`${app.name} logo`} width={40} height={40} className="rounded-md"/>
-                                                        <div>
-                                                            <CardTitle className="text-base">{app.name}</CardTitle>
-                                                            <CardDescription>{app.category}</CardDescription>
-                                                        </div>
-                                                    </CardHeader>
-                                                    <CardFooter>
-                                                        <Button className="w-full" onClick={() => handleConnectClick(app)}>Connect</Button>
-                                                    </CardFooter>
-                                                </Card>
-                                            ))}
+                                            {category.apps.map(app => {
+                                                const Icon = app.icon;
+                                                return (
+                                                    <Card key={app.name}>
+                                                        <CardHeader className="flex-row items-center gap-4">
+                                                            {app.logo ? (
+                                                                <Image src={app.logo} alt={`${app.name} logo`} width={40} height={40} className="rounded-md"/>
+                                                            ) : (
+                                                                <div className="w-10 h-10 bg-muted flex items-center justify-center rounded-md">
+                                                                    {Icon && <Icon className="w-6 h-6 text-muted-foreground"/>}
+                                                                </div>
+                                                            )}
+                                                            <div>
+                                                                <CardTitle className="text-base">{app.name}</CardTitle>
+                                                                <CardDescription>{app.category}</CardDescription>
+                                                            </div>
+                                                        </CardHeader>
+                                                        <CardFooter>
+                                                            <Button className="w-full" onClick={() => handleConnectClick(app)}>Connect</Button>
+                                                        </CardFooter>
+                                                    </Card>
+                                                )
+                                            })}
                                         </div>
                                     </AccordionContent>
                                 </AccordionItem>
