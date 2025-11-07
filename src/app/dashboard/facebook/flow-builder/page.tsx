@@ -3,7 +3,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { deleteFlow } from '@/app/actions/facebook-flow.actions';
 
 // This page is now deprecated. It's being replaced by the e-commerce version.
 // Redirect users to the new location to avoid confusion.
