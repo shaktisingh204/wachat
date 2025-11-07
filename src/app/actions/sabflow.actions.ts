@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -7,6 +6,7 @@ import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge } from '@/lib/definitions';
+import { getErrorMessage } from '@/lib/utils';
 
 export async function getSabFlows(): Promise<WithId<SabFlow>[]> {
     const session = await getSession();
@@ -99,5 +99,37 @@ export async function deleteSabFlow(flowId: string): Promise<{ message?: string;
         return { message: 'Flow deleted.' };
     } catch (e) {
         return { error: 'Failed to delete flow.' };
+    }
+}
+
+export async function saveSabFlowConnection(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+
+    try {
+        const connectionData = {
+            appId: formData.get('appId') as string,
+            appName: formData.get('appName') as string,
+            connectionName: formData.get('connectionName') as string,
+            credentials: {
+                apiKey: formData.get('apiKey') as string,
+            },
+            createdAt: new Date(),
+        };
+
+        if (!connectionData.appId || !connectionData.connectionName || !connectionData.credentials.apiKey) {
+            return { error: 'Missing required connection details.' };
+        }
+
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $push: { sabFlowConnections: connectionData } }
+        );
+        
+        revalidatePath('/dashboard/sabflow/connections');
+        return { message: `${connectionData.appName} account connected successfully.` };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
     }
 }
