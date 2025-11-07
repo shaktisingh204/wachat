@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition, useActionState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Zap, Plus, Search, GitFork, Briefcase, Mail, MessageSquare, Server, Link as LinkIcon, QrCode, Users, Check } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,10 @@ import Image from "next/image";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NewConnectionDialog } from '@/components/wabasimplify/new-connection-dialog';
 import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { getSession } from '@/app/actions';
+import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const appCategories = [
     {
@@ -42,27 +46,82 @@ const appCategories = [
     }
 ];
 
+const connectInitialState = { message: null, error: null };
+
+function AppCard({ app, isConnected, onConnect }: { app: any, isConnected: boolean, onConnect: () => void }) {
+    const Icon = app.icon;
+    const [state, formAction] = useActionState(saveSabFlowConnection, connectInitialState);
+    const [isPending, startTransition] = useTransition();
+
+    useEffect(() => {
+        if(state.message) onConnect();
+    }, [state]);
+
+    const handleInternalConnect = () => {
+        startTransition(() => {
+            const formData = new FormData();
+            formData.append('appId', app.id);
+            formData.append('appName', app.name);
+            formData.append('connectionName', `${app.name} Connection`);
+            formData.append('apiKey', 'internal'); // Dummy value
+            formAction(formData);
+        });
+    }
+
+    return (
+        <Card>
+            <CardHeader className="flex-row items-center gap-4">
+                {app.logo ? (
+                    <Image src={app.logo} alt={`${app.name} logo`} width={40} height={40} className="rounded-md"/>
+                ) : (
+                    <div className="w-10 h-10 bg-muted flex items-center justify-center rounded-md">
+                        {Icon && <Icon className="w-6 h-6 text-muted-foreground"/>}
+                    </div>
+                )}
+                <div>
+                    <CardTitle className="text-base">{app.name}</CardTitle>
+                    <CardDescription>{app.category}</CardDescription>
+                </div>
+            </CardHeader>
+            <CardFooter>
+                 <Button 
+                    className="w-full" 
+                    variant={isConnected ? 'secondary' : 'default'}
+                    onClick={handleInternalConnect}
+                    disabled={isConnected || isPending}
+                >
+                    {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : (isConnected ? <Check className="mr-2 h-4 w-4"/> : null)}
+                    {isConnected ? 'Connected' : 'Connect'}
+                </Button>
+            </CardFooter>
+        </Card>
+    );
+}
+
 export default function AppConnectionsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedApp, setSelectedApp] = useState<any>(null);
-    const [connectedInternalApps, setConnectedInternalApps] = useState<string[]>([]);
+    const [connectedApps, setConnectedApps] = useState<any[]>([]);
+    const [isLoading, startLoading] = useTransition();
+
+    const fetchConnections = () => {
+        startLoading(async () => {
+            const session = await getSession();
+            setConnectedApps(session?.user?.sabFlowConnections || []);
+        });
+    };
     
     useEffect(() => {
-        const storedConnections = localStorage.getItem('sabflow_internal_connections');
-        if (storedConnections) {
-            setConnectedInternalApps(JSON.parse(storedConnections));
-        }
+        fetchConnections();
     }, []);
 
     const handleConnectClick = (app: any) => {
-        if (app.connectionType === 'internal') {
-            const newConnections = [...connectedInternalApps, app.id];
-            setConnectedInternalApps(newConnections);
-            localStorage.setItem('sabflow_internal_connections', JSON.stringify(newConnections));
-        } else {
-            setSelectedApp(app);
-            setIsDialogOpen(true);
-        }
+        setSelectedApp(app);
+        setIsDialogOpen(true);
+    }
+    
+    if (isLoading) {
+        return <Skeleton className="h-96 w-full" />
     }
 
     return (
@@ -71,9 +130,7 @@ export default function AppConnectionsPage() {
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 app={selectedApp}
-                onConnectionSaved={() => {
-                    // Here you would refetch the list of connected apps
-                }}
+                onConnectionSaved={fetchConnections}
             />
             <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
@@ -100,34 +157,20 @@ export default function AppConnectionsPage() {
                                     <AccordionContent className="p-4 pt-0">
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                             {category.apps.map(app => {
-                                                const Icon = app.icon;
-                                                const isConnected = app.connectionType === 'internal' && connectedInternalApps.includes(app.id);
+                                                const isConnected = connectedApps.some(c => c.appId === app.id);
                                                 return (
-                                                    <Card key={app.name}>
-                                                        <CardHeader className="flex-row items-center gap-4">
-                                                            {app.logo ? (
-                                                                <Image src={app.logo} alt={`${app.name} logo`} width={40} height={40} className="rounded-md"/>
-                                                            ) : (
-                                                                <div className="w-10 h-10 bg-muted flex items-center justify-center rounded-md">
-                                                                    {Icon && <Icon className="w-6 h-6 text-muted-foreground"/>}
-                                                                </div>
-                                                            )}
-                                                            <div>
-                                                                <CardTitle className="text-base">{app.name}</CardTitle>
-                                                                <CardDescription>{app.category}</CardDescription>
-                                                            </div>
-                                                        </CardHeader>
-                                                        <CardFooter>
-                                                            <Button 
-                                                                className="w-full" 
-                                                                onClick={() => handleConnectClick(app)}
-                                                                disabled={isConnected}
-                                                            >
-                                                                {isConnected ? <Check className="mr-2 h-4 w-4"/> : null}
-                                                                {isConnected ? 'Connected' : 'Connect'}
-                                                            </Button>
-                                                        </CardFooter>
-                                                    </Card>
+                                                    <AppCard
+                                                        key={app.id}
+                                                        app={app}
+                                                        isConnected={isConnected}
+                                                        onConnect={() => {
+                                                            if (app.connectionType === 'internal') {
+                                                                fetchConnections();
+                                                            } else {
+                                                                handleConnectClick(app);
+                                                            }
+                                                        }}
+                                                    />
                                                 )
                                             })}
                                         </div>
