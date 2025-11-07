@@ -1,0 +1,61 @@
+
+'use client';
+
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
+import { Zap, Plus, Search } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Image from "next/image";
+
+const popularApps = [
+    { name: 'Google Sheets', category: 'Productivity', logo: '/assets/google-sheets-icon.png' },
+    { name: 'Stripe', category: 'Payment', logo: '/assets/stripe-icon.png' },
+    { name: 'Shopify', category: 'E-Commerce', logo: '/assets/shopify-icon.png' },
+    { name: 'Slack', category: 'Communication', logo: '/assets/slack-icon.png' },
+    { name: 'Gmail', category: 'Email', logo: '/assets/gmail-icon.png' },
+    { name: 'HubSpot', category: 'CRM', logo: '/assets/hubspot-icon.png' },
+    { name: 'Discord', category: 'Communication', logo: '/assets/discord-icon.png' },
+    { name: 'Notion', category: 'Productivity', logo: '/assets/notion-icon.png' },
+];
+
+export default function AppConnectionsPage() {
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">App Connections</h1>
+                    <p className="text-muted-foreground">Connect your tools to automate your workflows.</p>
+                </div>
+                 <Button disabled>
+                    <Plus className="mr-2 h-4 w-4"/>
+                    New Connection
+                </Button>
+            </div>
+            
+            <Card>
+                <CardHeader>
+                    <div className="relative w-full max-w-sm">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="Search over 5000+ apps..." className="pl-8" />
+                    </div>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {popularApps.map(app => (
+                        <Card key={app.name}>
+                            <CardHeader className="flex-row items-center gap-4">
+                                <Image src={app.logo} alt={`${app.name} logo`} width={40} height={40} className="rounded-md"/>
+                                <div>
+                                    <CardTitle className="text-base">{app.name}</CardTitle>
+                                    <CardDescription>{app.category}</CardDescription>
+                                </div>
+                            </CardHeader>
+                            <CardFooter>
+                                <Button className="w-full" disabled>Connect</Button>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
