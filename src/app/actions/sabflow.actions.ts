@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -7,6 +8,33 @@ import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
+
+// Dynamically import all action files
+async function importActionModule(appId: string) {
+    // A mapping from appId to the actual action file path
+    const appActionFiles: Record<string, string> = {
+        'wachat': './whatsapp.actions.ts',
+        'crm': './crm.actions.ts',
+        'email': './email.actions.ts',
+        'sms': './sms.actions.ts',
+        'meta': './facebook.actions.ts',
+        'instagram': './instagram.actions.ts',
+        'sabchat': './sabchat.actions.ts',
+        'url-shortener': './url-shortener.actions.ts',
+        'qr-code-maker': './qr-code.actions.ts',
+        'seo-suite': './seo.actions.ts',
+    };
+    
+    if (appActionFiles[appId]) {
+        try {
+            return await import(`${appActionFiles[appId]}`);
+        } catch (e) {
+             console.error(`Could not import action module for ${appId}:`, e);
+            return null;
+        }
+    }
+    return null;
+}
 
 async function executeAction(node: SabFlowNode, context: any, user: WithId<User>, logger: any) {
     const { actionName, inputs } = node.data;
@@ -42,24 +70,34 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         return { error: errorMsg };
     }
     
-    // Find the connection for this action
     const connection = user.sabFlowConnections?.find(c => c.connectionName === node.data.connectionId);
     
-    // Lazy-load action modules only when needed
     try {
-        const actionModule = await import(`./${actionApp.appId}.actions.ts`);
-        const actionFunction = actionModule[actionName];
+        const actionModule = await importActionModule(actionApp.appId);
+        if(!actionModule) {
+            throw new Error(`Action module for app "${actionApp.name}" could not be loaded.`);
+        }
         
+        const actionFunction = actionModule[actionName];
         if (typeof actionFunction !== 'function') {
              const errorMsg = `Action function "${actionName}" not found in module.`;
              logger.log(errorMsg);
              console.error(errorMsg);
              return { error: errorMsg };
         }
+        
+        const formData = new FormData();
+        Object.entries(interpolatedInputs).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+            }
+        });
 
         logger.log(`Executing action "${actionName}" with inputs:`, interpolatedInputs);
-        const result = await actionFunction({ ...interpolatedInputs, connection });
+        const result = await actionFunction(null, formData); // Using null for prevState
         logger.log(`Action "${actionName}" completed.`, { result });
+        
+        // Return the full result so the flow can access message, error, or other specific fields.
         return { output: result };
         
     } catch (e: any) {
@@ -240,6 +278,7 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
 
     let context = { trigger: triggerPayload };
     let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
+    
     if (!currentNodeId && flow.nodes.length > 0) {
         currentNodeId = flow.nodes[0].id;
     }
@@ -256,24 +295,54 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         if (currentNode.type === 'action') {
             result = await executeAction(currentNode, context, user, logger);
             if (result.error) {
-                // Decide if the flow should stop on error
+                // For conditions, we might want to branch on error. For now, stop.
+                logger.log(`Action failed. Stopping flow.`, { error: result.error });
                 break;
             }
             // Add the output of the current node to the context for the next node
-            context = { ...context, ...result.output };
+            // e.g. context['Create_CRM_Lead'] = { success: true, contactId: '...' }
+            context = { ...context, [currentNode.data.name]: result.output };
         }
-
-        // Logic to determine the next node
-        const edge = flow.edges.find(e => e.source === currentNodeId);
+        
         if (currentNode.type === 'condition') {
-             const conditionResult = result.output?.conditionMet ?? false; // Assuming the action returns this
-             const handle = conditionResult ? `${currentNodeId}-output-yes` : `${currentNodeId}-output-no`;
-             const conditionalEdge = flow.edges.find(e => e.sourceHandle === handle);
-             currentNodeId = conditionalEdge ? conditionalEdge.target : null;
+            const rules = currentNode.data.rules || [];
+            const logicType = currentNode.data.logicType || 'AND';
+            let overallConditionMet = logicType === 'AND';
+
+            for(const rule of rules) {
+                const interpolatedField = interpolate(rule.field, context);
+                const interpolatedValue = interpolate(rule.value, context);
+                let ruleMet = false;
+
+                switch(rule.operator) {
+                    case 'equals': ruleMet = interpolatedField == interpolatedValue; break;
+                    case 'not_equals': ruleMet = interpolatedField != interpolatedValue; break;
+                    case 'contains': ruleMet = String(interpolatedField).includes(String(interpolatedValue)); break;
+                    // Add other operators here...
+                }
+                
+                if (logicType === 'AND' && !ruleMet) {
+                    overallConditionMet = false;
+                    break;
+                }
+                if (logicType === 'OR' && ruleMet) {
+                    overallConditionMet = true;
+                    break;
+                }
+            }
+
+            logger.log(`Condition result: ${overallConditionMet ? 'Yes' : 'No'}`);
+            const handleId = overallConditionMet ? `${currentNodeId}-output-yes` : `${currentNodeId}-output-no`;
+            const conditionalEdge = flow.edges.find(e => e.sourceHandle === handleId);
+            currentNodeId = conditionalEdge ? conditionalEdge.target : null;
         } else {
-             currentNodeId = edge ? edge.target : null;
+            // For non-condition nodes, find the single outgoing edge
+            const edge = flow.edges.find(e => e.source === currentNodeId);
+            currentNodeId = edge ? edge.target : null;
         }
     }
     
     logger.log(`Flow execution finished.`);
 }
+
+    
