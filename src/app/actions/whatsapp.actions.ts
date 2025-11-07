@@ -856,3 +856,147 @@ export async function getTransactionsForProject(projectId: string): Promise<With
     }
 }
     
+export async function handleCreatePaymentConfiguration(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; oauth_url?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    const providerName = formData.get('provider_name') as string;
+    let payload: any = {
+        configuration_name: formData.get('configuration_name'),
+        purpose_code: formData.get('purpose_code'),
+        merchant_category_code: formData.get('merchant_category_code'),
+        provider_name,
+    };
+
+    if (providerName === 'upi_vpa') {
+        payload.merchant_vpa = formData.get('merchant_vpa');
+    } else {
+        payload.redirect_url = formData.get('redirect_url');
+    }
+
+    try {
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configurations`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        if (response.data.oauth_url) {
+            return { message: "Configuration created! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
+        }
+
+        revalidatePath('/dashboard/whatsapp-pay/settings');
+        return { message: "UPI VPA configuration created successfully!" };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleUpdateDataEndpoint(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const configurationName = formData.get('configurationName') as string;
+    const dataEndpointUrl = formData.get('dataEndpointUrl') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    if (!configurationName || !dataEndpointUrl) {
+        return { error: 'Configuration name and endpoint URL are required.' };
+    }
+    
+    try {
+        const payload = { data_endpoint_url: dataEndpointUrl };
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration/${configurationName}`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+        
+        revalidatePath('/dashboard/whatsapp-pay/settings');
+        return { message: "Data endpoint URL updated successfully!" };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleRegenerateOauthLink(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; oauth_url?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const configurationName = formData.get('configuration_name') as string;
+    const redirectUrl = formData.get('redirect_url') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    if (!configurationName || !redirectUrl) {
+        return { error: 'Configuration name and redirect URL are required.' };
+    }
+
+    try {
+        const payload = {
+            configuration_name: configurationName,
+            redirect_url: redirectUrl,
+        };
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/generate_payment_configuration_oauth_link`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        if (response.data.oauth_url) {
+            return { message: "New link generated! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
+        }
+
+        return { error: "Failed to generate OAuth link. No URL was returned." };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleDeletePaymentConfiguration(
+    projectId: string, 
+    configurationName: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { success: false, error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    try {
+        const response = await axios.delete(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration`, {
+            headers: { 'Authorization': `Bearer ${project.accessToken}`, 'Content-Type': 'application/json' },
+            data: { configuration_name: configurationName }
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        revalidatePath('/dashboard/whatsapp-pay/settings');
+        return { success: true };
+
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
