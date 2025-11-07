@@ -14,6 +14,7 @@ import { getSession } from '@/app/actions';
 import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LoaderCircle } from 'lucide-react';
 
 const appCategories = [
     {
@@ -35,13 +36,29 @@ const appCategories = [
         name: 'Popular Apps',
         apps: [
             { id: 'google_sheets', name: 'Google Sheets', category: 'Productivity', logo: '/assets/google-sheets-icon.png', connectionType: 'oauth' },
-            { id: 'stripe', name: 'Stripe', category: 'Payment', logo: '/assets/stripe-icon.png', connectionType: 'apikey' },
-            { id: 'shopify', name: 'Shopify', category: 'E-Commerce', logo: '/assets/shopify-icon.png', connectionType: 'apikey' },
+            { 
+                id: 'stripe', name: 'Stripe', category: 'Payment', logo: '/assets/stripe-icon.png', connectionType: 'apikey',
+                credentials: [
+                    { name: 'apiKey', label: 'API Key', type: 'password' },
+                ]
+            },
+            { 
+                id: 'shopify', name: 'Shopify', category: 'E-Commerce', logo: '/assets/shopify-icon.png', connectionType: 'apikey',
+                credentials: [
+                    { name: 'shopName', label: 'Shop Name', type: 'text', placeholder: 'your-store' },
+                    { name: 'accessToken', label: 'Admin API Access Token', type: 'password' },
+                ]
+            },
             { id: 'slack', name: 'Slack', category: 'Communication', logo: '/assets/slack-icon.png', connectionType: 'oauth' },
             { id: 'gmail', name: 'Gmail', category: 'Email', logo: '/assets/gmail-icon.png', connectionType: 'oauth' },
-            { id: 'hubspot', name: 'HubSpot', category: 'CRM', logo: '/assets/hubspot-icon.png', connectionType: 'apikey' },
+            { 
+                id: 'hubspot', name: 'HubSpot', category: 'CRM', logo: '/assets/hubspot-icon.png', connectionType: 'apikey',
+                credentials: [
+                     { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
+                ]
+            },
             { id: 'discord', name: 'Discord', category: 'Communication', logo: '/assets/discord-icon.png', connectionType: 'oauth' },
-            { id: 'notion', name: 'Notion', category: 'Productivity', logo: '/assets/notion-icon.png', connectionType: 'apikey' },
+            { id: 'notion', name: 'Notion', category: 'Productivity', logo: '/assets/notion-icon.png', connectionType: 'oauth' },
         ]
     }
 ];
@@ -63,10 +80,12 @@ function AppCard({ app, isConnected, onConnect }: { app: any, isConnected: boole
             formData.append('appId', app.id);
             formData.append('appName', app.name);
             formData.append('connectionName', `${app.name} Connection`);
-            formData.append('apiKey', 'internal'); // Dummy value
+            formData.append('credentials', JSON.stringify({ type: 'internal' }));
             formAction(formData);
         });
     }
+
+    const connectButtonAction = app.connectionType === 'internal' ? handleInternalConnect : onConnect;
 
     return (
         <Card>
@@ -87,7 +106,7 @@ function AppCard({ app, isConnected, onConnect }: { app: any, isConnected: boole
                  <Button 
                     className="w-full" 
                     variant={isConnected ? 'secondary' : 'default'}
-                    onClick={handleInternalConnect}
+                    onClick={connectButtonAction}
                     disabled={isConnected || isPending}
                 >
                     {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : (isConnected ? <Check className="mr-2 h-4 w-4"/> : null)}
@@ -164,9 +183,7 @@ export default function AppConnectionsPage() {
                                                         app={app}
                                                         isConnected={isConnected}
                                                         onConnect={() => {
-                                                            if (app.connectionType === 'internal') {
-                                                                fetchConnections();
-                                                            } else {
+                                                            if (app.connectionType !== 'internal') {
                                                                 handleConnectClick(app);
                                                             }
                                                         }}
