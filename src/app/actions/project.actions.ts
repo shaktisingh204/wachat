@@ -289,3 +289,71 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
         return { success: false, error: 'Failed to update contact status.' };
     }
 }
+
+export async function handleUpdateContactDetails(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const contactId = formData.get('contactId') as string;
+    const variablesJSON = formData.get('variables') as string;
+
+    if (!ObjectId.isValid(contactId)) {
+        return { success: false, error: 'Invalid Contact ID' };
+    }
+    
+    try {
+        const variables = JSON.parse(variablesJSON);
+        const { db } = await connectToDatabase();
+        
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId) },
+            { $set: { variables } }
+        );
+        revalidatePath('/dashboard/chat');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to update contact.' };
+    }
+}
+
+export async function handleBulkUpdateAppId(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const projectIdsString = formData.get('projectIds') as string;
+    const newAppId = formData.get('appId') as string;
+
+    if (!projectIdsString || !newAppId) {
+        return { success: false, error: 'Project IDs and a new App ID are required.' };
+    }
+    
+    const projectIds = projectIdsString.split(',');
+    
+    try {
+        const { db } = await connectToDatabase();
+        const objectIds = projectIds.map(id => new ObjectId(id));
+        
+        const ownedProjectsCount = await db.collection('projects').countDocuments({
+            _id: { $in: objectIds },
+            userId: new ObjectId(session.user._id)
+        });
+
+        if (ownedProjectsCount !== projectIds.length) {
+            return { success: false, error: 'You do not have permission to modify one or more of the selected projects.' };
+        }
+
+        const result = await db.collection('projects').updateMany(
+            { _id: { $in: objectIds } },
+            { $set: { appId: newAppId } }
+        );
+
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'No matching projects found to update.' };
+        }
+
+        revalidatePath('/dashboard');
+        return { success: true };
+
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+    

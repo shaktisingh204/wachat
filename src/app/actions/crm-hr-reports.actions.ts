@@ -199,3 +199,5 @@ export async function generateSalaryRegisterData(filters: {}): Promise<{ data?: 
         return { error: "Could not generate salary register." };
     }
 }
+
+    

@@ -4,9 +4,9 @@
 import { useState, useEffect, useRef } from 'react';
 import type { WithId } from 'mongodb';
 import type { Project, User, Plan } from '@/lib/definitions';
-import { handleInviteAgent, handleRemoveAgent } from '@/app/actions/project.actions';
+import { handleInviteAgent, handleRemoveAgent } from '@/app/actions/team.actions'; // Corrected import path
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -170,3 +170,5 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
         </Card>
     );
 }
+
+    
