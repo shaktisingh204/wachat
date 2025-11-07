@@ -35,7 +35,7 @@ export default function SelectProjectPage() {
     
     const fetchProjects = useCallback(async () => {
         setIsLoading(true);
-        const projectsData = await getProjects(query);
+        const projectsData = await getProjects(query, 'whatsapp');
         setAllProjects(projectsData || []); // Ensure it's always an array
         setIsLoading(false);
     }, [query]);
