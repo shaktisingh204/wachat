@@ -330,7 +330,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     }
 }
 
-export async function handleLogin(prevState: any, formData: FormData): Promise<{ error?: string }> {
+export async function handleLogin(prevState: any, formData: FormData): Promise<{ error?: string; success?: boolean }> {
     const headersList = await headers();
     const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
 
@@ -357,10 +357,9 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
         }
 
         const sessionToken = await createSessionToken({ userId: user._id.toString(), email: user.email });
-        const cookieStore = await cookies();
-        cookieStore.set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
-        return redirect('/dashboard');
+        return { success: true };
 
     } catch (e: any) {
         return { error: e.message || 'An unexpected server error occurred.' };

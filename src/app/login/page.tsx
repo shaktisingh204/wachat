@@ -12,10 +12,12 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { handleLogin } from '@/app/actions/index.ts';
+import { useRouter } from 'next/navigation';
 
 const initialState = {
   message: null,
   error: null,
+  success: false,
 };
 
 function SubmitButton() {
@@ -31,6 +33,14 @@ function SubmitButton() {
 export default function LoginPage() {
   const [state, formAction] = useActionState(handleLogin, initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.success) {
+      router.push('/dashboard');
+    }
+  }, [state.success, router]);
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-auth-texture p-4 sm:p-6 lg:p-8">
