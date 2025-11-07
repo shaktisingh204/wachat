@@ -1,4 +1,5 @@
 
+
 import {
   MessageSquare,
   Send,
@@ -59,10 +60,27 @@ import {
   LogOut,
   Inbox,
   LifeBuoy,
-  SeoIcon,
   HelpCircle,
+  Building,
+  Handshake,
+  DollarSign,
+  FolderKanban,
+  Repeat,
+  IndianRupee,
+  Factory,
+  BookOpen,
+  Truck,
+  Landmark,
+  UtensilsCrossed,
+  FlaskConical,
+  PenTool,
+  BedDouble,
+  Receipt,
+  FilePlus,
+  Wallet,
+  Book,
 } from 'lucide-react';
-import { WhatsAppIcon, CrmIcon, EmailIcon, SmsIcon, MetaIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WhatsAppIcon, CrmIcon, EmailIcon, SmsIcon, MetaIcon, InstagramIcon, SabChatIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 export const sabnodeAppActions = [
   {
@@ -526,30 +544,30 @@ export const sabnodeAppActions = [
   {
     appId: 'crm',
     name: 'CRM Suite',
-    icon: Briefcase,
+    icon: CrmIcon,
     actions: [
-      {
-        name: 'create_lead',
-        label: 'Create Lead',
-        description: 'Create a new lead in the CRM.',
-        inputs: [
-          { name: 'name', label: 'Lead Name', type: 'text' },
-          { name: 'email', label: 'Email', type: 'email' },
-          { name: 'phone', label: 'Phone', type: 'tel' },
-        ],
-      },
-      {
-        name: 'create_deal',
-        label: 'Create Deal',
-        description: 'Create a new deal associated with a contact or account.',
-        inputs: [
-          { name: 'dealName', label: 'Deal Name', type: 'text' },
-          { name: 'value', label: 'Value', type: 'number' },
-          { name: 'stage', label: 'Initial Stage', type: 'text' },
-          { name: 'contactEmail', label: 'Contact Email', type: 'email' },
-        ],
-      },
-    ],
+      { name: 'create_contact', label: 'Create/Update Contact', icon: UserPlus, inputs: [ { name: 'name', label: 'Contact Name', type: 'text' }, { name: 'email', label: 'Email', type: 'email' }, { name: 'phone', label: 'Phone', type: 'tel' }, { name: 'company', label: 'Company Name', type: 'text' }, { name: 'jobTitle', label: 'Job Title', type: 'text' }] },
+      { name: 'create_account', label: 'Create Account', icon: Building, inputs: [ { name: 'name', label: 'Company Name', type: 'text' }, { name: 'industry', label: 'Industry', type: 'text' }, { name: 'website', label: 'Website', type: 'url' }] },
+      { name: 'create_deal', label: 'Create Deal', icon: Handshake, inputs: [ { name: 'name', label: 'Deal Name', type: 'text' }, { name: 'value', label: 'Value', type: 'number' }, { name: 'stage', label: 'Stage', type: 'text' }, { name: 'contactId', label: 'Contact ID', type: 'text' }] },
+      { name: 'update_deal_stage', label: 'Update Deal Stage', icon: GitFork, inputs: [ { name: 'dealId', label: 'Deal ID', type: 'text' }, { name: 'stage', label: 'New Stage', type: 'text' }] },
+      { name: 'create_task', label: 'Create Task', icon: FolderKanban, inputs: [ { name: 'title', label: 'Task Title', type: 'text' }, { name: 'dueDate', label: 'Due Date', type: 'date' }, { name: 'dealId', label: 'Associated Deal ID (Optional)', type: 'text' }] },
+      { name: 'add_note', label: 'Add Note', icon: FileText, inputs: [ { name: 'recordId', label: 'Record ID (Contact/Deal/Account)', type: 'text' }, { name: 'recordType', label: 'Record Type', type: 'select', options: ['contact', 'deal', 'account'] }, { name: 'content', label: 'Note Content', type: 'textarea' }] },
+      { name: 'create_quotation', label: 'Create Quotation', icon: FileText, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_invoice', label: 'Create Invoice', icon: Receipt, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_sales_order', label: 'Create Sales Order', icon: ShoppingBag, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_delivery_challan', label: 'Create Delivery Challan', icon: Truck, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_credit_note', label: 'Create Credit Note', icon: Repeat, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_vendor', label: 'Create Vendor', icon: Building, inputs: [ { name: 'name', label: 'Vendor Name', type: 'text' }, { name: 'email', label: 'Email', type: 'email' }] },
+      { name: 'create_purchase_order', label: 'Create Purchase Order', icon: ShoppingBag, inputs: [ { name: 'vendorId', label: 'Vendor ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_product', label: 'Create Product', icon: Package, inputs: [ { name: 'name', label: 'Product Name', type: 'text' }, { name: 'price', label: 'Price', type: 'number' }, { name: 'sku', label: 'SKU', type: 'text' }] },
+      { name: 'update_stock', label: 'Update Stock', icon: Package, inputs: [ { name: 'productId', label: 'Product ID', type: 'text' }, { name: 'quantity', label: 'Quantity Change (+/-)', type: 'number' }] },
+      { name: 'create_warehouse', label: 'Create Warehouse', icon: Factory, inputs: [ { name: 'name', label: 'Warehouse Name', type: 'text' }, { name: 'location', label: 'Location', type: 'text' }] },
+      { name: 'add_employee', label: 'Add Employee', icon: UserPlus, inputs: [ { name: 'firstName', label: 'First Name', type: 'text' }, { name: 'lastName', label: 'Last Name', type: 'text' }, { name: 'email', label: 'Work Email', type: 'email' }] },
+      { name: 'create_leave_request', label: 'Create Leave Request', icon: Calendar, inputs: [ { name: 'employeeId', label: 'Employee ID', type: 'text' }, { name: 'startDate', label: 'Start Date', type: 'date' }, { name: 'endDate', label: 'End Date', type: 'date' }, { name: 'reason', label: 'Reason', type: 'text' }] },
+      { name: 'create_journal_voucher', label: 'Create Journal Voucher', icon: Book, inputs: [ { name: 'debitAccountId', label: 'Debit Account ID', type: 'text' }, { name: 'creditAccountId', label: 'Credit Account ID', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }] },
+      { name: 'create_payment_voucher', label: 'Create Payment Voucher', icon: IndianRupee, inputs: [ { name: 'creditAccountId', label: 'Bank/Cash Account ID', type: 'text' }, { name: 'debitAccountId', label: 'Expense/Party Account ID', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }] },
+      { name: 'create_receipt_voucher', label: 'Create Receipt Voucher', icon: IndianRupee, inputs: [ { name: 'debitAccountId', label: 'Bank/Cash Account ID', type: 'text' }, { name: 'creditAccountId', label: 'Income/Party Account ID', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }] }
+    ]
   },
   {
     appId: 'email',
