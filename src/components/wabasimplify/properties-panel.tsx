@@ -29,15 +29,15 @@ export function PropertiesPanel({ node, onUpdate, deleteNode }: PropertiesPanelP
     const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
 
     useEffect(() => {
-        if (activeProjectId) {
-            if (node.type === 'sendTemplate') {
-                getTemplates(activeProjectId).then(data => setTemplates(data.filter(t => t.status === 'APPROVED')));
-            }
-            if (node.type === 'triggerMetaFlow') {
-                getMetaFlows(activeProjectId).then(setMetaFlows);
-            }
+        if (!node || !activeProjectId) return; // Add this guard clause
+
+        if (node.type === 'sendTemplate') {
+            getTemplates(activeProjectId).then(data => setTemplates(data.filter(t => t.status === 'APPROVED')));
         }
-    }, [node.type, activeProjectId]);
+        if (node.type === 'triggerMetaFlow') {
+            getMetaFlows(activeProjectId).then(setMetaFlows);
+        }
+    }, [node, activeProjectId]);
 
     if (!node) return <div className="p-4 text-center text-sm text-muted-foreground">Select a block to see its properties.</div>;
     
@@ -125,7 +125,7 @@ export function PropertiesPanel({ node, onUpdate, deleteNode }: PropertiesPanelP
             case 'api':
                 return (
                     <div className="space-y-4">
-                        <h4 className="font-semibold">Request</h4>
+                        <h3 className="font-semibold">Request</h3>
                         <div className="space-y-4 pt-2 border-t">
                             <Select value={node.data.apiRequest?.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="GET">GET</SelectItem><SelectItem value="POST">POST</SelectItem><SelectItem value="PUT">PUT</SelectItem></SelectContent></Select>
                             <Input placeholder="https://api.example.com" value={node.data.apiRequest?.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
@@ -133,7 +133,7 @@ export function PropertiesPanel({ node, onUpdate, deleteNode }: PropertiesPanelP
                             <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={node.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
                         </div>
                         <Separator />
-                        <h4 className="font-semibold">Response</h4>
+                        <h3 className="font-semibold">Response</h3>
                         <div className="space-y-4 pt-2">
                             <Label>Save Response to Variables</Label>
                             <div className="space-y-3">
