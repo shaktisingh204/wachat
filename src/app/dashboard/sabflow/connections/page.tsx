@@ -35,30 +35,30 @@ const appCategories = [
     {
         name: 'Popular Apps',
         apps: [
-            { id: 'google_sheets', name: 'Google Sheets', category: 'Productivity', logo: '/assets/google-sheets-icon.png', connectionType: 'oauth' },
+            { id: 'google_sheets', name: 'Google Sheets', category: 'Productivity', logo: 'https://picsum.photos/seed/gsheets/40/40', connectionType: 'oauth' },
             { 
-                id: 'stripe', name: 'Stripe', category: 'Payment', logo: '/assets/stripe-icon.png', connectionType: 'apikey',
+                id: 'stripe', name: 'Stripe', category: 'Payment', logo: 'https://picsum.photos/seed/stripe/40/40', connectionType: 'apikey',
                 credentials: [
                     { name: 'apiKey', label: 'API Key', type: 'password' },
                 ]
             },
             { 
-                id: 'shopify', name: 'Shopify', category: 'E-Commerce', logo: '/assets/shopify-icon.png', connectionType: 'apikey',
+                id: 'shopify', name: 'Shopify', category: 'E-Commerce', logo: 'https://picsum.photos/seed/shopify/40/40', connectionType: 'apikey',
                 credentials: [
                     { name: 'shopName', label: 'Shop Name', type: 'text', placeholder: 'your-store' },
                     { name: 'accessToken', label: 'Admin API Access Token', type: 'password' },
                 ]
             },
-            { id: 'slack', name: 'Slack', category: 'Communication', logo: '/assets/slack-icon.png', connectionType: 'oauth' },
-            { id: 'gmail', name: 'Gmail', category: 'Email', logo: '/assets/gmail-icon.png', connectionType: 'oauth' },
+            { id: 'slack', name: 'Slack', category: 'Communication', logo: 'https://picsum.photos/seed/slack/40/40', connectionType: 'oauth' },
+            { id: 'gmail', name: 'Gmail', category: 'Email', logo: 'https://picsum.photos/seed/gmail/40/40', connectionType: 'oauth' },
             { 
-                id: 'hubspot', name: 'HubSpot', category: 'CRM', logo: '/assets/hubspot-icon.png', connectionType: 'apikey',
+                id: 'hubspot', name: 'HubSpot', category: 'CRM', logo: 'https://picsum.photos/seed/hubspot/40/40', connectionType: 'apikey',
                 credentials: [
                      { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
                 ]
             },
-            { id: 'discord', name: 'Discord', category: 'Communication', logo: '/assets/discord-icon.png', connectionType: 'oauth' },
-            { id: 'notion', name: 'Notion', category: 'Productivity', logo: '/assets/notion-icon.png', connectionType: 'oauth' },
+            { id: 'discord', name: 'Discord', category: 'Communication', logo: 'https://picsum.photos/seed/discord/40/40', connectionType: 'oauth' },
+            { id: 'notion', name: 'Notion', category: 'Productivity', logo: 'https://picsum.photos/seed/notion/40/40', connectionType: 'oauth' },
         ]
     }
 ];
@@ -72,7 +72,7 @@ function AppCard({ app, isConnected, onConnect }: { app: any, isConnected: boole
 
     useEffect(() => {
         if(state.message) onConnect();
-    }, [state]);
+    }, [state, onConnect]);
 
     const handleInternalConnect = () => {
         startTransition(() => {
@@ -157,6 +157,7 @@ export default function AppConnectionsPage() {
                         <h1 className="text-3xl font-bold font-headline">App Connections</h1>
                         <p className="text-muted-foreground">Connect your tools to automate your workflows.</p>
                     </div>
+                     <Button onClick={() => setIsDialogOpen(true)}><Plus className="mr-2 h-4 w-4" />New Connection</Button>
                 </div>
                 
                 <Card>
@@ -185,6 +186,9 @@ export default function AppConnectionsPage() {
                                                         onConnect={() => {
                                                             if (app.connectionType !== 'internal') {
                                                                 handleConnectClick(app);
+                                                            } else {
+                                                                // For internal apps, we might just refresh state
+                                                                fetchConnections();
                                                             }
                                                         }}
                                                     />
