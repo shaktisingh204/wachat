@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import type { WithId } from 'mongodb';
 import type { Project, User, Plan } from '@/lib/definitions';
-import { handleInviteAgent, handleRemoveAgent } from '@/app/actions/team.actions'; // Corrected import path
+import { handleInviteAgent, handleRemoveAgent } from '@/app/actions/team.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -171,4 +172,3 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     );
 }
 
-    

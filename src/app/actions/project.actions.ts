@@ -1,11 +1,12 @@
 
+
 'use server';
 
 import { getSession } from './user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
 import { revalidatePath } from 'next/cache';
-import type { Project, Contact, KanbanColumnData } from '@/lib/definitions';
+import type { Project, Contact, KanbanColumnData, OptInOutSettings, UserAttribute, CannedMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function getProjectById(projectId?: string | null): Promise<WithId<Project> | null> {
@@ -16,9 +17,10 @@ export async function getProjectById(projectId?: string | null): Promise<WithId<
 
     try {
         const { db } = await connectToDatabase();
+        const projectObjectId = new ObjectId(projectId);
         
         const project = await db.collection('projects').aggregate([
-            { $match: { _id: new ObjectId(projectId) } },
+            { $match: { _id: projectObjectId } },
             {
                 $lookup: {
                     from: 'plans',
@@ -57,6 +59,86 @@ export async function getProjectById(projectId?: string | null): Promise<WithId<
     }
 }
 
+
+export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<WithId<Project>[]> {
+    const session = await getSession();
+    if (!session?.user) {
+        return [];
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const projectFilter: Filter<Project> = {
+            $or: [
+                { userId: userObjectId },
+                { 'agents.userId': userObjectId },
+            ],
+        };
+
+        if (query) {
+            projectFilter.name = { $regex: query, $options: 'i' };
+        }
+        
+        if (type === 'whatsapp') {
+            projectFilter.wabaId = { $exists: true, $ne: null };
+        } else if (type === 'facebook') {
+            projectFilter.facebookPageId = { $exists: true, $ne: null };
+        }
+
+        const projects = await db.collection<Project>('projects')
+            .find(projectFilter)
+            .sort({ createdAt: -1 })
+            .toArray();
+            
+        return JSON.parse(JSON.stringify(projects));
+    } catch (error) {
+        console.error("Failed to fetch projects:", error);
+        return [];
+    }
+}
+
+export async function getProjectsForAdmin(
+    page: number = 1,
+    limit: number = 10,
+    query?: string
+): Promise<{ projects: WithId<any>[], total: number }> {
+     try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<Project> = {};
+        if (query) {
+             filter.name = { $regex: query, $options: 'i' };
+        }
+        
+        const skip = (page - 1) * limit;
+        
+        const [projects, total] = await Promise.all([
+             db.collection<Project>('projects').aggregate([
+                { $match: filter },
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                    $lookup: {
+                        from: 'plans',
+                        localField: 'planId',
+                        foreignField: '_id',
+                        as: 'plan'
+                    }
+                },
+                {
+                    $unwind: { path: '$plan', preserveNullAndEmptyArrays: true }
+                }
+             ]).toArray(),
+             db.collection('projects').countDocuments(filter)
+        ]);
+
+        return { projects: JSON.parse(JSON.stringify(projects)), total };
+    } catch(e) {
+        return { projects: [], total: 0 };
+    }
+}
 
 export async function handleUpdateProjectSettings(
   prevState: any,
@@ -161,49 +243,6 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
         return { message: 'Auto-reply settings updated successfully!' };
     } catch (e: any) {
         return { error: e.message || 'Failed to save settings.' };
-    }
-}
-
-export async function handleBulkUpdateAppId(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { success: false, error: 'Access denied.' };
-
-    const projectIdsString = formData.get('projectIds') as string;
-    const newAppId = formData.get('appId') as string;
-
-    if (!projectIdsString || !newAppId) {
-        return { success: false, error: 'Project IDs and a new App ID are required.' };
-    }
-    
-    const projectIds = projectIdsString.split(',');
-    
-    try {
-        const { db } = await connectToDatabase();
-        const objectIds = projectIds.map(id => new ObjectId(id));
-        
-        const ownedProjectsCount = await db.collection('projects').countDocuments({
-            _id: { $in: objectIds },
-            userId: new ObjectId(session.user._id)
-        });
-
-        if (ownedProjectsCount !== projectIds.length) {
-            return { success: false, error: 'You do not have permission to modify one or more of the selected projects.' };
-        }
-
-        const result = await db.collection('projects').updateMany(
-            { _id: { $in: objectIds } },
-            { $set: { appId: newAppId } }
-        );
-
-        if (result.matchedCount === 0) {
-            return { success: false, error: 'No matching projects found to update.' };
-        }
-
-        revalidatePath('/dashboard');
-        return { success: true };
-
-    } catch (e: any) {
-        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -356,4 +395,124 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
     }
 }
 
+export async function handleUpdateOptInOutSettings(prevState: any, formData: FormData) {
+    const projectId = formData.get('projectId') as string;
+    if (!projectId) return { error: 'Missing project ID.' };
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+
+    const settings: OptInOutSettings = {
+        enabled: formData.get('enabled') === 'on',
+        optInKeywords: (formData.get('optInKeywords') as string || '').split(',').map(k => k.trim()).filter(Boolean),
+        optOutKeywords: (formData.get('optOutKeywords') as string || '').split(',').map(k => k.trim()).filter(Boolean),
+        optInResponse: formData.get('optInResponse') as string,
+        optOutResponse: formData.get('optOutResponse') as string,
+    };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { optInOutSettings: settings } }
+        );
+        revalidatePath('/dashboard/settings');
+        return { message: 'Opt-in/out settings saved successfully.' };
+    } catch (e: any) {
+        return { error: 'Failed to save settings.' };
+    }
+}
+
+
+export async function handleSaveUserAttributes(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    const projectId = formData.get('projectId') as string;
+    const attributesJSON = formData.get('attributes') as string;
+    
+    if (!projectId) return { error: 'Project ID is missing.' };
+    
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+    
+    try {
+        const attributes = JSON.parse(attributesJSON);
+        
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { userAttributes: attributes } }
+        );
+        revalidatePath('/dashboard/settings');
+        return { message: 'User attributes saved successfully.' };
+    } catch (e: any) {
+        console.error("Failed to save user attributes:", e);
+        return { error: 'An error occurred while saving.' };
+    }
+}
+
+export async function saveCannedMessageAction(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+    
+    const messageId = formData.get('_id') as string | null;
+    const projectId = formData.get('projectId') as string;
+    
+    if (!projectId) return { error: 'Project ID is missing.' };
+
+    const cannedMessageData: Partial<Omit<CannedMessage, '_id'>> = {
+        projectId: new ObjectId(projectId),
+        name: formData.get('name') as string,
+        type: formData.get('type') as CannedMessage['type'],
+        content: {
+            text: formData.get('text') as string,
+            mediaUrl: formData.get('mediaUrl') as string,
+            caption: formData.get('caption') as string,
+            fileName: formData.get('fileName') as string,
+        },
+        isFavourite: formData.get('isFavourite') === 'on',
+        createdBy: session.user.name,
+    };
+
+    try {
+        const { db } = await connectToDatabase();
+        if (messageId && ObjectId.isValid(messageId)) {
+            await db.collection('canned_messages').updateOne({ _id: new ObjectId(messageId) }, { $set: cannedMessageData });
+        } else {
+            await db.collection('canned_messages').insertOne({ ...cannedMessageData, createdAt: new Date() } as CannedMessage);
+        }
+        revalidatePath('/dashboard/settings');
+        return { message: 'Canned message saved successfully.' };
+    } catch (e: any) {
+        return { error: 'Failed to save canned message.' };
+    }
+}
+
+export async function deleteCannedMessage(id: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('canned_messages').deleteOne({ _id: new ObjectId(id) });
+        revalidatePath('/dashboard/settings');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to delete message.' };
+    }
+}
+
+export async function getCannedMessages(projectId: string): Promise<WithId<CannedMessage>[]> {
+     const session = await getSession();
+    if (!session?.user) return [];
+
+    if (!ObjectId.isValid(projectId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        return JSON.parse(JSON.stringify(await db.collection<CannedMessage>('canned_messages').find({ projectId: new ObjectId(projectId) }).sort({ isFavourite: -1, name: 1 }).toArray()));
+    } catch (e) {
+        return [];
+    }
+}
     
