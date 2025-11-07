@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -7,33 +6,69 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-
-// Import all necessary action modules
-import * as wachatActions from './whatsapp.actions';
-import * as sabChatActions from './sabchat.actions';
-import * as crmActions from './crm.actions';
-import * as crmDealsActions from './crm-deals.actions';
-import * as crmTasksActions from './crm-tasks.actions';
-import * as metaActions from './facebook.actions';
-import * as instagramActions from './instagram.actions';
-import * as urlShortenerActions from './url-shortener.actions';
-import * as qrCodeActions from './qr-code.actions';
-import * as emailActions from './email.actions';
-import * as smsActions from './sms.actions';
-import * as crmQuotationsActions from './crm-quotations.actions';
-import * as crmInvoicesActions from './crm-invoices.actions';
-import * as crmSalesOrdersActions from './crm-sales-orders.actions';
-import * as crmDeliveryChallansActions from './crm-delivery-challans.actions';
-import * as crmCreditNotesActions from './crm-credit-notes.actions';
-import * as crmVendorsActions from './crm-vendors.actions';
-import * as crmPurchaseOrdersActions from './crm-purchase-orders.actions';
-import * as crmProductsActions from './crm-products.actions';
-import * as crmInventoryActions from './crm-inventory.actions';
-import * as crmEmployeesActions from './crm-employees.actions';
-import * as crmHrActions from './crm-hr.actions';
-import * as crmVouchersActions from './crm-vouchers.actions';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
 
+async function executeAction(node: SabFlowNode, context: any, user: WithId<User>, logger: any) {
+    const { actionName, inputs } = node.data;
+    const interpolatedInputs: Record<string, any> = {};
+
+    logger.log(`Preparing to execute action: ${actionName}`);
+
+    // Interpolate all input values from the context
+    for(const key in inputs) {
+        if(typeof inputs[key] === 'string') {
+            interpolatedInputs[key] = inputs[key].replace(/{{\s*([^}]+)\s*}}/g, (match: any, varName: string) => {
+                const keys = varName.split('.');
+                let value = context;
+                for (const k of keys) {
+                    if (value && typeof value === 'object' && k in value) {
+                        value = value[k];
+                    } else {
+                        return match; 
+                    }
+                }
+                return value;
+            });
+        } else {
+            interpolatedInputs[key] = inputs[key];
+        }
+    }
+    
+    const actionApp = sabnodeAppActions.find(app => app.actions.some(a => a.name === actionName));
+    if (!actionApp) {
+        const errorMsg = `Action app not found for action: ${actionName}`;
+        logger.log(errorMsg);
+        console.error(errorMsg);
+        return { error: errorMsg };
+    }
+    
+    // Find the connection for this action
+    const connection = user.sabFlowConnections?.find(c => c.connectionName === node.data.connectionId);
+    
+    // Lazy-load action modules only when needed
+    try {
+        const actionModule = await import(`./${actionApp.appId}.actions.ts`);
+        const actionFunction = actionModule[actionName];
+        
+        if (typeof actionFunction !== 'function') {
+             const errorMsg = `Action function "${actionName}" not found in module.`;
+             logger.log(errorMsg);
+             console.error(errorMsg);
+             return { error: errorMsg };
+        }
+
+        logger.log(`Executing action "${actionName}" with inputs:`, interpolatedInputs);
+        const result = await actionFunction({ ...interpolatedInputs, connection });
+        logger.log(`Action "${actionName}" completed.`, { result });
+        return { output: result };
+        
+    } catch (e: any) {
+        const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
+        logger.log(errorMsg, { stack: e.stack });
+        console.error(errorMsg, e);
+        return { error: errorMsg };
+    }
+}
 
 export async function getSabFlows(): Promise<WithId<SabFlow>[]> {
     const session = await getSession();
@@ -183,174 +218,62 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
 
 // --- Flow Execution Engine ---
 
-async function executeAction(node: SabFlowNode, context: any, project: WithId<Project>, user: WithId<User>) {
-    const { actionName, inputs } = node.data;
-    const interpolatedInputs: Record<string, any> = {};
-
-    // Interpolate all input values from the context
-    for(const key in inputs) {
-        if(typeof inputs[key] === 'string') {
-            interpolatedInputs[key] = inputs[key].replace(/{{\s*([^}]+)\s*}}/g, (match: any, varName: string) => {
-                const keys = varName.split('.');
-                let value = context;
-                for (const k of keys) {
-                    if (value && typeof value === 'object' && k in value) {
-                        value = value[k];
-                    } else {
-                        return match; 
-                    }
-                }
-                return value;
-            });
-        } else {
-            interpolatedInputs[key] = inputs[key];
-        }
-    }
+export async function runSabFlow(flowId: string, triggerPayload: any) {
+    const { db } = await connectToDatabase();
     
-    const actionApp = sabnodeAppActions.find(app => app.actions.some(a => a.name === actionName));
-    if (!actionApp) {
-        console.error(`Action app not found for action: ${actionName}`);
+    // This is a dummy logger for now. In a real scenario, this would write to a DB.
+    const logger = { log: (msg: string, data?: any) => console.log(`[SabFlow] ${msg}`, data ? JSON.stringify(data) : '') };
+
+    logger.log(`Starting flow ID: ${flowId}`);
+
+    const flow = await getSabFlowById(flowId);
+    if (!flow) {
+        logger.log(`Error: Flow ${flowId} not found.`);
         return;
     }
 
-    const formData = new FormData();
-    Object.entries(interpolatedInputs).forEach(([key, value]) => {
-        if (value !== undefined) {
-            formData.append(key, value.toString());
-        }
-    });
-
-    try {
-        // Shared properties for many actions
-        if(project) formData.append('projectId', project._id.toString());
-        if(project.phoneNumbers?.[0]?.id) formData.append('phoneNumberId', project.phoneNumbers[0].id);
-
-        switch (actionApp.appId) {
-            case 'wachat':
-                if (interpolatedInputs.recipient) formData.set('waId', interpolatedInputs.recipient);
-                if (interpolatedInputs.message) formData.set('messageText', interpolatedInputs.message);
-                switch(actionName) {
-                    case 'send_text': case 'send_image': case 'send_video': case 'send_document': case 'send_audio': case 'send_sticker': case 'send_location': case 'send_contact': case 'send_interactive_buttons': case 'send_interactive_list': await wachatActions.handleSendMessage(null, formData); break;
-                    case 'send_template': await wachatActions.handleSendTemplateMessage(null, formData); break;
-                    case 'update_contact': await wachatActions.findOrCreateContact(project._id.toString(), project.phoneNumbers?.[0]?.id || '', interpolatedInputs.phone, interpolatedInputs.name, interpolatedInputs.email); break;
-                    case 'add_tag': await wachatActions.addTagToContact(interpolatedInputs.phone, interpolatedInputs.tagName); break;
-                    case 'remove_tag': await wachatActions.removeTagFromContact(interpolatedInputs.phone, interpolatedInputs.tagName); break;
-                    case 'update_attribute': await wachatActions.updateContactAttribute(interpolatedInputs.phone, interpolatedInputs.attributeName, interpolatedInputs.attributeValue); break;
-                    case 'start_broadcast': await wachatActions.handleStartBroadcast(null, formData); break;
-                    case 'assign_agent': await wachatActions.assignAgentToContact(interpolatedInputs.phone, interpolatedInputs.agentEmail); break;
-                    case 'resolve_conversation': await wachatActions.updateContactStatus(interpolatedInputs.phone, 'resolved'); break;
-                    case 'create_template': await wachatActions.handleCreateTemplate(null, formData); break;
-                    case 'opt_out_contact': await wachatActions.updateContactOptIn(interpolatedInputs.phone, false); break;
-                    case 'opt_in_contact': await wachatActions.updateContactOptIn(interpolatedInputs.phone, true); break;
-                    case 'create_group': await wachatActions.createGroup(formData.get('subject') as string); break;
-                    case 'update_group_subject': await wachatActions.updateGroupInfo(interpolatedInputs.groupId, { subject: interpolatedInputs.newSubject }); break;
-                    case 'update_group_description': await wachatActions.updateGroupInfo(interpolatedInputs.groupId, { description: interpolatedInputs.newDescription }); break;
-                    case 'add_group_participant': await wachatActions.updateGroupParticipants(interpolatedInputs.groupId, [interpolatedInputs.phone], 'add'); break;
-                    case 'remove_group_participant': await wachatActions.updateGroupParticipants(interpolatedInputs.groupId, [interpolatedInputs.phone], 'remove'); break;
-                    case 'promote_to_admin': await wachatActions.updateGroupParticipants(interpolatedInputs.groupId, [interpolatedInputs.phone], 'promote'); break;
-                    case 'demote_admin': await wachatActions.updateGroupParticipants(interpolatedInputs.groupId, [interpolatedInputs.phone], 'demote'); break;
-                    case 'send_group_message': await wachatActions.sendGroupMessage(interpolatedInputs.groupId, interpolatedInputs.message); break;
-                    case 'leave_group': await wachatActions.leaveGroup(interpolatedInputs.groupId); break;
-                }
-                break;
-            case 'sabchat':
-                 switch(actionName) {
-                    case 'send_message': await sabChatActions.postChatMessage(interpolatedInputs.sessionId, 'agent', interpolatedInputs.content); break;
-                    case 'close_session': await sabChatActions.closeChatSession(interpolatedInputs.sessionId); break;
-                    case 'add_tag_to_session': await sabChatActions.addTagToSession(interpolatedInputs.sessionId, interpolatedInputs.tagName); break;
-                    case 'create_crm_contact':
-                        const session = await sabChatActions.getFullChatSession(interpolatedInputs.sessionId);
-                        if (session && session.visitorInfo?.email) {
-                            const crmFormData = new FormData();
-                            crmFormData.append('name', session.visitorInfo.name || session.visitorInfo.email);
-                            crmFormData.append('email', session.visitorInfo.email);
-                            if(session.visitorInfo.phone) crmFormData.append('phone', session.visitorInfo.phone);
-                            await crmActions.addCrmContact(null, crmFormData);
-                        }
-                        break;
-                }
-                break;
-            case 'crm':
-                 switch(actionName) {
-                    case 'create_contact': await crmActions.addCrmContact(null, formData); break;
-                    case 'create_account': await crmActions.addCrmClient(null, formData); break;
-                    case 'create_deal': await crmDealsActions.createCrmDeal(null, formData); break;
-                    case 'update_deal_stage': await crmDealsActions.updateCrmDealStage(interpolatedInputs.dealId, interpolatedInputs.stage); break;
-                    case 'create_task': await crmTasksActions.createCrmTask(null, formData); break;
-                    case 'add_note': await crmActions.addCrmNote(null, formData); break;
-                    case 'create_quotation': await crmQuotationsActions.saveQuotation(null, formData); break;
-                    case 'create_invoice': await crmInvoicesActions.saveInvoice(null, formData); break;
-                    case 'create_sales_order': await crmSalesOrdersActions.saveSalesOrder(null, formData); break;
-                    case 'create_delivery_challan': await crmDeliveryChallansActions.saveDeliveryChallan(null, formData); break;
-                    case 'create_credit_note': await crmCreditNotesActions.saveCreditNote(null, formData); break;
-                    case 'create_vendor': await crmVendorsActions.saveCrmVendor(null, formData); break;
-                    case 'create_product': await crmProductsActions.saveCrmProduct(null, formData); break;
-                    case 'add_employee': await crmEmployeesActions.saveCrmEmployee(null, formData); break;
-                    case 'create_leave_request': await crmHrActions.applyForCrmLeave(null, formData); break;
-                    case 'create_journal_voucher': case 'create_payment_voucher': case 'create_receipt_voucher': await crmVouchersActions.saveVoucherEntry(null, formData); break;
-                 }
-                break;
-            case 'meta':
-                switch(actionName) {
-                    case 'create_text_post': case 'create_photo_post': case 'create_video_post': case 'schedule_post': await metaActions.handleCreateFacebookPost(null, formData); break;
-                    case 'update_post': await metaActions.handleUpdatePost(null, formData); break;
-                    case 'delete_post': await metaActions.handleDeletePost(interpolatedInputs.postId, project._id.toString()); break;
-                    case 'post_comment': await metaActions.handlePostComment(null, formData); break;
-                    case 'delete_comment': await metaActions.handleDeleteComment(interpolatedInputs.commentId, project._id.toString()); break;
-                    case 'like_object': await metaActions.handleLikeObject(interpolatedInputs.objectId, project._id.toString()); break;
-                    case 'send_messenger_message': await metaActions.sendFacebookMessage(null, formData); break;
-                }
-                break;
-            case 'instagram':
-                 switch(actionName) {
-                    case 'create_image_post': await instagramActions.createInstagramImagePost(null, formData); break;
-                 }
-                break;
-            default:
-                console.log(`Action app "${actionApp.name}" is defined but not yet implemented in the executor.`);
-        }
-    } catch (e) {
-        console.error(`Error executing action "${actionName}":`, getErrorMessage(e));
-    }
-}
-
-export async function runSabFlow(flowId: string, triggerPayload: any) {
-    const flow = await getSabFlowById(flowId);
-    if (!flow) throw new Error("Flow not found.");
-
-    const { db } = await connectToDatabase();
     const user = await db.collection<User>('users').findOne({ _id: flow.userId });
-    
-    // Find the project based on context if possible, otherwise fallback to the user's first project.
-    const projectIdFromContext = triggerPayload?.projectId || triggerPayload?.project?._id;
-    let project: WithId<Project> | null = null;
-    if (projectIdFromContext) {
-        project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectIdFromContext), userId: flow.userId });
+    if (!user) {
+        logger.log(`Error: User ${flow.userId} for flow not found.`);
+        return;
     }
-    if (!project) {
-        project = await db.collection<Project>('projects').findOne({ userId: flow.userId });
-    }
-    
-    if (!project || !user) throw new Error("Could not find a project or user to execute this flow against.");
 
-    let context = { ...triggerPayload };
+    let context = { trigger: triggerPayload };
     let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
-
-    if(!currentNodeId && flow.nodes.length > 0) {
+    if (!currentNodeId && flow.nodes.length > 0) {
         currentNodeId = flow.nodes[0].id;
     }
 
     while (currentNodeId) {
         const currentNode = flow.nodes.find(n => n.id === currentNodeId);
-        if (!currentNode) break;
-
-        if (currentNode.type === 'action') {
-            await executeAction(currentNode, context, project, user);
+        if (!currentNode) {
+            logger.log(`Error: Node ${currentNodeId} not found. Terminating.`);
+            break;
         }
 
-        const edge = flow.edges.find(e => e.source === currentNodeId);
-        currentNodeId = edge ? edge.target : null;
-    }
-}
+        let result: { output?: any; error?: string } = {};
 
+        if (currentNode.type === 'action') {
+            result = await executeAction(currentNode, context, user, logger);
+            if (result.error) {
+                // Decide if the flow should stop on error
+                break;
+            }
+            // Add the output of the current node to the context for the next node
+            context = { ...context, ...result.output };
+        }
+
+        // Logic to determine the next node
+        const edge = flow.edges.find(e => e.source === currentNodeId);
+        if (currentNode.type === 'condition') {
+             const conditionResult = result.output?.conditionMet ?? false; // Assuming the action returns this
+             const handle = conditionResult ? `${currentNodeId}-output-yes` : `${currentNodeId}-output-no`;
+             const conditionalEdge = flow.edges.find(e => e.sourceHandle === handle);
+             currentNodeId = conditionalEdge ? conditionalEdge.target : null;
+        } else {
+             currentNodeId = edge ? edge.target : null;
+        }
+    }
     
+    logger.log(`Flow execution finished.`);
+}
