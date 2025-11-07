@@ -15,6 +15,7 @@ import {
   History,
   Clock,
   Trash2,
+  Package,
   Mail,
   Sticker,
   MapPin,
