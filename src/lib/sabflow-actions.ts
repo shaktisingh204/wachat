@@ -33,7 +33,7 @@ import {
   Search,
   Clapperboard,
 } from 'lucide-react';
-import { WhatsAppIcon, CrmIcon, EmailIcon, SmsIcon, MetaIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WhatsAppIcon, CrmIcon, EmailIcon, SmsIcon, MetaIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 export const sabnodeAppActions = [
   {
@@ -331,30 +331,32 @@ export const sabnodeAppActions = [
     name: 'Instagram Suite',
     icon: InstagramIcon,
     actions: [
-      { name: 'get_user_details', label: 'Get User Details', icon: Wrench, inputs: [] },
-      { name: 'get_user_media', label: 'Get User Media', icon: Newspaper, inputs: [] },
-      { name: 'get_media_details', label: 'Get Media Details', icon: Newspaper, inputs: [{ name: 'mediaId', label: 'Media ID', type: 'text' }] },
-      { name: 'get_media_comments', label: 'Get Media Comments', icon: MessageSquare, inputs: [{ name: 'mediaId', label: 'Media ID', type: 'text' }] },
-      { name: 'get_stories', label: 'Get Stories', icon: Clapperboard, inputs: [] },
-      { name: 'discover_user', label: 'Discover User', icon: Compass, inputs: [{ name: 'username', label: 'Username', type: 'text' }] },
-      { name: 'create_image_post', label: 'Create Image Post', icon: Newspaper, inputs: [{ name: 'imageUrl', label: 'Image URL', type: 'text' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
-      { name: 'create_video_post', label: 'Create Video Post', icon: Video, inputs: [{ name: 'videoUrl', label: 'Video URL', type: 'text' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
-      { name: 'create_carousel_post', label: 'Create Carousel Post', icon: Newspaper, inputs: [{ name: 'mediaUrls', label: 'Image/Video URLs (comma-separated)', type: 'textarea' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
-      { name: 'search_hashtag_id', label: 'Search Hashtag ID', icon: Search, inputs: [{ name: 'hashtag', label: 'Hashtag (without #)', type: 'text' }] },
-      { name: 'get_hashtag_recent_media', label: 'Get Recent Hashtag Media', icon: Newspaper, inputs: [{ name: 'hashtagId', label: 'Hashtag ID', type: 'text' }] },
-      { name: 'get_hashtag_top_media', label: 'Get Top Hashtag Media', icon: Star, inputs: [{ name: 'hashtagId', label: 'Hashtag ID', type: 'text' }] },
-      { name: 'reply_to_comment', label: 'Reply to Comment', icon: MessageSquare, inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }, { name: 'message', label: 'Reply Text', type: 'textarea' }] },
-      { name: 'delete_comment', label: 'Delete a Comment', icon: Trash2, inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }] },
-      { name: 'like_comment', label: 'Like a Comment', icon: ThumbsUp, inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }] },
-      { name: 'get_insights', label: 'Get Insights', icon: BarChart2, inputs: [{ name: 'metrics', label: 'Metrics (comma-separated)', type: 'text', placeholder: 'impressions,reach,profile_views' }, { name: 'period', label: 'Period', type: 'select', options: ['day', 'week', 'days_28'] }] },
-      { name: 'get_story_insights', label: 'Get Story Insights', icon: BarChart2, inputs: [{ name: 'storyId', label: 'Story ID', type: 'text' }, { name: 'metrics', label: 'Metrics (comma-separated)', type: 'text', placeholder: 'exits,replies,taps_forward' }] },
-      { name: 'discover_product', label: 'Discover Product from Post', icon: ShoppingBag, inputs: [{ name: 'mediaId', label: 'Media ID of a shopping post', type: 'text' }] },
+      { name: 'get_user_details', label: 'Get My User Details', icon: Wrench, description: 'Fetches details of the connected Instagram account.', inputs: [] },
+      { name: 'get_user_media', label: 'Get My Recent Media', icon: Newspaper, description: 'Retrieves a list of recent posts and reels.', inputs: [] },
+      { name: 'get_media_details', label: 'Get Media Details', icon: Newspaper, description: 'Get detailed information about a specific post or reel.', inputs: [{ name: 'mediaId', label: 'Media ID', type: 'text' }] },
+      { name: 'get_media_comments', label: 'Get Media Comments', icon: MessageSquare, description: 'Fetch comments for a specific post.', inputs: [{ name: 'mediaId', label: 'Media ID', type: 'text' }] },
+      { name: 'get_stories', label: 'Get My Active Stories', icon: Clapperboard, description: 'Retrieve a list of your current active stories.', inputs: [] },
+      { name: 'discover_user', label: 'Discover User Profile', icon: Compass, description: 'Get public information about another Instagram business account.', inputs: [{ name: 'username', label: 'Username', type: 'text' }] },
+      { name: 'create_image_post', label: 'Create Image Post', icon: Newspaper, description: 'Publish a single image post.', inputs: [{ name: 'imageUrl', label: 'Image URL', type: 'text' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
+      { name: 'create_video_post', label: 'Create Video Post (Reel)', icon: Video, description: 'Publish a video (reel).', inputs: [{ name: 'videoUrl', label: 'Video URL', type: 'text' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
+      { name: 'create_carousel_post', label: 'Create Carousel Post', icon: Newspaper, description: 'Publish a post with multiple images or videos.', inputs: [{ name: 'mediaUrls', label: 'Image/Video URLs (comma-separated)', type: 'textarea' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
+      { name: 'search_hashtag_id', label: 'Search Hashtag ID', icon: Search, description: 'Get the unique ID for a hashtag.', inputs: [{ name: 'hashtag', label: 'Hashtag (without #)', type: 'text' }] },
+      { name: 'get_hashtag_recent_media', label: 'Get Recent Hashtag Media', icon: Newspaper, description: 'Find recent posts for a specific hashtag.', inputs: [{ name: 'hashtagId', label: 'Hashtag ID', type: 'text' }] },
+      { name: 'get_hashtag_top_media', label: 'Get Top Hashtag Media', icon: Star, description: 'Find top-performing posts for a specific hashtag.', inputs: [{ name: 'hashtagId', label: 'Hashtag ID', type: 'text' }] },
+      { name: 'reply_to_comment', label: 'Reply to Comment', icon: MessageSquare, description: 'Post a reply to a specific comment.', inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }, { name: 'message', label: 'Reply Text', type: 'textarea' }] },
+      { name: 'delete_comment', label: 'Delete a Comment', icon: Trash2, description: 'Delete a comment you have made.', inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }] },
+      { name: 'like_comment', label: 'Like a Comment', icon: ThumbsUp, description: 'Like a specific comment.', inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }] },
+      { name: 'get_insights', label: 'Get Post Insights', icon: BarChart2, description: 'Get performance metrics for a post.', inputs: [{ name: 'mediaId', label: 'Media ID', type: 'text' }, { name: 'metrics', label: 'Metrics (comma-separated)', type: 'text', placeholder: 'impressions,reach,saved' }] },
+      { name: 'get_story_insights', label: 'Get Story Insights', icon: BarChart2, description: 'Get performance metrics for a story.', inputs: [{ name: 'storyId', label: 'Story ID', type: 'text' }, { name: 'metrics', label: 'Metrics (comma-separated)', type: 'text', placeholder: 'exits,replies,taps_forward' }] },
+      { name: 'discover_product', label: 'Discover Product from Post', icon: ShoppingBag, description: 'Get details of products tagged in a shopping post.', inputs: [{ name: 'mediaId', label: 'Media ID of a shopping post', type: 'text' }] },
+      { name: 'get_mentioned_media', label: 'Get Mentioned Media', icon: AtSign, description: 'Find posts where your account has been mentioned.', inputs: [] },
+      { name: 'get_tagged_media', label: 'Get Tagged Media', icon: Tag, description: 'Find posts where your account has been tagged in a photo.', inputs: [] }
     ]
   },
   {
     appId: 'crm',
     name: 'CRM Suite',
-    icon: CrmIcon,
+    icon: Briefcase,
     actions: [
       {
         name: 'create_lead',
@@ -382,7 +384,7 @@ export const sabnodeAppActions = [
   {
     appId: 'email',
     name: 'Email Suite',
-    icon: EmailIcon,
+    icon: Mail,
     actions: [
       {
         name: 'send_email',
@@ -399,7 +401,7 @@ export const sabnodeAppActions = [
   {
     appId: 'sms',
     name: 'SMS Suite',
-    icon: SmsIcon,
+    icon: MessageSquare,
     actions: [
       {
         name: 'send_sms',
@@ -411,5 +413,109 @@ export const sabnodeAppActions = [
         ],
       },
     ],
-  }
+  },
+    {
+    appId: 'sabchat',
+    name: 'sabChat',
+    icon: SabChatIcon,
+    actions: []
+  },
+  {
+    appId: 'website-builder',
+    name: 'Website Builder',
+    icon: Brush,
+    actions: []
+  },
+  {
+    appId: 'url-shortener',
+    name: 'URL Shortener',
+    icon: LinkIcon,
+    actions: []
+  },
+  {
+    appId: 'qr-code-maker',
+    name: 'QR Code Maker',
+    icon: QrCode,
+    actions: []
+  },
+  {
+    appId: 'seo-suite',
+    name: 'SEO Suite',
+    icon: SeoIcon,
+    actions: []
+  },
+  {
+    appId: 'google_sheets',
+    name: 'Google Sheets',
+    category: 'Productivity',
+    logo: 'https://picsum.photos/seed/gsheets/40/40',
+    connectionType: 'oauth',
+    actions: []
+  },
+  { 
+    appId: 'stripe',
+    name: 'Stripe',
+    category: 'Payment',
+    logo: 'https://picsum.photos/seed/stripe/40/40',
+    connectionType: 'apikey',
+    credentials: [
+        { name: 'apiKey', label: 'API Key', type: 'password' },
+    ],
+    actions: []
+  },
+  { 
+    appId: 'shopify',
+    name: 'Shopify',
+    category: 'E-Commerce',
+    logo: 'https://picsum.photos/seed/shopify/40/40',
+    connectionType: 'apikey',
+    credentials: [
+        { name: 'shopName', label: 'Shop Name', type: 'text', placeholder: 'your-store' },
+        { name: 'accessToken', label: 'Admin API Access Token', type: 'password' },
+    ],
+    actions: []
+  },
+  {
+    appId: 'slack',
+    name: 'Slack',
+    category: 'Communication',
+    logo: 'https://picsum.photos/seed/slack/40/40',
+    connectionType: 'oauth',
+    actions: []
+  },
+  {
+    appId: 'gmail',
+    name: 'Gmail',
+    category: 'Email',
+    logo: 'https://picsum.photos/seed/gmail/40/40',
+    connectionType: 'oauth',
+    actions: []
+  },
+  { 
+    appId: 'hubspot',
+    name: 'HubSpot',
+    category: 'CRM',
+    logo: 'https://picsum.photos/seed/hubspot/40/40',
+    connectionType: 'apikey',
+    credentials: [
+         { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
+    ],
+    actions: []
+  },
+  {
+    appId: 'discord',
+    name: 'Discord',
+    category: 'Communication',
+    logo: 'https://picsum.photos/seed/discord/40/40',
+    connectionType: 'oauth',
+    actions: []
+  },
+  {
+    appId: 'notion',
+    name: 'Notion',
+    category: 'Productivity',
+    logo: 'https://picsum.photos/seed/notion/40/40',
+    connectionType: 'oauth',
+    actions: []
+  },
 ];
