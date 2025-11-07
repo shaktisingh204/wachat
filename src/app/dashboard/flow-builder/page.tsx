@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -13,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  MessageSquare, ToggleRight, GitFork, Play, Trash2, Save, Plus, Type, LoaderCircle, BookOpen, PanelLeft, Settings2, Copy, File as FileIcon, ZoomIn, ZoomOut, Frame, Maximize, Minimize, ImageIcon, Clock, Code, Send, Bot, Mail, Smartphone
+  MessageSquare, ToggleRight, GitFork, Play, Trash2, Save, Plus, Type, LoaderCircle, BookOpen, PanelLeft, Settings2, Copy, File as FileIcon, ZoomIn, ZoomOut, Frame, Maximize, Minimize, ImageIcon, Clock, Code, Send, Bot, Mail, Smartphone, UserPlus, QrCode, Link as LinkIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -30,7 +31,7 @@ import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
 import { PropertiesPanel } from '@/components/wabasimplify/properties-panel';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'api' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'sendSms' | 'sendEmail';
+type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'api' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'sendSms' | 'sendEmail' | 'createCrmLead' | 'generateShortLink' | 'generateQrCode';
 type ButtonConfig = { id: string; text: string; };
 
 const blockTypes = [
@@ -45,6 +46,9 @@ const blockTypes = [
     { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: Bot },
     { type: 'sendSms', label: 'Send SMS', icon: Smartphone },
     { type: 'sendEmail', label: 'Send Email', icon: Mail },
+    { type: 'createCrmLead', label: 'Create CRM Lead', icon: UserPlus },
+    { type: 'generateShortLink', label: 'Create Short Link', icon: LinkIcon },
+    { type: 'generateQrCode', label: 'Generate QR Code', icon: QrCode },
 ];
 
 const NodePreview = ({ node }: { node: FlowNode }) => {
@@ -90,6 +94,7 @@ export function FlowBuilder() {
 
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     // Canvas state
     const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -314,7 +319,7 @@ export function FlowBuilder() {
                             flows.map(flow => (
                                 <div key={flow._id.toString()} className="flex items-center group">
                                     <Button variant="ghost" className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && 'bg-muted font-semibold')} onClick={() => handleSelectFlow(flow._id.toString())}>
-                                        <File className="mr-2 h-4 w-4"/>
+                                        <FileIcon className="mr-2 h-4 w-4"/>
                                         {flow.name}
                                     </Button>
                                     <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}>
@@ -408,13 +413,16 @@ export function FlowBuilder() {
     
     return (
         <div className="flex h-[calc(100vh-theme(spacing.20))] bg-muted/30">
-            <div className="hidden md:flex md:w-64 flex-col gap-4 p-2 bg-background border-r">
+             <div className={cn("flex-col gap-4 p-2 bg-background border-r transition-all duration-300", isSidebarCollapsed ? 'hidden' : 'hidden md:flex md:w-64')}>
                 <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
             </div>
             <div className="flex-1 flex flex-col relative">
                  <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
                      <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsBlocksSheetOpen(true)}>
+                            <PanelLeft className="h-5 w-5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="hidden md:flex" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
                             <PanelLeft className="h-5 w-5" />
                         </Button>
                         <Input id="flow-name-input" key={currentFlow?._id.toString()} defaultValue={currentFlow?.name || 'New Flow'} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
