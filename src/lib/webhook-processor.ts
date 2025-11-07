@@ -787,10 +787,8 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         
         case 'payment':
             await requestPayment(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables, logger);
-            // This node waits for an external event (payment webhook) so for now we'll treat it as a waiting node.
-            // A more advanced implementation would handle the success/failure paths based on a webhook.
             logger.log(`Sent payment request and waiting for completion...`);
-            return 'waiting'; // Or proceed immediately if no webhook confirmation is needed.
+            return 'waiting'; 
 
         case 'triggerFlow': {
             const flowToTriggerId = node.data.flowId;
@@ -802,7 +800,6 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                         logger.log(`Transitioning from flow "${flow.name}" to flow "${targetFlow.name}".`);
                         contact.activeFlow.flowId = targetFlow._id.toString();
                         contact.activeFlow.currentNodeId = startNodeOfTargetFlow.id;
-                        // Continue with new flow execution
                         return await executeNode(db, project, contact, targetFlow, startNodeOfTargetFlow.id, undefined, logger);
                     } else {
                         logger.log(`Error: Start node not found in target flow "${targetFlow.name}". Proceeding with normal flow path.`);
@@ -811,7 +808,6 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                     logger.log(`Error: Flow with ID ${flowToTriggerId} not found. Proceeding with normal flow path.`);
                 }
             }
-            // Fallback to normal execution if trigger fails or is not set
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
@@ -833,12 +829,11 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             const { contactName, email, phone, company, dealName, dealValue, stage } = node.data;
             const formData = new FormData();
             
-            // Map interpolated variables to form data
             formData.append('contactName', interpolate(contactName, contact.activeFlow.variables));
             formData.append('email', interpolate(email, contact.activeFlow.variables));
             formData.append('phone', interpolate(phone, contact.activeFlow.variables));
             formData.append('company', interpolate(company, contact.activeFlow.variables));
-            formData.append('name', interpolate(dealName, contact.activeFlow.variables)); // Deal name
+            formData.append('name', interpolate(dealName, contact.activeFlow.variables));
             formData.append('value', interpolate(dealValue, contact.activeFlow.variables));
             formData.append('stage', interpolate(stage, contact.activeFlow.variables));
             
@@ -871,9 +866,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                     const result = await createShortUrl(null, formData);
                     if (result.error) {
                         logger.log(`Failed to create Short Link: ${result.error}`);
-                    } else if (result.shortUrlId) {
-                         // A bit of a hack as there is no request context to get the domain.
-                         // This assumes the default domain. Custom domains won't work here.
+                    } else if (result.shortUrlId && result.shortCode) {
                          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
                          const shortUrl = `${appUrl}/s/${result.shortCode}`;
                          contact.activeFlow.variables[saveAsVariable] = shortUrl;
