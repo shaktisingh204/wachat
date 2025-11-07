@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -288,21 +289,23 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
     }
 }
 
-async function getAppAccessToken(appId: string, appSecret: string): Promise<string> {
-    try {
-        const response = await axios.get(`https://graph.facebook.com/oauth/access_token`, {
-            params: {
-                client_id: appId,
-                client_secret: appSecret,
-                grant_type: 'client_credentials'
-            }
-        });
-        return response.data.access_token;
-    } catch (error) {
-        console.error("Failed to generate app access token:", getErrorMessage(error));
-        throw new Error("Could not generate required app access token for webhook subscription.");
-    }
+export async function handleSubscribeAllProjects(): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+    
+    const projects = await getProjects(session.user._id.toString());
+    const results = await Promise.all(
+        projects.map(p => handleSubscribeProjectWebhook(p.wabaId!, p.appId!, p.accessToken))
+    );
+    
+    const successCount = results.filter(r => r.success).length;
+    const errorCount = results.length - successCount;
+    
+    return {
+        message: `Subscription attempted for ${results.length} projects. Success: ${successCount}, Failed: ${errorCount}. Check server logs for details.`
+    };
 }
+
 
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, userAccessToken: string): Promise<{ success: boolean; error?: string }> {
     const appSecret = process.env.META_ONBOARDING_APP_SECRET || process.env.FACEBOOK_APP_SECRET;
@@ -311,22 +314,10 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
     }
     
     try {
-        const appAccessToken = await getAppAccessToken(appId, appSecret);
-
-        // Subscribe the app to the object type. This requires an App Access Token.
-        await axios.post(`https://graph.facebook.com/${API_VERSION}/${appId}/subscriptions`, {
-            object: 'whatsapp_business_account',
-            callback_url: `${process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/meta`,
-            fields: 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update,calls',
-            verify_token: process.env.META_VERIFY_TOKEN,
-            access_token: appAccessToken,
-        });
-
         // Subscribe the specific WABA to the app. This requires a User/System User Access Token.
         await axios.post(
             `https://graph.facebook.com/${API_VERSION}/${wabaId}/subscribed_apps`,
-            {}, // Body is empty
-            { params: { access_token: userAccessToken } }
+            { access_token: userAccessToken }
         );
         
         return { success: true };

@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { getSession } from "@/app/actions/user.actions";
@@ -364,8 +365,8 @@ export async function generateProfessionalTaxReport(): Promise<any[]> {
         }, {} as Record<string, typeof slabs>);
         
         return employees.map(emp => {
-            const state = emp.address?.state;
-            const salary = emp.salaryDetails?.grossSalary || 0;
+            const state = (emp as any).address?.state;
+            const salary = (emp as any).salaryDetails?.grossSalary || 0;
             let taxAmount = 0;
 
             if (state && slabsByState[state]) {
