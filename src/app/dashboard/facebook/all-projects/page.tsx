@@ -14,6 +14,8 @@ import { Button } from '@/components/ui/button';
 import { ManualFacebookSetupDialog } from '@/components/wabasimplify/manual-facebook-setup-dialog';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import { AvatarImage } from '@radix-ui/react-avatar';
 
 function PageSkeleton() {
     return (
@@ -69,7 +71,7 @@ export default function AllFacebookPagesPage() {
     const fetchData = () => {
         startLoading(async () => {
             const projectsData = await getProjects(undefined, 'facebook');
-            setProjects(projectsData.projects);
+            setProjects(projectsData);
         });
     }
 
