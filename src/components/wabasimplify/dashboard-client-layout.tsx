@@ -441,8 +441,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const isWebsiteBuilderPage = pathname.includes('/builder');
   
     const currentUserRole = React.useMemo(() => {
-        if (!sessionUser || !activeProject) return 'owner'; 
-        if (sessionUser._id.toString() === activeProject.userId.toString()) return 'owner';
+        if (!sessionUser || !activeProject) return 'owner';
+        if (sessionUser._id.toString() === activeProject.userId?.toString()) return 'owner';
         const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id.toString());
         return agentInfo?.role || 'none';
     }, [sessionUser, activeProject]);
@@ -482,13 +482,17 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     }
 
     const CollapsibleSidebarItem = ({ item }: { item: any }) => {
-        const isOpen = pathname.startsWith(item.href || item.label); // Use href if available, fallback to label for nested groups
+        const isOpen = pathname.startsWith(item.href || item.label);
         const Icon = item.icon;
         return (
             <Collapsible defaultOpen={isOpen}>
                 <CollapsibleTrigger asChild>
-                     <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
-                        {Icon && <Icon />}<span>{item.label}</span><ChevronRight className="ml-auto transition-transform group-data-[state=open]:rotate-90"/>
+                    <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
+                        <div className="flex items-center gap-2">
+                          {Icon && <Icon className="h-4 w-4" />}
+                          <span>{item.label}</span>
+                        </div>
+                        <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-90"/>
                     </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent asChild>
