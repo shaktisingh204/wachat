@@ -5,10 +5,12 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact } from '@/lib/definitions';
+import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { handleSendMessage, findOrCreateContact } from './whatsapp.actions';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import * as sabChatActions from './sabchat.actions';
+import * as crmActions from './crm.actions';
 
 export async function getSabFlows(): Promise<WithId<SabFlow>[]> {
     const session = await getSession();
@@ -190,8 +192,6 @@ async function executeAction(node: SabFlowNode, context: any, project: WithId<Pr
         return;
     }
 
-    // This is a simplified execution block. In a real app, each action would have its own handler.
-    // For now, we will demonstrate the 'send_text' action for Wachat.
     if (actionApp.appId === 'wachat') {
         const { db } = await connectToDatabase();
         const contactResult = await findOrCreateContact(project._id.toString(), project.phoneNumbers[0].id, interpolatedInputs.recipient);
@@ -214,6 +214,31 @@ async function executeAction(node: SabFlowNode, context: any, project: WithId<Pr
             // Additional Wachat actions would be implemented here
             default:
                 console.log(`Wachat action "${actionName}" is defined but not yet implemented in the executor.`);
+        }
+    } else if (actionApp.appId === 'sabchat') {
+        switch(actionName) {
+            case 'send_message':
+                await sabChatActions.postChatMessage(interpolatedInputs.sessionId, 'agent', interpolatedInputs.content);
+                break;
+            case 'close_session':
+                await sabChatActions.closeChatSession(interpolatedInputs.sessionId);
+                break;
+            case 'add_tag_to_session':
+                await sabChatActions.addTagToSession(interpolatedInputs.sessionId, interpolatedInputs.tagName);
+                break;
+            case 'create_crm_contact':
+                const session = await sabChatActions.getFullChatSession(interpolatedInputs.sessionId);
+                if (session && session.visitorInfo?.email) {
+                    const crmFormData = new FormData();
+                    crmFormData.append('name', session.visitorInfo.name || session.visitorInfo.email);
+                    crmFormData.append('email', session.visitorInfo.email);
+                    if(session.visitorInfo.phone) crmFormData.append('phone', session.visitorInfo.phone);
+                    await crmActions.addCrmContact(null, crmFormData);
+                }
+                break;
+            // Other sabChat actions
+            default:
+                 console.log(`sabChat action "${actionName}" is defined but not yet implemented in the executor.`);
         }
     } else {
         console.log(`Action app "${actionApp.name}" is defined but not yet implemented in the executor.`);

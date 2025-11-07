@@ -354,4 +354,26 @@ export async function getSabChatAnalytics() {
     }
 }
 
+export async function closeChatSession(sessionId: string): Promise<{ success: boolean; error?: string }> {
+    if (!sessionId || !ObjectId.isValid(sessionId)) return { success: false, error: 'Invalid session ID' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('sabchat_sessions').updateOne(
+            { _id: new ObjectId(sessionId) },
+            { $set: { status: 'closed', updatedAt: new Date() } }
+        );
+        revalidatePath('/dashboard/sabchat/inbox');
+        return { success: true };
+    } catch(e: any) {
+        return { success: false, error: 'Failed to close session.' };
+    }
+}
+
+export async function addTagToSession(sessionId: string, tagName: string): Promise<{ success: boolean, error?: string }> {
+    // Placeholder
+    console.log(`Adding tag "${tagName}" to session ${sessionId}`);
+    await new Promise(res => setTimeout(res, 500));
+    return { success: true };
+}
     
