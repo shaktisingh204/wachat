@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Zap, Plus, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { WhatsAppIcon } from "@/components/wabasimplify/custom-sidebar-components";
+import { NewConnectionDialog } from '@/components/wabasimplify/new-connection-dialog';
 
 const appCategories = [
     {
@@ -34,56 +36,64 @@ const appCategories = [
 ];
 
 export default function AppConnectionsPage() {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">App Connections</h1>
-                    <p className="text-muted-foreground">Connect your tools to automate your workflows.</p>
-                </div>
-                 <Button disabled>
-                    <Plus className="mr-2 h-4 w-4"/>
-                    New Connection
-                </Button>
-            </div>
-            
-            <Card>
-                <CardHeader>
-                    <div className="relative w-full max-w-sm">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Search over 5000+ apps..." className="pl-8" />
+        <>
+            <NewConnectionDialog 
+                isOpen={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                appCategories={appCategories}
+            />
+            <div className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline">App Connections</h1>
+                        <p className="text-muted-foreground">Connect your tools to automate your workflows.</p>
                     </div>
-                </CardHeader>
-                <CardContent>
-                     <Accordion type="multiple" defaultValue={appCategories.map(c => c.name)} className="w-full space-y-4">
-                        {appCategories.map(category => (
-                            <AccordionItem value={category.name} key={category.name} className="border rounded-lg bg-background">
-                                <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline">
-                                    {category.name}
-                                </AccordionTrigger>
-                                <AccordionContent className="p-4 pt-0">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                        {category.apps.map(app => (
-                                            <Card key={app.name}>
-                                                <CardHeader className="flex-row items-center gap-4">
-                                                    <Image src={app.logo} alt={`${app.name} logo`} width={40} height={40} className="rounded-md"/>
-                                                    <div>
-                                                        <CardTitle className="text-base">{app.name}</CardTitle>
-                                                        <CardDescription>{app.category}</CardDescription>
-                                                    </div>
-                                                </CardHeader>
-                                                <CardFooter>
-                                                    <Button className="w-full" disabled>Connect</Button>
-                                                </CardFooter>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        ))}
-                    </Accordion>
-                </CardContent>
-            </Card>
-        </div>
+                     <Button onClick={() => setIsDialogOpen(true)}>
+                        <Plus className="mr-2 h-4 w-4"/>
+                        New Connection
+                    </Button>
+                </div>
+                
+                <Card>
+                    <CardHeader>
+                        <div className="relative w-full max-w-sm">
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Search over 5000+ apps..." className="pl-8" />
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <Accordion type="multiple" defaultValue={appCategories.map(c => c.name)} className="w-full space-y-4">
+                            {appCategories.map(category => (
+                                <AccordionItem value={category.name} key={category.name} className="border rounded-lg bg-background">
+                                    <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline">
+                                        {category.name}
+                                    </AccordionTrigger>
+                                    <AccordionContent className="p-4 pt-0">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                            {category.apps.map(app => (
+                                                <Card key={app.name}>
+                                                    <CardHeader className="flex-row items-center gap-4">
+                                                        <Image src={app.logo} alt={`${app.name} logo`} width={40} height={40} className="rounded-md"/>
+                                                        <div>
+                                                            <CardTitle className="text-base">{app.name}</CardTitle>
+                                                            <CardDescription>{app.category}</CardDescription>
+                                                        </div>
+                                                    </CardHeader>
+                                                    <CardFooter>
+                                                        <Button className="w-full" disabled>Connect</Button>
+                                                    </CardFooter>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
+                    </CardContent>
+                </Card>
+            </div>
+        </>
     );
 }
