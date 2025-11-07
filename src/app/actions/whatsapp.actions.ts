@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -5,7 +6,7 @@ import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/user.actions';
-import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, Plan } from '@/lib/definitions';
+import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, Plan, AnyMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import FormData from 'form-data';
@@ -583,152 +584,86 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
     }
 }
 
-// --- PAYMENT ACTIONS ---
-
-export async function handleCreatePaymentConfiguration(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; oauth_url?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const project = await getProjectById(projectId);
-    if (!project || !project.wabaId || !project.accessToken) {
-        return { error: 'Project not found or is missing WABA ID or Access Token.' };
+export async function getInitialChatData(projectId: string, phoneNumberId?: string | null, contactId?: string | null, waId?: string | null) {
+    if (!projectId) {
+        return { project: null, contacts: [], conversation: [], templates: [], totalContacts: 0, selectedPhoneNumberId: '' };
     }
-
-    const providerName = formData.get('provider_name') as string;
-    let payload: any = {
-        configuration_name: formData.get('configuration_name'),
-        purpose_code: formData.get('purpose_code'),
-        merchant_category_code: formData.get('merchant_category_code'),
-        provider_name,
-    };
-
-    if (providerName === 'upi_vpa') {
-        payload.merchant_vpa = formData.get('merchant_vpa');
-    } else {
-        payload.redirect_url = formData.get('redirect_url');
-    }
-
-    try {
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configurations`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        if (response.data.oauth_url) {
-            return { message: "Configuration created! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
-        }
-
-        revalidatePath('/dashboard/whatsapp-pay/settings');
-        return { message: "UPI VPA configuration created successfully!" };
-
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
-}
-
-export async function handleUpdateDataEndpoint(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const configurationName = formData.get('configurationName') as string;
-    const dataEndpointUrl = formData.get('dataEndpointUrl') as string;
+    const { db } = await connectToDatabase();
 
     const project = await getProjectById(projectId);
-    if (!project || !project.wabaId || !project.accessToken) {
-        return { error: 'Project not found or is missing WABA ID or Access Token.' };
-    }
-
-    if (!configurationName || !dataEndpointUrl) {
-        return { error: 'Configuration name and endpoint URL are required.' };
+    if (!project) return { project: null, contacts: [], conversation: [], templates: [], totalContacts: 0, selectedPhoneNumberId: '' };
+    
+    let selectedPhoneId = phoneNumberId || project.phoneNumbers?.[0]?.id || '';
+    
+    const contactFilter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId };
+    if (waId) {
+        contactFilter.waId = waId;
     }
     
-    try {
-        const payload = { data_endpoint_url: dataEndpointUrl };
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration/${configurationName}`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+    const contacts = await db.collection('contacts').find(contactFilter).sort({ lastMessageTimestamp: -1 }).limit(30).toArray();
+    const totalContacts = await db.collection('contacts').countDocuments(contactFilter);
+    const templates = await db.collection('templates').find({ projectId: new ObjectId(projectId), status: 'APPROVED' }).toArray();
+    
+    let selectedContact: WithId<Contact> | null = null;
+    let conversation: AnyMessage[] = [];
 
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
+    if (contactId) {
+        selectedContact = contacts.find(c => c._id.toString() === contactId) || null;
+        if (!selectedContact) {
+            selectedContact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId), projectId: new ObjectId(projectId) });
         }
-        
-        revalidatePath('/dashboard/whatsapp-pay/settings');
-        return { message: "Data endpoint URL updated successfully!" };
-
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
+    } else if (waId) {
+        selectedContact = contacts.find(c => c.waId === waId) || null;
     }
+
+    if (selectedContact) {
+        conversation = (await getConversation(selectedContact._id.toString())) || [];
+    }
+
+    return { 
+        project: JSON.parse(JSON.stringify(project)),
+        contacts: JSON.parse(JSON.stringify(contacts)),
+        totalContacts,
+        conversation: JSON.parse(JSON.stringify(conversation)),
+        templates: JSON.parse(JSON.stringify(templates)),
+        selectedContact: JSON.parse(JSON.stringify(selectedContact)),
+        selectedPhoneNumberId: selectedPhoneId,
+    };
 }
 
-export async function handleRegenerateOauthLink(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; oauth_url?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const configurationName = formData.get('configuration_name') as string;
-    const redirectUrl = formData.get('redirect_url') as string;
 
-    const project = await getProjectById(projectId);
-    if (!project || !project.wabaId || !project.accessToken) {
-        return { error: 'Project not found or is missing WABA ID or Access Token.' };
-    }
+export async function getConversation(contactId: string): Promise<AnyMessage[]> {
+    if (!contactId || !ObjectId.isValid(contactId)) return [];
 
-    if (!configurationName || !redirectUrl) {
-        return { error: 'Configuration name and redirect URL are required.' };
-    }
+    const { db } = await connectToDatabase();
+    const contactObjectId = new ObjectId(contactId);
 
-    try {
-        const payload = {
-            configuration_name: configurationName,
-            redirect_url: redirectUrl,
-        };
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/generate_payment_configuration_oauth_link`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+    const [incoming, outgoing] = await Promise.all([
+        db.collection('incoming_messages').find({ contactId: contactObjectId }).sort({ messageTimestamp: 1 }).toArray(),
+        db.collection('outgoing_messages').find({ contactId: contactObjectId }).sort({ messageTimestamp: 1 }).toArray(),
+    ]);
 
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        if (response.data.oauth_url) {
-            return { message: "New link generated! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
-        }
-
-        return { error: "Failed to generate OAuth link. No URL was returned." };
-
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
+    const conversation: AnyMessage[] = [...incoming, ...outgoing];
+    conversation.sort((a, b) => new Date(a.messageTimestamp).getTime() - new Date(b.messageTimestamp).getTime());
+    
+    return JSON.parse(JSON.stringify(conversation));
 }
 
-export async function handleDeletePaymentConfiguration(
-    projectId: string, 
-    configurationName: string
-): Promise<{ success: boolean; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.wabaId || !project.accessToken) {
-        return { success: false, error: 'Project not found or is missing WABA ID or Access Token.' };
-    }
-
+export async function markConversationAsRead(contactId: string): Promise<{ success: boolean }> {
+    if (!contactId || !ObjectId.isValid(contactId)) return { success: false };
     try {
-        const response = await axios.delete(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration`, {
-            headers: { 'Authorization': `Bearer ${project.accessToken}`, 'Content-Type': 'application/json' },
-            data: { configuration_name: configurationName }
-        });
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        revalidatePath('/dashboard/whatsapp-pay/settings');
+        const { db } = await connectToDatabase();
+        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { unreadCount: 0 } });
+        await db.collection('incoming_messages').updateMany({ contactId: new ObjectId(contactId), isRead: false }, { $set: { isRead: true } });
+        revalidatePath('/dashboard/chat');
         return { success: true };
-
-    } catch (e: any) {
-        return { success: false, error: getErrorMessage(e) };
+    } catch (e) {
+        return { success: false };
     }
 }
+
+
+// --- PAYMENT ACTIONS ---
 
 export async function handleRequestWhatsAppPayment(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const contactId = formData.get('contactId') as string;
