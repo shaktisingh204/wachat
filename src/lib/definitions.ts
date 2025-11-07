@@ -1113,6 +1113,32 @@ export type Flow = {
     updatedAt: Date;
 };
 
+export type SabFlowNode = {
+  id: string;
+  type: string;
+  data: any;
+  position: { x: number, y: number };
+};
+
+export type SabFlowEdge = {
+  id: string;
+  source: string;
+  target: string;
+  sourceHandle?: string;
+  targetHandle?: string;
+};
+
+export type SabFlow = {
+  name: string;
+  userId: ObjectId;
+  nodes: SabFlowNode[];
+  edges: SabFlowEdge[];
+  trigger: any;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+
 export type FacebookFlowNode = {
     id: string;
     type: string;
