@@ -5,12 +5,21 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession } from '@/lib/definitions';
+import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+
+// Import all necessary action modules
 import { handleSendMessage, findOrCreateContact } from './whatsapp.actions';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
 import * as sabChatActions from './sabchat.actions';
 import * as crmActions from './crm.actions';
+import * as metaActions from './facebook.actions';
+import * as instagramActions from './instagram.actions';
+import * as urlShortenerActions from './url-shortener.actions';
+import * as qrCodeActions from './qr-code.actions';
+import * as emailActions from './email.actions';
+import * as smsActions from './sms.actions';
+import { sabnodeAppActions } from '@/lib/sabflow-actions';
+
 
 export async function getSabFlows(): Promise<WithId<SabFlow>[]> {
     const session = await getSession();
@@ -160,7 +169,7 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
 
 // --- Flow Execution Engine ---
 
-async function executeAction(node: SabFlowNode, context: any, project: WithId<Project>) {
+async function executeAction(node: SabFlowNode, context: any, project: WithId<Project>, user: WithId<User>) {
     const { actionName, inputs } = node.data;
     const interpolatedInputs: Record<string, any> = {};
 
@@ -168,14 +177,13 @@ async function executeAction(node: SabFlowNode, context: any, project: WithId<Pr
     for(const key in inputs) {
         if(typeof inputs[key] === 'string') {
             interpolatedInputs[key] = inputs[key].replace(/{{\s*([^}]+)\s*}}/g, (match: any, varName: string) => {
-                // Simple dot notation accessor for context
                 const keys = varName.split('.');
                 let value = context;
                 for (const k of keys) {
                     if (value && typeof value === 'object' && k in value) {
                         value = value[k];
                     } else {
-                        return match; // Variable not found, return placeholder
+                        return match; 
                     }
                 }
                 return value;
@@ -185,63 +193,88 @@ async function executeAction(node: SabFlowNode, context: any, project: WithId<Pr
         }
     }
     
-    // Find the app and action definition to know which function to call
     const actionApp = sabnodeAppActions.find(app => app.actions.some(a => a.name === actionName));
     if (!actionApp) {
         console.error(`Action app not found for action: ${actionName}`);
         return;
     }
 
-    if (actionApp.appId === 'wachat') {
-        const { db } = await connectToDatabase();
-        const contactResult = await findOrCreateContact(project._id.toString(), project.phoneNumbers[0].id, interpolatedInputs.recipient);
-        if (contactResult.error || !contactResult.contact) {
-            console.error('Failed to find or create contact for SMS action');
-            return;
+    const formData = new FormData();
+    Object.entries(interpolatedInputs).forEach(([key, value]) => {
+        if (value !== undefined) {
+            formData.append(key, value.toString());
         }
+    });
 
-        const formData = new FormData();
-        formData.append('contactId', contactResult.contact._id.toString());
-        formData.append('projectId', project._id.toString());
-        formData.append('phoneNumberId', project.phoneNumbers[0].id);
-        formData.append('waId', interpolatedInputs.recipient);
+    try {
+        switch (actionApp.appId) {
+            case 'wachat':
+                if(project) formData.append('projectId', project._id.toString());
+                if(project.phoneNumbers?.[0]?.id) formData.append('phoneNumberId', project.phoneNumbers[0].id);
 
-        switch(actionName) {
-            case 'send_text':
-                formData.append('messageText', interpolatedInputs.message);
-                await handleSendMessage(null, formData);
-                break;
-            // Additional Wachat actions would be implemented here
-            default:
-                console.log(`Wachat action "${actionName}" is defined but not yet implemented in the executor.`);
-        }
-    } else if (actionApp.appId === 'sabchat') {
-        switch(actionName) {
-            case 'send_message':
-                await sabChatActions.postChatMessage(interpolatedInputs.sessionId, 'agent', interpolatedInputs.content);
-                break;
-            case 'close_session':
-                await sabChatActions.closeChatSession(interpolatedInputs.sessionId);
-                break;
-            case 'add_tag_to_session':
-                await sabChatActions.addTagToSession(interpolatedInputs.sessionId, interpolatedInputs.tagName);
-                break;
-            case 'create_crm_contact':
-                const session = await sabChatActions.getFullChatSession(interpolatedInputs.sessionId);
-                if (session && session.visitorInfo?.email) {
-                    const crmFormData = new FormData();
-                    crmFormData.append('name', session.visitorInfo.name || session.visitorInfo.email);
-                    crmFormData.append('email', session.visitorInfo.email);
-                    if(session.visitorInfo.phone) crmFormData.append('phone', session.visitorInfo.phone);
-                    await crmActions.addCrmContact(null, crmFormData);
+                switch(actionName) {
+                    case 'send_text':
+                        formData.set('messageText', interpolatedInputs.message);
+                        formData.set('waId', interpolatedInputs.recipient);
+                        await handleSendMessage(null, formData);
+                        break;
+                    // Other wachat actions to be implemented here
                 }
                 break;
-            // Other sabChat actions
+            case 'sabchat':
+                 switch(actionName) {
+                    case 'send_message':
+                        await sabChatActions.postChatMessage(interpolatedInputs.sessionId, 'agent', interpolatedInputs.content);
+                        break;
+                    case 'close_session':
+                        await sabChatActions.closeChatSession(interpolatedInputs.sessionId);
+                        break;
+                    case 'add_tag_to_session':
+                        await sabChatActions.addTagToSession(interpolatedInputs.sessionId, interpolatedInputs.tagName);
+                        break;
+                    case 'create_crm_contact':
+                        const session = await sabChatActions.getFullChatSession(interpolatedInputs.sessionId);
+                        if (session && session.visitorInfo?.email) {
+                            const crmFormData = new FormData();
+                            crmFormData.append('name', session.visitorInfo.name || session.visitorInfo.email);
+                            crmFormData.append('email', session.visitorInfo.email);
+                            if(session.visitorInfo.phone) crmFormData.append('phone', session.visitorInfo.phone);
+                            await crmActions.addCrmContact(null, crmFormData);
+                        }
+                        break;
+                }
+                break;
+            case 'crm':
+                 switch(actionName) {
+                    case 'create_lead':
+                    case 'create_deal': // Assuming they use the same action for now
+                         await crmActions.addCrmLeadAndDeal(null, formData);
+                         break;
+                 }
+                break;
+            case 'meta':
+                if(project) formData.append('projectId', project._id.toString());
+                switch(actionName) {
+                    case 'create_text_post':
+                        await metaActions.handleCreateFacebookPost(null, formData);
+                        break;
+                    // other meta actions...
+                }
+                break;
+            case 'instagram':
+                if(project) formData.append('projectId', project._id.toString());
+                switch(actionName) {
+                    case 'create_image_post':
+                        await instagramActions.createInstagramImagePost(null, formData);
+                        break;
+                    // other instagram actions...
+                }
+                break;
             default:
-                 console.log(`sabChat action "${actionName}" is defined but not yet implemented in the executor.`);
+                console.log(`Action app "${actionApp.name}" is defined but not yet implemented in the executor.`);
         }
-    } else {
-        console.log(`Action app "${actionApp.name}" is defined but not yet implemented in the executor.`);
+    } catch (e) {
+        console.error(`Error executing action "${actionName}":`, getErrorMessage(e));
     }
 }
 
@@ -251,8 +284,9 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
 
     const { db } = await connectToDatabase();
     // Assuming the flow is tied to a user's first project for simplicity
+    const user = await db.collection<User>('users').findOne({ _id: flow.userId });
     const project = await db.collection<Project>('projects').findOne({ userId: flow.userId });
-    if (!project) throw new Error("Could not find a project to execute this flow against.");
+    if (!project || !user) throw new Error("Could not find a project or user to execute this flow against.");
 
     let context = { ...triggerPayload };
     let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
@@ -267,7 +301,7 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         if (!currentNode) break;
 
         if (currentNode.type === 'action') {
-            await executeAction(currentNode, context, project);
+            await executeAction(currentNode, context, project, user);
         }
 
         // Move to the next node based on edges
