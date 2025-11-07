@@ -65,11 +65,13 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
 
         switch (app.connectionType) {
             case 'internal':
+                // This case is now handled directly on the button and should not open the dialog.
+                // This is kept as a fallback.
                 return (
                     <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
                         <CheckCircle className="h-8 w-8 mx-auto text-green-600 mb-2"/>
-                        <p className="font-semibold">Already Connected</p>
-                        <p className="text-sm text-muted-foreground">This is a native SabNode app. Your account is already connected and ready to use in your flows.</p>
+                        <p className="font-semibold">Internal App</p>
+                        <p className="text-sm text-muted-foreground">This app is part of SabNode and is ready to use.</p>
                     </div>
                 );
             case 'apikey':
