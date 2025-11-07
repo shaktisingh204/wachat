@@ -59,6 +59,7 @@ import {
   LogOut,
   Inbox,
   LifeBuoy,
+  SeoIcon,
   HelpCircle,
 } from 'lucide-react';
 import { WhatsAppIcon, CrmIcon, EmailIcon, SmsIcon, MetaIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
