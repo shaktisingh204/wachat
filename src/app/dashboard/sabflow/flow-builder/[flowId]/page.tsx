@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useActionState, useEffect, useRef } from 'react';
@@ -17,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 
 import {
   ArrowLeft,
@@ -25,8 +27,9 @@ import {
   Plus,
   PlayCircle,
   Zap,
-  Trash2,
+  Trash2
 } from 'lucide-react';
+import { sabnodeAppActions } from '@/lib/sabflow-actions';
 
 
 const initialState = { message: null, error: null };
@@ -63,6 +66,24 @@ function BuilderPageSkeleton() {
     )
 }
 
+function NodeInput({ input, value, onChange }: { input: any, value: any, onChange: (val: any) => void }) {
+    switch (input.type) {
+        case 'textarea':
+            return <Textarea placeholder={input.placeholder} value={value || ''} onChange={(e) => onChange(e.target.value)} />;
+        case 'select':
+            return (
+                <Select value={value || ''} onValueChange={onChange}>
+                    <SelectTrigger><SelectValue placeholder={input.placeholder} /></SelectTrigger>
+                    <SelectContent>
+                        {input.options?.map((opt: string) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+            );
+        default:
+            return <Input type={input.type || 'text'} placeholder={input.placeholder} value={value || ''} onChange={(e) => onChange(e.target.value)} />;
+    }
+}
+
 export default function EditSabFlowPage() {
     const params = useParams();
     const flowId = params.flowId as string;
@@ -81,7 +102,7 @@ export default function EditSabFlowPage() {
 
     useEffect(() => {
         getSession().then(session => setUser(session?.user));
-        if (flowId) {
+        if (flowId && flowId !== 'new') {
             getSabFlowById(flowId).then(flow => {
                 if(flow) {
                     setFlowName(flow.name);
@@ -91,6 +112,8 @@ export default function EditSabFlowPage() {
                 setIsLoading(false);
             });
         } else {
+             setFlowName('New Automation Flow');
+             setNodes([]);
              setIsLoading(false);
         }
     }, [flowId]);
@@ -98,7 +121,11 @@ export default function EditSabFlowPage() {
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
-            router.push('/dashboard/sabflow/flow-builder');
+            if (state.flowId) {
+                 router.push(`/dashboard/sabflow/flow-builder/${state.flowId}`);
+            } else {
+                 router.push('/dashboard/sabflow/flow-builder');
+            }
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -132,6 +159,8 @@ export default function EditSabFlowPage() {
     };
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
+    const selectedAppActions = sabnodeAppActions.find(app => app.appId === user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode?.data.connectionId)?.appId)?.actions || [];
+    const selectedAction = selectedAppActions.find(a => a.name === selectedNode?.data.actionName);
 
      if (isLoading) {
         return <BuilderPageSkeleton />;
@@ -215,7 +244,7 @@ export default function EditSabFlowPage() {
                                         <div className="space-y-2"><Label>Step Name</Label><Input value={selectedNode.data.name} onChange={e => handleNodeChange(selectedNode.id, { name: e.target.value })}/></div>
                                         <div className="space-y-2">
                                             <Label>App</Label>
-                                            <Select value={selectedNode.data.connectionId} onValueChange={val => handleNodeChange(selectedNode.id, { connectionId: val })}>
+                                            <Select value={selectedNode.data.connectionId} onValueChange={val => handleNodeChange(selectedNode.id, { connectionId: val, actionName: '', inputs: {} })}>
                                                 <SelectTrigger><SelectValue placeholder="Select a connected app..."/></SelectTrigger>
                                                 <SelectContent>
                                                     {(user?.sabFlowConnections || []).map((conn: any) => (
@@ -226,15 +255,25 @@ export default function EditSabFlowPage() {
                                         </div>
                                          <div className="space-y-2">
                                             <Label>Action</Label>
-                                            <Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val })}>
+                                            <Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}>
                                                 <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
                                                 <SelectContent>
-                                                    {/* This would be dynamically populated */}
-                                                     <SelectItem value="send_message">Send WhatsApp Message</SelectItem>
-                                                     <SelectItem value="create_deal">Create CRM Deal</SelectItem>
+                                                    {selectedAppActions.map((action: any) => (
+                                                        <SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>
+                                                    ))}
                                                 </SelectContent>
                                             </Select>
                                         </div>
+                                        {selectedAction && selectedAction.inputs.map((input: any) => (
+                                            <div key={input.name} className="space-y-2">
+                                                <Label>{input.label}</Label>
+                                                <NodeInput 
+                                                    input={input}
+                                                    value={selectedNode.data.inputs[input.name]}
+                                                    onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}
+                                                />
+                                            </div>
+                                        ))}
                                     </div>
                                 ) : (
                                     <div className="text-center text-muted-foreground p-8">Select a step to configure it.</div>
