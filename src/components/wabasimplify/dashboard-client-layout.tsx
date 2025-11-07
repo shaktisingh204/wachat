@@ -446,7 +446,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const isWebsiteBuilderPage = pathname.includes('/builder');
   
     const currentUserRole = React.useMemo(() => {
-        if (!sessionUser || !activeProject) return 'owner';
+        if (!sessionUser || !activeProject) return 'owner'; 
         if (sessionUser._id.toString() === activeProject.userId?.toString()) return 'owner';
         const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id.toString());
         return agentInfo?.role || 'none';
@@ -455,15 +455,14 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const appIcons = [
         { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/dashboard' },
         { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
-        { id: 'sabflow', icon: GitFork, label: 'SabFlow', href: '/dashboard/sabflow' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
         { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
         { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM' },
+        { id: 'sabflow', icon: GitFork, label: 'SabFlow', href: '/dashboard/sabflow' },
         { id: 'team', icon: Users, label: 'Team', href: '/dashboard/team' },
         { id: 'email', icon: Mail, label: 'Email', href: '/dashboard/email' },
         { id: 'sms', icon: MessageSquare, label: 'SMS', href: '/dashboard/sms' },
         { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
-        { id: 'website-builder', icon: Brush, label: 'Website', href: '/dashboard/website-builder' },
         { id: 'url-shortener', icon: LinkIcon, label: 'Links', href: '/dashboard/url-shortener' },
         { id: 'qr-code-maker', icon: QrCode, label: 'QR Codes', href: '/dashboard/qr-code-maker' },
         { id: 'seo-suite', icon: SeoIcon, label: 'SEO', href: '/dashboard/seo' },
