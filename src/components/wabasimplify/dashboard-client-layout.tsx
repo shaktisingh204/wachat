@@ -367,6 +367,10 @@ const apiMenuItems = [
     { href: '/dashboard/api/docs', label: 'API Docs', icon: BookCopy },
 ];
 
+const sabflowMenuItems = [
+    { href: '/dashboard/sabflow/flow-builder', label: 'Flow Builder', icon: GitFork },
+];
+
 const urlShortenerMenuItems = [
     { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon },
     { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings },
@@ -420,7 +424,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         getDiwaliThemeStatus().then(status => setIsSparklesEnabled(status.enabled));
 
         let currentApp = 'whatsapp';
-        if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
+        if (pathname.startsWith('/dashboard/sabflow')) { currentApp = 'sabflow'; }
+        else if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
         else if (pathname.startsWith('/dashboard/instagram')) { currentApp = 'instagram'; }
         else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
         else if (pathname.startsWith('/dashboard/team')) { currentApp = 'team'; }
@@ -450,6 +455,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const appIcons = [
         { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/dashboard' },
         { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
+        { id: 'sabflow', icon: GitFork, label: 'SabFlow', href: '/dashboard/sabflow' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
         { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
         { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM' },
@@ -616,6 +622,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         {activeApp === 'sabchat' && (
                             <SidebarMenu>
                                 {sabChatMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'sabflow' && (
+                            <SidebarMenu>
+                                {sabflowMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'facebook' && (
