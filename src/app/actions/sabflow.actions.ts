@@ -117,7 +117,7 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
             createdAt: new Date(),
         };
 
-        if (!connectionData.appId || !connectionData.connectionName || !connectionData.credentials.apiKey) {
+        if (!connectionData.appId || !connectionData.connectionName) {
             return { error: 'Missing required connection details.' };
         }
 

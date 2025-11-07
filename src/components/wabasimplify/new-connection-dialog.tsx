@@ -33,7 +33,7 @@ function SubmitButton({ app }: { app: any }) {
     const { pending } = useFormStatus();
 
     if (app.connectionType === 'oauth' || app.connectionType === 'internal') {
-        return null; // No submit button for these types in this dialog
+        return null;
     }
 
     return (
@@ -65,8 +65,6 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
 
         switch (app.connectionType) {
             case 'internal':
-                // This case is now handled directly on the button and should not open the dialog.
-                // This is kept as a fallback.
                 return (
                     <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
                         <CheckCircle className="h-8 w-8 mx-auto text-green-600 mb-2"/>
@@ -106,7 +104,13 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                     {app && <input type="hidden" name="appId" value={app.id} />}
                     {app && <input type="hidden" name="appName" value={app.name} />}
                     <DialogHeader className="items-center text-center">
-                        {app?.logo && <Image src={app.logo} alt={`${app.name} logo`} width={48} height={48} className="rounded-md"/>}
+                        {app?.logo ? (
+                            <Image src={app.logo} alt={`${app.name} logo`} width={48} height={48} className="rounded-md"/>
+                        ) : app?.icon ? (
+                            <div className="w-12 h-12 bg-muted flex items-center justify-center rounded-md">
+                                <app.icon className="w-8 h-8 text-muted-foreground"/>
+                            </div>
+                        ) : null}
                         <DialogTitle>Connect to {app?.name}</DialogTitle>
                         <DialogDescription>
                           Provide the necessary details to connect your account.

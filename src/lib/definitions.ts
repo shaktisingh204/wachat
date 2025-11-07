@@ -1463,6 +1463,13 @@ export type User = {
     };
     smsProviderSettings?: SmsProviderSettings;
     sabChatSettings?: SabChatSettings;
+    sabFlowConnections?: {
+        appId: string;
+        appName: string;
+        connectionName: string;
+        credentials?: any; // For API keys etc.
+        createdAt: Date;
+    }[];
 };
 
 export type Invitation = {
