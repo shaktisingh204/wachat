@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -7,6 +6,9 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
+import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
+import { createShortUrl } from '@/app/actions/url-shortener.actions';
+import { createQrCode } from '@/app/actions/qr-code.actions';
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template, EcommFlow, EcommFlowNode, FacebookSubscriber, EcommFlowEdge } from './definitions';
 import { getErrorMessage } from './utils';
 import { processFacebookComment } from '@/ai/flows/facebook-comment-flow';
@@ -784,6 +786,88 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             if (edge) nextNodeId = edge.target;
             break;
         }
+
+        case 'createCrmLead': {
+            const { contactName, email, phone, company, dealName, dealValue, dealStage } = node.data;
+            const formData = new FormData();
+            
+            // Map interpolated variables to form data
+            formData.append('contactName', interpolate(contactName, contact.activeFlow.variables));
+            formData.append('email', interpolate(email, contact.activeFlow.variables));
+            formData.append('phone', interpolate(phone, contact.activeFlow.variables));
+            formData.append('company', interpolate(company, contact.activeFlow.variables));
+            formData.append('name', interpolate(dealName, contact.activeFlow.variables)); // Deal name
+            formData.append('value', interpolate(dealValue, contact.activeFlow.variables));
+            formData.append('stage', interpolate(dealStage, contact.activeFlow.variables));
+            
+            try {
+                const result = await addCrmLeadAndDeal(null, formData);
+                if (result.error) {
+                    logger.log(`Failed to create CRM Lead for node ${node.id}: ${result.error}`);
+                } else {
+                    logger.log(`Successfully created CRM Lead and Deal.`, { contactId: result.contactId, dealId: result.dealId });
+                    if (result.contactId) contact.activeFlow.variables.new_contact_id = result.contactId;
+                    if (result.dealId) contact.activeFlow.variables.new_deal_id = result.dealId;
+                }
+            } catch(e: any) {
+                logger.log(`Exception during CRM lead creation for node ${node.id}.`, { error: e.message });
+            }
+
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+        }
+
+        case 'generateShortLink': {
+            const { longUrl, alias, saveAsVariable } = node.data;
+            if (longUrl && saveAsVariable) {
+                const formData = new FormData();
+                formData.append('originalUrl', interpolate(longUrl, contact.activeFlow.variables));
+                if (alias) formData.append('alias', interpolate(alias, contact.activeFlow.variables));
+                
+                try {
+                    const result = await createShortUrl(null, formData);
+                    if (result.error) {
+                        logger.log(`Failed to create Short Link: ${result.error}`);
+                    } else if (result.shortUrlId) {
+                         const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/s/${result.shortUrlId}`;
+                         contact.activeFlow.variables[saveAsVariable] = shortUrl;
+                         logger.log(`Created short link and saved to variable "${saveAsVariable}".`);
+                    }
+                } catch (e: any) {
+                     logger.log(`Exception during short link creation.`, { error: e.message });
+                }
+            }
+             edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+        }
+
+         case 'generateQrCode': {
+            const { qrData, saveAsVariable } = node.data;
+            if (qrData && saveAsVariable) {
+                 const formData = new FormData();
+                 formData.append('dataType', 'url');
+                 formData.append('data', JSON.stringify({ url: interpolate(qrData, contact.activeFlow.variables)}));
+                 formData.append('name', `FlowQR-${Date.now()}`);
+                 
+                 try {
+                     const result = await createQrCode(null, formData);
+                      if (result.error) {
+                        logger.log(`Failed to create QR Code: ${result.error}`);
+                    } else if (result.qrCodeUrl) {
+                         contact.activeFlow.variables[saveAsVariable] = result.qrCodeUrl;
+                         logger.log(`Created QR Code and saved image URL to variable "${saveAsVariable}".`);
+                    }
+                 } catch(e: any) {
+                    logger.log(`Exception during QR code creation.`, { error: e.message });
+                 }
+            }
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+        }
+
 
         default:
             nextNodeId = null;
