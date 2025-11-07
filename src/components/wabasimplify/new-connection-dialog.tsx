@@ -18,7 +18,6 @@ import { Zap, LoaderCircle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
 import Image from 'next/image';
-import Link from 'next/link';
 
 interface NewConnectionDialogProps {
   isOpen: boolean;
@@ -64,14 +63,6 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
         if (!app) return null;
 
         switch (app.connectionType) {
-            case 'internal':
-                return (
-                    <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <CheckCircle className="h-8 w-8 mx-auto text-green-600 mb-2"/>
-                        <p className="font-semibold">Internal App</p>
-                        <p className="text-sm text-muted-foreground">This app is part of SabNode and is ready to use.</p>
-                    </div>
-                );
             case 'apikey':
                 return (
                     <div className="space-y-4">
@@ -79,10 +70,18 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                             <Label htmlFor="connectionName">Connection Name</Label>
                             <Input id="connectionName" name="connectionName" defaultValue={`${app.name} Account`} required />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="apiKey">API Key</Label>
-                            <Input id="apiKey" name="apiKey" type="password" required />
-                        </div>
+                        {(app.credentials || []).map((cred: any) => (
+                            <div className="space-y-2" key={cred.name}>
+                                <Label htmlFor={cred.name}>{cred.label}</Label>
+                                <Input 
+                                    id={cred.name} 
+                                    name={cred.name} 
+                                    type={cred.type || 'text'} 
+                                    placeholder={cred.placeholder || ''} 
+                                    required 
+                                />
+                            </div>
+                        ))}
                     </div>
                 );
             case 'oauth':
@@ -103,6 +102,7 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                 <form action={formAction} ref={formRef}>
                     {app && <input type="hidden" name="appId" value={app.id} />}
                     {app && <input type="hidden" name="appName" value={app.name} />}
+                    {app && app.credentials && <input type="hidden" name="credentialKeys" value={app.credentials.map((c: any) => c.name).join(',')} />}
                     <DialogHeader className="items-center text-center">
                         {app?.logo ? (
                             <Image src={app.logo} alt={`${app.name} logo`} width={48} height={48} className="rounded-md"/>

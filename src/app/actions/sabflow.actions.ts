@@ -107,13 +107,30 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
     if (!session?.user) return { error: 'Access denied' };
 
     try {
+        const appId = formData.get('appId') as string;
+        const appName = formData.get('appName') as string;
+        const connectionName = formData.get('connectionName') as string;
+        const credentialKeys = (formData.get('credentialKeys') as string)?.split(',') || [];
+
+        const credentials: Record<string, any> = {};
+        for (const key of credentialKeys) {
+            credentials[key] = formData.get(key) as string;
+        }
+
+        if (formData.get('credentials')) {
+            try {
+                Object.assign(credentials, JSON.parse(formData.get('credentials') as string));
+            } catch {
+                // ignore if it's not valid json
+            }
+        }
+
+
         const connectionData = {
-            appId: formData.get('appId') as string,
-            appName: formData.get('appName') as string,
-            connectionName: formData.get('connectionName') as string,
-            credentials: {
-                apiKey: formData.get('apiKey') as string,
-            },
+            appId,
+            appName,
+            connectionName,
+            credentials,
             createdAt: new Date(),
         };
 
