@@ -156,7 +156,7 @@ export default function EditSabFlowPage() {
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [isFullScreen, setIsFullScreen] = useState(false);
 
-    const isNew = flowId === 'new';
+    const isNew = flowId === 'new-flow';
 
     const handleCreateNewFlow = useCallback(() => {
         const triggerNode = { id: 'trigger', type: 'trigger' as const, data: { name: 'Start Flow', triggerType: 'webhook' }, position: { x: 50, y: 150 } };
