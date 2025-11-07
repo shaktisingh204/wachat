@@ -1,4 +1,6 @@
 
+'use server';
+
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -32,7 +34,8 @@ export async function GET(request: Request) {
                 projectId: project._id,
                 'activeEcommFlow.variables.cart': { $exists: true, $ne: [] },
                 'activeEcommFlow.cartLastUpdatedAt': { $lt: reminderThreshold },
-                'activeEcommFlow.variables.order_completed': { $ne: true }
+                'activeEcommFlow.variables.order_completed': { $ne: true },
+                 'activeEcommFlow.variables.abandoned_cart_reminder_sent': { $ne: true }
             }).toArray();
 
             for (const subscriber of subscribersWithAbandonedCarts) {
@@ -42,18 +45,24 @@ export async function GET(request: Request) {
                 }
 
                 const reminderFlow = await db.collection<EcommFlow>('ecomm_flows').findOne({ _id: new ObjectId(settings.flowId) });
+                
                 if (reminderFlow) {
-                    const logger = { log: (msg: string, data?: any) => console.log(msg, data), save: async () => {} }; // Dummy logger
+                    // This is a simplified "messaging event" to kickstart the flow.
+                    // The flow logic expects an object with a `postback` or `message`.
+                    const triggerEvent = {
+                        postback: {
+                            payload: `TRIGGER_ABANDONED_CART_FLOW` 
+                        }
+                    };
+
+                    await handleEcommFlowLogic(db, project, subscriber, triggerEvent);
                     
-                    // Set a flag to indicate reminder was sent
+                    // Mark that the reminder has been sent
                     await db.collection('facebook_subscribers').updateOne(
                         { _id: subscriber._id },
                         { $set: { "activeEcommFlow.variables.abandoned_cart_reminder_sent": true } }
                     );
 
-                    // Trigger the reminder flow
-                    await handleEcommFlowLogic(db, project, { ...subscriber, activeEcommFlow: { ...subscriber.activeEcommFlow, variables: { ...subscriber.activeEcommFlow?.variables, abandoned_cart_reminder_sent: true } } } as any, {});
-                    
                     remindersSent++;
                 }
             }

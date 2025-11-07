@@ -3,11 +3,12 @@
 
 import nodemailer from 'nodemailer';
 import { googleAuthClient, outlookAuthClient } from './crm-auth';
-import type { EmailSettings, WithId } from './definitions';
+import type { EmailSettings, User, WithId } from './definitions';
 import { getSession } from '@/app/actions/index.ts';
 import { connectToDatabase } from './mongodb';
 import { saveOAuthTokens } from '@/app/actions/email.actions';
 import { ConfidentialClientApplication } from '@azure/msal-node';
+import { ObjectId } from 'mongodb';
 
 async function createSmtpTransporter(settings: EmailSettings) {
     if (!settings.smtp) throw new Error('SMTP settings are not configured.');
@@ -84,21 +85,23 @@ async function createOutlookTransporter(settings: EmailSettings, userId: string)
     });
 }
 
-export async function getTransporter() {
-    const session = await getSession();
-    if (!session?.user) throw new Error("Authentication required.");
+export async function getTransporter(userId?: string) {
+    let finalUserId = userId;
+    if (!finalUserId) {
+        const session = await getSession();
+        if (!session?.user) throw new Error("Authentication required.");
+        finalUserId = session.user._id;
+    }
     
     const { db } = await connectToDatabase();
-    // This assumes the user has one primary sending configuration.
-    // To support multiple senders, this would need to be adapted to accept an `accountId` or `fromEmail`.
-    const settings = await db.collection<WithId<EmailSettings>>('email_settings').findOne({ userId: new ObjectId(session.user._id) });
+    const settings = await db.collection<WithId<EmailSettings>>('email_settings').findOne({ userId: new ObjectId(finalUserId) });
 
     if (!settings) throw new Error("Email settings not found for this user.");
     
     switch (settings.provider) {
         case 'smtp': return createSmtpTransporter(settings);
-        case 'google': return createGoogleTransporter(settings, session.user._id.toString());
-        case 'outlook': return createOutlookTransporter(settings, session.user._id.toString());
+        case 'google': return createGoogleTransporter(settings, finalUserId.toString());
+        case 'outlook': return createOutlookTransporter(settings, finalUserId.toString());
         default: throw new Error("Unsupported email provider.");
     }
 }

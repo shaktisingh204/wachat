@@ -1,39 +1,48 @@
 
+'use server';
+
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Project, RandomizerPost } from '@/lib/definitions';
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 import axios from 'axios';
 import { getErrorMessage } from '@/lib/utils';
 import FormData from 'form-data';
 
 export const dynamic = 'force-dynamic';
+const API_VERSION = 'v23.0';
 
 async function publishPost(project: WithId<Project>, post: WithId<RandomizerPost>) {
     const { facebookPageId, accessToken } = project;
-    const apiVersion = 'v22.0';
-    let endpoint = `/${facebookPageId}/feed`;
-    let payload: any = {
-        message: post.message,
-        access_token: accessToken,
-    };
     
-    // If there's an image, we need to use the /photos endpoint
-    if (post.imageUrl) {
-        endpoint = `/${facebookPageId}/photos`;
-        payload = {
-            caption: post.message,
-            url: post.imageUrl,
-            access_token: accessToken,
-        };
+    if (!facebookPageId || !accessToken) {
+        console.error(`Project ${project._id} is missing facebookPageId or accessToken.`);
+        return { success: false, error: 'Project misconfigured.' };
     }
 
     try {
-        await axios.post(`https://graph.facebook.com/${apiVersion}${endpoint}`, payload);
+        let endpoint = `https://graph.facebook.com/${API_VERSION}/${facebookPageId}/feed`;
+        let payload: any = {
+            message: post.message,
+            access_token: accessToken,
+        };
+        
+        // If there's an image, we need to use the /photos endpoint
+        if (post.imageUrl) {
+            endpoint = `https://graph.facebook.com/${API_VERSION}/${facebookPageId}/photos`;
+            payload = {
+                caption: post.message,
+                url: post.imageUrl,
+                access_token: accessToken,
+            };
+        }
+
+        await axios.post(endpoint, payload);
         return { success: true };
     } catch (e: any) {
-        console.error(`Failed to publish post for project ${project._id}:`, getErrorMessage(e));
-        return { success: false, error: getErrorMessage(e) };
+        const errorMessage = getErrorMessage(e);
+        console.error(`Failed to publish post for project ${project._id}:`, errorMessage);
+        return { success: false, error: errorMessage };
     }
 }
 
