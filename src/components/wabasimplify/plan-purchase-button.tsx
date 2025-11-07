@@ -7,7 +7,7 @@ import { handleInitiatePayment } from '@/app/actions/index.ts';
 import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Button } from '@/components/ui/button';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const initialState = {
@@ -28,11 +28,11 @@ function SubmitButton({ children }: { children: React.ReactNode }) {
 interface PlanPurchaseButtonProps {
     plan: WithId<Plan>;
     currentPlanId?: string;
-    projectId: string;
+    projectId?: string | null;
 }
 
 export function PlanPurchaseButton({ plan, currentPlanId, projectId }: PlanPurchaseButtonProps) {
-    const [state, formAction] = useActionState((prevState, formData) => handleInitiatePayment(plan._id.toString(), projectId), initialState);
+    const [state, formAction] = useActionState((prevState: any, formData: FormData) => handleInitiatePayment(plan._id.toString(), projectId || ''), initialState);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -45,7 +45,7 @@ export function PlanPurchaseButton({ plan, currentPlanId, projectId }: PlanPurch
     }, [state, toast]);
 
     if (currentPlanId === plan._id.toString()) {
-        return <Button className="w-full" disabled>Current Plan</Button>;
+        return <Button className="w-full" disabled><CheckCircle className="mr-2 h-4 w-4" /> Current Plan</Button>;
     }
 
     return (
