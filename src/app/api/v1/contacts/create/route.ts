@@ -1,4 +1,5 @@
 
+
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/app/actions/api-keys.actions';
 import { handleAddNewContact } from '@/app/actions/contact.actions';
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
         formData.append('name', name);
         formData.append('waId', waId);
         
-        const result = await handleAddNewContact(null, formData);
+        const result = await handleAddNewContact(null, formData, authResult.user);
 
         if (result.error) {
             return NextResponse.json({ error: result.error }, { status: 500 });

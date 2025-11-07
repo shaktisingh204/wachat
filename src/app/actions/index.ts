@@ -15,6 +15,7 @@ export * from './api-keys.actions';
 export * from './url-shortener.actions';
 export * from './qr-code.actions';
 export * from './integrations.actions';
+export * from './widget.actions';
 export * from './flow.actions';
 export * from './meta-flow.actions';
 export * from './facebook.actions';
