@@ -50,6 +50,7 @@ import {
   UserMinus,
   UserCheck,
   Star,
+  Pencil,
   LogOut,
   Inbox,
   LifeBuoy,
