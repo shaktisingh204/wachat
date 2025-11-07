@@ -12,6 +12,7 @@ import {
   Video,
   File,
   Headphones,
+  History,
   Sticker,
   MapPin,
   Contact,
