@@ -9,9 +9,11 @@ import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, C
 import { getErrorMessage } from '@/lib/utils';
 
 // Import all necessary action modules
-import { handleSendMessage, findOrCreateContact } from './whatsapp.actions';
+import * as wachatActions from './whatsapp.actions';
 import * as sabChatActions from './sabchat.actions';
 import * as crmActions from './crm.actions';
+import * as crmDealsActions from './crm-deals.actions';
+import * as crmTasksActions from './crm-tasks.actions';
 import * as metaActions from './facebook.actions';
 import * as instagramActions from './instagram.actions';
 import * as urlShortenerActions from './url-shortener.actions';
@@ -207,18 +209,43 @@ async function executeAction(node: SabFlowNode, context: any, project: WithId<Pr
     });
 
     try {
+        // Shared properties for many actions
+        if(project) formData.append('projectId', project._id.toString());
+        if(project.phoneNumbers?.[0]?.id) formData.append('phoneNumberId', project.phoneNumbers[0].id);
+
         switch (actionApp.appId) {
             case 'wachat':
-                if(project) formData.append('projectId', project._id.toString());
-                if(project.phoneNumbers?.[0]?.id) formData.append('phoneNumberId', project.phoneNumbers[0].id);
+                // Wachat actions often need recipient and message content
+                if (interpolatedInputs.recipient) formData.set('waId', interpolatedInputs.recipient);
+                if (interpolatedInputs.message) formData.set('messageText', interpolatedInputs.message);
 
                 switch(actionName) {
                     case 'send_text':
-                        formData.set('messageText', interpolatedInputs.message);
-                        formData.set('waId', interpolatedInputs.recipient);
-                        await handleSendMessage(null, formData);
+                    case 'send_image':
+                    case 'send_video':
+                    case 'send_document':
+                    case 'send_audio':
+                    case 'send_sticker':
+                    case 'send_location':
+                    case 'send_contact':
+                    case 'send_interactive_buttons':
+                    case 'send_interactive_list':
+                        await wachatActions.handleSendMessage(null, formData);
                         break;
-                    // Other wachat actions to be implemented here
+                    case 'send_template':
+                        await wachatActions.handleSendTemplateMessage(null, formData);
+                        break;
+                    case 'update_contact':
+                        // This action is slightly different, needs direct mapping
+                        const updateContactData = new FormData();
+                        updateContactData.append('waId', interpolatedInputs.phone);
+                        updateContactData.append('name', interpolatedInputs.name);
+                        updateContactData.append('email', interpolatedInputs.email);
+                        updateContactData.append('projectId', project._id.toString());
+                        updateContactData.append('phoneNumberId', project.phoneNumbers?.[0]?.id || '');
+                        await wachatActions.findOrCreateContact(project._id.toString(), project.phoneNumbers?.[0]?.id || '', interpolatedInputs.phone);
+                        break;
+                    // ... other wachat actions to be implemented here
                 }
                 break;
             case 'sabchat':
@@ -247,28 +274,50 @@ async function executeAction(node: SabFlowNode, context: any, project: WithId<Pr
             case 'crm':
                  switch(actionName) {
                     case 'create_lead':
-                    case 'create_deal': // Assuming they use the same action for now
-                         await crmActions.addCrmLeadAndDeal(null, formData);
+                    case 'create_deal': 
+                         await crmDealsActions.addCrmLeadAndDeal(null, formData);
                          break;
+                    case 'create_task':
+                        await crmTasksActions.createCrmTask(null, formData);
+                        break;
                  }
                 break;
             case 'meta':
-                if(project) formData.append('projectId', project._id.toString());
                 switch(actionName) {
                     case 'create_text_post':
+                    case 'create_photo_post':
+                    case 'create_video_post':
+                    case 'schedule_post':
                         await metaActions.handleCreateFacebookPost(null, formData);
                         break;
-                    // other meta actions...
+                    case 'update_post':
+                        await metaActions.handleUpdatePost(null, formData);
+                        break;
+                    case 'delete_post':
+                        await metaActions.handleDeletePost(interpolatedInputs.postId, project._id.toString());
+                        break;
+                    case 'post_comment':
+                        await metaActions.handlePostComment(null, formData);
+                        break;
+                    case 'delete_comment':
+                        await metaActions.handleDeleteComment(interpolatedInputs.commentId, project._id.toString());
+                        break;
+                    case 'like_object':
+                        await metaActions.handleLikeObject(interpolatedInputs.objectId, project._id.toString());
+                        break;
+                    case 'send_messenger_message':
+                        await metaActions.sendFacebookMessage(null, formData);
+                        break;
+                    // ... other meta actions
                 }
                 break;
             case 'instagram':
-                if(project) formData.append('projectId', project._id.toString());
-                switch(actionName) {
+                 switch(actionName) {
                     case 'create_image_post':
                         await instagramActions.createInstagramImagePost(null, formData);
                         break;
-                    // other instagram actions...
-                }
+                    // ... other instagram actions
+                 }
                 break;
             default:
                 console.log(`Action app "${actionApp.name}" is defined but not yet implemented in the executor.`);
@@ -309,3 +358,5 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         currentNodeId = edge ? edge.target : null;
     }
 }
+
+    
