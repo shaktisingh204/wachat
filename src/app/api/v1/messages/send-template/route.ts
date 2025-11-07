@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/app/actions/api-keys.actions';
-import { handleSendTemplateMessage } from '@/app/actions/whatsapp.actions';
+import { handleSendTemplateMessage } from '@/app/actions/send-template.actions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
