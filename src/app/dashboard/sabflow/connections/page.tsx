@@ -6,16 +6,31 @@ import { Zap, Plus, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { WhatsAppIcon } from "@/components/wabasimplify/custom-sidebar-components";
 
-const popularApps = [
-    { name: 'Google Sheets', category: 'Productivity', logo: '/assets/google-sheets-icon.png' },
-    { name: 'Stripe', category: 'Payment', logo: '/assets/stripe-icon.png' },
-    { name: 'Shopify', category: 'E-Commerce', logo: '/assets/shopify-icon.png' },
-    { name: 'Slack', category: 'Communication', logo: '/assets/slack-icon.png' },
-    { name: 'Gmail', category: 'Email', logo: '/assets/gmail-icon.png' },
-    { name: 'HubSpot', category: 'CRM', logo: '/assets/hubspot-icon.png' },
-    { name: 'Discord', category: 'Communication', logo: '/assets/discord-icon.png' },
-    { name: 'Notion', category: 'Productivity', logo: '/assets/notion-icon.png' },
+const appCategories = [
+    {
+        name: 'SabNode Apps',
+        apps: [
+            { name: 'Wachat', category: 'WhatsApp API', logo: '/logo.svg' },
+            { name: 'CRM Suite', category: 'Business Management', logo: '/logo.svg' },
+            { name: 'Meta Suite', category: 'Social Media', logo: '/logo.svg' },
+        ]
+    },
+    {
+        name: 'Popular Apps',
+        apps: [
+            { name: 'Google Sheets', category: 'Productivity', logo: '/assets/google-sheets-icon.png' },
+            { name: 'Stripe', category: 'Payment', logo: '/assets/stripe-icon.png' },
+            { name: 'Shopify', category: 'E-Commerce', logo: '/assets/shopify-icon.png' },
+            { name: 'Slack', category: 'Communication', logo: '/assets/slack-icon.png' },
+            { name: 'Gmail', category: 'Email', logo: '/assets/gmail-icon.png' },
+            { name: 'HubSpot', category: 'CRM', logo: '/assets/hubspot-icon.png' },
+            { name: 'Discord', category: 'Communication', logo: '/assets/discord-icon.png' },
+            { name: 'Notion', category: 'Productivity', logo: '/assets/notion-icon.png' },
+        ]
+    }
 ];
 
 export default function AppConnectionsPage() {
@@ -39,21 +54,34 @@ export default function AppConnectionsPage() {
                         <Input placeholder="Search over 5000+ apps..." className="pl-8" />
                     </div>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {popularApps.map(app => (
-                        <Card key={app.name}>
-                            <CardHeader className="flex-row items-center gap-4">
-                                <Image src={app.logo} alt={`${app.name} logo`} width={40} height={40} className="rounded-md"/>
-                                <div>
-                                    <CardTitle className="text-base">{app.name}</CardTitle>
-                                    <CardDescription>{app.category}</CardDescription>
-                                </div>
-                            </CardHeader>
-                            <CardFooter>
-                                <Button className="w-full" disabled>Connect</Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
+                <CardContent>
+                     <Accordion type="multiple" defaultValue={appCategories.map(c => c.name)} className="w-full space-y-4">
+                        {appCategories.map(category => (
+                            <AccordionItem value={category.name} key={category.name} className="border rounded-lg bg-background">
+                                <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline">
+                                    {category.name}
+                                </AccordionTrigger>
+                                <AccordionContent className="p-4 pt-0">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                        {category.apps.map(app => (
+                                            <Card key={app.name}>
+                                                <CardHeader className="flex-row items-center gap-4">
+                                                    <Image src={app.logo} alt={`${app.name} logo`} width={40} height={40} className="rounded-md"/>
+                                                    <div>
+                                                        <CardTitle className="text-base">{app.name}</CardTitle>
+                                                        <CardDescription>{app.category}</CardDescription>
+                                                    </div>
+                                                </CardHeader>
+                                                <CardFooter>
+                                                    <Button className="w-full" disabled>Connect</Button>
+                                                </CardFooter>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
                 </CardContent>
             </Card>
         </div>
