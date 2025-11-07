@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 function DeleteFlowButton({ flow, onDeleted }: { flow: WithId<SabFlow>, onDeleted: () => void }) {
     const [isPending, startTransition] = useTransition();
