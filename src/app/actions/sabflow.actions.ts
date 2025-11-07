@@ -26,8 +26,6 @@ async function importActionModule(appId: string) {
     
     if (appActionFiles[appId]) {
         try {
-            // Note: The import path needs to be relative to the actions directory, not this file.
-            // This assumes actions are structured in a way that this works.
             return await import(`@/app/actions/${appId}.actions`);
         } catch (e) {
              console.error(`Could not import action module for ${appId}:`, e);
@@ -90,9 +88,8 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
              return { error: errorMsg };
         }
         
-        // Pass interpolated inputs as a simple object, as many actions might not use FormData
         logger.log(`Executing action "${actionName}" with inputs:`, interpolatedInputs);
-        const result = await actionFunction(interpolatedInputs, user); // Pass user for auth context if needed
+        const result = await actionFunction(interpolatedInputs, user);
         logger.log(`Action "${actionName}" completed.`, { result });
         
         return { output: result };
@@ -103,6 +100,93 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         console.error(errorMsg, e);
         return { error: errorMsg };
     }
+}
+
+async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, nodeId: string, context: any, logger: any): Promise<string | null> {
+    const node = flow.nodes.find(n => n.id === nodeId);
+    if (!node) {
+        logger.log(`Error: Node ${nodeId} not found. Terminating.`);
+        return null;
+    }
+
+    logger.log(`Executing node "${node.data.name}" (Type: ${node.type})`);
+    
+    if (node.type === 'action') {
+        const result = await executeAction(node, context, user, logger);
+        if (result.error) {
+            logger.log(`Action failed. Stopping flow.`, { error: result.error });
+            return null; // Stop execution on error
+        }
+        const actionKey = node.data.actionName.replace(/\s+/g, '_');
+        context[actionKey] = result.output;
+    } else if (node.type === 'condition') {
+        const rules = node.data.rules || [];
+        const logicType = node.data.logicType || 'AND';
+        let finalResult = logicType === 'AND';
+
+        for (const rule of rules) {
+            const leftValue = interpolate(rule.field, context);
+            const rightValue = interpolate(rule.value, context);
+            let ruleResult = false;
+            switch(rule.operator) {
+                case 'equals': ruleResult = leftValue === rightValue; break;
+                case 'not_equals': ruleResult = leftValue !== rightValue; break;
+                case 'contains': ruleResult = leftValue.includes(rightValue); break;
+                // Add other operators here
+            }
+            if (logicType === 'AND' && !ruleResult) {
+                finalResult = false;
+                break;
+            }
+            if (logicType === 'OR' && ruleResult) {
+                finalResult = true;
+                break;
+            }
+        }
+        
+        logger.log(`Condition result: ${finalResult ? 'Yes' : 'No'}`);
+        const sourceHandle = finalResult ? 'output-yes' : 'output-no';
+        const edge = flow.edges.find(e => e.source === nodeId && e.sourceHandle === sourceHandle);
+        return edge ? edge.target : null;
+    }
+    
+    // For trigger and simple actions, find the single outgoing edge
+    const edge = flow.edges.find(e => e.source === nodeId);
+    return edge ? edge.target : null;
+}
+
+export async function runSabFlow(flowId: string, triggerPayload: any) {
+    const { db } = await connectToDatabase();
+    
+    const logger = { log: (msg: string, data?: any) => console.log(`[SabFlow:${flowId}] ${msg}`, data ? JSON.stringify(data, null, 2) : '') };
+
+    logger.log(`Starting flow execution.`);
+
+    const flow = await db.collection<SabFlow>('sabflows').findOne({ _id: new ObjectId(flowId) });
+    if (!flow) {
+        logger.log(`Error: Flow ${flowId} not found.`);
+        return { error: `Flow with ID ${flowId} not found.`};
+    }
+
+    const user = await db.collection<User>('users').findOne({ _id: flow.userId });
+    if (!user) {
+        logger.log(`Error: User ${flow.userId} for flow not found.`);
+        return { error: `User for flow ${flowId} not found.`};
+    }
+
+    let context: any = { trigger: triggerPayload };
+    if (triggerPayload?.sessionId) context.sessionId = triggerPayload.sessionId;
+    if (triggerPayload?.visitorId) context.visitorId = triggerPayload.visitorId;
+
+    let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
+    
+    while (currentNodeId) {
+        const nextNodeId = await executeNode(db, user, flow, currentNodeId, context, logger);
+        currentNodeId = nextNodeId;
+    }
+    
+    logger.log(`Flow execution finished.`);
+    return { success: true, message: 'Flow executed.' };
 }
 
 export async function getSabFlows(): Promise<WithId<SabFlow>[]> {
@@ -135,19 +219,19 @@ export async function getSabFlowById(flowId: string): Promise<WithId<SabFlow> | 
     return flow ? JSON.parse(JSON.stringify(flow)) : null;
 }
 
-export async function saveSabFlow(prevState: any, data: FormData): Promise<{ message?: string, error?: string, flowId?: string }> {
+export async function saveSabFlow(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, flowId?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
     
-    const flowId = data.get('flowId') as string | undefined;
-    const name = data.get('name') as string;
-    const trigger = JSON.parse(data.get('trigger') as string);
-    const nodes = JSON.parse(data.get('nodes') as string);
-    const edges = JSON.parse(data.get('edges') as string);
+    const flowId = formData.get('flowId') as string | undefined;
+    const name = formData.get('name') as string;
+    const trigger = JSON.parse(formData.get('trigger') as string);
+    const nodes = JSON.parse(formData.get('nodes') as string);
+    const edges = JSON.parse(formData.get('edges') as string);
 
     if (!name) return { error: 'Flow Name is required.' };
     
-    const isNew = !flowId || flowId === 'new';
+    const isNew = !flowId || flowId === 'new-flow';
     
     const flowData: Omit<SabFlow, '_id' | 'createdAt'> = {
         name,
@@ -248,62 +332,4 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
     } catch (e) {
         return { error: getErrorMessage(e) };
     }
-}
-
-
-// --- Flow Execution Engine ---
-
-export async function runSabFlow(flowId: string, triggerPayload: any) {
-    const { db } = await connectToDatabase();
-    
-    const logger = { log: (msg: string, data?: any) => console.log(`[SabFlow:${flowId}] ${msg}`, data ? JSON.stringify(data, null, 2) : '') };
-
-    logger.log(`Starting flow execution.`);
-
-    const flow = await db.collection<SabFlow>('sabflows').findOne({ _id: new ObjectId(flowId) });
-    if (!flow) {
-        logger.log(`Error: Flow ${flowId} not found.`);
-        return { error: `Flow with ID ${flowId} not found.`};
-    }
-
-    const user = await db.collection<User>('users').findOne({ _id: flow.userId });
-    if (!user) {
-        logger.log(`Error: User ${flow.userId} for flow not found.`);
-        return { error: `User for flow ${flowId} not found.`};
-    }
-
-    let context: any = { trigger: triggerPayload };
-    // If the trigger payload contains a sessionId (e.g. from SabChat), make it top-level for easy access
-    if (triggerPayload?.sessionId) {
-        context.sessionId = triggerPayload.sessionId;
-    }
-
-    let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
-    
-    while (currentNodeId) {
-        const currentNode = flow.nodes.find(n => n.id === currentNodeId);
-        if (!currentNode) {
-            logger.log(`Error: Node ${currentNodeId} not found. Terminating.`);
-            break;
-        }
-
-        let result: { output?: any; error?: string } = {};
-
-        if (currentNode.type === 'action') {
-            result = await executeAction(currentNode, context, user, logger);
-            if (result.error) {
-                logger.log(`Action failed. Stopping flow.`, { error: result.error });
-                break;
-            }
-            const actionKey = currentNode.data.name.replace(/\s+/g, '_');
-            context[actionKey] = result.output;
-        }
-        
-        // Find the next node to execute
-        const edge = flow.edges.find(e => e.source === currentNodeId);
-        currentNodeId = edge ? edge.target : null;
-    }
-    
-    logger.log(`Flow execution finished.`);
-    return { success: true, message: 'Flow executed.' };
 }
