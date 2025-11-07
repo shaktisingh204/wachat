@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Zap, LoaderCircle } from 'lucide-react';
+import { Zap, LoaderCircle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
 import Image from 'next/image';
@@ -32,8 +32,8 @@ const initialState = { message: null, error: null };
 function SubmitButton({ app }: { app: any }) {
     const { pending } = useFormStatus();
 
-    if (app.connectionType === 'oauth') {
-        return <Button type="button" disabled={pending}>Connect via {app.name}</Button>
+    if (app.connectionType === 'oauth' || app.connectionType === 'internal') {
+        return null; // No submit button for these types in this dialog
     }
 
     return (
@@ -60,11 +60,18 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
         }
     }, [state, toast, onOpenChange, onConnectionSaved]);
 
-
     const renderFormFields = () => {
         if (!app) return null;
 
         switch (app.connectionType) {
+            case 'internal':
+                return (
+                    <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <CheckCircle className="h-8 w-8 mx-auto text-green-600 mb-2"/>
+                        <p className="font-semibold">Already Connected</p>
+                        <p className="text-sm text-muted-foreground">This is a native SabNode app. Your account is already connected and ready to use in your flows.</p>
+                    </div>
+                );
             case 'apikey':
                 return (
                     <div className="space-y-4">
@@ -80,8 +87,9 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                 );
             case 'oauth':
                  return (
-                    <div className="text-center">
+                    <div className="text-center space-y-4">
                         <p className="text-sm text-muted-foreground">To connect {app.name}, you'll be redirected to their authorization page.</p>
+                        <Button type="button" disabled>Connect via {app.name}</Button>
                     </div>
                 );
             default:

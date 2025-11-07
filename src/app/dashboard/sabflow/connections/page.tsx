@@ -14,9 +14,9 @@ const appCategories = [
     {
         name: 'SabNode Apps',
         apps: [
-            { id: 'wachat', name: 'Wachat', category: 'WhatsApp API', logo: '/logo.svg' },
-            { id: 'crm', name: 'CRM Suite', category: 'Business Management', logo: '/logo.svg' },
-            { id: 'meta', name: 'Meta Suite', category: 'Social Media', logo: '/logo.svg' },
+            { id: 'wachat', name: 'Wachat', category: 'WhatsApp API', logo: '/logo.svg', connectionType: 'internal' },
+            { id: 'crm', name: 'CRM Suite', category: 'Business Management', logo: '/logo.svg', connectionType: 'internal' },
+            { id: 'meta', name: 'Meta Suite', category: 'Social Media', logo: '/logo.svg', connectionType: 'internal' },
         ]
     },
     {
