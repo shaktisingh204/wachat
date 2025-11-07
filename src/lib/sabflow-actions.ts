@@ -14,6 +14,7 @@ import {
   Headphones,
   History,
   Clock,
+  Trash2,
   Mail,
   Sticker,
   MapPin,
