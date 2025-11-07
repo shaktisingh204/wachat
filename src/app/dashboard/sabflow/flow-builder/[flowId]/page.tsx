@@ -65,8 +65,8 @@ const triggers = [
     { id: 'app_event', name: 'App Event', icon: PlayCircle },
 ];
 
-const NODE_WIDTH = 288;
-const NODE_HEIGHT = 88;
+const NODE_WIDTH = 256;
+const NODE_HEIGHT = 256;
 
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     if (!sourcePos || !targetPos) return '';
@@ -347,17 +347,23 @@ export default function EditSabFlowPage() {
                          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
                           <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
                             {nodes.map(node => {
+                                const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
+                                const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
                                 const Icon = node.type === 'trigger'
                                     ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
-                                    : sabnodeAppActions.find(app => app.appId === user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId)?.appId)?.icon || (node.type === 'condition' ? GitFork : Zap);
+                                    : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
+
                                 return (
-                                    <div key={node.id} className="absolute" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
-                                        <Card className={`w-72 hover:shadow-lg transition-shadow ${selectedNodeId === node.id ? 'ring-2 ring-primary' : ''}`}>
-                                            <CardHeader className="flex flex-row items-center gap-3 p-3">
-                                                <div className="p-2 bg-muted rounded-md"><Icon className="h-5 w-5 text-muted-foreground"/></div>
-                                                <CardTitle className="text-sm font-medium">{node.data.name}</CardTitle>
-                                            </CardHeader>
-                                        </Card>
+                                    <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
+                                        <div className={cn(
+                                            "w-64 h-64 rounded-3xl cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
+                                            selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
+                                            `bg-gradient-to-br from-${appConfig?.color || 'gray'}-200 to-${appConfig?.color || 'gray'}-100 dark:from-${appConfig?.color || 'gray'}-800 dark:to-${appConfig?.color || 'gray'}-900`
+                                        )}>
+                                            <Icon className="h-24 w-24 text-primary opacity-80" />
+                                            <p className="font-semibold mt-4 text-lg text-foreground">{node.data.name}</p>
+                                        </div>
+
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
                                         {node.type === 'condition' ? (
                                             <>
@@ -378,10 +384,10 @@ export default function EditSabFlowPage() {
                                     const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
                                     const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
                                     if (!sourcePos || !targetPos) return null;
-                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 })}
                                 {connecting && (
-                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" strokeDasharray="5,5" />
+                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 )}
                             </svg>
                         </div>
