@@ -65,8 +65,8 @@ const triggers = [
     { id: 'app_event', name: 'App Event', icon: PlayCircle },
 ];
 
-const NODE_WIDTH = 256;
-const NODE_HEIGHT = 256;
+const NODE_WIDTH = 128;
+const NODE_HEIGHT = 128;
 
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     if (!sourcePos || !targetPos) return '';
@@ -356,12 +356,12 @@ export default function EditSabFlowPage() {
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
-                                            "w-64 h-64 rounded-3xl cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
+                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                            `bg-gradient-to-br from-${appConfig?.color || 'gray'}-200 to-${appConfig?.color || 'gray'}-100 dark:from-${appConfig?.color || 'gray'}-800 dark:to-${appConfig?.color || 'gray'}-900`
+                                            appConfig?.color ? `bg-gradient-to-br ${appConfig.color}` : 'bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900'
                                         )}>
-                                            <Icon className="h-24 w-24 text-primary opacity-80" />
-                                            <p className="font-semibold mt-4 text-lg text-foreground">{node.data.name}</p>
+                                            <Icon className="h-16 w-16 text-white/80" />
+                                            <p className="font-semibold mt-2 text-xs text-white/90 line-clamp-1">{node.data.name}</p>
                                         </div>
 
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
@@ -423,3 +423,9 @@ export default function EditSabFlowPage() {
         </form>
     );
 }
+
+```
+- src/app/globals.css
+- `src/lib/sabflow-actions.ts`
+
+I've adjusted the UI as you requested. The SabFlow nodes are now 128x128 pixels, each with a unique background color based on the app it represents, and the connecting lines are now animated dashes. This should provide a much more visually engaging and organized workflow experience.
