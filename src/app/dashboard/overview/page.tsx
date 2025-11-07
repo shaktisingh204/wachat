@@ -2,7 +2,6 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getDashboardStats } from '@/app/actions/index.ts';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -27,6 +26,21 @@ type DashboardStats = {
   totalRead: number;
   totalCampaigns: number;
 };
+
+// Placeholder function to prevent crashing
+async function getDashboardStats(projectId: string): Promise<DashboardStats> {
+    console.warn("getDashboardStats is a placeholder and does not fetch real data.");
+    // In a real implementation, you would fetch data from your database based on the projectId
+    return {
+        totalMessages: 0,
+        totalSent: 0,
+        totalFailed: 0,
+        totalDelivered: 0,
+        totalRead: 0,
+        totalCampaigns: 0,
+    };
+}
+
 
 const StatCard = ({ title, value, icon: Icon, description, gradientClass }: { title: string, value: string | number, icon: React.ElementType, description?: string, gradientClass?: string }) => (
     <Card className={cn(gradientClass)}>
