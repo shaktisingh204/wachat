@@ -1,5 +1,4 @@
 
-
 import {
   MessageSquare,
   Send,
@@ -20,8 +19,21 @@ import {
   List,
   ShoppingCart,
   ShoppingBag,
+  LayoutDashboard,
+  Megaphone,
+  Wrench,
+  Users,
+  BarChart2,
+  Newspaper,
+  Calendar,
+  ThumbsUp,
+  Share2,
+  Bot,
+  Compass,
+  Search,
+  Clapperboard,
 } from 'lucide-react';
-import { WhatsAppIcon, CrmIcon, EmailIcon, SmsIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WhatsAppIcon, CrmIcon, EmailIcon, SmsIcon, MetaIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 export const sabnodeAppActions = [
   {
@@ -284,6 +296,60 @@ export const sabnodeAppActions = [
         ],
       },
     ],
+  },
+  {
+    appId: 'meta',
+    name: 'Meta Suite',
+    icon: MetaIcon,
+    actions: [
+      { name: 'get_page_details', label: 'Get Page Details', icon: Wrench, inputs: [] },
+      { name: 'update_page_details', label: 'Update Page Details', icon: Edit, inputs: [{ name: 'about', label: 'About Text', type: 'textarea' }, { name: 'phone', label: 'Phone Number', type: 'tel' }] },
+      { name: 'get_page_insights', label: 'Get Page Insights', icon: BarChart2, inputs: [{ name: 'period', label: 'Period', type: 'select', options: ['day', 'week', 'days_28'] }] },
+      { name: 'create_text_post', label: 'Create Text Post', icon: Newspaper, inputs: [{ name: 'message', label: 'Message', type: 'textarea' }] },
+      { name: 'create_photo_post', label: 'Create Photo Post', icon: Newspaper, inputs: [{ name: 'imageUrl', label: 'Image URL', type: 'text' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
+      { name: 'create_video_post', label: 'Create Video Post', icon: Video, inputs: [{ name: 'videoUrl', label: 'Video URL', type: 'text' }, { name: 'description', label: 'Description', type: 'textarea' }] },
+      { name: 'update_post', label: 'Update Post', icon: Edit, inputs: [{ name: 'postId', label: 'Post ID', type: 'text' }, { name: 'message', label: 'New Message', type: 'textarea' }] },
+      { name: 'delete_post', label: 'Delete Post', icon: Trash2, inputs: [{ name: 'postId', label: 'Post ID', type: 'text' }] },
+      { name: 'schedule_post', label: 'Schedule Post', icon: Calendar, inputs: [{ name: 'message', label: 'Message', type: 'textarea' }, { name: 'publishTime', label: 'Publish Time (Unix Timestamp)', type: 'number' }] },
+      { name: 'publish_scheduled_post', label: 'Publish Scheduled Post', icon: Send, inputs: [{ name: 'postId', label: 'Post ID', type: 'text' }] },
+      { name: 'get_posts', label: 'Get Page Posts', icon: Newspaper, inputs: [{ name: 'limit', label: 'Limit', type: 'number', placeholder: '25' }] },
+      { name: 'get_scheduled_posts', label: 'Get Scheduled Posts', icon: Calendar, inputs: [] },
+      { name: 'get_post_comments', label: 'Get Post Comments', icon: MessageSquare, inputs: [{ name: 'postId', label: 'Post ID', type: 'text' }] },
+      { name: 'post_comment', label: 'Post a Comment', icon: MessageSquare, inputs: [{ name: 'objectId', label: 'Post/Comment ID', type: 'text' }, { name: 'message', label: 'Comment Text', type: 'textarea' }] },
+      { name: 'delete_comment', label: 'Delete a Comment', icon: Trash2, inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }] },
+      { name: 'like_object', label: 'Like Post/Comment', icon: ThumbsUp, inputs: [{ name: 'objectId', label: 'Post/Comment ID', type: 'text' }] },
+      { name: 'send_messenger_message', label: 'Send Messenger Message', icon: MessageSquare, inputs: [{ name: 'recipientPsid', label: 'Recipient PSID', type: 'text' }, { name: 'message', label: 'Message Text', type: 'textarea' }] },
+      { name: 'create_ad_campaign', label: 'Create Ad Campaign', icon: Megaphone, inputs: [{ name: 'name', label: 'Campaign Name', type: 'text' }, { name: 'objective', label: 'Objective', type: 'select', options: ['LINK_CLICKS', 'CONVERSIONS', 'POST_ENGAGEMENT'] }] },
+      { name: 'create_ad_set', label: 'Create Ad Set', icon: Megaphone, inputs: [{ name: 'campaignId', label: 'Campaign ID', type: 'text' }, { name: 'name', label: 'Ad Set Name', type: 'text' }, { name: 'dailyBudget', label: 'Daily Budget', type: 'number' }] },
+      { name: 'create_ad_creative', label: 'Create Ad Creative', icon: Megaphone, inputs: [{ name: 'name', label: 'Creative Name', type: 'text' }, { name: 'message', label: 'Ad Message', type: 'textarea' }, { name: 'link', label: 'Link URL', type: 'text' }] },
+      { name: 'create_ad', label: 'Create Ad', icon: Megaphone, inputs: [{ name: 'adSetId', label: 'Ad Set ID', type: 'text' }, { name: 'creativeId', label: 'Creative ID', type: 'text' }, { name: 'name', label: 'Ad Name', type: 'text' }] },
+      { name: 'get_ad_campaigns', label: 'Get Ad Campaigns', icon: BarChart2, inputs: [] },
+    ]
+  },
+  {
+    appId: 'instagram',
+    name: 'Instagram Suite',
+    icon: InstagramIcon,
+    actions: [
+      { name: 'get_user_details', label: 'Get User Details', icon: Wrench, inputs: [] },
+      { name: 'get_user_media', label: 'Get User Media', icon: Newspaper, inputs: [] },
+      { name: 'get_media_details', label: 'Get Media Details', icon: Newspaper, inputs: [{ name: 'mediaId', label: 'Media ID', type: 'text' }] },
+      { name: 'get_media_comments', label: 'Get Media Comments', icon: MessageSquare, inputs: [{ name: 'mediaId', label: 'Media ID', type: 'text' }] },
+      { name: 'get_stories', label: 'Get Stories', icon: Clapperboard, inputs: [] },
+      { name: 'discover_user', label: 'Discover User', icon: Compass, inputs: [{ name: 'username', label: 'Username', type: 'text' }] },
+      { name: 'create_image_post', label: 'Create Image Post', icon: Newspaper, inputs: [{ name: 'imageUrl', label: 'Image URL', type: 'text' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
+      { name: 'create_video_post', label: 'Create Video Post', icon: Video, inputs: [{ name: 'videoUrl', label: 'Video URL', type: 'text' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
+      { name: 'create_carousel_post', label: 'Create Carousel Post', icon: Newspaper, inputs: [{ name: 'mediaUrls', label: 'Image/Video URLs (comma-separated)', type: 'textarea' }, { name: 'caption', label: 'Caption', type: 'textarea' }] },
+      { name: 'search_hashtag_id', label: 'Search Hashtag ID', icon: Search, inputs: [{ name: 'hashtag', label: 'Hashtag (without #)', type: 'text' }] },
+      { name: 'get_hashtag_recent_media', label: 'Get Recent Hashtag Media', icon: Newspaper, inputs: [{ name: 'hashtagId', label: 'Hashtag ID', type: 'text' }] },
+      { name: 'get_hashtag_top_media', label: 'Get Top Hashtag Media', icon: Star, inputs: [{ name: 'hashtagId', label: 'Hashtag ID', type: 'text' }] },
+      { name: 'reply_to_comment', label: 'Reply to Comment', icon: MessageSquare, inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }, { name: 'message', label: 'Reply Text', type: 'textarea' }] },
+      { name: 'delete_comment', label: 'Delete a Comment', icon: Trash2, inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }] },
+      { name: 'like_comment', label: 'Like a Comment', icon: ThumbsUp, inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }] },
+      { name: 'get_insights', label: 'Get Insights', icon: BarChart2, inputs: [{ name: 'metrics', label: 'Metrics (comma-separated)', type: 'text', placeholder: 'impressions,reach,profile_views' }, { name: 'period', label: 'Period', type: 'select', options: ['day', 'week', 'days_28'] }] },
+      { name: 'get_story_insights', label: 'Get Story Insights', icon: BarChart2, inputs: [{ name: 'storyId', label: 'Story ID', type: 'text' }, { name: 'metrics', label: 'Metrics (comma-separated)', type: 'text', placeholder: 'exits,replies,taps_forward' }] },
+      { name: 'discover_product', label: 'Discover Product from Post', icon: ShoppingBag, inputs: [{ name: 'mediaId', label: 'Media ID of a shopping post', type: 'text' }] },
+    ]
   },
   {
     appId: 'crm',
