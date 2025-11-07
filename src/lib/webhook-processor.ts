@@ -9,6 +9,8 @@ import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelli
 import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 import { createShortUrl } from '@/app/actions/url-shortener.actions';
 import { createQrCode } from '@/app/actions/qr-code.actions';
+import { sendSingleSms } from '@/app/actions/sms.actions';
+import { sendCrmEmail } from '@/app/actions/crm-email.actions';
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template, EcommFlow, EcommFlowNode, FacebookSubscriber, EcommFlowEdge } from './definitions';
 import { getErrorMessage } from './utils';
 import { processFacebookComment } from '@/ai/flows/facebook-comment-flow';
@@ -547,6 +549,34 @@ async function requestPayment(db: Db, project: WithId<Project>, contact: WithId<
     }
 }
 
+async function handleSmsAction(node: FlowNode, contact: WithId<Contact>, variables: Record<string, any>, logger: FlowLogger) {
+    const recipient = interpolate(node.data.recipient || contact.phone, variables);
+    const message = interpolate(node.data.text, variables);
+    if (!recipient || !message) {
+        logger.log('SMS action skipped: Missing recipient or message text.');
+        return;
+    }
+    const formData = new FormData();
+    formData.append('recipient', recipient);
+    formData.append('message', message);
+    await sendSingleSms(null, formData);
+}
+
+async function handleEmailAction(node: FlowNode, contact: WithId<Contact>, variables: Record<string, any>, logger: FlowLogger) {
+    const recipient = interpolate(node.data.recipient || contact.email, variables);
+    const subject = interpolate(node.data.subject, variables);
+    const body = interpolate(node.data.body, variables);
+    if (!recipient || !subject || !body) {
+        logger.log('Email action skipped: Missing recipient, subject, or body.');
+        return;
+    }
+    const formData = new FormData();
+    formData.append('to', recipient);
+    formData.append('subject', subject);
+    formData.append('body', body);
+    await sendCrmEmail(null, formData);
+}
+
 // --- Main Flow Engine ---
 
 async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, flow: WithId<Flow>, nodeId: string, userInput: string | undefined, logger: FlowLogger): Promise<'finished' | 'waiting' | 'error'> {
@@ -787,8 +817,20 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             break;
         }
 
+        case 'sendSms':
+            await handleSmsAction(node, contact, contact.activeFlow.variables, logger);
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+
+        case 'sendEmail':
+            await handleEmailAction(node, contact, contact.activeFlow.variables, logger);
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+
         case 'createCrmLead': {
-            const { contactName, email, phone, company, dealName, dealValue, dealStage } = node.data;
+            const { contactName, email, phone, company, dealName, dealValue, stage } = node.data;
             const formData = new FormData();
             
             // Map interpolated variables to form data
@@ -798,7 +840,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             formData.append('company', interpolate(company, contact.activeFlow.variables));
             formData.append('name', interpolate(dealName, contact.activeFlow.variables)); // Deal name
             formData.append('value', interpolate(dealValue, contact.activeFlow.variables));
-            formData.append('stage', interpolate(dealStage, contact.activeFlow.variables));
+            formData.append('stage', interpolate(stage, contact.activeFlow.variables));
             
             try {
                 const result = await addCrmLeadAndDeal(null, formData);
@@ -830,7 +872,10 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                     if (result.error) {
                         logger.log(`Failed to create Short Link: ${result.error}`);
                     } else if (result.shortUrlId) {
-                         const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/s/${result.shortUrlId}`;
+                         // A bit of a hack as there is no request context to get the domain.
+                         // This assumes the default domain. Custom domains won't work here.
+                         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+                         const shortUrl = `${appUrl}/s/${result.shortCode}`;
                          contact.activeFlow.variables[saveAsVariable] = shortUrl;
                          logger.log(`Created short link and saved to variable "${saveAsVariable}".`);
                     }
@@ -867,7 +912,6 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             if (edge) nextNodeId = edge.target;
             break;
         }
-
 
         default:
             nextNodeId = null;
