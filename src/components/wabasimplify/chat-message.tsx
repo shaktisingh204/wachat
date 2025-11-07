@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { handleTranslateMessage } from '@/app/actions/index.ts';
+import { handleTranslateMessage } from '@/app/actions/ai-actions';
 import type { AnyMessage, OutgoingMessage } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle, RefreshCw } from 'lucide-react';

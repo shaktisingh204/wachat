@@ -101,5 +101,3 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
     </Card>
   );
 }
-
-    
