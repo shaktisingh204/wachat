@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         formData.append('name', name);
         formData.append('waId', waId);
         
-        const result = await handleAddNewContact(null, formData, user);
+        const result = await handleAddNewContact(null, formData);
 
         if (result.error) {
             return NextResponse.json({ error: result.error }, { status: 500 });

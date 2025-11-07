@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { user } = authResult;
-    const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(`api:${user._id.toString()}`, 30, 60 * 1000); // 30 reqs/min for template creation
+    const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(`api:${user._id.toString()}:template-create`, 30, 60 * 1000); // 30 reqs/min for template creation
     if (!rateLimitSuccess) {
         return NextResponse.json({ error: rateLimitError }, { status: 429 });
     }

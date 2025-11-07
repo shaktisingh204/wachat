@@ -1,10 +1,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/app/actions/api-keys.actions';
-import { handleSendMessage } from '@/app/actions/whatsapp.actions';
+import { handleSendMessage, findOrCreateContact } from '@/app/actions/whatsapp.actions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { connectToDatabase } from '@/lib/mongodb';
-import { findOrCreateContact } from '@/app/actions/whatsapp.actions';
 import type { Contact } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
 
@@ -42,7 +41,7 @@ export async function POST(request: NextRequest) {
         if (contactId) {
             const { db } = await connectToDatabase();
             // User must own the project this contact belongs to.
-            const contact = await db.collection('contacts').findOne({ _id: new ObjectId(contactId) });
+            const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
              if (!contact) {
                  return NextResponse.json({ error: 'Contact not found.' }, { status: 404 });
             }
