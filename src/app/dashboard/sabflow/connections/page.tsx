@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { Zap, Plus, Search, GitFork, Briefcase, Mail, MessageSquare, Server, Link as LinkIcon, QrCode, Users } from 'lucide-react';
+import { Zap, Plus, Search, GitFork, Briefcase, Mail, MessageSquare, Server, Link as LinkIcon, QrCode, Users, Check } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -45,10 +45,24 @@ const appCategories = [
 export default function AppConnectionsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedApp, setSelectedApp] = useState<any>(null);
+    const [connectedInternalApps, setConnectedInternalApps] = useState<string[]>([]);
+    
+    useEffect(() => {
+        const storedConnections = localStorage.getItem('sabflow_internal_connections');
+        if (storedConnections) {
+            setConnectedInternalApps(JSON.parse(storedConnections));
+        }
+    }, []);
 
     const handleConnectClick = (app: any) => {
-        setSelectedApp(app);
-        setIsDialogOpen(true);
+        if (app.connectionType === 'internal') {
+            const newConnections = [...connectedInternalApps, app.id];
+            setConnectedInternalApps(newConnections);
+            localStorage.setItem('sabflow_internal_connections', JSON.stringify(newConnections));
+        } else {
+            setSelectedApp(app);
+            setIsDialogOpen(true);
+        }
     }
 
     return (
@@ -87,6 +101,7 @@ export default function AppConnectionsPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                             {category.apps.map(app => {
                                                 const Icon = app.icon;
+                                                const isConnected = app.connectionType === 'internal' && connectedInternalApps.includes(app.id);
                                                 return (
                                                     <Card key={app.name}>
                                                         <CardHeader className="flex-row items-center gap-4">
@@ -103,7 +118,14 @@ export default function AppConnectionsPage() {
                                                             </div>
                                                         </CardHeader>
                                                         <CardFooter>
-                                                            <Button className="w-full" onClick={() => handleConnectClick(app)}>Connect</Button>
+                                                            <Button 
+                                                                className="w-full" 
+                                                                onClick={() => handleConnectClick(app)}
+                                                                disabled={isConnected}
+                                                            >
+                                                                {isConnected ? <Check className="mr-2 h-4 w-4"/> : null}
+                                                                {isConnected ? 'Connected' : 'Connect'}
+                                                            </Button>
                                                         </CardFooter>
                                                     </Card>
                                                 )
