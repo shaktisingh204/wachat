@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -203,7 +202,7 @@ export default function EditSabFlowPage() {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, router, isNew]);
-
+    
     useEffect(() => {
         if (selectedNodeId) {
             setIsSidebarOpen(true);
@@ -419,7 +418,7 @@ export default function EditSabFlowPage() {
                              <TabsContent value="connections" className="p-4">
                                  <Link href="/dashboard/sabflow/connections">
                                     <Button variant="outline" className="w-full">Manage App Connections</Button>
-                                </Link>
+                                 </Link>
                             </TabsContent>
                         </ScrollArea>
                     </div>
@@ -491,7 +490,7 @@ export default function EditSabFlowPage() {
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
-                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
+                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center text-white",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                             `bg-gradient-to-br ${colorClass}`
                                         )}>
