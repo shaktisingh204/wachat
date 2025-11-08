@@ -101,13 +101,11 @@ const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
 
 function BuilderPageSkeleton() {
     return (
-        <div className="flex h-[calc(100vh-theme(spacing.24))] bg-muted/30">
-            <Skeleton className="w-64 bg-background border-r" />
+        <div className="flex h-full bg-muted/30">
             <div className="flex-1 flex flex-col">
                 <Skeleton className="h-16 border-b bg-card" />
-                <div className="flex-1 grid grid-cols-12">
-                    <Skeleton className="col-span-9" />
-                    <Skeleton className="col-span-3 bg-background border-l" />
+                <div className="flex-1">
+                    <Skeleton className="h-full w-full" />
                 </div>
             </div>
         </div>
@@ -431,7 +429,7 @@ export default function EditSabFlowPage() {
             </div>
         )
     };
-
+    
     return (
         <div className="h-full">
             <form action={formAction} ref={formRef}>
@@ -442,7 +440,7 @@ export default function EditSabFlowPage() {
                 <input type="hidden" name="edges" value={JSON.stringify(edges)} />
                 
                 <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                    <SheetContent className="w-full max-w-sm p-0">
+                    <SheetContent className="w-full max-w-md p-0">
                         <aside className="border-r bg-background h-full flex flex-col">
                             {renderPropertiesPanel()}
                         </aside>
@@ -463,10 +461,10 @@ export default function EditSabFlowPage() {
                             <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode} onClick={() => setIsSidebarOpen(true)}><Settings className="h-5 w-5" /></Button>
                         </div>
                     </header>
-                    <div className="flex-1 grid grid-cols-12 overflow-hidden relative">
+                    <div className="flex-1 overflow-hidden relative">
                         <main 
                             ref={viewportRef}
-                            className="col-span-12 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing"
+                            className="h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing"
                             onMouseDown={handleCanvasMouseDown}
                             onMouseMove={handleCanvasMouseMove}
                             onMouseUp={handleCanvasMouseUp}
@@ -543,11 +541,12 @@ export default function EditSabFlowPage() {
                                 </PopoverContent>
                             </Popover>
                         </main>
+                        <aside className="hidden md:block col-span-4 bg-background border-l">
+                            {renderPropertiesPanel()}
+                        </aside>
                     </div>
                 </div>
             </form>
         </div>
     );
 }
-
-```
