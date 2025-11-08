@@ -242,12 +242,23 @@ export default function EditSabFlowPage() {
         e.preventDefault(); e.stopPropagation();
         if (!viewportRef.current) return;
         const isOutputHandle = handleId.includes('output');
-        if (isOutputHandle) { const sourceNode = nodes.find(n => n.id === nodeId); if(sourceNode){ const handlePos = getNodeHandlePosition(sourceNode, handleId); if (handlePos) setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });}}
-        else if (connecting && !isOutputHandle) {
-            if (connecting.sourceNodeId === nodeId) { setConnecting(null); return; }
+        if (isOutputHandle) {
+            const sourceNode = nodes.find(n => n.id === nodeId);
+            if (sourceNode) {
+                const handlePos = getNodeHandlePosition(sourceNode, handleId);
+                if (handlePos) {
+                    setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
+                }
+            }
+        } else if (connecting && !isOutputHandle) {
+            if (connecting.sourceNodeId === nodeId) {
+                setConnecting(null);
+                return;
+            }
             const newEdge: SabFlowEdge = { id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`, source: connecting.sourceNodeId, target: nodeId, sourceHandle: connecting.sourceHandleId, targetHandle: handleId };
-            const edgesWithoutExistingSource = edges.filter(e => e.sourceHandle !== connecting.sourceHandleId);
-            setEdges([...edgesWithoutExistingSource, newEdge]);
+            
+            // Allow multiple connections from a single source handle
+            setEdges(prev => [...prev, newEdge]);
             setConnecting(null);
         }
     };
@@ -348,7 +359,7 @@ export default function EditSabFlowPage() {
                                     )}
                                     {isAction && (
                                         <>
-                                            {!selectedNode.data.actionName ? (
+                                            {!selectedNode.data.connectionId ? (
                                                 <div className="space-y-4">
                                                     <h3 className="font-semibold">Choose App</h3>
                                                      <div className="grid grid-cols-3 gap-2">
@@ -371,7 +382,7 @@ export default function EditSabFlowPage() {
                                             ) : (
                                                 <>
                                                     <div className="flex items-center gap-2">
-                                                        <Button variant="ghost" size="sm" onClick={() => handleNodeChange(selectedNode.id, {actionName: '', inputs: {}})}>
+                                                        <Button variant="ghost" size="sm" onClick={() => handleNodeChange(selectedNode.id, {connectionId: '', actionName: '', inputs: {}})}>
                                                             <ArrowLeft className="mr-2 h-4 w-4"/> Change App
                                                         </Button>
                                                     </div>
@@ -442,7 +453,7 @@ export default function EditSabFlowPage() {
                 </SheetContent>
             </Sheet>
 
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-[calc(100vh-theme(spacing.24))]">
                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
                     <div className="flex items-center gap-2">
                          <Button variant="ghost" asChild className="h-9 px-2">
@@ -542,26 +553,3 @@ export default function EditSabFlowPage() {
         </form>
     );
 }
-
-```
-- worker.js:
-```js
-
-require('dotenv').config();
-const path = require('path');
-
-const workerPath = path.join(__dirname, 'src', 'lib', 'broadcast-worker.js');
-
-try {
-  const { startBroadcastWorker } = require(workerPath);
-  const workerId = process.env.PM2_INSTANCE_ID || `pid-${process.pid}`;
-  
-  console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
-  startBroadcastWorker(workerId);
-  
-} catch (err) {
-  console.error('[Worker Script] Failed to start worker:', err);
-  process.exit(1);
-}
-
-```
