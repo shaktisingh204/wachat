@@ -182,7 +182,6 @@ export default function EditSabFlowPage() {
                     setTrigger(flow.trigger);
                     setNodes(flow.nodes.length > 0 ? flow.nodes : [{ id: 'trigger', type: 'trigger', data: { name: 'Start Flow', triggerType: 'webhook' }, position: { x: 50, y: 150 } }]);
                     setEdges(flow.edges);
-                    setSelectedNodeId(flow.nodes?.[0]?.id || null);
                 } else {
                     handleCreateNewFlow();
                 }
@@ -296,6 +295,10 @@ export default function EditSabFlowPage() {
         return <BuilderPageSkeleton />;
     }
     
+    const selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode?.data.connectionId);
+    const selectedApp = sabnodeAppActions.find(app => app.appId === selectedConnection?.appId);
+    const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode?.data.actionName);
+
     const renderPropertiesPanel = () => {
         if (!selectedNode) {
             return (<div className="text-center text-muted-foreground p-8">Select a step to configure it.</div>);
@@ -306,10 +309,6 @@ export default function EditSabFlowPage() {
         const isCondition = selectedNode.type === 'condition';
 
         const triggerConfig = isTrigger ? triggers.find(t => t.id === selectedNode.data.triggerType) : null;
-        
-        const selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode.data.connectionId);
-        const selectedApp = sabnodeAppActions.find(app => app.appId === selectedConnection?.appId);
-        const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
 
         const handleSetApp = (appId: string, connectionName: string) => {
             handleNodeChange(selectedNode.id, { connectionId: connectionName, actionName: '', inputs: {} });
@@ -319,7 +318,7 @@ export default function EditSabFlowPage() {
             <div className="h-full flex flex-col">
                 <Tabs defaultValue="setup" className="flex-1 flex flex-col">
                     <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
-                        <TabsTrigger value="setup">Action Setup</TabsTrigger>
+                        <TabsTrigger value="setup">Setup</TabsTrigger>
                         <TabsTrigger value="connections">Connections</TabsTrigger>
                     </TabsList>
                     <div className="flex-1 relative">
@@ -352,12 +351,6 @@ export default function EditSabFlowPage() {
                                             {!selectedNode.data.actionName ? (
                                                 <div className="space-y-4">
                                                     <h3 className="font-semibold">Choose App</h3>
-                                                     <Input placeholder="Search by app name..." />
-                                                     <div className="flex items-center gap-2">
-                                                         <Button variant="secondary" size="sm">All Apps</Button>
-                                                         <Button variant="ghost" size="sm">Core Apps</Button>
-                                                         <Button variant="ghost" size="sm">Private Apps</Button>
-                                                     </div>
                                                      <div className="grid grid-cols-3 gap-2">
                                                          {(user?.sabFlowConnections || []).map((conn: any) => {
                                                              const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
@@ -391,16 +384,19 @@ export default function EditSabFlowPage() {
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
-                                                    {selectedAction?.description && (
-                                                        <p className="text-xs text-muted-foreground p-2 bg-muted/50 rounded-md">{selectedAction.description}</p>
-                                                    )}
                                                 </>
                                             )}
                                         </>
                                     )}
                                 </div>
 
-                                {selectedAction && selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                                {selectedAction && (
+                                     <div className="space-y-4 pt-4 border-t">
+                                        <h4 className="font-semibold">{selectedAction.label}</h4>
+                                        <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                                    </div>
+                                )}
 
                                 {isCondition && (
                                     <>
@@ -438,6 +434,14 @@ export default function EditSabFlowPage() {
             <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
             <input type="hidden" name="edges" value={JSON.stringify(edges)} />
             
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                <SheetContent className="w-full max-w-sm p-0">
+                    <aside className="border-r bg-background p-4 space-y-4 h-full flex flex-col">
+                        {renderPropertiesPanel()}
+                    </aside>
+                </SheetContent>
+            </Sheet>
+
             <div className="flex flex-col h-full">
                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
                     <div className="flex items-center gap-2">
@@ -530,7 +534,7 @@ export default function EditSabFlowPage() {
                             </PopoverContent>
                         </Popover>
                     </main>
-                    <aside className="hidden md:block col-span-4 lg:col-span-3 border-l bg-background">
+                    <aside className="hidden md:block col-span-4 bg-background">
                         {renderPropertiesPanel()}
                     </aside>
                 </div>
@@ -538,3 +542,26 @@ export default function EditSabFlowPage() {
         </form>
     );
 }
+
+```
+- worker.js:
+```js
+
+require('dotenv').config();
+const path = require('path');
+
+const workerPath = path.join(__dirname, 'src', 'lib', 'broadcast-worker.js');
+
+try {
+  const { startBroadcastWorker } = require(workerPath);
+  const workerId = process.env.PM2_INSTANCE_ID || `pid-${process.pid}`;
+  
+  console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
+  startBroadcastWorker(workerId);
+  
+} catch (err) {
+  console.error('[Worker Script] Failed to start worker:', err);
+  process.exit(1);
+}
+
+```
