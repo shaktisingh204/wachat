@@ -11,7 +11,7 @@
     --card-foreground: 210 10% 23%;
     --popover: 0 0% 100%;
     --popover-foreground: 210 10% 23%;
-    --primary: 134 61% 41%;
+    --primary: 215 89% 48%;
     --primary-foreground: 0 0% 100%;
     --secondary: 134 61% 36%;
     --secondary-foreground: 0 0% 100%;
@@ -23,8 +23,8 @@
     --destructive-foreground: 0 0% 100%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 134 61% 41%;
-    --chart-1: 134 61% 41%;
+    --ring: 215 89% 48%;
+    --chart-1: 215 89% 48%;
     --chart-2: 140 50% 50%;
     --chart-3: 150 40% 60%;
     --chart-4: 285.2 83.2% 53.3%;
@@ -36,12 +36,12 @@
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 10% 40%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 134 61% 41%;
+    --sidebar-ring: 215 89% 48%;
     
     --sidebar-secondary-background: 0 0% 100%;
     --sidebar-secondary-foreground: 220 10% 25%;
     
-    --sidebar-active-background: 134 61% 41%;
+    --sidebar-active-background: 215 89% 48%;
     --sidebar-active-foreground: 0 0% 100%;
 
     --sidebar-accent: hsl(var(--primary) / 0.1);
@@ -55,7 +55,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 210 10% 23%;
     --popover-foreground: 210 40% 98%;
-    --primary: 134 61% 41%;
+    --primary: 215 89% 48%;
     --primary-foreground: 0 0% 100%;
     --secondary: 134 61% 36%;
     --secondary-foreground: 0 0% 100%;
@@ -67,18 +67,18 @@
     --destructive-foreground: 210 40% 98%;
     --border: 210 10% 28%;
     --input: 210 10% 28%;
-    --ring: 134 61% 41%;
+    --ring: 215 89% 48%;
 
     /* Dark mode sidebar variables */
     --sidebar-background: 220 10% 12%; 
     --sidebar-foreground: 210 40% 80%;
     --sidebar-border: 220 10% 20%;
-    --sidebar-ring: 134 61% 41%;
+    --sidebar-ring: 215 89% 48%;
 
     --sidebar-secondary-background: 210 10% 15%;
     --sidebar-secondary-foreground: 210 40% 98%;
 
-    --sidebar-active-background: 134 61% 41%;
+    --sidebar-active-background: 215 89% 48%;
     --sidebar-active-foreground: 0 0% 100%;
     
     --sidebar-accent: hsl(var(--primary) / 0.1);
