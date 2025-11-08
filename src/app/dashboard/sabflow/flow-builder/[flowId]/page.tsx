@@ -466,10 +466,10 @@ export default function EditSabFlowPage() {
                         <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode} onClick={() => setIsSidebarOpen(true)}><Settings className="h-5 w-5" /></Button>
                     </div>
                 </header>
-                 <div className="flex-1 grid grid-cols-12 overflow-hidden relative">
-                    <main 
+                 <main className="flex-1 grid grid-cols-1 overflow-hidden relative">
+                    <Card
                         ref={viewportRef}
-                        className="col-span-12 md:col-span-8 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing border-r"
+                        className="col-span-12 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing rounded-none border-0"
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -546,9 +546,6 @@ export default function EditSabFlowPage() {
                             </PopoverContent>
                         </Popover>
                     </main>
-                    <aside className="hidden md:block col-span-4 bg-background">
-                        {renderPropertiesPanel()}
-                    </aside>
                 </div>
             </div>
         </form>
