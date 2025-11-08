@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -185,8 +186,6 @@ export const sabnodeAppActions = [
   { appId: 'router', name: 'Router', icon: Route, actions: [], category: 'Core Apps', color: 'from-blue-600 to-sky-700', connectionType: 'internal' },
   { appId: 'select_transform_json', name: 'Select Transform JSON', icon: Columns, actions: [], category: 'Core Apps', color: 'from-purple-500 to-indigo-600', connectionType: 'internal' },
   { appId: 'text_formatter', name: 'Text Formatter', icon: CaseSensitive, actions: [], category: 'Core Apps', color: 'from-sky-500 to-cyan-600', connectionType: 'internal' },
-  { appId: 'chatflow', name: 'Chatflow', icon: GitFork, actions: [], category: 'Core Apps', color: 'from-pink-500 to-rose-500', connectionType: 'internal' },
-  { appId: 'smtp', name: 'SMTP', icon: Mail, actions: [], category: 'Core Apps', color: 'from-blue-400 to-blue-500', connectionType: 'apikey' },
 
   // External Apps
   {
