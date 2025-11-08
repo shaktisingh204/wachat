@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -102,7 +101,7 @@ const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
 
 function BuilderPageSkeleton() {
     return (
-        <div className="flex h-[calc(100vh-theme(spacing.24))] bg-muted/30">
+        <div className="flex h-full bg-muted/30">
             <Skeleton className="w-64 bg-background border-r" />
             <div className="flex-1 flex flex-col">
                 <Skeleton className="h-16 border-b bg-card" />
@@ -247,7 +246,10 @@ export default function EditSabFlowPage() {
         else if (connecting && !isOutputHandle) {
             if (connecting.sourceNodeId === nodeId) { setConnecting(null); return; }
             const newEdge: SabFlowEdge = { id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`, source: connecting.sourceNodeId, target: nodeId, sourceHandle: connecting.sourceHandleId, targetHandle: handleId };
-            setEdges(prev => [...prev, newEdge]);
+            
+            // Remove any existing edge that already connects to this specific input handle
+            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
+            setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
         }
     };
@@ -442,7 +444,7 @@ export default function EditSabFlowPage() {
                 </SheetContent>
             </Sheet>
 
-            <div className="flex flex-col h-[calc(100vh-theme(spacing.24))]">
+            <div className="flex flex-col h-full">
                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
                     <div className="flex items-center gap-2">
                          <Button variant="ghost" asChild className="h-9 px-2">
@@ -476,14 +478,12 @@ export default function EditSabFlowPage() {
                                     ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
-                                const color = appConfig?.color || 'from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900';
-
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
                                             "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                            `bg-gradient-to-br ${color}`
+                                            `bg-gradient-to-br ${appConfig?.color || 'from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900'}`
                                         )}>
                                             <Icon className="h-12 w-12 text-white/80" />
                                             <p className="font-semibold mt-2 text-xs text-white/90 line-clamp-1">{node.data.name}</p>
@@ -509,10 +509,10 @@ export default function EditSabFlowPage() {
                                     const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
                                     const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
                                     if (!sourcePos || !targetPos) return null;
-                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="#0c68e980" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 })}
                                 {connecting && (
-                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="#0c68e980" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 )}
                             </svg>
                         </div>
