@@ -21,7 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
@@ -204,6 +204,12 @@ export default function EditSabFlowPage() {
         }
     }, [state, toast, router, isNew]);
 
+    useEffect(() => {
+        if (selectedNodeId) {
+            setIsSidebarOpen(true);
+        }
+    }, [selectedNodeId]);
+
     const handleAddNode = (type: 'action' | 'condition') => {
         const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 400;
         const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
@@ -247,7 +253,6 @@ export default function EditSabFlowPage() {
             if (connecting.sourceNodeId === nodeId) { setConnecting(null); return; }
             const newEdge: SabFlowEdge = { id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`, source: connecting.sourceNodeId, target: nodeId, sourceHandle: connecting.sourceHandleId, targetHandle: handleId };
             
-            // Allow multiple connections from a single source handle
             setEdges(prevEdges => [...prevEdges, newEdge]);
             setConnecting(null);
         }
@@ -317,7 +322,11 @@ export default function EditSabFlowPage() {
         
         return (
             <div className="h-full flex flex-col">
-                <Tabs defaultValue="setup" className="flex-1 flex flex-col">
+                <div className="p-4 border-b">
+                    <h3 className="text-lg font-semibold leading-none tracking-tight">Properties</h3>
+                    <p className="text-sm text-muted-foreground">Configure the selected step.</p>
+                </div>
+                <Tabs defaultValue="setup" className="flex-1 flex flex-col min-h-0">
                     <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
                         <TabsTrigger value="setup">Setup</TabsTrigger>
                         <TabsTrigger value="connections">Connections</TabsTrigger>
@@ -477,12 +486,14 @@ export default function EditSabFlowPage() {
                                     ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
+                                const colorClass = appConfig?.color || 'from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900';
+                                
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
                                             "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                            appConfig?.color ? `bg-gradient-to-br ${appConfig.color}` : 'bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900'
+                                            `bg-gradient-to-br ${colorClass}`
                                         )}>
                                             <Icon className="h-12 w-12 text-white/80" />
                                             <p className="font-semibold mt-2 text-xs text-white/90 line-clamp-1">{node.data.name}</p>
@@ -508,10 +519,10 @@ export default function EditSabFlowPage() {
                                     const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
                                     const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
                                     if (!sourcePos || !targetPos) return null;
-                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--primary) / 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 })}
                                 {connecting && (
-                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsl(var(--primary) / 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 )}
                             </svg>
                         </div>
