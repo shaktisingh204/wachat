@@ -25,13 +25,13 @@
 .DS_Store
 *.pem
 # **/crm-*.actions.ts
-/src/app/actions/crm-*.actions.ts
-/src/app/actions/calling.actions.ts
-/src/app/actions/custom-ecommerce.actions.ts
-/src/app/actions/admin.actions.ts
-/src/app/actions/catalog.actions.ts
-/src/app/actions/billing.actions.ts
-/src/app/actions/qr-code.actions.ts
+# /src/app/actions/crm-*.actions.ts
+# /src/app/actions/calling.actions.ts
+# /src/app/actions/custom-ecommerce.actions.ts
+# /src/app/actions/admin.actions.ts
+# /src/app/actions/catalog.actions.ts
+# /src/app/actions/billing.actions.ts
+# /src/app/actions/qr-code.actions.ts
 # /src/app/actions/contact.actions.ts
 # /src/app/actions/broadcast.actions.ts
 # /src/app/actions/email.actions.ts
@@ -62,14 +62,14 @@
 # Ignore all action files by default
 
 # But keep social platform related files
-/src/app/actions/facebook.actions.ts
-/src/app/actions/facebook-flow.actions.ts
-/src/app/actions/instagram.actions.ts
-/src/app/actions/whatsapp.actions.ts
-!/src/app/actions/index.ts
-/src/app/actions/crm-hr.actions.ts
-/src/components/wabasimplify/meta-flow-editor/
-/src/components/wabasimplify/website-builder/
+# /src/app/actions/facebook.actions.ts
+# /src/app/actions/facebook-flow.actions.ts
+# /src/app/actions/instagram.actions.ts
+# /src/app/actions/whatsapp.actions.ts
+# !/src/app/actions/index.ts
+# /src/app/actions/crm-hr.actions.ts
+# /src/components/wabasimplify/meta-flow-editor/
+# /src/components/wabasimplify/website-builder/
 # debug
 npm-debug.log*
 yarn-debug.log*
