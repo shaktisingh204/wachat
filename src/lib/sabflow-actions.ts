@@ -86,6 +86,7 @@ export const sabnodeAppActions = [
     appId: 'wachat',
     name: 'Wachat',
     icon: WhatsAppIcon,
+    color: 'from-green-500 to-emerald-600',
     actions: [
       {
         name: 'send_text',
@@ -442,6 +443,7 @@ export const sabnodeAppActions = [
     appId: 'sabchat',
     name: 'sabChat',
     icon: SabChatIcon,
+    color: 'from-violet-500 to-purple-600',
     actions: [
       { name: 'send_message', label: 'Send Live Chat Message', icon: MessageSquare, description: 'Send a message to a visitor in an active chat session.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'text' }, { name: 'content', label: 'Message Content', type: 'textarea' }] },
       { name: 'close_session', label: 'Close Chat Session', icon: MessageSquare, description: 'Mark a live chat session as closed.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'text' }] },
@@ -470,6 +472,7 @@ export const sabnodeAppActions = [
     appId: 'meta',
     name: 'Meta Suite',
     icon: MetaIcon,
+    color: 'from-blue-600 to-indigo-700',
     actions: [
       { name: 'get_page_details', label: 'Get Page Details', icon: Wrench, description: 'Fetches details of the connected Facebook Page.', inputs: [] },
       { name: 'update_page_details', label: 'Update Page Details', icon: Pencil, description: 'Update the about section or contact info of your Page.', inputs: [{ name: 'about', label: 'About Text', type: 'textarea' }, { name: 'phone', label: 'Phone Number', type: 'tel' }] },
@@ -517,6 +520,7 @@ export const sabnodeAppActions = [
     appId: 'instagram',
     name: 'Instagram Suite',
     icon: InstagramIcon,
+    color: 'from-pink-500 to-orange-500',
     actions: [
       { name: 'get_user_details', label: 'Get My User Details', icon: Wrench, description: 'Fetches details of the connected Instagram account.', inputs: [] },
       { name: 'get_user_media', label: 'Get My Recent Media', icon: Newspaper, description: 'Retrieves a list of recent posts and reels.', inputs: [] },
@@ -544,6 +548,7 @@ export const sabnodeAppActions = [
     appId: 'crm',
     name: 'CRM Suite',
     icon: CrmIcon,
+    color: 'from-sky-500 to-cyan-600',
     actions: [
       { name: 'create_contact', label: 'Create/Update Contact', icon: UserPlus, inputs: [ { name: 'name', label: 'Contact Name', type: 'text' }, { name: 'email', label: 'Email', type: 'email' }, { name: 'phone', label: 'Phone', type: 'tel' }, { name: 'company', label: 'Company Name', type: 'text' }, { name: 'jobTitle', label: 'Job Title', type: 'text' }] },
       { name: 'create_account', label: 'Create Account', icon: Building, inputs: [ { name: 'name', label: 'Company Name', type: 'text' }, { name: 'industry', label: 'Industry', type: 'text' }, { name: 'website', label: 'Website', type: 'url' }] },
@@ -572,6 +577,7 @@ export const sabnodeAppActions = [
     appId: 'email',
     name: 'Email Suite',
     icon: Mail,
+    color: 'from-red-500 to-orange-500',
     actions: [
       {
         name: 'send_email',
@@ -589,6 +595,7 @@ export const sabnodeAppActions = [
     appId: 'sms',
     name: 'SMS Suite',
     icon: MessageSquare,
+    color: 'from-yellow-500 to-amber-600',
     actions: [
       {
         name: 'send_sms',
@@ -605,18 +612,21 @@ export const sabnodeAppActions = [
     appId: 'url-shortener',
     name: 'URL Shortener',
     icon: LinkIcon,
+    color: 'from-gray-500 to-gray-600',
     actions: []
   },
   {
     appId: 'qr-code-maker',
     name: 'QR Code Maker',
     icon: QrCode,
+    color: 'from-gray-500 to-gray-600',
     actions: []
   },
   {
     appId: 'seo-suite',
     name: 'SEO Suite',
     icon: SeoIcon,
+    color: 'from-gray-500 to-gray-600',
     actions: []
   },
   {
@@ -625,6 +635,7 @@ export const sabnodeAppActions = [
     category: 'Productivity',
     logo: 'https://picsum.photos/seed/gsheets/40/40',
     connectionType: 'oauth',
+    color: 'from-green-500 to-teal-600',
     actions: []
   },
   { 
@@ -636,6 +647,7 @@ export const sabnodeAppActions = [
     credentials: [
         { name: 'apiKey', label: 'API Key', type: 'password' },
     ],
+    color: 'from-indigo-500 to-purple-600',
     actions: []
   },
   { 
@@ -648,6 +660,7 @@ export const sabnodeAppActions = [
         { name: 'shopName', label: 'Shop Name', type: 'text', placeholder: 'your-store' },
         { name: 'accessToken', label: 'Admin API Access Token', type: 'password' },
     ],
+    color: 'from-lime-500 to-green-600',
     actions: []
   },
   {
@@ -656,6 +669,7 @@ export const sabnodeAppActions = [
     category: 'Communication',
     logo: 'https://picsum.photos/seed/slack/40/40',
     connectionType: 'oauth',
+    color: 'from-purple-400 to-indigo-500',
     actions: []
   },
   {
@@ -664,6 +678,7 @@ export const sabnodeAppActions = [
     category: 'Email',
     logo: 'https://picsum.photos/seed/gmail/40/40',
     connectionType: 'oauth',
+    color: 'from-red-500 to-red-600',
     actions: []
   },
   { 
@@ -675,6 +690,7 @@ export const sabnodeAppActions = [
     credentials: [
          { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
     ],
+    color: 'from-orange-500 to-orange-600',
     actions: []
   },
   {
@@ -683,6 +699,7 @@ export const sabnodeAppActions = [
     category: 'Communication',
     logo: 'https://picsum.photos/seed/discord/40/40',
     connectionType: 'oauth',
+    color: 'from-indigo-600 to-blue-700',
     actions: []
   },
   {
@@ -691,8 +708,7 @@ export const sabnodeAppActions = [
     category: 'Productivity',
     logo: 'https://picsum.photos/seed/notion/40/40',
     connectionType: 'oauth',
+    color: 'from-gray-700 to-black',
     actions: []
   },
 ];
-
-    
