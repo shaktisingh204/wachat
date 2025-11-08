@@ -3,18 +3,17 @@
 
 import { useState, useEffect, useTransition, useActionState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { Zap, Plus, Search, GitFork, Briefcase, Mail, MessageSquare, Server, Link as LinkIcon, QrCode, Users, Check } from 'lucide-react';
+import { Zap, Plus, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NewConnectionDialog } from '@/components/wabasimplify/new-connection-dialog';
-import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { getSession } from '@/app/actions';
 import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Check } from 'lucide-react';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
 
 const connectInitialState = { message: null, error: null };
@@ -23,15 +22,22 @@ function AppCard({ app, isConnected, onConnect }: { app: any, isConnected: boole
     const Icon = app.icon;
     const [state, formAction] = useActionState(saveSabFlowConnection, connectInitialState);
     const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
 
     useEffect(() => {
-        if(state.message) onConnect();
-    }, [state, onConnect]);
+        if(state.message) {
+            toast({ title: "Success", description: state.message });
+            onConnect();
+        }
+        if(state.error) {
+             toast({ title: "Error", description: state.error, variant: 'destructive' });
+        }
+    }, [state, onConnect, toast]);
 
     const handleInternalConnect = () => {
         startTransition(() => {
             const formData = new FormData();
-            formData.append('appId', app.id);
+            formData.append('appId', app.appId);
             formData.append('appName', app.name);
             formData.append('connectionName', `${app.name} Connection`);
             formData.append('credentials', JSON.stringify({ type: 'internal' }));
@@ -80,15 +86,15 @@ export default function AppConnectionsPage() {
     const appCategories = [
         {
             name: 'SabNode Apps',
-            apps: sabnodeAppActions.filter(app => ['wachat', 'crm', 'sabchat', 'meta', 'instagram', 'email', 'sms', 'url-shortener', 'qr-code-maker', 'seo-suite'].includes(app.appId))
+            apps: sabnodeAppActions.filter(app => !app.category)
         },
         {
             name: 'Core Apps',
-            apps: sabnodeAppActions.filter(app => !app.category && !['wachat', 'crm', 'sabchat', 'meta', 'instagram', 'email', 'sms', 'url-shortener', 'qr-code-maker', 'seo-suite'].includes(app.appId))
+            apps: sabnodeAppActions.filter(app => app.category === 'Core Apps')
         },
         {
             name: 'Popular Apps',
-            apps: sabnodeAppActions.filter(app => app.category === 'Productivity' || app.category === 'Payment' || app.category === 'E-Commerce' || app.category === 'Communication')
+            apps: sabnodeAppActions.filter(app => ['Productivity', 'Payment', 'E-Commerce', 'Communication'].includes(app.category || ''))
         }
     ];
 
@@ -146,17 +152,17 @@ export default function AppConnectionsPage() {
                                     <AccordionContent className="p-4 pt-0">
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                             {category.apps.map(app => {
-                                                const isConnected = connectedApps.some(c => c.appId === app.id);
+                                                const isConnected = connectedApps.some(c => c.appId === app.appId);
                                                 return (
                                                     <AppCard
-                                                        key={app.id}
+                                                        key={app.appId}
                                                         app={app}
                                                         isConnected={isConnected}
                                                         onConnect={() => {
                                                             if (app.connectionType !== 'internal') {
                                                                 handleConnectClick(app);
                                                             } else {
-                                                                // For internal apps, we might just refresh state
+                                                                // For internal apps, we just refresh state
                                                                 fetchConnections();
                                                             }
                                                         }}
