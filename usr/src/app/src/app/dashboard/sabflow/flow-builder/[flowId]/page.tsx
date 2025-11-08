@@ -25,6 +25,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import {
   ArrowLeft,
@@ -42,10 +43,13 @@ import {
   Minimize,
   ZoomIn,
   ZoomOut,
-  Frame
+  Frame,
+  X,
+  RefreshCw
 } from 'lucide-react';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 
 const initialState = { message: null, error: null };
@@ -286,10 +290,7 @@ export default function EditSabFlowPage() {
     }, []);
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
-    const selectedApp = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode?.data.connectionId);
-    const selectedAppActions = sabnodeAppActions.find(app => app.appId === selectedApp?.appId)?.actions || [];
-    const selectedAction = selectedAppActions.find(a => a.name === selectedNode?.data.actionName);
-
+    
      if (isLoading) {
         return <BuilderPageSkeleton />;
     }
@@ -307,15 +308,15 @@ export default function EditSabFlowPage() {
                     <aside className="border-r bg-background p-4 space-y-4 h-full flex flex-col">
                         <h2 className="font-semibold text-lg">Settings</h2>
                         {selectedNode ? (
-                            <div className="space-y-4">
+                            <div className="space-y-4 flex-1 flex flex-col">
                                 <div className="flex justify-between items-center"><h3 className="text-lg font-semibold">Properties</h3> <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveNode(selectedNode.id)}><Trash2 className="h-4 w-4"/></Button></div>
                                 <div className="space-y-2"><Label>Step Name</Label><Input value={selectedNode.data.name} onChange={e => handleNodeChange(selectedNode.id, { name: e.target.value })}/></div>
                                 {selectedNode.type === 'trigger' && (<div className="space-y-2"><Label>Trigger Type</Label><Select value={selectedNode.data.triggerType} onValueChange={val => { handleNodeChange(selectedNode.id, {triggerType: val}); setTrigger(prev => ({...prev, type: val})); }}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent></Select></div>)}
                                 {selectedNode.type === 'trigger' && trigger.type === 'webhook' && (<div className="space-y-2"><Label>Webhook URL</Label><CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${isNew ? '[Save Flow to Generate URL]' : flowId}`}/></div>)}
                                 {selectedNode.type === 'action' && (<>
                                     <div className="space-y-2"><Label>App</Label><Select value={selectedNode.data.connectionId} onValueChange={val => handleNodeChange(selectedNode.id, { connectionId: val, actionName: '', inputs: {} })}><SelectTrigger><SelectValue placeholder="Select an app..."/></SelectTrigger><SelectContent>{(user?.sabFlowConnections || []).map((conn: any) => (<SelectItem key={conn.connectionName} value={conn.connectionName}>{conn.connectionName}</SelectItem>))}</SelectContent></Select></div>
-                                    <div className="space-y-2"><Label>Action</Label><Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}><SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger><SelectContent>{selectedAppActions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}</SelectContent></Select></div>
-                                    {selectedAction && selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                                    <div className="space-y-2"><Label>Action</Label><Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}><SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger><SelectContent>{(sabnodeAppActions.find(app => app.name === selectedNode.data.connectionId)?.actions || []).map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}</SelectContent></Select></div>
+                                    {(sabnodeAppActions.find(app => app.name === selectedNode.data.connectionId)?.actions.find((a: any) => a.name === selectedNode.data.actionName)?.inputs || []).map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
                                 </>)}
                                 {selectedNode.type === 'condition' && (<>
                                     <div className="space-y-2"><Label>Logic</Label><RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">AND</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">OR</Label></div></RadioGroup></div>
@@ -342,10 +343,10 @@ export default function EditSabFlowPage() {
                         <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode} onClick={() => setIsSidebarOpen(true)}><Settings className="h-5 w-5" /></Button>
                     </div>
                 </header>
-                 <div className="flex-1 grid grid-cols-12 overflow-hidden">
+                 <div className="flex-1 grid grid-cols-12 overflow-hidden relative">
                     <main 
                         ref={viewportRef}
-                        className="col-span-12 md:col-span-9 relative overflow-hidden cursor-grab active:cursor-grabbing border-r"
+                        className="col-span-12 md:col-span-8 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing border-r"
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -369,7 +370,7 @@ export default function EditSabFlowPage() {
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                             appConfig?.color ? `bg-gradient-to-br ${appConfig.color}` : 'bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900'
                                         )}>
-                                            <Icon className="h-16 w-16 text-white/80" />
+                                            <Icon className="h-12 w-12 text-white/80" />
                                             <p className="font-semibold mt-2 text-xs text-white/90 line-clamp-1">{node.data.name}</p>
                                         </div>
 
@@ -420,7 +421,9 @@ export default function EditSabFlowPage() {
                             </PopoverContent>
                         </Popover>
                     </main>
-                    <aside className="hidden md:block col-span-3 border-l bg-background p-4 overflow-y-auto">
+                    <aside className="hidden md:block col-span-4 lg:col-span-3 border-l bg-background p-4 overflow-y-auto">
+                        <aside className="border-r bg-background p-4 space-y-4 h-full flex flex-col">
+                        <h2 className="font-semibold text-lg">Settings</h2>
                         {selectedNode ? (
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center"><h3 className="text-lg font-semibold">Properties</h3> <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveNode(selectedNode.id)}><Trash2 className="h-4 w-4"/></Button></div>
@@ -439,6 +442,7 @@ export default function EditSabFlowPage() {
                                 </>)}
                             </div>
                         ) : (<div className="text-center text-muted-foreground p-8">Select a step to configure it.</div>)}
+                    </aside>
                     </aside>
                 </div>
             </div>
