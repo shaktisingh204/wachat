@@ -1,4 +1,7 @@
 
+
+'use client';
+
 import {
   MessageSquare,
   Send,
@@ -67,8 +70,24 @@ import {
   Repeat,
   IndianRupee,
   Factory,
-  BookOpen,
-  Truck,
+  Book,
+  Server,
+  Combine,
+  Code2,
+  Forward,
+  Replace,
+  Timer,
+  Globe2,
+  FileUp,
+  Filter,
+  IterationCcw,
+  Braces,
+  Table,
+  Sigma,
+  Cable,
+  Webhook,
+  Split,
+  CaseSensitive,
   Landmark,
   UtensilsCrossed,
   FlaskConical,
@@ -77,7 +96,6 @@ import {
   Receipt,
   FilePlus,
   Wallet,
-  Book,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
@@ -711,4 +729,12 @@ export const sabnodeAppActions = [
     color: 'from-gray-700 to-black',
     actions: []
   },
+  {
+    appId: 'core',
+    name: 'Core Apps',
+    icon: Settings,
+    color: 'from-gray-400 to-gray-500',
+    actions: []
+  }
 ];
+
