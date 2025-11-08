@@ -167,7 +167,7 @@ export default function EditSabFlowPage() {
         setTrigger({ type: 'webhook', details: {} });
         setNodes([triggerNode]);
         setEdges([]);
-        setSelectedNodeId(null);
+        setSelectedNodeId('trigger');
     }, []);
 
     useEffect(() => {
@@ -387,32 +387,24 @@ export default function EditSabFlowPage() {
                                                         <Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}>
                                                             <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
                                                             <SelectContent>
-                                                                {selectedAppActions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                                                {selectedApp?.actions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
+                                                    {selectedAction?.description && (
+                                                        <p className="text-xs text-muted-foreground p-2 bg-muted/50 rounded-md">{selectedAction.description}</p>
+                                                    )}
                                                 </>
                                             )}
                                         </>
                                     )}
                                 </div>
 
-                                {selectedAction && selectedAction.inputs.map((input: any) => (
-                                    <div key={input.name} className="space-y-2">
-                                        <Label>{input.label}</Label>
-                                        <NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/>
-                                    </div>
-                                ))}
+                                {selectedAction && selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
 
                                 {isCondition && (
                                     <>
-                                        <div className="space-y-2">
-                                            <Label>Logic</Label>
-                                            <RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4">
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">AND</Label></div>
-                                                <div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">OR</Label></div>
-                                            </RadioGroup>
-                                        </div>
+                                        <div className="space-y-2"><Label>Logic</Label><RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">AND</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">OR</Label></div></RadioGroup></div>
                                         {(selectedNode.data.rules || []).map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2"><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => { const r = [...selectedNode.data.rules]; r[index].field=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}} /><Select value={rule.operator} onValueChange={val => { const r = [...selectedNode.data.rules]; r[index].operator=val; handleNodeChange(selectedNode.id, {rules: r})}}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => { const r = [...selectedNode.data.rules]; r[index].value=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}}/></div>))}
                                         <Button variant="outline" size="sm" onClick={() => handleNodeChange(selectedNode.id, { rules: [...(selectedNode.data.rules || []), {field: '', operator: 'equals', value: ''}]})}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
                                     </>
@@ -482,14 +474,14 @@ export default function EditSabFlowPage() {
 
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
-                                        <Card className={cn(
+                                        <div className={cn(
                                             "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                             appConfig?.color ? `bg-gradient-to-br ${appConfig.color}` : 'bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900'
                                         )}>
                                             <Icon className="h-12 w-12 text-white/80" />
                                             <p className="font-semibold mt-2 text-xs text-white/90 line-clamp-1">{node.data.name}</p>
-                                        </Card>
+                                        </div>
 
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
                                         {node.type === 'condition' ? (
@@ -543,17 +535,6 @@ export default function EditSabFlowPage() {
                     </aside>
                 </div>
             </div>
-            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                <SheetContent className="w-full max-w-lg p-0">
-                    {renderPropertiesPanel()}
-                </SheetContent>
-            </Sheet>
         </form>
     );
 }
-
-```
-- src/globals.css
-- src/app/dashboard/sabflow/flow-builder/new/page.tsx
-- src/components/wabasimplify/custom-sidebar-components.tsx
-- src/lib/sabflow-actions.ts

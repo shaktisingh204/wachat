@@ -79,7 +79,7 @@ import {
   Wallet,
   Book,
 } from 'lucide-react';
-import { WhatsAppIcon, CrmIcon, EmailIcon, SmsIcon, MetaIcon, InstagramIcon, SabChatIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WhatsAppIcon, MetaIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 export const sabnodeAppActions = [
   {
@@ -91,7 +91,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_text',
         label: 'Send Text Message',
-        description: 'Send a simple text message to a contact.',
+        description: 'Sends a standard text message to a specified WhatsApp number.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text', placeholder: 'e.g., 919876543210 or {{contact.phone}}' },
           { name: 'message', label: 'Message Body', type: 'textarea', placeholder: 'Hello, {{contact.name}}!' },
@@ -100,7 +100,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_image',
         label: 'Send Image Message',
-        description: 'Send an image with an optional caption.',
+        description: 'Sends an image from a public URL, with an optional caption.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text', placeholder: 'e.g., 919876543210' },
           { name: 'imageUrl', label: 'Image URL', type: 'text', placeholder: 'https://example.com/image.png' },
@@ -110,7 +110,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_video',
         label: 'Send Video Message',
-        description: 'Send a video with an optional caption.',
+        description: 'Sends a video from a public URL, with an optional caption.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'videoUrl', label: 'Video URL', type: 'text', placeholder: 'https://example.com/video.mp4' },
@@ -120,7 +120,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_document',
         label: 'Send Document',
-        description: 'Send a document like a PDF.',
+        description: 'Sends a document, like a PDF, from a public URL.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'documentUrl', label: 'Document URL', type: 'text', placeholder: 'https://example.com/file.pdf' },
@@ -131,7 +131,7 @@ export const sabnodeAppActions = [
        {
         name: 'send_audio',
         label: 'Send Audio Message',
-        description: 'Send an audio file.',
+        description: 'Sends an audio file from a public URL.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'audioUrl', label: 'Audio URL', type: 'text', placeholder: 'https://example.com/audio.mp3' },
@@ -140,7 +140,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_sticker',
         label: 'Send Sticker',
-        description: 'Send a sticker from a URL.',
+        description: 'Sends a sticker from a public URL. The sticker must be a .webp file.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'stickerUrl', label: 'Sticker URL (.webp)', type: 'text', placeholder: 'https://example.com/sticker.webp' },
@@ -149,7 +149,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_location',
         label: 'Send Location',
-        description: 'Send a map location.',
+        description: 'Sends a map location with a name and address.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'latitude', label: 'Latitude', type: 'text', placeholder: 'e.g., 26.8955' },
@@ -161,7 +161,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_contact',
         label: 'Send Contact Card',
-        description: 'Send a contact card (vCard).',
+        description: 'Sends a contact card (vCard) to the user.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'contactName', label: 'Contact Name', type: 'text', placeholder: 'John Doe' },
@@ -171,7 +171,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_template',
         label: 'Send Template Message',
-        description: 'Send a pre-approved WhatsApp message template.',
+        description: 'Sends a pre-approved WhatsApp message template. Variables should be provided as a JSON array.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'templateName', label: 'Template Name', type: 'text', placeholder: 'e.g., order_confirmation' },
@@ -182,7 +182,7 @@ export const sabnodeAppActions = [
        {
         name: 'send_interactive_buttons',
         label: 'Send Interactive Buttons',
-        description: 'Send a message with up to 3 quick reply buttons.',
+        description: 'Sends a message with up to 3 quick reply buttons.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'bodyText', label: 'Message Body', type: 'textarea' },
@@ -194,7 +194,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_interactive_list',
         label: 'Send Interactive List Message',
-        description: 'Send a message with a list of options.',
+        description: 'Sends a message with a list of options, grouped into sections.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'buttonText', label: 'Menu Button Text', type: 'text', placeholder: 'Choose an option' },
@@ -205,7 +205,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_single_product',
         label: 'Send Single Product Message',
-        description: 'Send a single product from your catalog.',
+        description: 'Sends a single product from your connected Meta Catalog.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'catalogId', label: 'Catalog ID', type: 'text' },
@@ -217,7 +217,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_multi_product',
         label: 'Send Multi-Product Message',
-        description: 'Send a message with multiple products from your catalog.',
+        description: 'Sends a message with multiple products from your catalog, organized into sections.',
         inputs: [
           { name: 'recipient', label: 'Recipient Phone Number', type: 'text' },
           { name: 'catalogId', label: 'Catalog ID', type: 'text' },
@@ -229,7 +229,7 @@ export const sabnodeAppActions = [
       {
         name: 'update_contact',
         label: 'Add/Update Contact',
-        description: 'Create a new contact or update an existing one.',
+        description: 'Creates a new contact or updates an existing one based on the phone number.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
           { name: 'name', label: 'Full Name', type: 'text' },
@@ -239,7 +239,7 @@ export const sabnodeAppActions = [
       {
         name: 'add_tag',
         label: 'Add Tag to Contact',
-        description: 'Add a tag to a contact.',
+        description: 'Applies a specified tag to a contact.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
           { name: 'tagName', label: 'Tag Name', type: 'text' },
@@ -248,7 +248,7 @@ export const sabnodeAppActions = [
       {
         name: 'remove_tag',
         label: 'Remove Tag from Contact',
-        description: 'Remove a tag from a contact.',
+        description: 'Removes a specified tag from a contact.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
           { name: 'tagName', label: 'Tag Name', type: 'text' },
@@ -257,7 +257,7 @@ export const sabnodeAppActions = [
       {
         name: 'update_attribute',
         label: 'Update Contact Attribute',
-        description: 'Set a value for a custom attribute on a contact.',
+        description: 'Sets or updates a custom data field for a contact.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
           { name: 'attributeName', label: 'Attribute Name', type: 'text' },
@@ -267,7 +267,7 @@ export const sabnodeAppActions = [
       {
         name: 'start_broadcast',
         label: 'Start a Broadcast',
-        description: 'Initiate a broadcast campaign.',
+        description: 'Initiates a broadcast campaign to contacts with specific tags.',
         inputs: [
           { name: 'templateId', label: 'Template ID', type: 'text' },
           { name: 'tagIds', label: 'Contact Tag IDs (comma-separated)', type: 'text' },
@@ -276,7 +276,7 @@ export const sabnodeAppActions = [
       {
         name: 'trigger_flow',
         label: 'Trigger Another Flow',
-        description: 'Start another flow for the current contact.',
+        description: 'Starts a different Wachat flow for the current contact.',
         inputs: [
           { name: 'flowId', label: 'Flow ID', type: 'text' },
         ],
@@ -284,7 +284,7 @@ export const sabnodeAppActions = [
       {
         name: 'assign_agent',
         label: 'Assign to Agent',
-        description: 'Assign the conversation to a specific agent.',
+        description: 'Assigns the current conversation to a specific agent in the Live Chat.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
           { name: 'agentEmail', label: 'Agent Email', type: 'email' },
@@ -293,7 +293,7 @@ export const sabnodeAppActions = [
       {
         name: 'resolve_conversation',
         label: 'Resolve Conversation',
-        description: 'Mark the conversation with a contact as resolved.',
+        description: 'Marks the current conversation as "Resolved" in the Live Chat.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
         ],
@@ -301,7 +301,7 @@ export const sabnodeAppActions = [
        {
         name: 'create_template',
         label: 'Create Message Template',
-        description: 'Create a new template for submission.',
+        description: 'Programmatically create a new template for submission to Meta for approval.',
         inputs: [
           { name: 'templateName', label: 'Template Name', type: 'text' },
           { name: 'category', label: 'Category', type: 'select', options: ['MARKETING', 'UTILITY', 'AUTHENTICATION'] },
@@ -313,7 +313,7 @@ export const sabnodeAppActions = [
        {
         name: 'opt_out_contact',
         label: 'Opt-Out Contact',
-        description: 'Mark a contact as opted-out from receiving messages.',
+        description: 'Marks a contact as opted-out, preventing them from receiving future broadcasts.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
         ],
@@ -321,7 +321,7 @@ export const sabnodeAppActions = [
        {
         name: 'opt_in_contact',
         label: 'Opt-In Contact',
-        description: 'Mark a contact as opted-in to receive messages.',
+        description: 'Marks a contact as opted-in, allowing them to receive broadcasts again.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
         ],
@@ -329,7 +329,7 @@ export const sabnodeAppActions = [
       {
         name: 'get_contact_details',
         label: 'Get Contact Details',
-        description: 'Retrieve details for a contact.',
+        description: 'Retrieves all saved information for a specific contact.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
         ],
@@ -337,7 +337,7 @@ export const sabnodeAppActions = [
       {
         name: 'get_flow_status',
         label: 'Get Flow Status',
-        description: 'Check the status of a contact\'s active flow.',
+        description: 'Checks if a contact is currently in a flow and returns the flow state.',
         inputs: [
           { name: 'phone', label: 'Phone Number', type: 'text' },
         ],
@@ -345,7 +345,7 @@ export const sabnodeAppActions = [
       {
         name: 'mark_as_read',
         label: 'Mark Message as Read',
-        description: 'Mark a specific message as read.',
+        description: 'Marks a specific incoming WhatsApp message as read.',
         inputs: [
           { name: 'messageId', label: 'Message ID (Wamid)', type: 'text' },
         ],
@@ -353,7 +353,7 @@ export const sabnodeAppActions = [
       {
         name: 'create_group',
         label: 'Create Group',
-        description: 'Create a new WhatsApp group.',
+        description: 'Creates a new WhatsApp group with the specified subject.',
         inputs: [
           { name: 'subject', label: 'Group Subject', type: 'text' },
         ],
@@ -361,7 +361,7 @@ export const sabnodeAppActions = [
       {
         name: 'update_group_subject',
         label: 'Update Group Subject',
-        description: 'Change the subject of a group.',
+        description: 'Changes the name (subject) of an existing group.',
         inputs: [
           { name: 'groupId', label: 'Group ID', type: 'text' },
           { name: 'newSubject', label: 'New Subject', type: 'text' },
@@ -370,7 +370,7 @@ export const sabnodeAppActions = [
       {
         name: 'update_group_description',
         label: 'Update Group Description',
-        description: 'Change the description of a group.',
+        description: 'Changes the description of an existing group.',
         inputs: [
           { name: 'groupId', label: 'Group ID', type: 'text' },
           { name: 'newDescription', label: 'New Description', type: 'textarea' },
@@ -379,7 +379,7 @@ export const sabnodeAppActions = [
       {
         name: 'add_group_participant',
         label: 'Add Group Participant',
-        description: 'Add a contact to a group.',
+        description: 'Adds a contact to a specified group.',
         inputs: [
           { name: 'groupId', label: 'Group ID', type: 'text' },
           { name: 'phone', label: 'Participant Phone Number', type: 'text' },
@@ -388,7 +388,7 @@ export const sabnodeAppActions = [
       {
         name: 'remove_group_participant',
         label: 'Remove Group Participant',
-        description: 'Remove a participant from a group.',
+        description: 'Removes a participant from a specified group.',
         inputs: [
           { name: 'groupId', label: 'Group ID', type: 'text' },
           { name: 'phone', label: 'Participant Phone Number', type: 'text' },
@@ -397,7 +397,7 @@ export const sabnodeAppActions = [
       {
         name: 'promote_to_admin',
         label: 'Promote to Group Admin',
-        description: 'Make a group participant an admin.',
+        description: 'Gives admin privileges to a participant in a group.',
         inputs: [
           { name: 'groupId', label: 'Group ID', type: 'text' },
           { name: 'phone', label: 'Participant Phone Number', type: 'text' },
@@ -406,7 +406,7 @@ export const sabnodeAppActions = [
       {
         name: 'demote_admin',
         label: 'Demote Group Admin',
-        description: 'Remove admin privileges from a participant.',
+        description: 'Removes admin privileges from a participant in a group.',
         inputs: [
           { name: 'groupId', label: 'Group ID', type: 'text' },
           { name: 'phone', label: 'Participant Phone Number', type: 'text' },
@@ -415,7 +415,7 @@ export const sabnodeAppActions = [
       {
         name: 'get_group_info',
         label: 'Get Group Info',
-        description: 'Retrieve subject and participants of a group.',
+        description: 'Retrieves the subject and list of participants for a group.',
         inputs: [
           { name: 'groupId', label: 'Group ID', type: 'text' },
         ],
@@ -423,7 +423,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_group_message',
         label: 'Send Group Message',
-        description: 'Send a text message to a group.',
+        description: 'Sends a text message to a specified group.',
         inputs: [
           { name: 'groupId', label: 'Group ID', type: 'text' },
           { name: 'message', label: 'Message Text', type: 'textarea' },
@@ -432,7 +432,7 @@ export const sabnodeAppActions = [
       {
         name: 'leave_group',
         label: 'Leave Group',
-        description: 'Leave a WhatsApp group.',
+        description: 'Removes your business account from a group.',
         inputs: [
           { name: 'groupId', label: 'Group ID', type: 'text' },
         ],
@@ -547,30 +547,30 @@ export const sabnodeAppActions = [
   {
     appId: 'crm',
     name: 'CRM Suite',
-    icon: CrmIcon,
+    icon: Handshake,
     color: 'from-sky-500 to-cyan-600',
     actions: [
-      { name: 'create_contact', label: 'Create/Update Contact', icon: UserPlus, inputs: [ { name: 'name', label: 'Contact Name', type: 'text' }, { name: 'email', label: 'Email', type: 'email' }, { name: 'phone', label: 'Phone', type: 'tel' }, { name: 'company', label: 'Company Name', type: 'text' }, { name: 'jobTitle', label: 'Job Title', type: 'text' }] },
-      { name: 'create_account', label: 'Create Account', icon: Building, inputs: [ { name: 'name', label: 'Company Name', type: 'text' }, { name: 'industry', label: 'Industry', type: 'text' }, { name: 'website', label: 'Website', type: 'url' }] },
-      { name: 'create_deal', label: 'Create Deal', icon: Handshake, inputs: [ { name: 'name', label: 'Deal Name', type: 'text' }, { name: 'value', label: 'Value', type: 'number' }, { name: 'stage', label: 'Stage', type: 'text' }, { name: 'contactId', label: 'Contact ID', type: 'text' }] },
-      { name: 'update_deal_stage', label: 'Update Deal Stage', icon: GitFork, inputs: [ { name: 'dealId', label: 'Deal ID', type: 'text' }, { name: 'stage', label: 'New Stage', type: 'text' }] },
-      { name: 'create_task', label: 'Create Task', icon: FolderKanban, inputs: [ { name: 'title', label: 'Task Title', type: 'text' }, { name: 'dueDate', label: 'Due Date', type: 'date' }, { name: 'dealId', label: 'Associated Deal ID (Optional)', type: 'text' }] },
-      { name: 'add_note', label: 'Add Note', icon: FileText, inputs: [ { name: 'recordId', label: 'Record ID (Contact/Deal/Account)', type: 'text' }, { name: 'recordType', label: 'Record Type', type: 'select', options: ['contact', 'deal', 'account'] }, { name: 'content', label: 'Note Content', type: 'textarea' }] },
-      { name: 'create_quotation', label: 'Create Quotation', icon: FileText, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
-      { name: 'create_invoice', label: 'Create Invoice', icon: Receipt, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
-      { name: 'create_sales_order', label: 'Create Sales Order', icon: ShoppingBag, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
-      { name: 'create_delivery_challan', label: 'Create Delivery Challan', icon: Truck, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
-      { name: 'create_credit_note', label: 'Create Credit Note', icon: Repeat, inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
-      { name: 'create_vendor', label: 'Create Vendor', icon: Building, inputs: [ { name: 'name', label: 'Vendor Name', type: 'text' }, { name: 'email', label: 'Email', type: 'email' }] },
-      { name: 'create_purchase_order', label: 'Create Purchase Order', icon: ShoppingBag, inputs: [ { name: 'vendorId', label: 'Vendor ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
-      { name: 'create_product', label: 'Create Product', icon: Package, inputs: [ { name: 'name', label: 'Product Name', type: 'text' }, { name: 'price', label: 'Price', type: 'number' }, { name: 'sku', label: 'SKU', type: 'text' }] },
-      { name: 'update_stock', label: 'Update Stock', icon: Package, inputs: [ { name: 'productId', label: 'Product ID', type: 'text' }, { name: 'quantity', label: 'Quantity Change (+/-)', type: 'number' }] },
-      { name: 'create_warehouse', label: 'Create Warehouse', icon: Factory, inputs: [ { name: 'name', label: 'Warehouse Name', type: 'text' }, { name: 'location', label: 'Location', type: 'text' }] },
-      { name: 'add_employee', label: 'Add Employee', icon: UserPlus, inputs: [ { name: 'firstName', label: 'First Name', type: 'text' }, { name: 'lastName', label: 'Last Name', type: 'text' }, { name: 'email', label: 'Work Email', type: 'email' }] },
-      { name: 'create_leave_request', label: 'Create Leave Request', icon: Calendar, inputs: [ { name: 'employeeId', label: 'Employee ID', type: 'text' }, { name: 'startDate', label: 'Start Date', type: 'date' }, { name: 'endDate', label: 'End Date', type: 'date' }, { name: 'reason', label: 'Reason', type: 'text' }] },
-      { name: 'create_journal_voucher', label: 'Create Journal Voucher', icon: Book, inputs: [ { name: 'debitAccountId', label: 'Debit Account ID', type: 'text' }, { name: 'creditAccountId', label: 'Credit Account ID', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }] },
-      { name: 'create_payment_voucher', label: 'Create Payment Voucher', icon: IndianRupee, inputs: [ { name: 'creditAccountId', label: 'Bank/Cash Account ID', type: 'text' }, { name: 'debitAccountId', label: 'Expense/Party Account ID', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }] },
-      { name: 'create_receipt_voucher', label: 'Create Receipt Voucher', icon: IndianRupee, inputs: [ { name: 'debitAccountId', label: 'Bank/Cash Account ID', type: 'text' }, { name: 'creditAccountId', label: 'Income/Party Account ID', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }] }
+      { name: 'create_contact', label: 'Create/Update Contact', description: 'Creates a new contact or updates an existing one based on email.', inputs: [ { name: 'name', label: 'Contact Name', type: 'text' }, { name: 'email', label: 'Email', type: 'email' }, { name: 'phone', label: 'Phone', type: 'tel' }, { name: 'company', label: 'Company Name', type: 'text' }, { name: 'jobTitle', label: 'Job Title', type: 'text' }] },
+      { name: 'create_account', label: 'Create Account', description: 'Creates a new company account.', inputs: [ { name: 'name', label: 'Company Name', type: 'text' }, { name: 'industry', label: 'Industry', type: 'text' }, { name: 'website', label: 'Website', type: 'url' }] },
+      { name: 'create_deal', label: 'Create Deal', description: 'Creates a new sales deal and associates it with a contact/account.', inputs: [ { name: 'name', label: 'Deal Name', type: 'text' }, { name: 'value', label: 'Value', type: 'number' }, { name: 'stage', label: 'Stage', type: 'text' }, { name: 'contactId', label: 'Contact ID', type: 'text' }] },
+      { name: 'update_deal_stage', label: 'Update Deal Stage', description: 'Moves a deal to a new stage in the pipeline.', inputs: [ { name: 'dealId', label: 'Deal ID', type: 'text' }, { name: 'stage', label: 'New Stage', type: 'text' }] },
+      { name: 'create_task', label: 'Create Task', description: 'Creates a new task and can associate it with a deal or contact.', inputs: [ { name: 'title', label: 'Task Title', type: 'text' }, { name: 'dueDate', label: 'Due Date', type: 'date' }, { name: 'dealId', label: 'Associated Deal ID (Optional)', type: 'text' }] },
+      { name: 'add_note', label: 'Add Note', description: 'Adds a text note to a contact, deal, or account record.', inputs: [ { name: 'recordId', label: 'Record ID (Contact/Deal/Account)', type: 'text' }, { name: 'recordType', label: 'Record Type', type: 'select', options: ['contact', 'deal', 'account'] }, { name: 'content', label: 'Note Content', type: 'textarea' }] },
+      { name: 'create_quotation', label: 'Create Quotation', description: 'Generates a new quotation for an account.', inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_invoice', label: 'Create Invoice', description: 'Generates a new invoice for an account.', inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_sales_order', label: 'Create Sales Order', description: 'Creates a new sales order for an account.', inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_delivery_challan', label: 'Create Delivery Challan', description: 'Creates a delivery challan for an order.', inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_credit_note', label: 'Create Credit Note', description: 'Issues a credit note to an account.', inputs: [ { name: 'accountId', label: 'Account ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_vendor', label: 'Create Vendor', description: 'Adds a new vendor/supplier to the CRM.', inputs: [ { name: 'name', label: 'Vendor Name', type: 'text' }, { name: 'email', label: 'Email', type: 'email' }] },
+      { name: 'create_purchase_order', label: 'Create Purchase Order', description: 'Generates a purchase order for a vendor.', inputs: [ { name: 'vendorId', label: 'Vendor ID', type: 'text' }, { name: 'lineItems', label: 'Line Items (JSON)', type: 'textarea' }] },
+      { name: 'create_product', label: 'Create Product', description: 'Adds a new product to the inventory.', inputs: [ { name: 'name', label: 'Product Name', type: 'text' }, { name: 'price', label: 'Price', type: 'number' }, { name: 'sku', label: 'SKU', type: 'text' }] },
+      { name: 'update_stock', label: 'Update Stock', description: 'Adjusts the stock level for a product.', inputs: [ { name: 'productId', label: 'Product ID', type: 'text' }, { name: 'quantity', label: 'Quantity Change (+/-)', type: 'number' }] },
+      { name: 'create_warehouse', label: 'Create Warehouse', description: 'Adds a new warehouse location for inventory.', inputs: [ { name: 'name', label: 'Warehouse Name', type: 'text' }, { name: 'location', label: 'Location', type: 'text' }] },
+      { name: 'add_employee', label: 'Add Employee', description: 'Adds a new employee record to the HRM module.', inputs: [ { name: 'firstName', label: 'First Name', type: 'text' }, { name: 'lastName', label: 'Last Name', type: 'text' }, { name: 'email', label: 'Work Email', type: 'email' }] },
+      { name: 'create_leave_request', label: 'Create Leave Request', description: 'Submits a leave request on behalf of an employee.', inputs: [ { name: 'employeeId', label: 'Employee ID', type: 'text' }, { name: 'startDate', label: 'Start Date', type: 'date' }, { name: 'endDate', label: 'End Date', type: 'date' }, { name: 'reason', label: 'Reason', type: 'text' }] },
+      { name: 'create_journal_voucher', label: 'Create Journal Voucher', description: 'Records a journal entry between two accounts.', inputs: [ { name: 'debitAccountId', label: 'Debit Account ID', type: 'text' }, { name: 'creditAccountId', label: 'Credit Account ID', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }] },
+      { name: 'create_payment_voucher', label: 'Create Payment Voucher', description: 'Records an outgoing payment from a bank/cash account.', inputs: [ { name: 'creditAccountId', label: 'Bank/Cash Account ID', type: 'text' }, { name: 'debitAccountId', label: 'Expense/Party Account ID', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }] },
+      { name: 'create_receipt_voucher', label: 'Create Receipt Voucher', description: 'Records an incoming payment to a bank/cash account.', inputs: [ { name: 'debitAccountId', label: 'Bank/Cash Account ID', type: 'text' }, { name: 'creditAccountId', label: 'Income/Party Account ID', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }] }
     ]
   },
   {
@@ -582,7 +582,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_email',
         label: 'Send Email',
-        description: 'Send an email to a recipient.',
+        description: 'Send an email to a specified recipient.',
         inputs: [
           { name: 'to', label: 'Recipient Email', type: 'email' },
           { name: 'subject', label: 'Subject', type: 'text' },
@@ -600,7 +600,7 @@ export const sabnodeAppActions = [
       {
         name: 'send_sms',
         label: 'Send SMS',
-        description: 'Send an SMS message.',
+        description: 'Send a transactional or promotional SMS.',
         inputs: [
           { name: 'to', label: 'Recipient Phone Number', type: 'tel' },
           { name: 'message', label: 'Message', type: 'textarea' },
