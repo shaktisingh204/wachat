@@ -148,7 +148,7 @@ export default function EditSabFlowPage() {
     const [nodes, setNodes] = useState<SabFlowNode[]>([]);
     const [edges, setEdges] = useState<SabFlowEdge[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
@@ -167,7 +167,7 @@ export default function EditSabFlowPage() {
         setTrigger({ type: 'webhook', details: {} });
         setNodes([triggerNode]);
         setEdges([]);
-        setSelectedNodeId('trigger');
+        setSelectedNodeId(null);
     }, []);
 
     useEffect(() => {
@@ -182,6 +182,7 @@ export default function EditSabFlowPage() {
                     setTrigger(flow.trigger);
                     setNodes(flow.nodes.length > 0 ? flow.nodes : [{ id: 'trigger', type: 'trigger', data: { name: 'Start Flow', triggerType: 'webhook' }, position: { x: 50, y: 150 } }]);
                     setEdges(flow.edges);
+                    setSelectedNodeId(flow.nodes?.[0]?.id || null);
                 } else {
                     handleCreateNewFlow();
                 }
@@ -290,10 +291,7 @@ export default function EditSabFlowPage() {
     }, []);
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
-    const selectedApp = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode?.data.connectionId);
-    const selectedAppActions = sabnodeAppActions.find(app => app.appId === selectedApp?.appId)?.actions || [];
-    const selectedAction = selectedAppActions.find(a => a.name === selectedNode?.data.actionName);
-
+    
      if (isLoading) {
         return <BuilderPageSkeleton />;
     }
@@ -307,28 +305,26 @@ export default function EditSabFlowPage() {
         const isAction = selectedNode.type === 'action';
         const isCondition = selectedNode.type === 'condition';
 
-        const appConfig = isAction ? sabnodeAppActions.find(app => app.appId === selectedApp?.appId) : null;
         const triggerConfig = isTrigger ? triggers.find(t => t.id === selectedNode.data.triggerType) : null;
+        
+        const selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode.data.connectionId);
+        const selectedApp = sabnodeAppActions.find(app => app.appId === selectedConnection?.appId);
+        const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
 
+        const handleSetApp = (appId: string, connectionName: string) => {
+            handleNodeChange(selectedNode.id, { connectionId: connectionName, actionName: '', inputs: {} });
+        };
+        
         return (
             <div className="h-full flex flex-col">
                 <Tabs defaultValue="setup" className="flex-1 flex flex-col">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="setup">Trigger Setup</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
+                        <TabsTrigger value="setup">Action Setup</TabsTrigger>
                         <TabsTrigger value="connections">Connections</TabsTrigger>
                     </TabsList>
                     <div className="flex-1 relative">
                         <ScrollArea className="absolute inset-0">
                             <TabsContent value="setup" className="p-4 space-y-4">
-                               <Card>
-                                    <CardHeader className="flex-row items-center gap-4 space-y-0">
-                                        {isTrigger && triggerConfig?.icon && <triggerConfig.icon className="h-8 w-8 text-muted-foreground"/>}
-                                        {isAction && appConfig?.icon && <appConfig.icon className="h-8 w-8 text-muted-foreground"/>}
-                                        <div>
-                                            <CardTitle className="text-base">Choose App</CardTitle>
-                                        </div>
-                                    </CardHeader>
-                               </Card>
                                <div className="space-y-4">
                                     <div className="space-y-2">
                                         <Label>Step Name</Label>
@@ -353,25 +349,50 @@ export default function EditSabFlowPage() {
                                     )}
                                     {isAction && (
                                         <>
-                                            <div className="space-y-2">
-                                                <Label>App</Label>
-                                                <Select value={selectedNode.data.connectionId} onValueChange={val => handleNodeChange(selectedNode.id, { connectionId: val, actionName: '', inputs: {} })}>
-                                                    <SelectTrigger><SelectValue placeholder="Select an app..."/></SelectTrigger>
-                                                    <SelectContent>
-                                                        {(user?.sabFlowConnections || []).map((conn: any) => (<SelectItem key={conn.connectionName} value={conn.connectionName}>{conn.connectionName}</SelectItem>))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                             <div className="space-y-2">
-                                                <Label>Action Event</Label>
-                                                <Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}>
-                                                    <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                                                    <SelectContent>
-                                                        {selectedAppActions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="flex items-center gap-2"><Button variant="outline"><RefreshCw className="mr-2 h-4 w-4"/> Refresh Fields</Button></div>
+                                            {!selectedNode.data.actionName ? (
+                                                <div className="space-y-4">
+                                                    <h3 className="font-semibold">Choose App</h3>
+                                                     <Input placeholder="Search by app name..." />
+                                                     <div className="flex items-center gap-2">
+                                                         <Button variant="secondary" size="sm">All Apps</Button>
+                                                         <Button variant="ghost" size="sm">Core Apps</Button>
+                                                         <Button variant="ghost" size="sm">Private Apps</Button>
+                                                     </div>
+                                                     <div className="grid grid-cols-3 gap-2">
+                                                         {(user?.sabFlowConnections || []).map((conn: any) => {
+                                                             const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
+                                                             const AppIcon = appConfig?.icon || Zap;
+                                                             return (
+                                                                <Card key={conn.connectionName} className="p-2 text-center cursor-pointer hover:bg-accent" onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                    <AppIcon className="h-8 w-8 mx-auto text-muted-foreground"/>
+                                                                    <p className="text-xs mt-1 truncate">{conn.connectionName}</p>
+                                                                </Card>
+                                                             )
+                                                         })}
+                                                         <Card className="p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed">
+                                                             <Plus className="h-6 w-6 text-muted-foreground"/>
+                                                             <p className="text-xs mt-1">Add App</p>
+                                                         </Card>
+                                                     </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="flex items-center gap-2">
+                                                        <Button variant="ghost" size="sm" onClick={() => handleNodeChange(selectedNode.id, {actionName: '', inputs: {}})}>
+                                                            <ArrowLeft className="mr-2 h-4 w-4"/> Change App
+                                                        </Button>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Action</Label>
+                                                        <Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}>
+                                                            <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                                            <SelectContent>
+                                                                {selectedAppActions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </>
+                                            )}
                                         </>
                                     )}
                                 </div>
@@ -398,17 +419,21 @@ export default function EditSabFlowPage() {
                                 )}
                             </TabsContent>
                              <TabsContent value="connections" className="p-4">
-                                <p className="text-sm text-muted-foreground">Manage your app connections here.</p>
+                                 <Link href="/dashboard/sabflow/connections">
+                                    <Button variant="outline" className="w-full">Manage App Connections</Button>
+                                </Link>
                             </TabsContent>
                         </ScrollArea>
                     </div>
                 </Tabs>
-                <div className="p-4 border-t flex-shrink-0">
-                    <Button variant="destructive" className="w-full" onClick={() => handleRemoveNode(selectedNode.id)}>
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete Step
-                    </Button>
-                </div>
+                 {selectedNode?.type !== 'trigger' && (
+                    <div className="p-4 border-t flex-shrink-0">
+                        <Button variant="destructive" className="w-full" onClick={() => handleRemoveNode(selectedNode.id)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Step
+                        </Button>
+                    </div>
+                )}
             </div>
         )
     };
@@ -438,7 +463,7 @@ export default function EditSabFlowPage() {
                  <div className="flex-1 grid grid-cols-12 overflow-hidden relative">
                     <main 
                         ref={viewportRef}
-                        className="col-span-12 md:col-span-8 lg:col-span-9 relative overflow-hidden cursor-grab active:cursor-grabbing border-r"
+                        className="col-span-12 md:col-span-8 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing border-r"
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -457,14 +482,14 @@ export default function EditSabFlowPage() {
 
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
-                                        <div className={cn(
+                                        <Card className={cn(
                                             "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                             appConfig?.color ? `bg-gradient-to-br ${appConfig.color}` : 'bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900'
                                         )}>
                                             <Icon className="h-12 w-12 text-white/80" />
                                             <p className="font-semibold mt-2 text-xs text-white/90 line-clamp-1">{node.data.name}</p>
-                                        </div>
+                                        </Card>
 
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
                                         {node.type === 'condition' ? (
@@ -519,12 +544,16 @@ export default function EditSabFlowPage() {
                 </div>
             </div>
             <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                <SheetContent className="w-full max-w-md p-0">
-                    <div className="h-full flex flex-col bg-background">
-                         {renderPropertiesPanel()}
-                    </div>
+                <SheetContent className="w-full max-w-lg p-0">
+                    {renderPropertiesPanel()}
                 </SheetContent>
             </Sheet>
         </form>
     );
 }
+
+```
+- src/globals.css
+- src/app/dashboard/sabflow/flow-builder/new/page.tsx
+- src/components/wabasimplify/custom-sidebar-components.tsx
+- src/lib/sabflow-actions.ts
