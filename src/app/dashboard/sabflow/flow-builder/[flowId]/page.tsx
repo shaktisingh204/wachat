@@ -91,10 +91,10 @@ const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
         return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT / 2 };
     }
     if (handleId.endsWith('-output-yes')) {
-        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (1/3) };
+        return { x: x + NODE_HEIGHT * (1/3), y: y + NODE_HEIGHT };
     }
     if (handleId.endsWith('-output-no')) {
-        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (2/3) };
+        return { x: x + NODE_WIDTH * (2/3), y: y + NODE_HEIGHT };
     }
     return null;
 }
@@ -433,7 +433,7 @@ export default function EditSabFlowPage() {
                     </div>
                 )}
             </div>
-        )
+        );
     };
 
     return (
@@ -466,8 +466,8 @@ export default function EditSabFlowPage() {
                         <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode} onClick={() => setIsSidebarOpen(true)}><Settings className="h-5 w-5" /></Button>
                     </div>
                 </header>
-                 <main className="flex-1 grid grid-cols-1 overflow-hidden relative">
-                    <Card
+                <div className="flex-1 grid grid-cols-12 overflow-hidden relative">
+                    <main 
                         ref={viewportRef}
                         className="col-span-12 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing rounded-none border-0"
                         onMouseDown={handleCanvasMouseDown}
@@ -491,7 +491,7 @@ export default function EditSabFlowPage() {
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
-                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center text-white",
+                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                             `bg-gradient-to-br ${colorClass}`
                                         )}>
@@ -502,11 +502,11 @@ export default function EditSabFlowPage() {
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
                                         {node.type === 'condition' ? (
                                             <>
-                                                <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
-                                                <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
+                                                <div id={`${node.id}-output-yes`} data-handle-pos="bottom" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -bottom-2 left-1/3 -translate-x-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
+                                                <div id={`${node.id}-output-no`} data-handle-pos="bottom" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -bottom-2 left-2/3 -translate-x-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
                                             </>
                                         ) : (
-                                            <div id={`${node.id}-output-main`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-main`)} />
+                                            <div id={`${node.id}-output-main`} data-handle-pos="bottom" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -bottom-2 left-1/2 -translate-x-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-main`)} />
                                         )}
                                     </div>
                                 )
@@ -551,3 +551,4 @@ export default function EditSabFlowPage() {
         </form>
     );
 }
+```
