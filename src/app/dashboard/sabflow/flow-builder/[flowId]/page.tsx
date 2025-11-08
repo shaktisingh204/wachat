@@ -297,6 +297,10 @@ export default function EditSabFlowPage() {
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
+    if (isLoading) {
+        return <BuilderPageSkeleton />;
+    }
+    
     const selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode?.data.connectionId);
     const selectedApp = sabnodeAppActions.find(app => app.appId === selectedConnection?.appId);
     const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode?.data.actionName);
@@ -318,10 +322,6 @@ export default function EditSabFlowPage() {
         
         return (
             <div className="h-full flex flex-col">
-                <div className="p-4 border-b">
-                    <h3 className="text-lg font-semibold leading-none tracking-tight">Properties</h3>
-                    <p className="text-sm text-muted-foreground">Configure the selected step.</p>
-                </div>
                 <Tabs defaultValue="setup" className="flex-1 flex flex-col min-h-0">
                     <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
                         <TabsTrigger value="setup">Setup</TabsTrigger>
@@ -432,10 +432,6 @@ export default function EditSabFlowPage() {
         )
     };
 
-    if (isLoading) {
-        return <BuilderPageSkeleton />;
-    }
-
     return (
         <div className="h-full">
             <form action={formAction} ref={formRef}>
@@ -470,7 +466,7 @@ export default function EditSabFlowPage() {
                     <div className="flex-1 grid grid-cols-12 overflow-hidden relative">
                         <main 
                             ref={viewportRef}
-                            className="col-span-12 md:col-span-8 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing border-r"
+                            className="col-span-12 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing"
                             onMouseDown={handleCanvasMouseDown}
                             onMouseMove={handleCanvasMouseMove}
                             onMouseUp={handleCanvasMouseUp}
@@ -492,7 +488,7 @@ export default function EditSabFlowPage() {
                                     return (
                                         <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                             <div className={cn(
-                                                "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
+                                                "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center text-white",
                                                 selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                                 `bg-gradient-to-br ${colorClass}`
                                             )}>
@@ -547,12 +543,11 @@ export default function EditSabFlowPage() {
                                 </PopoverContent>
                             </Popover>
                         </main>
-                        <aside className="hidden md:block md:col-span-4 bg-background">
-                            {renderPropertiesPanel()}
-                        </aside>
                     </div>
                 </div>
             </form>
         </div>
     );
 }
+
+```
