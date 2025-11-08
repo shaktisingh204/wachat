@@ -85,16 +85,16 @@ const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
     const y = node.position.y;
 
     if (handleId.endsWith('-input')) {
-        return { x: x + NODE_WIDTH / 2, y };
+        return { x: x, y: y + NODE_HEIGHT / 2 };
     }
     if (handleId.endsWith('-output-main')) {
-        return { x: x + NODE_WIDTH / 2, y: y + NODE_HEIGHT };
+        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT / 2 };
     }
     if (handleId.endsWith('-output-yes')) {
-        return { x: x + NODE_WIDTH * (1/3), y: y + NODE_HEIGHT };
+        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (1/3) };
     }
     if (handleId.endsWith('-output-no')) {
-        return { x: x + NODE_WIDTH * (2/3), y: y + NODE_HEIGHT };
+        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (2/3) };
     }
     return null;
 }
@@ -102,12 +102,10 @@ const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
 function BuilderPageSkeleton() {
     return (
         <div className="flex h-[calc(100vh-theme(spacing.24))] bg-muted/30">
-            <Skeleton className="w-64 bg-background border-r" />
             <div className="flex-1 flex flex-col">
                 <Skeleton className="h-16 border-b bg-card" />
-                <div className="flex-1 grid grid-cols-12">
-                    <Skeleton className="col-span-9" />
-                    <Skeleton className="col-span-3 bg-background border-l" />
+                <div className="flex-1">
+                    <Skeleton className="h-full w-full" />
                 </div>
             </div>
         </div>
@@ -437,14 +435,14 @@ export default function EditSabFlowPage() {
     };
 
     return (
-        <form action={formAction} ref={formRef} className="h-full">
-            <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
-            <input type="hidden" name="name" value={flowName} />
-            <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
-            <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
-            <input type="hidden" name="edges" value={JSON.stringify(edges)} />
-            
-            <div className="flex flex-col h-full">
+        <div className="h-full flex flex-col">
+            <form action={formAction} ref={formRef}>
+                <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
+                <input type="hidden" name="name" value={flowName} />
+                <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
+                <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
+                <input type="hidden" name="edges" value={JSON.stringify(edges)} />
+                
                 <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                     <SheetContent className="w-full max-w-sm p-0">
                         <aside className="border-r bg-background h-full flex flex-col">
@@ -476,8 +474,8 @@ export default function EditSabFlowPage() {
                     onWheel={handleWheel}
                     onClick={handleCanvasClick}
                 >
-                     <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
-                      <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                    <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
+                    <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
                         {nodes.map(node => {
                             const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
                             const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
@@ -490,7 +488,7 @@ export default function EditSabFlowPage() {
                             return (
                                 <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                     <div className={cn(
-                                        "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
+                                        "w-32 h-32 rounded-lg cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center text-white",
                                         selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                         `bg-gradient-to-br ${colorClass}`
                                     )}>
@@ -510,7 +508,7 @@ export default function EditSabFlowPage() {
                                 </div>
                             )
                         })}
-                         <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
+                        <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
                             {edges.map(edge => {
                                 const sourceNode = nodes.find(n => n.id === edge.source);
                                 const targetNode = nodes.find(n => n.id === edge.target);
@@ -518,20 +516,20 @@ export default function EditSabFlowPage() {
                                 const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
                                 const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
                                 if (!sourcePos || !targetPos) return null;
-                                return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="#0c68e980" strokeWidth="2" fill="none" className="sabflow-edge-path"/>
+                                return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" className="sabflow-edge-path"/>
                             })}
                             {connecting && (
-                                <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="#0c68e980" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                             )}
                         </svg>
                     </div>
-                      <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                    <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
                         <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                         <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                         <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
                         <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                     </div>
-                      <Popover>
+                    <Popover>
                         <PopoverTrigger asChild>
                             <Button size="icon" className="absolute bottom-4 left-4 z-10 rounded-full h-12 w-12 shadow-lg">
                                 <Plus className="h-6 w-6" />
@@ -549,4 +547,3 @@ export default function EditSabFlowPage() {
         </form>
     );
 }
-```
