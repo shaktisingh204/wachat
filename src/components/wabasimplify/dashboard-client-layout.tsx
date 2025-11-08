@@ -443,7 +443,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     }, [pathname]);
 
     const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban') || pathname.startsWith('/dashboard/sabchat/inbox');
-    const isWebsiteBuilderPage = pathname.includes('/builder');
+    const isWebsiteBuilderPage = pathname.includes('/builder') || pathname.includes('/sabflow/flow-builder');
   
     const currentUserRole = React.useMemo(() => {
         if (!sessionUser || !activeProject) return 'owner'; 
@@ -606,7 +606,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
                 <div className="flex flex-1 overflow-hidden">
                     {appRailPosition === 'left' && <AppRail />}
-                    <Sidebar className="hidden md:flex">
+                    <Sidebar className={cn("hidden", !(isChatPage || isWebsiteBuilderPage) && 'md:flex')}>
                         <SidebarHeader>
                             {/* Can be used for project switcher */}
                         </SidebarHeader>
