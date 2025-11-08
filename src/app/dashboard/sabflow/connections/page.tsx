@@ -15,53 +15,7 @@ import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LoaderCircle } from 'lucide-react';
-
-const appCategories = [
-    {
-        name: 'SabNode Apps',
-        apps: [
-            { id: 'wachat', name: 'Wachat', category: 'WhatsApp API', icon: WhatsAppIcon, connectionType: 'internal' },
-            { id: 'crm', name: 'CRM Suite', category: 'Business Management', icon: Briefcase, connectionType: 'internal' },
-            { id: 'sabchat', name: 'sabChat', category: 'Live Chat', icon: SabChatIcon, connectionType: 'internal' },
-            { id: 'meta', name: 'Meta Suite', category: 'Social Media', icon: MetaIcon, connectionType: 'internal' },
-            { id: 'instagram', name: 'Instagram Suite', category: 'Social Media', icon: InstagramIcon, connectionType: 'internal' },
-            { id: 'email', name: 'Email Suite', category: 'Marketing', icon: Mail, connectionType: 'internal' },
-            { id: 'sms', name: 'SMS Suite', category: 'Marketing', icon: MessageSquare, connectionType: 'internal' },
-            { id: 'url-shortener', name: 'URL Shortener', category: 'Utilities', icon: LinkIcon, connectionType: 'internal' },
-            { id: 'qr-code-maker', name: 'QR Code Maker', category: 'Utilities', icon: QrCode, connectionType: 'internal' },
-            { id: 'seo-suite', name: 'SEO Suite', category: 'Marketing', icon: SeoIcon, connectionType: 'internal' },
-        ]
-    },
-    {
-        name: 'Popular Apps',
-        apps: [
-            { id: 'google_sheets', name: 'Google Sheets', category: 'Productivity', logo: 'https://picsum.photos/seed/gsheets/40/40', connectionType: 'oauth' },
-            { 
-                id: 'stripe', name: 'Stripe', category: 'Payment', logo: 'https://picsum.photos/seed/stripe/40/40', connectionType: 'apikey',
-                credentials: [
-                    { name: 'apiKey', label: 'API Key', type: 'password' },
-                ]
-            },
-            { 
-                id: 'shopify', name: 'Shopify', category: 'E-Commerce', logo: 'https://picsum.photos/seed/shopify/40/40', connectionType: 'apikey',
-                credentials: [
-                    { name: 'shopName', label: 'Shop Name', type: 'text', placeholder: 'your-store' },
-                    { name: 'accessToken', label: 'Admin API Access Token', type: 'password' },
-                ]
-            },
-            { id: 'slack', name: 'Slack', category: 'Communication', logo: 'https://picsum.photos/seed/slack/40/40', connectionType: 'oauth' },
-            { id: 'gmail', name: 'Gmail', category: 'Email', logo: 'https://picsum.photos/seed/gmail/40/40', connectionType: 'oauth' },
-            { 
-                id: 'hubspot', name: 'HubSpot', category: 'CRM', logo: 'https://picsum.photos/seed/hubspot/40/40', connectionType: 'apikey',
-                credentials: [
-                     { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
-                ]
-            },
-            { id: 'discord', name: 'Discord', category: 'Communication', logo: 'https://picsum.photos/seed/discord/40/40', connectionType: 'oauth' },
-            { id: 'notion', name: 'Notion', category: 'Productivity', logo: 'https://picsum.photos/seed/notion/40/40', connectionType: 'oauth' },
-        ]
-    }
-];
+import { sabnodeAppActions } from '@/lib/sabflow-actions';
 
 const connectInitialState = { message: null, error: null };
 
@@ -122,6 +76,21 @@ export default function AppConnectionsPage() {
     const [selectedApp, setSelectedApp] = useState<any>(null);
     const [connectedApps, setConnectedApps] = useState<any[]>([]);
     const [isLoading, startLoading] = useTransition();
+
+    const appCategories = [
+        {
+            name: 'SabNode Apps',
+            apps: sabnodeAppActions.filter(app => ['wachat', 'crm', 'sabchat', 'meta', 'instagram', 'email', 'sms', 'url-shortener', 'qr-code-maker', 'seo-suite'].includes(app.appId))
+        },
+        {
+            name: 'Core Apps',
+            apps: sabnodeAppActions.filter(app => !app.category && !['wachat', 'crm', 'sabchat', 'meta', 'instagram', 'email', 'sms', 'url-shortener', 'qr-code-maker', 'seo-suite'].includes(app.appId))
+        },
+        {
+            name: 'Popular Apps',
+            apps: sabnodeAppActions.filter(app => app.category === 'Productivity' || app.category === 'Payment' || app.category === 'E-Commerce' || app.category === 'Communication')
+        }
+    ];
 
     const fetchConnections = () => {
         startLoading(async () => {
