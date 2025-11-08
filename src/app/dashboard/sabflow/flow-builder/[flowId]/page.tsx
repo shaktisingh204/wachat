@@ -21,7 +21,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
@@ -445,6 +446,14 @@ export default function EditSabFlowPage() {
             <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
             <input type="hidden" name="edges" value={JSON.stringify(edges)} />
             
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                <SheetContent className="w-full max-w-sm p-0">
+                    <aside className="border-r bg-background h-full flex flex-col">
+                        {renderPropertiesPanel()}
+                    </aside>
+                </SheetContent>
+            </Sheet>
+
             <div className="flex flex-col h-full">
                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
                     <div className="flex items-center gap-2">
@@ -480,19 +489,16 @@ export default function EditSabFlowPage() {
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
                                 const colorClass = appConfig?.color || 'from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900';
-                                const [fromColor] = colorClass.match(/from-([a-z]+)-(\d+)/) || [];
-                                const textColorClass = fromColor ? `text-${fromColor.split('-')[1]}-700 dark:text-${fromColor.split('-')[1]}-300` : 'text-foreground';
-                                const bgColorClass = fromColor ? `bg-${fromColor.split('-')[1]}-500/20` : 'bg-muted';
                                 
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
-                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
+                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center text-white",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                            bgColorClass
+                                            `bg-gradient-to-br ${colorClass}`
                                         )}>
-                                            <Icon className={cn("h-12 w-12", textColorClass)} />
-                                            <p className={cn("font-semibold mt-2 text-xs line-clamp-1", textColorClass)}>{node.data.name}</p>
+                                            <Icon className="h-12 w-12 text-white/80" />
+                                            <p className="font-semibold mt-2 text-xs line-clamp-1 text-white/90">{node.data.name}</p>
                                         </div>
 
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
@@ -515,10 +521,10 @@ export default function EditSabFlowPage() {
                                     const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
                                     const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
                                     if (!sourcePos || !targetPos) return null;
-                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="rgba(12, 104, 233, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--primary) / 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 })}
                                 {connecting && (
-                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="rgba(12, 104, 233, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsl(var(--primary) / 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 )}
                             </svg>
                         </div>
