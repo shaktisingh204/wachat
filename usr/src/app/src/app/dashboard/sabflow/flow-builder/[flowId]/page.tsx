@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -246,8 +247,10 @@ export default function EditSabFlowPage() {
         else if (connecting && !isOutputHandle) {
             if (connecting.sourceNodeId === nodeId) { setConnecting(null); return; }
             const newEdge: SabFlowEdge = { id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`, source: connecting.sourceNodeId, target: nodeId, sourceHandle: connecting.sourceHandleId, targetHandle: handleId };
-            const edgesWithoutExistingSource = edges.filter(e => e.sourceHandle !== connecting.sourceHandleId);
-            setEdges([...edgesWithoutExistingSource, newEdge]);
+            
+            // Remove any existing edge that already connects to this specific input handle
+            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
+            setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
         }
     };
@@ -295,6 +298,137 @@ export default function EditSabFlowPage() {
         return <BuilderPageSkeleton />;
     }
     
+    const selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode?.data.connectionId);
+    const selectedApp = sabnodeAppActions.find(app => app.appId === selectedConnection?.appId);
+    const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode?.data.actionName);
+
+    const renderPropertiesPanel = () => {
+        if (!selectedNode) {
+            return (<div className="text-center text-muted-foreground p-8">Select a step to configure it.</div>);
+        }
+        
+        const isTrigger = selectedNode.type === 'trigger';
+        const isAction = selectedNode.type === 'action';
+        const isCondition = selectedNode.type === 'condition';
+
+        const triggerConfig = isTrigger ? triggers.find(t => t.id === selectedNode.data.triggerType) : null;
+
+        const handleSetApp = (appId: string, connectionName: string) => {
+            handleNodeChange(selectedNode.id, { connectionId: connectionName, actionName: '', inputs: {} });
+        };
+        
+        return (
+            <div className="h-full flex flex-col">
+                <Tabs defaultValue="setup" className="flex-1 flex flex-col">
+                    <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
+                        <TabsTrigger value="setup">Setup</TabsTrigger>
+                        <TabsTrigger value="connections">Connections</TabsTrigger>
+                    </TabsList>
+                    <div className="flex-1 relative">
+                        <ScrollArea className="absolute inset-0">
+                            <TabsContent value="setup" className="p-4 space-y-4">
+                               <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Step Name</Label>
+                                        <Input value={selectedNode.data.name} onChange={e => handleNodeChange(selectedNode.id, { name: e.target.value })}/>
+                                    </div>
+                                    {isTrigger && (
+                                        <>
+                                            <div className="space-y-2">
+                                                <Label>App Event</Label>
+                                                <Select value={selectedNode.data.triggerType} onValueChange={val => { handleNodeChange(selectedNode.id, {triggerType: val}); setTrigger(prev => ({...prev, type: val})); }}>
+                                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                                    <SelectContent>{triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
+                                                </Select>
+                                            </div>
+                                            {trigger.type === 'webhook' && (
+                                                <div className="space-y-2">
+                                                    <Label>Webhook URL</Label>
+                                                    <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${isNew ? '[Save Flow to Generate URL]' : flowId}`}/>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                    {isAction && (
+                                        <>
+                                            {!selectedNode.data.connectionId ? (
+                                                <div className="space-y-4">
+                                                    <h3 className="font-semibold">Choose App</h3>
+                                                     <div className="grid grid-cols-3 gap-2">
+                                                         {(user?.sabFlowConnections || []).map((conn: any) => {
+                                                             const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
+                                                             const AppIcon = appConfig?.icon || Zap;
+                                                             return (
+                                                                <Card key={conn.connectionName} className="p-2 text-center cursor-pointer hover:bg-accent" onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                    <AppIcon className="h-8 w-8 mx-auto text-muted-foreground"/>
+                                                                    <p className="text-xs mt-1 truncate">{conn.connectionName}</p>
+                                                                </Card>
+                                                             )
+                                                         })}
+                                                         <Card className="p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed">
+                                                             <Plus className="h-6 w-6 text-muted-foreground"/>
+                                                             <p className="text-xs mt-1">Add App</p>
+                                                         </Card>
+                                                     </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="flex items-center gap-2">
+                                                        <Button variant="ghost" size="sm" onClick={() => handleNodeChange(selectedNode.id, {connectionId: '', actionName: '', inputs: {}})}>
+                                                            <ArrowLeft className="mr-2 h-4 w-4"/> Change App
+                                                        </Button>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Action</Label>
+                                                        <Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}>
+                                                            <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                                            <SelectContent>
+                                                                {selectedApp?.actions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+
+                                {selectedAction && (
+                                     <div className="space-y-4 pt-4 border-t">
+                                        <h4 className="font-semibold">{selectedAction.label}</h4>
+                                        <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                                    </div>
+                                )}
+
+                                {isCondition && (
+                                    <>
+                                        <div className="space-y-2"><Label>Logic</Label><RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">AND</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">OR</Label></div></RadioGroup></div>
+                                        {(selectedNode.data.rules || []).map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2"><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => { const r = [...selectedNode.data.rules]; r[index].field=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}} /><Select value={rule.operator} onValueChange={val => { const r = [...selectedNode.data.rules]; r[index].operator=val; handleNodeChange(selectedNode.id, {rules: r})}}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => { const r = [...selectedNode.data.rules]; r[index].value=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}}/></div>))}
+                                        <Button variant="outline" size="sm" onClick={() => handleNodeChange(selectedNode.id, { rules: [...(selectedNode.data.rules || []), {field: '', operator: 'equals', value: ''}]})}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
+                                    </>
+                                )}
+                            </TabsContent>
+                             <TabsContent value="connections" className="p-4">
+                                 <Link href="/dashboard/sabflow/connections">
+                                    <Button variant="outline" className="w-full">Manage App Connections</Button>
+                                </Link>
+                            </TabsContent>
+                        </ScrollArea>
+                    </div>
+                </Tabs>
+                 {selectedNode?.type !== 'trigger' && (
+                    <div className="p-4 border-t flex-shrink-0">
+                        <Button variant="destructive" className="w-full" onClick={() => handleRemoveNode(selectedNode.id)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Step
+                        </Button>
+                    </div>
+                )}
+            </div>
+        )
+    };
+
     return (
         <form action={formAction} ref={formRef}>
             <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
@@ -305,26 +439,8 @@ export default function EditSabFlowPage() {
             
             <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                 <SheetContent className="w-full max-w-sm p-0">
-                    <aside className="border-r bg-background p-4 space-y-4 h-full flex flex-col">
-                        <h2 className="font-semibold text-lg">Settings</h2>
-                        {selectedNode ? (
-                            <div className="space-y-4 flex-1 flex flex-col">
-                                <div className="flex justify-between items-center"><h3 className="text-lg font-semibold">Properties</h3> <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveNode(selectedNode.id)}><Trash2 className="h-4 w-4"/></Button></div>
-                                <div className="space-y-2"><Label>Step Name</Label><Input value={selectedNode.data.name} onChange={e => handleNodeChange(selectedNode.id, { name: e.target.value })}/></div>
-                                {selectedNode.type === 'trigger' && (<div className="space-y-2"><Label>Trigger Type</Label><Select value={selectedNode.data.triggerType} onValueChange={val => { handleNodeChange(selectedNode.id, {triggerType: val}); setTrigger(prev => ({...prev, type: val})); }}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent></Select></div>)}
-                                {selectedNode.type === 'trigger' && trigger.type === 'webhook' && (<div className="space-y-2"><Label>Webhook URL</Label><CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${isNew ? '[Save Flow to Generate URL]' : flowId}`}/></div>)}
-                                {selectedNode.type === 'action' && (<>
-                                    <div className="space-y-2"><Label>App</Label><Select value={selectedNode.data.connectionId} onValueChange={val => handleNodeChange(selectedNode.id, { connectionId: val, actionName: '', inputs: {} })}><SelectTrigger><SelectValue placeholder="Select an app..."/></SelectTrigger><SelectContent>{(user?.sabFlowConnections || []).map((conn: any) => (<SelectItem key={conn.connectionName} value={conn.connectionName}>{conn.connectionName}</SelectItem>))}</SelectContent></Select></div>
-                                    <div className="space-y-2"><Label>Action</Label><Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}><SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger><SelectContent>{(sabnodeAppActions.find(app => app.name === selectedNode.data.connectionId)?.actions || []).map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}</SelectContent></Select></div>
-                                    {(sabnodeAppActions.find(app => app.name === selectedNode.data.connectionId)?.actions.find((a: any) => a.name === selectedNode.data.actionName)?.inputs || []).map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
-                                </>)}
-                                {selectedNode.type === 'condition' && (<>
-                                    <div className="space-y-2"><Label>Logic</Label><RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">AND</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">OR</Label></div></RadioGroup></div>
-                                    {(selectedNode.data.rules || []).map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2"><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => { const r = [...selectedNode.data.rules]; r[index].field=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}} /><Select value={rule.operator} onValueChange={val => { const r = [...selectedNode.data.rules]; r[index].operator=val; handleNodeChange(selectedNode.id, {rules: r})}}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => { const r = [...selectedNode.data.rules]; r[index].value=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}}/></div>))}
-                                    <Button variant="outline" size="sm" onClick={() => handleNodeChange(selectedNode.id, { rules: [...(selectedNode.data.rules || []), {field: '', operator: 'equals', value: ''}]})}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
-                                </>)}
-                            </div>
-                        ) : (<div className="text-center text-muted-foreground p-8">Select a step to configure it.</div>)}
+                    <aside className="border-r bg-background h-full flex flex-col">
+                        {renderPropertiesPanel()}
                     </aside>
                 </SheetContent>
             </Sheet>
@@ -421,31 +537,13 @@ export default function EditSabFlowPage() {
                             </PopoverContent>
                         </Popover>
                     </main>
-                    <aside className="hidden md:block col-span-4 lg:col-span-3 border-l bg-background p-4 overflow-y-auto">
-                        <aside className="border-r bg-background p-4 space-y-4 h-full flex flex-col">
-                        <h2 className="font-semibold text-lg">Settings</h2>
-                        {selectedNode ? (
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center"><h3 className="text-lg font-semibold">Properties</h3> <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveNode(selectedNode.id)}><Trash2 className="h-4 w-4"/></Button></div>
-                                <div className="space-y-2"><Label>Step Name</Label><Input value={selectedNode.data.name} onChange={e => handleNodeChange(selectedNode.id, { name: e.target.value })}/></div>
-                                {selectedNode.type === 'trigger' && (<div className="space-y-2"><Label>Trigger Type</Label><Select value={selectedNode.data.triggerType} onValueChange={val => { handleNodeChange(selectedNode.id, {triggerType: val}); setTrigger(prev => ({...prev, type: val})); }}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent></Select></div>)}
-                                {selectedNode.type === 'trigger' && trigger.type === 'webhook' && (<div className="space-y-2"><Label>Webhook URL</Label><CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${isNew ? '[Save Flow to Generate URL]' : flowId}`}/></div>)}
-                                {selectedNode.type === 'action' && (<>
-                                    <div className="space-y-2"><Label>App</Label><Select value={selectedNode.data.connectionId} onValueChange={val => handleNodeChange(selectedNode.id, { connectionId: val, actionName: '', inputs: {} })}><SelectTrigger><SelectValue placeholder="Select an app..."/></SelectTrigger><SelectContent>{(user?.sabFlowConnections || []).map((conn: any) => (<SelectItem key={conn.connectionName} value={conn.connectionName}>{conn.connectionName}</SelectItem>))}</SelectContent></Select></div>
-                                    <div className="space-y-2"><Label>Action</Label><Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}><SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger><SelectContent>{selectedAppActions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}</SelectContent></Select></div>
-                                    {selectedAction && selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
-                                </>)}
-                                {selectedNode.type === 'condition' && (<>
-                                    <div className="space-y-2"><Label>Logic</Label><RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">AND</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">OR</Label></div></RadioGroup></div>
-                                    {(selectedNode.data.rules || []).map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2"><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => { const r = [...selectedNode.data.rules]; r[index].field=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}} /><Select value={rule.operator} onValueChange={val => { const r = [...selectedNode.data.rules]; r[index].operator=val; handleNodeChange(selectedNode.id, {rules: r})}}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => { const r = [...selectedNode.data.rules]; r[index].value=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}}/></div>))}
-                                    <Button variant="outline" size="sm" onClick={() => handleNodeChange(selectedNode.id, { rules: [...(selectedNode.data.rules || []), {field: '', operator: 'equals', value: ''}]})}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
-                                </>)}
-                            </div>
-                        ) : (<div className="text-center text-muted-foreground p-8">Select a step to configure it.</div>)}
-                    </aside>
+                    <aside className="hidden md:block col-span-4 bg-background">
+                        {renderPropertiesPanel()}
                     </aside>
                 </div>
             </div>
         </form>
     );
 }
+
+```
