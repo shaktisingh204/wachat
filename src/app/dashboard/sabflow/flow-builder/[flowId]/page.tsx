@@ -22,7 +22,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
@@ -254,7 +253,6 @@ export default function EditSabFlowPage() {
             if (connecting.sourceNodeId === nodeId) { setConnecting(null); return; }
             const newEdge: SabFlowEdge = { id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`, source: connecting.sourceNodeId, target: nodeId, sourceHandle: connecting.sourceHandleId, targetHandle: handleId };
             
-            // Allow multiple connections from a single source handle
             setEdges(prevEdges => [...prevEdges, newEdge]);
             setConnecting(null);
         }
@@ -324,10 +322,10 @@ export default function EditSabFlowPage() {
         
         return (
             <div className="h-full flex flex-col">
-                <DialogHeader className="p-4 border-b">
-                    <DialogTitle>Properties</DialogTitle>
-                    <DialogDescription>Configure the selected step.</DialogDescription>
-                </DialogHeader>
+                <div className="p-4 border-b">
+                    <h3 className="text-lg font-semibold leading-none tracking-tight">Properties</h3>
+                    <p className="text-sm text-muted-foreground">Configure the selected step.</p>
+                </div>
                 <Tabs defaultValue="setup" className="flex-1 flex flex-col min-h-0">
                     <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
                         <TabsTrigger value="setup">Setup</TabsTrigger>
@@ -498,7 +496,7 @@ export default function EditSabFlowPage() {
                                             `bg-gradient-to-br ${colorClass}`
                                         )}>
                                             <Icon className="h-12 w-12 text-white/80" />
-                                            <p className="font-semibold mt-2 text-xs line-clamp-1 text-white/90">{node.data.name}</p>
+                                            <p className="font-semibold mt-2 text-xs text-white/90 line-clamp-1">{node.data.name}</p>
                                         </div>
 
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
@@ -521,10 +519,10 @@ export default function EditSabFlowPage() {
                                     const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
                                     const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
                                     if (!sourcePos || !targetPos) return null;
-                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--primary) / 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 })}
                                 {connecting && (
-                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsl(var(--primary) / 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 )}
                             </svg>
                         </div>
