@@ -443,7 +443,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     }, [pathname]);
 
     const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban') || pathname.startsWith('/dashboard/sabchat/inbox');
-    const isWebsiteBuilderPage = pathname.includes('/builder') || pathname.includes('/sabflow/flow-builder');
+    const isBuilderPage = pathname.includes('/builder');
   
     const currentUserRole = React.useMemo(() => {
         if (!sessionUser || !activeProject) return 'owner'; 
@@ -606,7 +606,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
                 <div className="flex flex-1 overflow-hidden">
                     {appRailPosition === 'left' && <AppRail />}
-                    <Sidebar className={cn("hidden", !(isChatPage || isWebsiteBuilderPage) && 'md:flex')}>
+                    <Sidebar className={cn("hidden", !(isChatPage || isBuilderPage) && 'md:flex')}>
                         <SidebarHeader>
                             {/* Can be used for project switcher */}
                         </SidebarHeader>
@@ -699,8 +699,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         )}
                         </SidebarContent>
                     </Sidebar>
-                    <main className="flex-1 overflow-y-auto">
-                        {isChatPage || isWebsiteBuilderPage ? children : mainContent}
+                    <main className={cn(isChatPage || isBuilderPage ? 'flex-1 overflow-hidden' : 'flex-1 overflow-y-auto')}>
+                        {isChatPage || isBuilderPage ? children : mainContent}
                     </main>
                 </div>
             </div>
