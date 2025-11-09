@@ -469,7 +469,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     ];
   
     const mainContent = (
-        <div className="h-full">
+        <div className="p-4 md:p-6 lg:p-8 h-full">
             {children}
         </div>
     );
