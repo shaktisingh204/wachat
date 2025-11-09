@@ -462,7 +462,7 @@ export default function EditSabFlowPage() {
             </Sheet>
 
             <div className="flex flex-col h-full">
-                <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
+                <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b custom-css-shakti">
                     <div className="flex items-center gap-2">
                          <Button variant="ghost" asChild className="h-9 px-2">
                             <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
