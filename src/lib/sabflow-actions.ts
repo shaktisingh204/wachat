@@ -67,6 +67,7 @@ import {
   CaseSensitive,
   Route,
   Columns,
+  Calendar,
   Link as LinkIcon,
   QrCode,
 } from 'lucide-react';
