@@ -67,6 +67,8 @@ import {
   CaseSensitive,
   Route,
   Columns,
+  Link as LinkIcon,
+  QrCode,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 

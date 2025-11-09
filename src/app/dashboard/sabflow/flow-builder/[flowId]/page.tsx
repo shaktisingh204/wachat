@@ -243,8 +243,7 @@ export default function EditSabFlowPage() {
     const handleCanvasClick = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { if (connecting) setConnecting(null); else setSelectedNodeId(null); }};
 
     const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         if (!viewportRef.current) return;
         const isOutputHandle = handleId.includes('output');
 
@@ -268,7 +267,6 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId
             };
             
-            // An input handle can only have one connection.
             const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
             setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
@@ -326,8 +324,12 @@ export default function EditSabFlowPage() {
         if (!selectedNode) {
             return (
                 <div className="flex flex-col h-full">
-                    <div className="p-4 text-center text-muted-foreground">
-                        Select a step to configure it.
+                    <div className="p-4 border-b flex-shrink-0">
+                        <h3 className="text-lg font-semibold">Properties</h3>
+                        <p className="text-sm text-muted-foreground">Select a step to configure it.</p>
+                    </div>
+                    <div className="flex-1 p-4 text-center text-muted-foreground">
+                        No step selected.
                     </div>
                 </div>
             );
@@ -347,6 +349,10 @@ export default function EditSabFlowPage() {
         
         return (
             <div className="h-full flex flex-col">
+                <div className="p-4 border-b flex-shrink-0">
+                    <h3 className="text-lg font-semibold">Properties</h3>
+                    <p className="text-sm text-muted-foreground">Configure the selected step.</p>
+                </div>
                 <Tabs defaultValue="setup" className="flex-1 flex flex-col min-h-0">
                     <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
                         <TabsTrigger value="setup">Setup</TabsTrigger>
@@ -389,7 +395,7 @@ export default function EditSabFlowPage() {
                                                              return (
                                                                 <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors", appConfig?.bgColor)} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
                                                                     <AppIcon className={cn("h-8 w-8", appConfig?.iconColor)}/>
-                                                                    <p className={cn("text-xs mt-1 truncate font-medium", appConfig?.iconColor.replace('text-', 'text-opacity-90'))}>{conn.connectionName}</p>
+                                                                    <p className="text-xs mt-1 truncate font-medium">{conn.connectionName}</p>
                                                                 </button>
                                                              )
                                                          })}
@@ -502,18 +508,15 @@ export default function EditSabFlowPage() {
                                     ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
-                                const bgColor = appConfig?.bgColor || 'bg-gray-100';
-                                const iconColor = appConfig?.iconColor || 'text-gray-800';
-                                
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
                                             "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                            bgColor
+                                            appConfig?.bgColor || 'bg-background'
                                         )}>
-                                            <Icon className={cn("h-12 w-12", iconColor)} />
-                                            <p className={cn("font-semibold mt-2 text-xs line-clamp-1", iconColor)}>{node.data.name}</p>
+                                            <Icon className={cn("h-12 w-12", appConfig?.iconColor || 'text-foreground')} />
+                                            <p className={cn("font-semibold mt-2 text-xs line-clamp-1", appConfig?.iconColor || 'text-foreground')}>{node.data.name}</p>
                                         </div>
 
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
@@ -573,3 +576,5 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
+
+    
