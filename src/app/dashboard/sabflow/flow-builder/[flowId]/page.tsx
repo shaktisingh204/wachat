@@ -330,6 +330,9 @@ export default function EditSabFlowPage() {
         
         return (
             <div className="h-full flex flex-col">
+                <div className="p-4 border-b">
+                    <h3 className="text-lg font-semibold leading-none tracking-tight">Properties</h3>
+                </div>
                 <Tabs defaultValue="setup" className="flex-1 flex flex-col min-h-0">
                     <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
                         <TabsTrigger value="setup">Setup</TabsTrigger>
@@ -451,8 +454,10 @@ export default function EditSabFlowPage() {
             </form>
             
             <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                <SheetContent className="w-full max-w-sm p-0 sm:max-w-sm">
-                    {renderPropertiesPanel()}
+                <SheetContent className="w-full max-w-sm p-0">
+                    <aside className="border-r bg-background h-full flex flex-col">
+                        {renderPropertiesPanel()}
+                    </aside>
                 </SheetContent>
             </Sheet>
 
@@ -549,12 +554,7 @@ export default function EditSabFlowPage() {
                         </PopoverContent>
                     </Popover>
                 </main>
-                <aside className="hidden md:block md:col-span-4 bg-background border-l">
-                    {renderPropertiesPanel()}
-                </aside>
             </div>
         </div>
-    </div>
     );
 }
-
