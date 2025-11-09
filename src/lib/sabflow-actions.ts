@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -88,17 +87,6 @@ import {
   Webhook,
   Split,
   CaseSensitive,
-  Landmark,
-  UtensilsCrossed,
-  FlaskConical,
-  PenTool,
-  BedDouble,
-  Receipt,
-  FilePlus,
-  Wallet,
-  IterationCw,
-  Notebook,
-  DollarSignIcon,
   Route,
   Columns,
 } from 'lucide-react';
@@ -111,7 +99,7 @@ export const sabnodeAppActions = [
       icon: WhatsAppIcon,
       actions: [],
       connectionType: 'internal',
-      color: 'from-green-500 to-emerald-600',
+      color: 'bg-gradient-to-br from-green-500 to-emerald-600',
     },
     {
       appId: 'sabchat',
@@ -119,7 +107,7 @@ export const sabnodeAppActions = [
       icon: SabChatIcon,
       actions: [],
       connectionType: 'internal',
-      color: 'from-violet-500 to-purple-600',
+      color: 'bg-gradient-to-br from-violet-500 to-purple-600',
     },
     {
       appId: 'meta',
@@ -127,7 +115,7 @@ export const sabnodeAppActions = [
       icon: MetaIcon,
       actions: [],
       connectionType: 'internal',
-      color: 'from-blue-600 to-indigo-700',
+      color: 'bg-gradient-to-br from-blue-600 to-indigo-700',
     },
     {
       appId: 'instagram',
@@ -135,7 +123,7 @@ export const sabnodeAppActions = [
       icon: InstagramIcon,
       actions: [],
       connectionType: 'internal',
-      color: 'from-pink-500 to-orange-500',
+      color: 'bg-gradient-to-br from-pink-500 to-orange-500',
     },
     {
       appId: 'crm',
@@ -143,7 +131,7 @@ export const sabnodeAppActions = [
       icon: Handshake,
       actions: [],
       connectionType: 'internal',
-      color: 'from-sky-500 to-cyan-600',
+      color: 'bg-gradient-to-br from-sky-500 to-cyan-600',
     },
     {
       appId: 'email',
@@ -151,7 +139,7 @@ export const sabnodeAppActions = [
       icon: Mail,
       actions: [],
       connectionType: 'internal',
-      color: 'from-red-500 to-orange-500',
+      color: 'bg-gradient-to-br from-red-500 to-orange-500',
     },
     {
       appId: 'sms',
@@ -159,33 +147,33 @@ export const sabnodeAppActions = [
       icon: MessageSquare,
       actions: [],
       connectionType: 'internal',
-      color: 'from-yellow-500 to-amber-600',
+      color: 'bg-gradient-to-br from-yellow-500 to-amber-600',
     },
-    { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: [], connectionType: 'internal', color: 'from-gray-500 to-gray-600' },
-    { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: [], connectionType: 'internal', color: 'from-gray-500 to-gray-600' },
-    { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', color: 'from-gray-500 to-gray-600' },
+    { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: [], connectionType: 'internal', color: 'bg-gradient-to-br from-gray-500 to-gray-600' },
+    { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: [], connectionType: 'internal', color: 'bg-gradient-to-br from-gray-500 to-gray-600' },
+    { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', color: 'bg-gradient-to-br from-gray-500 to-gray-600' },
 
   // Core Apps
-  { appId: 'api', name: 'API', icon: Server, actions: [], category: 'Core Apps', color: 'from-slate-500 to-slate-600', connectionType: 'apikey' },
-  { appId: 'array_function', name: 'Array Function', icon: Combine, actions: [], category: 'Core Apps', color: 'from-cyan-500 to-blue-500', connectionType: 'internal' },
-  { appId: 'code', name: 'Code', icon: Code2, actions: [], category: 'Core Apps', color: 'from-gray-700 to-gray-800', connectionType: 'internal' },
-  { appId: 'data_forwarder', name: 'Data Forwarder', icon: Forward, actions: [], category: 'Core Apps', color: 'from-blue-400 to-indigo-500', connectionType: 'internal' },
-  { appId: 'data_transformer', name: 'Data Transformer', icon: Replace, actions: [], category: 'Core Apps', color: 'from-purple-400 to-violet-500', connectionType: 'internal' },
-  { appId: 'datetime_formatter', name: 'DateTime Formatter', icon: Calendar, actions: [], category: 'Core Apps', color: 'from-sky-400 to-cyan-500', connectionType: 'internal' },
-  { appId: 'delay', name: 'Delay', icon: Timer, actions: [], category: 'Core Apps', color: 'from-yellow-400 to-amber-500', connectionType: 'internal' },
-  { appId: 'dynamic_web_page', name: 'Dynamic Web Page', icon: Globe2, actions: [], category: 'Core Apps', color: 'from-green-400 to-emerald-500', connectionType: 'internal' },
-  { appId: 'file_uploader', name: 'File Uploader', icon: FileUp, actions: [], category: 'Core Apps', color: 'from-gray-400 to-gray-500', connectionType: 'internal' },
-  { appId: 'filter', name: 'Filter', icon: Filter, actions: [], category: 'Core Apps', color: 'from-orange-400 to-red-500', connectionType: 'internal' },
-  { appId: 'iterator', name: 'Iterator', icon: IterationCw, actions: [], category: 'Core Apps', color: 'from-teal-400 to-cyan-500', connectionType: 'internal' },
-  { appId: 'json_extractor', name: 'JSON Extractor', icon: Braces, actions: [], category: 'Core Apps', color: 'from-gray-600 to-gray-700', connectionType: 'internal' },
-  { appId: 'lookup_table', name: 'Lookup Table', icon: Table, actions: [], category: 'Core Apps', color: 'from-blue-500 to-sky-600', connectionType: 'internal' },
-  { appId: 'number_formatter', name: 'Number Formatter', icon: Sigma, actions: [], category: 'Core Apps', color: 'from-emerald-400 to-teal-500', connectionType: 'internal' },
-  { appId: 'connect_manager', name: 'Connect Manager', icon: Cable, actions: [], category: 'Core Apps', color: 'from-rose-400 to-red-500', connectionType: 'internal' },
-  { appId: 'hook', name: 'Hook', icon: Webhook, actions: [], category: 'Core Apps', color: 'from-indigo-500 to-violet-600', connectionType: 'internal' },
-  { appId: 'subscription_billing', name: 'Subscription Billing', icon: Repeat, actions: [], category: 'Core Apps', color: 'from-green-500 to-lime-600', connectionType: 'internal' },
-  { appId: 'router', name: 'Router', icon: Route, actions: [], category: 'Core Apps', color: 'from-blue-600 to-sky-700', connectionType: 'internal' },
-  { appId: 'select_transform_json', name: 'Select Transform JSON', icon: Columns, actions: [], category: 'Core Apps', color: 'from-purple-500 to-indigo-600', connectionType: 'internal' },
-  { appId: 'text_formatter', name: 'Text Formatter', icon: CaseSensitive, actions: [], category: 'Core Apps', color: 'from-sky-500 to-cyan-600', connectionType: 'internal' },
+  { appId: 'api', name: 'API', icon: Server, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-slate-500 to-slate-600', connectionType: 'apikey' },
+  { appId: 'array_function', name: 'Array Function', icon: Combine, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-cyan-500 to-blue-500', connectionType: 'internal' },
+  { appId: 'code', name: 'Code', icon: Code2, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-gray-700 to-gray-800', connectionType: 'internal' },
+  { appId: 'data_forwarder', name: 'Data Forwarder', icon: Forward, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-blue-400 to-indigo-500', connectionType: 'internal' },
+  { appId: 'data_transformer', name: 'Data Transformer', icon: Replace, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-purple-400 to-violet-500', connectionType: 'internal' },
+  { appId: 'datetime_formatter', name: 'DateTime Formatter', icon: Calendar, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-sky-400 to-cyan-500', connectionType: 'internal' },
+  { appId: 'delay', name: 'Delay', icon: Timer, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-yellow-400 to-amber-500', connectionType: 'internal' },
+  { appId: 'dynamic_web_page', name: 'Dynamic Web Page', icon: Globe2, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-green-400 to-emerald-500', connectionType: 'internal' },
+  { appId: 'file_uploader', name: 'File Uploader', icon: FileUp, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-gray-400 to-gray-500', connectionType: 'internal' },
+  { appId: 'filter', name: 'Filter', icon: Filter, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-orange-400 to-red-500', connectionType: 'internal' },
+  { appId: 'iterator', name: 'Iterator', icon: IterationCcw, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-teal-400 to-cyan-500', connectionType: 'internal' },
+  { appId: 'json_extractor', name: 'JSON Extractor', icon: Braces, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-gray-600 to-gray-700', connectionType: 'internal' },
+  { appId: 'lookup_table', name: 'Lookup Table', icon: Table, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-blue-500 to-sky-600', connectionType: 'internal' },
+  { appId: 'number_formatter', name: 'Number Formatter', icon: Sigma, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-emerald-400 to-teal-500', connectionType: 'internal' },
+  { appId: 'connect_manager', name: 'Connect Manager', icon: Cable, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-rose-400 to-red-500', connectionType: 'internal' },
+  { appId: 'hook', name: 'Hook', icon: Webhook, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-indigo-500 to-violet-600', connectionType: 'internal' },
+  { appId: 'subscription_billing', name: 'Subscription Billing', icon: Repeat, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-green-500 to-lime-600', connectionType: 'internal' },
+  { appId: 'router', name: 'Router', icon: Route, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-blue-600 to-sky-700', connectionType: 'internal' },
+  { appId: 'select_transform_json', name: 'Select Transform JSON', icon: Columns, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-purple-500 to-indigo-600', connectionType: 'internal' },
+  { appId: 'text_formatter', name: 'Text Formatter', icon: CaseSensitive, actions: [], category: 'Core Apps', color: 'bg-gradient-to-br from-sky-500 to-cyan-600', connectionType: 'internal' },
 
   // External Apps
   {
@@ -194,7 +182,7 @@ export const sabnodeAppActions = [
     category: 'Productivity',
     logo: 'https://picsum.photos/seed/gsheets/40/40',
     connectionType: 'oauth',
-    color: 'from-green-500 to-teal-600',
+    color: 'bg-gradient-to-br from-green-500 to-teal-600',
     actions: []
   },
   { 
@@ -206,7 +194,7 @@ export const sabnodeAppActions = [
     credentials: [
         { name: 'apiKey', label: 'API Key', type: 'password' },
     ],
-    color: 'from-indigo-500 to-purple-600',
+    color: 'bg-gradient-to-br from-indigo-500 to-purple-600',
     actions: []
   },
   { 
@@ -219,7 +207,7 @@ export const sabnodeAppActions = [
         { name: 'shopName', label: 'Shop Name', type: 'text', placeholder: 'your-store' },
         { name: 'accessToken', label: 'Admin API Access Token', type: 'password' },
     ],
-    color: 'from-lime-500 to-green-600',
+    color: 'bg-gradient-to-br from-lime-500 to-green-600',
     actions: []
   },
   {
@@ -228,7 +216,7 @@ export const sabnodeAppActions = [
     category: 'Communication',
     logo: 'https://picsum.photos/seed/slack/40/40',
     connectionType: 'oauth',
-    color: 'from-purple-400 to-indigo-500',
+    color: 'bg-gradient-to-br from-purple-400 to-indigo-500',
     actions: []
   },
   {
@@ -237,7 +225,7 @@ export const sabnodeAppActions = [
     category: 'Email',
     logo: 'https://picsum.photos/seed/gmail/40/40',
     connectionType: 'oauth',
-    color: 'from-red-500 to-red-600',
+    color: 'bg-gradient-to-br from-red-500 to-red-600',
     actions: []
   },
   { 
@@ -249,7 +237,7 @@ export const sabnodeAppActions = [
     credentials: [
          { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
     ],
-    color: 'from-orange-500 to-orange-600',
+    color: 'bg-gradient-to-br from-orange-500 to-orange-600',
     actions: []
   },
   {
@@ -258,7 +246,7 @@ export const sabnodeAppActions = [
     category: 'Communication',
     logo: 'https://picsum.photos/seed/discord/40/40',
     connectionType: 'oauth',
-    color: 'from-indigo-600 to-blue-700',
+    color: 'bg-gradient-to-br from-indigo-600 to-blue-700',
     actions: []
   },
   {
@@ -267,7 +255,7 @@ export const sabnodeAppActions = [
     category: 'Productivity',
     logo: 'https://picsum.photos/seed/notion/40/40',
     connectionType: 'oauth',
-    color: 'from-gray-700 to-black',
+    color: 'bg-gradient-to-br from-gray-700 to-black',
     actions: []
   }
 ];
