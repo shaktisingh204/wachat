@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -51,7 +52,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 
-const initialState = { message: null, error: null };
+const initialState = { message: null, error: null, flowId: undefined };
 
 function SaveButton() {
   const { pending } = useFormStatus();
@@ -100,13 +101,12 @@ const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
 
 function BuilderPageSkeleton() {
     return (
-        <div className="flex h-[calc(100vh-theme(spacing.24))] bg-muted/30">
+        <div className="flex h-full bg-muted/30">
             <Skeleton className="w-64 bg-background border-r" />
             <div className="flex-1 flex flex-col">
                 <Skeleton className="h-16 border-b bg-card" />
-                <div className="flex-1 grid grid-cols-12">
-                    <Skeleton className="col-span-9" />
-                    <Skeleton className="col-span-3 bg-background border-l" />
+                <div className="flex-1">
+                    <Skeleton className="h-full w-full" />
                 </div>
             </div>
         </div>
@@ -284,8 +284,16 @@ export default function EditSabFlowPage() {
     };
 
     const handleToggleFullScreen = () => {
-        if (!document.fullscreenElement) { viewportRef.current?.requestFullscreen().catch(err => { alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`); }); } 
-        else { document.exitFullscreen?.(); }
+        const elem = document.querySelector('.sabflow-builder-container');
+        if (!elem) return;
+
+        if (!document.fullscreenElement) {
+            elem.requestFullscreen().catch(err => {
+                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            document.exitFullscreen?.();
+        }
     };
 
     useEffect(() => {
@@ -296,24 +304,28 @@ export default function EditSabFlowPage() {
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
-     if (isLoading) {
-        return <BuilderPageSkeleton />;
-    }
-    
-    const selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode?.data.connectionId);
-    const selectedApp = sabnodeAppActions.find(app => app.appId === selectedConnection?.appId);
-    const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode?.data.actionName);
-
     const renderPropertiesPanel = () => {
         if (!selectedNode) {
-            return (<div className="text-center text-muted-foreground p-8">Select a step to configure it.</div>);
+            return (
+                <div className="flex flex-col h-full">
+                    <div className="p-4 border-b">
+                        <h3 className="text-lg font-semibold">Properties</h3>
+                        <p className="text-sm text-muted-foreground">Select a step to configure it.</p>
+                    </div>
+                    <div className="flex-1 p-4 text-center text-muted-foreground">
+                        No step selected.
+                    </div>
+                </div>
+            );
         }
         
         const isTrigger = selectedNode.type === 'trigger';
         const isAction = selectedNode.type === 'action';
         const isCondition = selectedNode.type === 'condition';
 
-        const triggerConfig = isTrigger ? triggers.find(t => t.id === selectedNode.data.triggerType) : null;
+        const selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode.data.connectionId);
+        const selectedApp = sabnodeAppActions.find(app => app.appId === selectedConnection?.appId);
+        const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
 
         const handleSetApp = (appId: string, connectionName: string) => {
             handleNodeChange(selectedNode.id, { connectionId: connectionName, actionName: '', inputs: {} });
@@ -321,8 +333,8 @@ export default function EditSabFlowPage() {
         
         return (
             <div className="h-full flex flex-col">
-                <div className="p-4 border-b">
-                    <h3 className="text-lg font-semibold leading-none tracking-tight">Properties</h3>
+                <div className="p-4 border-b flex-shrink-0">
+                    <h3 className="text-lg font-semibold">Properties</h3>
                     <p className="text-sm text-muted-foreground">Configure the selected step.</p>
                 </div>
                 <Tabs defaultValue="setup" className="flex-1 flex flex-col min-h-0">
@@ -359,22 +371,22 @@ export default function EditSabFlowPage() {
                                         <>
                                             {!selectedNode.data.connectionId ? (
                                                 <div className="space-y-4">
-                                                    <h3 className="font-semibold">Choose App</h3>
+                                                    <h3 className="font-semibold">Choose an App</h3>
                                                      <div className="grid grid-cols-3 gap-2">
                                                          {(user?.sabFlowConnections || []).map((conn: any) => {
                                                              const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                              const AppIcon = appConfig?.icon || Zap;
                                                              return (
-                                                                <Card key={conn.connectionName} className="p-2 text-center cursor-pointer hover:bg-accent" onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
-                                                                    <AppIcon className="h-8 w-8 mx-auto text-muted-foreground"/>
-                                                                    <p className="text-xs mt-1 truncate">{conn.connectionName}</p>
-                                                                </Card>
+                                                                <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors text-white", appConfig?.color)} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                    <AppIcon className="h-8 w-8 text-white/90"/>
+                                                                    <p className="text-xs mt-1 truncate font-medium">{conn.connectionName}</p>
+                                                                </button>
                                                              )
                                                          })}
-                                                         <Card className="p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed">
+                                                         <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
                                                              <Plus className="h-6 w-6 text-muted-foreground"/>
                                                              <p className="text-xs mt-1">Add App</p>
-                                                         </Card>
+                                                         </Link>
                                                      </div>
                                                 </div>
                                             ) : (
@@ -434,41 +446,32 @@ export default function EditSabFlowPage() {
             </div>
         )
     };
-
+    
     return (
-        <form action={formAction} ref={formRef}>
-            <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
-            <input type="hidden" name="name" value={flowName} />
-            <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
-            <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
-            <input type="hidden" name="edges" value={JSON.stringify(edges)} />
-            
-            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                <SheetContent className="w-full max-w-sm p-0">
-                    <aside className="border-r bg-background h-full flex flex-col">
-                        {renderPropertiesPanel()}
-                    </aside>
-                </SheetContent>
-            </Sheet>
-
-            <div className="flex flex-col h-full">
-                <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
-                    <div className="flex items-center gap-2">
-                         <Button variant="ghost" asChild className="h-9 px-2">
-                            <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
-                        </Button>
-                        <Input value={flowName} onChange={(e) => setFlowName(e.target.value)} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
-                    </div>
-                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
-                        <SaveButton />
-                        <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode} onClick={() => setIsSidebarOpen(true)}><Settings className="h-5 w-5" /></Button>
-                    </div>
-                </header>
-                 <div className="flex-1 grid grid-cols-12 overflow-hidden relative">
+        <div className="h-full">
+            <form action={formAction} ref={formRef}>
+                <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
+                <input type="hidden" name="name" value={flowName} />
+                <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
+                <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
+                <input type="hidden" name="edges" value={JSON.stringify(edges)} />
+                
+                <div className="flex flex-col h-full">
+                    <header className={cn("flex-shrink-0 flex items-center justify-between p-3 border-b bg-card", "relative self-end w-min rounded-[10px] mt-[10px] mr-[10px]")}>
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" asChild className="h-9 px-2">
+                                <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
+                            </Button>
+                            <Input value={flowName} onChange={(e) => setFlowName(e.target.value)} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
+                            <SaveButton />
+                        </div>
+                    </header>
                     <main 
                         ref={viewportRef}
-                        className="col-span-12 md:col-span-8 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing border-r"
+                        className="flex-1 w-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -476,8 +479,8 @@ export default function EditSabFlowPage() {
                         onWheel={handleWheel}
                         onClick={handleCanvasClick}
                     >
-                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
-                          <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
+                        <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
                             {nodes.map(node => {
                                 const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
                                 const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
@@ -485,14 +488,14 @@ export default function EditSabFlowPage() {
                                     ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
-                                const colorClass = appConfig?.color || 'from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900';
+                                const colorClass = appConfig?.color || 'bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900';
                                 
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
                                             "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center text-white",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                            `bg-gradient-to-br ${colorClass}`
+                                            colorClass
                                         )}>
                                             <Icon className="h-12 w-12 text-white/80" />
                                             <p className="font-semibold mt-2 text-xs text-white/90 line-clamp-1">{node.data.name}</p>
@@ -510,7 +513,7 @@ export default function EditSabFlowPage() {
                                     </div>
                                 )
                             })}
-                             <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
+                            <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
                                 {edges.map(edge => {
                                     const sourceNode = nodes.find(n => n.id === edge.source);
                                     const targetNode = nodes.find(n => n.id === edge.target);
@@ -525,13 +528,13 @@ export default function EditSabFlowPage() {
                                 )}
                             </svg>
                         </div>
-                          <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                        <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
-                          <Popover>
+                        <Popover>
                             <PopoverTrigger asChild>
                                 <Button size="icon" className="absolute bottom-4 left-4 z-10 rounded-full h-12 w-12 shadow-lg">
                                     <Plus className="h-6 w-6" />
@@ -545,11 +548,14 @@ export default function EditSabFlowPage() {
                             </PopoverContent>
                         </Popover>
                     </main>
-                    <aside className="hidden md:block col-span-4 bg-background">
-                        {renderPropertiesPanel()}
-                    </aside>
+                    <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                        <SheetContent className="w-full max-w-sm p-0 flex flex-col">
+                            {renderPropertiesPanel()}
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </div>
         </form>
+    </div>
     );
 }
