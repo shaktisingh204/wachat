@@ -259,7 +259,7 @@ export default function EditSabFlowPage() {
                 setConnecting(null);
                 return;
             }
-
+    
             const newEdge: SabFlowEdge = {
                 id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`,
                 source: connecting.sourceNodeId,
@@ -268,10 +268,9 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId
             };
             
-            // Remove any existing edge connected to this target handle
-            const edgesToKeep = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
-            
-            setEdges([...edgesToKeep, newEdge]);
+            // An input handle can only have one connection.
+            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
+            setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
         }
     };
@@ -348,91 +347,104 @@ export default function EditSabFlowPage() {
         
         return (
             <div className="h-full flex flex-col">
-                <ScrollArea className="flex-1">
-                    <div className="p-4 space-y-4">
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Step Name</Label>
-                                <Input value={selectedNode.data.name} onChange={e => handleNodeChange(selectedNode.id, { name: e.target.value })}/>
-                            </div>
-                            {isTrigger && (
-                                <>
+                <Tabs defaultValue="setup" className="flex-1 flex flex-col min-h-0">
+                    <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
+                        <TabsTrigger value="setup">Setup</TabsTrigger>
+                        <TabsTrigger value="connections">Connections</TabsTrigger>
+                    </TabsList>
+                    <div className="flex-1 relative">
+                        <ScrollArea className="absolute inset-0">
+                            <TabsContent value="setup" className="p-4 space-y-4">
+                               <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label>App Event</Label>
-                                        <Select value={selectedNode.data.triggerType} onValueChange={val => { handleNodeChange(selectedNode.id, {triggerType: val}); setTrigger(prev => ({...prev, type: val})); }}>
-                                            <SelectTrigger><SelectValue/></SelectTrigger>
-                                            <SelectContent>{triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
-                                        </Select>
+                                        <Label>Step Name</Label>
+                                        <Input value={selectedNode.data.name} onChange={e => handleNodeChange(selectedNode.id, { name: e.target.value })}/>
                                     </div>
-                                    {trigger.type === 'webhook' && (
-                                        <div className="space-y-2">
-                                            <Label>Webhook URL</Label>
-                                            <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${isNew ? '[Save Flow to Generate URL]' : flowId}`}/>
-                                        </div>
-                                    )}
-                                </>
-                            )}
-                            {isAction && (
-                                <>
-                                    {!selectedNode.data.connectionId ? (
-                                        <div className="space-y-4">
-                                            <h3 className="font-semibold">Choose an App</h3>
-                                             <div className="grid grid-cols-3 gap-2">
-                                                 {(user?.sabFlowConnections || []).map((conn: any) => {
-                                                     const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
-                                                     const AppIcon = appConfig?.icon || Zap;
-                                                     return (
-                                                        <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors text-white", appConfig?.color)} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
-                                                            <AppIcon className="h-8 w-8 text-white/90"/>
-                                                            <p className="text-xs mt-1 truncate font-medium">{conn.connectionName}</p>
-                                                        </button>
-                                                     )
-                                                 })}
-                                                 <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
-                                                     <Plus className="h-6 w-6 text-muted-foreground"/>
-                                                     <p className="text-xs mt-1">Add App</p>
-                                                 </Link>
-                                             </div>
-                                        </div>
-                                    ) : (
+                                    {isTrigger && (
                                         <>
-                                            <div className="flex items-center gap-2">
-                                                <Button variant="ghost" size="sm" onClick={() => handleNodeChange(selectedNode.id, {connectionId: '', actionName: '', inputs: {}})}>
-                                                    <ArrowLeft className="mr-2 h-4 w-4"/> Change App
-                                                </Button>
-                                            </div>
                                             <div className="space-y-2">
-                                                <Label>Action</Label>
-                                                <Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}>
-                                                    <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                                                    <SelectContent>
-                                                        {selectedApp?.actions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
-                                                    </SelectContent>
+                                                <Label>App Event</Label>
+                                                <Select value={selectedNode.data.triggerType} onValueChange={val => { handleNodeChange(selectedNode.id, {triggerType: val}); setTrigger(prev => ({...prev, type: val})); }}>
+                                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                                    <SelectContent>{triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
                                                 </Select>
                                             </div>
+                                            {trigger.type === 'webhook' && (
+                                                <div className="space-y-2">
+                                                    <Label>Webhook URL</Label>
+                                                    <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${isNew ? '[Save Flow to Generate URL]' : flowId}`}/>
+                                                </div>
+                                            )}
                                         </>
                                     )}
-                                </>
-                            )}
-                        </div>
+                                    {isAction && (
+                                        <>
+                                            {!selectedNode.data.connectionId ? (
+                                                <div className="space-y-4">
+                                                    <h3 className="font-semibold">Choose an App</h3>
+                                                     <div className="grid grid-cols-3 gap-2">
+                                                         {(user?.sabFlowConnections || []).map((conn: any) => {
+                                                             const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
+                                                             const AppIcon = appConfig?.icon || Zap;
+                                                             return (
+                                                                <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors", appConfig?.bgColor)} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                    <AppIcon className={cn("h-8 w-8", appConfig?.iconColor)}/>
+                                                                    <p className={cn("text-xs mt-1 truncate font-medium", appConfig?.iconColor.replace('text-', 'text-opacity-90'))}>{conn.connectionName}</p>
+                                                                </button>
+                                                             )
+                                                         })}
+                                                         <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
+                                                             <Plus className="h-6 w-6 text-muted-foreground"/>
+                                                             <p className="text-xs mt-1">Add App</p>
+                                                         </Link>
+                                                     </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="flex items-center gap-2">
+                                                        <Button variant="ghost" size="sm" onClick={() => handleNodeChange(selectedNode.id, {connectionId: '', actionName: '', inputs: {}})}>
+                                                            <ArrowLeft className="mr-2 h-4 w-4"/> Change App
+                                                        </Button>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Action</Label>
+                                                        <Select value={selectedNode.data.actionName} onValueChange={val => handleNodeChange(selectedNode.id, { actionName: val, inputs: {} })}>
+                                                            <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                                            <SelectContent>
+                                                                {selectedApp?.actions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
 
-                        {selectedAction && (
-                             <div className="space-y-4 pt-4 border-t">
-                                <h4 className="font-semibold">{selectedAction.label}</h4>
-                                <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                                {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
-                            </div>
-                        )}
+                                {selectedAction && (
+                                     <div className="space-y-4 pt-4 border-t">
+                                        <h4 className="font-semibold">{selectedAction.label}</h4>
+                                        <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => handleNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                                    </div>
+                                )}
 
-                        {isCondition && (
-                            <>
-                                <div className="space-y-2"><Label>Logic</Label><RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">AND</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">OR</Label></div></RadioGroup></div>
-                                {(selectedNode.data.rules || []).map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2"><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => { const r = [...selectedNode.data.rules]; r[index].field=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}} /><Select value={rule.operator} onValueChange={val => { const r = [...selectedNode.data.rules]; r[index].operator=val; handleNodeChange(selectedNode.id, {rules: r})}}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => { const r = [...selectedNode.data.rules]; r[index].value=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}}/></div>))}
-                                <Button variant="outline" size="sm" onClick={() => handleNodeChange(selectedNode.id, { rules: [...(selectedNode.data.rules || []), {field: '', operator: 'equals', value: ''}]})}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
-                            </>
-                        )}
+                                {isCondition && (
+                                    <>
+                                        <div className="space-y-2"><Label>Logic</Label><RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">AND</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">OR</Label></div></RadioGroup></div>
+                                        {(selectedNode.data.rules || []).map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2"><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => { const r = [...selectedNode.data.rules]; r[index].field=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}} /><Select value={rule.operator} onValueChange={val => { const r = [...selectedNode.data.rules]; r[index].operator=val; handleNodeChange(selectedNode.id, {rules: r})}}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => { const r = [...selectedNode.data.rules]; r[index].value=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}}/></div>))}
+                                        <Button variant="outline" size="sm" onClick={() => handleNodeChange(selectedNode.id, { rules: [...(selectedNode.data.rules || []), {field: '', operator: 'equals', value: ''}]})}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
+                                    </>
+                                )}
+                            </TabsContent>
+                             <TabsContent value="connections" className="p-4">
+                                 <Link href="/dashboard/sabflow/connections">
+                                    <Button variant="outline" className="w-full">Manage App Connections</Button>
+                                 </Link>
+                            </TabsContent>
+                        </ScrollArea>
                     </div>
-                </ScrollArea>
+                </Tabs>
                  {selectedNode?.type !== 'trigger' && (
                     <div className="p-4 border-t flex-shrink-0">
                         <Button variant="destructive" className="w-full" onClick={() => handleRemoveNode(selectedNode.id)}>
@@ -490,17 +502,18 @@ export default function EditSabFlowPage() {
                                     ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
-                                const colorClass = appConfig?.color || 'bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900';
+                                const bgColor = appConfig?.bgColor || 'bg-gray-100';
+                                const iconColor = appConfig?.iconColor || 'text-gray-800';
                                 
                                 return (
                                     <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
-                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center text-white bg-gradient-to-br",
+                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                            colorClass
+                                            bgColor
                                         )}>
-                                            <Icon className="h-12 w-12 text-white/80" />
-                                            <p className="font-semibold mt-2 text-xs text-white/90 line-clamp-1">{node.data.name}</p>
+                                            <Icon className={cn("h-12 w-12", iconColor)} />
+                                            <p className={cn("font-semibold mt-2 text-xs line-clamp-1", iconColor)}>{node.data.name}</p>
                                         </div>
 
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
@@ -550,12 +563,12 @@ export default function EditSabFlowPage() {
                             </PopoverContent>
                         </Popover>
                     </main>
+                    <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                        <SheetContent className="w-full max-w-sm p-0 flex flex-col">
+                            {renderPropertiesPanel()}
+                        </SheetContent>
+                    </Sheet>
                 </div>
-                <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                    <SheetContent className="w-full max-w-sm p-0 flex flex-col">
-                        {renderPropertiesPanel()}
-                    </SheetContent>
-                </Sheet>
             </form>
         </div>
     );
