@@ -270,7 +270,7 @@ export default function EditSabFlowPage() {
             
             // Prevent creating a duplicate connection between the same two nodes.
             const edgeExists = edges.some(
-                edge => (edge.source === newEdge.source && edge.target === newEdge.target) || (edge.source === newEdge.target && edge.target === newEdge.source)
+                edge => (edge.source === newEdge.source && edge.target === newEdge.target)
             );
 
             if (edgeExists) {
@@ -404,8 +404,8 @@ export default function EditSabFlowPage() {
                                                              const AppIcon = appConfig?.icon || Zap;
                                                              return (
                                                                 <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
-                                                                    <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
-                                                                        <AppIcon className={cn("h-6 w-6 text-white")}/>
+                                                                    <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-white">
+                                                                        <AppIcon className={cn("h-8 w-8", appConfig?.iconColor)}/>
                                                                     </div>
                                                                     <p className="text-xs font-bold text-black break-words whitespace-normal">{conn.connectionName}</p>
                                                                 </button>
@@ -528,8 +528,8 @@ export default function EditSabFlowPage() {
                                             "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
                                             selectedNodeId === node.id && 'ring-2 ring-primary'
                                         )}>
-                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
-                                                <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-white')} />
+                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center bg-white")}>
+                                                <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-gray-400')} />
                                             </div>
                                         </div>
                                         <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
