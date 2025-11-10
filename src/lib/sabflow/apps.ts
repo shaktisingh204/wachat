@@ -126,13 +126,14 @@ export const sabnodeAppActions = [
     logo: 'https://picsum.photos/seed/gsheets/40/40',
     connectionType: 'webhook',
     description: "Connect Google Sheets by sending data to your flow's webhook URL from an Apps Script trigger.",
-    iconColor: 'text-sabflow-google_sheets-icon',
+    iconColor: 'text-sabflow-google-sheets-icon',
     actions: googleSheetsActions
   },
   { 
     appId: 'stripe',
     name: 'Stripe',
     category: 'Payment',
+    description: "Connect your Stripe account to create customers, manage subscriptions, and process payments.",
     logo: 'https://picsum.photos/seed/stripe/40/40',
     connectionType: 'apikey',
     credentials: [
@@ -145,6 +146,7 @@ export const sabnodeAppActions = [
     appId: 'shopify',
     name: 'Shopify',
     category: 'E-Commerce',
+    description: "Connect your Shopify store to manage customers, orders, and products.",
     logo: 'https://picsum.photos/seed/shopify/40/40',
     connectionType: 'apikey',
     credentials: [
@@ -158,6 +160,7 @@ export const sabnodeAppActions = [
     appId: 'slack',
     name: 'Slack',
     category: 'Communication',
+    description: "Connect your Slack workspace to send messages to channels or users.",
     logo: 'https://picsum.photos/seed/slack/40/40',
     connectionType: 'oauth',
     iconColor: 'text-sabflow-slack-icon',
@@ -167,27 +170,28 @@ export const sabnodeAppActions = [
     appId: 'gmail',
     name: 'Gmail',
     category: 'Email',
+    description: "Connect your Gmail account to send and receive emails.",
     logo: 'https://picsum.photos/seed/gmail/40/40',
     connectionType: 'oauth',
-    color: 'bg-gradient-to-br from-red-500 to-red-600',
     actions: []
   },
   { 
     appId: 'hubspot',
     name: 'HubSpot',
     category: 'CRM',
+    description: "Connect your HubSpot account to sync contacts, deals, and companies.",
     logo: 'https://picsum.photos/seed/hubspot/40/40',
     connectionType: 'apikey',
     credentials: [
          { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
     ],
-    color: 'bg-gradient-to-br from-orange-500 to-orange-600',
     actions: []
   },
   {
     appId: 'discord',
     name: 'Discord',
     category: 'Communication',
+    description: "Connect your Discord server to send messages and manage roles.",
     logo: 'https://picsum.photos/seed/discord/40/40',
     connectionType: 'oauth',
     iconColor: 'text-sabflow-discord-icon',
@@ -197,6 +201,7 @@ export const sabnodeAppActions = [
     appId: 'notion',
     name: 'Notion',
     category: 'Productivity',
+    description: "Connect your Notion workspace to create pages and database entries.",
     logo: 'https://picsum.photos/seed/notion/40/40',
     connectionType: 'oauth',
     iconColor: 'text-sabflow-notion-icon',

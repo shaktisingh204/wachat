@@ -748,4 +748,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 ```
 - <file>/src/components/wabasimplify/connections/google-sheets-connection.tsx</file>
 - <file>/src/app/dashboard/sabflow/connections/page.tsx</file>
-- <file>/src/lib/sabflow/actions/google-sheets.ts</file>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -742,7 +741,4 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
     return (
         <ProjectProvider initialProjects={initialData.projects} user={initialData.user}>
-            <DashboardLayoutContent>{children}</DashboardLayoutContent>
-        </ProjectProvider>
-    );
-}
+            <DashboardLayoutContent>{
