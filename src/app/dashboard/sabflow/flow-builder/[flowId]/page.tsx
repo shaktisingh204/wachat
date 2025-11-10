@@ -232,17 +232,39 @@ export default function EditSabFlowPage() {
         setNodes(nodes.map(n => n.id === nodeId ? {...n, data: {...n.data, ...data}} : n));
     };
 
-    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => { e.preventDefault(); e.stopPropagation(); setDraggingNode(nodeId); };
-    const handleCanvasMouseDown = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { e.preventDefault(); setIsPanning(true); } };
-    const handleCanvasMouseMove = (e: React.MouseEvent) => {
-        if (isPanning) setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
-        else if (draggingNode) setNodes(prev => prev.map(n => n.id === draggingNode ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } : n));
-        if (connecting && viewportRef.current) { const rect = viewportRef.current.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom }); }
+    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => { 
+        if (e.button !== 0) return; // Only allow left-click drags
+        e.preventDefault(); e.stopPropagation(); setDraggingNode(nodeId); 
     };
+
+    const handleCanvasMouseDown = (e: React.MouseEvent) => { 
+        if (e.button !== 0) return;
+        if (e.target === e.currentTarget) { e.preventDefault(); setIsPanning(true); }
+    };
+    
+    const handleCanvasMouseMove = (e: React.MouseEvent) => {
+        if (isPanning) {
+            setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
+        } else if (draggingNode) {
+            setNodes(prev => prev.map(n => 
+                n.id === draggingNode 
+                    ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } 
+                    : n
+            ));
+        }
+        
+        if (connecting && viewportRef.current) {
+            const rect = viewportRef.current.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom });
+        }
+    };
+    
     const handleCanvasMouseUp = () => { setIsPanning(false); setDraggingNode(null); };
     const handleCanvasClick = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { if (connecting) setConnecting(null); else setSelectedNodeId(null); }};
 
-    const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
+     const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
         e.preventDefault();
         e.stopPropagation();
         if (!viewportRef.current) return;
@@ -268,9 +290,9 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId,
             };
             
-            // Prevent creating a duplicate connection between the same two nodes.
+            // Prevent duplicate connections between the same two nodes
             const edgeExists = edges.some(
-                edge => (edge.source === newEdge.source && edge.target === newEdge.target)
+                edge => (edge.source === newEdge.source && edge.target === newEdge.target) || (edge.source === newEdge.target && edge.target === newEdge.source)
             );
 
             if (edgeExists) {
@@ -282,7 +304,7 @@ export default function EditSabFlowPage() {
             setConnecting(null);
         }
     };
-    
+
     const handleWheel = (e: React.WheelEvent) => {
         e.preventDefault();
         if (!viewportRef.current) return;
@@ -292,7 +314,7 @@ export default function EditSabFlowPage() {
         const mouseY = e.clientY - rect.top;
     
         const zoomFactor = -0.001;
-        const newZoom = Math.max(0.2, Math.min(2, zoom + e.deltaY * zoomFactor));
+        const newZoom = Math.max(0.25, Math.min(2.5, zoom + e.deltaY * zoomFactor));
         
         const worldX = (mouseX - pan.x) / zoom;
         const worldY = (mouseY - pan.y) / zoom;
@@ -306,7 +328,8 @@ export default function EditSabFlowPage() {
 
     const handleZoomControls = (direction: 'in' | 'out' | 'reset') => {
         if(direction === 'reset') { setZoom(1); setPan({ x: 0, y: 0 }); return; }
-        setZoom(prevZoom => Math.max(0.2, Math.min(2, direction === 'in' ? prevZoom * 1.2 : prevZoom / 1.2)));
+        const newZoom = direction === 'in' ? zoom * 1.2 : zoom / 1.2;
+        setZoom(Math.max(0.25, Math.min(2.5, newZoom)));
     };
 
     const handleToggleFullScreen = () => {
@@ -403,8 +426,8 @@ export default function EditSabFlowPage() {
                                                              const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                              const AppIcon = appConfig?.icon || Zap;
                                                              return (
-                                                                <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
-                                                                    <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-white">
+                                                                <button type="button" key={conn.connectionName} className="aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white" onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                    <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
                                                                         <AppIcon className={cn("h-8 w-8", appConfig?.iconColor)}/>
                                                                     </div>
                                                                     <p className="text-xs font-bold text-black break-words whitespace-normal">{conn.connectionName}</p>
@@ -529,7 +552,7 @@ export default function EditSabFlowPage() {
                                             selectedNodeId === node.id && 'ring-2 ring-primary'
                                         )}>
                                             <div className={cn("w-16 h-16 rounded-full flex items-center justify-center bg-white")}>
-                                                <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-gray-400')} />
+                                                <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-gray-400')}/>
                                             </div>
                                         </div>
                                         <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
