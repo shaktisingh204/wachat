@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -221,7 +222,7 @@ export default function EditSabFlowPage() {
         };
         setNodes([...nodes, newNode]);
         setSelectedNodeId(newNodeId);
-        setIsSidebarOpen(true); // Open the sidebar to configure the new node
+        setIsSidebarOpen(true);
     };
     
     const handleRemoveNode = (nodeId: string) => {
@@ -375,13 +376,15 @@ export default function EditSabFlowPage() {
 
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
-    const NodeComponent = ({ node, isStartNode }: { node: SabFlowNode; isStartNode: boolean; }) => {
+    const NodeComponent = ({ node }: { node: SabFlowNode; }) => {
         const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
         const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
         const action = appConfig?.actions.find(a => a.name === node.data.actionName);
         const Icon = node.type === 'trigger'
             ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
             : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
+        
+        const isStartNode = !edges.some(e => e.target === node.id);
 
         const Handle = ({ position, id }: { position: 'left' | 'right'; id: string }) => (
             <div id={id} data-handle-pos={position} className={cn("absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 top-1/2 -translate-y-1/2", position === 'left' ? '-left-2' : '-right-2')} onClick={e => handleHandleClick(e, node.id, id)} />
@@ -395,6 +398,7 @@ export default function EditSabFlowPage() {
                 style={{ left: node.position.x, top: node.position.y }}
                 onMouseDown={e => handleNodeMouseDown(e, node.id)}
                 onClick={e => { e.stopPropagation(); setSelectedNodeId(node.id) }}
+                 onContextMenu={(e) => handleNodeContextMenu(e, node.id)}
             >
                 <div
                     className={cn(
@@ -403,8 +407,8 @@ export default function EditSabFlowPage() {
                     )}
                     style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
                 >
-                    <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
-                        <Icon className={cn("h-8 w-8", appConfig?.iconColor)} />
+                    <div className={cn("w-16 h-16 rounded-full flex items-center justify-center")}>
+                        <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-muted-foreground')} />
                     </div>
                 </div>
                 <p className="font-bold text-xs mt-2 text-black">{action?.label || node.data.name}</p>
@@ -654,7 +658,7 @@ export default function EditSabFlowPage() {
                                     </button>
                                 </div>
                             ) : nodes.map(node => (
-                                <NodeComponent key={node.id} node={node} isStartNode={!edges.some(e => e.target === node.id)} />
+                                <NodeComponent key={node.id} node={node} />
                             ))}
                         </div>
                         {contextMenu && (
@@ -669,7 +673,7 @@ export default function EditSabFlowPage() {
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" /></Button>
                         </div>
                         <Popover>
                             <PopoverTrigger asChild>
@@ -696,3 +700,5 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
+
+    
