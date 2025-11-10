@@ -45,7 +45,8 @@ import {
   ZoomOut,
   Frame,
   X,
-  RefreshCw
+  RefreshCw,
+  Copy,
 } from 'lucide-react';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
 import { cn } from '@/lib/utils';
@@ -85,7 +86,7 @@ const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
     const y = node.position.y;
 
     if (handleId.endsWith('-input')) {
-        return { x, y: y + NODE_HEIGHT / 2 };
+        return { x: x, y: y + NODE_HEIGHT / 2 };
     }
     if (handleId.endsWith('-output-main')) {
         return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT / 2 };
@@ -156,6 +157,7 @@ export default function EditSabFlowPage() {
     const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number, nodeId: string } | null>(null);
 
     const isNew = flowId === 'new-flow';
 
@@ -227,17 +229,34 @@ export default function EditSabFlowPage() {
         setEdges(edges.filter(e => e.source !== nodeId && e.target !== nodeId));
         if(selectedNodeId === nodeId) setSelectedNodeId(null);
     };
+    
+    const handleCopyNode = (nodeId: string) => {
+        const nodeToCopy = nodes.find(n => n.id === nodeId);
+        if (!nodeToCopy || nodeToCopy.type === 'trigger') return;
+
+        const newNode: SabFlowNode = {
+            ...JSON.parse(JSON.stringify(nodeToCopy)),
+            id: `${nodeToCopy.type}_${Date.now()}`,
+            position: {
+                x: nodeToCopy.position.x + 40,
+                y: nodeToCopy.position.y + 40
+            }
+        };
+        setNodes(prev => [...prev, newNode]);
+    };
+
 
     const handleNodeChange = (nodeId: string, data: any) => {
         setNodes(nodes.map(n => n.id === nodeId ? {...n, data: {...n.data, ...data}} : n));
     };
 
     const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => { 
-        if (e.button !== 0) return; // Only allow left-click drags
+        if (e.button !== 0) return;
         e.preventDefault(); e.stopPropagation(); setDraggingNode(nodeId); 
     };
 
     const handleCanvasMouseDown = (e: React.MouseEvent) => { 
+        if (contextMenu) setContextMenu(null);
         if (e.button !== 0) return;
         if (e.target === e.currentTarget) { e.preventDefault(); setIsPanning(true); }
     };
@@ -290,9 +309,8 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId,
             };
             
-            // Prevent duplicate connections between the same two nodes
             const edgeExists = edges.some(
-                edge => (edge.source === newEdge.source && edge.target === newEdge.target)
+                edge => (edge.source === newEdge.source && edge.target === newEdge.target) || (edge.source === newEdge.target && edge.target === newEdge.source)
             );
 
             if (edgeExists) {
@@ -304,7 +322,7 @@ export default function EditSabFlowPage() {
             setConnecting(null);
         }
     };
-
+    
     const handleWheel = (e: React.WheelEvent) => {
         e.preventDefault();
         if (!viewportRef.current) return;
@@ -351,6 +369,11 @@ export default function EditSabFlowPage() {
         return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
     }, []);
     
+    const handleNodeContextMenu = (e: React.MouseEvent, nodeId: string) => {
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY, nodeId });
+    };
+
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
     const renderPropertiesPanel = () => {
@@ -535,9 +558,29 @@ export default function EditSabFlowPage() {
                         onMouseLeave={handleCanvasMouseUp}
                         onWheel={handleWheel}
                         onClick={handleCanvasClick}
+                        onContextMenu={(e) => e.preventDefault()}
                     >
                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
-                        <div className="relative w-full h-full min-h-[85vh]" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                        <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                            <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '10000px', height: '10000px' }}>
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="hsla(215, 89%, 48%, 0.5)" />
+                                    </marker>
+                                </defs>
+                                {edges.map(edge => {
+                                    const sourceNode = nodes.find(n => n.id === edge.source);
+                                    const targetNode = nodes.find(n => n.id === edge.target);
+                                    if(!sourceNode || !targetNode) return null;
+                                    const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
+                                    const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
+                                    if (!sourcePos || !targetPos) return null;
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />
+                                })}
+                                {connecting && (
+                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />
+                                )}
+                            </svg>
                             {nodes.map(node => {
                                 const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
                                 const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
@@ -546,16 +589,13 @@ export default function EditSabFlowPage() {
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
                                 return (
-                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
-                                        <div className={cn(
-                                            "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
-                                            selectedNodeId === node.id && 'ring-2 ring-primary'
-                                        )} style={{filter: 'drop-shadow(rgba(0, 0, 0, 0.25) 0px 5px 6px)'}}>
-                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center bg-white")}>
+                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}} onContextMenu={(e) => handleNodeContextMenu(e, node.id)}>
+                                        <div className={cn("w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white", selectedNodeId === node.id && 'ring-2 ring-primary')} style={{filter: 'drop-shadow(rgba(0, 0, 0, 0.25) 0px 5px 6px)'}}>
+                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
                                                 <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-gray-400')}/>
                                             </div>
                                         </div>
-                                        <p className="font-bold text-sm mt-2 text-black">{node.data.name}</p>
+                                        <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
 
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
                                         {node.type === 'condition' ? (
@@ -569,21 +609,15 @@ export default function EditSabFlowPage() {
                                     </div>
                                 )
                             })}
-                            <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '10000px', height: '10000px', transformOrigin: 'top left' }}>
-                                {edges.map(edge => {
-                                    const sourceNode = nodes.find(n => n.id === edge.source);
-                                    const targetNode = nodes.find(n => n.id === edge.target);
-                                    if(!sourceNode || !targetNode) return null;
-                                    const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
-                                    const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
-                                    if (!sourcePos || !targetPos) return null;
-                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
-                                })}
-                                {connecting && (
-                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
-                                )}
-                            </svg>
                         </div>
+                        {contextMenu && (
+                            <Card className="absolute p-1" style={{ top: contextMenu.y, left: contextMenu.x }}>
+                                <CardContent className="p-0">
+                                <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { handleCopyNode(contextMenu.nodeId); setContextMenu(null); }}><Copy className="mr-2 h-4 w-4"/>Copy</Button>
+                                <Button variant="ghost" size="sm" className="w-full justify-start text-destructive hover:text-destructive" onClick={() => { handleRemoveNode(contextMenu.nodeId); setContextMenu(null); }}><Trash2 className="mr-2 h-4 w-4"/>Delete</Button>
+                                </CardContent>
+                            </Card>
+                        )}
                         <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
