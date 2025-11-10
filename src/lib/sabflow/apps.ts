@@ -25,7 +25,8 @@ import {
   CaseSensitive,
   Link as LinkIcon,
   QrCode,
-  Handshake
+  Handshake,
+  Repeat
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
