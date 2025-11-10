@@ -268,7 +268,12 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId
             };
             
-            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
+            // Allow multiple connections TO an input, but not multiple from the same output handle to the same input handle.
+            // Remove any edge that has the exact same source and target handles.
+            const edgesWithoutDuplicates = edges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle && edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle));
+
+            // Remove any edge that has the same *target input handle*, effectively allowing only one connection per input handle.
+            const edgesWithoutExistingTarget = edgesWithoutDuplicates.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
             
             setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
@@ -479,7 +484,7 @@ export default function EditSabFlowPage() {
                 <input type="hidden" name="edges" value={JSON.stringify(edges)} />
                 
                 <div className="flex flex-col h-full">
-                    <header className="relative self-end w-min rounded-[10px] mt-[10px] mr-[10px] flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
+                    <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" asChild className="h-9 px-2">
                                 <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
@@ -491,8 +496,8 @@ export default function EditSabFlowPage() {
                             <SaveButton />
                         </div>
                     </header>
-                    <main style={{ display: 'contents' }}>
-                        <div 
+                    <div className="flex-1 flex min-h-0">
+                        <main 
                             ref={viewportRef}
                             className="flex-1 w-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
                             onMouseDown={handleCanvasMouseDown}
@@ -555,14 +560,14 @@ export default function EditSabFlowPage() {
                                 <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
                                 <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                             </div>
-                            <div className="absolute bottom-4 left-4 z-10" style={{position: 'relative'}}>
+                            <div className="absolute bottom-4 left-4 z-10">
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button size="icon" className="rounded-full h-12 w-12 shadow-lg">
                                             <Plus className="h-6 w-6" />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-64 p-2" side="top" align="start">
+                                    <PopoverContent className="w-64 p-2 data-[side=top]:-translate-y-2" side="top" align="start">
                                         <div className="space-y-1">
                                             <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('action')}><Zap className="mr-2 h-4 w-4" />Action</Button>
                                             <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('condition')}><GitFork className="mr-2 h-4 w-4" />Condition</Button>
@@ -570,15 +575,15 @@ export default function EditSabFlowPage() {
                                     </PopoverContent>
                                 </Popover>
                             </div>
-                        </div>
-                    </main>
-                    <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                        <SheetContent className="w-full max-w-sm p-0 flex flex-col">
-                            {renderPropertiesPanel()}
-                        </SheetContent>
-                    </Sheet>
+                        </main>
+                    </div>
                 </div>
             </form>
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                <SheetContent className="w-full max-w-sm p-0 flex flex-col">
+                    {renderPropertiesPanel()}
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

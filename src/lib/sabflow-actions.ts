@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -81,8 +80,8 @@ export const sabnodeAppActions = [
       icon: WhatsAppIcon,
       actions: [],
       connectionType: 'internal',
-      iconColor: 'sabflow-icon-wachat',
-      bgColor: 'sabflow-bg-wachat',
+      iconColor: 'text-sabflow-wachat-icon',
+      bgColor: 'bg-sabflow-wachat-bg',
     },
     {
       appId: 'sabchat',
@@ -90,8 +89,8 @@ export const sabnodeAppActions = [
       icon: SabChatIcon,
       actions: [],
       connectionType: 'internal',
-      iconColor: 'sabflow-icon-sabchat',
-      bgColor: 'sabflow-bg-sabchat',
+      iconColor: 'text-sabflow-sabchat-icon',
+      bgColor: 'bg-sabflow-sabchat-bg',
     },
     {
       appId: 'meta',
@@ -99,8 +98,8 @@ export const sabnodeAppActions = [
       icon: MetaIcon,
       actions: [],
       connectionType: 'internal',
-      iconColor: 'sabflow-icon-meta',
-      bgColor: 'sabflow-bg-meta',
+      iconColor: 'text-sabflow-meta-icon',
+      bgColor: 'bg-sabflow-meta-bg',
     },
     {
       appId: 'instagram',
@@ -108,8 +107,8 @@ export const sabnodeAppActions = [
       icon: InstagramIcon,
       actions: [],
       connectionType: 'internal',
-      iconColor: 'sabflow-icon-instagram',
-      bgColor: 'sabflow-bg-instagram',
+      iconColor: 'text-sabflow-instagram-icon',
+      bgColor: 'bg-sabflow-instagram-bg',
     },
     {
       appId: 'crm',
@@ -117,8 +116,8 @@ export const sabnodeAppActions = [
       icon: Handshake,
       actions: [],
       connectionType: 'internal',
-      iconColor: 'sabflow-icon-crm',
-      bgColor: 'sabflow-bg-crm',
+      iconColor: 'text-sabflow-crm-icon',
+      bgColor: 'bg-sabflow-crm-bg',
     },
     {
       appId: 'email',
@@ -126,8 +125,8 @@ export const sabnodeAppActions = [
       icon: Mail,
       actions: [],
       connectionType: 'internal',
-      iconColor: 'sabflow-icon-email',
-      bgColor: 'sabflow-bg-email',
+      iconColor: 'text-sabflow-email-icon',
+      bgColor: 'bg-sabflow-email-bg',
     },
     {
       appId: 'sms',
@@ -135,34 +134,34 @@ export const sabnodeAppActions = [
       icon: MessageSquare,
       actions: [],
       connectionType: 'internal',
-      iconColor: 'sabflow-icon-sms',
-      bgColor: 'sabflow-bg-sms',
+      iconColor: 'text-sabflow-sms-icon',
+      bgColor: 'bg-sabflow-sms-bg',
     },
-    { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: [], connectionType: 'internal', iconColor: 'sabflow-icon-url-shortener', bgColor: 'sabflow-bg-url-shortener' },
-    { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: [], connectionType: 'internal', iconColor: 'sabflow-icon-qr-code-maker', bgColor: 'sabflow-bg-qr-code-maker' },
-    { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', iconColor: 'sabflow-icon-seo-suite', bgColor: 'sabflow-bg-seo-suite' },
+    { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-url-shortener-icon', bgColor: 'bg-sabflow-url-shortener-bg' },
+    { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-qr-code-maker-icon', bgColor: 'bg-sabflow-qr-code-maker-bg' },
+    { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon', bgColor: 'bg-sabflow-seo-suite-bg' },
 
   // Core Apps
-  { appId: 'api', name: 'API', icon: Server, actions: [], category: 'Core Apps', connectionType: 'apikey', iconColor: 'sabflow-icon-api', bgColor: 'sabflow-bg-api' },
-  { appId: 'array_function', name: 'Array Function', icon: Combine, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-array_function', bgColor: 'sabflow-bg-array_function' },
-  { appId: 'code', name: 'Code', icon: Code2, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-code', bgColor: 'sabflow-bg-code' },
-  { appId: 'data_forwarder', name: 'Data Forwarder', icon: Forward, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-data_forwarder', bgColor: 'sabflow-bg-data_forwarder' },
-  { appId: 'data_transformer', name: 'Data Transformer', icon: Replace, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-data_transformer', bgColor: 'sabflow-bg-data_transformer' },
-  { appId: 'datetime_formatter', name: 'DateTime Formatter', icon: Calendar, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-datetime_formatter', bgColor: 'sabflow-bg-datetime_formatter' },
-  { appId: 'delay', name: 'Delay', icon: Timer, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-delay', bgColor: 'sabflow-bg-delay' },
-  { appId: 'dynamic_web_page', name: 'Dynamic Web Page', icon: Globe2, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-dynamic_web_page', bgColor: 'sabflow-bg-dynamic_web_page' },
-  { appId: 'file_uploader', name: 'File Uploader', icon: FileUp, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-file_uploader', bgColor: 'sabflow-bg-file_uploader' },
-  { appId: 'filter', name: 'Filter', icon: Filter, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-filter', bgColor: 'sabflow-bg-filter' },
-  { appId: 'iterator', name: 'Iterator', icon: IterationCcw, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-iterator', bgColor: 'sabflow-bg-iterator' },
-  { appId: 'json_extractor', name: 'JSON Extractor', icon: Braces, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-json_extractor', bgColor: 'sabflow-bg-json_extractor' },
-  { appId: 'lookup_table', name: 'Lookup Table', icon: Table, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-lookup_table', bgColor: 'sabflow-bg-lookup_table' },
-  { appId: 'number_formatter', name: 'Number Formatter', icon: Sigma, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-number_formatter', bgColor: 'sabflow-bg-number_formatter' },
-  { appId: 'connect_manager', name: 'Connect Manager', icon: Cable, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-connect_manager', bgColor: 'sabflow-bg-connect_manager' },
-  { appId: 'hook', name: 'Hook', icon: Webhook, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-hook', bgColor: 'sabflow-bg-hook' },
-  { appId: 'subscription_billing', name: 'Subscription Billing', icon: Repeat, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-subscription_billing', bgColor: 'sabflow-bg-subscription_billing' },
-  { appId: 'router', name: 'Router', icon: Route, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-router', bgColor: 'sabflow-bg-router' },
-  { appId: 'select_transform_json', name: 'Select Transform JSON', icon: Columns, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-select_transform_json', bgColor: 'sabflow-bg-select_transform_json' },
-  { appId: 'text_formatter', name: 'Text Formatter', icon: CaseSensitive, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'sabflow-icon-text_formatter', bgColor: 'sabflow-bg-text_formatter' },
+  { appId: 'api', name: 'API', icon: Server, actions: [], category: 'Core Apps', connectionType: 'apikey', iconColor: 'text-sabflow-api-icon', bgColor: 'bg-sabflow-api-bg' },
+  { appId: 'array_function', name: 'Array Function', icon: Combine, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-array_function-icon', bgColor: 'bg-sabflow-array_function-bg' },
+  { appId: 'code', name: 'Code', icon: Code2, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-code-icon', bgColor: 'bg-sabflow-code-bg' },
+  { appId: 'data_forwarder', name: 'Data Forwarder', icon: Forward, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_forwarder-icon', bgColor: 'bg-sabflow-data_forwarder-bg' },
+  { appId: 'data_transformer', name: 'Data Transformer', icon: Replace, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_transformer-icon', bgColor: 'bg-sabflow-data_transformer-bg' },
+  { appId: 'datetime_formatter', name: 'DateTime Formatter', icon: Calendar, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-datetime_formatter-icon', bgColor: 'bg-sabflow-datetime_formatter-bg' },
+  { appId: 'delay', name: 'Delay', icon: Timer, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-delay-icon', bgColor: 'bg-sabflow-delay-bg' },
+  { appId: 'dynamic_web_page', name: 'Dynamic Web Page', icon: Globe2, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-dynamic_web_page-icon', bgColor: 'bg-sabflow-dynamic_web_page-bg' },
+  { appId: 'file_uploader', name: 'File Uploader', icon: FileUp, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-file_uploader-icon', bgColor: 'bg-sabflow-file_uploader-bg' },
+  { appId: 'filter', name: 'Filter', icon: Filter, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-filter-icon', bgColor: 'bg-sabflow-filter-bg' },
+  { appId: 'iterator', name: 'Iterator', icon: IterationCcw, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-iterator-icon', bgColor: 'bg-sabflow-iterator-bg' },
+  { appId: 'json_extractor', name: 'JSON Extractor', icon: Braces, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-json_extractor-icon', bgColor: 'bg-sabflow-json_extractor-bg' },
+  { appId: 'lookup_table', name: 'Lookup Table', icon: Table, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-lookup_table-icon', bgColor: 'bg-sabflow-lookup_table-bg' },
+  { appId: 'number_formatter', name: 'Number Formatter', icon: Sigma, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-number_formatter-icon', bgColor: 'bg-sabflow-number_formatter-bg' },
+  { appId: 'connect_manager', name: 'Connect Manager', icon: Cable, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-connect_manager-icon', bgColor: 'bg-sabflow-connect_manager-bg' },
+  { appId: 'hook', name: 'Hook', icon: Webhook, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-hook-icon', bgColor: 'bg-sabflow-hook-bg' },
+  { appId: 'subscription_billing', name: 'Subscription Billing', icon: Repeat, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-subscription_billing-icon', bgColor: 'bg-sabflow-subscription_billing-bg' },
+  { appId: 'router', name: 'Router', icon: Route, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-router-icon', bgColor: 'bg-sabflow-router-bg' },
+  { appId: 'select_transform_json', name: 'Select Transform JSON', icon: Columns, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-select_transform_json-icon', bgColor: 'bg-sabflow-select_transform_json-bg' },
+  { appId: 'text_formatter', name: 'Text Formatter', icon: CaseSensitive, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-text_formatter-icon', bgColor: 'bg-sabflow-text_formatter-bg' },
 
   // External Apps
   {
@@ -171,7 +170,7 @@ export const sabnodeAppActions = [
     category: 'Productivity',
     logo: 'https://picsum.photos/seed/gsheets/40/40',
     connectionType: 'oauth',
-    iconColor: 'sabflow-icon-google_sheets', bgColor: 'sabflow-bg-google_sheets',
+    iconColor: 'text-sabflow-google_sheets-icon', bgColor: 'bg-sabflow-google_sheets-bg',
     actions: []
   },
   { 
@@ -183,7 +182,7 @@ export const sabnodeAppActions = [
     credentials: [
         { name: 'apiKey', label: 'API Key', type: 'password' },
     ],
-    iconColor: 'sabflow-icon-stripe', bgColor: 'sabflow-bg-stripe',
+    iconColor: 'text-sabflow-stripe-icon', bgColor: 'bg-sabflow-stripe-bg',
     actions: []
   },
   { 
@@ -196,7 +195,7 @@ export const sabnodeAppActions = [
         { name: 'shopName', label: 'Shop Name', type: 'text', placeholder: 'your-store' },
         { name: 'accessToken', label: 'Admin API Access Token', type: 'password' },
     ],
-    iconColor: 'sabflow-icon-shopify', bgColor: 'sabflow-bg-shopify',
+    iconColor: 'text-sabflow-shopify-icon', bgColor: 'bg-sabflow-shopify-bg',
     actions: []
   },
   {
@@ -205,7 +204,7 @@ export const sabnodeAppActions = [
     category: 'Communication',
     logo: 'https://picsum.photos/seed/slack/40/40',
     connectionType: 'oauth',
-    iconColor: 'sabflow-icon-slack', bgColor: 'sabflow-bg-slack',
+    iconColor: 'text-sabflow-slack-icon', bgColor: 'bg-sabflow-slack-bg',
     actions: []
   },
   {
@@ -235,7 +234,7 @@ export const sabnodeAppActions = [
     category: 'Communication',
     logo: 'https://picsum.photos/seed/discord/40/40',
     connectionType: 'oauth',
-    iconColor: 'sabflow-icon-discord', bgColor: 'sabflow-bg-discord',
+    iconColor: 'text-sabflow-discord-icon', bgColor: 'bg-sabflow-discord-bg',
     actions: []
   },
   {
@@ -244,7 +243,7 @@ export const sabnodeAppActions = [
     category: 'Productivity',
     logo: 'https://picsum.photos/seed/notion/40/40',
     connectionType: 'oauth',
-    iconColor: 'sabflow-icon-notion', bgColor: 'sabflow-bg-notion',
+    iconColor: 'text-sabflow-notion-icon', bgColor: 'bg-sabflow-notion-bg',
     actions: []
   }
 ];
