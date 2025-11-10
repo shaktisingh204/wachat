@@ -52,16 +52,17 @@ import {
   Webhook,
   Calendar,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { NewConnectionDialog } from '@/components/wabasimplify/new-connection-dialog';
-import { GoogleSheetsConnection } from '@/components/wabasimplify/connections/google-sheets-connection';
+import { AppConnectionSetup } from '@/components/wabasimplify/connections/app-connection-setup';
+
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
     { id: 'manual', name: 'Manual', icon: PlayCircle, description: 'Trigger this flow manually from the UI.' },
     { id: 'schedule', name: 'Schedule', icon: Calendar, description: 'Run this flow on a recurring schedule (e.g., every day).' },
+    { id: 'google_sheets', name: 'Google Sheets', description: 'Trigger this flow when a row is updated in a Google Sheet.' },
 ];
 
 function NodeInput({ input, value, onChange }: { input: any, value: any, onChange: (val: any) => void }) {
@@ -93,9 +94,7 @@ function BuilderPageSkeleton() {
 
 const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) => {
     if (!selectedNode) return null;
-    const [isNewConnectionOpen, setIsNewConnectionOpen] = useState(false);
-    const [newConnectionApp, setNewConnectionApp] = useState<any>(null);
-
+    
     const handleDataChange = (data: any) => {
         onNodeChange(selectedNode.id, { ...selectedNode.data, ...data });
     };
@@ -137,7 +136,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                     <AccordionContent className="p-2">
                                         <div className="grid grid-cols-4 gap-2">
                                             {apps.map(app => {
-                                                const AppIcon = app.icon || Zap;
+                                                const AppIcon = app.icon;
                                                 const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
                                                 return (
                                                      <button type="button" key={app.appId} 
@@ -151,8 +150,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                                     onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: firstConn.connectionName, appId: app.appId, actionName: '', inputs: {} });
                                                                 }
                                                             } else {
-                                                                setNewConnectionApp(app);
-                                                                setIsNewConnectionOpen(true);
+                                                               onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: 'new', appId: app.appId });
                                                             }
                                                         }}
                                                     >
@@ -168,49 +166,12 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                 </AccordionItem>
                             ))}
                         </Accordion>
-                         <NewConnectionDialog 
-                            isOpen={isNewConnectionOpen}
-                            onOpenChange={setIsNewConnectionOpen}
-                            app={newConnectionApp}
-                            onConnectionSaved={onConnectionSaved}
-                        />
                     </div>
                 );
-            } else {
-                if (selectedApp?.appId === 'google_sheets') {
-                    if (!selectedNode.data.actionName) {
-                         return (
-                            <>
-                                <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: '', actionName: '', inputs: {} })}>
-                                        <ArrowLeft className="mr-2 h-4 w-4"/> Change App
-                                    </Button>
-                                </div>
-                                 <div className="space-y-2">
-                                    <Label>Action</Label>
-                                    <Select value={selectedNode.data.actionName} onValueChange={val => onNodeChange(selectedNode.id, { ...selectedNode.data, actionName: val, inputs: {} })}>
-                                        <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                                        <SelectContent>
-                                            {selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger).map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </>
-                         )
-                    }
-                    if (selectedNode.data.actionName === 'addRow') {
-                         return (
-                             <>
-                                <div className="flex items-center gap-2"><Button variant="ghost" size="sm" onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: '', actionName: '', inputs: {} })}><ArrowLeft className="mr-2 h-4 w-4"/> Change App</Button></div>
-                                 <div className="space-y-4 pt-4 border-t">
-                                    <h4 className="font-semibold">{selectedAction.label}</h4>
-                                    <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                                    {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => onNodeChange(selectedNode.id, { ...selectedNode.data, inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
-                                </div>
-                            </>
-                        )
-                    }
-                }
+            } else if (selectedNode.data.connectionId === 'new' && selectedApp) {
+                return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} />;
+            }
+            else {
                 return (
                     <>
                         <div className="flex items-center gap-2">
@@ -242,7 +203,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
         if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
              if (selectedTrigger?.id === 'google_sheets') {
-                 return <GoogleSheetsConnection flowId={params.flowId} />;
+                 return <AppConnectionSetup app={sabnodeAppActions.find(a => a.appId === 'google_sheets')} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
              }
              return (
                 <div className="space-y-2">
@@ -349,7 +310,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         if (appConfig) {
             const action = appConfig.actions.find(a => a.name === node.data.actionName);
             if(action) return action.label;
-            return appConfig.name;
+            return appConfig.name || 'Select action';
         }
         
         return 'Select action';
@@ -589,7 +550,6 @@ export default function EditSabFlowPage() {
         e.preventDefault(); e.stopPropagation();
         if (!viewportRef.current) return;
         const isOutputHandle = handleId.includes('output');
-
         if (isOutputHandle) {
             const sourceNode = nodes.find(n => n.id === nodeId);
             if (sourceNode) {
@@ -611,7 +571,6 @@ export default function EditSabFlowPage() {
             };
             
             setEdges(prevEdges => {
-                // Replace any existing edge from the same source handle
                 const filteredEdges = prevEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
                 return [...filteredEdges, newEdge];
             });
