@@ -51,7 +51,7 @@ import {
   Webhook,
   Calendar,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -217,7 +217,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { u
     );
 };
 
-const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
+const NodeComponent = ({ user, node, selectedNode, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; selectedNode: SabFlowNode | null; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
     const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
     const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
     const action = appConfig?.actions.find(a => a.name === node.data.actionName);
@@ -625,7 +625,7 @@ export default function EditSabFlowPage() {
                                         </button>
                                     </div>
                                 ) : nodesWithEdgeInfo.map(node => (
-                                    <NodeComponent key={node.id} user={user} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} onNodeContextMenu={handleNodeContextMenu}/>
+                                    <NodeComponent key={node.id} user={user} node={node} selectedNode={selectedNode} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} onNodeContextMenu={handleNodeContextMenu}/>
                                 ))}
                             </div>
                             {contextMenu && (
@@ -702,3 +702,5 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
+
+```
