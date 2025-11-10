@@ -55,6 +55,7 @@ import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
+
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
     { id: 'manual', name: 'Manual', icon: PlayCircle, description: 'Trigger this flow manually from the UI.' },
@@ -178,11 +179,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { u
                             <Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => handleRuleChange(index, 'field', e.target.value)} />
                             <Select value={rule.operator} onValueChange={val => handleRuleChange(index, 'operator', val)}>
                                 <SelectTrigger><SelectValue placeholder="Select operator..."/></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="equals">Equals</SelectItem>
-                                    <SelectItem value="not_equals">Not Equals</SelectItem>
-                                    <SelectItem value="contains">Contains</SelectItem>
-                                </SelectContent>
+                                <SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent>
                             </Select>
                             <Input placeholder="Value" value={rule.value} onChange={e => handleRuleChange(index, 'value', e.target.value)} />
                         </div>))}
@@ -256,10 +253,12 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                 </div>
             </div>
             <div className="mt-2 w-32">
-                <p className="font-bold text-sm text-black truncate">{appConfig?.name || node.data.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{action?.label || 'No action selected'}</p>
+                <p className="font-bold text-sm text-black truncate">{node.data.name || 'Untitled'}</p>
+                <p className="text-xs text-muted-foreground truncate">{action?.label || selectedNode?.data.connectionId || 'No action'}</p>
             </div>
+
             {node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
+
             {node.type === 'condition' ? (
                 <>
                     <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
@@ -707,5 +706,3 @@ export default function EditSabFlowPage() {
 }
 
 ```
-- src/styles/sabflow-nodes.css
-- `src/app/globals.css`
