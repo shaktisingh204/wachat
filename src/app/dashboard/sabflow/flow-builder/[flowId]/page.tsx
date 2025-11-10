@@ -149,7 +149,7 @@ export default function EditSabFlowPage() {
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    const [pan, setPan] = useState({ x: 0, y: 0 });
+    const [pan, setPan] = useState({ x: 200, y: 150 });
     const [zoom, setZoom] = useState(1);
     const [isPanning, setIsPanning] = useState(false);
     const viewportRef = useRef<HTMLDivElement>(null);
@@ -162,12 +162,11 @@ export default function EditSabFlowPage() {
     const isNew = flowId === 'new-flow';
 
     const handleCreateNewFlow = useCallback(() => {
-        const triggerNode = { id: 'trigger', type: 'trigger' as const, data: { name: 'Start Flow', triggerType: 'webhook' }, position: { x: 50, y: 150 } };
         setFlowName('New Automation Flow');
         setTrigger({ type: 'webhook', details: {} });
-        setNodes([triggerNode]);
+        setNodes([]);
         setEdges([]);
-        setSelectedNodeId('trigger');
+        setSelectedNodeId(null);
     }, []);
 
     useEffect(() => {
@@ -180,8 +179,8 @@ export default function EditSabFlowPage() {
                 if(flow) {
                     setFlowName(flow.name);
                     setTrigger(flow.trigger);
-                    setNodes(flow.nodes.length > 0 ? flow.nodes : [{ id: 'trigger', type: 'trigger', data: { name: 'Start Flow', triggerType: 'webhook' }, position: { x: 50, y: 150 } }]);
-                    setEdges(flow.edges);
+                    setNodes(flow.nodes || []);
+                    setEdges(flow.edges || []);
                 } else {
                     handleCreateNewFlow();
                 }
@@ -232,7 +231,7 @@ export default function EditSabFlowPage() {
     
     const handleCopyNode = (nodeId: string) => {
         const nodeToCopy = nodes.find(n => n.id === nodeId);
-        if (!nodeToCopy || nodeToCopy.type === 'trigger') return;
+        if (!nodeToCopy) return;
 
         const newNode: SabFlowNode = {
             ...JSON.parse(JSON.stringify(nodeToCopy)),
@@ -302,7 +301,7 @@ export default function EditSabFlowPage() {
             }
 
             const newEdge: SabFlowEdge = {
-                id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`,
+                id: `edge-${connecting.sourceNodeId}-${nodeId}`,
                 source: connecting.sourceNodeId,
                 target: nodeId,
                 sourceHandle: connecting.sourceHandleId,
@@ -345,7 +344,7 @@ export default function EditSabFlowPage() {
     };
 
     const handleZoomControls = (direction: 'in' | 'out' | 'reset') => {
-        if(direction === 'reset') { setZoom(1); setPan({ x: 0, y: 0 }); return; }
+        if(direction === 'reset') { setZoom(1); setPan({ x: 200, y: 150 }); return; }
         const newZoom = direction === 'in' ? zoom * 1.2 : zoom / 1.2;
         setZoom(Math.max(0.25, Math.min(2.5, newZoom)));
     };
@@ -384,9 +383,33 @@ export default function EditSabFlowPage() {
                         <h3 className="text-lg font-semibold">Properties</h3>
                         <p className="text-sm text-muted-foreground">Select a step to configure it.</p>
                     </div>
-                    <div className="flex-1 p-4 text-center text-muted-foreground">
-                        No step selected.
-                    </div>
+                    {nodes.length === 0 ? (
+                        <div className="flex-1 p-4 space-y-4">
+                           <h3 className="font-semibold">Choose an App to Start</h3>
+                           <div className="grid grid-cols-6 gap-2">
+                                {(user?.sabFlowConnections || []).map((conn: any) => {
+                                    const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
+                                    const AppIcon = appConfig?.icon || Zap;
+                                    return (
+                                        <button type="button" key={conn.connectionName} className="aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white" onClick={() => { handleAddNode('action'); setIsSidebarOpen(true); }}>
+                                            <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
+                                                <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
+                                            </div>
+                                            <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
+                                        </button>
+                                    )
+                                })}
+                                <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
+                                    <Plus className="h-6 w-6 text-muted-foreground"/>
+                                    <p className="text-xs mt-1">Add App</p>
+                                </Link>
+                            </div>
+                        </div>
+                    ) : (
+                         <div className="flex-1 p-4 text-center text-muted-foreground">
+                            No step selected.
+                        </div>
+                    )}
                 </div>
             );
         }
@@ -449,7 +472,7 @@ export default function EditSabFlowPage() {
                                                              const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                              const AppIcon = appConfig?.icon || Zap;
                                                              return (
-                                                                <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                <button type="button" key={conn.connectionName} className="aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white"} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
                                                                     <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
                                                                         <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                                                     </div>
@@ -525,6 +548,8 @@ export default function EditSabFlowPage() {
         return <BuilderPageSkeleton />;
     }
 
+    const rootNodes = nodes.filter(n => !edges.some(e => e.target === n.id));
+
     return (
       <div className="h-full">
         <form action={formAction} ref={formRef}>
@@ -551,23 +576,19 @@ export default function EditSabFlowPage() {
                 <div className="flex-1 flex overflow-hidden">
                     <main 
                         ref={viewportRef}
-                        className="flex-1 w-full h-full min-h-[85vh] overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
+                        className="flex-1 w-full h-full min-h-0 overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
                         onMouseLeave={handleCanvasMouseUp}
                         onWheel={handleWheel}
                         onClick={handleCanvasClick}
-                        onContextMenu={(e) => e.preventDefault()}
+                        onContextMenu={handleNodeContextMenu}
                     >
                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
                         <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
-                            <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '10000px', height: '10000px' }}>
-                                <defs>
-                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
-                                        <polygon points="0 0, 10 3.5, 0 7" fill="hsla(215, 89%, 48%, 0.5)" />
-                                    </marker>
-                                </defs>
+                            <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '10000px', height: '10000px', transformOrigin: 'top left' }}>
+                                <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="hsla(215, 89%, 48%, 0.5)" /></marker></defs>
                                 {edges.map(edge => {
                                     const sourceNode = nodes.find(n => n.id === edge.source);
                                     const targetNode = nodes.find(n => n.id === edge.target);
@@ -581,40 +602,21 @@ export default function EditSabFlowPage() {
                                     <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />
                                 )}
                             </svg>
-                            {nodes.map(node => {
-                                const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
-                                const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
-                                const Icon = node.type === 'trigger'
-                                    ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
-                                    : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
-                                
-                                return (
-                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}} onContextMenu={(e) => handleNodeContextMenu(e, node.id)}>
-                                        <div className={cn("w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white", selectedNodeId === node.id && 'ring-2 ring-primary')} style={{filter: 'drop-shadow(rgba(0, 0, 0, 0.25) 0px 5px 6px)'}}>
-                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center bg-white")}>
-                                                <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-gray-400')}/>
-                                            </div>
-                                        </div>
-                                        <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
-
-                                        {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
-                                        {node.type === 'condition' ? (
-                                            <>
-                                                <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
-                                                <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
-                                            </>
-                                        ) : (
-                                            <div id={`${node.id}-output-main`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-main`)} />
-                                        )}
-                                    </div>
-                                )
-                            })}
+                            {rootNodes.map(node => (
+                                <div key={node.id}>
+                                    <NodeComponent key={node.id} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick}/>
+                                    {/* Recursive rendering would go here if needed, but for now we just render all nodes */}
+                                </div>
+                            ))}
+                             {nodes.filter(n => !rootNodes.some(rn => rn.id === n.id)).map(node => (
+                                 <NodeComponent key={node.id} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick}/>
+                            ))}
                         </div>
                         {contextMenu && (
                             <Card className="absolute p-1" style={{ top: contextMenu.y, left: contextMenu.x }}>
                                 <CardContent className="p-0">
-                                <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { handleCopyNode(contextMenu.nodeId); setContextMenu(null); }}><Copy className="mr-2 h-4 w-4"/>Copy</Button>
-                                <Button variant="ghost" size="sm" className="w-full justify-start text-destructive hover:text-destructive" onClick={() => { handleRemoveNode(contextMenu.nodeId); setContextMenu(null); }}><Trash2 className="mr-2 h-4 w-4"/>Delete</Button>
+                                <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { handleCopyNode(contextMenu.nodeId); setContextMenu(null); }}>Copy</Button>
+                                <Button variant="ghost" size="sm" className="w-full justify-start text-destructive hover:text-destructive" onClick={() => { handleRemoveNode(contextMenu.nodeId); setContextMenu(null); }}>Delete</Button>
                                 </CardContent>
                             </Card>
                         )}
@@ -641,7 +643,7 @@ export default function EditSabFlowPage() {
                         </div>
                     </main>
                     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                        <SheetContent className="sm:max-w-xl p-0 flex flex-col">
+                        <SheetContent className="w-full max-w-sm p-0 flex flex-col">
                             {renderPropertiesPanel()}
                         </SheetContent>
                     </Sheet>
@@ -652,4 +654,280 @@ export default function EditSabFlowPage() {
     );
 }
 
+```
+<change>
+    <file>/src/app/globals.css</file>
+    <content><![CDATA[
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 17% 98%;
+    --foreground: 210 10% 23%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 10% 23%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 10% 23%;
+    --primary: 215 89% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 134 61% 36%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 210 10% 23%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 215 89% 48%;
+    --chart-1: 215 89% 48%;
+    --chart-2: 140 50% 50%;
+    --chart-3: 150 40% 60%;
+    --chart-4: 285.2 83.2% 53.3%;
+    --chart-5: 350.2 83.2% 53.3%;
+    --radius: 0.5rem;
+    --instagram: 327 92% 55%;
+
+    /* Sidebar variables */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 10% 40%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 215 89% 48%;
     
+    --sidebar-secondary-background: 0 0% 100%;
+    --sidebar-secondary-foreground: 220 10% 25%;
+    
+    --sidebar-active-background: 215 89% 48%;
+    --sidebar-active-foreground: 0 0% 100%;
+
+    --sidebar-accent: hsl(var(--primary) / 0.1);
+    --sidebar-accent-foreground: hsl(var(--primary));
+  }
+
+  .dark {
+    --background: 210 10% 15%;
+    --foreground: 210 40% 98%;
+    --card: 210 10% 23%;
+    --card-foreground: 210 40% 98%;
+    --popover: 210 10% 23%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 215 89% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 134 61% 36%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 10% 28%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 210 10% 28%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 210 10% 28%;
+    --input: 210 10% 28%;
+    --ring: 215 89% 48%;
+
+    /* Dark mode sidebar variables */
+    --sidebar-background: 220 10% 12%; 
+    --sidebar-foreground: 210 40% 80%;
+    --sidebar-border: 220 10% 20%;
+    --sidebar-ring: 215 89% 48%;
+
+    --sidebar-secondary-background: 210 10% 15%;
+    --sidebar-secondary-foreground: 210 40% 98%;
+
+    --sidebar-active-background: 215 89% 48%;
+    --sidebar-active-foreground: 0 0% 100%;
+    
+    --sidebar-accent: hsl(var(--primary) / 0.1);
+    --sidebar-accent-foreground: hsl(var(--primary));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground overflow-hidden;
+  }
+}
+
+@layer components {
+    .card-gradient {
+      @apply relative overflow-hidden;
+    }
+    .card-gradient::before {
+      content: '';
+      @apply absolute inset-0 opacity-[0.15] z-0;
+    }
+    .card-gradient-blue::before {
+      @apply bg-gradient-to-br from-blue-400 via-blue-200 to-sky-100;
+    }
+    .card-gradient-purple::before {
+      @apply bg-gradient-to-br from-purple-400 via-purple-200 to-violet-100;
+    }
+    .card-gradient-green::before {
+      @apply bg-gradient-to-br from-green-400 via-green-200 to-emerald-100;
+    }
+    .card-gradient-orange::before {
+      @apply bg-gradient-to-br from-orange-400 via-orange-200 to-amber-100;
+    }
+    .card-gradient > * {
+      @apply relative z-10;
+    }
+    .dnd-placeholder {
+        @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
+    }
+}
+
+
+.scroll-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+/* Also hide the custom Radix scrollbar used in the component */
+.scroll-container ~ [data-radix-scroll-area-scrollbar] {
+    display: none;
+}
+
+.custom-css-shakti{
+  width: min-content;
+  border-radius: 10px;
+  position: absolute;
+  right: 0px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+@layer utilities {
+    .has-tooltip [data-tooltip] {
+        @apply relative cursor-pointer;
+    }
+    .has-tooltip [data-tooltip]:after {
+        @apply absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background content-[attr(data-tooltip)];
+    }
+    .has-tooltip:hover [data-tooltip]:after {
+        @apply block;
+    }
+
+    .bg-auth-texture {
+        background-color: #f0f2f5;
+    }
+
+    .dark .bg-auth-texture {
+        background-color: #111827;
+    }
+    
+    .bg-chat-texture {
+        background-color: #E5DDD5;
+    }
+    .dark .bg-chat-texture {
+        background-color: #0b141a;
+    }
+    .bg-instagram {
+        background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
+    }
+    .text-instagram {
+        color: hsl(var(--instagram));
+    }
+    .animate-fade-in-up {
+        animation: fade-in-up 0.6s ease-in-out forwards;
+        opacity: 0;
+    }
+    .animate-slide-in-up {
+        animation: slide-in-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+    .animate-fade-in {
+        animation: fade-in 0.5s ease-in-out forwards;
+        opacity: 0;
+    }
+    .animate-draw {
+        animation: draw 2s ease-out forwards;
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        opacity: 0;
+    }
+    .sabflow-edge-path {
+        animation: sabflow-dash 10s linear infinite;
+    }
+    .animate-draw-long {
+      animation: draw-long 3s ease-out forwards;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      opacity: 0;
+    }
+    .animate-kanban-drag {
+        animation: kanban-drag 7s ease-in-out infinite;
+        animation-delay: 2.5s;
+    }
+    
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes slide-in-up {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+    @keyframes draw {
+      to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+      }
+    }
+    @keyframes draw-long {
+      to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+      }
+    }
+    @keyframes kanban-drag {
+        0%, 20% {
+            transform: translate(0, 0);
+            opacity: 1;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        30% {
+            transform: translate(5px, -10px) rotate(-3deg);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            opacity: 0.95;
+        }
+        80% {
+            transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            opacity: 0.95;
+        }
+        100% {
+            transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            opacity: 1;
+        }
+    }
+    @keyframes sabflow-dash {
+      from {
+        stroke-dashoffset: 200;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+}

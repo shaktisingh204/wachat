@@ -162,9 +162,14 @@ export const sabnodeAppActions = [
     name: 'Google Sheets',
     category: 'Productivity',
     logo: 'https://picsum.photos/seed/gsheets/40/40',
-    connectionType: 'oauth',
+    connectionType: 'webhook',
+    description: "Connect Google Sheets by sending data to your flow's webhook URL from an Apps Script trigger.",
     iconColor: 'sabflow-icon-google_sheets',
-    actions: []
+    actions: [
+        { name: 'addRow', label: 'Add Row', description: 'Adds a new row to a sheet.', inputs: [{label: 'Spreadsheet ID'}, {label: 'Sheet Name'}, {label: 'Row Data (comma-separated)'}] },
+        { name: 'updateRow', label: 'Update Row', description: 'Updates an existing row.', inputs: [] },
+        { name: 'getRow', label: 'Get Row Data', description: 'Retrieves data from a specific row.', inputs: [] },
+    ]
   },
   { 
     appId: 'stripe',
