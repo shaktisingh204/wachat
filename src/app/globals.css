@@ -1,4 +1,6 @@
 
+@import "./src/styles/sabflow-nodes.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -262,3 +264,5 @@
       }
     }
 }
+
+    
