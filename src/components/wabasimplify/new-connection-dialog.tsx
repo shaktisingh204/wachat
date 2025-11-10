@@ -62,6 +62,11 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
     const renderFormFields = () => {
         if (!app) return null;
 
+        switch (app.appId) {
+            case 'google_sheets':
+                return <GoogleSheetsConnection />;
+        }
+
         switch (app.connectionType) {
             case 'apikey':
                 return (
@@ -84,11 +89,6 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                         ))}
                     </div>
                 );
-            case 'webhook':
-                if (app.appId === 'google_sheets') {
-                    return <GoogleSheetsConnection />;
-                }
-                return <p className="text-sm text-muted-foreground text-center">Webhook instructions will be provided here.</p>;
             case 'oauth':
                  return (
                     <div className="text-center space-y-4">
