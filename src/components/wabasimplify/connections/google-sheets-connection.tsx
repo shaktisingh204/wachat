@@ -7,12 +7,12 @@ import { Label } from '@/components/ui/label';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { useProject } from '@/context/project-context';
 
-export function GoogleSheetsConnection() {
+export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {
     const { toast } = useToast();
     const { copy } = useCopyToClipboard();
-    const webhookId = useId(); // Generate a unique ID
-    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${webhookId}`;
+    const webhookUrl = flowId ? `${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${flowId}` : 'Save flow to generate URL';
 
     const appsScriptCode = `
 function sendDataToSabFlow(e) {

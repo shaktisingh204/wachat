@@ -369,6 +369,7 @@ const apiMenuItems = [
 
 const sabflowMenuItems = [
     { href: '/dashboard/sabflow/flow-builder', label: 'Flow Builder', icon: GitFork },
+    { href: '/dashboard/sabflow/docs', label: 'Documentation', icon: BookCopy },
 ];
 
 const urlShortenerMenuItems = [
