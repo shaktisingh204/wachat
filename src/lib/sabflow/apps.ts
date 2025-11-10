@@ -126,7 +126,7 @@ export const sabnodeAppActions = [
     logo: 'https://picsum.photos/seed/gsheets/40/40',
     connectionType: 'webhook',
     description: "Connect Google Sheets by sending data to your flow's webhook URL from an Apps Script trigger.",
-    iconColor: 'text-sabflow-google-sheets-icon',
+    iconColor: 'text-sabflow-google_sheets-icon',
     actions: googleSheetsActions
   },
   { 

@@ -52,7 +52,7 @@ import {
   Webhook,
   Calendar,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow/apps';
+import { sabnodeAppActions } from '@/lib/sabflow-actions';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { NewConnectionDialog } from '@/components/wabasimplify/new-connection-dialog';
@@ -91,7 +91,7 @@ function BuilderPageSkeleton() {
     );
 }
 
-const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void }) => {
+const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) => {
     if (!selectedNode) return null;
     const [isNewConnectionOpen, setIsNewConnectionOpen] = useState(false);
     const [newConnectionApp, setNewConnectionApp] = useState<any>(null);
@@ -103,6 +103,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
     const renderEditorContent = () => {
         const isAction = selectedNode.type === 'action';
         const isCondition = selectedNode.type === 'condition';
+        const isTrigger = selectedNode.type === 'trigger';
 
         let selectedConnection = null;
         if (selectedNode.data.connectionId?.endsWith(' Connection')) {
@@ -151,7 +152,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                                 }
                                                             } else {
                                                                 setNewConnectionApp(app);
-                                                                onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: `${app.name} Connection`, appId: app.appId, actionName: '', inputs: {} });
+                                                                setIsNewConnectionOpen(true);
                                                             }
                                                         }}
                                                     >
@@ -176,9 +177,38 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                     </div>
                 );
             } else {
-                if (selectedApp?.connectionType === 'webhook') {
-                    if (selectedApp.appId === 'google_sheets') {
-                        return <GoogleSheetsConnection flowId={params.flowId} />;
+                if (selectedApp?.appId === 'google_sheets') {
+                    if (!selectedNode.data.actionName) {
+                         return (
+                            <>
+                                <div className="flex items-center gap-2">
+                                    <Button variant="ghost" size="sm" onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: '', actionName: '', inputs: {} })}>
+                                        <ArrowLeft className="mr-2 h-4 w-4"/> Change App
+                                    </Button>
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label>Action</Label>
+                                    <Select value={selectedNode.data.actionName} onValueChange={val => onNodeChange(selectedNode.id, { ...selectedNode.data, actionName: val, inputs: {} })}>
+                                        <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                        <SelectContent>
+                                            {selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger).map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </>
+                         )
+                    }
+                    if (selectedNode.data.actionName === 'addRow') {
+                         return (
+                             <>
+                                <div className="flex items-center gap-2"><Button variant="ghost" size="sm" onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: '', actionName: '', inputs: {} })}><ArrowLeft className="mr-2 h-4 w-4"/> Change App</Button></div>
+                                 <div className="space-y-4 pt-4 border-t">
+                                    <h4 className="font-semibold">{selectedAction.label}</h4>
+                                    <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                                    {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => onNodeChange(selectedNode.id, { ...selectedNode.data, inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                                </div>
+                            </>
+                        )
                     }
                 }
                 return (
@@ -193,7 +223,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                             <Select value={selectedNode.data.actionName} onValueChange={val => onNodeChange(selectedNode.id, { ...selectedNode.data, actionName: val, inputs: {} })}>
                                 <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
                                 <SelectContent>
-                                    {selectedApp?.actions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                    {selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger).map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -207,6 +237,31 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                     </>
                 );
             }
+        }
+
+        if (isTrigger) {
+             const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
+             if (selectedTrigger?.id === 'google_sheets') {
+                 return <GoogleSheetsConnection flowId={params.flowId} />;
+             }
+             return (
+                <div className="space-y-2">
+                    <Label>Trigger Type</Label>
+                    <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val })}>
+                        <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
+                        <SelectContent>
+                            {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                    {selectedTrigger && <p className="text-xs text-muted-foreground">{selectedTrigger.description}</p>}
+                    {selectedTrigger?.id === 'webhook' && (
+                        <div className="pt-4">
+                            <Label>Webhook URL</Label>
+                            <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${params.flowId}`} />
+                        </div>
+                    )}
+                </div>
+            );
         }
 
         if (isCondition) {
@@ -244,7 +299,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
     };
 
     return (
-        <div className="h-full flex flex-col" style={{ minWidth: '35%' }}>
+        <div className="h-full flex flex-col bg-background" style={{ minWidth: '35%' }}>
             <div className="p-4 border-b flex-shrink-0">
                 <h3 className="text-lg font-semibold">Properties</h3>
                 <p className="text-sm text-muted-foreground">Configure the selected step.</p>
@@ -426,7 +481,7 @@ export default function EditSabFlowPage() {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
             if (isNew && state.flowId) {
-                 router.push(`/dashboard/sabflow/flow-builder/${state.flowId}`);
+                 router.replace(`/dashboard/sabflow/flow-builder/${state.flowId}`, { scroll: false });
             } else if (!isNew) {
                 router.refresh();
             }
@@ -651,7 +706,7 @@ export default function EditSabFlowPage() {
     }
 
     return (
-      <div className="h-full">
+        <div className="h-full">
             <div className="flex h-full w-full flex-col bg-muted/30">
                 <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
                     <div className="flex items-center gap-2">
@@ -742,7 +797,7 @@ export default function EditSabFlowPage() {
                     <Sheet open={isSidebarOpen && !!selectedNodeId} onOpenChange={setIsSidebarOpen}>
                         <SheetContent className="p-0 flex flex-col" style={{ minWidth: '35%' }}>
                             {selectedNodeId && nodes.find(n => n.id === selectedNodeId) ? (
-                                <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} onConnectionSaved={fetchConnections} />
+                                <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} onConnectionSaved={fetchConnections} params={params}/>
                             ) : null}
                         </SheetContent>
                     </Sheet>
