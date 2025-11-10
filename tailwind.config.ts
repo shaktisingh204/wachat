@@ -151,6 +151,7 @@ export default {
           'discord-icon': '#5865F2',
           'notion-bg': '#E0E0E0',
           'notion-icon': '#000000',
+          'default-bg': '#E0E0E0'
         },
       },
       borderRadius: {
