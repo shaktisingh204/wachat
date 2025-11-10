@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
@@ -171,7 +172,21 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { u
                     <RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleDataChange({ logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">Match ALL conditions (AND)</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">Match ANY condition (OR)</Label></div></RadioGroup>
                     
                     <div className="space-y-3">
-                        {rules.map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2 relative"><Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => handleRuleChange(index, 'field', e.target.value)} /><Select value={rule.operator} onValueChange={val => handleRuleChange(index, 'operator', val)}><SelectTrigger><SelectValue placeholder="Select operator..."/></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => handleRuleChange(index, 'value', e.target.value)} /></div>))}
+                        {rules.map((rule: any, index: number) => (<div key={index} className="p-3 border rounded-md space-y-2 relative">
+                            <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}>
+                                <Trash2 className="h-4 w-4 text-destructive"/>
+                            </Button>
+                            <Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => handleRuleChange(index, 'field', e.target.value)} />
+                            <Select value={rule.operator} onValueChange={val => handleRuleChange(index, 'operator', val)}>
+                                <SelectTrigger><SelectValue placeholder="Select operator..."/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="equals">Equals</SelectItem>
+                                    <SelectItem value="not_equals">Not Equals</SelectItem>
+                                    <SelectItem value="contains">Contains</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Input placeholder="Value" value={rule.value} onChange={e => handleRuleChange(index, 'value', e.target.value)} />
+                        </div>))}
                     </div>
                     <Button variant="outline" size="sm" onClick={addRule}><Plus className="mr-2 h-4 w-4"/>Add Condition</Button>
                 </div>
@@ -239,8 +254,8 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                 )}
                 style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
             >
-                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
-                    <Icon className={cn("h-8 w-8 text-primary", appConfig?.iconColor)} />
+                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center")}>
+                    <Icon className={cn("h-8 w-8 text-primary")} />
                 </div>
             </div>
             <div className="mt-2 w-32">
@@ -568,6 +583,7 @@ export default function EditSabFlowPage() {
                     <main 
                         ref={viewportRef}
                         className="flex-1 w-full h-full min-h-0 overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container bg-muted/30"
+                        style={{ minHeight: '85vh' }}
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -632,7 +648,7 @@ export default function EditSabFlowPage() {
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
-                        <Popover>
+                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button className="absolute bottom-4 left-4 z-10 h-14 w-14 rounded-full" size="icon">
                                     <Plus className="h-6 w-6"/>
