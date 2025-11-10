@@ -255,8 +255,23 @@ export default function EditSabFlowPage() {
                 if (handlePos) setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
             }
         } else if (connecting && !isOutputHandle) {
+            // Prevent connecting an output to its own input
             if (connecting.sourceNodeId === nodeId) {
                 setConnecting(null);
+                return;
+            }
+    
+            // Check if the exact same source handle is already connected to this target handle
+            const isAlreadyConnected = edges.some(
+                edge =>
+                    edge.source === connecting.sourceNodeId &&
+                    edge.sourceHandle === connecting.sourceHandleId &&
+                    edge.target === nodeId &&
+                    edge.targetHandle === handleId
+            );
+    
+            if (isAlreadyConnected) {
+                setConnecting(null); // Do nothing if this exact connection exists
                 return;
             }
     
@@ -265,12 +280,16 @@ export default function EditSabFlowPage() {
                 source: connecting.sourceNodeId,
                 target: nodeId,
                 sourceHandle: connecting.sourceHandleId,
-                targetHandle: handleId
+                targetHandle: handleId,
             };
             
-            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
+            // Allow multiple different sources to connect to the same input,
+            // but one source output can only go to one target input.
+            const edgesWithoutExistingTargetForThisSource = edges.filter(
+                edge => !(edge.source === connecting.sourceNodeId && edge.sourceHandle === connecting.sourceHandleId)
+            );
             
-            setEdges([...edgesWithoutExistingTarget, newEdge]);
+            setEdges([...edgesWithoutExistingTargetForThisSource, newEdge]);
             setConnecting(null);
         }
     };
@@ -395,12 +414,12 @@ export default function EditSabFlowPage() {
                                                              const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                              const AppIcon = appConfig?.icon || Zap;
                                                              return (
-                                                                <Card key={conn.connectionName} className="p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center gap-2 transition-colors bg-white" onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors", "bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
                                                                     <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
                                                                         <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                                                     </div>
                                                                     <p className="text-xs mt-1 font-bold text-black break-words whitespace-normal">{conn.connectionName}</p>
-                                                                </Card>
+                                                                </button>
                                                              )
                                                          })}
                                                          <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
@@ -497,13 +516,13 @@ export default function EditSabFlowPage() {
                         <main 
                             ref={viewportRef}
                             className="flex-1 w-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
-                            style={{ minHeight: '85vh' }}
                             onMouseDown={handleCanvasMouseDown}
                             onMouseMove={handleCanvasMouseMove}
                             onMouseUp={handleCanvasMouseUp}
                             onMouseLeave={handleCanvasMouseUp}
                             onWheel={handleWheel}
                             onClick={handleCanvasClick}
+                            style={{ minHeight: '85vh' }}
                         >
                             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
                             <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
@@ -521,7 +540,7 @@ export default function EditSabFlowPage() {
                                                 selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                                 appConfig?.bgColor || 'bg-gray-400'
                                             )}>
-                                                <Icon className={cn("h-12 w-12", "text-white")} />
+                                                <Icon className={cn("h-12 w-12", appConfig?.iconColor || 'text-white/90')} />
                                             </div>
                                             <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
 
@@ -585,3 +604,28 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
+```
+- worker.js:
+```js
+
+require('dotenv').config();
+const path = require('path');
+
+// In production, the compiled worker file will be in the .next/server/ directory.
+const workerPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, '.next', 'server', 'src', 'lib', 'broadcast-worker.js')
+  : path.join(__dirname, 'src', 'lib', 'broadcast-worker.js');
+
+try {
+  const { startBroadcastWorker } = require(workerPath);
+  const workerId = process.env.PM2_INSTANCE_ID || `pid-${process.pid}`;
+  
+  console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
+  startBroadcastWorker(workerId);
+  
+} catch (err) {
+  console.error('[Worker Script] Failed to start worker:', err);
+  process.exit(1);
+}
+
+```
