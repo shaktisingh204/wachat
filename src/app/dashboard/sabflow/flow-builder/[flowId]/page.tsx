@@ -48,7 +48,7 @@ import {
   RefreshCw,
   Copy,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow/apps';
+import { sabnodeAppActions } from '@/lib/sabflow-actions';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -98,19 +98,6 @@ const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
         return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (2/3) };
     }
     return null;
-}
-
-function BuilderPageSkeleton() {
-    return (
-        <div className="flex h-full bg-muted/30">
-            <div className="flex-1 flex flex-col">
-                <Skeleton className="h-16 border-b bg-card" />
-                <div className="flex-1">
-                    <Skeleton className="h-full w-full" />
-                </div>
-            </div>
-        </div>
-    )
 }
 
 function NodeInput({ input, value, onChange }: { input: any, value: any, onChange: (val: any) => void }) {
@@ -236,7 +223,7 @@ function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { u
                     <div className="space-y-3">
                         {rules.map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2 relative"><Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => handleRuleChange(index, 'field', e.target.value)} /><Select value={rule.operator} onValueChange={val => handleRuleChange(index, 'operator', val)}><SelectTrigger><SelectValue placeholder="Select operator..."/></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => handleRuleChange(index, 'value', e.target.value)} /></div>))}
                     </div>
-                    <Button variant="outline" size="sm" onClick={addRule}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
+                    <Button variant="outline" size="sm" onClick={addRule}><Plus className="mr-2 h-4 w-4"/>Add Condition</Button>
                 </div>
             );
         }
@@ -270,6 +257,55 @@ function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { u
         </div>
     );
 }
+
+const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
+    const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
+    const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
+    const action = appConfig?.actions.find(a => a.name === node.data.actionName);
+    const Icon = node.type === 'trigger'
+        ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
+        : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
+    
+    const hasIncomingEdge = node.type !== 'trigger' && (node.data.hasIncomingEdge || false);
+    
+    const Handle = ({ position, id }: { position: 'left' | 'right'; id: string }) => (
+        <div id={id} data-handle-pos={position} className={cn("absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 top-1/2 -translate-y-1/2", position === 'left' ? '-left-2' : '-right-2')} onClick={e => handleHandleClick(e, node.id, id)} />
+    );
+
+    return (
+        <div
+            key={node.id}
+            data-node-id={node.id}
+            className="absolute transition-all text-center"
+            style={{ left: node.position.x, top: node.position.y }}
+            onMouseDown={e => handleNodeMouseDown(e, node.id)}
+            onClick={e => { e.stopPropagation(); setSelectedNodeId(node.id) }}
+            onContextMenu={(e) => onNodeContextMenu(e, node.id)}
+        >
+                <div
+                className={cn(
+                    "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4",
+                    selectedNodeId === node.id && 'ring-2 ring-primary'
+                )}
+                style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
+            >
+                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor || 'bg-white')}>
+                    <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-muted-foreground')} />
+                </div>
+            </div>
+            <p className="font-bold text-xs mt-2 text-black">{action?.label || node.data.name}</p>
+            {hasIncomingEdge && node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
+            {node.type === 'condition' ? (
+                <>
+                    <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
+                    <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
+                </>
+            ) : (
+                <Handle position="right" id={`${node.id}-output-main`} />
+            )}
+        </div>
+    );
+};
 
 export default function EditSabFlowPage() {
     const params = useParams();
@@ -512,61 +548,16 @@ export default function EditSabFlowPage() {
         setContextMenu({ x: e.clientX, y: e.clientY, nodeId });
     };
 
-    const NodeComponent = ({ node }: { node: SabFlowNode; }) => {
-        const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
-        const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
-        const action = appConfig?.actions.find(a => a.name === node.data.actionName);
-        const Icon = node.type === 'trigger'
-            ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
-            : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
-        
-        const hasIncomingEdge = edges.some(e => e.target === node.id);
-        const isStartNode = !hasIncomingEdge && node.type !== 'trigger';
+    const nodesWithEdgeInfo = useMemo(() => {
+        const incomingEdges = new Set(edges.map(e => e.target));
+        return nodes.map(n => ({...n, data: {...n.data, hasIncomingEdge: incomingEdges.has(n.id) }}));
+    }, [nodes, edges]);
 
-        const Handle = ({ position, id }: { position: 'left' | 'right'; id: string }) => (
-            <div id={id} data-handle-pos={position} className={cn("absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 top-1/2 -translate-y-1/2", position === 'left' ? '-left-2' : '-right-2')} onClick={e => handleHandleClick(e, node.id, id)} />
-        );
-        
-        return (
-            <div
-                key={node.id}
-                data-node-id={node.id}
-                className="absolute transition-all text-center"
-                style={{ left: node.position.x, top: node.position.y }}
-                onMouseDown={e => handleNodeMouseDown(e, node.id)}
-                onClick={e => { e.stopPropagation(); setSelectedNodeId(node.id) }}
-                onContextMenu={(e) => handleNodeContextMenu(e, node.id)}
-            >
-                 <div
-                    className={cn(
-                        "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4",
-                        selectedNodeId === node.id && 'ring-2 ring-primary'
-                    )}
-                    style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
-                >
-                    <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor || 'bg-white')}>
-                        <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-muted-foreground')} />
-                    </div>
-                </div>
-                <p className="font-bold text-xs mt-2 text-black">{action?.label || node.data.name}</p>
-                {!isStartNode && node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
-                {node.type === 'condition' ? (
-                    <>
-                        <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
-                        <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
-                    </>
-                ) : (
-                    <Handle position="right" id={`${node.id}-output-main`} />
-                )}
-            </div>
-        );
-    };
+    const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
     if (isLoading) {
         return <BuilderPageSkeleton />;
     }
-
-    const selectedNode = nodes.find(n => n.id === selectedNodeId);
 
     return (
       <div className="h-full">
@@ -627,7 +618,7 @@ export default function EditSabFlowPage() {
                                     <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />
                                 )}
                             </svg>
-                            {nodes.length === 0 ? (
+                            {nodesWithEdgeInfo.length === 0 ? (
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                                      <button type="button" onClick={() => setIsSidebarOpen(true)} className="flex flex-col items-center gap-4 text-muted-foreground hover:text-primary transition-colors">
                                         <div className="w-24 h-24 rounded-full border-4 border-dashed flex items-center justify-center">
@@ -639,8 +630,8 @@ export default function EditSabFlowPage() {
                                         </div>
                                     </button>
                                 </div>
-                            ) : nodes.map(node => (
-                                <NodeComponent key={node.id} node={node} />
+                            ) : nodesWithEdgeInfo.map(node => (
+                                <NodeComponent key={node.id} user={user} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} onNodeContextMenu={handleNodeContextMenu}/>
                             ))}
                         </div>
                         {contextMenu && (
@@ -717,37 +708,4 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
-
 ```
-- worker.js:
-```javascript
-require('dotenv').config();
-const path = require('path');
-const { startBroadcastWorker } = require(path.join(__dirname, 'src', 'lib', 'broadcast-worker.js'));
-
-const workerId = process.env.PM2_INSTANCE_ID || `pid-${process.pid}`;
-
-console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
-startBroadcastWorker(workerId).catch(err => {
-  console.error(`[Worker Script] Uncaught error in worker ${workerId}:`, err);
-  process.exit(1);
-});
-```
-
-Here's the plan to fix the `sabflow-nodes.css` file:
-
-1. **Re-add `sabflow-nodes.css`**: Create the `src/styles/sabflow-nodes.css` file with the app-specific background and icon colors.
-2. **Import in `globals.css`**: Add `@import "./src/styles/sabflow-nodes.css";` to the top of `src/app/globals.css`.
-3. **Update SabFlow Actions**: In `src/lib/sabflow/apps.ts`, add `bgColor` and `iconColor` properties to each app definition to reference the new CSS classes.
-
-These changes will correctly restore the app icon styling in the SabFlow builder.
-
-Here is the plan to fix the `src/app/dashboard/sabflow/flow-builder/[flowId]/page.tsx` file:
-
-1. **Refactor `PropertiesPanel`**: Move the `PropertiesPanel` component logic outside of the main `EditSabFlowPage` component to resolve the JSX structure error.
-2. **Correct Node Rendering**: Ensure the `NodeComponent` correctly renders with its incoming handle hidden if it's a starting node.
-3. **Add Floating Action Button**: Implement a `Popover` as a FAB in the bottom-left corner of the canvas to allow adding new steps from anywhere.
-4. **Implement Context Menu**: Add logic to display a context menu with "Copy" and "Delete" options on right-clicking a node.
-5. **Fix Edge Rendering**: Add an arrowhead marker definition to the SVG and apply it to the `path` elements for both connecting and final edges.
-
-These corrections will resolve the build error and implement the requested UI enhancements.
