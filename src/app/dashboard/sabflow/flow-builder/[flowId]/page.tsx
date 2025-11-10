@@ -236,7 +236,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                 )}
                 style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
             >
-                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center")}>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center">
                     <Icon className="h-8 w-8 text-primary" />
                 </div>
             </div>
@@ -643,7 +643,7 @@ export default function EditSabFlowPage() {
                         </Popover>
                     </main>
                     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                        <SheetContent className="w-full max-w-lg min-w-[500px] p-0 flex flex-col" style={{ width: '35%'}}>
+                        <SheetContent className="p-0 flex flex-col" style={{ minWidth: '35%' }}>
                            {selectedNodeId && nodes.find(n=>n.id === selectedNodeId) ? (
                                 <PropertiesPanel 
                                     user={user} 
@@ -688,4 +688,3 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
-```
