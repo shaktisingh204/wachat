@@ -89,6 +89,8 @@ function BuilderPageSkeleton() {
 }
 
 const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void }) => {
+    if (!selectedNode) return null;
+
     const handleDataChange = (data: any) => {
         onNodeChange(selectedNode.id, { ...selectedNode.data, ...data });
     };
@@ -246,8 +248,8 @@ const NodeComponent = ({ user, node, selectedNode, onSelectNode, isSelected, onN
                 )}
                 style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
             >
-                <div className="w-16 h-16 rounded-full flex items-center justify-center">
-                    <Icon className="h-8 w-8 text-primary" />
+                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
+                    <Icon className={cn("h-8 w-8 text-primary", appConfig?.iconColor)} />
                 </div>
             </div>
             <div className="mt-2 w-32">
@@ -612,7 +614,7 @@ export default function EditSabFlowPage() {
                                         <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />
                                     )}
                                 </svg>
-                                {nodesWithEdgeInfo.length === 0 ? (
+                                {nodes.length === 0 ? (
                                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                                         <button type="button" onClick={() => setIsSidebarOpen(true)} className="flex flex-col items-center gap-4 text-muted-foreground hover:text-primary transition-colors">
                                             <div className="w-24 h-24 rounded-full border-4 border-dashed flex items-center justify-center">
@@ -624,7 +626,7 @@ export default function EditSabFlowPage() {
                                             </div>
                                         </button>
                                     </div>
-                                ) : nodesWithEdgeInfo.map(node => (
+                                ) : nodes.map(node => (
                                     <NodeComponent key={node.id} user={user} node={node} selectedNode={selectedNode} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} onNodeContextMenu={handleNodeContextMenu}/>
                                 ))}
                             </div>
@@ -640,7 +642,7 @@ export default function EditSabFlowPage() {
                                 <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                                 <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                                 <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
+                                <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" /></Button>
                             </div>
                             <Popover>
                                 <PopoverTrigger asChild>
@@ -703,4 +705,4 @@ export default function EditSabFlowPage() {
     );
 }
 
-```
+    
