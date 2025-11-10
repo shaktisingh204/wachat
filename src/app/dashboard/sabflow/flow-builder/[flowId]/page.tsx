@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { saveSabFlow, getSabFlowById } from '@/app/actions/sabflow.actions';
 import { getSession } from '@/app/actions';
 import type { WithId, SabFlow, User, SabFlowNode, SabFlowEdge } from '@/lib/definitions';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
