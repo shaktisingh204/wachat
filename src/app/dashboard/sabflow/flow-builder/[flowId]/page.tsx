@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -374,9 +375,63 @@ export default function EditSabFlowPage() {
 
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
+    const NodeComponent = ({ node, isStartNode }: { node: SabFlowNode; isStartNode: boolean; }) => {
+        const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
+        const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
+        const action = appConfig?.actions.find(a => a.name === node.data.actionName);
+        const Icon = node.type === 'trigger'
+            ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
+            : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
+
+        const Handle = ({ position, id }: { position: 'left' | 'right'; id: string }) => (
+            <div id={id} data-handle-pos={position} className={cn("absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 top-1/2 -translate-y-1/2", position === 'left' ? '-left-2' : '-right-2')} onClick={e => handleHandleClick(e, node.id, id)} />
+        );
+        
+        return (
+            <div
+                key={node.id}
+                data-node-id={node.id}
+                className="absolute transition-all text-center"
+                style={{ left: node.position.x, top: node.position.y }}
+                onMouseDown={e => handleNodeMouseDown(e, node.id)}
+                onClick={e => { e.stopPropagation(); setSelectedNodeId(node.id) }}
+            >
+                <div
+                    className={cn(
+                        "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
+                        selectedNodeId === node.id && 'ring-2 ring-primary'
+                    )}
+                    style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
+                >
+                    <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
+                        <Icon className={cn("h-8 w-8", appConfig?.iconColor)} />
+                    </div>
+                </div>
+                <p className="font-bold text-xs mt-2 text-black">{action?.label || node.data.name}</p>
+                {!isStartNode && <Handle position="left" id={`${node.id}-input`} />}
+                {node.type === 'condition' ? (
+                    <>
+                        <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
+                        <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
+                    </>
+                ) : (
+                    <Handle position="right" id={`${node.id}-output-main`} />
+                )}
+            </div>
+        );
+    };
+    
     const renderPropertiesPanel = () => {
-        if (!selectedNode) {
+        if (!selectedNodeId && nodes.length > 0) {
             return (
+                 <div className="p-4 border-b">
+                    <h3 className="text-lg font-semibold">Flow Settings</h3>
+                </div>
+            )
+        }
+        
+        if (!selectedNodeId) {
+             return (
                 <div className="flex flex-col h-full">
                     <div className="p-4 border-b">
                         <h3 className="text-lg font-semibold">Choose an App</h3>
@@ -407,6 +462,9 @@ export default function EditSabFlowPage() {
             );
         }
         
+        const selectedNode = nodes.find(n => n.id === selectedNodeId);
+        if (!selectedNode) return null;
+
         const isAction = selectedNode.type === 'action';
         const isCondition = selectedNode.type === 'condition';
 
@@ -595,40 +653,9 @@ export default function EditSabFlowPage() {
                                         </div>
                                     </button>
                                 </div>
-                            ) : nodes.map(node => {
-                                const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
-                                const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
-                                const action = appConfig?.actions.find(a => a.name === node.data.actionName);
-                                const Icon = node.type === 'trigger'
-                                    ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
-                                    : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
-                                
-                                const isStartNode = !edges.some(e => e.target === node.id);
-                                
-                                return (
-                                    <div key={node.id} data-node-id={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
-                                        <div className={cn(
-                                            "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
-                                            selectedNodeId === node.id && 'ring-2 ring-primary'
-                                        )} style={{filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)'}}>
-                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center")}>
-                                                <Icon className={cn("h-8 w-8", appConfig?.iconColor)}/>
-                                            </div>
-                                        </div>
-                                        <p className="font-bold text-xs mt-2 text-black">{action?.label || node.data.name}</p>
-
-                                        {!isStartNode && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
-                                        {node.type === 'condition' ? (
-                                            <>
-                                                <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
-                                                <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
-                                            </>
-                                        ) : (
-                                            <div id={`${node.id}-output-main`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-main`)} />
-                                        )}
-                                    </div>
-                                )
-                            })}
+                            ) : nodes.map(node => (
+                                <NodeComponent key={node.id} node={node} isStartNode={!edges.some(e => e.target === node.id)} />
+                            ))}
                         </div>
                         {contextMenu && (
                             <Card className="absolute p-1 z-50" style={{ top: contextMenu.y, left: contextMenu.x }}>
