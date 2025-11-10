@@ -48,6 +48,7 @@ import {
   RefreshCw,
   Copy,
   MoreVertical,
+  Webhook,
 } from 'lucide-react';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
