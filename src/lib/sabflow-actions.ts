@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -213,7 +214,7 @@ export const sabnodeAppActions = [
     category: 'Email',
     logo: 'https://picsum.photos/seed/gmail/40/40',
     connectionType: 'oauth',
-    color: 'bg-gradient-to-br from-red-500 to-red-600',
+    bgColor: 'bg-gradient-to-br from-red-500 to-red-600',
     actions: []
   },
   { 
@@ -225,7 +226,7 @@ export const sabnodeAppActions = [
     credentials: [
          { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
     ],
-    color: 'bg-gradient-to-br from-orange-500 to-orange-600',
+    bgColor: 'bg-gradient-to-br from-orange-500 to-orange-600',
     actions: []
   },
   {
