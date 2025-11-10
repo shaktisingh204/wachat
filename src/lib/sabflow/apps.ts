@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -123,9 +122,9 @@ export const sabnodeAppActions = [
     appId: 'google_sheets',
     name: 'Google Sheets',
     category: 'Productivity',
+    description: "Connect Google Sheets by sending data to your flow's webhook URL from an Apps Script trigger.",
     logo: 'https://picsum.photos/seed/gsheets/40/40',
     connectionType: 'webhook',
-    description: "Connect Google Sheets by sending data to your flow's webhook URL from an Apps Script trigger.",
     iconColor: 'text-sabflow-google-sheets-icon',
     actions: googleSheetsActions
   },

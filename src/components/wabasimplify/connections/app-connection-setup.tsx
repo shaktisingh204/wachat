@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef } from 'react';
@@ -40,11 +39,8 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
 
     if (!app) return null;
 
-    if (app.connectionType === 'webhook') {
-        if (app.appId === 'google_sheets') {
-            return <GoogleSheetsConnection flowId={flowId} />;
-        }
-        return <p>Webhook setup for {app.name}.</p>;
+    if (app.appId === 'google_sheets') {
+        return <GoogleSheetsConnection flowId={flowId} />;
     }
     
     if (app.connectionType === 'oauth') {
@@ -84,5 +80,4 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
         );
     }
 
-    return <p>This app does not require a connection setup.</p>;
-}
+    return <p className="text-sm text-muted-foreground
