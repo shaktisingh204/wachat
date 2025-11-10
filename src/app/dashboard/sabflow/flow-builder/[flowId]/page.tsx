@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
@@ -231,8 +230,6 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
         : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
     
-    const hasIncomingEdge = node.data.hasIncomingEdge || false;
-    
     const Handle = ({ position, id }: { position: 'left' | 'right'; id: string }) => (
         <div id={id} data-handle-pos={position} className={cn("absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 top-1/2 -translate-y-1/2", position === 'left' ? '-left-2' : '-right-2')} onClick={e => handleHandleClick(e, node.id, id)} />
     );
@@ -254,15 +251,15 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                 )}
                 style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
             >
-                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center")}>
-                    <Icon className={cn("h-8 w-8 text-primary")} />
+                <div className="w-16 h-16 rounded-full flex items-center justify-center">
+                    <Icon className="h-8 w-8 text-primary" />
                 </div>
             </div>
             <div className="mt-2 w-32">
                 <p className="font-bold text-sm text-black truncate">{appConfig?.name || node.data.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{action?.label || 'No action selected'}</p>
             </div>
-            {hasIncomingEdge && node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
+            {node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
             {node.type === 'condition' ? (
                 <>
                     <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
@@ -708,3 +705,7 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
+
+```
+- src/styles/sabflow-nodes.css
+- `src/app/globals.css`
