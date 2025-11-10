@@ -1,5 +1,12 @@
 
 export const googleSheetsActions = [
+    {
+        name: 'updatedOrEditedRow',
+        label: 'On Row Updated/Edited',
+        description: 'Triggers when a row is modified in the connected Google Sheet.',
+        inputs: [], // This is a trigger, so no user-defined inputs
+        isTrigger: true,
+    },
     { 
         name: 'addRow', 
         label: 'Add Row', 
@@ -9,28 +16,5 @@ export const googleSheetsActions = [
             { name: 'sheetName', label: 'Sheet Name', type: 'text', placeholder: 'e.g. Sheet1', required: true },
             { name: 'rowData', label: 'Row Data (comma-separated)', type: 'text', placeholder: 'e.g. {{trigger.name}}, {{trigger.email}}' }
         ]
-    },
-    { 
-        name: 'updateRow', 
-        label: 'Update Row', 
-        description: 'Finds a row by a lookup value and updates it.', 
-        inputs: [
-            { name: 'spreadsheetId', label: 'Spreadsheet ID', type: 'text', required: true },
-            { name: 'sheetName', label: 'Sheet Name', type: 'text', required: true },
-            { name: 'lookupColumn', label: 'Lookup Column', type: 'text', placeholder: 'e.g. Email', required: true },
-            { name: 'lookupValue', label: 'Lookup Value', type: 'text', placeholder: 'e.g. {{trigger.email}}', required: true },
-            { name: 'updateData', label: 'Data to Update (JSON)', type: 'textarea', placeholder: '{ "Status": "Contacted" }' }
-        ] 
-    },
-    { 
-        name: 'getRow', 
-        label: 'Get Row Data', 
-        description: 'Retrieves data from a specific row.', 
-        inputs: [
-            { name: 'spreadsheetId', label: 'Spreadsheet ID', type: 'text', required: true },
-            { name: 'sheetName', label: 'Sheet Name', type: 'text', required: true },
-            { name: 'lookupColumn', label: 'Lookup Column', type: 'text', placeholder: 'e.g. Email', required: true },
-            { name: 'lookupValue', label: 'Lookup Value', type: 'text', placeholder: 'e.g. {{trigger.email}}', required: true },
-        ] 
     },
 ];
