@@ -176,8 +176,8 @@ function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { u
                                 const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                 const AppIcon = appConfig?.icon || Zap;
                                 return (
-                                    <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => onNodeChange(selectedNode.id, { connectionId: conn.connectionName, actionName: '', inputs: {} })}>
-                                        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
+                                    <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors", appConfig?.bgColor)} onClick={() => onNodeChange(selectedNode.id, { connectionId: conn.connectionName, actionName: '', inputs: {} })}>
+                                        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
                                             <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                         </div>
                                         <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
@@ -520,7 +520,8 @@ export default function EditSabFlowPage() {
             ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
             : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
         
-        const isStartNode = !edges.some(e => e.target === node.id);
+        const hasIncomingEdge = edges.some(e => e.target === node.id);
+        const isStartNode = !hasIncomingEdge && node.type !== 'trigger';
 
         const Handle = ({ position, id }: { position: 'left' | 'right'; id: string }) => (
             <div id={id} data-handle-pos={position} className={cn("absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 top-1/2 -translate-y-1/2", position === 'left' ? '-left-2' : '-right-2')} onClick={e => handleHandleClick(e, node.id, id)} />
@@ -534,7 +535,7 @@ export default function EditSabFlowPage() {
                 style={{ left: node.position.x, top: node.position.y }}
                 onMouseDown={e => handleNodeMouseDown(e, node.id)}
                 onClick={e => { e.stopPropagation(); setSelectedNodeId(node.id) }}
-                 onContextMenu={(e) => handleNodeContextMenu(e, node.id)}
+                onContextMenu={(e) => handleNodeContextMenu(e, node.id)}
             >
                  <div
                     className={cn(
@@ -543,12 +544,12 @@ export default function EditSabFlowPage() {
                     )}
                     style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
                 >
-                    <div className={cn("w-16 h-16 rounded-full flex items-center justify-center bg-white", appConfig?.bgColor)}>
+                    <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor || 'bg-white')}>
                         <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-muted-foreground')} />
                     </div>
                 </div>
                 <p className="font-bold text-xs mt-2 text-black">{action?.label || node.data.name}</p>
-                {!isStartNode && <Handle position="left" id={`${node.id}-input`} />}
+                {!isStartNode && node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
                 {node.type === 'condition' ? (
                     <>
                         <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
@@ -564,6 +565,8 @@ export default function EditSabFlowPage() {
     if (isLoading) {
         return <BuilderPageSkeleton />;
     }
+
+    const selectedNode = nodes.find(n => n.id === selectedNodeId);
 
     return (
       <div className="h-full">
@@ -652,7 +655,7 @@ export default function EditSabFlowPage() {
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
                         <Popover>
                             <PopoverTrigger asChild>
@@ -690,8 +693,8 @@ export default function EditSabFlowPage() {
                                                const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                const AppIcon = appConfig?.icon || Zap;
                                                return (
-                                                  <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => handleAddNode('action')}>
-                                                      <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
+                                                  <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors", appConfig?.bgColor)} onClick={() => handleAddNode('action')}>
+                                                      <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
                                                           <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                                       </div>
                                                       <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
@@ -716,346 +719,35 @@ export default function EditSabFlowPage() {
 }
 
 ```
-- src/styles/sabflow-nodes.css
-```css
-.sabflow-icon-wachat { color: #25D366; }
-.sabflow-bg-wachat { background-color: rgba(37, 211, 102, 0.1); }
-.sabflow-icon-sabchat { color: #7E57C2; }
-.sabflow-bg-sabchat { background-color: rgba(126, 87, 194, 0.1); }
-.sabflow-icon-meta { color: #1877F2; }
-.sabflow-bg-meta { background-color: rgba(24, 119, 242, 0.1); }
-.sabflow-icon-instagram { color: #E1306C; }
-.sabflow-bg-instagram { background-color: rgba(225, 48, 108, 0.1); }
-.sabflow-icon-crm { color: #009688; }
-.sabflow-bg-crm { background-color: rgba(0, 150, 136, 0.1); }
-.sabflow-icon-email { color: #FF9800; }
-.sabflow-bg-email { background-color: rgba(255, 152, 0, 0.1); }
-.sabflow-icon-sms { color: #0288D1; }
-.sabflow-bg-sms { background-color: rgba(2, 136, 209, 0.1); }
-.sabflow-icon-url-shortener { color: #7B1FA2; }
-.sabflow-bg-url-shortener { background-color: rgba(123, 31, 162, 0.1); }
-.sabflow-icon-qr-code-maker { color: #455A64; }
-.sabflow-bg-qr-code-maker { background-color: rgba(69, 90, 100, 0.1); }
-.sabflow-icon-seo-suite { color: #43A047; }
-.sabflow-bg-seo-suite { background-color: rgba(67, 160, 71, 0.1); }
-.sabflow-icon-api { color: #1E88E5; }
-.sabflow-bg-api { background-color: rgba(30, 136, 229, 0.1); }
-.sabflow-icon-array_function { color: #8E24AA; }
-.sabflow-bg-array_function { background-color: rgba(142, 36, 170, 0.1); }
-.sabflow-icon-code { color: #F4511E; }
-.sabflow-bg-code { background-color: rgba(244, 81, 30, 0.1); }
-.sabflow-icon-data_forwarder { color: #3949AB; }
-.sabflow-bg-data_forwarder { background-color: rgba(57, 73, 171, 0.1); }
-.sabflow-icon-data_transformer { color: #00897B; }
-.sabflow-bg-data_transformer { background-color: rgba(0, 137, 123, 0.1); }
-.sabflow-icon-datetime_formatter { color: #6D4C41; }
-.sabflow-bg-datetime_formatter { background-color: rgba(109, 76, 65, 0.1); }
-.sabflow-icon-delay { color: #FF5722; }
-.sabflow-bg-delay { background-color: rgba(255, 87, 34, 0.1); }
-.sabflow-icon-dynamic_web_page { color: #00796B; }
-.sabflow-bg-dynamic_web_page { background-color: rgba(0, 121, 107, 0.1); }
-.sabflow-icon-file_uploader { color: #5C6BC0; }
-.sabflow-bg-file_uploader { background-color: rgba(92, 107, 192, 0.1); }
-.sabflow-icon-filter { color: #9C27B0; }
-.sabflow-bg-filter { background-color: rgba(156, 39, 176, 0.1); }
-.sabflow-icon-iterator { color: #039BE5; }
-.sabflow-bg-iterator { background-color: rgba(3, 155, 229, 0.1); }
-.sabflow-icon-json_extractor { color: #0097A7; }
-.sabflow-bg-json_extractor { background-color: rgba(0, 151, 167, 0.1); }
-.sabflow-icon-lookup_table { color: #7E57C2; }
-.sabflow-bg-lookup_table { background-color: rgba(126, 87, 194, 0.1); }
-.sabflow-icon-number_formatter { color: #F9A825; }
-.sabflow-bg-number_formatter { background-color: rgba(249, 168, 37, 0.1); }
-.sabflow-icon-connect_manager { color: #303F9F; }
-.sabflow-bg-connect_manager { background-color: rgba(48, 63, 159, 0.1); }
-.sabflow-icon-hook { color: #D32F2F; }
-.sabflow-bg-hook { background-color: rgba(211, 47, 47, 0.1); }
-.sabflow-icon-subscription_billing { color: #512DA8; }
-.sabflow-bg-subscription_billing { background-color: rgba(81, 45, 168, 0.1); }
-.sabflow-icon-router { color: #455A64; }
-.sabflow-bg-router { background-color: rgba(69, 90, 100, 0.1); }
-.sabflow-icon-select_transform_json { color: #5E35B1; }
-.sabflow-bg-select_transform_json { background-color: rgba(94, 53, 177, 0.1); }
-.sabflow-icon-text_formatter { color: #00838F; }
-.sabflow-bg-text_formatter { background-color: rgba(0, 131, 143, 0.1); }
-.sabflow-icon-google_sheets { color: #0F9D58; }
-.sabflow-bg-google_sheets { background-color: rgba(15, 157, 88, 0.1); }
-.sabflow-icon-stripe { color: #635BFF; }
-.sabflow-bg-stripe { background-color: rgba(99, 91, 255, 0.1); }
-.sabflow-icon-shopify { color: #96BF48; }
-.sabflow-bg-shopify { background-color: rgba(150, 191, 72, 0.1); }
-.sabflow-icon-slack { color: #4A154B; }
-.sabflow-bg-slack { background-color: rgba(74, 21, 75, 0.1); }
-.sabflow-icon-discord { color: #5865F2; }
-.sabflow-bg-discord { background-color: rgba(88, 101, 242, 0.1); }
-.sabflow-icon-notion { color: #000000; }
-.sabflow-bg-notion { background-color: rgba(0, 0, 0, 0.1); }
+- worker.js:
+```javascript
+require('dotenv').config();
+const path = require('path');
+const { startBroadcastWorker } = require(path.join(__dirname, 'src', 'lib', 'broadcast-worker.js'));
+
+const workerId = process.env.PM2_INSTANCE_ID || `pid-${process.pid}`;
+
+console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
+startBroadcastWorker(workerId).catch(err => {
+  console.error(`[Worker Script] Uncaught error in worker ${workerId}:`, err);
+  process.exit(1);
+});
 ```
-- src/app/globals.css
-```css
-@import "./src/styles/sabflow-nodes.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+Here's the plan to fix the `sabflow-nodes.css` file:
 
-@layer base {
-  :root {
-    --background: 210 17% 98%;
-    --foreground: 210 10% 23%;
-    --card: 0 0% 100%;
-    --card-foreground: 210 10% 23%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 10% 23%;
-    --primary: 215 89% 48%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 134 61% 36%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 210 10% 23%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 215 89% 48%;
-    --chart-1: 215 89% 48%;
-    --chart-2: 140 50% 50%;
-    --chart-3: 150 40% 60%;
-    --chart-4: 285.2 83.2% 53.3%;
-    --chart-5: 350.2 83.2% 53.3%;
-    --radius: 0.5rem;
-    --instagram: 327 92% 55%;
+1. **Re-add `sabflow-nodes.css`**: Create the `src/styles/sabflow-nodes.css` file with the app-specific background and icon colors.
+2. **Import in `globals.css`**: Add `@import "./src/styles/sabflow-nodes.css";` to the top of `src/app/globals.css`.
+3. **Update SabFlow Actions**: In `src/lib/sabflow/apps.ts`, add `bgColor` and `iconColor` properties to each app definition to reference the new CSS classes.
 
-    /* Sidebar variables */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 10% 40%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 215 89% 48%;
-    
-    --sidebar-secondary-background: 0 0% 100%;
-    --sidebar-secondary-foreground: 220 10% 25%;
-    
-    --sidebar-active-background: 215 89% 48%;
-    --sidebar-active-foreground: 0 0% 100%;
+These changes will correctly restore the app icon styling in the SabFlow builder.
 
-    --sidebar-accent: hsl(var(--primary) / 0.1);
-    --sidebar-accent-foreground: hsl(var(--primary));
-  }
+Here is the plan to fix the `src/app/dashboard/sabflow/flow-builder/[flowId]/page.tsx` file:
 
-  .dark {
-    --background: 210 10% 15%;
-    --foreground: 210 40% 98%;
-    --card: 210 10% 23%;
-    --card-foreground: 210 40% 98%;
-    --popover: 210 10% 23%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 215 89% 48%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 134 61% 36%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 10% 28%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 210 10% 28%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 210 10% 28%;
-    --input: 210 10% 28%;
-    --ring: 215 89% 48%;
+1. **Refactor `PropertiesPanel`**: Move the `PropertiesPanel` component logic outside of the main `EditSabFlowPage` component to resolve the JSX structure error.
+2. **Correct Node Rendering**: Ensure the `NodeComponent` correctly renders with its incoming handle hidden if it's a starting node.
+3. **Add Floating Action Button**: Implement a `Popover` as a FAB in the bottom-left corner of the canvas to allow adding new steps from anywhere.
+4. **Implement Context Menu**: Add logic to display a context menu with "Copy" and "Delete" options on right-clicking a node.
+5. **Fix Edge Rendering**: Add an arrowhead marker definition to the SVG and apply it to the `path` elements for both connecting and final edges.
 
-    /* Dark mode sidebar variables */
-    --sidebar-background: 220 10% 12%; 
-    --sidebar-foreground: 210 40% 80%;
-    --sidebar-border: 220 10% 20%;
-    --sidebar-ring: 215 89% 48%;
-
-    --sidebar-secondary-background: 210 10% 15%;
-    --sidebar-secondary-foreground: 210 40% 98%;
-
-    --sidebar-active-background: 215 89% 48%;
-    --sidebar-active-foreground: 0 0% 100%;
-    
-    --sidebar-accent: hsl(var(--primary) / 0.1);
-    --sidebar-accent-foreground: hsl(var(--primary));
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground overflow-hidden;
-  }
-}
-
-@layer components {
-    .card-gradient {
-      @apply relative overflow-hidden;
-    }
-    .card-gradient::before {
-      content: '';
-      @apply absolute inset-0 opacity-[0.15] z-0;
-    }
-    .card-gradient-blue::before {
-      @apply bg-gradient-to-br from-blue-400 via-blue-200 to-sky-100;
-    }
-    .card-gradient-purple::before {
-      @apply bg-gradient-to-br from-purple-400 via-purple-200 to-violet-100;
-    }
-    .card-gradient-green::before {
-      @apply bg-gradient-to-br from-green-400 via-green-200 to-emerald-100;
-    }
-    .card-gradient-orange::before {
-      @apply bg-gradient-to-br from-orange-400 via-orange-200 to-amber-100;
-    }
-    .card-gradient > * {
-      @apply relative z-10;
-    }
-    .dnd-placeholder {
-        @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
-    }
-}
-
-
-.scroll-container {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-}
-.scroll-container::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Opera */
-}
-/* Also hide the custom Radix scrollbar used in the component */
-.scroll-container ~ [data-radix-scroll-area-scrollbar] {
-    display: none;
-}
-@layer utilities {
-    .has-tooltip [data-tooltip] {
-        @apply relative cursor-pointer;
-    }
-    .has-tooltip [data-tooltip]:after {
-        @apply absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background content-[attr(data-tooltip)];
-    }
-    .has-tooltip:hover [data-tooltip]:after {
-        @apply block;
-    }
-
-    .bg-auth-texture {
-        background-color: #f0f2f5;
-    }
-
-    .dark .bg-auth-texture {
-        background-color: #111827;
-    }
-    
-    .bg-chat-texture {
-        background-color: #E5DDD5;
-    }
-    .dark .bg-chat-texture {
-        background-color: #0b141a;
-    }
-    .bg-instagram {
-        background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
-    }
-    .text-instagram {
-        color: hsl(var(--instagram));
-    }
-    .animate-fade-in-up {
-        animation: fade-in-up 0.6s ease-in-out forwards;
-        opacity: 0;
-    }
-    .animate-slide-in-up {
-        animation: slide-in-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    }
-    .animate-fade-in {
-        animation: fade-in 0.5s ease-in-out forwards;
-        opacity: 0;
-    }
-    .animate-draw {
-        animation: draw 2s ease-out forwards;
-        stroke-dasharray: 1000;
-        stroke-dashoffset: 1000;
-        opacity: 0;
-    }
-    .sabflow-edge-path {
-        animation: sabflow-dash 10s linear infinite;
-    }
-    .animate-draw-long {
-      animation: draw-long 3s ease-out forwards;
-      stroke-dasharray: 2000;
-      stroke-dashoffset: 2000;
-      opacity: 0;
-    }
-    .animate-kanban-drag {
-        animation: kanban-drag 7s ease-in-out infinite;
-        animation-delay: 2.5s;
-    }
-    
-    @keyframes fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    @keyframes fade-in-up {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    @keyframes slide-in-up {
-        from {
-            transform: translateY(100%);
-        }
-        to {
-            transform: translateY(0);
-        }
-    }
-    @keyframes draw {
-      to {
-        stroke-dashoffset: 0;
-        opacity: 1;
-      }
-    }
-    @keyframes draw-long {
-      to {
-        stroke-dashoffset: 0;
-        opacity: 1;
-      }
-    }
-    @keyframes kanban-drag {
-        0%, 20% {
-            transform: translate(0, 0);
-            opacity: 1;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-        }
-        30% {
-            transform: translate(5px, -10px) rotate(-3deg);
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            opacity: 0.95;
-        }
-        80% {
-            transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            opacity: 0.95;
-        }
-        100% {
-            transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            opacity: 1;
-        }
-    }
-    @keyframes sabflow-dash {
-      from {
-        stroke-dashoffset: 200;
-      }
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
-}
-```
+These corrections will resolve the build error and implement the requested UI enhancements.
