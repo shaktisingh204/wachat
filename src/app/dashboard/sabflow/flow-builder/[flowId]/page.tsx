@@ -444,16 +444,16 @@ export default function EditSabFlowPage() {
                                             {!selectedNode.data.connectionId ? (
                                                 <div className="space-y-4">
                                                     <h3 className="font-semibold">Choose an App</h3>
-                                                     <div className="grid grid-cols-3 gap-2">
+                                                     <div className="grid grid-cols-6 gap-2">
                                                          {(user?.sabFlowConnections || []).map((conn: any) => {
                                                              const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                              const AppIcon = appConfig?.icon || Zap;
                                                              return (
                                                                 <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
                                                                     <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
-                                                                        <AppIcon className={cn("h-8 w-8", appConfig?.iconColor)}/>
+                                                                        <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                                                     </div>
-                                                                    <p className="text-xs font-bold text-black break-words whitespace-normal">{conn.connectionName}</p>
+                                                                    <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
                                                                 </button>
                                                              )
                                                          })}
@@ -551,7 +551,7 @@ export default function EditSabFlowPage() {
                 <div className="flex-1 flex overflow-hidden">
                     <main 
                         ref={viewportRef}
-                        className="flex-1 w-full h-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
+                        className="flex-1 w-full h-full min-h-[85vh] overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -591,7 +591,7 @@ export default function EditSabFlowPage() {
                                 return (
                                     <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}} onContextMenu={(e) => handleNodeContextMenu(e, node.id)}>
                                         <div className={cn("w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white", selectedNodeId === node.id && 'ring-2 ring-primary')} style={{filter: 'drop-shadow(rgba(0, 0, 0, 0.25) 0px 5px 6px)'}}>
-                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
+                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center bg-white")}>
                                                 <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-gray-400')}/>
                                             </div>
                                         </div>
@@ -641,7 +641,7 @@ export default function EditSabFlowPage() {
                         </div>
                     </main>
                     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                        <SheetContent className="w-full max-w-sm p-0 flex flex-col">
+                        <SheetContent className="sm:max-w-xl p-0 flex flex-col">
                             {renderPropertiesPanel()}
                         </SheetContent>
                     </Sheet>
@@ -651,3 +651,5 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
+
+    
