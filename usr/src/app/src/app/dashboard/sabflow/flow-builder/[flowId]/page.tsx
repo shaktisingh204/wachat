@@ -268,9 +268,9 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId,
             };
             
-            // Prevent connecting the same source handle to the same target input more than once
+            // Prevent connecting the same source node to the same target node more than once.
             const edgeExists = edges.some(
-                edge => edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle && edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle
+                edge => (edge.source === newEdge.source && edge.target === newEdge.target) || (edge.source === newEdge.target && edge.target === newEdge.source)
             );
 
             if (edgeExists) {
@@ -278,12 +278,7 @@ export default function EditSabFlowPage() {
                 return;
             }
             
-            // An input handle can only have one connection. Remove any existing connection to this target handle.
-            const edgesWithoutExistingTarget = edges.filter(
-                edge => !(edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle)
-            );
-            
-            setEdges([...edgesWithoutExistingTarget, newEdge]);
+            setEdges(prevEdges => [...prevEdges, newEdge]);
             setConnecting(null);
         }
     };
@@ -410,7 +405,7 @@ export default function EditSabFlowPage() {
                                                              return (
                                                                 <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
                                                                     <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
-                                                                        <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
+                                                                        <AppIcon className={cn("h-6 w-6 text-white")}/>
                                                                     </div>
                                                                     <p className="text-xs font-bold text-black break-words whitespace-normal">{conn.connectionName}</p>
                                                                 </button>
@@ -517,7 +512,6 @@ export default function EditSabFlowPage() {
                         onMouseLeave={handleCanvasMouseUp}
                         onWheel={handleWheel}
                         onClick={handleCanvasClick}
-                        style={{ minHeight: '85vh' }}
                     >
                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
                         <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
@@ -529,13 +523,14 @@ export default function EditSabFlowPage() {
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
                                 return (
-                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y, filter: 'drop-shadow(0 5px 6px rgb(0 0 0 / 0.25))'}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
+                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y, filter: 'drop-shadow(rgba(0, 0, 0, 0.25) 0px 5px 6px)'}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
-                                            "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4",
-                                            selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                            appConfig?.bgColor || 'bg-sabflow-default-bg'
+                                            "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
+                                            selectedNodeId === node.id && 'ring-2 ring-primary'
                                         )}>
-                                            <Icon className={cn("h-12 w-12", appConfig?.iconColor ? 'text-white' : 'text-white/90')} />
+                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
+                                                <Icon className={cn("h-8 w-8 text-white")} />
+                                            </div>
                                         </div>
                                         <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
 
@@ -599,4 +594,317 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
+
+```
+- worker.js:
+```js
+require('dotenv').config();
+const path = require('path');
+
+// In production, the compiled worker file will be in the .next/server/ directory.
+// We need to adjust the path to correctly locate the compiled broadcast-worker.
+const workerPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, 'src', 'lib', 'broadcast-worker.js')
+  : path.join(__dirname, 'src', 'lib', 'broadcast-worker.js');
+
+try {
+  const { startBroadcastWorker } = require(workerPath);
+  const workerId = process.env.PM2_INSTANCE_ID || `pid-${process.pid}`;
+  
+  console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
+  startBroadcastWorker(workerId);
+  
+} catch (err) {
+  console.error('[Worker Script] Failed to start worker:', err);
+  process.exit(1);
+}
+```
+- next.config.ts:
+```ts
+import type { NextConfig } from 'next';
+const webpack = require('webpack');
+
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+const nextConfig: NextConfig = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wawachat.s3.us-east-1.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent.whatsapp.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.qrserver.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.fbcdn.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static5.lenskart.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'assets.sabnode.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
+  webpack: (config, { isServer }) => {
+    // Ignore MongoDB optional native deps when bundling
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp:
+          /^(@mongodb-js\/zstd|snappy|kerberos|aws4|@aws-sdk\/credential-providers|mongodb-client-encryption)$/,
+      })
+    );
+
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        dns: false,
+        tls: false,
+        child_process: false,
+        module: false,
+      };
+    }
+
+    config.experiments = { ...config.experiments, topLevelAwait: true };
+
+    // Optional: silence "Critical dependency" warnings from dynamic requires
+    config.ignoreWarnings = [
+      {
+        module: /@opentelemetry\/instrumentation/,
+      },
+      /Critical dependency: the request of a dependency is an expression/,
+    ];
+
+    return config;
+  },
+  output: 'standalone',
+};
+
+module.exports = withBundleAnalyzer(nextConfig);
+```
+- package.json:
+```json
+{
+  "name": "nextn",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
+    "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "start:pm2": "npm run build && pm2 start ecosystem.config.js",
+    "stop:pm2": "pm2 stop all && pm2 delete all",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "db:assign-plan": "tsx scripts/assign-default-plan.ts"
+  },
+  "dependencies": {
+    "@azure/msal-node": "^2.10.0",
+    "@genkit-ai/googleai": "^1.8.0",
+    "@genkit-ai/next": "^1.8.0",
+    "@hookform/resolvers": "^4.1.3",
+    "@radix-ui/react-accordion": "^1.2.3",
+    "@radix-ui/react-alert-dialog": "^1.1.6",
+    "@radix-ui/react-avatar": "^1.1.3",
+    "@radix-ui/react-checkbox": "^1.1.4",
+    "@radix-ui/react-collapsible": "^1.1.0",
+    "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-dropdown-menu": "^2.1.6",
+    "@radix-ui/react-label": "^2.1.2",
+    "@radix-ui/react-menubar": "^1.1.6",
+    "@radix-ui/react-popover": "^1.1.6",
+    "@radix-ui/react-progress": "^1.1.2",
+    "@radix-ui/react-radio-group": "^1.2.3",
+    "@radix-ui/react-scroll-area": "^1.2.3",
+    "@radix-ui/react-select": "^2.1.6",
+    "@radix-ui/react-separator": "^1.1.2",
+    "@radix-ui/react-slider": "^1.2.3",
+    "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-switch": "^1.1.3",
+    "@radix-ui/react-tabs": "^1.1.3",
+    "@radix-ui/react-toast": "^1.2.6",
+    "@radix-ui/react-tooltip": "^1.1.8",
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.0.0",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.5.0",
+    "embla-carousel-autoplay": "^8.1.5",
+    "embla-carousel-react": "^8.1.5",
+    "firebase": "^11.9.1",
+    "form-data": "^4.0.0",
+    "genkit": "^1.8.0",
+    "googleapis": "^142.0.0",
+    "jose": "^5.6.3",
+    "kafkajs": "^2.2.4",
+    "lucide-react": "^0.475.0",
+    "mongodb": "5.9.2",
+    "nanoid": "^5.0.7",
+    "next": "15.3.3",
+    "node-cache": "^5.1.2",
+    "nodemailer": "^6.9.14",
+    "p-throttle": "^5.0.0",
+    "papaparse": "^5.4.1",
+    "patch-package": "^8.0.0",
+    "razorpay": "^2.9.4",
+    "react": "^18.3.1",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-day-picker": "^8.10.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.2",
+    "react-qr-code": "^2.0.12",
+    "recharts": "^2.15.1",
+    "redis": "^4.6.15",
+    "tailwind-merge": "^3.0.1",
+    "tailwindcss-animate": "^1.0.7",
+    "twilio": "^5.2.2",
+    "undici": "^6.19.2",
+    "use-debounce": "^10.0.1",
+    "uuid": "^10.0.0",
+    "vaul": "^1.1.2",
+    "xlsx": "^0.18.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^15.3.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/form-data": "^2.5.0",
+    "@types/node": "^20",
+    "@types/node-cache": "^4.2.5",
+    "@types/nodemailer": "^6.4.15",
+    "@types/papaparse": "^5.3.14",
+    "@types/react": "^18",
+    "@types/react-beautiful-dnd": "^13.1.8",
+    "@types/react-dom": "^18",
+    "@types/uuid": "^10.0.0",
+    "genkit-cli": "^1.8.0",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "tsx": "^4.15.7",
+    "typescript": "^5"
+  }
+}
+```
+- ecosystem.config.js:
+```js
+module.exports = {
+  apps: [
+    {
+      name: 'sabnode-web',
+      script: 'node_modules/.bin/next',
+      args: 'start -p 3001',
+      instances: 'max',
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+      },
+    },
+    {
+      name: 'sabnode-worker-low',
+      script: './worker.js',
+      args: 'low-priority-broadcasts',
+      instances: 2,
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+        KAFKA_TOPIC: 'low-priority-broadcasts',
+      },
+    },
+    {
+      name: 'sabnode-worker-high',
+      script: './worker.js',
+      args: 'high-priority-broadcasts',
+      instances: 4,
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+        KAFKA_TOPIC: 'high-priority-broadcasts',
+      },
+    },
+  ],
+};
+```
+- src/server.js:
+```js
+require('dotenv').config();
+const { createServer } = require('http');
+const { parse } = require('url');
+const next = require('next');
+
+const dev = process.env.NODE_ENV !== 'production';
+const hostname = '0.0.0.0';
+const port = parseInt(process.env.PORT, 10) || 3001;
+
+// When using a custom server, you must pass the 'dir' option to 'next'
+// so it knows where to find the pages/ directory.
+const app = next({ dev, dir: __dirname });
+const handle = app.getRequestHandler();
+
+app.prepare().then(() => {
+  createServer(async (req, res) => {
+    try {
+      const parsedUrl = parse(req.url, true);
+      await handle(req, res, parsedUrl);
+    } catch (err) {
+      console.error('Error occurred handling request:', req.url, err);
+      res.statusCode = 500;
+      res.end('Internal Server Error');
+    }
+  }).listen(port, hostname, () => {
+    console.log(`> Server listening at http://${hostname}:${port}`);
+  });
+});
 ```
