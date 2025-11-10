@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useId } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { CodeBlock } from '../code-block';
+import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 
