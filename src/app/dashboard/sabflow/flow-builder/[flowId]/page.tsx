@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
@@ -112,12 +111,12 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
             selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode.data.connectionId);
         }
 
-        const selectedApp = sabnodeAppActions.find(app => app.appId === selectedConnection?.appId);
+        const selectedApp = sabnodeAppActions.find(app => app.appId === (selectedNode.data.appId || selectedConnection?.appId));
         const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
 
         if (isAction) {
             if (!selectedNode.data.connectionId) {
-                const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
+                 const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
                 
                  const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
                     const category = app.category || 'SabNode Apps';
@@ -310,7 +309,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         if (appConfig) {
             const action = appConfig.actions.find(a => a.name === node.data.actionName);
             if(action) return action.label;
-            return appConfig.name || 'Select action';
+            return appConfig.name;
         }
         
         return 'Select action';
@@ -771,4 +770,93 @@ export default function EditSabFlowPage() {
             </form>
         </div>
     );
+}
+
+```></content>
+  </change>
+  <change>
+    <file>/src/components/wabasimplify/connections/app-connection-setup.tsx</file>
+    <content><![CDATA['use client';
+
+import React, { useState, useActionState, useEffect, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { LoaderCircle, Key } from 'lucide-react';
+import { GoogleSheetsConnection } from './google-sheets-connection';
+
+const initialState = { message: null, error: null };
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Key className="mr-2 h-4 w-4" />}
+            Connect Account
+        </Button>
+    )
+}
+
+export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: any, onConnectionSaved: () => void, flowId?: string }) {
+    const [state, formAction] = useActionState(saveSabFlowConnection, initialState);
+    const { toast } = useToast();
+    const formRef = useRef<HTMLFormElement>(null);
+
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: "Success!", description: state.message });
+            onConnectionSaved();
+        }
+        if (state.error) {
+            toast({ title: "Error", description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, onConnectionSaved]);
+
+    if (!app) return null;
+
+    if (app.appId === 'google_sheets') {
+        return <GoogleSheetsConnection flowId={flowId} />;
+    }
+    
+    if (app.connectionType === 'oauth') {
+        return (
+            <div className="text-center space-y-4">
+                <p className="text-sm text-muted-foreground">To connect {app.name}, you'll be redirected to their authorization page.</p>
+                <Button type="button" disabled>Connect via {app.name}</Button>
+            </div>
+        );
+    }
+    
+    if (app.connectionType === 'apikey') {
+        return (
+            <form action={formAction} ref={formRef} className="space-y-4">
+                <input type="hidden" name="appId" value={app.appId} />
+                <input type="hidden" name="appName" value={app.name} />
+                <input type="hidden" name="credentialKeys" value={(app.credentials || []).map((c: any) => c.name).join(',')} />
+                <p className="text-sm text-muted-foreground">{app.description}</p>
+                <div className="space-y-2">
+                    <Label htmlFor="connectionName">Connection Name</Label>
+                    <Input id="connectionName" name="connectionName" defaultValue={`${app.name} Account`} required />
+                </div>
+                 {(app.credentials || []).map((cred: any) => (
+                    <div className="space-y-2" key={cred.name}>
+                        <Label htmlFor={cred.name}>{cred.label}</Label>
+                        <Input 
+                            id={cred.name} 
+                            name={cred.name} 
+                            type={cred.type || 'text'} 
+                            placeholder={cred.placeholder || ''} 
+                            required 
+                        />
+                    </div>
+                ))}
+                <SubmitButton />
+            </form>
+        );
+    }
+
+    return <p className="text-sm text-muted-foreground text-center">This app does not require a connection setup.</p>;
 }

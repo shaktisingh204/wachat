@@ -34,10 +34,10 @@ import {
   SidebarTrigger,
   SidebarProvider,
 } from '@/components/ui/sidebar';
-import { Drawer, DrawerTrigger } from '../ui/drawer';
+import { Drawer, DrawerTrigger } from './ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Separator } from '../ui/separator';
+import { Separator } from './ui/separator';
 
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
@@ -447,7 +447,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   
     const currentUserRole = React.useMemo(() => {
         if (!sessionUser || !activeProject) return 'owner'; 
-        if (sessionUser._id.toString() === activeProject.userId?.toString()) return 'owner';
+        if (sessionUser._id.toString() === activeProject.userId.toString()) return 'owner';
         const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id.toString());
         return agentInfo?.role || 'none';
     }, [sessionUser, activeProject]);
@@ -463,6 +463,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'email', icon: Mail, label: 'Email', href: '/dashboard/email' },
         { id: 'sms', icon: MessageSquare, label: 'SMS', href: '/dashboard/sms' },
         { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
+        { id: 'website-builder', icon: Brush, label: 'Website', href: '/dashboard/website-builder' },
         { id: 'url-shortener', icon: LinkIcon, label: 'Links', href: '/dashboard/url-shortener' },
         { id: 'qr-code-maker', icon: QrCode, label: 'QR Codes', href: '/dashboard/qr-code-maker' },
         { id: 'seo-suite', icon: SeoIcon, label: 'SEO', href: '/dashboard/seo' },
@@ -741,4 +742,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
     return (
         <ProjectProvider initialProjects={initialData.projects} user={initialData.user}>
-            <DashboardLayoutContent>{
+            <DashboardLayoutContent>{children}</DashboardLayoutContent>
+        </ProjectProvider>
+    );
+}
