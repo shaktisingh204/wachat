@@ -268,21 +268,16 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId,
             };
             
-            // One input can have multiple sources, but a source output can only go to one input (unless it's a condition)
-            const sourceIsCondition = nodes.find(n => n.id === newEdge.source)?.type === 'condition';
-            let edgesToKeep = edges;
-            
-            // If the source is NOT a condition, and its specific output handle is already used, remove the old edge.
-            if (!sourceIsCondition) {
-                edgesToKeep = edges.filter(
-                    edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle)
-                );
-            }
-            
-            // Always replace any existing connection to this specific target handle.
-            edgesToKeep = edgesToKeep.filter(
+            // An input handle can only have one connection. Remove any existing connection to this target handle.
+            let edgesToKeep = edges.filter(
                 edge => !(edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle)
             );
+            
+            // A regular output handle can only have one connection. Remove old one if new one is added.
+            const sourceNode = nodes.find(n => n.id === newEdge.source);
+            if(sourceNode && sourceNode.type !== 'condition') {
+                edgesToKeep = edgesToKeep.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
+            }
             
             setEdges([...edgesToKeep, newEdge]);
             setConnecting(null);
@@ -409,9 +404,9 @@ export default function EditSabFlowPage() {
                                                              const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                              const AppIcon = appConfig?.icon || Zap;
                                                              return (
-                                                                <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors", "bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
                                                                     <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
-                                                                        <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
+                                                                        <AppIcon className={cn("h-6 w-6 text-white")}/>
                                                                     </div>
                                                                     <p className="text-xs font-bold text-black break-words whitespace-normal">{conn.connectionName}</p>
                                                                 </button>
@@ -486,117 +481,371 @@ export default function EditSabFlowPage() {
     }
 
     return (
-        <div className="h-full">
-            <form action={formAction} ref={formRef}>
-                <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
-                <input type="hidden" name="name" value={flowName} />
-                <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
-                <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
-                <input type="hidden" name="edges" value={JSON.stringify(edges)} />
-                
-                <div className="flex flex-col h-full">
-                    <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" asChild className="h-9 px-2">
-                                <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
-                            </Button>
-                            <Input value={flowName} onChange={(e) => setFlowName(e.target.value)} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
-                            <SaveButton />
-                        </div>
-                    </header>
-                    <div className="flex-1 flex overflow-hidden">
-                        <main 
-                            ref={viewportRef}
-                            className="flex-1 w-full h-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
-                            onMouseDown={handleCanvasMouseDown}
-                            onMouseMove={handleCanvasMouseMove}
-                            onMouseUp={handleCanvasMouseUp}
-                            onMouseLeave={handleCanvasMouseUp}
-                            onWheel={handleWheel}
-                            onClick={handleCanvasClick}
-                            style={{ minHeight: '85vh' }}
-                        >
-                            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
-                            <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
-                                {nodes.map(node => {
-                                    const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
-                                    const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
-                                    const Icon = node.type === 'trigger'
-                                        ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
-                                        : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
-                                    
-                                    return (
-                                        <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
-                                            <div className={cn(
-                                                "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4",
-                                                selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                                appConfig?.bgColor || 'bg-sabflow-default-bg'
-                                            )}>
-                                                <Icon className={cn("h-12 w-12", appConfig?.iconColor || 'text-white')} />
-                                            </div>
-                                            <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
-
-                                            {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
-                                            {node.type === 'condition' ? (
-                                                <>
-                                                    <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
-                                                    <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
-                                                </>
-                                            ) : (
-                                                <div id={`${node.id}-output-main`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-main`)} />
-                                            )}
-                                        </div>
-                                    )
-                                })}
-                                <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
-                                    {edges.map(edge => {
-                                        const sourceNode = nodes.find(n => n.id === edge.source);
-                                        const targetNode = nodes.find(n => n.id === edge.target);
-                                        if(!sourceNode || !targetNode) return null;
-                                        const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
-                                        const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
-                                        if (!sourcePos || !targetPos) return null;
-                                        return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
-                                    })}
-                                    {connecting && (
-                                        <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
-                                    )}
-                                </svg>
-                            </div>
-                            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-                                <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
-                            </div>
-                             <div className="fixed bottom-[17px] left-4 z-10">
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button size="icon" className="rounded-full h-12 w-12 shadow-lg">
-                                            <Plus className="h-6 w-6" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-64 p-2 data-[side=top]:-translate-y-2" side="top" align="start">
-                                        <div className="space-y-1">
-                                            <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('action')}><Zap className="mr-2 h-4 w-4" />Action</Button>
-                                            <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('condition')}><GitFork className="mr-2 h-4 w-4" />Condition</Button>
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                        </main>
-                        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                            <SheetContent className="w-full max-w-sm p-0 flex flex-col">
-                                {renderPropertiesPanel()}
-                            </SheetContent>
-                        </Sheet>
+      <div className="h-full">
+        <form action={formAction} ref={formRef}>
+            <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
+            <input type="hidden" name="name" value={flowName} />
+            <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
+            <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
+            <input type="hidden" name="edges" value={JSON.stringify(edges)} />
+            
+            <div className="flex flex-col h-full">
+                <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" asChild className="h-9 px-2">
+                            <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
+                        </Button>
+                        <Input value={flowName} onChange={(e) => setFlowName(e.target.value)} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
                     </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
+                        <SaveButton />
+                    </div>
+                </header>
+
+                <div className="flex-1 flex overflow-hidden">
+                    <main 
+                        ref={viewportRef}
+                        className="flex-1 w-full h-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
+                        onMouseDown={handleCanvasMouseDown}
+                        onMouseMove={handleCanvasMouseMove}
+                        onMouseUp={handleCanvasMouseUp}
+                        onMouseLeave={handleCanvasMouseUp}
+                        onWheel={handleWheel}
+                        onClick={handleCanvasClick}
+                    >
+                        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
+                        <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                            {nodes.map(node => {
+                                const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
+                                const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
+                                const Icon = node.type === 'trigger'
+                                    ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
+                                    : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
+                                
+                                return (
+                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y, filter: 'drop-shadow(rgba(0, 0, 0, 0.25) 0px 5px 6px)'}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
+                                        <div className={cn(
+                                            "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
+                                            selectedNodeId === node.id && 'ring-2 ring-primary'
+                                        )}>
+                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor || 'bg-sabflow-default-bg')}>
+                                                <Icon className={cn("h-8 w-8 text-white")} />
+                                            </div>
+                                        </div>
+                                        <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
+
+                                        {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
+                                        {node.type === 'condition' ? (
+                                            <>
+                                                <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
+                                                <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
+                                            </>
+                                        ) : (
+                                            <div id={`${node.id}-output-main`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-main`)} />
+                                        )}
+                                    </div>
+                                )
+                            })}
+                            <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '10000px', height: '10000px', transformOrigin: 'top left' }}>
+                                {edges.map(edge => {
+                                    const sourceNode = nodes.find(n => n.id === edge.source);
+                                    const targetNode = nodes.find(n => n.id === edge.target);
+                                    if(!sourceNode || !targetNode) return null;
+                                    const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
+                                    const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
+                                    if (!sourcePos || !targetPos) return null;
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                })}
+                                {connecting && (
+                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                )}
+                            </svg>
+                        </div>
+                        <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
+                        </div>
+                         <div className="fixed bottom-[17px] left-4 z-10">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button size="icon" className="rounded-full h-12 w-12 shadow-lg">
+                                        <Plus className="h-6 w-6" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-2 data-[side=top]:-translate-y-2" side="top" align="start">
+                                    <div className="space-y-1">
+                                        <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('action')}><Zap className="mr-2 h-4 w-4" />Action</Button>
+                                        <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('condition')}><GitFork className="mr-2 h-4 w-4" />Condition</Button>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </main>
+                    <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                        <SheetContent className="w-full max-w-sm p-0 flex flex-col">
+                            {renderPropertiesPanel()}
+                        </SheetContent>
+                    </Sheet>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
+    </div>
     );
 }
 
+```
+  </change>
+  <change>
+    <file>/src/lib/sabflow-actions.ts</file>
+    <content><![CDATA[
+'use client';
+
+import {
+  MessageSquare,
+  Send,
+  UserPlus,
+  Tag,
+  AtSign,
+  Briefcase,
+  GitFork,
+  FileText,
+  ImageIcon,
+  Video,
+  File,
+  Headphones,
+  History,
+  Clock,
+  Trash2,
+  Package,
+  Mail,
+  Sticker,
+  MapPin,
+  Contact,
+  ClipboardList,
+  List,
+  ShoppingCart,
+  ShoppingBag,
+  LayoutDashboard,
+  Megaphone,
+  Wrench,
+  Users,
+  BarChart2,
+  Newspaper,
+  Clapperboard,
+  Pencil,
+  BarChart,
+  Globe,
+  Landmark,
+  Users as UsersIcon,
+  LifeBuoy,
+  HelpCircle,
+  Building,
+  Handshake,
+  DollarSign,
+  FolderKanban,
+  Repeat,
+  IndianRupee,
+  Factory,
+  Book,
+  Server,
+  Combine,
+  Code2,
+  Forward,
+  Replace,
+  Timer,
+  Globe2,
+  FileUp,
+  Filter,
+  IterationCcw,
+  Braces,
+  Table,
+  Sigma,
+  Cable,
+  Webhook,
+  Split,
+  CaseSensitive,
+  Route,
+  Columns,
+  Calendar,
+  Link as LinkIcon,
+  QrCode,
+} from 'lucide-react';
+import { WhatsAppIcon, MetaIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
+
+export const sabnodeAppActions = [
+  {
+      appId: 'wachat',
+      name: 'Wachat',
+      icon: WhatsAppIcon,
+      actions: [],
+      connectionType: 'internal',
+      iconColor: 'text-sabflow-wachat-icon',
+      bgColor: 'bg-sabflow-wachat-bg',
+    },
+    {
+      appId: 'sabchat',
+      name: 'sabChat',
+      icon: SabChatIcon,
+      actions: [],
+      connectionType: 'internal',
+      iconColor: 'text-sabflow-sabchat-icon',
+      bgColor: 'bg-sabflow-sabchat-bg',
+    },
+    {
+      appId: 'meta',
+      name: 'Meta Suite',
+      icon: MetaIcon,
+      actions: [],
+      connectionType: 'internal',
+      iconColor: 'text-sabflow-meta-icon',
+      bgColor: 'bg-sabflow-meta-bg',
+    },
+    {
+      appId: 'instagram',
+      name: 'Instagram Suite',
+      icon: InstagramIcon,
+      actions: [],
+      connectionType: 'internal',
+      iconColor: 'text-sabflow-instagram-icon',
+      bgColor: 'bg-sabflow-instagram-bg',
+    },
+    {
+      appId: 'crm',
+      name: 'CRM Suite',
+      icon: Handshake,
+      actions: [],
+      connectionType: 'internal',
+      iconColor: 'text-sabflow-crm-icon',
+      bgColor: 'bg-sabflow-crm-bg',
+    },
+    {
+      appId: 'email',
+      name: 'Email Suite',
+      icon: Mail,
+      actions: [],
+      connectionType: 'internal',
+      iconColor: 'text-sabflow-email-icon',
+      bgColor: 'bg-sabflow-email-bg',
+    },
+    {
+      appId: 'sms',
+      name: 'SMS Suite',
+      icon: MessageSquare,
+      actions: [],
+      connectionType: 'internal',
+      iconColor: 'text-sabflow-sms-icon',
+      bgColor: 'bg-sabflow-sms-bg',
+    },
+    { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-url-shortener-icon', bgColor: 'bg-sabflow-url-shortener-bg' },
+    { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-qr-code-maker-icon', bgColor: 'bg-sabflow-qr-code-maker-bg' },
+    { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon', bgColor: 'bg-sabflow-seo-suite-bg' },
+
+  // Core Apps
+  { appId: 'api', name: 'API', icon: Server, actions: [], category: 'Core Apps', connectionType: 'apikey', iconColor: 'text-sabflow-api-icon', bgColor: 'bg-sabflow-api-bg' },
+  { appId: 'array_function', name: 'Array Function', icon: Combine, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-array_function-icon', bgColor: 'bg-sabflow-array_function-bg' },
+  { appId: 'code', name: 'Code', icon: Code2, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-code-icon', bgColor: 'bg-sabflow-code-bg' },
+  { appId: 'data_forwarder', name: 'Data Forwarder', icon: Forward, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_forwarder-icon', bgColor: 'bg-sabflow-data_forwarder-bg' },
+  { appId: 'data_transformer', name: 'Data Transformer', icon: Replace, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_transformer-icon', bgColor: 'bg-sabflow-data_transformer-bg' },
+  { appId: 'datetime_formatter', name: 'DateTime Formatter', icon: Calendar, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-datetime_formatter-icon', bgColor: 'bg-sabflow-datetime_formatter-bg' },
+  { appId: 'delay', name: 'Delay', icon: Timer, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-delay-icon', bgColor: 'bg-sabflow-delay-bg' },
+  { appId: 'dynamic_web_page', name: 'Dynamic Web Page', icon: Globe2, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-dynamic_web_page-icon', bgColor: 'bg-sabflow-dynamic_web_page-bg' },
+  { appId: 'file_uploader', name: 'File Uploader', icon: FileUp, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-file_uploader-icon', bgColor: 'bg-sabflow-file_uploader-bg' },
+  { appId: 'filter', name: 'Filter', icon: Filter, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-filter-icon', bgColor: 'bg-sabflow-filter-bg' },
+  { appId: 'iterator', name: 'Iterator', icon: IterationCcw, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-iterator-icon', bgColor: 'bg-sabflow-iterator-bg' },
+  { appId: 'json_extractor', name: 'JSON Extractor', icon: Braces, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-json_extractor-icon', bgColor: 'bg-sabflow-json_extractor-bg' },
+  { appId: 'lookup_table', name: 'Lookup Table', icon: Table, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-lookup_table-icon', bgColor: 'bg-sabflow-lookup_table-bg' },
+  { appId: 'number_formatter', name: 'Number Formatter', icon: Sigma, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-number_formatter-icon', bgColor: 'bg-sabflow-number_formatter-bg' },
+  { appId: 'connect_manager', name: 'Connect Manager', icon: Cable, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-connect_manager-icon', bgColor: 'bg-sabflow-connect_manager-bg' },
+  { appId: 'hook', name: 'Hook', icon: Webhook, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-hook-icon', bgColor: 'bg-sabflow-hook-bg' },
+  { appId: 'subscription_billing', name: 'Subscription Billing', icon: Repeat, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-subscription_billing-icon', bgColor: 'bg-sabflow-subscription_billing-bg' },
+  { appId: 'router', name: 'Router', icon: Route, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-router-icon', bgColor: 'bg-sabflow-router-bg' },
+  { appId: 'select_transform_json', name: 'Select Transform JSON', icon: Columns, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-select_transform_json-icon', bgColor: 'bg-sabflow-select_transform_json-bg' },
+  { appId: 'text_formatter', name: 'Text Formatter', icon: CaseSensitive, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-text_formatter-icon', bgColor: 'bg-sabflow-text_formatter-bg' },
+
+  // External Apps
+  {
+    appId: 'google_sheets',
+    name: 'Google Sheets',
+    category: 'Productivity',
+    logo: 'https://picsum.photos/seed/gsheets/40/40',
+    connectionType: 'oauth',
+    iconColor: 'text-sabflow-google_sheets-icon', bgColor: 'bg-sabflow-google_sheets-bg',
+    actions: []
+  },
+  { 
+    appId: 'stripe',
+    name: 'Stripe',
+    category: 'Payment',
+    logo: 'https://picsum.photos/seed/stripe/40/40',
+    connectionType: 'apikey',
+    credentials: [
+        { name: 'apiKey', label: 'API Key', type: 'password' },
+    ],
+    iconColor: 'text-sabflow-stripe-icon', bgColor: 'bg-sabflow-stripe-bg',
+    actions: []
+  },
+  { 
+    appId: 'shopify',
+    name: 'Shopify',
+    category: 'E-Commerce',
+    logo: 'https://picsum.photos/seed/shopify/40/40',
+    connectionType: 'apikey',
+    credentials: [
+        { name: 'shopName', label: 'Shop Name', type: 'text', placeholder: 'your-store' },
+        { name: 'accessToken', label: 'Admin API Access Token', type: 'password' },
+    ],
+    iconColor: 'text-sabflow-shopify-icon', bgColor: 'bg-sabflow-shopify-bg',
+    actions: []
+  },
+  {
+    appId: 'slack',
+    name: 'Slack',
+    category: 'Communication',
+    logo: 'https://picsum.photos/seed/slack/40/40',
+    connectionType: 'oauth',
+    iconColor: 'text-sabflow-slack-icon', bgColor: 'bg-sabflow-slack-bg',
+    actions: []
+  },
+  {
+    appId: 'gmail',
+    name: 'Gmail',
+    category: 'Email',
+    logo: 'https://picsum.photos/seed/gmail/40/40',
+    connectionType: 'oauth',
+    bgColor: 'bg-gradient-to-br from-red-500 to-red-600',
+    actions: []
+  },
+  { 
+    appId: 'hubspot',
+    name: 'HubSpot',
+    category: 'CRM',
+    logo: 'https://picsum.photos/seed/hubspot/40/40',
+    connectionType: 'apikey',
+    credentials: [
+         { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
+    ],
+    bgColor: 'bg-gradient-to-br from-orange-500 to-orange-600',
+    actions: []
+  },
+  {
+    appId: 'discord',
+    name: 'Discord',
+    category: 'Communication',
+    logo: 'https://picsum.photos/seed/discord/40/40',
+    connectionType: 'oauth',
+    iconColor: 'text-sabflow-discord-icon', bgColor: 'bg-sabflow-discord-bg',
+    actions: []
+  },
+  {
+    appId: 'notion',
+    name: 'Notion',
+    category: 'Productivity',
+    logo: 'https://picsum.photos/seed/notion/40/40',
+    connectionType: 'oauth',
+    iconColor: 'text-sabflow-notion-icon', bgColor: 'bg-sabflow-notion-bg',
+    actions: []
+  }
+];
