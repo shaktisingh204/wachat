@@ -219,7 +219,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { u
     );
 };
 
-const NodeComponent = ({ user, node, selectedNode, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; selectedNode: SabFlowNode | null; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
+const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
     const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
     const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
     const action = appConfig?.actions.find(a => a.name === node.data.actionName);
@@ -254,17 +254,18 @@ const NodeComponent = ({ user, node, selectedNode, onSelectNode, isSelected, onN
             </div>
             <div className="mt-2 w-32">
                 <p className="font-bold text-sm text-black truncate">{appConfig?.name || node.data.name || 'Untitled'}</p>
-                <p className="text-xs text-muted-foreground truncate">{action?.label || selectedNode?.data.connectionId || 'No action'}</p>
+                <p className="text-xs text-muted-foreground truncate">{action?.label || node.data.connectionId || 'No action'}</p>
             </div>
-
+            
             {node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
+            
             {node.type === 'condition' ? (
                 <>
                     <div data-handle-pos="right" id={`${node.id}-output-yes`} className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
                     <div data-handle-pos="right" id={`${node.id}-output-no`} className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
                 </>
             ) : (
-                <Handle position="right" id={`${node.id}-output-main`} />
+                 node.type !== 'end' && <Handle position="right" id={`${node.id}-output-main`} />
             )}
         </div>
     );
@@ -440,14 +441,6 @@ export default function EditSabFlowPage() {
                 return;
             }
             
-            const edgeExists = edges.some(
-                edge => (edge.source === connecting.sourceNodeId && edge.target === nodeId) || (edge.source === nodeId && edge.target === connecting.sourceNodeId)
-            );
-            if (edgeExists) {
-                setConnecting(null);
-                return;
-            }
-
             const newEdge: SabFlowEdge = {
                 id: `edge-${connecting.sourceNodeId}-${nodeId}`,
                 source: connecting.sourceNodeId,
@@ -456,7 +449,12 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId,
             };
             
-            setEdges(prevEdges => [...prevEdges, newEdge]);
+            // Allow multiple inputs to one node, but only one output from a single handle
+            setEdges(prevEdges => {
+                const filteredEdges = prevEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
+                return [...filteredEdges, newEdge];
+            });
+            
             setConnecting(null);
         }
     };
@@ -512,11 +510,6 @@ export default function EditSabFlowPage() {
         setContextMenu({ x: e.clientX, y: e.clientY, nodeId });
     };
 
-    const nodesWithEdgeInfo = useMemo(() => {
-        const incomingEdges = new Set(edges.map(e => e.target));
-        return nodes.map(n => ({...n, data: {...n.data, hasIncomingEdge: incomingEdges.has(n.id) }}));
-    }, [nodes, edges]);
-
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
     const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
@@ -553,13 +546,6 @@ export default function EditSabFlowPage() {
 
     return (
       <>
-        <form action={formAction} ref={formRef}>
-          <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
-          <input type="hidden" name="name" value={flowName} />
-          <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
-          <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
-          <input type="hidden" name="edges" value={JSON.stringify(edges)} />
-        </form>
         <div className="h-full flex flex-col">
           <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
             <div className="flex items-center gap-2">
@@ -647,7 +633,39 @@ export default function EditSabFlowPage() {
                 </PopoverContent>
               </Popover>
             </main>
-            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            <aside className="hidden md:block bg-background border-l" style={{ minWidth: '35%' }}>
+              {selectedNodeId && nodes.find(n => n.id === selectedNodeId) ? (
+                <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} />
+              ) : (
+                <div className="flex flex-col h-full">
+                  <div className="p-4 border-b">
+                    <h3 className="text-lg font-semibold">Choose an App</h3>
+                    <p className="text-sm text-muted-foreground">Select an app to add your first step.</p>
+                  </div>
+                  <div className="flex-1 p-4 space-y-4">
+                    <h3 className="font-semibold">Your Connections</h3>
+                    <div className="grid grid-cols-5 gap-2">
+                      {(user?.sabFlowConnections || []).map((conn: any) => {
+                        const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
+                        const AppIcon = appConfig?.icon || Zap;
+                        return (
+                          <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors")} onClick={() => handleAddNode('action')}>
+                            <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
+                              <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
+                            </div>
+                            <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
+                          </button>
+                        );
+                      })}
+                      <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
+                        <Plus className="h-6 w-6 text-muted-foreground"/><p className="text-xs mt-1">Add App</p>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </aside>
+            <Sheet open={isSidebarOpen && !!selectedNodeId} onOpenChange={setIsSidebarOpen}>
               <SheetContent className="p-0 flex flex-col" style={{ minWidth: '35%' }}>
                 {selectedNodeId && nodes.find(n => n.id === selectedNodeId) ? (
                   <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} />
