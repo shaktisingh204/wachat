@@ -56,6 +56,7 @@ import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { NewConnectionDialog } from '@/components/wabasimplify/new-connection-dialog';
+import { GoogleSheetsConnection } from '@/components/wabasimplify/connections/google-sheets-connection';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
@@ -150,7 +151,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                                 }
                                                             } else {
                                                                 setNewConnectionApp(app);
-                                                                setIsNewConnectionOpen(true);
+                                                                onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: `${app.name} Connection`, appId: app.appId, actionName: '', inputs: {} });
                                                             }
                                                         }}
                                                     >
@@ -175,6 +176,11 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                     </div>
                 );
             } else {
+                if (selectedApp?.connectionType === 'webhook') {
+                    if (selectedApp.appId === 'google_sheets') {
+                        return <GoogleSheetsConnection />;
+                    }
+                }
                 return (
                     <>
                         <div className="flex items-center gap-2">
@@ -288,7 +294,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         if (appConfig) {
             const action = appConfig.actions.find(a => a.name === node.data.actionName);
             if(action) return action.label;
-            return appConfig.name; // Show app name if no action is selected yet
+            return appConfig.name;
         }
         
         return 'Select action';
@@ -626,14 +632,6 @@ export default function EditSabFlowPage() {
 
     return (
         <div className="h-full">
-            <form action={formAction} ref={formRef}>
-                <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
-                <input type="hidden" name="name" value={flowName} />
-                <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
-                <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
-                <input type="hidden" name="edges" value={JSON.stringify(edges)} />
-            </form>
-
             <div className="flex h-full w-full flex-col bg-muted/30">
                 <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
                     <div className="flex items-center gap-2">
