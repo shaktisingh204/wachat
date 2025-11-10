@@ -138,6 +138,15 @@
     display: none;
 }
 
+.custom-css-shakti{
+  width: min-content;
+  border-radius: 10px;
+  position: absolute;
+  right: 0px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
 @layer utilities {
     .has-tooltip [data-tooltip] {
         @apply relative cursor-pointer;

@@ -264,7 +264,7 @@ export default function EditSabFlowPage() {
     const handleCanvasMouseUp = () => { setIsPanning(false); setDraggingNode(null); };
     const handleCanvasClick = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { if (connecting) setConnecting(null); else setSelectedNodeId(null); }};
 
-     const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
+    const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
         e.preventDefault();
         e.stopPropagation();
         if (!viewportRef.current) return;
@@ -292,7 +292,7 @@ export default function EditSabFlowPage() {
             
             // Prevent duplicate connections between the same two nodes
             const edgeExists = edges.some(
-                edge => (edge.source === newEdge.source && edge.target === newEdge.target) || (edge.source === newEdge.target && edge.target === newEdge.source)
+                edge => (edge.source === newEdge.source && edge.target === newEdge.target)
             );
 
             if (edgeExists) {
@@ -426,7 +426,7 @@ export default function EditSabFlowPage() {
                                                              const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                              const AppIcon = appConfig?.icon || Zap;
                                                              return (
-                                                                <button type="button" key={conn.connectionName} className="aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white" onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
                                                                     <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
                                                                         <AppIcon className={cn("h-8 w-8", appConfig?.iconColor)}/>
                                                                     </div>
@@ -537,7 +537,7 @@ export default function EditSabFlowPage() {
                         onClick={handleCanvasClick}
                     >
                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
-                        <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                        <div className="relative w-full h-full min-h-[85vh]" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
                             {nodes.map(node => {
                                 const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
                                 const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
@@ -546,16 +546,16 @@ export default function EditSabFlowPage() {
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
                                 return (
-                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y, filter: 'drop-shadow(rgba(0, 0, 0, 0.25) 0px 5px 6px)'}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
+                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
                                             "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
                                             selectedNodeId === node.id && 'ring-2 ring-primary'
-                                        )}>
+                                        )} style={{filter: 'drop-shadow(rgba(0, 0, 0, 0.25) 0px 5px 6px)'}}>
                                             <div className={cn("w-16 h-16 rounded-full flex items-center justify-center bg-white")}>
                                                 <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-gray-400')}/>
                                             </div>
                                         </div>
-                                        <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
+                                        <p className="font-bold text-sm mt-2 text-black">{node.data.name}</p>
 
                                         {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
                                         {node.type === 'condition' ? (
