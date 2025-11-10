@@ -400,14 +400,15 @@ export default function EditSabFlowPage() {
                 onClick={e => { e.stopPropagation(); setSelectedNodeId(node.id) }}
                  onContextMenu={(e) => handleNodeContextMenu(e, node.id)}
             >
-                <div
+                 <div
                     className={cn(
-                        "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
+                        "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4",
+                        appConfig?.bgColor || 'bg-white',
                         selectedNodeId === node.id && 'ring-2 ring-primary'
                     )}
                     style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
                 >
-                    <div className={cn("w-16 h-16 rounded-full flex items-center justify-center")}>
+                    <div className={cn("w-16 h-16 rounded-full flex items-center justify-center bg-white")}>
                         <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-muted-foreground')} />
                     </div>
                 </div>
@@ -426,17 +427,9 @@ export default function EditSabFlowPage() {
     };
     
     const renderPropertiesPanel = () => {
-        if (!selectedNodeId && nodes.length > 0) {
+        if (!selectedNodeId && nodes.length === 0) {
             return (
-                 <div className="p-4 border-b">
-                    <h3 className="text-lg font-semibold">Flow Settings</h3>
-                </div>
-            )
-        }
-        
-        if (!selectedNodeId) {
-             return (
-                <div className="flex flex-col h-full">
+                 <div className="flex flex-col h-full">
                     <div className="p-4 border-b">
                         <h3 className="text-lg font-semibold">Choose an App</h3>
                         <p className="text-sm text-muted-foreground">Select an app to add your first step.</p>
@@ -462,6 +455,14 @@ export default function EditSabFlowPage() {
                            </Link>
                        </div>
                     </div>
+                </div>
+            );
+        }
+        
+        if (!selectedNodeId) {
+             return (
+                 <div className="p-4 border-b">
+                    <h3 className="text-lg font-semibold">Flow Settings</h3>
                 </div>
             );
         }
@@ -701,4 +702,4 @@ export default function EditSabFlowPage() {
     );
 }
 
-    
+```
