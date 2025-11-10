@@ -255,6 +255,7 @@ export default function EditSabFlowPage() {
                 if (handlePos) setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
             }
         } else if (connecting && !isOutputHandle) {
+            // Prevent connecting a node to itself
             if (connecting.sourceNodeId === nodeId) {
                 setConnecting(null);
                 return;
@@ -268,12 +269,8 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId
             };
             
-            // Allow multiple connections TO an input, but not multiple from the same output handle to the same input handle.
-            // Remove any edge that has the exact same source and target handles.
-            const edgesWithoutDuplicates = edges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle && edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle));
-
-            // Remove any edge that has the same *target input handle*, effectively allowing only one connection per input handle.
-            const edgesWithoutExistingTarget = edgesWithoutDuplicates.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
+            // Remove any edge that is already connected to this specific input handle.
+            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
             
             setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
@@ -484,7 +481,7 @@ export default function EditSabFlowPage() {
                 <input type="hidden" name="edges" value={JSON.stringify(edges)} />
                 
                 <div className="flex flex-col h-full">
-                    <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
+                    <header className={cn("flex-shrink-0 flex items-center justify-between p-3 border-b bg-card", "relative self-end w-min rounded-[10px] mt-[10px] mr-[10px]")}>
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" asChild className="h-9 px-2">
                                 <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
@@ -496,94 +493,93 @@ export default function EditSabFlowPage() {
                             <SaveButton />
                         </div>
                     </header>
-                    <div className="flex-1 flex min-h-0">
-                        <main 
-                            ref={viewportRef}
-                            className="flex-1 w-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
-                            onMouseDown={handleCanvasMouseDown}
-                            onMouseMove={handleCanvasMouseMove}
-                            onMouseUp={handleCanvasMouseUp}
-                            onMouseLeave={handleCanvasMouseUp}
-                            onWheel={handleWheel}
-                            onClick={handleCanvasClick}
-                        >
-                            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
-                            <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
-                                {nodes.map(node => {
-                                    const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
-                                    const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
-                                    const Icon = node.type === 'trigger'
-                                        ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
-                                        : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
-                                    
-                                    return (
-                                        <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
-                                            <div className={cn(
-                                                "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
-                                                selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                                appConfig?.bgColor || 'bg-gray-400'
-                                            )}>
-                                                <Icon className={cn("h-12 w-12", appConfig?.iconColor || 'text-white/90')} />
-                                                <p className={cn("font-semibold mt-2 text-xs line-clamp-1", appConfig?.iconColor || 'text-white/90')}>{node.data.name}</p>
-                                            </div>
+                    <main 
+                        ref={viewportRef}
+                        className="flex-1 w-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
+                        style={{display: 'contents'}}
+                        onMouseDown={handleCanvasMouseDown}
+                        onMouseMove={handleCanvasMouseMove}
+                        onMouseUp={handleCanvasMouseUp}
+                        onMouseLeave={handleCanvasMouseUp}
+                        onWheel={handleWheel}
+                        onClick={handleCanvasClick}
+                    >
+                        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
+                        <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                            {nodes.map(node => {
+                                const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
+                                const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
+                                const Icon = node.type === 'trigger'
+                                    ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
+                                    : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
+                                
+                                return (
+                                    <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
+                                        <div className={cn(
+                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
+                                            selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
+                                            appConfig?.bgColor || 'bg-gray-400'
+                                        )}>
+                                            <Icon className={cn("h-12 w-12 text-white")} />
+                                        </div>
+                                        <p className="font-bold text-xs mt-2 text-center text-black">{node.data.name}</p>
 
-                                            {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
-                                            {node.type === 'condition' ? (
-                                                <>
-                                                    <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
-                                                    <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
-                                                </>
-                                            ) : (
-                                                <div id={`${node.id}-output-main`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-main`)} />
-                                            )}
-                                        </div>
-                                    )
+                                        {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
+                                        {node.type === 'condition' ? (
+                                            <>
+                                                <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
+                                                <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
+                                            </>
+                                        ) : (
+                                            <div id={`${node.id}-output-main`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-main`)} />
+                                        )}
+                                    </div>
+                                )
+                            })}
+                            <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
+                                {edges.map(edge => {
+                                    const sourceNode = nodes.find(n => n.id === edge.source);
+                                    const targetNode = nodes.find(n => n.id === edge.target);
+                                    if(!sourceNode || !targetNode) return null;
+                                    const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
+                                    const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
+                                    if (!sourcePos || !targetPos) return null;
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
                                 })}
-                                <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
-                                    {edges.map(edge => {
-                                        const sourceNode = nodes.find(n => n.id === edge.source);
-                                        const targetNode = nodes.find(n => n.id === edge.target);
-                                        if(!sourceNode || !targetNode) return null;
-                                        const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
-                                        const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
-                                        if (!sourcePos || !targetPos) return null;
-                                        return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
-                                    })}
-                                    {connecting && (
-                                        <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
-                                    )}
-                                </svg>
-                            </div>
-                            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-                                <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
-                            </div>
-                            <div className="absolute bottom-4 left-4 z-10">
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button size="icon" className="rounded-full h-12 w-12 shadow-lg">
-                                            <Plus className="h-6 w-6" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-64 p-2 data-[side=top]:-translate-y-2" side="top" align="start">
-                                        <div className="space-y-1">
-                                            <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('action')}><Zap className="mr-2 h-4 w-4" />Action</Button>
-                                            <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('condition')}><GitFork className="mr-2 h-4 w-4" />Condition</Button>
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                        </main>
-                    </div>
+                                {connecting && (
+                                    <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path"/>
+                                )}
+                            </svg>
+                        </div>
+                        <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
+                        </div>
+                        <div className="absolute bottom-4 left-4 z-10" style={{position: 'relative'}}>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button size="icon" className="rounded-full h-12 w-12 shadow-lg">
+                                        <Plus className="h-6 w-6" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-2 data-[side=top]:-translate-y-2" side="top" align="start">
+                                    <div className="space-y-1">
+                                        <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('action')}><Zap className="mr-2 h-4 w-4" />Action</Button>
+                                        <Button variant="ghost" className="w-full justify-start" onClick={() => handleAddNode('condition')}><GitFork className="mr-2 h-4 w-4" />Condition</Button>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </main>
+                    <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                        <SheetContent className="w-full max-w-sm p-0 flex flex-col">
+                            {renderPropertiesPanel()}
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </form>
-            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                <SheetContent className="w-full max-w-sm p-0 flex flex-col">
-                    {renderPropertiesPanel()}
-                </SheetContent>
-            </Sheet>
         </div>
     );
 }
