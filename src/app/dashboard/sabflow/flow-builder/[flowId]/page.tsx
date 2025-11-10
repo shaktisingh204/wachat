@@ -118,18 +118,18 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
             if (!selectedNode.data.connectionId) {
                 const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
                 
-                const groupedApps = sabnodeAppActions.reduce((acc, app) => {
+                 const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
                     const category = app.category || 'SabNode Apps';
                     if (!acc[category]) acc[category] = [];
                     acc[category].push(app);
                     return acc;
-                }, {} as Record<string, any[]>);
+                }, {} as Record<string, any[]>));
 
                 return (
                     <div className="space-y-4">
                         <h3 className="font-semibold">Choose an App</h3>
                          <Accordion type="multiple" defaultValue={['SabNode Apps', 'Core Apps']} className="w-full">
-                            {Object.entries(groupedApps).map(([category, apps]: [string, any[]]) => (
+                            {groupedApps.map(([category, apps]: [string, any[]]) => (
                                 <AccordionItem key={category} value={category}>
                                     <AccordionTrigger>{category}</AccordionTrigger>
                                     <AccordionContent className="p-2">
@@ -266,18 +266,42 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
 };
 
 const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
-    let app, appConfig, action;
+    const subText = useMemo(() => {
+        if (node.type === 'trigger') {
+            const triggerType = triggers.find(t => t.id === node.data.triggerType);
+            return triggerType?.name || 'Trigger';
+        }
+        if (node.type === 'condition') {
+            return 'Branching Logic';
+        }
+        
+        let app, appConfig;
+        if (node.data.connectionId?.endsWith(' Connection')) {
+            const appName = node.data.connectionId.replace(' Connection', '');
+            appConfig = sabnodeAppActions.find(a => a.name === appName);
+            if (appConfig) app = { appId: appConfig.appId, appName };
+        } else {
+            app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
+            appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
+        }
+        
+        if (appConfig) {
+            const action = appConfig.actions.find(a => a.name === node.data.actionName);
+            if(action) return action.label;
+            return appConfig.name; // Show app name if no action is selected yet
+        }
+        
+        return 'Select action';
+    }, [node, user?.sabFlowConnections]);
+
+
+    let appConfig;
     if (node.data.connectionId?.endsWith(' Connection')) {
         const appName = node.data.connectionId.replace(' Connection', '');
         appConfig = sabnodeAppActions.find(a => a.name === appName);
-        if (appConfig) app = { appId: appConfig.appId, appName };
     } else {
-        app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
+        const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
         appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
-    }
-    
-    if (appConfig) {
-        action = appConfig.actions.find(a => a.name === node.data.actionName);
     }
     
     const Icon = node.type === 'trigger'
@@ -311,7 +335,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
             </div>
             <div className="mt-2 w-32">
                 <p className="font-bold text-sm text-black truncate">{node.data.name || 'Untitled'}</p>
-                <p className="text-xs text-muted-foreground truncate">{action?.label || node.data.connectionId || 'No action'}</p>
+                <p className="text-xs text-muted-foreground truncate">{subText}</p>
             </div>
             
             {node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
@@ -668,7 +692,7 @@ export default function EditSabFlowPage() {
                                     </button>
                                 </div>
                             ) : nodes.map(node => (
-                                <NodeComponent key={node.id} user={user} node={node} selectedNode={selectedNode} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} onNodeContextMenu={handleNodeContextMenu}/>
+                                <NodeComponent key={node.id} user={user} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} onNodeContextMenu={handleNodeContextMenu}/>
                             ))}
                         </div>
                         {contextMenu && (
