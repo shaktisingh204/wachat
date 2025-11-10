@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -254,7 +255,6 @@ export default function EditSabFlowPage() {
                 if (handlePos) setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
             }
         } else if (connecting && !isOutputHandle) {
-            // Prevent connecting a node to itself
             if (connecting.sourceNodeId === nodeId) {
                 setConnecting(null);
                 return;
@@ -268,8 +268,9 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId
             };
             
-            // Allow multiple connections to the same input handle
-            setEdges([...edges, newEdge]);
+            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
+            
+            setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
         }
     };
@@ -394,11 +395,11 @@ export default function EditSabFlowPage() {
                                                              const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                              const AppIcon = appConfig?.icon || Zap;
                                                              return (
-                                                                <Card key={conn.connectionName} className="p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center gap-2 transition-colors bg-card" onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
+                                                                <Card key={conn.connectionName} className="p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center gap-2 transition-colors bg-white" onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
                                                                     <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
                                                                         <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                                                     </div>
-                                                                    <p className="text-xs mt-1 font-semibold text-foreground text-center break-words whitespace-normal">{conn.connectionName}</p>
+                                                                    <p className="text-xs mt-1 font-bold text-black break-words whitespace-normal">{conn.connectionName}</p>
                                                                 </Card>
                                                              )
                                                          })}
@@ -480,7 +481,7 @@ export default function EditSabFlowPage() {
                 <input type="hidden" name="edges" value={JSON.stringify(edges)} />
                 
                 <div className="flex flex-col h-full">
-                    <header className={cn("relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card", "self-end w-min rounded-[10px] mt-[10px] mr-[10px]")}>
+                    <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" asChild className="h-9 px-2">
                                 <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
@@ -496,6 +497,7 @@ export default function EditSabFlowPage() {
                         <main 
                             ref={viewportRef}
                             className="flex-1 w-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
+                            style={{ minHeight: '85vh' }}
                             onMouseDown={handleCanvasMouseDown}
                             onMouseMove={handleCanvasMouseMove}
                             onMouseUp={handleCanvasMouseUp}
@@ -513,15 +515,15 @@ export default function EditSabFlowPage() {
                                         : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                     
                                     return (
-                                        <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
+                                        <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                             <div className={cn(
-                                                "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
+                                                "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4",
                                                 selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                                 appConfig?.bgColor || 'bg-gray-400'
                                             )}>
-                                                <Icon className={cn("h-12 w-12", appConfig?.iconColor || 'text-white/90')} />
+                                                <Icon className={cn("h-12 w-12", "text-white")} />
                                             </div>
-                                            <p className="font-bold text-xs mt-2 text-center text-black">{node.data.name}</p>
+                                            <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
 
                                             {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
                                             {node.type === 'condition' ? (
@@ -556,7 +558,7 @@ export default function EditSabFlowPage() {
                                 <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
                                 <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                             </div>
-                            <div className="absolute bottom-4 left-4 z-10" style={{position: 'relative'}}>
+                            <div className="fixed bottom-[17px] left-4 z-10">
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button size="icon" className="rounded-full h-12 w-12 shadow-lg">
