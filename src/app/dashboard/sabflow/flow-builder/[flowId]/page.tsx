@@ -1,4 +1,5 @@
 
+      
       'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
@@ -203,6 +204,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
 
         if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
+             
              if (selectedTrigger?.id === 'google_sheets') {
                  return <AppConnectionSetup app={sabnodeAppActions.find(a => a.appId === 'google_sheets')} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
              }
@@ -288,7 +290,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
     );
 };
 
-const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
+const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void;}) => {
     const subText = useMemo(() => {
         if (node.type === 'trigger') {
             const triggerType = triggers.find(t => t.id === node.data.triggerType);
@@ -309,8 +311,10 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         }
         
         if (appConfig) {
-            const action = appConfig.actions.find(a => a.name === node.data.actionName);
-            if(action) return action.label;
+            if (node.data.actionName) {
+                 const action = appConfig.actions.find(a => a.name === node.data.actionName);
+                 if(action) return action.label;
+            }
             return appConfig.name; // Show app name if action isn't selected
         }
         
@@ -343,7 +347,6 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
             style={{ left: node.position.x, top: node.position.y, cursor: 'grab' }}
             onMouseDown={e => onNodeMouseDown(e, node.id)}
             onClick={e => { e.stopPropagation(); onSelectNode(node.id) }}
-            onContextMenu={(e) => onNodeContextMenu(e, node.id)}
         >
             <div
                 className={cn(
@@ -402,8 +405,7 @@ export default function EditSabFlowPage() {
     const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [isFullScreen, setIsFullScreen] = useState(false);
-    const [contextMenu, setContextMenu] = useState<{ x: number, y: number, nodeId: string } | null>(null);
-
+    
     const isNew = flowId === 'new-flow';
 
     const handleCreateNewFlow = useCallback(() => {
@@ -499,21 +501,6 @@ export default function EditSabFlowPage() {
         if(selectedNodeId === nodeId) setSelectedNodeId(null);
     };
     
-    const handleCopyNode = (nodeId: string) => {
-        const nodeToCopy = nodes.find(n => n.id === nodeId);
-        if (!nodeToCopy) return;
-
-        const newNode: SabFlowNode = {
-            ...JSON.parse(JSON.stringify(nodeToCopy)),
-            id: `${nodeToCopy.type}_${Date.now()}`,
-            position: {
-                x: nodeToCopy.position.x + 40,
-                y: nodeToCopy.position.y + 40
-            }
-        };
-        setNodes(prev => [...prev, newNode]);
-    };
-
     const handleNodeChange = (nodeId: string, data: any) => {
         setNodes(nodes.map(n => n.id === nodeId ? {...n, data: {...n.data, ...data}} : n));
     };
@@ -524,7 +511,6 @@ export default function EditSabFlowPage() {
     };
 
     const handleCanvasMouseDown = (e: React.MouseEvent) => { 
-        if (contextMenu) setContextMenu(null);
         if (e.button !== 0) return;
         if (e.target === e.currentTarget) { e.preventDefault(); setIsPanning(true); }
     };
@@ -577,13 +563,13 @@ export default function EditSabFlowPage() {
             };
 
             setEdges(prevEdges => {
-                // Remove any existing edge coming from the same source handle
-                // This allows re-wiring a node's output.
-                let filteredEdges = prevEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
+                // An input can only have one connection. Remove any existing edge to this target handle.
+                let filteredEdges = prevEdges.filter(edge => !(edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle));
                 
-                // Remove any existing edge going to the same target handle
-                // An input handle can only have one connection.
-                filteredEdges = filteredEdges.filter(edge => !(edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle));
+                // If the source handle is a main output (not a conditional branch), remove any other edge from it.
+                if (newEdge.sourceHandle?.endsWith('output-main')) {
+                    filteredEdges = filteredEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
+                }
 
                 return [...filteredEdges, newEdge];
             });
@@ -638,11 +624,6 @@ export default function EditSabFlowPage() {
         return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
     }, []);
     
-    const handleNodeContextMenu = (e: React.MouseEvent, nodeId: string) => {
-        e.preventDefault();
-        setContextMenu({ x: e.clientX, y: e.clientY, nodeId });
-    };
-
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
     const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
@@ -701,21 +682,20 @@ export default function EditSabFlowPage() {
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
                         onMouseLeave={handleCanvasMouseUp}
-                        onWheel={handleWheel}
                         onClick={handleCanvasClick}
-                        onContextMenu={(e) => {
-                            const target = e.target as HTMLElement;
-                            const nodeElement = target.closest('[data-node-id]');
-                            if (nodeElement) {
-                                const nodeId = nodeElement.getAttribute('data-node-id');
-                                if (nodeId) handleNodeContextMenu(e, nodeId);
-                            } else {
-                                e.preventDefault();
-                            }
-                        }}
                     >
                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
                         <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                            {nodes.length === 0 ? (
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                    <button type="button" onClick={() => handleAddNode('action')} className="flex flex-col items-center gap-4 text-muted-foreground hover:text-primary transition-colors">
+                                        <div className="w-24 h-24 rounded-full border-4 border-dashed flex items-center justify-center"><Plus className="h-10 w-10"/></div>
+                                        <div className="text-center"><p className="font-bold">Add First Step</p><p className="text-sm">Choose Your First Application</p></div>
+                                    </button>
+                                </div>
+                            ) : nodes.map(node => (
+                                <NodeComponent key={node.id} user={user} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick}/>
+                            ))}
                             <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '10000px', height: '10000px', transformOrigin: 'top left' }}>
                                 <defs><marker id="arrowhead" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,-5L10,0L0,5" fill="hsla(215, 89%, 48%, 0.5)" /></marker></defs>
                                 {edges.map(edge => {
@@ -729,30 +709,12 @@ export default function EditSabFlowPage() {
                                 })}
                                 {connecting && <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />}
                             </svg>
-                            {nodes.length === 0 ? (
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                    <button type="button" onClick={() => handleAddNode('action')} className="flex flex-col items-center gap-4 text-muted-foreground hover:text-primary transition-colors">
-                                        <div className="w-24 h-24 rounded-full border-4 border-dashed flex items-center justify-center"><Plus className="h-10 w-10"/></div>
-                                        <div className="text-center"><p className="font-bold">Add First Step</p><p className="text-sm">Choose Your First Application</p></div>
-                                    </button>
-                                </div>
-                            ) : nodes.map(node => (
-                                <NodeComponent key={node.id} user={user} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} onNodeContextMenu={handleNodeContextMenu}/>
-                            ))}
                         </div>
-                        {contextMenu && (
-                            <Card className="absolute p-1 z-50" style={{ top: contextMenu.y, left: contextMenu.x }}>
-                                <CardContent className="p-0">
-                                    <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { handleCopyNode(contextMenu.nodeId); setContextMenu(null); }}>Copy</Button>
-                                    <Button variant="ghost" size="sm" className="w-full justify-start text-destructive hover:text-destructive" onClick={() => { handleRemoveNode(contextMenu.nodeId); setContextMenu(null); }}>Delete</Button>
-                                </CardContent>
-                            </Card>
-                        )}
                         <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
                         <Popover>
                             <PopoverTrigger asChild>
@@ -785,6 +747,5 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
-
 
     
