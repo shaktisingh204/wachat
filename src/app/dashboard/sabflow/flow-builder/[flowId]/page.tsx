@@ -178,7 +178,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
             } else {
                 if (selectedApp?.connectionType === 'webhook') {
                     if (selectedApp.appId === 'google_sheets') {
-                        return <GoogleSheetsConnection />;
+                        return <GoogleSheetsConnection flowId={params.flowId} />;
                     }
                 }
                 return (
@@ -442,7 +442,26 @@ export default function EditSabFlowPage() {
         }
     }, [selectedNodeId]);
 
-    const handleAddNode = (type: 'action' | 'condition') => {
+    const handleAddNode = async (type: 'action' | 'condition') => {
+        let currentFlowId = flowId;
+        // If it's a new flow, save it first to get an ID
+        if (isNew && nodes.length === 0) {
+            const tempFormData = new FormData();
+            tempFormData.append('flowId', 'new-flow');
+            tempFormData.append('name', flowName);
+            tempFormData.append('trigger', JSON.stringify(trigger));
+            tempFormData.append('nodes', '[]');
+            tempFormData.append('edges', '[]');
+            const result = await saveSabFlow(initialState, tempFormData);
+            if (result.flowId) {
+                router.replace(`/dashboard/sabflow/flow-builder/${result.flowId}`, { scroll: false });
+                currentFlowId = result.flowId;
+            } else {
+                toast({ title: "Error", description: "Could not save the new flow before adding a node.", variant: 'destructive'});
+                return;
+            }
+        }
+    
         const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 400;
         const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
         const newNodeId = `${type}_${Date.now()}`;
@@ -537,6 +556,7 @@ export default function EditSabFlowPage() {
             };
             
             setEdges(prevEdges => {
+                // Replace any existing edge from the same source handle
                 const filteredEdges = prevEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
                 return [...filteredEdges, newEdge];
             });
@@ -631,7 +651,7 @@ export default function EditSabFlowPage() {
     }
 
     return (
-        <div className="h-full">
+      <div className="h-full">
             <div className="flex h-full w-full flex-col bg-muted/30">
                 <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
                     <div className="flex items-center gap-2">
@@ -728,6 +748,13 @@ export default function EditSabFlowPage() {
                     </Sheet>
                 </div>
             </div>
+            <form ref={formRef} action={formAction} className="hidden">
+                 <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
+                 <input type="hidden" name="name" value={flowName} />
+                 <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
+                 <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
+                 <input type="hidden" name="edges" value={JSON.stringify(edges)} />
+            </form>
         </div>
     );
 }
