@@ -37,7 +37,7 @@ import {
 import { Drawer, DrawerTrigger } from './ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Separator } from './ui/separator';
+import { Separator } from '../ui/separator';
 
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
