@@ -53,7 +53,21 @@ import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
-const initialState = { message: null, error: null, flowId: undefined };
+const triggers = [
+    { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
+    { id: 'manual', name: 'Manual', icon: PlayCircle, description: 'Trigger this flow manually from the UI.' },
+    { id: 'schedule', name: 'Schedule', icon: Calendar, description: 'Run this flow on a recurring schedule (e.g., every day).' },
+];
+
+function NodeInput({ input, value, onChange }: { input: any, value: any, onChange: (val: any) => void }) {
+    switch (input.type) {
+        case 'textarea':
+            return <Textarea placeholder={input.placeholder} value={value} onChange={e => onChange(e.target.value)} />;
+        default:
+            return <Input type={input.type || 'text'} placeholder={input.placeholder} value={value} onChange={e => onChange(e.target.value)} />;
+    }
+}
+
 
 function BuilderPageSkeleton() {
     return (
@@ -71,19 +85,9 @@ function BuilderPageSkeleton() {
         </div>
       </div>
     );
-  }
-
-function SaveButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Save Flow
-    </Button>
-  );
 }
 
-function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void }) {
+const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void }) => {
     const handleDataChange = (data: any) => {
         onNodeChange(selectedNode.id, { ...selectedNode.data, ...data });
     };
@@ -106,7 +110,7 @@ function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { u
                                 const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                 const AppIcon = appConfig?.icon || Zap;
                                 return (
-                                    <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors", appConfig?.bgColor)} onClick={() => onNodeChange(selectedNode.id, { connectionId: conn.connectionName, actionName: '', inputs: {} })}>
+                                    <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors")} onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: conn.connectionName, actionName: '', inputs: {} })}>
                                         <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
                                             <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                         </div>
@@ -122,38 +126,16 @@ function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { u
                     </div>
                 );
             } else {
-                const handleApiChange = (field: keyof any, value: any) => {
-                    const currentApiRequest = selectedNode.data.apiRequest || {};
-                    const newApiRequest = { ...currentApiRequest, [field]: value };
-                    handleDataChange({ apiRequest: newApiRequest });
-                };
-            
-                const handleMappingChange = (index: number, field: 'variable' | 'path', value: string) => {
-                    const mappings = [...(selectedNode.data.apiRequest?.responseMappings || [])];
-                    mappings[index] = { ...mappings[index], [field]: value };
-                    handleApiChange('responseMappings', mappings);
-                };
-            
-                const addMapping = () => {
-                    const mappings = [...(selectedNode.data.apiRequest?.responseMappings || []), { variable: '', path: '' }];
-                    handleApiChange('responseMappings', mappings);
-                };
-            
-                const removeMapping = (index: number) => {
-                    const mappings = (selectedNode.data.apiRequest?.responseMappings || []).filter((_: any, i: number) => i !== index);
-                    handleApiChange('responseMappings', mappings);
-                };
-
                 return (
                     <>
                         <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => onNodeChange(selectedNode.id, { connectionId: '', actionName: '', inputs: {} })}>
+                            <Button variant="ghost" size="sm" onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: '', actionName: '', inputs: {} })}>
                                 <ArrowLeft className="mr-2 h-4 w-4"/> Change App
                             </Button>
                         </div>
                         <div className="space-y-2">
                             <Label>Action</Label>
-                            <Select value={selectedNode.data.actionName} onValueChange={val => onNodeChange(selectedNode.id, { actionName: val, inputs: {} })}>
+                            <Select value={selectedNode.data.actionName} onValueChange={val => onNodeChange(selectedNode.id, { ...selectedNode.data, actionName: val, inputs: {} })}>
                                 <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
                                 <SelectContent>
                                     {selectedApp?.actions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
@@ -164,7 +146,7 @@ function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { u
                              <div className="space-y-4 pt-4 border-t">
                                 <h4 className="font-semibold">{selectedAction.label}</h4>
                                 <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                                {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name]} onChange={val => onNodeChange(selectedNode.id, { inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                                {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => onNodeChange(selectedNode.id, { ...selectedNode.data, inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
                             </div>
                         )}
                     </>
@@ -221,9 +203,9 @@ function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { u
             )}
         </div>
     );
-}
+};
 
-function NodeComponent({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) {
+const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
     const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
     const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
     const action = appConfig?.actions.find(a => a.name === node.data.actionName);
@@ -258,7 +240,10 @@ function NodeComponent({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                     <Icon className="h-8 w-8 text-primary" />
                 </div>
             </div>
-            <p className="font-bold text-xs mt-2 text-black">{action?.label || node.data.name}</p>
+            <div className="mt-2 w-32">
+                <p className="font-bold text-sm text-black truncate">{appConfig?.name || node.data.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{action?.label || 'No action selected'}</p>
+            </div>
             {hasIncomingEdge && node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
             {node.type === 'condition' ? (
                 <>
@@ -520,6 +505,34 @@ export default function EditSabFlowPage() {
 
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
+    const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
+        if (!sourcePos || !targetPos) return '';
+        const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+        const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+        return path;
+    };
+    
+    const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
+        if (!node || !handleId) return null;
+        const NODE_WIDTH = 128;
+        const x = node.position.x;
+        const y = node.position.y;
+        
+        if (handleId.endsWith('-input')) {
+            return { x: x, y: y + NODE_WIDTH / 2 };
+        }
+        if (handleId.endsWith('-output-main')) {
+            return { x: x + NODE_WIDTH, y: y + NODE_WIDTH / 2 };
+        }
+        if (handleId.endsWith('-output-yes')) {
+            return { x: x + NODE_WIDTH, y: y + NODE_WIDTH * (1/3) };
+        }
+        if (handleId.endsWith('-output-no')) {
+            return { x: x + NODE_WIDTH, y: y + NODE_WIDTH * (2/3) };
+        }
+        return null;
+    }
+
     if (isLoading) {
         return <BuilderPageSkeleton />;
     }
@@ -550,7 +563,7 @@ export default function EditSabFlowPage() {
                 <div className="flex-1 flex overflow-hidden">
                     <main 
                         ref={viewportRef}
-                        className="flex-1 w-full h-full min-h-[85vh] overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container bg-muted/30"
+                        className="flex-1 w-full h-full min-h-0 overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container bg-muted/30"
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -565,7 +578,6 @@ export default function EditSabFlowPage() {
                                 if (nodeId) handleNodeContextMenu(e, nodeId);
                             } else {
                                 e.preventDefault();
-                                // Logic for canvas context menu if needed
                             }
                         }}
                     >
@@ -631,7 +643,7 @@ export default function EditSabFlowPage() {
                         </Popover>
                     </main>
                     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                        <SheetContent className="w-full max-w-[35%] min-w-[500px] p-0 flex flex-col">
+                        <SheetContent className="w-full max-w-lg min-w-[500px] p-0 flex flex-col" style={{ width: '35%'}}>
                            {selectedNodeId && nodes.find(n=>n.id === selectedNodeId) ? (
                                 <PropertiesPanel 
                                     user={user} 
@@ -652,8 +664,8 @@ export default function EditSabFlowPage() {
                                                const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
                                                const AppIcon = appConfig?.icon || Zap;
                                                return (
-                                                  <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors", appConfig?.bgColor)} onClick={() => handleAddNode('action')}>
-                                                      <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
+                                                  <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors")} onClick={() => handleAddNode('action')}>
+                                                      <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
                                                           <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                                       </div>
                                                       <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
@@ -676,3 +688,4 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
+```
