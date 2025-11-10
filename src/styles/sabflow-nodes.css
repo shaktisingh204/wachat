@@ -1,37 +1,108 @@
 
 .sabflow-icon-wachat { color: #25D366; }
+.sabflow-bg-wachat { background-color: #E6F8EB; }
+
 .sabflow-icon-sabchat { color: #7E57C2; }
+.sabflow-bg-sabchat { background-color: #F3E5F5; }
+
 .sabflow-icon-meta { color: #1877F2; }
+.sabflow-bg-meta { background-color: #E3F2FD; }
+
 .sabflow-icon-instagram { color: #E1306C; }
+.sabflow-bg-instagram { background-color: #FCE4EC; }
+
 .sabflow-icon-crm { color: #009688; }
+.sabflow-bg-crm { background-color: #E0F2F1; }
+
 .sabflow-icon-email { color: #FF9800; }
+.sabflow-bg-email { background-color: #FFF3E0; }
+
 .sabflow-icon-sms { color: #0288D1; }
+.sabflow-bg-sms { background-color: #E1F5FE; }
+
 .sabflow-icon-url-shortener { color: #7B1FA2; }
+.sabflow-bg-url-shortener { background-color: #F3E5F5; }
+
 .sabflow-icon-qr-code-maker { color: #455A64; }
+.sabflow-bg-qr-code-maker { background-color: #ECEFF1; }
+
 .sabflow-icon-seo-suite { color: #43A047; }
+.sabflow-bg-seo-suite { background-color: #E8F5E9; }
+
 .sabflow-icon-api { color: #1E88E5; }
+.sabflow-bg-api { background-color: #E3F2FD; }
+
 .sabflow-icon-array_function { color: #8E24AA; }
+.sabflow-bg-array_function { background-color: #F3E5F5; }
+
 .sabflow-icon-code { color: #F4511E; }
+.sabflow-bg-code { background-color: #FBE9E7; }
+
 .sabflow-icon-data_forwarder { color: #3949AB; }
+.sabflow-bg-data_forwarder { background-color: #E8EAF6; }
+
 .sabflow-icon-data_transformer { color: #00897B; }
+.sabflow-bg-data_transformer { background-color: #E0F2F1; }
+
 .sabflow-icon-datetime_formatter { color: #6D4C41; }
+.sabflow-bg-datetime_formatter { background-color: #EFEBE9; }
+
 .sabflow-icon-delay { color: #FF5722; }
+.sabflow-bg-delay { background-color: #FBE9E7; }
+
 .sabflow-icon-dynamic_web_page { color: #00796B; }
+.sabflow-bg-dynamic_web_page { background-color: #E0F2F1; }
+
 .sabflow-icon-file_uploader { color: #5C6BC0; }
+.sabflow-bg-file_uploader { background-color: #E8EAF6; }
+
 .sabflow-icon-filter { color: #9C27B0; }
+.sabflow-bg-filter { background-color: #F3E5F5; }
+
 .sabflow-icon-iterator { color: #039BE5; }
+.sabflow-bg-iterator { background-color: #E1F5FE; }
+
 .sabflow-icon-json_extractor { color: #0097A7; }
+.sabflow-bg-json_extractor { background-color: #E0F7FA; }
+
 .sabflow-icon-lookup_table { color: #7E57C2; }
+.sabflow-bg-lookup_table { background-color: #EDE7F6; }
+
 .sabflow-icon-number_formatter { color: #F9A825; }
+.sabflow-bg-number_formatter { background-color: #FFFDE7; }
+
 .sabflow-icon-connect_manager { color: #303F9F; }
+.sabflow-bg-connect_manager { background-color: #E8EAF6; }
+
 .sabflow-icon-hook { color: #D32F2F; }
+.sabflow-bg-hook { background-color: #FFEBEE; }
+
 .sabflow-icon-subscription_billing { color: #512DA8; }
+.sabflow-bg-subscription_billing { background-color: #EDE7F6; }
+
 .sabflow-icon-router { color: #455A64; }
+.sabflow-bg-router { background-color: #ECEFF1; }
+
 .sabflow-icon-select_transform_json { color: #5E35B1; }
+.sabflow-bg-select_transform_json { background-color: #EDE7F6; }
+
 .sabflow-icon-text_formatter { color: #00838F; }
+.sabflow-bg-text_formatter { background-color: #E0F7FA; }
+
 .sabflow-icon-google_sheets { color: #0F9D58; }
+.sabflow-bg-google_sheets { background-color: #E8F5E9; }
+
 .sabflow-icon-stripe { color: #635BFF; }
+.sabflow-bg-stripe { background-color: #E8EAF6; }
+
 .sabflow-icon-shopify { color: #96BF48; }
+.sabflow-bg-shopify { background-color: #F1F8E9; }
+
 .sabflow-icon-slack { color: #4A154B; }
+.sabflow-bg-slack { background-color: #E1BEE7; }
+
 .sabflow-icon-discord { color: #5865F2; }
+.sabflow-bg-discord { background-color: #E8EAF6; }
+
 .sabflow-icon-notion { color: #000000; }
+.sabflow-bg-notion { background-color: #E0E0E0; }
