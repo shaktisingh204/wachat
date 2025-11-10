@@ -51,9 +51,10 @@ import {
   Webhook,
   Calendar,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { NewConnectionDialog } from '@/components/wabasimplify/new-connection-dialog';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
@@ -88,8 +89,10 @@ function BuilderPageSkeleton() {
     );
 }
 
-const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void }) => {
+const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void }) => {
     if (!selectedNode) return null;
+    const [isNewConnectionOpen, setIsNewConnectionOpen] = useState(false);
+    const [newConnectionApp, setNewConnectionApp] = useState<any>(null);
 
     const handleDataChange = (data: any) => {
         onNodeChange(selectedNode.id, { ...selectedNode.data, ...data });
@@ -105,27 +108,61 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { u
 
         if (isAction) {
             if (!selectedNode.data.connectionId) {
+                const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
+                
                 return (
                     <div className="space-y-4">
                         <h3 className="font-semibold">Choose an App</h3>
-                        <div className="grid grid-cols-5 gap-2">
-                            {(user?.sabFlowConnections || []).map((conn: any) => {
-                                const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
-                                const AppIcon = appConfig?.icon || Zap;
-                                return (
-                                    <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors")} onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: conn.connectionName, actionName: '', inputs: {} })}>
-                                        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
-                                            <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
+                         <Accordion type="multiple" defaultValue={['SabNode Apps', 'Core Apps']} className="w-full">
+                            {sabnodeAppActions.reduce((acc, app) => {
+                                const category = app.category || 'SabNode Apps';
+                                if (!acc[category]) acc[category] = [];
+                                acc[category].push(app);
+                                return acc;
+                            }, {} as Record<string, any[]>).map(([category, apps]: [string, any[]]) => (
+                                <AccordionItem key={category} value={category}>
+                                    <AccordionTrigger>{category}</AccordionTrigger>
+                                    <AccordionContent className="p-2">
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {apps.map(app => {
+                                                const AppIcon = app.icon || Zap;
+                                                const isConnected = connectedAppIds.has(app.appId);
+                                                return (
+                                                     <button type="button" key={app.appId} 
+                                                        className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-2 transition-colors")} 
+                                                        onClick={() => {
+                                                            if (app.connectionType === 'internal') {
+                                                                onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: `${app.name} Connection`, actionName: '', inputs: {} });
+                                                            } else if (isConnected) {
+                                                                // Find the first connection for this app type
+                                                                const firstConn = user.sabFlowConnections.find((c: any) => c.appId === app.appId);
+                                                                if (firstConn) {
+                                                                    onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: firstConn.connectionName, actionName: '', inputs: {} });
+                                                                }
+                                                            } else {
+                                                                setNewConnectionApp(app);
+                                                                setIsNewConnectionOpen(true);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center bg-white border")}>
+                                                            <AppIcon className={cn("h-6 w-6", app.iconColor)}/>
+                                                        </div>
+                                                        <p className="text-[10px] font-bold text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
+                                                    </button>
+                                                )
+                                            })}
                                         </div>
-                                        <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
-                                    </button>
-                                );
-                            })}
-                            <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
-                                <Plus className="h-6 w-6 text-muted-foreground"/>
-                                <p className="text-xs mt-1">Add App</p>
-                            </Link>
-                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
+                         <NewConnectionDialog 
+                            isOpen={isNewConnectionOpen}
+                            onOpenChange={setIsNewConnectionOpen}
+                            app={newConnectionApp}
+                            onConnectionSaved={onConnectionSaved}
+                        />
                     </div>
                 );
             } else {
@@ -219,7 +256,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { u
     );
 };
 
-const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
+const NodeComponent = ({ user, node, selectedNode, onSelectNode, isSelected, onNodeMouseDown, onHandleClick, onNodeContextMenu }: { user: any, node: SabFlowNode; selectedNode: SabFlowNode | null, onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void; onNodeContextMenu: (e: React.MouseEvent, nodeId: string) => void;}) => {
     const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
     const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
     const action = appConfig?.actions.find(a => a.name === node.data.actionName);
@@ -248,8 +285,8 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                 )}
                 style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
             >
-                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
-                    <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-primary')} />
+                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center")}>
+                    <Icon className={cn("h-8 w-8 text-primary", appConfig?.iconColor)}/>
                 </div>
             </div>
             <div className="mt-2 w-32">
@@ -310,8 +347,13 @@ export default function EditSabFlowPage() {
         setSelectedNodeId(null);
     }, []);
 
+    const fetchConnections = useCallback(async () => {
+        const session = await getSession();
+        setUser(session?.user);
+    }, []);
+
     useEffect(() => {
-        getSession().then(session => setUser(session?.user));
+        fetchConnections();
         if (isNew) {
             handleCreateNewFlow();
             setIsLoading(false);
@@ -405,11 +447,7 @@ export default function EditSabFlowPage() {
         if (isPanning) {
             setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
         } else if (draggingNode) {
-            setNodes(prev => prev.map(n => 
-                n.id === draggingNode 
-                    ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } 
-                    : n
-            ));
+            setNodes(prev => prev.map(n => n.id === draggingNode ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } : n));
         }
         
         if (connecting && viewportRef.current) {
@@ -424,8 +462,7 @@ export default function EditSabFlowPage() {
     const handleCanvasClick = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { if (connecting) setConnecting(null); else setSelectedNodeId(null); }};
 
     const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         if (!viewportRef.current) return;
         const isOutputHandle = handleId.includes('output');
 
@@ -449,7 +486,6 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId,
             };
             
-            // Allow multiple inputs to one node, but only one output from a single handle
             setEdges(prevEdges => {
                 const filteredEdges = prevEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
                 return [...filteredEdges, newEdge];
@@ -546,6 +582,14 @@ export default function EditSabFlowPage() {
 
     return (
       <>
+        <form action={formAction} ref={formRef}>
+            <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
+            <input type="hidden" name="name" value={flowName} />
+            <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
+            <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
+            <input type="hidden" name="edges" value={JSON.stringify(edges)} />
+        </form>
+
         <div className="h-full flex flex-col">
           <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
             <div className="flex items-center gap-2">
@@ -635,68 +679,16 @@ export default function EditSabFlowPage() {
             </main>
             <aside className="hidden md:block bg-background border-l" style={{ minWidth: '35%' }}>
               {selectedNodeId && nodes.find(n => n.id === selectedNodeId) ? (
-                <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} />
+                <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} onConnectionSaved={fetchConnections} />
               ) : (
-                <div className="flex flex-col h-full">
-                  <div className="p-4 border-b">
-                    <h3 className="text-lg font-semibold">Choose an App</h3>
-                    <p className="text-sm text-muted-foreground">Select an app to add your first step.</p>
-                  </div>
-                  <div className="flex-1 p-4 space-y-4">
-                    <h3 className="font-semibold">Your Connections</h3>
-                    <div className="grid grid-cols-5 gap-2">
-                      {(user?.sabFlowConnections || []).map((conn: any) => {
-                        const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
-                        const AppIcon = appConfig?.icon || Zap;
-                        return (
-                          <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors")} onClick={() => handleAddNode('action')}>
-                            <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
-                              <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
-                            </div>
-                            <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
-                          </button>
-                        );
-                      })}
-                      <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
-                        <Plus className="h-6 w-6 text-muted-foreground"/><p className="text-xs mt-1">Add App</p>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+                <div className="p-4">Select a step to configure it.</div>
               )}
             </aside>
             <Sheet open={isSidebarOpen && !!selectedNodeId} onOpenChange={setIsSidebarOpen}>
               <SheetContent className="p-0 flex flex-col" style={{ minWidth: '35%' }}>
                 {selectedNodeId && nodes.find(n => n.id === selectedNodeId) ? (
-                  <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} />
-                ) : (
-                  <div className="flex flex-col h-full">
-                    <div className="p-4 border-b">
-                      <h3 className="text-lg font-semibold">Choose an App</h3>
-                      <p className="text-sm text-muted-foreground">Select an app to add your first step.</p>
-                    </div>
-                    <div className="flex-1 p-4 space-y-4">
-                      <h3 className="font-semibold">Your Connections</h3>
-                      <div className="grid grid-cols-5 gap-2">
-                        {(user?.sabFlowConnections || []).map((conn: any) => {
-                          const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
-                          const AppIcon = appConfig?.icon || Zap;
-                          return (
-                            <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors")} onClick={() => handleAddNode('action')}>
-                              <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
-                                <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
-                              </div>
-                              <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
-                            </button>
-                          )
-                        })}
-                        <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
-                          <Plus className="h-6 w-6 text-muted-foreground"/><p className="text-xs mt-1">Add App</p>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} onConnectionSaved={fetchConnections} />
+                ) : null}
               </SheetContent>
             </Sheet>
           </div>
@@ -704,3 +696,5 @@ export default function EditSabFlowPage() {
       </>
     );
 }
+
+```
