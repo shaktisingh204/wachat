@@ -14,7 +14,7 @@ import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LoaderCircle, Check } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { sabnodeAppActions } from '@/lib/sabflow/apps';
 
 const connectInitialState = { message: null, error: null };
 

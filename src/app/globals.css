@@ -1,3 +1,6 @@
+
+@import "./src/styles/sabflow-nodes.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -133,15 +136,6 @@
 /* Also hide the custom Radix scrollbar used in the component */
 .scroll-container ~ [data-radix-scroll-area-scrollbar] {
     display: none;
-}
-
-.custom-css-shakti{
-  width: min-content;
-  border-radius: 10px;
-  position: absolute;
-  right: 0px;
-  margin-top: 10px;
-  margin-right: 10px;
 }
 
 @layer utilities {
