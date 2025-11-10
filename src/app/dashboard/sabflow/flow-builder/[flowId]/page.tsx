@@ -51,7 +51,7 @@ import {
   Webhook,
   Calendar,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow/apps';
+import { sabnodeAppActions } from '@/lib/sabflow-actions';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -249,20 +249,19 @@ const NodeComponent = ({ user, node, selectedNode, onSelectNode, isSelected, onN
                 style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
             >
                 <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
-                    <Icon className={cn("h-8 w-8 text-primary", appConfig?.iconColor)} />
+                    <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-primary')} />
                 </div>
             </div>
             <div className="mt-2 w-32">
-                <p className="font-bold text-sm text-black truncate">{node.data.name || 'Untitled'}</p>
+                <p className="font-bold text-sm text-black truncate">{appConfig?.name || node.data.name || 'Untitled'}</p>
                 <p className="text-xs text-muted-foreground truncate">{action?.label || selectedNode?.data.connectionId || 'No action'}</p>
             </div>
 
             {node.type !== 'trigger' && <Handle position="left" id={`${node.id}-input`} />}
-
             {node.type === 'condition' ? (
                 <>
-                    <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
-                    <div id={`${node.id}-output-no`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
+                    <div data-handle-pos="right" id={`${node.id}-output-yes`} className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
+                    <div data-handle-pos="right" id={`${node.id}-output-no`} className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-2/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-no`)} />
                 </>
             ) : (
                 <Handle position="right" id={`${node.id}-output-main`} />
@@ -553,156 +552,137 @@ export default function EditSabFlowPage() {
     }
 
     return (
-        <div className="h-full">
-            <form action={formAction} ref={formRef}>
-                <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
-                <input type="hidden" name="name" value={flowName} />
-                <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
-                <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
-                <input type="hidden" name="edges" value={JSON.stringify(edges)} />
-                
-                <div className="flex flex-col h-full">
-                    <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" asChild className="h-9 px-2">
-                                <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
-                            </Button>
-                            <Input value={flowName} onChange={(e) => setFlowName(e.target.value)} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
-                            <Button type="submit"><Save className="mr-2 h-4 w-4"/>Save</Button>
-                        </div>
-                    </header>
-
-                    <div className="flex-1 flex overflow-hidden">
-                        <main 
-                            ref={viewportRef}
-                            className="flex-1 w-full h-full min-h-0 overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container bg-muted/30"
-                            style={{ minHeight: '85vh' }}
-                            onMouseDown={handleCanvasMouseDown}
-                            onMouseMove={handleCanvasMouseMove}
-                            onMouseUp={handleCanvasMouseUp}
-                            onMouseLeave={handleCanvasMouseUp}
-                            onWheel={handleWheel}
-                            onClick={handleCanvasClick}
-                            onContextMenu={(e) => {
-                                const target = e.target as HTMLElement;
-                                const nodeElement = target.closest('[data-node-id]');
-                                if(nodeElement) {
-                                    const nodeId = nodeElement.getAttribute('data-node-id');
-                                    if (nodeId) handleNodeContextMenu(e, nodeId);
-                                } else {
-                                    e.preventDefault();
-                                }
-                            }}
-                        >
-                            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
-                            <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
-                                <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '10000px', height: '10000px', transformOrigin: 'top left' }}>
-                                    <defs><marker id="arrowhead" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,-5L10,0L0,5" fill="hsla(215, 89%, 48%, 0.5)" /></marker></defs>
-                                    {edges.map(edge => {
-                                        const sourceNode = nodes.find(n => n.id === edge.source);
-                                        const targetNode = nodes.find(n => n.id === edge.target);
-                                        if(!sourceNode || !targetNode) return null;
-                                        const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
-                                        const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
-                                        if (!sourcePos || !targetPos) return null;
-                                        return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />
-                                    })}
-                                    {connecting && (
-                                        <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />
-                                    )}
-                                </svg>
-                                {nodes.length === 0 ? (
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                        <button type="button" onClick={() => setIsSidebarOpen(true)} className="flex flex-col items-center gap-4 text-muted-foreground hover:text-primary transition-colors">
-                                            <div className="w-24 h-24 rounded-full border-4 border-dashed flex items-center justify-center">
-                                                <Plus className="h-10 w-10"/>
-                                            </div>
-                                            <div className="text-center">
-                                                <p className="font-bold">Add Trigger</p>
-                                                <p className="text-sm">Choose Your First Application</p>
-                                            </div>
-                                        </button>
-                                    </div>
-                                ) : nodes.map(node => (
-                                    <NodeComponent key={node.id} user={user} node={node} selectedNode={selectedNode} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} onNodeContextMenu={handleNodeContextMenu}/>
-                                ))}
-                            </div>
-                            {contextMenu && (
-                                <Card className="absolute p-1 z-50" style={{ top: contextMenu.y, left: contextMenu.x }}>
-                                    <CardContent className="p-0">
-                                    <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { handleCopyNode(contextMenu.nodeId); setContextMenu(null); }}>Copy</Button>
-                                    <Button variant="ghost" size="sm" className="w-full justify-start text-destructive hover:text-destructive" onClick={() => { handleRemoveNode(contextMenu.nodeId); setContextMenu(null); }}>Delete</Button>
-                                    </CardContent>
-                                </Card>
-                            )}
-                            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-                                <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" /></Button>
-                            </div>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button className="absolute bottom-4 left-4 z-10 h-14 w-14 rounded-full" size="icon">
-                                        <Plus className="h-6 w-6"/>
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-80 p-0" align="start">
-                                <div className="p-4 space-y-2">
-                                    <Button className="w-full justify-start" variant="ghost" onClick={() => handleAddNode('action')}>Action Step</Button>
-                                    <Button className="w-full justify-start" variant="ghost" onClick={() => handleAddNode('condition')}>Condition</Button>
-                                </div>
-                                </PopoverContent>
-                            </Popover>
-                        </main>
-                        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                            <SheetContent className="p-0 flex flex-col" style={{ minWidth: '35%' }}>
-                            {selectedNodeId && nodes.find(n=>n.id === selectedNodeId) ? (
-                                    <PropertiesPanel 
-                                        user={user} 
-                                        selectedNode={nodes.find(n => n.id === selectedNodeId)!}
-                                        onNodeChange={handleNodeChange}
-                                        onNodeRemove={handleRemoveNode}
-                                    />
-                            ) : (
-                                <div className="flex flex-col h-full">
-                                        <div className="p-4 border-b">
-                                            <h3 className="text-lg font-semibold">Choose an App</h3>
-                                            <p className="text-sm text-muted-foreground">Select an app to add your first step.</p>
-                                        </div>
-                                        <div className="flex-1 p-4 space-y-4">
-                                        <h3 className="font-semibold">Your Connections</h3>
-                                        <div className="grid grid-cols-5 gap-2">
-                                            {(user?.sabFlowConnections || []).map((conn: any) => {
-                                                const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
-                                                const AppIcon = appConfig?.icon || Zap;
-                                                return (
-                                                <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors")} onClick={() => handleAddNode('action')}>
-                                                    <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
-                                                        <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
-                                                    </div>
-                                                    <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
-                                                </button>
-                                                )
-                                            })}
-                                            <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
-                                                <Plus className="h-6 w-6 text-muted-foreground"/>
-                                                <p className="text-xs mt-1">Add App</p>
-                                            </Link>
-                                        </div>
-                                        </div>
-                                    </div>
-                            )}
-                            </SheetContent>
-                        </Sheet>
+      <>
+        <form action={formAction} ref={formRef}>
+          <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
+          <input type="hidden" name="name" value={flowName} />
+          <input type="hidden" name="trigger" value={JSON.stringify(trigger)} />
+          <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
+          <input type="hidden" name="edges" value={JSON.stringify(edges)} />
+        </form>
+        <div className="h-full flex flex-col">
+          <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" asChild className="h-9 px-2">
+                <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
+              </Button>
+              <Input value={flowName} onChange={(e) => setFlowName(e.target.value)} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
+              <Button onClick={() => formRef.current?.requestSubmit()}><Save className="mr-2 h-4 w-4"/>Save</Button>
+            </div>
+          </header>
+          <div className="flex-1 flex overflow-hidden">
+            <main
+              ref={viewportRef}
+              className="flex-1 w-full h-full min-h-0 overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container bg-muted/30"
+              style={{ minHeight: '85vh' }}
+              onMouseDown={handleCanvasMouseDown}
+              onMouseMove={handleCanvasMouseMove}
+              onMouseUp={handleCanvasMouseUp}
+              onMouseLeave={handleCanvasMouseUp}
+              onWheel={handleWheel}
+              onClick={handleCanvasClick}
+              onContextMenu={(e) => {
+                const target = e.target as HTMLElement;
+                const nodeElement = target.closest('[data-node-id]');
+                if (nodeElement) {
+                  const nodeId = nodeElement.getAttribute('data-node-id');
+                  if (nodeId) handleNodeContextMenu(e, nodeId);
+                } else {
+                  e.preventDefault();
+                }
+              }}
+            >
+              <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
+              <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '10000px', height: '10000px', transformOrigin: 'top left' }}>
+                  <defs><marker id="arrowhead" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,-5L10,0L0,5" fill="hsla(215, 89%, 48%, 0.5)" /></marker></defs>
+                  {edges.map(edge => {
+                    const sourceNode = nodes.find(n => n.id === edge.source);
+                    const targetNode = nodes.find(n => n.id === edge.target);
+                    if (!sourceNode || !targetNode) return null;
+                    const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
+                    const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
+                    if (!sourcePos || !targetPos) return null;
+                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />
+                  })}
+                  {connecting && <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsla(215, 89%, 48%, 0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8" className="sabflow-edge-path" markerEnd="url(#arrowhead)" />}
+                </svg>
+                {nodes.length === 0 ? (
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <button type="button" onClick={() => setIsSidebarOpen(true)} className="flex flex-col items-center gap-4 text-muted-foreground hover:text-primary transition-colors">
+                      <div className="w-24 h-24 rounded-full border-4 border-dashed flex items-center justify-center"><Plus className="h-10 w-10"/></div>
+                      <div className="text-center"><p className="font-bold">Add Trigger</p><p className="text-sm">Choose Your First Application</p></div>
+                    </button>
+                  </div>
+                ) : nodes.map(node => (
+                  <NodeComponent key={node.id} user={user} node={node} selectedNode={selectedNode} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} onNodeContextMenu={handleNodeContextMenu}/>
+                ))}
+              </div>
+              {contextMenu && (
+                <Card className="absolute p-1 z-50" style={{ top: contextMenu.y, left: contextMenu.x }}>
+                  <CardContent className="p-0">
+                    <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { handleCopyNode(contextMenu.nodeId); setContextMenu(null); }}>Copy</Button>
+                    <Button variant="ghost" size="sm" className="w-full justify-start text-destructive hover:text-destructive" onClick={() => { handleRemoveNode(contextMenu.nodeId); setContextMenu(null); }}>Delete</Button>
+                  </CardContent>
+                </Card>
+              )}
+              <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
+                <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
+                <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
+                <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
+              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button className="absolute bottom-4 left-4 z-10 h-14 w-14 rounded-full" size="icon"><Plus className="h-6 w-6"/></Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0" align="start">
+                  <div className="p-4 space-y-2">
+                    <Button className="w-full justify-start" variant="ghost" onClick={() => handleAddNode('action')}>Action Step</Button>
+                    <Button className="w-full justify-start" variant="ghost" onClick={() => handleAddNode('condition')}>Condition</Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </main>
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+              <SheetContent className="p-0 flex flex-col" style={{ minWidth: '35%' }}>
+                {selectedNodeId && nodes.find(n => n.id === selectedNodeId) ? (
+                  <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} />
+                ) : (
+                  <div className="flex flex-col h-full">
+                    <div className="p-4 border-b">
+                      <h3 className="text-lg font-semibold">Choose an App</h3>
+                      <p className="text-sm text-muted-foreground">Select an app to add your first step.</p>
                     </div>
-                </div>
-            </form>
+                    <div className="flex-1 p-4 space-y-4">
+                      <h3 className="font-semibold">Your Connections</h3>
+                      <div className="grid grid-cols-5 gap-2">
+                        {(user?.sabFlowConnections || []).map((conn: any) => {
+                          const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
+                          const AppIcon = appConfig?.icon || Zap;
+                          return (
+                            <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors")} onClick={() => handleAddNode('action')}>
+                              <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
+                                <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
+                              </div>
+                              <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
+                            </button>
+                          )
+                        })}
+                        <Link href="/dashboard/sabflow/connections" className="aspect-square p-2 text-center cursor-pointer hover:bg-accent flex flex-col items-center justify-center border-dashed border-2 rounded-lg transition-colors">
+                          <Plus className="h-6 w-6 text-muted-foreground"/><p className="text-xs mt-1">Add App</p>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
+      </>
     );
 }
-
-    
