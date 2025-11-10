@@ -113,7 +113,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { u
                                 const AppIcon = appConfig?.icon || Zap;
                                 return (
                                     <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors")} onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: conn.connectionName, actionName: '', inputs: {} })}>
-                                        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center")}>
+                                        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
                                             <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                         </div>
                                         <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
@@ -169,6 +169,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { u
             return (
                 <div className="space-y-4">
                     <RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleDataChange({ logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">Match ALL conditions (AND)</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">Match ANY condition (OR)</Label></div></RadioGroup>
+                    
                     <div className="space-y-3">
                         {rules.map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2 relative"><Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => handleRuleChange(index, 'field', e.target.value)} /><Select value={rule.operator} onValueChange={val => handleRuleChange(index, 'operator', val)}><SelectTrigger><SelectValue placeholder="Select operator..."/></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => handleRuleChange(index, 'value', e.target.value)} /></div>))}
                     </div>
@@ -180,7 +181,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove }: { u
     };
 
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col" style={{ minWidth: '35%' }}>
             <div className="p-4 border-b flex-shrink-0">
                 <h3 className="text-lg font-semibold">Properties</h3>
                 <p className="text-sm text-muted-foreground">Configure the selected step.</p>
@@ -238,8 +239,8 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                 )}
                 style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
             >
-                <div className="w-16 h-16 rounded-full flex items-center justify-center">
-                    <Icon className="h-8 w-8 text-primary" />
+                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
+                    <Icon className={cn("h-8 w-8 text-primary", appConfig?.iconColor)} />
                 </div>
             </div>
             <div className="mt-2 w-32">
@@ -261,11 +262,12 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
 
 export default function EditSabFlowPage() {
     const params = useParams();
-    const flowId = params.flowId as string;
-    
-    const [state, formAction] = useActionState(saveSabFlow, initialState);
     const router = useRouter();
     const { toast } = useToast();
+    const flowId = params.flowId as string;
+    
+    const initialState = { message: null, error: null, flowId: undefined };
+    const [state, formAction] = useActionState(saveSabFlow, initialState);
     const formRef = useRef<HTMLFormElement>(null);
     const [user, setUser] = useState<any>(null);
 
@@ -558,7 +560,7 @@ export default function EditSabFlowPage() {
                     </div>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
-                        <SaveButton />
+                        <Button type="submit"><Save className="mr-2 h-4 w-4"/>Save</Button>
                     </div>
                 </header>
 
