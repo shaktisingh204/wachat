@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -267,10 +268,9 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId
             };
             
-            // Remove any existing edge connected to this target handle
+            // Allow multiple outputs from one source, but only one input to a target
             const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
             
-            // Allow multiple outputs from one source, but only one input to a target
             setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
         }
@@ -325,7 +325,17 @@ export default function EditSabFlowPage() {
     
     const renderPropertiesPanel = () => {
         if (!selectedNode) {
-            return null;
+            return (
+                <div className="flex flex-col h-full">
+                    <div className="p-4 border-b">
+                        <h3 className="text-lg font-semibold">Properties</h3>
+                        <p className="text-sm text-muted-foreground">Select a step to configure it.</p>
+                    </div>
+                    <div className="flex-1 p-4 text-center text-muted-foreground">
+                        No step selected.
+                    </div>
+                </div>
+            );
         }
         
         const isTrigger = selectedNode.type === 'trigger';
@@ -452,10 +462,6 @@ export default function EditSabFlowPage() {
         );
     };
     
-    if (isLoading) {
-        return <BuilderPageSkeleton />;
-    }
-    
     return (
         <div className="h-full">
             <form action={formAction} ref={formRef}>
@@ -466,7 +472,7 @@ export default function EditSabFlowPage() {
                 <input type="hidden" name="edges" value={JSON.stringify(edges)} />
                 
                 <div className="flex flex-col h-full">
-                     <header className="relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
+                    <header className={cn("relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card", "self-end custom-css-shakti")}>
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" asChild className="h-9 px-2">
                                 <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
@@ -503,9 +509,9 @@ export default function EditSabFlowPage() {
                                                 "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center text-white",
                                                 selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
                                                 appConfig?.bgColor
-                                            )} style={{ backgroundColor: !appConfig?.bgColor ? '#ccc' : undefined }}>
-                                                <Icon className={cn("h-12 w-12", appConfig?.iconColor || 'text-white/90')} />
-                                                <p className={cn("font-semibold mt-2 text-xs line-clamp-1", appConfig?.iconColor || 'text-white/90')}>{node.data.name}</p>
+                                            )}>
+                                                <Icon className={cn("h-12 w-12", appConfig?.iconColor)} />
+                                                <p className={cn("font-semibold mt-2 text-xs line-clamp-1", appConfig?.iconColor)}>{node.data.name}</p>
                                             </div>
 
                                             {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
@@ -541,7 +547,7 @@ export default function EditSabFlowPage() {
                                 <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
                                 <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                             </div>
-                            <div className="absolute bottom-4 left-4 z-10 relative">
+                            <div className="absolute bottom-4 left-4 z-10" style={{position: 'relative'}}>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button size="icon" className="rounded-full h-12 w-12 shadow-lg">
