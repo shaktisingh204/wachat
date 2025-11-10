@@ -49,6 +49,7 @@ import {
   Copy,
   MoreVertical,
   Webhook,
+  Calendar,
 } from 'lucide-react';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
