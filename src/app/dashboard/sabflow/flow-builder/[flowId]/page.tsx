@@ -1,4 +1,5 @@
-'use client';
+
+      'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -171,6 +172,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                 return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} />;
             }
             else {
+                const actionOptions = selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
                 return (
                     <>
                         <div className="flex items-center gap-2">
@@ -183,7 +185,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                             <Select value={selectedNode.data.actionName} onValueChange={val => onNodeChange(selectedNode.id, { ...selectedNode.data, actionName: val, inputs: {} })}>
                                 <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
                                 <SelectContent>
-                                    {selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger).map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                    {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -309,7 +311,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         if (appConfig) {
             const action = appConfig.actions.find(a => a.name === node.data.actionName);
             if(action) return action.label;
-            return appConfig.name;
+            return appConfig.name; // Show app name if action isn't selected
         }
         
         return 'Select action';
@@ -546,21 +548,26 @@ export default function EditSabFlowPage() {
     const handleCanvasClick = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { if (connecting) setConnecting(null); else setSelectedNodeId(null); }};
 
     const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
-        e.preventDefault(); e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
+
         if (!viewportRef.current) return;
+
         const isOutputHandle = handleId.includes('output');
         if (isOutputHandle) {
             const sourceNode = nodes.find(n => n.id === nodeId);
             if (sourceNode) {
                 const handlePos = getNodeHandlePosition(sourceNode, handleId);
-                if (handlePos) setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
+                if (handlePos) {
+                    setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
+                }
             }
-        } else if (connecting && !isOutputHandle) {
+        } else if (connecting && !isOutputHandle) { // This is an input handle, and we are connecting
             if (connecting.sourceNodeId === nodeId) {
-                setConnecting(null);
+                setConnecting(null); // Avoid self-connection
                 return;
             }
-            
+
             const newEdge: SabFlowEdge = {
                 id: `edge-${connecting.sourceNodeId}-${nodeId}`,
                 source: connecting.sourceNodeId,
@@ -568,12 +575,19 @@ export default function EditSabFlowPage() {
                 sourceHandle: connecting.sourceHandleId,
                 targetHandle: handleId,
             };
-            
+
             setEdges(prevEdges => {
-                const filteredEdges = prevEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
+                // Remove any existing edge coming from the same source handle
+                // This allows re-wiring a node's output.
+                let filteredEdges = prevEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
+                
+                // Remove any existing edge going to the same target handle
+                // An input handle can only have one connection.
+                filteredEdges = filteredEdges.filter(edge => !(edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle));
+
                 return [...filteredEdges, newEdge];
             });
-            
+
             setConnecting(null);
         }
     };
@@ -738,7 +752,7 @@ export default function EditSabFlowPage() {
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" /></Button>
                         </div>
                         <Popover>
                             <PopoverTrigger asChild>
@@ -772,91 +786,5 @@ export default function EditSabFlowPage() {
     );
 }
 
-```></content>
-  </change>
-  <change>
-    <file>/src/components/wabasimplify/connections/app-connection-setup.tsx</file>
-    <content><![CDATA['use client';
 
-import React, { useState, useActionState, useEffect, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
-import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { LoaderCircle, Key } from 'lucide-react';
-import { GoogleSheetsConnection } from './google-sheets-connection';
-
-const initialState = { message: null, error: null };
-
-function SubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Key className="mr-2 h-4 w-4" />}
-            Connect Account
-        </Button>
-    )
-}
-
-export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: any, onConnectionSaved: () => void, flowId?: string }) {
-    const [state, formAction] = useActionState(saveSabFlowConnection, initialState);
-    const { toast } = useToast();
-    const formRef = useRef<HTMLFormElement>(null);
-
-    useEffect(() => {
-        if (state.message) {
-            toast({ title: "Success!", description: state.message });
-            onConnectionSaved();
-        }
-        if (state.error) {
-            toast({ title: "Error", description: state.error, variant: 'destructive' });
-        }
-    }, [state, toast, onConnectionSaved]);
-
-    if (!app) return null;
-
-    if (app.appId === 'google_sheets') {
-        return <GoogleSheetsConnection flowId={flowId} />;
-    }
     
-    if (app.connectionType === 'oauth') {
-        return (
-            <div className="text-center space-y-4">
-                <p className="text-sm text-muted-foreground">To connect {app.name}, you'll be redirected to their authorization page.</p>
-                <Button type="button" disabled>Connect via {app.name}</Button>
-            </div>
-        );
-    }
-    
-    if (app.connectionType === 'apikey') {
-        return (
-            <form action={formAction} ref={formRef} className="space-y-4">
-                <input type="hidden" name="appId" value={app.appId} />
-                <input type="hidden" name="appName" value={app.name} />
-                <input type="hidden" name="credentialKeys" value={(app.credentials || []).map((c: any) => c.name).join(',')} />
-                <p className="text-sm text-muted-foreground">{app.description}</p>
-                <div className="space-y-2">
-                    <Label htmlFor="connectionName">Connection Name</Label>
-                    <Input id="connectionName" name="connectionName" defaultValue={`${app.name} Account`} required />
-                </div>
-                 {(app.credentials || []).map((cred: any) => (
-                    <div className="space-y-2" key={cred.name}>
-                        <Label htmlFor={cred.name}>{cred.label}</Label>
-                        <Input 
-                            id={cred.name} 
-                            name={cred.name} 
-                            type={cred.type || 'text'} 
-                            placeholder={cred.placeholder || ''} 
-                            required 
-                        />
-                    </div>
-                ))}
-                <SubmitButton />
-            </form>
-        );
-    }
-
-    return <p className="text-sm text-muted-foreground text-center">This app does not require a connection setup.</p>;
-}
