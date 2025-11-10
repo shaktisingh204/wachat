@@ -93,7 +93,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground overflow-hidden font-sans;
+    @apply bg-background text-foreground overflow-hidden;
   }
 }
 
@@ -137,15 +137,6 @@
 .scroll-container ~ [data-radix-scroll-area-scrollbar] {
     display: none;
 }
-.custom-css-shakti{
-  width: min-content;
-  border-radius: 10px;
-  position: absolute;
-  right: 0px;
-  margin-top: 10px;
-  margin-right: 10px;
-}
-
 @layer utilities {
     .has-tooltip [data-tooltip] {
         @apply relative cursor-pointer;
