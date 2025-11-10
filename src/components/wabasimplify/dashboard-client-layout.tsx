@@ -492,7 +492,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         return (
             <Collapsible defaultOpen={isOpen}>
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
+                     <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
                         <div className="flex items-center gap-2">
                           {Icon && <Icon className="h-4 w-4" />}
                           <span>{item.label}</span>
