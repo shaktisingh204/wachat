@@ -56,22 +56,22 @@ import Image from 'next/image';
 const initialState = { message: null, error: null, flowId: undefined };
 
 function BuilderPageSkeleton() {
-  return (
-    <div className="flex h-screen w-screen bg-background p-2 gap-2">
-      <div className="w-60 rounded-lg bg-card p-2">
-        <Skeleton className="h-full w-full" />
-      </div>
-      <div className="flex-1 flex flex-col gap-2">
-        <div className="h-16 rounded-lg bg-card p-4">
+    return (
+      <div className="flex h-screen w-screen bg-background p-2 gap-2">
+        <div className="w-60 rounded-lg bg-card p-2">
           <Skeleton className="h-full w-full" />
         </div>
-        <div className="flex-1 rounded-lg bg-card p-4">
-          <Skeleton className="h-full w-full" />
+        <div className="flex-1 flex flex-col gap-2">
+          <div className="h-16 rounded-lg bg-card p-4">
+            <Skeleton className="h-full w-full" />
+          </div>
+          <div className="flex-1 rounded-lg bg-card p-4">
+            <Skeleton className="h-full w-full" />
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
 function SaveButton() {
   const { pending } = useFormStatus();
@@ -81,59 +81,6 @@ function SaveButton() {
       Save Flow
     </Button>
   );
-}
-
-const triggers = [
-    { id: 'webhook', name: 'Webhook Received', icon: Zap },
-    { id: 'app_event', name: 'App Event', icon: PlayCircle },
-];
-
-const NODE_WIDTH = 128;
-const NODE_HEIGHT = 128;
-
-const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
-    if (!sourcePos || !targetPos) return '';
-    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
-    return path;
-};
-
-const getNodeHandlePosition = (node: SabFlowNode, handleId: string) => {
-    if (!node || !handleId) return null;
-    const x = node.position.x;
-    const y = node.position.y;
-
-    if (handleId.endsWith('-input')) {
-        return { x: x, y: y + NODE_HEIGHT / 2 };
-    }
-    if (handleId.endsWith('-output-main')) {
-        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT / 2 };
-    }
-    if (handleId.endsWith('-output-yes')) {
-        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (1/3) };
-    }
-    if (handleId.endsWith('-output-no')) {
-        return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (2/3) };
-    }
-    return null;
-}
-
-function NodeInput({ input, value, onChange }: { input: any, value: any, onChange: (val: any) => void }) {
-    switch (input.type) {
-        case 'textarea':
-            return <Textarea placeholder={input.placeholder} value={value || ''} onChange={(e) => onChange(e.target.value)} />;
-        case 'select':
-            return (
-                <Select value={value || ''} onValueChange={onChange}>
-                    <SelectTrigger><SelectValue placeholder={input.placeholder} /></SelectTrigger>
-                    <SelectContent>
-                        {input.options?.map((opt: string) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-            );
-        default:
-            return <Input type={input.type || 'text'} placeholder={input.placeholder} value={value || ''} onChange={(e) => onChange(e.target.value)} />;
-    }
 }
 
 function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void }) {
@@ -175,6 +122,28 @@ function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove }: { u
                     </div>
                 );
             } else {
+                const handleApiChange = (field: keyof any, value: any) => {
+                    const currentApiRequest = selectedNode.data.apiRequest || {};
+                    const newApiRequest = { ...currentApiRequest, [field]: value };
+                    handleDataChange({ apiRequest: newApiRequest });
+                };
+            
+                const handleMappingChange = (index: number, field: 'variable' | 'path', value: string) => {
+                    const mappings = [...(selectedNode.data.apiRequest?.responseMappings || [])];
+                    mappings[index] = { ...mappings[index], [field]: value };
+                    handleApiChange('responseMappings', mappings);
+                };
+            
+                const addMapping = () => {
+                    const mappings = [...(selectedNode.data.apiRequest?.responseMappings || []), { variable: '', path: '' }];
+                    handleApiChange('responseMappings', mappings);
+                };
+            
+                const removeMapping = (index: number) => {
+                    const mappings = (selectedNode.data.apiRequest?.responseMappings || []).filter((_: any, i: number) => i !== index);
+                    handleApiChange('responseMappings', mappings);
+                };
+
                 return (
                     <>
                         <div className="flex items-center gap-2">
@@ -280,14 +249,13 @@ function NodeComponent({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         >
             <div
                 className={cn(
-                    "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4",
-                    isSelected && 'ring-2 ring-primary',
-                    appConfig?.bgColor || 'bg-white'
+                    "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
+                    isSelected && 'ring-2 ring-primary'
                 )}
                 style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
             >
                 <div className={cn("w-16 h-16 rounded-full flex items-center justify-center")}>
-                    <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-muted-foreground')} />
+                    <Icon className="h-8 w-8 text-primary" />
                 </div>
             </div>
             <p className="font-bold text-xs mt-2 text-black">{action?.label || node.data.name}</p>
@@ -303,7 +271,6 @@ function NodeComponent({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         </div>
     );
 };
-
 
 export default function EditSabFlowPage() {
     const params = useParams();
@@ -596,6 +563,9 @@ export default function EditSabFlowPage() {
                             if(nodeElement) {
                                 const nodeId = nodeElement.getAttribute('data-node-id');
                                 if (nodeId) handleNodeContextMenu(e, nodeId);
+                            } else {
+                                e.preventDefault();
+                                // Logic for canvas context menu if needed
                             }
                         }}
                     >
