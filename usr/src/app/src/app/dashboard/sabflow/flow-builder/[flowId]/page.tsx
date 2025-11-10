@@ -247,7 +247,7 @@ export default function EditSabFlowPage() {
         e.stopPropagation();
         if (!viewportRef.current) return;
         const isOutputHandle = handleId.includes('output');
-    
+
         if (isOutputHandle) {
             const sourceNode = nodes.find(n => n.id === nodeId);
             if (sourceNode) {
@@ -259,7 +259,7 @@ export default function EditSabFlowPage() {
                 setConnecting(null);
                 return;
             }
-    
+
             const newEdge: SabFlowEdge = {
                 id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`,
                 source: connecting.sourceNodeId,
@@ -268,13 +268,22 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId,
             };
             
-            // Allow multiple different sources to connect to the same input,
-            // but remove any existing connection from this specific source handle to any target.
-            const edgesWithoutOldConnection = edges.filter(
-                edge => !(edge.source === connecting.sourceNodeId && edge.sourceHandle === connecting.sourceHandleId)
+            // Prevent connecting the same source handle to the same target input more than once
+            const edgeExists = edges.some(
+                edge => edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle && edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle
+            );
+
+            if (edgeExists) {
+                setConnecting(null);
+                return;
+            }
+            
+            // An input handle can only have one connection. Remove any existing connection to this target handle.
+            const edgesWithoutExistingTarget = edges.filter(
+                edge => !(edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle)
             );
             
-            setEdges([...edgesWithoutOldConnection, newEdge]);
+            setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
         }
     };
@@ -508,6 +517,7 @@ export default function EditSabFlowPage() {
                         onMouseLeave={handleCanvasMouseUp}
                         onWheel={handleWheel}
                         onClick={handleCanvasClick}
+                        style={{ minHeight: '85vh' }}
                     >
                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
                         <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
@@ -519,13 +529,13 @@ export default function EditSabFlowPage() {
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
                                 return (
-                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
+                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y, filter: 'drop-shadow(0 5px 6px rgb(0 0 0 / 0.25))'}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
-                                            "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4",
+                                            "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4",
                                             selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                            appConfig?.bgColor || 'bg-gray-400'
+                                            appConfig?.bgColor || 'bg-sabflow-default-bg'
                                         )}>
-                                            <Icon className={cn("h-12 w-12", appConfig?.iconColor || 'text-white/90')} />
+                                            <Icon className={cn("h-12 w-12", appConfig?.iconColor ? 'text-white' : 'text-white/90')} />
                                         </div>
                                         <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
 
@@ -541,7 +551,7 @@ export default function EditSabFlowPage() {
                                     </div>
                                 )
                             })}
-                            <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
+                            <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '10000px', height: '10000px', transformOrigin: 'top left' }}>
                                 {edges.map(edge => {
                                     const sourceNode = nodes.find(n => n.id === edge.source);
                                     const targetNode = nodes.find(n => n.id === edge.target);
@@ -589,5 +599,4 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
-
 ```
