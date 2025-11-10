@@ -268,27 +268,17 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId,
             };
             
-            // Prevent connecting the same source to the same target more than once.
+            // Prevent creating a duplicate connection between the same two nodes.
             const edgeExists = edges.some(
-                edge => edge.source === newEdge.source && edge.target === newEdge.target
+                edge => (edge.source === newEdge.source && edge.target === newEdge.target) || (edge.source === newEdge.target && edge.target === newEdge.source)
             );
+
             if (edgeExists) {
                 setConnecting(null);
                 return;
             }
             
-            // An input handle can have multiple incoming connections.
-            // A regular output handle (not condition) can only have one outgoing connection. Remove old one if new one is added.
-            const isSingleOutput = !connecting.sourceHandleId.includes('-yes') && !connecting.sourceHandleId.includes('-no');
-            
-            let newEdges = [...edges];
-
-            if(isSingleOutput) {
-                newEdges = newEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
-            }
-            
-            newEdges.push(newEdge);
-            setEdges(newEdges);
+            setEdges(prevEdges => [...prevEdges, newEdge]);
             setConnecting(null);
         }
     };
@@ -539,7 +529,7 @@ export default function EditSabFlowPage() {
                                             selectedNodeId === node.id && 'ring-2 ring-primary'
                                         )}>
                                             <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", appConfig?.bgColor)}>
-                                                <Icon className="h-8 w-8 text-white" />
+                                                <Icon className={cn("h-8 w-8", appConfig?.iconColor || 'text-white')} />
                                             </div>
                                         </div>
                                         <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
@@ -577,7 +567,7 @@ export default function EditSabFlowPage() {
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
-                         <div className="absolute bottom-4 left-4 z-10">
+                         <div className="fixed bottom-[17px] left-4 z-10">
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button size="icon" className="rounded-full h-12 w-12 shadow-lg">
@@ -604,5 +594,3 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
-
-    
