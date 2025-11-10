@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -244,10 +243,11 @@ export default function EditSabFlowPage() {
     const handleCanvasClick = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { if (connecting) setConnecting(null); else setSelectedNodeId(null); }};
 
     const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
-        e.preventDefault(); e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
         if (!viewportRef.current) return;
         const isOutputHandle = handleId.includes('output');
-
+    
         if (isOutputHandle) {
             const sourceNode = nodes.find(n => n.id === nodeId);
             if (sourceNode) {
@@ -268,7 +268,6 @@ export default function EditSabFlowPage() {
                 targetHandle: handleId
             };
             
-            // Allow multiple outputs from one source, but only one input to a target
             const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
             
             setEdges([...edgesWithoutExistingTarget, newEdge]);
@@ -352,6 +351,10 @@ export default function EditSabFlowPage() {
         
         return (
             <div className="h-full flex flex-col">
+                <div className="p-4 border-b flex-shrink-0">
+                    <h3 className="text-lg font-semibold">Properties</h3>
+                    <p className="text-sm text-muted-foreground">Configure the selected step.</p>
+                </div>
                 <Tabs defaultValue="setup" className="flex-1 flex flex-col min-h-0">
                     <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
                         <TabsTrigger value="setup">Setup</TabsTrigger>
@@ -462,6 +465,10 @@ export default function EditSabFlowPage() {
         );
     };
     
+    if (isLoading) {
+        return <BuilderPageSkeleton />;
+    }
+
     return (
         <div className="h-full">
             <form action={formAction} ref={formRef}>
@@ -472,7 +479,7 @@ export default function EditSabFlowPage() {
                 <input type="hidden" name="edges" value={JSON.stringify(edges)} />
                 
                 <div className="flex flex-col h-full">
-                    <header className={cn("relative flex-shrink-0 flex items-center justify-between p-3 border-b bg-card", "self-end custom-css-shakti")}>
+                    <header className="relative self-end w-min rounded-[10px] mt-[10px] mr-[10px] flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" asChild className="h-9 px-2">
                                 <Link href="/dashboard/sabflow/flow-builder"><ArrowLeft className="h-4 w-4" />Back</Link>
@@ -485,8 +492,9 @@ export default function EditSabFlowPage() {
                         </div>
                     </header>
                     <main style={{ display: 'contents' }}>
-                        <div className="flex-1 w-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
+                        <div 
                             ref={viewportRef}
+                            className="flex-1 w-full overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container"
                             onMouseDown={handleCanvasMouseDown}
                             onMouseMove={handleCanvasMouseMove}
                             onMouseUp={handleCanvasMouseUp}
@@ -506,12 +514,12 @@ export default function EditSabFlowPage() {
                                     return (
                                         <div key={node.id} className="absolute transition-all" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                             <div className={cn(
-                                                "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center text-white",
+                                                "w-32 h-32 rounded-[20%] cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-4 text-center",
                                                 selectedNodeId === node.id ? 'ring-2 ring-primary' : 'shadow-md',
-                                                appConfig?.bgColor
+                                                appConfig?.bgColor || 'bg-gray-400'
                                             )}>
-                                                <Icon className={cn("h-12 w-12", appConfig?.iconColor)} />
-                                                <p className={cn("font-semibold mt-2 text-xs line-clamp-1", appConfig?.iconColor)}>{node.data.name}</p>
+                                                <Icon className={cn("h-12 w-12", appConfig?.iconColor || 'text-white/90')} />
+                                                <p className={cn("font-semibold mt-2 text-xs line-clamp-1", appConfig?.iconColor || 'text-white/90')}>{node.data.name}</p>
                                             </div>
 
                                             {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
