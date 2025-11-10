@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
+import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
@@ -48,10 +48,9 @@ import {
   RefreshCw,
   Copy,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-
 
 const initialState = { message: null, error: null, flowId: undefined };
 
@@ -266,7 +265,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
         : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
     
-    const hasIncomingEdge = node.type !== 'trigger' && (node.data.hasIncomingEdge || false);
+    const hasIncomingEdge = node.data.hasIncomingEdge || false;
     
     const Handle = ({ position, id }: { position: 'left' | 'right'; id: string }) => (
         <div id={id} data-handle-pos={position} className={cn("absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 top-1/2 -translate-y-1/2", position === 'left' ? '-left-2' : '-right-2')} onClick={e => handleHandleClick(e, node.id, id)} />
@@ -278,14 +277,14 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
             data-node-id={node.id}
             className="absolute transition-all text-center"
             style={{ left: node.position.x, top: node.position.y }}
-            onMouseDown={e => handleNodeMouseDown(e, node.id)}
-            onClick={e => { e.stopPropagation(); setSelectedNodeId(node.id) }}
+            onMouseDown={e => onNodeMouseDown(e, node.id)}
+            onClick={e => { e.stopPropagation(); onSelectNode(node.id) }}
             onContextMenu={(e) => onNodeContextMenu(e, node.id)}
         >
-                <div
+            <div
                 className={cn(
                     "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4",
-                    selectedNodeId === node.id && 'ring-2 ring-primary'
+                    isSelected && 'ring-2 ring-primary'
                 )}
                 style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)' }}
             >
@@ -306,6 +305,24 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         </div>
     );
 };
+
+function BuilderPageSkeleton() {
+  return (
+    <div className="flex h-screen w-screen bg-background p-2 gap-2">
+      <div className="w-60 rounded-lg bg-card p-2">
+        <Skeleton className="h-full w-full" />
+      </div>
+      <div className="flex-1 flex flex-col gap-2">
+        <div className="h-16 rounded-lg bg-card p-4">
+          <Skeleton className="h-full w-full" />
+        </div>
+        <div className="flex-1 rounded-lg bg-card p-4">
+          <Skeleton className="h-full w-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function EditSabFlowPage() {
     const params = useParams();
@@ -708,4 +725,14 @@ export default function EditSabFlowPage() {
     </div>
     );
 }
-```
+
+function BuilderPageSkeleton() {
+    return (
+      <div className="h-full">
+        <Skeleton className="h-16 w-full" />
+        <div className="flex flex-1 overflow-hidden">
+            <Skeleton className="w-full h-full" />
+        </div>
+      </div>
+    )
+}
