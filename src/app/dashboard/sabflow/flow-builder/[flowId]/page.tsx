@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback } from 'react';
@@ -48,7 +47,7 @@ import {
   RefreshCw,
   Copy,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -221,6 +220,7 @@ export default function EditSabFlowPage() {
         };
         setNodes([...nodes, newNode]);
         setSelectedNodeId(newNodeId);
+        setIsSidebarOpen(true); // Open the sidebar to configure the new node
     };
     
     const handleRemoveNode = (nodeId: string) => {
@@ -379,11 +379,11 @@ export default function EditSabFlowPage() {
             return (
                 <div className="flex flex-col h-full">
                     <div className="p-4 border-b">
-                        <h3 className="text-lg font-semibold">Choose Your First Application</h3>
+                        <h3 className="text-lg font-semibold">Choose an App</h3>
                         <p className="text-sm text-muted-foreground">Select an app to add your first step.</p>
                     </div>
                     <div className="flex-1 p-4 space-y-4">
-                       <h3 className="font-semibold">Choose an App</h3>
+                       <h3 className="font-semibold">Your Connections</h3>
                        <div className="grid grid-cols-5 gap-2">
                            {(user?.sabFlowConnections || []).map((conn: any) => {
                                const appConfig = sabnodeAppActions.find(app => app.appId === conn.appId);
@@ -391,7 +391,7 @@ export default function EditSabFlowPage() {
                                return (
                                   <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => { handleAddNode('action'); setIsSidebarOpen(true); }}>
                                       <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
-                                          <AppIcon className={cn("h-6 w-6 text-white")}/>
+                                          <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                       </div>
                                       <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
                                   </button>
@@ -407,7 +407,6 @@ export default function EditSabFlowPage() {
             );
         }
         
-        const isTrigger = selectedNode.type === 'trigger';
         const isAction = selectedNode.type === 'action';
         const isCondition = selectedNode.type === 'condition';
 
@@ -450,7 +449,7 @@ export default function EditSabFlowPage() {
                                                              return (
                                                                 <button type="button" key={conn.connectionName} className={cn("aspect-square p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-2 transition-colors bg-white")} onClick={() => handleSetApp(conn.appId, conn.connectionName)}>
                                                                     <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", appConfig?.bgColor)}>
-                                                                        <AppIcon className={cn("h-6 w-6 text-white")}/>
+                                                                        <AppIcon className={cn("h-6 w-6", appConfig?.iconColor)}/>
                                                                     </div>
                                                                     <p className="text-[10px] font-bold text-black break-words whitespace-normal leading-tight">{conn.connectionName}</p>
                                                                 </button>
@@ -495,8 +494,8 @@ export default function EditSabFlowPage() {
                                 {isCondition && (
                                     <>
                                         <div className="space-y-2"><Label>Logic</Label><RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleNodeChange(selectedNode.id, { logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">AND</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">OR</Label></div></RadioGroup></div>
-                                        {(selectedNode.data.rules || []).map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2 relative"><Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => { const r = [...selectedNode.data.rules]; r.splice(index, 1); handleNodeChange(selectedNode.id, {rules: r})}}><Trash2 className="h-4 w-4 text-destructive"/></Button><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => { const r = [...selectedNode.data.rules]; r[index].field=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}} /><Select value={rule.operator} onValueChange={val => { const r = [...selectedNode.data.rules]; r[index].operator=val; handleNodeChange(selectedNode.id, {rules: r})}}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => { const r = [...selectedNode.data.rules]; r[index].value=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}}/></div>))}
-                                        <Button variant="outline" size="sm" onClick={() => handleNodeChange(selectedNode.id, { rules: [...(selectedNode.data.rules || []), {field: '', operator: 'equals', value: ''}]})}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
+                                        {(selectedNode.data.rules || []).map((rule: any, index: number) => (<div key={index} className="p-2 border rounded space-y-2 relative"><Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => { const r = [...selectedNode.data.rules]; r.splice(index, 1); handleNodeChange(selectedNode.id, {rules: r})}}><Trash2 className="h-4 w-4 text-destructive"/></Button><Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => { const r = [...selectedNode.data.rules]; r[index].field=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}} /><Select value={rule.operator} onValueChange={val => { const r = [...selectedNode.data.rules]; r[index].operator=val; handleNodeChange(selectedNode.id, {rules: r})}}><SelectTrigger><SelectValue placeholder="Select operator..."/></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent></Select><Input placeholder="Value" value={rule.value} onChange={e => { const r = [...selectedNode.data.rules]; r[index].value=e.target.value; handleNodeChange(selectedNode.id, {rules: r})}}/></div>))}
+                                        <Button variant="outline" size="sm" onClick={()={() => handleNodeChange(selectedNode.id, { rules: [...(selectedNode.data.rules || []), {field: '', operator: 'equals', value: ''}]})}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
                                     </>
                                 )}
                             </TabsContent>
@@ -524,8 +523,6 @@ export default function EditSabFlowPage() {
         return <BuilderPageSkeleton />;
     }
 
-    const rootNodes = nodes.filter(n => !edges.some(e => e.target === n.id));
-
     return (
       <div className="h-full">
         <form action={formAction} ref={formRef}>
@@ -552,14 +549,21 @@ export default function EditSabFlowPage() {
                 <div className="flex-1 flex overflow-hidden">
                     <main 
                         ref={viewportRef}
-                        className="flex-1 w-full h-full min-h-0 overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container bg-muted/30"
+                        className="flex-1 w-full h-full min-h-[85vh] overflow-hidden relative cursor-grab active:cursor-grabbing sabflow-builder-container bg-muted/30"
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
                         onMouseLeave={handleCanvasMouseUp}
                         onWheel={handleWheel}
                         onClick={handleCanvasClick}
-                        onContextMenu={handleNodeContextMenu}
+                        onContextMenu={(e) => {
+                            const target = e.target as HTMLElement;
+                            const nodeElement = target.closest('[data-node-id]');
+                            if(nodeElement) {
+                                const nodeId = nodeElement.getAttribute('data-node-id');
+                                if (nodeId) handleNodeContextMenu(e, nodeId);
+                            }
+                        }}
                     >
                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
                         <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
@@ -594,23 +598,26 @@ export default function EditSabFlowPage() {
                             ) : nodes.map(node => {
                                 const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
                                 const appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
+                                const action = appConfig?.actions.find(a => a.name === node.data.actionName);
                                 const Icon = node.type === 'trigger'
                                     ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
                                     : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
                                 
+                                const isStartNode = !edges.some(e => e.target === node.id);
+                                
                                 return (
-                                    <div key={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
+                                    <div key={node.id} data-node-id={node.id} className="absolute transition-all text-center" style={{left: node.position.x, top: node.position.y}} onMouseDown={e => handleNodeMouseDown(e, node.id)} onClick={e => {e.stopPropagation(); setSelectedNodeId(node.id)}}>
                                         <div className={cn(
                                             "w-32 h-32 rounded-[40px] cursor-pointer flex flex-col items-center justify-center p-4 bg-white",
                                             selectedNodeId === node.id && 'ring-2 ring-primary'
                                         )} style={{filter: 'drop-shadow(rgba(0, 0, 0, 0.15) 0px 5px 6px)'}}>
-                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center bg-white")}>
+                                            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center")}>
                                                 <Icon className={cn("h-8 w-8", appConfig?.iconColor)}/>
                                             </div>
                                         </div>
-                                        <p className="font-bold text-xs mt-2 text-black">{node.data.name}</p>
+                                        <p className="font-bold text-xs mt-2 text-black">{action?.label || node.data.name}</p>
 
-                                        {node.type !== 'trigger' && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
+                                        {!isStartNode && <div id={`${node.id}-input`} data-handle-pos="left" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -left-2 top-1/2 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-input`)} />}
                                         {node.type === 'condition' ? (
                                             <>
                                                 <div id={`${node.id}-output-yes`} data-handle-pos="right" className="absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 -right-2 top-1/3 -translate-y-1/2" onClick={e => handleHandleClick(e, node.id, `${node.id}-output-yes`)} />
@@ -637,9 +644,22 @@ export default function EditSabFlowPage() {
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button className="absolute bottom-4 left-4 z-10 h-14 w-14 rounded-full" size="icon">
+                                    <Plus className="h-6 w-6"/>
+                                </Button>
+                            </PopoverTrigger>
+                             <PopoverContent className="w-80 p-0" align="start">
+                               <div className="p-4 space-y-2">
+                                   <Button className="w-full justify-start" variant="ghost" onClick={() => handleAddNode('action')}>Action Step</Button>
+                                   <Button className="w-full justify-start" variant="ghost" onClick={() => handleAddNode('condition')}>Condition</Button>
+                               </div>
+                            </PopoverContent>
+                        </Popover>
                     </main>
                     <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                        <SheetContent className="w-full max-w-sm lg:min-w-[35%] p-0 flex flex-col">
+                        <SheetContent className="w-full max-w-[35%] min-w-[500px] p-0 flex flex-col">
                             {renderPropertiesPanel()}
                         </SheetContent>
                     </Sheet>
