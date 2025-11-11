@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
-import { ChevronsUpDown } from 'lucide-react';
+import { ChevronsUpDown, Users } from 'lucide-react';
 import Link from 'next/link';
 
 const CONTACTS_PER_PAGE = 20;
@@ -107,7 +107,7 @@ export default function CrmAllLeadsPage() {
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                         <Users className="h-8 w-8" />
-                        All Leads &amp; Contacts
+                        All Leads & Contacts
                     </h1>
                     <p className="text-muted-foreground">Manage your individual leads and contacts.</p>
                 </div>
