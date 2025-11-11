@@ -14,19 +14,19 @@ const leadSchema = z.object({
   title: z.string().min(1, 'Lead Title is required.'),
   contactName: z.string().min(1, 'Contact Name is required.'),
   email: z.string().email('Invalid email address.').optional().or(z.literal('')),
-  phone: z.string().optional(),
-  company: z.string().optional(),
-  website: z.string().optional(),
-  country: z.string().optional(),
-  status: z.string().optional(),
-  source: z.string().optional(),
+  phone: z.string().optional().nullable(),
+  company: z.string().optional().nullable(),
+  website: z.string().optional().nullable(),
+  country: z.string().optional().nullable(),
+  status: z.string().optional().nullable(),
+  source: z.string().optional().nullable(),
   value: z.coerce.number().optional().default(0),
   currency: z.string().optional().default('INR'),
-  assignedTo: z.string().optional(),
-  pipelineId: z.string().optional(),
-  stage: z.string().optional(),
-  description: z.string().optional(),
-  nextFollowUp: z.date().optional(),
+  assignedTo: z.string().optional().nullable(),
+  pipelineId: z.string().optional().nullable(),
+  stage: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  nextFollowUp: z.date().optional().nullable(),
 });
 
 
@@ -95,7 +95,6 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
     const validatedFields = leadSchema.safeParse(rawData);
     
     if (!validatedFields.success) {
-        // Flatten the error object to make it easier to read
         const flattenedErrors = validatedFields.error.flatten().fieldErrors;
         const errorString = Object.entries(flattenedErrors)
             .map(([key, value]) => `${key}: ${value.join(', ')}`)
