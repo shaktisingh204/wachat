@@ -14,7 +14,7 @@ interface KanbanColumnProps {
     contacts: WithId<Contact>[];
 }
 
-export function KanbanColumn({ title, contacts, innerRef, droppableProps, isDraggingOver }: KanbanColumnProps & { innerRef: DroppableProvided['innerRef'], droppableProps: DroppableProvided['droppableProps'], isDraggingOver: boolean }) {
+export function KanbanColumn({ title, contacts = [], innerRef, droppableProps, isDraggingOver }: KanbanColumnProps & { innerRef: DroppableProvided['innerRef'], droppableProps: DroppableProvided['droppableProps'], isDraggingOver: boolean }) {
     return (
         <div 
             ref={innerRef}
