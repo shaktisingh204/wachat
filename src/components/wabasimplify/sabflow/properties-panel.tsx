@@ -13,6 +13,8 @@ import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import { AppConnectionSetup } from './connections/app-connection-setup';
 import { ApiRequestEditor } from './api-request-editor';
+import { CodeBlock } from '@/components/wabasimplify/code-block';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook' },
@@ -35,6 +37,8 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
     const selectedApp = sabnodeAppActions.find(app => app.appId === selectedNode.data.appId);
     const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
+    const Icon = selectedApp?.icon;
+
 
     const renderEditorContent = () => {
         const isAction = selectedNode.type === 'action';
@@ -43,30 +47,30 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
         if (isAction) {
             if (!selectedNode.data.appId) {
-                const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
-               
-                const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
-                   if (isTrigger && !app.actions.some(a => a.isTrigger)) return acc;
-                   const category = app.category || 'SabNode Apps';
-                   if (!acc[category]) acc[category] = [];
-                   acc[category].push(app);
-                   return acc;
-               }, {} as Record<string, any[]>));
+                 const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
+                
+                 const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
+                    if (isTrigger && !app.actions.some(a => a.isTrigger)) return acc;
+                    const category = app.category || 'SabNode Apps';
+                    if (!acc[category]) acc[category] = [];
+                    acc[category].push(app);
+                    return acc;
+                }, {} as Record<string, any[]>));
 
                return (
                    <div className="space-y-4">
                        <h3 className="font-semibold">{isTrigger ? 'Choose a Trigger App' : 'Choose an App'}</h3>
                         <Accordion type="multiple" defaultValue={['SabNode Apps', 'Core Apps']} className="w-full">
-                           {groupedApps.map(([category, apps]: [string, any[]]) => (
-                               <AccordionItem key={category} value={category}>
-                                   <AccordionTrigger>{category}</AccordionTrigger>
-                                   <AccordionContent className="p-2">
-                                       <div className="grid grid-cols-3 gap-2">
-                                           {apps.map(app => {
-                                               const AppIcon = app.icon;
-                                               const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
-                                               return (
-                                                    <button 
+                            {groupedApps.map(([category, apps]: [string, any[]]) => (
+                                <AccordionItem key={category} value={category}>
+                                    <AccordionTrigger>{category}</AccordionTrigger>
+                                    <AccordionContent className="p-2">
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {apps.map(app => {
+                                                const AppIcon = app.icon;
+                                                const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
+                                                return (
+                                                     <button 
                                                         type="button" 
                                                         key={app.appId} 
                                                         className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border-2", app.bgColor, isConnected ? 'border-green-500' : 'border-border' )}
@@ -75,16 +79,16 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                                                         <AppIcon className={cn("h-6 w-6", app.iconColor)}/>
                                                         <p className="text-xs font-medium text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
                                                     </button>
-                                               )
-                                           })}
-                                       </div>
-                                   </AccordionContent>
-                               </AccordionItem>
-                           ))}
-                       </Accordion>
+                                                )
+                                            })}
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
                    </div>
                );
-           } else if (selectedNode.data.appId && selectedNode.data.appId === 'api') {
+           } else if (selectedNode.data.appId === 'api') {
                 return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
            } else if (selectedNode.data.appId && !selectedNode.data.connectionId) {
                return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
@@ -113,10 +117,10 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
        }
 
        if (isTrigger) {
-            const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
-            
-            return (
-               <div className="space-y-2">
+             const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
+             
+             return (
+                <div className="space-y-2">
                    <Label>Trigger Type</Label>
                    <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val, connectionId: '', appId: '', actionName: '', inputs: {} })}>
                        <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
@@ -131,10 +135,11 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                            <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${params.flowId}`} />
                        </div>
                    )}
-               </div>
-           );
-       }
-       return null;
+                </div>
+            );
+        }
+
+        return null;
     };
 
     return (

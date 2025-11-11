@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -47,12 +48,13 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
         onUpdate({ ...data, apiRequest: { ...apiRequest, [field]: value }});
     };
 
-    const handleAuthChange = (type: string, details: any) => {
-        handleApiChange('auth', { type, ...details });
+    const handleAuthChange = (type: string, details?: any) => {
+        handleApiChange('auth', { type, ...(details || {}) });
     }
     
-    const handleBodyChange = (type: string, content: any) => {
-        handleApiChange('body', { type, [type === 'json' ? 'json' : 'formData']: content });
+    const handleBodyChange = (type: string, content?: any) => {
+        const bodyContent = content || (type === 'form_data' ? [] : '');
+        handleApiChange('body', { type, [type === 'json' ? 'json' : 'formData']: bodyContent });
     }
 
     const handleMappingChange = (index: number, field: 'variable' | 'path', value: string) => {
@@ -97,7 +99,7 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
                     <KeyValueEditor items={apiRequest.params || []} onItemsChange={items => handleApiChange('params', items)} />
                 </TabsContent>
                 <TabsContent value="auth" className="pt-4 space-y-4">
-                     <Select value={apiRequest.auth?.type || 'none'} onValueChange={type => handleAuthChange(type, {})}>
+                     <Select value={apiRequest.auth?.type || 'none'} onValueChange={type => handleAuthChange(type)}>
                         <SelectTrigger><SelectValue/></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="none">No Auth</SelectItem>
@@ -130,7 +132,7 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
                     <KeyValueEditor items={apiRequest.headers || []} onItemsChange={items => handleApiChange('headers', items)} />
                 </TabsContent>
                 <TabsContent value="body" className="pt-4 space-y-4">
-                     <RadioGroup value={apiRequest.body?.type || 'none'} onValueChange={type => handleBodyChange(type, apiRequest.body?.[type === 'json' ? 'json' : 'formData'] || (type === 'form_data' ? [] : ''))} className="flex gap-4">
+                     <RadioGroup value={apiRequest.body?.type || 'none'} onValueChange={type => handleBodyChange(type, apiRequest.body?.[type === 'json' ? 'json' : 'formData'])} className="flex gap-4">
                         <div className="flex items-center space-x-2"><RadioGroupItem value="none" id="body-none"/><Label htmlFor="body-none">None</Label></div>
                         <div className="flex items-center space-x-2"><RadioGroupItem value="form_data" id="body-form"/><Label htmlFor="body-form">Form Data</Label></div>
                         <div className="flex items-center space-x-2"><RadioGroupItem value="json" id="body-json"/><Label htmlFor="body-json">JSON</Label></div>
@@ -159,6 +161,11 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
                     ))}
                 </div>
                 <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addMapping}><Plus className="mr-2 h-4 w-4" />Add Mapping</Button>
+            </div>
+             <div className="space-y-2 pt-4">
+                <Label>Save Full Response To</Label>
+                <Input placeholder="Variable name for full response..." value={data.responseVariableName || ''} onChange={e => onUpdate({ ...data, responseVariableName: e.target.value })} />
+                <p className="text-xs text-muted-foreground">The entire response object (status, headers, data) will be saved to this variable. e.g. `{{Api_Request.response.data.some_field}}`</p>
             </div>
         </div>
     );
