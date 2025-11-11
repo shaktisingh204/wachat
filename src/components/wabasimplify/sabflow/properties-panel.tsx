@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -5,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, ArrowLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useProject } from '@/context/project-context';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
@@ -36,72 +37,104 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
 
     const renderEditorContent = () => {
-        if (selectedNode.type === 'action') {
-            if (selectedNode.data.appId && selectedNode.data.actionName === 'apiRequest') {
-                return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
-            }
-             if (!selectedNode.data.appId) {
-                 const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
-                
-                 const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
-                    const category = app.category || 'SabNode Apps';
-                    if (!acc[category]) acc[category] = [];
-                    acc[category].push(app);
-                    return acc;
-                }, {} as Record<string, any[]>));
+        const isAction = selectedNode.type === 'action';
+        const isCondition = selectedNode.type === 'condition';
+        const isTrigger = selectedNode.type === 'trigger';
 
-                return (
-                    <div className="space-y-4">
-                        {groupedApps.map(([category, apps]: [string, any[]]) => (
-                            <div key={category}>
-                                <h4 className="font-semibold text-sm mb-2 px-1">{category}</h4>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {apps.map(app => {
-                                        const AppIcon = app.icon;
-                                        const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
-                                        return (
-                                            <button 
-                                                type="button" 
-                                                key={app.appId} 
-                                                className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-center gap-1 transition-all border-2", app.bgColor, isConnected ? 'border-green-500' : 'border-border' )}
-                                                onClick={() => handleDataChange({ appId: app.appId, actionName: app.actions[0]?.name || '', inputs: {} })}
-                                            >
-                                                <AppIcon className={cn("h-6 w-6", app.iconColor)}/>
-                                                <p className="text-xs font-medium text-foreground text-center break-words whitespace-normal leading-tight">{app.name}</p>
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                );
-            } else if (selectedNode.data.appId && !selectedNode.data.connectionId) {
-                return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
-            } else {
-                const actionOptions = selectedApp?.actions || [];
-                return (
-                    <>
-                        <div className="space-y-2">
-                            <Label>Action</Label>
-                            <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
-                                <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                                <SelectContent>
-                                    {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        {selectedAction && (
-                             <div className="space-y-4 pt-4 border-t">
-                                <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                                {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
-                            </div>
-                        )}
-                    </>
-                );
-            }
-        }
-        return null;
+        if (isAction) {
+            if (!selectedNode.data.appId) {
+                const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
+               
+                const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
+                   if (isTrigger && !app.actions.some(a => a.isTrigger)) return acc;
+                   const category = app.category || 'SabNode Apps';
+                   if (!acc[category]) acc[category] = [];
+                   acc[category].push(app);
+                   return acc;
+               }, {} as Record<string, any[]>));
+
+               return (
+                   <div className="space-y-4">
+                       <h3 className="font-semibold">{isTrigger ? 'Choose a Trigger App' : 'Choose an App'}</h3>
+                        <Accordion type="multiple" defaultValue={['SabNode Apps', 'Core Apps']} className="w-full">
+                           {groupedApps.map(([category, apps]: [string, any[]]) => (
+                               <AccordionItem key={category} value={category}>
+                                   <AccordionTrigger>{category}</AccordionTrigger>
+                                   <AccordionContent className="p-2">
+                                       <div className="grid grid-cols-3 gap-2">
+                                           {apps.map(app => {
+                                               const AppIcon = app.icon;
+                                               const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
+                                               return (
+                                                    <button 
+                                                        type="button" 
+                                                        key={app.appId} 
+                                                        className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border-2", app.bgColor, isConnected ? 'border-green-500' : 'border-border' )}
+                                                        onClick={() => handleDataChange({ appId: app.appId, actionName: app.actions[0]?.name || '', inputs: {} })}
+                                                    >
+                                                        <AppIcon className={cn("h-6 w-6", app.iconColor)}/>
+                                                        <p className="text-xs font-medium text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
+                                                    </button>
+                                               )
+                                           })}
+                                       </div>
+                                   </AccordionContent>
+                               </AccordionItem>
+                           ))}
+                       </Accordion>
+                   </div>
+               );
+           } else if (selectedNode.data.appId && selectedNode.data.appId === 'api') {
+                return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
+           } else if (selectedNode.data.appId && !selectedNode.data.connectionId) {
+               return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
+           } else {
+               const actionOptions = selectedApp?.actions || [];
+               return (
+                   <>
+                       <div className="space-y-2">
+                           <Label>Action</Label>
+                           <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
+                               <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                               <SelectContent>
+                                   {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                               </SelectContent>
+                           </Select>
+                       </div>
+                       {selectedAction && (
+                            <div className="space-y-4 pt-4 border-t">
+                               <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                               {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                           </div>
+                       )}
+                   </>
+               );
+           }
+       }
+
+       if (isTrigger) {
+            const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
+            
+            return (
+               <div className="space-y-2">
+                   <Label>Trigger Type</Label>
+                   <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val, connectionId: '', appId: '', actionName: '', inputs: {} })}>
+                       <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
+                       <SelectContent>
+                           {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                       </SelectContent>
+                   </Select>
+                   {selectedTrigger && <p className="text-xs text-muted-foreground">{selectedTrigger.description}</p>}
+                   {selectedTrigger?.id === 'webhook' && (
+                       <div className="pt-4">
+                           <Label>Webhook URL</Label>
+                           <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${params.flowId}`} />
+                       </div>
+                   )}
+               </div>
+           );
+       }
+       return null;
     };
 
     return (
@@ -119,7 +152,9 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                     <Separator />
                     {selectedApp && selectedNode.type === 'action' && (
                         <div className="flex items-center gap-2">
-                             <Button variant="ghost" size="sm" onClick={() => handleDataChange({ appId: '', actionName: '', inputs: {} })}><ArrowLeft className="mr-2 h-4 w-4"/> Change App</Button>
+                             <Button variant="ghost" size="sm" onClick={() => handleDataChange({ appId: '', connectionId: '', actionName: '', inputs: {} })}>
+                                <ArrowLeft className="mr-2 h-4 w-4"/> Change App
+                            </Button>
                         </div>
                     )}
                     {renderEditorContent()}
