@@ -9,7 +9,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { addCrmLead } from '@/app/actions/crm-leads.actions';
 
 // Dynamically import all action files
@@ -65,8 +65,10 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
     logger.log(`Preparing to execute action: ${actionName}`, { inputs, context });
 
     // Interpolate all input values from the context
-    for(const key in inputs) {
-        interpolatedInputs[key] = interpolate(inputs[key], context);
+    if (inputs) {
+        for(const key in inputs) {
+            interpolatedInputs[key] = interpolate(inputs[key], context);
+        }
     }
     
     // Find which app this action belongs to
@@ -78,37 +80,95 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         return { error: errorMsg };
     }
     
-    // --- SPECIAL CASE: External API Calls ---
-    if (actionApp.appId === 'api') {
+    if (actionName === 'apiRequest') {
         try {
-            const { url, method, headers, queryParams, body } = interpolatedInputs;
+            const { apiRequest } = node.data;
+            const interpolatedUrl = interpolate(apiRequest.url, context);
+
             const requestConfig: any = {
-                method: method || 'GET',
-                url,
-                headers: headers ? JSON.parse(headers) : undefined,
-                params: queryParams ? JSON.parse(queryParams) : undefined,
-                data: body ? JSON.parse(body) : undefined,
+                method: apiRequest.method || 'GET',
+                url: interpolatedUrl,
+                headers: {},
             };
-            logger.log(`Making external API call...`, { config: requestConfig });
+            
+            // 1. Handle Authentication
+            if (apiRequest.auth?.type) {
+                const { type, ...authDetails } = apiRequest.auth;
+                if (type === 'bearer' && authDetails.token) {
+                    requestConfig.headers['Authorization'] = `Bearer ${interpolate(authDetails.token, context)}`;
+                } else if (type === 'api_key' && authDetails.key && authDetails.value) {
+                    const key = interpolate(authDetails.key, context);
+                    const value = interpolate(authDetails.value, context);
+                    if (authDetails.in === 'header') {
+                        requestConfig.headers[key] = value;
+                    } else { // 'query'
+                        const url = new URL(requestConfig.url);
+                        url.searchParams.set(key, value);
+                        requestConfig.url = url.toString();
+                    }
+                } else if (type === 'basic' && authDetails.username && authDetails.password) {
+                    const username = interpolate(authDetails.username, context);
+                    const password = interpolate(authDetails.password, context);
+                    const encoded = Buffer.from(`${username}:${password}`).toString('base64');
+                    requestConfig.headers['Authorization'] = `Basic ${encoded}`;
+                }
+            }
+            
+            // 2. Handle Headers
+            if (Array.isArray(apiRequest.headers)) {
+                apiRequest.headers.forEach((header: { key: string, value: string, enabled: boolean }) => {
+                    if (header.enabled && header.key) {
+                        requestConfig.headers[interpolate(header.key, context)] = interpolate(header.value, context);
+                    }
+                });
+            }
+
+            // 3. Handle Query Params
+            if (Array.isArray(apiRequest.params)) {
+                const url = new URL(requestConfig.url);
+                 apiRequest.params.forEach((param: { key: string, value: string, enabled: boolean }) => {
+                    if (param.enabled && param.key) {
+                        url.searchParams.set(interpolate(param.key, context), interpolate(param.value, context));
+                    }
+                });
+                requestConfig.url = url.toString();
+            }
+
+            // 4. Handle Body
+            if (apiRequest.body?.type === 'json' && apiRequest.body.json) {
+                requestConfig.headers['Content-Type'] = 'application/json';
+                requestConfig.data = JSON.parse(interpolate(apiRequest.body.json, context));
+            } else if (apiRequest.body?.type === 'form_data' && Array.isArray(apiRequest.body.formData)) {
+                const formData = new FormData();
+                apiRequest.body.formData.forEach((item: { key: string, value: string, enabled: boolean }) => {
+                    if(item.enabled && item.key) {
+                        formData.append(interpolate(item.key, context), interpolate(item.value, context));
+                    }
+                });
+                requestConfig.data = formData;
+                Object.assign(requestConfig.headers, formData.getHeaders());
+            }
+
+            logger.log(`Making external API call...`, { config: { ...requestConfig, headers: {...requestConfig.headers, Authorization: 'REDACTED'} } });
             const response = await axios(requestConfig);
-            logger.log(`External API call successful (Status: ${response.status})`, { response: response.data });
-            return { output: response.data };
+            logger.log(`External API call successful (Status: ${response.status})`);
+            
+            // Return the full response object
+            return { output: { status: response.status, headers: response.headers, data: response.data } };
+
         } catch (e: any) {
-            const errorMsg = `Error executing API action "${actionName}": ${getErrorMessage(e)}`;
-            logger.log(errorMsg, { stack: e.stack, response: e.response?.data, context: { ...context, interpolatedInputs } });
+            const errorMsg = `Error executing API action: ${getErrorMessage(e)}`;
+            logger.log(errorMsg, { stack: e.stack, response: e.response?.data, context });
             return { error: errorMsg };
         }
     }
 
-    // --- SPECIAL CASE: CRM Lead Creation ---
     if (actionName === 'createCrmLead') {
         try {
             const formData = new FormData();
-            Object.entries(interpolatedInputs).forEach(([key, value]) => {
-                // The `addCrmLead` expects specific field names from the form, so we map them here.
-                const formKey = { dealName: 'title', dealValue: 'value', dealStage: 'stage' }[key] || key;
-                if (value !== undefined && value !== null) {
-                    formData.append(formKey, String(value));
+            Object.keys(interpolatedInputs).forEach(key => {
+                if (interpolatedInputs[key] !== undefined && interpolatedInputs[key] !== null) {
+                    formData.append(key, String(interpolatedInputs[key]));
                 }
             });
 
@@ -173,7 +233,7 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, no
             logger.log(`Action failed. Stopping flow.`, { error: result.error, context });
             return null; // Stop execution on error
         }
-        const actionKey = node.data.actionName.replace(/\s+/g, '_');
+        const actionKey = node.data.name?.replace(/\s+/g, '_') || node.id;
         context[actionKey] = result.output;
     } else if (node.type === 'condition') {
         const rules = node.data.rules || [];
