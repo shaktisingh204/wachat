@@ -1,249 +1,257 @@
 
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
-import {
-    Plus,
-    Download,
-    Search as SearchIcon,
-    SlidersHorizontal,
-    Trash2,
-    CheckSquare,
-    MoreVertical,
-    Star,
-    Mail,
-    Phone,
-    MessageSquare,
-    Eye,
-    Link as LinkIcon,
-    LoaderCircle
-} from "lucide-react";
-import { useState, useEffect, useCallback, useTransition } from "react";
-import { DatePicker } from "@/components/ui/date-picker";
-import { Checkbox } from "@/components/ui/checkbox";
-import { getSession } from "@/app/actions";
-import { getCrmDeals } from "@/app/actions/crm-deals.actions";
-import { getCrmContacts } from "@/app/actions/crm.actions";
-import type { User, WithId, CrmDeal, CrmContact } from "@/lib/definitions";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
+import type { WithId } from 'mongodb';
+import { getCrmContacts } from '@/app/actions/crm.actions';
+import { getCrmAccounts, archiveCrmAccount } from '@/app/actions/crm-accounts.actions';
+import { useRouter } from 'next/navigation';
+import type { CrmContact, CrmAccount } from '@/lib/definitions';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Search, Plus, Upload, Users, FileText, MoreVertical, Archive, Edit, Activity, FilePlus, ChevronRight, ChevronsUpDown } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { useDebouncedCallback } from 'use-debounce';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
+import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import { useDebouncedCallback } from "use-debounce";
-import Papa from "papaparse";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
-const leadsPerPage = 20;
+const CONTACTS_PER_PAGE = 20;
 
-const FilterBadge = ({ children, onRemove }: { children: React.ReactNode, onRemove: () => void }) => (
-    <Badge variant="secondary" className="flex items-center gap-1">
-        {children}
-        <Button variant="ghost" size="icon" className="h-4 w-4" onClick={onRemove}><Trash2 className="h-3 w-3"/></Button>
-    </Badge>
-);
+type SortConfig = {
+    column: string;
+    direction: 'asc' | 'desc';
+};
 
-export default function AllLeadsPage() {
-    const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-    const [user, setUser] = useState<User | null>(null);
-    const [deals, setDeals] = useState<WithId<CrmDeal>[]>([]);
+function ClientsPageSkeleton() {
+    return (
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-64 mt-2" />
+            </CardHeader>
+            <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                    <Skeleton className="h-10 w-64" />
+                    <Skeleton className="h-10 w-48" />
+                </div>
+                <Skeleton className="h-96 w-full" />
+            </CardContent>
+        </Card>
+    );
+}
+
+export default function CrmAllLeadsPage() {
     const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
+    const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
     const [isLoading, startTransition] = useTransition();
+    const router = useRouter();
     const { toast } = useToast();
 
-    // Filters state
-    const [statusFilter, setStatusFilter] = useState<string[]>(['New', 'Open']);
-    const [dateRange, setDateRange] = useState<{from?: Date, to?: Date}>({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [totalPages, setTotalPages] = useState(0);
+    const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'createdAt', direction: 'desc' });
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const [sessionData, dealsData, contactsData] = await Promise.all([
-                getSession(),
-                getCrmDeals(),
-                getCrmContacts()
+            const [{ contacts: data, total }, accountsData] = await Promise.all([
+                getCrmContacts(currentPage, CONTACTS_PER_PAGE, searchQuery, undefined, sortConfig.column, sortConfig.direction),
+                getCrmAccounts()
             ]);
-            setUser(sessionData?.user || null);
-            setDeals(dealsData);
-            setContacts(contactsData.contacts);
+            setContacts(data);
+            setTotalPages(Math.ceil(total / CONTACTS_PER_PAGE));
+            setAccounts(accountsData.accounts);
         });
-    }, []);
+    }, [currentPage, searchQuery, sortConfig]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
-    
-    const contactsMap = new Map(contacts.map(c => [c._id.toString(), c]));
-    
-    const filteredDeals = deals.filter(deal => {
-        let passes = true;
-        if(statusFilter.length > 0 && !statusFilter.includes('All')) {
-            passes = passes && statusFilter.includes(deal.stage);
-        }
-        if(dateRange.from && new Date(deal.createdAt) < dateRange.from) {
-            passes = false;
-        }
-        if(dateRange.to && new Date(deal.createdAt) > dateRange.to) {
-            passes = false;
-        }
-        return passes;
-    });
 
-    const handleDownload = () => {
-        if(filteredDeals.length === 0) {
-            toast({ title: "No data to export", variant: 'destructive'});
-            return;
-        }
-        const dataToExport = filteredDeals.map(deal => {
-            const contact = contactsMap.get(deal.contactIds?.[0]?.toString() || '');
-            return {
-                "Pipeline": 'Sales Pipeline',
-                "Contact Name": contact?.name,
-                "Organisation Name": contact?.company,
-                "Designation": contact?.jobTitle,
-                "Email": contact?.email,
-                "Phone": contact?.phone,
-                "Created At": new Date(deal.createdAt).toISOString(),
-                "Status": deal.stage,
-                "Lead Source": deal.leadSource,
-                "Subject": deal.name,
-                "Assignee": 'You', // Placeholder
-            }
-        });
-        const csv = Papa.unparse(dataToExport);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', 'leads_report.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
+    const handleSearch = useDebouncedCallback((term: string) => {
+        setSearchQuery(term);
+        setCurrentPage(1);
+    }, 300);
+
+    const handleSort = (column: string) => {
+        const isAsc = sortConfig.column === column && sortConfig.direction === 'asc';
+        setSortConfig({ column, direction: isAsc ? 'desc' : 'asc' });
+    };
     
-    const clearFilters = () => {
-        setStatusFilter([]);
-        setDateRange({});
-    }
+    const leadScoreColor = (score: number) => {
+        if (score > 75) return 'text-green-600';
+        if (score > 50) return 'text-yellow-600';
+        return 'text-red-600';
+    };
+
+    const handleArchiveAccount = async (accountId: string) => {
+        const result = await archiveCrmAccount(accountId);
+        if (result.success) {
+            toast({ title: 'Success', description: 'Account archived successfully.' });
+            fetchData();
+        } else {
+            toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        }
+    };
+
+    const SortableHeader = ({ column, label }: { column: string, label: string }) => (
+        <TableHead onClick={() => handleSort(column)} className="cursor-pointer hover:bg-muted">
+            <div className="flex items-center gap-2">
+                {label}
+                {sortConfig.column === column && <ChevronsUpDown className="h-4 w-4" />}
+            </div>
+        </TableHead>
+    );
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">
-                         {user?.businessProfile?.name ? `${user.businessProfile.name} Leads` : 'All Leads'}
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+                        <Users className="h-8 w-8" />
+                        Clients & Prospects
                     </h1>
+                    <p className="text-muted-foreground">Manage your customer pipeline from prospect to deal.</p>
                 </div>
-                 <Button asChild>
-                    <Link href="/dashboard/crm/sales-crm/all-leads/new">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Lead
-                    </Link>
-                </Button>
-            </div>
-            
-            <Separator />
-            
-            <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold">Today's Activity</h3>
-                    <div className="flex flex-wrap gap-2">
-                        {['All', 'New', 'Open', 'Deal Done', 'Lost', 'Not Serviceable'].map(status => (
-                            <Button key={status} variant={statusFilter.includes(status) ? 'secondary' : 'ghost'} size="sm" onClick={() => setStatusFilter([status])}>
-                                {status}
-                            </Button>
-                        ))}
-                    </div>
+                    <ClientReportButton />
+                    <CrmAddClientDialog onClientAdded={fetchData} />
                 </div>
-                <Button variant="outline" onClick={handleDownload}><Download className="mr-2 h-4 w-4"/>Download CSV</Button>
             </div>
             
             <Card>
                 <CardHeader>
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                        <div className="relative flex-grow max-w-sm">
-                            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Search Leads..." className="pl-8" />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4"/> Filters</Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-80 space-y-4">
-                                     <div className="space-y-2">
-                                        <Label>Created Between</Label>
-                                        <DatePicker date={dateRange.from} setDate={d => setDateRange(prev => ({...prev, from: d}))} />
-                                        <DatePicker date={dateRange.to} setDate={d => setDateRange(prev => ({...prev, to: d}))} />
-                                     </div>
-                                </PopoverContent>
-                            </Popover>
-                            <Button variant="ghost" onClick={clearFilters}>Clear All Filters</Button>
-                        </div>
-                    </div>
-                     <div className="flex flex-wrap items-center gap-2 pt-4">
-                        <span className="text-sm font-medium">Applied Filters:</span>
-                        {statusFilter.length > 0 && <FilterBadge onRemove={() => setStatusFilter([])}>Status: {statusFilter.join(', ')}</FilterBadge>}
-                        {(dateRange.from || dateRange.to) && <FilterBadge onRemove={() => setDateRange({})}>Created Date</FilterBadge>}
-                    </div>
+                    <CardTitle>All Contacts</CardTitle>
+                    <CardDescription>A list of all contacts in your CRM.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ScrollArea className="w-full whitespace-nowrap">
+                    <div className="mb-4">
+                        <div className="relative w-full max-w-sm">
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Search by name, email, or company..."
+                                className="pl-8"
+                                onChange={(e) => handleSearch(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    <div className="border rounded-md">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-12"><Checkbox onCheckedChange={(checked) => setSelectedLeads(checked ? deals.map(l => l._id.toString()) : [])}/></TableHead>
-                                    <TableHead>Contact Name</TableHead>
-                                    <TableHead>Organisation Name</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Lead Source</TableHead>
-                                    <TableHead>Subject</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Phone</TableHead>
+                                    <SortableHeader column="name" label="Contact" />
+                                    <TableHead>Company</TableHead>
+                                    <SortableHeader column="status" label="Status" />
+                                    <SortableHeader column="leadScore" label="Lead Score" />
+                                    <TableHead>Assigned To</TableHead>
+                                    <SortableHeader column="lastActivity" label="Last Activity" />
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
-                             <TableBody>
+                            <TableBody>
                                 {isLoading ? (
-                                    <TableRow><TableCell colSpan={9} className="h-24 text-center"><LoaderCircle className="mx-auto animate-spin"/></TableCell></TableRow>
-                                ) : filteredDeals.map(deal => {
-                                    const contact = contactsMap.get(deal.contactIds?.[0]?.toString() || '');
-                                    return (
-                                        <TableRow key={deal._id.toString()}>
-                                            <TableCell><Checkbox /></TableCell>
-                                            <TableCell><div className="font-medium">{contact?.name || 'N/A'}</div></TableCell>
-                                            <TableCell>{contact?.company}</TableCell>
-                                            <TableCell><Badge variant="secondary">{deal.stage}</Badge></TableCell>
-                                            <TableCell>{deal.leadSource}</TableCell>
-                                            <TableCell>{deal.name}</TableCell>
-                                            <TableCell>{contact?.email}</TableCell>
-                                            <TableCell>{contact?.phone}</TableCell>
+                                    [...Array(5)].map((_, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : contacts.length > 0 ? (
+                                    contacts.map((contact) => (
+                                        <TableRow key={contact._id.toString()} >
+                                            <TableCell onClick={() => router.push(`/dashboard/crm/contacts/${contact._id.toString()}`)} className="cursor-pointer">
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar>
+                                                        <AvatarImage src={contact.avatarUrl} data-ai-hint="person avatar" />
+                                                        <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <div className="font-medium">{contact.name}</div>
+                                                        <div className="text-sm text-muted-foreground">{contact.email}</div>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>{contact.company || 'N/A'}</TableCell>
+                                            <TableCell><Badge variant="secondary">{contact.status}</Badge></TableCell>
+                                            <TableCell><span className={`font-bold ${leadScoreColor(contact.leadScore || 0)}`}>{contact.leadScore || 0}</span></TableCell>
+                                            <TableCell>{contact.assignedTo || 'Unassigned'}</TableCell>
+                                            <TableCell>{contact.lastActivity ? new Date(contact.lastActivity).toLocaleDateString() : 'N/A'}</TableCell>
                                             <TableCell className="text-right">
                                                  <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4"/></Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem><Mail className="mr-2 h-4 w-4"/>Send Email</DropdownMenuItem>
-                                                        <DropdownMenuItem><MessageSquare className="mr-2 h-4 w-4"/>Send WhatsApp</DropdownMenuItem>
-                                                        <DropdownMenuItem><Phone className="mr-2 h-4 w-4"/>Log a Call</DropdownMenuItem>
+                                                        <DropdownMenuGroup>
+                                                            <DropdownMenuLabel>Create New</DropdownMenuLabel>
+                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/deals/new?accountId=${contact.accountId}`)}>Create New Deal</DropdownMenuItem>
+                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/sales/invoices/new?accountId=${contact.accountId}`)}>Create Invoice</DropdownMenuItem>
+                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/sales/proforma/new?accountId=${contact.accountId}`)}>Create Proforma Invoice</DropdownMenuItem>
+                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/sales/quotations/new?accountId=${contact.accountId}`)}>Create Quotation</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Create Credit Note</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Create Debit Note</DropdownMenuItem>
+                                                        </DropdownMenuGroup>
                                                         <DropdownMenuSeparator />
-                                                        <DropdownMenuItem><Star className="mr-2 h-4 w-4"/>Add to Favorites</DropdownMenuItem>
-                                                        <DropdownMenuItem asChild><Link href={`/dashboard/crm/deals/${deal._id}`}><Eye className="mr-2 h-4 w-4"/>View Details</Link></DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4"/>Delete</DropdownMenuItem>
+                                                         <DropdownMenuGroup>
+                                                            <DropdownMenuLabel>View</DropdownMenuLabel>
+                                                            <DropdownMenuItem disabled>See All Invoices</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>See All Quotations</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>See All Leads</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Activity History</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Client Statement</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Ledger Statement</DropdownMenuItem>
+                                                        </DropdownMenuGroup>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/accounts/${contact.accountId}/edit`)}>
+                                                            <Edit className="mr-2 h-4 w-4" />Edit
+                                                        </DropdownMenuItem>
+                                                         <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">
+                                                                     <Archive className="mr-2 h-4 w-4" />Archive
+                                                                </DropdownMenuItem>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>Archive Account?</AlertDialogTitle>
+                                                                    <AlertDialogDescription>Archiving this account will hide it from the main list but will not delete its data.</AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleArchiveAccount(contact.accountId!.toString())}>Archive</AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
                                         </TableRow>
-                                    );
-                                })}
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={7} className="h-24 text-center">No contacts found.</TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
-                         <ScrollBar orientation="horizontal" />
-                    </ScrollArea>
+                    </div>
                 </CardContent>
             </Card>
         </div>

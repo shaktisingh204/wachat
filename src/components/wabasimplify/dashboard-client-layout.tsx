@@ -122,7 +122,7 @@ const crmMenuItems = [
         label: "Sales CRM",
         icon: BarChart2,
         subItems: [
-            { href: "/dashboard/crm/sales/clients", label: "Leads & Contacts" },
+            { href: "/dashboard/crm/sales-crm/all-leads", label: "Leads & Contacts" },
             { href: "/dashboard/crm/deals", label: "Deals Pipeline" },
             { href: "/dashboard/crm/tasks", label: "Tasks" },
             { href: "/dashboard/crm/automations", label: "Automations" },
