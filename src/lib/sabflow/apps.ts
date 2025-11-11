@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -76,16 +77,18 @@ export const sabnodeAppActions = [
       actions: [
         {
             name: 'createCrmLead',
-            label: 'Create Lead/Deal',
-            description: 'Creates a new contact and an associated deal in the CRM.',
+            label: 'Create Lead',
+            description: 'Creates a new lead in the CRM.',
             inputs: [
-                { name: 'dealName', label: 'Deal Name', type: 'text', placeholder: 'e.g. New Website for {{trigger.company}}', required: true },
-                { name: 'dealValue', label: 'Deal Value', type: 'number', placeholder: 'e.g. 5000', required: true },
-                { name: 'dealStage', label: 'Deal Stage', type: 'text', placeholder: 'e.g., New', required: true },
+                { name: 'title', label: 'Lead Title', type: 'text', placeholder: 'e.g. New Website for {{trigger.company}}', required: true },
                 { name: 'contactName', label: 'Contact Name', type: 'text', placeholder: 'e.g., {{trigger.name}}', required: true },
                 { name: 'email', label: 'Contact Email', type: 'email', placeholder: 'e.g., {{trigger.email}}', required: true },
                 { name: 'phone', label: 'Contact Phone', type: 'tel', placeholder: 'e.g., {{trigger.phone}}' },
                 { name: 'company', label: 'Company Name', type: 'text', placeholder: 'e.g., {{trigger.company}}' },
+                { name: 'value', label: 'Deal Value', type: 'number', placeholder: 'e.g. 5000' },
+                { name: 'leadSource', label: 'Lead Source', type: 'text', placeholder: 'e.g., Webhook' },
+                { name: 'status', label: 'Lead Status', type: 'text', placeholder: 'e.g., New' },
+                { name: 'stage', label: 'Pipeline Stage', type: 'text', placeholder: 'e.g., Qualified' },
             ]
         }
       ],
