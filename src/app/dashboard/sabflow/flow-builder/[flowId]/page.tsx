@@ -53,7 +53,7 @@ import {
   Webhook,
   Calendar,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow/apps';
+import { sabnodeAppActions } from '@/lib/sabflow-actions';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { AppConnectionSetup } from '@/components/wabasimplify/connections/app-connection-setup';
@@ -100,21 +100,22 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
         onNodeChange(selectedNode.id, { ...selectedNode.data, ...data });
     };
 
+    let selectedConnection = null;
+    if (selectedNode.data.connectionId?.endsWith(' Connection')) {
+        const appName = selectedNode.data.connectionId.replace(' Connection', '');
+        selectedConnection = { appId: sabnodeAppActions.find(a => a.name === appName)?.appId, appName };
+    } else {
+        selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode.data.connectionId);
+    }
+    const selectedApp = sabnodeAppActions.find(app => app.appId === (selectedNode.data.appId || selectedConnection?.appId));
+    const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
+    const Icon = selectedApp?.icon || Zap;
+
+
     const renderEditorContent = () => {
         const isAction = selectedNode.type === 'action';
         const isCondition = selectedNode.type === 'condition';
         const isTrigger = selectedNode.type === 'trigger';
-
-        let selectedConnection = null;
-        if (selectedNode.data.connectionId?.endsWith(' Connection')) {
-            const appName = selectedNode.data.connectionId.replace(' Connection', '');
-            selectedConnection = { appId: sabnodeAppActions.find(a => a.name === appName)?.appId, appName };
-        } else {
-            selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode.data.connectionId);
-        }
-
-        const selectedApp = sabnodeAppActions.find(app => app.appId === (selectedNode.data.appId || selectedConnection?.appId));
-        const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
 
         if (isAction) {
             if (!selectedNode.data.connectionId) {
@@ -170,17 +171,12 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                     </div>
                 );
             } else if (selectedNode.data.connectionId === 'new' && selectedApp) {
-                return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} />;
+                return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
             }
             else {
                 const actionOptions = selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
                 return (
                     <>
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: '', actionName: '', inputs: {} })}>
-                                <ArrowLeft className="mr-2 h-4 w-4"/> Change App
-                            </Button>
-                        </div>
                         <div className="space-y-2">
                             <Label>Action</Label>
                             <Select value={selectedNode.data.actionName} onValueChange={val => onNodeChange(selectedNode.id, { ...selectedNode.data, actionName: val, inputs: {} })}>
@@ -275,6 +271,17 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                         <Input value={selectedNode.data.name} onChange={e => handleDataChange({ name: e.target.value })}/>
                     </div>
                     <Separator />
+                    {selectedApp && selectedNode.type === 'action' && (
+                        <div className="flex items-center gap-2">
+                             <Button variant="ghost" size="sm" onClick={() => onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: '', actionName: '', inputs: {} })}>
+                                <ArrowLeft className="mr-2 h-4 w-4"/> Change App
+                            </Button>
+                            <div className="flex items-center gap-2 p-2 rounded-md bg-muted text-sm">
+                                <Icon className={cn("h-5 w-5", selectedApp.iconColor)} />
+                                <span className="font-semibold">{selectedApp.name}</span>
+                            </div>
+                        </div>
+                    )}
                     {renderEditorContent()}
                 </div>
             </ScrollArea>
@@ -291,6 +298,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
 };
 
 const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick }: { user: any, node: SabFlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void;}) => {
+    
     const subText = useMemo(() => {
         if (node.type === 'trigger') {
             const triggerType = triggers.find(t => t.id === node.data.triggerType);
@@ -304,7 +312,6 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         if (node.data.connectionId?.endsWith(' Connection')) {
             const appName = node.data.connectionId.replace(' Connection', '');
             appConfig = sabnodeAppActions.find(a => a.name === appName);
-            if (appConfig) app = { appId: appConfig.appId, appName };
         } else {
             app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
             appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
@@ -315,7 +322,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                  const action = appConfig.actions.find(a => a.name === node.data.actionName);
                  if(action) return action.label;
             }
-            return appConfig.name; // Show app name if action isn't selected
+            return appConfig.name;
         }
         
         return 'Select action';
@@ -563,12 +570,10 @@ export default function EditSabFlowPage() {
             };
 
             setEdges(prevEdges => {
-                // An input can only have one connection. Remove any existing edge to this target handle.
                 let filteredEdges = prevEdges.filter(edge => !(edge.target === newEdge.target && edge.targetHandle === newEdge.targetHandle));
                 
-                // If the source handle is a main output (not a conditional branch), remove any other edge from it.
-                if (newEdge.sourceHandle?.endsWith('output-main')) {
-                    filteredEdges = filteredEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
+                if (!newEdge.sourceHandle?.includes('yes') && !newEdge.sourceHandle?.includes('no')) {
+                     filteredEdges = filteredEdges.filter(edge => !(edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle));
                 }
 
                 return [...filteredEdges, newEdge];
@@ -747,5 +752,7 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
+
+    
 
     
