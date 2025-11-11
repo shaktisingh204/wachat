@@ -352,10 +352,6 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         ? triggers.find(t => t.id === node.data.triggerType)?.icon || Zap
         : appConfig?.icon || (node.type === 'condition' ? GitFork : Zap);
     
-    const Handle = ({ position }: { position: 'left' | 'right' }) => (
-        <div data-handle-pos={position} className={cn("absolute w-4 h-4 rounded-full bg-background border-2 border-primary z-10 top-1/2 -translate-y-1/2", position === 'left' ? '-left-2' : '-right-2')} />
-    );
-
     return (
         <div
             key={node.id}
@@ -363,6 +359,9 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
             className="absolute transition-all text-center flex flex-col items-center"
             style={{ left: node.position.x, top: node.position.y }}
         >
+             {node.type === 'trigger' && (
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Start of Flow</div>
+            )}
             <div
                 className="relative"
                 onMouseDown={e => onNodeMouseDown(e, node.id)}
@@ -380,7 +379,6 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                     </div>
                 </div>
 
-                {node.type !== 'trigger' && <Handle position="left" />}
             </div>
             
             <div className="mt-2 w-32">
@@ -426,7 +424,6 @@ export default function EditSabFlowPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [flowName, setFlowName] = useState('');
-    const [trigger, setTrigger] = useState({ type: 'webhook', details: {} });
     const [nodes, setNodes] = useState<SabFlowNode[]>([]);
     const [edges, setEdges] = useState<SabFlowEdge[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -463,7 +460,6 @@ export default function EditSabFlowPage() {
             getSabFlowById(flowId).then(flow => {
                 if(flow) {
                     setFlowName(flow.name);
-                    setTrigger(flow.trigger);
                     setNodes(flow.nodes || []);
                     setEdges(flow.edges || []);
                 } else {
@@ -501,7 +497,6 @@ export default function EditSabFlowPage() {
             const tempFormData = new FormData();
             tempFormData.append('flowId', 'new-flow');
             tempFormData.append('name', flowName);
-            tempFormData.append('trigger', JSON.stringify(nodes[0].data));
             tempFormData.append('nodes', JSON.stringify(nodes));
             tempFormData.append('edges', '[]');
             const result = await saveSabFlow(initialState, tempFormData);
@@ -699,7 +694,7 @@ export default function EditSabFlowPage() {
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" /></Button>
                         </div>
                     </main>
                     <Sheet open={isSidebarOpen && !!selectedNodeId} onOpenChange={setIsSidebarOpen}>
@@ -714,10 +709,11 @@ export default function EditSabFlowPage() {
             <form ref={formRef} action={formAction} className="hidden">
                  <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
                  <input type="hidden" name="name" value={flowName} />
-                 <input type="hidden" name="trigger" value={JSON.stringify(nodes.find(n => n.type === 'trigger')?.data || {})} />
                  <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
                  <input type="hidden" name="edges" value={JSON.stringify(edges)} />
             </form>
         </div>
     );
 }
+
+    
