@@ -343,6 +343,30 @@ export type CrmContact = {
     updatedAt?: Date;
 };
 
+export type CrmLead = {
+    _id: ObjectId;
+    userId: ObjectId;
+    title: string;
+    description?: string;
+    company?: string;
+    website?: string;
+    contactName: string;
+    email: string;
+    phone?: string;
+    country?: string;
+    status: 'New' | 'Contacted' | 'Qualified' | 'Unqualified' | 'Converted';
+    source: string;
+    value: number;
+    currency: string;
+    assignedTo?: ObjectId;
+    pipelineId?: string;
+    stage?: string;
+    lastActivity?: Date;
+    nextFollowUp?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 export type EmailContact = {
     _id: ObjectId;
     userId: ObjectId;

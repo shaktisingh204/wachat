@@ -1,4 +1,5 @@
 
+
 // This file is intentionally left blank.
 // Server actions are co-located in their respective feature files (e.g., src/app/actions/project.actions.ts).
 // This file can be used for global actions if needed in the future.
@@ -26,6 +27,7 @@ export * from './crm.actions';
 export * from './crm-roles.actions';
 export * from './crm-accounts.actions';
 export * from './crm-deals.actions';
+export * from './crm-leads.actions';
 export * from './crm-tasks.actions';
 export * from './crm-email.actions';
 export * from './crm-email-templates.actions';

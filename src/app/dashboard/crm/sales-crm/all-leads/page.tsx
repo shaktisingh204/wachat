@@ -1,24 +1,22 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
-import type { WithId } from 'mongodb';
-import { getCrmDeals } from '@/app/actions/crm-deals.actions';
-import { getCrmContacts } from '@/app/actions/crm.actions';
-import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import type { CrmDeal, CrmContact, CrmAccount } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
+import { getCrmLeads } from '@/app/actions/crm-leads.actions';
+import type { CrmLead } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, UserPlus, Handshake, Eye } from 'lucide-react';
+import { Search, Plus, UserPlus, Eye, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import Link from 'next/link';
 
-const DEALS_PER_PAGE = 20;
+const LEADS_PER_PAGE = 15;
 
 function LeadsPageSkeleton() {
     return (
@@ -39,9 +37,7 @@ function LeadsPageSkeleton() {
 }
 
 export default function CrmAllLeadsPage() {
-    const [deals, setDeals] = useState<WithId<CrmDeal>[]>([]);
-    const [contactsMap, setContactsMap] = useState<Map<string, CrmContact>>(new Map());
-    const [accountsMap, setAccountsMap] = useState<Map<string, CrmAccount>>(new Map());
+    const [leads, setLeads] = useState<WithId<CrmLead>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
 
@@ -51,25 +47,9 @@ export default function CrmAllLeadsPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            try {
-                const [dealsData, contactsData, accountsData] = await Promise.all([
-                    getCrmDeals(currentPage, DEALS_PER_PAGE, searchQuery),
-                    getCrmContacts(1, 10000), // Fetch all to create a map
-                    getCrmAccounts(1, 10000),
-                ]);
-                
-                setDeals(dealsData.deals || []);
-                setTotalPages(Math.ceil(dealsData.total / DEALS_PER_PAGE));
-                
-                const cMap = new Map(contactsData.contacts.map(c => [c._id.toString(), c]));
-                const aMap = new Map(accountsData.accounts.map(a => [a._id.toString(), a]));
-                setContactsMap(cMap);
-                setAccountsMap(aMap);
-
-            } catch (error) {
-                console.error("Failed to fetch lead data:", error);
-                // Optionally set an error state to show a message to the user
-            }
+            const { leads: data, total } = await getCrmLeads(currentPage, LEADS_PER_PAGE, searchQuery);
+            setLeads(data);
+            setTotalPages(Math.ceil(total / LEADS_PER_PAGE));
         });
     }, [currentPage, searchQuery]);
 
@@ -82,14 +62,15 @@ export default function CrmAllLeadsPage() {
         setCurrentPage(1);
     }, 300);
 
-    const getStageVariant = (stage: string) => {
-        const s = stage.toLowerCase();
-        if (s === 'won') return 'default';
-        if (s === 'lost') return 'destructive';
-        return 'secondary';
+    const getStatusVariant = (status: string) => {
+        const s = status.toLowerCase();
+        if (s === 'qualified' || s === 'converted') return 'default';
+        if (s === 'contacted') return 'secondary';
+        if (s === 'unqualified') return 'destructive';
+        return 'outline';
     };
 
-    if (isLoading && deals.length === 0) {
+    if (isLoading && leads.length === 0) {
         return <LeadsPageSkeleton />;
     }
 
@@ -98,16 +79,16 @@ export default function CrmAllLeadsPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Handshake className="h-8 w-8" />
+                        <Users className="h-8 w-8" />
                         All Leads
                     </h1>
-                    <p className="text-muted-foreground">Manage your sales leads and opportunities.</p>
+                    <p className="text-muted-foreground">A unified view of all your sales leads.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" asChild>
+                    <Button asChild>
                         <Link href="/dashboard/crm/sales-crm/all-leads/new">
                             <Plus className="mr-2 h-4 w-4" />
-                            Add Lead
+                            Add New Lead
                         </Link>
                     </Button>
                 </div>
@@ -115,64 +96,60 @@ export default function CrmAllLeadsPage() {
             
             <Card>
                 <CardHeader>
-                    <CardTitle>Leads Pipeline</CardTitle>
-                    <CardDescription>A list of all your sales leads.</CardDescription>
+                    <CardTitle>Leads Directory</CardTitle>
+                    <CardDescription>A list of all leads in your CRM.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="mb-4">
                         <div className="relative w-full max-w-sm">
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="Search by deal name, contact, or company..."
+                                placeholder="Search by name, email, or company..."
                                 className="pl-8"
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
                     </div>
-                    <div className="border rounded-md">
+                    <div className="border rounded-md overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Deal Name</TableHead>
-                                    <TableHead>Contact / Company</TableHead>
-                                    <TableHead>Stage</TableHead>
-                                    <TableHead className="text-right">Value</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead>Lead</TableHead>
+                                    <TableHead>Company</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Source</TableHead>
+                                    <TableHead>Value</TableHead>
+                                    <TableHead>Assigned To</TableHead>
+                                    <TableHead>Last Activity</TableHead>
+                                    <TableHead>Next Follow-up</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     [...Array(5)].map((_, i) => (
                                         <TableRow key={i}>
-                                            <TableCell colSpan={5}><Skeleton className="h-10 w-full" /></TableCell>
+                                            <TableCell colSpan={8}><Skeleton className="h-10 w-full" /></TableCell>
                                         </TableRow>
                                     ))
-                                ) : deals.length > 0 ? (
-                                    deals.map((deal) => {
-                                        const primaryContact = deal.contactIds?.[0] ? contactsMap.get(deal.contactIds[0].toString()) : null;
-                                        const account = deal.accountId ? accountsMap.get(deal.accountId.toString()) : null;
-                                        return (
-                                            <TableRow key={deal._id.toString()}>
-                                                <TableCell className="font-medium">{deal.name}</TableCell>
-                                                <TableCell>
-                                                    <div>{primaryContact?.name || 'N/A'}</div>
-                                                    <div className="text-xs text-muted-foreground">{account?.name || 'N/A'}</div>
-                                                </TableCell>
-                                                <TableCell><Badge variant={getStageVariant(deal.stage)}>{deal.stage}</Badge></TableCell>
-                                                <TableCell className="text-right font-mono">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: deal.currency }).format(deal.value)}</TableCell>
-                                                <TableCell className="text-right">
-                                                    <Button asChild variant="ghost" size="sm">
-                                                        <Link href={`/dashboard/crm/deals/${deal._id.toString()}`}>
-                                                            <Eye className="mr-2 h-4 w-4"/> View Deal
-                                                        </Link>
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        )
-                                    })
+                                ) : leads.length > 0 ? (
+                                    leads.map((lead) => (
+                                        <TableRow key={lead._id.toString()}>
+                                            <TableCell>
+                                                <div className="font-medium">{lead.title}</div>
+                                                <div className="text-xs text-muted-foreground">{lead.contactName}</div>
+                                            </TableCell>
+                                            <TableCell>{lead.company || 'N/A'}</TableCell>
+                                            <TableCell><Badge variant={getStatusVariant(lead.status)}>{lead.status}</Badge></TableCell>
+                                            <TableCell>{lead.source || 'N/A'}</TableCell>
+                                            <TableCell className="font-mono">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: lead.currency || 'INR' }).format(lead.value)}</TableCell>
+                                            <TableCell>{(lead as any).assigneeName || 'Unassigned'}</TableCell>
+                                            <TableCell>{lead.lastActivity ? new Date(lead.lastActivity).toLocaleDateString() : 'N/A'}</TableCell>
+                                            <TableCell>{lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleDateString() : 'N/A'}</TableCell>
+                                        </TableRow>
+                                    ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">No leads found.</TableCell>
+                                        <TableCell colSpan={8} className="h-24 text-center">No leads found.</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
