@@ -8,6 +8,7 @@ import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 
 // Dynamically import all action files
 async function importActionModule(appId: string) {
@@ -64,6 +65,23 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
     // Interpolate all input values from the context
     for(const key in inputs) {
         interpolatedInputs[key] = interpolate(inputs[key], context);
+    }
+    
+     // Special handling for CRM lead creation
+    if (actionName === 'createCrmLead') {
+        try {
+            const formData = new FormData();
+            Object.entries(interpolatedInputs).forEach(([key, value]) => {
+                formData.append(key, String(value));
+            });
+            const result = await addCrmLeadAndDeal(null, formData);
+            logger.log(`Action "${actionName}" completed.`, { result });
+            return { output: result };
+        } catch(e: any) {
+            const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
+            logger.log(errorMsg, { stack: e.stack });
+            return { error: errorMsg };
+        }
     }
     
     const actionApp = sabnodeAppActions.find(app => app.actions.some(a => a.name === actionName));
