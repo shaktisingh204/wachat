@@ -22,6 +22,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { CreateSabFlowDialog } from "@/components/wabasimplify/create-sabflow-dialog";
 
 function DeleteFlowButton({ flow, onDeleted }: { flow: WithId<SabFlow>, onDeleted: () => void }) {
     const [isPending, startTransition] = useTransition();
@@ -98,12 +99,7 @@ export default function SabFlowBuilderPage() {
                         </p>
                     </CardContent>
                     <CardFooter className="justify-center">
-                         <Button asChild>
-                            <Link href="/dashboard/sabflow/flow-builder/new">
-                                <Plus className="mr-2 h-4 w-4" />
-                                Create New Flow
-                            </Link>
-                        </Button>
+                         <CreateSabFlowDialog onSuccess={fetchData} />
                     </CardFooter>
                 </Card>
             </div>
@@ -114,12 +110,7 @@ export default function SabFlowBuilderPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Your Flows</h2>
-                <Button asChild>
-                    <Link href="/dashboard/sabflow/flow-builder/new">
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Flow
-                    </Link>
-                </Button>
+                <CreateSabFlowDialog onSuccess={fetchData} />
             </div>
              <div className="border rounded-md">
                 <Table>
