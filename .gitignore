@@ -25,6 +25,7 @@
 .DS_Store
 *.pem
 # **/crm-*.actions.ts
+/src/app/actions/crm-***.actions.ts
 /src/app/actions/calling.actions.ts
 /src/app/actions/custom-ecommerce.actions.ts
 /src/app/actions/admin.actions.ts
