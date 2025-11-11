@@ -80,7 +80,7 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
             return { output: result };
         } catch(e: any) {
             const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
-            logger.log(errorMsg, { stack: e.stack });
+            logger.log(errorMsg, { stack: e.stack, context });
             return { error: errorMsg };
         }
     }
@@ -115,7 +115,7 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         
     } catch (e: any) {
         const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
-        logger.log(errorMsg, { stack: e.stack });
+        logger.log(errorMsg, { stack: e.stack, context });
         console.error(errorMsg, e);
         return { error: errorMsg };
     }
@@ -133,7 +133,7 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, no
     if (node.type === 'action') {
         const result = await executeAction(node, context, user, logger);
         if (result.error) {
-            logger.log(`Action failed. Stopping flow.`, { error: result.error });
+            logger.log(`Action failed. Stopping flow.`, { error: result.error, context });
             return null; // Stop execution on error
         }
         const actionKey = node.data.actionName.replace(/\s+/g, '_');
