@@ -165,7 +165,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                         }}
                                                     >
                                                         <div className={cn("w-full h-full rounded-lg flex items-center justify-center bg-white border") } style={{ display: 'contents', maxWidth: '120px', minHeight: '120px' }}>
-                                                            <AppIcon className={cn("h-12 w-12", app.iconColor)}/>
+                                                            <AppIcon className={cn("h-8 w-8", app.iconColor)}/>
                                                         <p className="text-[10px] font-bold text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
                                                             
                                                         </div>
