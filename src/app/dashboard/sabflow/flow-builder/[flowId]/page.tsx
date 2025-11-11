@@ -743,7 +743,7 @@ export default function EditSabFlowPage() {
                         </Popover>
                     </main>
                     <Sheet open={isSidebarOpen && !!selectedNodeId} onOpenChange={setIsSidebarOpen}>
-                        <SheetContent className="p-0 flex flex-col" style={{ minWidth: '50%' }}>
+                        <SheetContent className="p-0 flex flex-col" style={{ minWidth: '40%' }}>
                             {selectedNodeId && nodes.find(n => n.id === selectedNodeId) ? (
                                 <PropertiesPanel user={user} selectedNode={nodes.find(n => n.id === selectedNodeId)!} onNodeChange={handleNodeChange} onNodeRemove={handleRemoveNode} onConnectionSaved={fetchConnections} params={params}/>
                             ) : null}
