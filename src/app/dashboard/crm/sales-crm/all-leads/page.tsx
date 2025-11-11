@@ -17,6 +17,7 @@ import { Search, Plus, UserPlus, Handshake, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import Link from 'next/link';
+import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 
 const DEALS_PER_PAGE = 20;
 
@@ -56,7 +57,7 @@ export default function CrmAllLeadsPage() {
                 getCrmContacts(1, 10000), // Fetch all to create a map
                 getCrmAccounts(1, 10000),
             ]);
-            setDeals(dealsData.deals);
+            setDeals(dealsData.deals || []);
             setTotalPages(Math.ceil(dealsData.total / DEALS_PER_PAGE));
             
             const cMap = new Map(contactsData.contacts.map(c => [c._id.toString(), c]));
