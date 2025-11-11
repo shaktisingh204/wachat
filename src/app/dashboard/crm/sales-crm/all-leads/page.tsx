@@ -17,7 +17,6 @@ import { Search, Plus, UserPlus, Handshake, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import Link from 'next/link';
-import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 
 const DEALS_PER_PAGE = 20;
 
@@ -52,18 +51,25 @@ export default function CrmAllLeadsPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const [dealsData, contactsData, accountsData] = await Promise.all([
-                getCrmDeals(currentPage, DEALS_PER_PAGE, searchQuery),
-                getCrmContacts(1, 10000), // Fetch all to create a map
-                getCrmAccounts(1, 10000),
-            ]);
-            setDeals(dealsData.deals || []);
-            setTotalPages(Math.ceil(dealsData.total / DEALS_PER_PAGE));
-            
-            const cMap = new Map(contactsData.contacts.map(c => [c._id.toString(), c]));
-            const aMap = new Map(accountsData.accounts.map(a => [a._id.toString(), a]));
-            setContactsMap(cMap);
-            setAccountsMap(aMap);
+            try {
+                const [dealsData, contactsData, accountsData] = await Promise.all([
+                    getCrmDeals(currentPage, DEALS_PER_PAGE, searchQuery),
+                    getCrmContacts(1, 10000), // Fetch all to create a map
+                    getCrmAccounts(1, 10000),
+                ]);
+                
+                setDeals(dealsData.deals || []);
+                setTotalPages(Math.ceil(dealsData.total / DEALS_PER_PAGE));
+                
+                const cMap = new Map(contactsData.contacts.map(c => [c._id.toString(), c]));
+                const aMap = new Map(accountsData.accounts.map(a => [a._id.toString(), a]));
+                setContactsMap(cMap);
+                setAccountsMap(aMap);
+
+            } catch (error) {
+                console.error("Failed to fetch lead data:", error);
+                // Optionally set an error state to show a message to the user
+            }
         });
     }, [currentPage, searchQuery]);
 
@@ -101,7 +107,7 @@ export default function CrmAllLeadsPage() {
                     <Button variant="outline" asChild>
                         <Link href="/dashboard/crm/sales-crm/all-leads/new">
                             <Plus className="mr-2 h-4 w-4" />
-                            Create Lead
+                            Add Lead
                         </Link>
                     </Button>
                 </div>
