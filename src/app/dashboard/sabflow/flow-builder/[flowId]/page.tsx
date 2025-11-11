@@ -136,7 +136,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                 <AccordionItem key={category} value={category}>
                                     <AccordionTrigger>{category}</AccordionTrigger>
                                     <AccordionContent className="p-2">
-                                        <div className="grid grid-cols-4 gap-2">
+                                        <div className="grid grid-cols-5 gap-2">
                                             {apps.map(app => {
                                                 const AppIcon = app.icon;
                                                 const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
@@ -156,7 +156,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                             }
                                                         }}
                                                     >
-                                                        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center bg-white border")}>
+                                                        <div className={cn("w-20 h-20 rounded-lg flex items-center justify-center bg-white border")}>
                                                             <AppIcon className={cn("h-6 w-6", app.iconColor)}/>
                                                         </div>
                                                         <p className="text-[10px] font-bold text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
