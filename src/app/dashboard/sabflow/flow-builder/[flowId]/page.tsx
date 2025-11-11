@@ -52,7 +52,7 @@ import {
   Webhook,
   Calendar,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow/apps';
+import { sabnodeAppActions } from '@/lib/sabflow-actions';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { AppConnectionSetup } from '@/components/wabasimplify/connections/app-connection-setup';
@@ -138,7 +138,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                     <AccordionContent className="p-2">
                                         <div className="grid grid-cols-5 gap-2">
                                             {apps.map(app => {
-                                                const AppIcon = app.icon;
+                                                const AppIcon = app.icon || Zap;
                                                 const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
                                                 return (
                                                      <button type="button" key={app.appId} 
@@ -378,7 +378,11 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
                         <Icon className={cn("h-8 w-8 text-primary", appConfig?.iconColor)}/>
                     </div>
                 </div>
-
+                {node.type !== 'start' && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white border shadow-md flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-gray-300 hover:bg-primary transition-colors cursor-pointer" />
+                    </div>
+                )}
             </div>
             
             <div className="mt-2 w-32">
@@ -711,9 +715,8 @@ export default function EditSabFlowPage() {
                  <input type="hidden" name="name" value={flowName} />
                  <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
                  <input type="hidden" name="edges" value={JSON.stringify(edges)} />
+                 <input type="hidden" name="trigger" value={JSON.stringify(nodes.find(n => n.type === 'trigger')?.data || {})} />
             </form>
         </div>
     );
 }
-
-    
