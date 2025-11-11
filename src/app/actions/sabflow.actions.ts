@@ -74,7 +74,8 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
             Object.entries(interpolatedInputs).forEach(([key, value]) => {
                 formData.append(key, String(value));
             });
-            const result = await addCrmLeadAndDeal(null, formData);
+            // Correctly pass the authenticated user to the action
+            const result = await addCrmLeadAndDeal(null, formData, user);
             logger.log(`Action "${actionName}" completed.`, { result });
             return { output: result };
         } catch(e: any) {
@@ -192,6 +193,7 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         return { error: `User for flow ${flowId} not found.`};
     }
 
+    // Set the webhook payload directly as the 'trigger' object in the context
     let context: any = { trigger: triggerPayload };
     if (triggerPayload?.sessionId) context.sessionId = triggerPayload.sessionId;
     if (triggerPayload?.visitorId) context.visitorId = triggerPayload.visitorId;
