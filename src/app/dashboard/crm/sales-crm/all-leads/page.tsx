@@ -5,7 +5,8 @@ import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { WithId } from 'mongodb';
 import { getCrmLeads } from '@/app/actions/crm-leads.actions';
-import type { CrmLead } from '@/lib/definitions';
+import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import type { CrmLead, CrmAccount } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -63,10 +64,10 @@ export default function CrmAllLeadsPage() {
     }, 300);
 
     const getStatusVariant = (status: string) => {
-        const s = status.toLowerCase();
-        if (s === 'qualified' || s === 'converted') return 'default';
-        if (s === 'contacted') return 'secondary';
-        if (s === 'unqualified') return 'destructive';
+        const s = status?.toLowerCase() || '';
+        if (s === 'qualified' || s === 'converted' || s === 'won') return 'default';
+        if (s === 'contacted' || s === 'proposal sent' || s === 'negotiation') return 'secondary';
+        if (s === 'unqualified' || s === 'lost') return 'destructive';
         return 'outline';
     };
 
@@ -82,7 +83,7 @@ export default function CrmAllLeadsPage() {
                         <Users className="h-8 w-8" />
                         All Leads
                     </h1>
-                    <p className="text-muted-foreground">A unified view of all your sales leads.</p>
+                    <p className="text-muted-foreground">Manage your incoming leads and sales opportunities.</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button asChild>
@@ -104,7 +105,7 @@ export default function CrmAllLeadsPage() {
                         <div className="relative w-full max-w-sm">
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="Search by name, email, or company..."
+                                placeholder="Search by title, name, email, or company..."
                                 className="pl-8"
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
@@ -114,13 +115,13 @@ export default function CrmAllLeadsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Lead</TableHead>
+                                    <TableHead>Lead Title</TableHead>
+                                    <TableHead>Contact</TableHead>
                                     <TableHead>Company</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Source</TableHead>
+                                    <TableHead>Stage</TableHead>
                                     <TableHead>Value</TableHead>
-                                    <TableHead>Assigned To</TableHead>
-                                    <TableHead>Last Activity</TableHead>
+                                    <TableHead>Lead Source</TableHead>
+                                    <TableHead>Created At</TableHead>
                                     <TableHead>Next Follow-up</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -134,16 +135,16 @@ export default function CrmAllLeadsPage() {
                                 ) : leads.length > 0 ? (
                                     leads.map((lead) => (
                                         <TableRow key={lead._id.toString()}>
+                                            <TableCell className="font-medium">{lead.title}</TableCell>
                                             <TableCell>
-                                                <div className="font-medium">{lead.title}</div>
-                                                <div className="text-xs text-muted-foreground">{lead.contactName}</div>
+                                                <div className="font-medium">{lead.contactName}</div>
+                                                <div className="text-xs text-muted-foreground">{lead.email}</div>
                                             </TableCell>
                                             <TableCell>{lead.company || 'N/A'}</TableCell>
-                                            <TableCell><Badge variant={getStatusVariant(lead.status)}>{lead.status}</Badge></TableCell>
-                                            <TableCell>{lead.source || 'N/A'}</TableCell>
+                                            <TableCell><Badge variant={getStatusVariant(lead.stage || lead.status)}>{lead.stage || lead.status}</Badge></TableCell>
                                             <TableCell className="font-mono">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: lead.currency || 'INR' }).format(lead.value)}</TableCell>
-                                            <TableCell>{(lead as any).assigneeName || 'Unassigned'}</TableCell>
-                                            <TableCell>{lead.lastActivity ? new Date(lead.lastActivity).toLocaleDateString() : 'N/A'}</TableCell>
+                                            <TableCell>{lead.source || 'N/A'}</TableCell>
+                                            <TableCell>{new Date(lead.createdAt).toLocaleDateString()}</TableCell>
                                             <TableCell>{lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleDateString() : 'N/A'}</TableCell>
                                         </TableRow>
                                     ))

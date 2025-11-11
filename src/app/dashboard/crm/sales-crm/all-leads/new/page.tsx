@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, Save, ArrowLeft, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { addCrmLead } from '@/app/actions/crm-leads.actions.ts';
+import { addCrmLead } from '@/app/actions/crm-leads.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import { getSession } from '@/app/actions/index.ts';
 import type { WithId, CrmPipeline, User } from '@/lib/definitions';
@@ -28,8 +28,6 @@ const leadSources = [
     "IndiaMart Consumed Buy Lead", "IndiaMart Preferred Number Service", "Other",
     "IndiaMart Catalogue View", "IndiaMart Others", "Facebook Meta"
 ];
-
-const leadStatuses = ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Converted', 'Unqualified'];
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -233,4 +231,3 @@ export default function AddLeadPage() {
         </div>
     );
 }
-
