@@ -47,15 +47,17 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         const isCondition = selectedNode.type === 'condition';
         const isTrigger = selectedNode.type === 'trigger';
 
-        if (selectedNode.data.actionName === 'apiRequest') {
+        // --- PRIORITY 1: Handle API Request Action Specifically ---
+        if (selectedAction?.name === 'apiRequest') {
             return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
         }
-
-        if (isAction) {
+        
+        // --- PRIORITY 2: Handle App/Action Selection ---
+        if (isAction || (isTrigger && selectedNode.data.triggerType === 'app')) {
+            // Step 1: Choose an App if none is selected
             if (!selectedNode.data.appId) {
-                 const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
-                
-                 const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
+                const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
+                const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
                     if (isTrigger && !app.actions.some(a => a.isTrigger)) return acc;
                     const category = app.category || 'SabNode Apps';
                     if (!acc[category]) acc[category] = [];
@@ -97,37 +99,43 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                         </Accordion>
                    </div>
                );
-            } else if (selectedNode.data.connectionId === 'new' && selectedApp) {
+            }
+
+            // Step 2: Handle new connection flow
+            if (selectedNode.data.connectionId === 'new' && selectedApp) {
                 return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
             }
-            else {
-                const actionOptions = selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
-                if (actionOptions.length > 1 && !selectedNode.data.actionName) {
-                    return (
-                        <div className="space-y-2">
-                            <Label>Action</Label>
-                            <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
-                                <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                                <SelectContent>
-                                    {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    );
-                } else if (selectedAction) {
-                    return (
-                        <div className="space-y-4 pt-4 border-t">
-                           <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                           {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
-                       </div>
-                   );
-                }
+            
+            // Step 3: Handle action selection if multiple actions exist
+            const actionOptions = selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
+            if (actionOptions.length > 1 && !selectedNode.data.actionName) {
+                return (
+                    <div className="space-y-2">
+                        <Label>Action</Label>
+                        <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
+                            <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                            <SelectContent>
+                                {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                );
+            }
+            
+            // Step 4: Display inputs for the selected action
+            if (selectedAction) {
+                return (
+                    <div className="space-y-4 pt-4 border-t">
+                       <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                       {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                   </div>
+               );
             }
         }
 
+        // --- PRIORITY 3: Handle Trigger Node ---
         if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
-             
              return (
                 <div className="space-y-2">
                    <Label>Trigger Type</Label>
@@ -148,6 +156,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             );
         }
 
+        // --- PRIORITY 4: Handle Condition Node ---
         if (isCondition) {
             const rules = selectedNode.data.rules || [{ field: '', operator: 'equals', value: '' }];
             const handleRuleChange = (index: number, field: string, value: string) => {
@@ -161,7 +170,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             return (
                 <div className="space-y-4">
                     <RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleDataChange({ logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">Match ALL conditions (AND)</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">Match ANY condition (OR)</Label></div></RadioGroup>
-                    
                     <div className="space-y-3">
                         {rules.map((rule: any, index: number) => (<div key={index} className="p-3 border rounded-md space-y-2 relative">
                             <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}>
@@ -179,6 +187,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                 </div>
             );
         }
+
         return null;
     };
 
