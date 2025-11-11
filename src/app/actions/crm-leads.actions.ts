@@ -21,7 +21,7 @@ const leadSchema = z.object({
   status: z.string().optional().nullable(),
   source: z.string().optional().nullable(),
   value: z.coerce.number().optional().default(0),
-  currency: z.string().optional().default('INR'),
+  currency: z.string().optional().nullable(),
   assignedTo: z.string().optional().nullable(),
   pipelineId: z.string().optional().nullable(),
   stage: z.string().optional().nullable(),
