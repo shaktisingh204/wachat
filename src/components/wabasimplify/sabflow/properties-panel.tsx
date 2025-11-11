@@ -16,7 +16,7 @@ import { ApiRequestEditor } from './api-request-editor';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Webhook, Calendar, Zap, GitFork } from 'lucide-react';
+import { Webhook, Calendar, Zap, GitFork, PlayCircle } from 'lucide-react';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
@@ -47,6 +47,10 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         const isCondition = selectedNode.type === 'condition';
         const isTrigger = selectedNode.type === 'trigger';
 
+        if (selectedNode.data.actionName === 'apiRequest') {
+            return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
+        }
+
         if (isAction) {
             if (!selectedNode.data.appId) {
                  const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
@@ -59,7 +63,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                     return acc;
                 }, {} as Record<string, any[]>));
 
-               return (
+                return (
                    <div className="space-y-4">
                        <h3 className="font-semibold">{isTrigger ? 'Choose a Trigger App' : 'Choose an App'}</h3>
                         <Accordion type="multiple" defaultValue={['SabNode Apps', 'Core Apps']} className="w-full">
@@ -93,33 +97,35 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                         </Accordion>
                    </div>
                );
-           } else if (selectedNode.data.actionName === 'apiRequest') {
-                return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
-           } else if (selectedApp && !selectedNode.data.actionName) {
-                 const actionOptions = selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
-                return (
-                    <div className="space-y-2">
-                        <Label>Action</Label>
-                        <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
-                            <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                            <SelectContent>
-                                {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                );
-           }
-           else if (selectedApp && selectedAction) {
-               return (
-                    <div className="space-y-4 pt-4 border-t">
-                       <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                       {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
-                   </div>
-               );
-           }
-       }
+            } else if (selectedNode.data.connectionId === 'new' && selectedApp) {
+                return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
+            }
+            else {
+                const actionOptions = selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
+                if (actionOptions.length > 1 && !selectedNode.data.actionName) {
+                    return (
+                        <div className="space-y-2">
+                            <Label>Action</Label>
+                            <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
+                                <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                <SelectContent>
+                                    {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    );
+                } else if (selectedAction) {
+                    return (
+                        <div className="space-y-4 pt-4 border-t">
+                           <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                           {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                       </div>
+                   );
+                }
+            }
+        }
 
-       if (isTrigger) {
+        if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
              
              return (
@@ -177,7 +183,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     };
 
     return (
-        <div className="h-full flex flex-col" style={{ minWidth: '35%', background: 'white' }}>
+        <div className="h-full flex flex-col " style={{ minWidth: '35%', background: 'white' }}>
             <div className="p-4 border-b flex-shrink-0">
                 <h3 className="text-lg font-semibold">Properties</h3>
                 <p className="text-sm text-muted-foreground">Configure the selected step.</p>
@@ -205,7 +211,10 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             </ScrollArea>
             {selectedNode?.type !== 'trigger' && (
                 <div className="p-4 border-t flex-shrink-0">
-                    <Button variant="destructive" className="w-full" onClick={() => onNodeRemove(selectedNode.id)}><Trash2 className="mr-2 h-4 w-4" />Delete Step</Button>
+                    <Button variant="destructive" className="w-full" onClick={() => onNodeRemove(selectedNode.id)}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Step
+                    </Button>
                 </div>
             )}
         </div>
