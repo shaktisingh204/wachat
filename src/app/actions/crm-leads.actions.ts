@@ -13,7 +13,7 @@ import { z } from 'zod';
 const leadSchema = z.object({
   title: z.string().min(1, 'Lead Title is required.'),
   contactName: z.string().min(1, 'Contact Name is required.'),
-  email: z.string().email('Invalid email address.'),
+  email: z.string().email('Invalid email address.').optional().or(z.literal('')),
   phone: z.string().optional(),
   company: z.string().optional(),
   website: z.string().optional(),
@@ -75,7 +75,7 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
     const session = apiUser ? { user: apiUser } : await getSession();
     if (!session?.user) return { error: "Access denied" };
 
-    const validatedFields = leadSchema.safeParse({
+    const rawData = {
         title: formData.get('title'),
         contactName: formData.get('contactName'),
         email: formData.get('email'),
@@ -90,10 +90,17 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
         stage: formData.get('stage'),
         description: formData.get('description'),
         nextFollowUp: formData.get('nextFollowUp') ? new Date(formData.get('nextFollowUp') as string) : undefined,
-    });
+    };
+    
+    const validatedFields = leadSchema.safeParse(rawData);
     
     if (!validatedFields.success) {
-        return { error: validatedFields.error.flatten().fieldErrors.title?.[0] || 'Invalid data provided.' };
+        // Flatten the error object to make it easier to read
+        const flattenedErrors = validatedFields.error.flatten().fieldErrors;
+        const errorString = Object.entries(flattenedErrors)
+            .map(([key, value]) => `${key}: ${value.join(', ')}`)
+            .join('; ');
+        return { error: `Invalid data provided. Errors: ${errorString}` };
     }
     
     try {

@@ -61,40 +61,34 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
     const { actionName, inputs } = node.data;
     const interpolatedInputs: Record<string, any> = {};
 
-    logger.log(`Preparing to execute action: ${actionName}`);
+    logger.log(`Preparing to execute action: ${actionName}`, { inputs, context });
 
     // Interpolate all input values from the context
     for(const key in inputs) {
         interpolatedInputs[key] = interpolate(inputs[key], context);
     }
     
-     // Special handling for CRM lead creation
+    // Special handling for CRM lead creation
     if (actionName === 'createCrmLead') {
         try {
             const formData = new FormData();
-            // Map interpolated inputs to the expected form data fields for addCrmLead
-            const fieldMapping: Record<string, string> = {
-                title: 'title',
-                contactName: 'contactName',
-                email: 'email',
-                phone: 'phone',
-                company: 'company',
-                value: 'value',
-                leadSource: 'source',
-                status: 'status',
-                stage: 'stage'
-            };
             
-            Object.entries(fieldMapping).forEach(([formKey, inputKey]) => {
-                 if (interpolatedInputs[inputKey]) {
-                    formData.append(formKey, interpolatedInputs[inputKey]);
+            Object.entries(interpolatedInputs).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    formData.append(key, String(value));
                 }
             });
 
             // Call the action with the authenticated user context
             const result = await addCrmLead(null, formData, user);
+            
             logger.log(`Action "${actionName}" completed.`, { result });
+            if (result.error) {
+                logger.log(`Error during action execution: ${result.error}`);
+                return { error: result.error };
+            }
             return { output: result };
+
         } catch(e: any) {
             const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
             logger.log(errorMsg, { stack: e.stack, context: { ...context, interpolatedInputs } });
@@ -212,8 +206,6 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
 
     // Set the webhook payload directly as the 'trigger' object in the context
     let context: any = { trigger: triggerPayload };
-    if (triggerPayload?.sessionId) context.sessionId = triggerPayload.sessionId;
-    if (triggerPayload?.visitorId) context.visitorId = triggerPayload.visitorId;
 
     let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
     
