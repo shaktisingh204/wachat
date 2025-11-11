@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getCrmContacts } from '@/app/actions/crm.actions';
-import { getCrmAccounts, archiveCrmAccount } from '@/app/actions/crm-accounts.actions';
+import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { useRouter } from 'next/navigation';
 import type { CrmContact, CrmAccount } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,26 +12,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, Upload, Users, FileText, MoreVertical, Archive, Edit, Activity, FilePlus, ChevronRight, ChevronsUpDown } from 'lucide-react';
+import { Search, Plus, UserPlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
-import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup } from '@/components/ui/dropdown-menu';
+import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
+import { ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
-import { useToast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -40,7 +27,7 @@ type SortConfig = {
     direction: 'asc' | 'desc';
 };
 
-function ClientsPageSkeleton() {
+function LeadsPageSkeleton() {
     return (
         <Card>
             <CardHeader>
@@ -63,7 +50,6 @@ export default function CrmAllLeadsPage() {
     const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
-    const { toast } = useToast();
 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
@@ -98,18 +84,8 @@ export default function CrmAllLeadsPage() {
     
     const leadScoreColor = (score: number) => {
         if (score > 75) return 'text-green-600';
-        if (score > 50) return 'text-yellow-600';
+        if (score > 50) return 'text-yellow-500';
         return 'text-red-600';
-    };
-
-    const handleArchiveAccount = async (accountId: string) => {
-        const result = await archiveCrmAccount(accountId);
-        if (result.success) {
-            toast({ title: 'Success', description: 'Account archived successfully.' });
-            fetchData();
-        } else {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        }
     };
 
     const SortableHeader = ({ column, label }: { column: string, label: string }) => (
@@ -120,6 +96,10 @@ export default function CrmAllLeadsPage() {
             </div>
         </TableHead>
     );
+    
+    if (isLoading && contacts.length === 0) {
+        return <LeadsPageSkeleton />;
+    }
 
     return (
         <div className="flex flex-col gap-8">
@@ -127,13 +107,13 @@ export default function CrmAllLeadsPage() {
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                         <Users className="h-8 w-8" />
-                        Clients & Prospects
+                        All Leads &amp; Contacts
                     </h1>
-                    <p className="text-muted-foreground">Manage your customer pipeline from prospect to deal.</p>
+                    <p className="text-muted-foreground">Manage your individual leads and contacts.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ClientReportButton />
-                    <CrmAddClientDialog onClientAdded={fetchData} />
+                    <Button variant="outline" asChild><Link href="/dashboard/crm/sales-crm/all-leads/new">Create Lead</Link></Button>
+                    <CrmAddContactDialog onAdded={fetchData} accounts={accounts} />
                 </div>
             </div>
             
@@ -163,20 +143,19 @@ export default function CrmAllLeadsPage() {
                                     <SortableHeader column="leadScore" label="Lead Score" />
                                     <TableHead>Assigned To</TableHead>
                                     <SortableHeader column="lastActivity" label="Last Activity" />
-                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     [...Array(5)].map((_, i) => (
                                         <TableRow key={i}>
-                                            <TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell>
+                                            <TableCell colSpan={6}><Skeleton className="h-10 w-full" /></TableCell>
                                         </TableRow>
                                     ))
                                 ) : contacts.length > 0 ? (
                                     contacts.map((contact) => (
-                                        <TableRow key={contact._id.toString()} >
-                                            <TableCell onClick={() => router.push(`/dashboard/crm/contacts/${contact._id.toString()}`)} className="cursor-pointer">
+                                        <TableRow key={contact._id.toString()} onClick={() => router.push(`/dashboard/crm/contacts/${contact._id.toString()}`)} className="cursor-pointer">
+                                            <TableCell>
                                                 <div className="flex items-center gap-3">
                                                     <Avatar>
                                                         <AvatarImage src={contact.avatarUrl} data-ai-hint="person avatar" />
@@ -193,60 +172,11 @@ export default function CrmAllLeadsPage() {
                                             <TableCell><span className={`font-bold ${leadScoreColor(contact.leadScore || 0)}`}>{contact.leadScore || 0}</span></TableCell>
                                             <TableCell>{contact.assignedTo || 'Unassigned'}</TableCell>
                                             <TableCell>{contact.lastActivity ? new Date(contact.lastActivity).toLocaleDateString() : 'N/A'}</TableCell>
-                                            <TableCell className="text-right">
-                                                 <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4"/></Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuGroup>
-                                                            <DropdownMenuLabel>Create New</DropdownMenuLabel>
-                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/deals/new?accountId=${contact.accountId}`)}>Create New Deal</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/sales/invoices/new?accountId=${contact.accountId}`)}>Create Invoice</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/sales/proforma/new?accountId=${contact.accountId}`)}>Create Proforma Invoice</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/sales/quotations/new?accountId=${contact.accountId}`)}>Create Quotation</DropdownMenuItem>
-                                                            <DropdownMenuItem disabled>Create Credit Note</DropdownMenuItem>
-                                                            <DropdownMenuItem disabled>Create Debit Note</DropdownMenuItem>
-                                                        </DropdownMenuGroup>
-                                                        <DropdownMenuSeparator />
-                                                         <DropdownMenuGroup>
-                                                            <DropdownMenuLabel>View</DropdownMenuLabel>
-                                                            <DropdownMenuItem disabled>See All Invoices</DropdownMenuItem>
-                                                            <DropdownMenuItem disabled>See All Quotations</DropdownMenuItem>
-                                                            <DropdownMenuItem disabled>See All Leads</DropdownMenuItem>
-                                                            <DropdownMenuItem disabled>Activity History</DropdownMenuItem>
-                                                            <DropdownMenuItem disabled>Client Statement</DropdownMenuItem>
-                                                            <DropdownMenuItem disabled>Ledger Statement</DropdownMenuItem>
-                                                        </DropdownMenuGroup>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/accounts/${contact.accountId}/edit`)}>
-                                                            <Edit className="mr-2 h-4 w-4" />Edit
-                                                        </DropdownMenuItem>
-                                                         <AlertDialog>
-                                                            <AlertDialogTrigger asChild>
-                                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">
-                                                                     <Archive className="mr-2 h-4 w-4" />Archive
-                                                                </DropdownMenuItem>
-                                                            </AlertDialogTrigger>
-                                                            <AlertDialogContent>
-                                                                <AlertDialogHeader>
-                                                                    <AlertDialogTitle>Archive Account?</AlertDialogTitle>
-                                                                    <AlertDialogDescription>Archiving this account will hide it from the main list but will not delete its data.</AlertDialogDescription>
-                                                                </AlertDialogHeader>
-                                                                <AlertDialogFooter>
-                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                    <AlertDialogAction onClick={() => handleArchiveAccount(contact.accountId!.toString())}>Archive</AlertDialogAction>
-                                                                </AlertDialogFooter>
-                                                            </AlertDialogContent>
-                                                        </AlertDialog>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="h-24 text-center">No contacts found.</TableCell>
+                                        <TableCell colSpan={6} className="h-24 text-center">No contacts found.</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
