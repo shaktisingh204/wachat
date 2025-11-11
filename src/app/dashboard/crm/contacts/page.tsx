@@ -1,1 +1,16 @@
-// This file is intentionally blank. The content has been moved to /dashboard/crm/sales-crm/all-leads/page.tsx to resolve a routing conflict.
+
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+// This file is deprecated. Redirecting to the correct "All Leads" page.
+export default function DeprecatedCrmContactsPage() {
+    const router = useRouter();
+
+    useEffect(() => {
+        router.replace('/dashboard/crm/sales-crm/all-leads');
+    }, [router]);
+
+    return null; // Render nothing while redirecting
+}
