@@ -142,7 +142,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                 const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
                                                 return (
                                                      <button type="button" key={app.appId} 
-                                                        className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-2 transition-colors")} 
+                                                        className={cn("h-120 w-120 p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-2 transition-colors")} 
                                                         onClick={() => {
                                                             if (app.connectionType === 'internal') {
                                                                 onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: `${app.name} Connection`, appId: app.appId, actionName: '', inputs: {} });
@@ -156,7 +156,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                             }
                                                         }}
                                                     >
-                                                        <div className={cn(" rounded-lg flex items-center justify-center bg-white border")}>
+                                                        <div className={cn("w-full h-full rounded-lg flex items-center justify-center bg-white border")}>
                                                             <AppIcon className={cn("h-6 w-6", app.iconColor)}/>
                                                         <p className="text-[10px] font-bold text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
                                                             
