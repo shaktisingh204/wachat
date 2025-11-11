@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -8,7 +9,7 @@ import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { sabnodeAppActions } from '@/lib/sabflow-actions';
-import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
+import { addCrmLead } from '@/app/actions/crm-leads.actions';
 
 // Dynamically import all action files
 async function importActionModule(appId: string) {
@@ -71,16 +72,32 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
     if (actionName === 'createCrmLead') {
         try {
             const formData = new FormData();
-            Object.entries(interpolatedInputs).forEach(([key, value]) => {
-                formData.append(key, String(value));
+            // Map interpolated inputs to the expected form data fields for addCrmLead
+            const fieldMapping: Record<string, string> = {
+                title: 'title',
+                contactName: 'contactName',
+                email: 'email',
+                phone: 'phone',
+                company: 'company',
+                value: 'value',
+                leadSource: 'source',
+                status: 'status',
+                stage: 'stage'
+            };
+            
+            Object.entries(fieldMapping).forEach(([formKey, inputKey]) => {
+                 if (interpolatedInputs[inputKey]) {
+                    formData.append(formKey, interpolatedInputs[inputKey]);
+                }
             });
-            // Correctly pass the authenticated user to the action
-            const result = await addCrmLeadAndDeal(null, formData, user);
+
+            // Call the action with the authenticated user context
+            const result = await addCrmLead(null, formData, user);
             logger.log(`Action "${actionName}" completed.`, { result });
             return { output: result };
         } catch(e: any) {
             const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
-            logger.log(errorMsg, { stack: e.stack, context });
+            logger.log(errorMsg, { stack: e.stack, context: { ...context, interpolatedInputs } });
             return { error: errorMsg };
         }
     }
@@ -115,7 +132,7 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         
     } catch (e: any) {
         const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
-        logger.log(errorMsg, { stack: e.stack, context });
+        logger.log(errorMsg, { stack: e.stack, context: { ...context, interpolatedInputs } });
         console.error(errorMsg, e);
         return { error: errorMsg };
     }
