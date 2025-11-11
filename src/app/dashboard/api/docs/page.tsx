@@ -1,4 +1,5 @@
 
+
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
@@ -8,181 +9,124 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
-const wachatApiDocs = [
+const crmApiDocs = [
     {
-        endpoint: 'GET /v1/projects/list',
-        description: 'Retrieves a list of all projects accessible by the API key user.',
-        bodyParams: [],
+        endpoint: 'GET /v1/crm/leads',
+        description: 'Retrieves a paginated list of all leads for the user.',
+        queryParams: [
+            { name: 'page', type: 'number', desc: 'The page number to retrieve. Default: 1' },
+            { name: 'limit', type: 'number', desc: 'The number of leads per page. Default: 20' },
+            { name: 'query', type: 'string', desc: 'A search term to filter leads by title, name, email, or company.' },
+        ],
         example: `curl -X GET \\
-  https://yourapp.com/api/v1/projects/list \\
+  "https://yourapp.com/api/v1/crm/leads?limit=5&query=Tech" \\
   -H 'Authorization: Bearer YOUR_API_KEY'`,
         response: `{
   "success": true,
   "data": [
     {
-      "_id": "60d5f1b4c7b8c2a3e4f5a6b7",
-      "name": "My Main Project",
-      "wabaId": "1234567890"
+      "_id": "66a0d8...",
+      "title": "New Website for TechCorp",
+      "contactName": "John Doe",
+      "email": "john@techcorp.com",
+      // ...other lead fields
     }
-  ]
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 5,
+    "total": 1,
+    "totalPages": 1
+  }
 }`
     },
     {
-        endpoint: 'POST /v1/contacts/create',
-        description: 'Creates a new contact within a specified project.',
+        endpoint: 'POST /v1/crm/leads',
+        description: 'Creates a new lead.',
         bodyParams: [
-            { name: 'projectId', type: 'string', desc: 'The ID of the project to add the contact to.' },
-            { name: 'phoneNumberId', type: 'string', desc: 'The phone number ID within the project to associate with.' },
-            { name: 'name', type: 'string', desc: 'The name of the new contact.' },
-            { name: 'waId', type: 'string', desc: 'The contact\'s WhatsApp ID (phone number with country code).' },
+            { name: 'title', type: 'string', desc: 'The title or subject of the lead. (Required)' },
+            { name: 'contactName', type: 'string', desc: 'Name of the primary contact. (Required)' },
+            { name: 'email', type: 'string', desc: 'Email of the primary contact.' },
+            { name: 'phone', type: 'string', desc: 'Phone number of the contact. (Optional)' },
+            { name: 'company', type: 'string', desc: 'Company name associated with the lead. (Optional)' },
+            { name: 'value', type: 'number', desc: 'The estimated monetary value of the deal. (Optional)' },
+            { name: 'stage', type: 'string', desc: 'The current stage in your sales pipeline. (Optional)' },
+            { name: 'source', type: 'string', desc: 'Where the lead came from (e.g., "Website", "Referral"). (Optional)' },
         ],
         example: `curl -X POST \\
-  https://yourapp.com/api/v1/contacts/create \\
+  https://yourapp.com/api/v1/crm/leads \\
   -H 'Authorization: Bearer YOUR_API_KEY' \\
   -H 'Content-Type: application/json' \\
   -d '{
-    "projectId": "60d5f1b4c7b8c2a3e4f5a6b7",
-    "phoneNumberId": "10987654321",
-    "name": "Jane Doe",
-    "waId": "15559876543"
+    "title": "API Generated Lead",
+    "contactName": "Jane API",
+    "email": "jane@api.com",
+    "value": 7500,
+    "source": "External API"
   }'`,
         response: `{
   "success": true,
-  "message": "Contact added successfully.",
-  "contactId": "62e8c9a3b9f8d4e7f8a1b2c4"
+  "data": {
+    "_id": "66a0d9...",
+    "title": "API Generated Lead",
+    // ...full lead object
+  }
 }`
     },
     {
-        endpoint: 'POST /v1/broadcasts/start',
-        description: 'Starts a new broadcast campaign to a list of contacts based on tags.',
-        bodyParams: [
-            { name: 'projectId', type: 'string', desc: 'The ID of the project to send from.' },
-            { name: 'phoneNumberId', type: 'string', desc: 'The phone number ID within the project to send from.' },
-            { name: 'templateId', type: 'string', desc: 'The ID of the approved message template to send.' },
-            { name: 'tagIds', type: 'string[]', desc: 'An array of Tag IDs. The broadcast will be sent to all contacts with these tags.' },
-        ],
-        example: `curl -X POST \\
-  https://yourapp.com/api/v1/broadcasts/start \\
-  -H 'Authorization: Bearer YOUR_API_KEY' \\
-  -H 'Content-Type: application/json' \\
-  -d '{
-    "projectId": "60d5f1b4c7b8c2a3e4f5a6b7",
-    "phoneNumberId": "10987654321",
-    "templateId": "61e8c9a3b9f8d4e7f8a1b2c3",
-    "tagIds": ["60d5f1b4c7b8c2a3e4f5a6b8", "60d5f1b4c7b8c2a3e4f5a6b9"]
-  }'`,
+        endpoint: 'GET /v1/crm/leads/{leadId}',
+        description: 'Retrieves a single lead by its unique ID.',
+        example: `curl -X GET \\
+  https://yourapp.com/api/v1/crm/leads/YOUR_LEAD_ID \\
+  -H 'Authorization: Bearer YOUR_API_KEY'`,
         response: `{
   "success": true,
-  "message": "Broadcast successfully queued for 150 contacts. Sending will begin shortly."
+  "data": {
+    "_id": "66a0d8...",
+    "title": "New Website for TechCorp",
+    // ...full lead object
+  }
 }`
     },
     {
-        endpoint: 'POST /v1/broadcasts/start-bulk',
-        description: 'Starts a new broadcast campaign by providing a list of contacts directly in the request body.',
+        endpoint: 'PUT /v1/crm/leads/{leadId}',
+        description: 'Updates an existing lead. You only need to provide the fields you want to change.',
         bodyParams: [
-            { name: 'projectId', type: 'string', desc: 'The ID of the project to send from.' },
-            { name: 'phoneNumberId', type: 'string', desc: 'The phone number ID within the project to send from.' },
-            { name: 'templateId', type: 'string', desc: 'The ID of the approved message template to send.' },
-            { name: 'contacts', type: 'object[]', desc: 'An array of contact objects. Each object must have a `phone` property and can have properties for variables (e.g., `variable1`, `variable2`).' },
+            { name: 'title', type: 'string', desc: 'The updated title of the lead.' },
+            { name: 'stage', type: 'string', desc: 'The new stage in your sales pipeline.' },
+            { name: 'value', type: 'number', desc: 'The updated monetary value.' },
         ],
-        example: `curl -X POST \\
-  https://yourapp.com/api/v1/broadcasts/start-bulk \\
+        example: `curl -X PUT \\
+  https://yourapp.com/api/v1/crm/leads/YOUR_LEAD_ID \\
   -H 'Authorization: Bearer YOUR_API_KEY' \\
   -H 'Content-Type: application/json' \\
   -d '{
-    "projectId": "60d5f1b4c7b8c2a3e4f5a6b7",
-    "phoneNumberId": "10987654321",
-    "templateId": "61e8c9a3b9f8d4e7f8a1b2c3",
-    "contacts": [
-        { "phone": "15551112222", "variable1": "John", "variable2": "your recent order" },
-        { "phone": "15553334444", "variable1": "Jane", "variable2": "your appointment" }
-    ]
+    "stage": "Proposal Sent",
+    "value": 8000
   }'`,
         response: `{
   "success": true,
-  "message": "Broadcast successfully queued via API for 2 contacts. Sending will begin shortly."
+  "data": {
+    "_id": "66a0d8...",
+    "stage": "Proposal Sent",
+    "value": 8000,
+    // ...other fields
+  }
 }`
     },
     {
-        endpoint: 'POST /v1/messages/send-text',
-        description: 'Sends a simple text message to a contact.',
-        bodyParams: [
-            { name: 'contactId', type: 'string', desc: 'The internal ID of the contact to send to. (Required if waId is not provided)' },
-            { name: 'waId', type: 'string', desc: 'The recipient\'s WhatsApp ID (phone number). (Required if contactId is not provided)' },
-            { name: 'projectId', type: 'string', desc: 'The project ID to send from. (Required with waId)' },
-            { name: 'phoneNumberId', type: 'string', desc: 'The phone number ID to send from. (Required with waId)' },
-            { name: 'messageText', type: 'string', desc: 'The text content of the message. (Required)' },
-        ],
-        example: `curl -X POST \\
-  https://yourapp.com/api/v1/messages/send-text \\
-  -H 'Authorization: Bearer YOUR_API_KEY' \\
-  -H 'Content-Type: application/json' \\
-  -d '{
-    "contactId": "60d5f1b4c7b8c2a3e4f5a6b7",
-    "messageText": "Hello from the SabNode API!"
-  }'`,
+        endpoint: 'DELETE /v1/crm/leads/{leadId}',
+        description: 'Permanently deletes a lead.',
+        example: `curl -X DELETE \\
+  https://yourapp.com/api/v1/crm/leads/YOUR_LEAD_ID \\
+  -H 'Authorization: Bearer YOUR_API_KEY'`,
         response: `{
   "success": true,
-  "message": "Message sent successfully."
-}`
-    },
-    {
-        endpoint: 'POST /v1/messages/send-template',
-        description: 'Sends a pre-approved message template to a contact.',
-        bodyParams: [
-            { name: 'contactId', type: 'string', desc: 'The ID of the contact.' },
-            { name: 'templateId', type: 'string', desc: 'The ID of the approved template.' },
-            { name: 'headerMediaUrl', type: 'string', desc: 'URL for header media (image, video, doc), if required by the template. (Optional)' },
-            { name: 'variables', type: 'object', desc: 'Key-value pairs for template variables, e.g., {"1": "John", "2": "Order #555"}. (Optional)' },
-        ],
-        example: `curl -X POST \\
-  https://yourapp.com/api/v1/messages/send-template \\
-  -H 'Authorization: Bearer YOUR_API_KEY' \\
-  -H 'Content-Type: application/json' \\
-  -d '{
-    "contactId": "60d5f1b4c7b8c2a3e4f5a6b7",
-    "templateId": "61e8c9a3b9f8d4e7f8a1b2c3",
-    "variables": {
-      "1": "David",
-      "2": "your recent order"
-    }
-  }'`,
-        response: `{
-  "success": true,
-  "message": "Template message sent successfully."
-}`
-    },
-     {
-        endpoint: 'POST /v1/templates/create',
-        description: 'Creates a new message template for submission to Meta.',
-        bodyParams: [
-            { name: 'projectId', type: 'string', desc: 'The ID of the project to create the template for.' },
-            { name: 'name', type: 'string', desc: 'Template name (lowercase, numbers, underscores). e.g., order_confirmation_v2' },
-            { name: 'category', type: "'MARKETING' | 'UTILITY'", desc: 'The template category.' },
-            { name: 'language', type: 'string', desc: 'Language code. e.g., en_US' },
-            { name: 'body', type: 'string', desc: 'The main message content. Use {{1}}, {{2}} for variables.' },
-            { name: 'headerFormat', type: "'NONE' | 'TEXT' | 'IMAGE' | ...", desc: 'Type of header. (Optional)' },
-            { name: 'headerText', type: 'string', desc: 'Text for TEXT header. (Conditional)' },
-            { name: 'buttons', type: 'object[]', desc: 'Array of button objects (QUICK_REPLY or URL). (Optional)' },
-        ],
-        example: `curl -X POST \\
-  https://yourapp.com/api/v1/templates/create \\
-  -H 'Authorization: Bearer YOUR_API_KEY' \\
-  -H 'Content-Type: application/json' \\
-  -d '{
-    "projectId": "60d5f1b4c7b8c2a3e4f5a6b7",
-    "name": "new_promo_template",
-    "category": "MARKETING",
-    "language": "en_US",
-    "body": "Hi {{1}}, check out our new summer sale!",
-    "buttons": [{ "type": "URL", "text": "Shop Now", "url": "https://example.com/sale" }]
-  }'`,
-        response: `{
-  "success": true,
-  "message": "Template 'new_promo_template' submitted successfully!"
+  "message": "Lead deleted successfully."
 }`
     }
 ];
+
 
 export default function ApiDocsPage() {
     return (
@@ -211,27 +155,52 @@ export default function ApiDocsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <CodeBlock code={`Authorization: Bearer YOUR_API_KEY`} language="bash" />
+                    <CodeBlock code={'Authorization: Bearer YOUR_API_KEY'} language="bash" />
                     <p className="text-sm text-muted-foreground mt-2">You can generate API keys from the <Link href="/dashboard/api" className="text-primary hover:underline">API settings page</Link>.</p>
                 </CardContent>
             </Card>
 
             <div className="space-y-4">
-                 <h2 className="text-2xl font-bold font-headline">Wachat Suite APIs</h2>
+                 <h2 className="text-2xl font-bold font-headline">CRM Suite APIs</h2>
                  <div className="space-y-6">
-                    {wachatApiDocs.map((endpoint, i) => {
+                    {crmApiDocs.map((endpoint, i) => {
                         const [method, path] = endpoint.endpoint.split(' ');
                         return (
                             <Card key={i} className="card-gradient card-gradient-green">
                                 <CardHeader>
                                     <div className="flex items-center gap-4">
-                                        <Badge className={method === 'GET' ? 'bg-blue-600' : 'bg-green-600'}>{method}</Badge>
+                                        <Badge className={method === 'GET' ? 'bg-blue-600' : (method === 'POST' ? 'bg-green-600' : (method === 'PUT' ? 'bg-yellow-500' : 'bg-red-600'))}>{method}</Badge>
                                         <CardTitle className="font-mono text-lg">{path}</CardTitle>
                                     </div>
                                     <CardDescription>{endpoint.description}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                    {endpoint.bodyParams.length > 0 && (
+                                    {endpoint.queryParams && endpoint.queryParams.length > 0 && (
+                                        <>
+                                            <h4 className="font-semibold">Query Parameters</h4>
+                                            <div className="border rounded-md overflow-hidden">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow>
+                                                            <TableHead>Parameter</TableHead>
+                                                            <TableHead>Type</TableHead>
+                                                            <TableHead>Description</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {endpoint.queryParams.map(param => (
+                                                            <TableRow key={param.name}>
+                                                                <TableCell className="font-mono">{param.name}</TableCell>
+                                                                <TableCell className="font-mono text-xs">{param.type}</TableCell>
+                                                                <TableCell className="text-muted-foreground text-xs">{param.desc}</TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </>
+                                    )}
+                                    {endpoint.bodyParams && endpoint.bodyParams.length > 0 && (
                                         <>
                                             <h4 className="font-semibold">Request Body Parameters</h4>
                                             <div className="border rounded-md overflow-hidden">
