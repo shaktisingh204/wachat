@@ -19,14 +19,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DatePicker } from '@/components/ui/date-picker';
+import { Separator } from '@/components/ui/separator';
 
-const initialState = { message: null, error: null };
+const initialState = { message: null, error: null, leadId: undefined };
 
-const leadSources = [
-    "Direct", "Quotation", "Self Lead", "Website", "Telephonic", "Social Media",
-    "Referral", "Industry Expo", "Website Form", "IndiaMart Direct", 
-    "IndiaMart Consumed Buy Lead", "IndiaMart Preferred Number Service", "Other",
-    "IndiaMart Catalogue View", "IndiaMart Others", "Facebook Meta"
+const leadStatuses = [
+    "New", "Contacted", "Qualified", "Unqualified", "Converted"
 ];
 
 function SubmitButton() {
