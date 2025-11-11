@@ -8,15 +8,17 @@ export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {
     const webhookUrl = flowId ? `${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${flowId}` : 'Save flow to generate URL';
 
     return (
-        <div className="space-y-6 text-sm">
+        <div className="space-y-6 text-sm" style={{ maxWidth: '90%' }}>
             <style>{`
                 .instruction-list > li { margin-bottom: 0.75rem; }
             `}</style>
-            <div style={{ maxWidth: '90%' }}>
+            <div>
                  <div className="space-y-2">
                     <Label className="text-base font-semibold">Webhook URL</Label>
                     <p className="text-xs text-muted-foreground">Copy this URL and paste it into the SabFlow Webhooks add-on in your Google Sheet.</p>
-                    <CodeBlock code={webhookUrl} />
+                    <div style={{ overflow: 'scroll' }}>
+                        <CodeBlock code={webhookUrl} />
+                    </div>
                 </div>
                 
                 <div className="mt-6">
@@ -38,7 +40,7 @@ export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {
                             Paste the Webhook URL from above and select your trigger column (the column that, when updated, will send the data).
                         </li>
                         <li>
-                            Click "Send Test" to verify the webhook, then click "Submit" to save the setup.
+                            Click "Send Test" to verify the webhook, then click on the "Submit" button to save the Initial setup.
                         </li>
                         <li>
                            From the SabFlow Webhooks menu under Extensions, ensure you enable the event trigger (e.g., "Send on Edit").
