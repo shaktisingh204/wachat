@@ -52,7 +52,7 @@ import {
   Webhook,
   Calendar,
 } from 'lucide-react';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { AppConnectionSetup } from '@/components/wabasimplify/connections/app-connection-setup';
@@ -62,7 +62,7 @@ const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
     { id: 'manual', name: 'Manual', icon: PlayCircle, description: 'Trigger this flow manually from the UI.' },
     { id: 'schedule', name: 'Schedule', icon: Calendar, description: 'Run this flow on a recurring schedule (e.g., every day).' },
-    { id: 'google_sheets', name: 'Google Sheets', description: 'Trigger this flow when a row is updated in a Google Sheet.' },
+    { id: 'app', name: 'App Trigger', icon: Zap, description: 'Start this flow based on an event from another app.' },
 ];
 
 function NodeInput({ input, value, onChange }: { input: any, value: any, onChange: (val: any) => void }) {
@@ -216,11 +216,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                     <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val, connectionId: '', appId: '', actionName: '', inputs: {} })}>
                         <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="manual">Manual</SelectItem>
-                            <SelectItem value="webhook">Webhook</SelectItem>
-                            <SelectItem value="schedule">Schedule</SelectItem>
-                            <Separator />
-                            <SelectItem value="app">App Trigger</SelectItem>
+                            {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
                         </SelectContent>
                     </Select>
                     {selectedTrigger && <p className="text-xs text-muted-foreground">{selectedTrigger.description}</p>}
@@ -359,7 +355,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
             className="absolute transition-all text-center flex flex-col items-center"
             style={{ left: node.position.x, top: node.position.y }}
         >
-             {node.type === 'trigger' && (
+            {node.type === 'trigger' && (
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Start of Flow</div>
             )}
             <div
@@ -440,16 +436,6 @@ export default function EditSabFlowPage() {
     const [draggingNode, setDraggingNode] = useState<string | null>(null);
     const [isFullScreen, setIsFullScreen] = useState(false);
     
-    const isNew = flowId === 'new-flow';
-
-    const handleCreateNewFlow = useCallback(() => {
-        setFlowName('New Automation Flow');
-        const startNode = { id: 'start', type: 'trigger', data: { name: 'Start', triggerType: 'manual' }, position: { x: 50, y: 50 } };
-        setNodes([startNode]);
-        setEdges([]);
-        setSelectedNodeId('start');
-    }, []);
-
     const fetchConnections = useCallback(async () => {
         const session = await getSession();
         setUser(session?.user);
@@ -457,36 +443,29 @@ export default function EditSabFlowPage() {
 
     useEffect(() => {
         fetchConnections();
-        if (isNew) {
-            handleCreateNewFlow();
+        getSabFlowById(flowId).then(flow => {
+            if(flow) {
+                setFlowName(flow.name);
+                setNodes(flow.nodes || []);
+                setEdges(flow.edges || []);
+            }
             setIsLoading(false);
-        } else if (flowId) {
-            getSabFlowById(flowId).then(flow => {
-                if(flow) {
-                    setFlowName(flow.name);
-                    setNodes(flow.nodes || []);
-                    setEdges(flow.edges || []);
-                } else {
-                    handleCreateNewFlow();
-                }
-                setIsLoading(false);
-            });
-        }
-    }, [flowId, isNew, handleCreateNewFlow, fetchConnections]);
+        });
+    }, [flowId, fetchConnections]);
 
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
-            if (isNew && state.flowId) {
+            if (state.flowId && flowId === 'new-flow') {
                  router.replace(`/dashboard/sabflow/flow-builder/${state.flowId}`, { scroll: false });
-            } else if (!isNew) {
+            } else {
                 router.refresh();
             }
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
-    }, [state, toast, router, isNew]);
+    }, [state, toast, router, flowId]);
     
     useEffect(() => {
         if (selectedNodeId) {
@@ -495,24 +474,6 @@ export default function EditSabFlowPage() {
     }, [selectedNodeId]);
 
     const handleAddNode = async (type: 'action' | 'condition', sourceNodeId: string, sourceHandle?: string) => {
-        let currentFlowId = flowId;
-        // If it's a new flow, save it first to get an ID
-        if (isNew && nodes.length === 1 && nodes[0].type === 'trigger') {
-            const tempFormData = new FormData();
-            tempFormData.append('flowId', 'new-flow');
-            tempFormData.append('name', flowName);
-            tempFormData.append('nodes', JSON.stringify(nodes));
-            tempFormData.append('edges', '[]');
-            const result = await saveSabFlow(initialState, tempFormData);
-            if (result.flowId) {
-                router.replace(`/dashboard/sabflow/flow-builder/${result.flowId}`, { scroll: false });
-                currentFlowId = result.flowId;
-            } else {
-                toast({ title: "Error", description: "Could not save the new flow before adding a node.", variant: 'destructive'});
-                return;
-            }
-        }
-        
         const sourceNode = nodes.find(n => n.id === sourceNodeId);
         if (!sourceNode) return;
 
@@ -711,7 +672,7 @@ export default function EditSabFlowPage() {
                 </div>
             </div>
             <form ref={formRef} action={formAction} className="hidden">
-                 <input type="hidden" name="flowId" value={isNew ? 'new-flow' : flowId} />
+                 <input type="hidden" name="flowId" value={flowId} />
                  <input type="hidden" name="name" value={flowName} />
                  <input type="hidden" name="nodes" value={JSON.stringify(nodes)} />
                  <input type="hidden" name="edges" value={JSON.stringify(edges)} />
