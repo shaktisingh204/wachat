@@ -263,7 +263,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
     };
 
     return (
-        <div className="h-full flex flex-col bg-background" style={{ minWidth: '35%' }}>
+        <div className="h-full flex flex-col " style={{ minWidth: '35%', background: 'white' }}>
             <div className="p-4 border-b flex-shrink-0">
                 <h3 className="text-lg font-semibold">Properties</h3>
                 <p className="text-sm text-muted-foreground">Configure the selected step.</p>
