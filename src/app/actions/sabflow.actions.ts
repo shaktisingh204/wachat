@@ -4,6 +4,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
+import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession, User } from '@/lib/definitions';
@@ -68,14 +69,46 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         interpolatedInputs[key] = interpolate(inputs[key], context);
     }
     
-    // Special handling for CRM lead creation
+    // Find which app this action belongs to
+    const actionApp = sabnodeAppActions.find(app => app.actions.some(a => a.name === actionName));
+    if (!actionApp) {
+        const errorMsg = `Action app not found for action: ${actionName}`;
+        logger.log(errorMsg);
+        console.error(errorMsg);
+        return { error: errorMsg };
+    }
+    
+    // --- SPECIAL CASE: External API Calls ---
+    if (actionApp.appId === 'api') {
+        try {
+            const { url, method, headers, queryParams, body } = interpolatedInputs;
+            const requestConfig: any = {
+                method: method || 'GET',
+                url,
+                headers: headers ? JSON.parse(headers) : undefined,
+                params: queryParams ? JSON.parse(queryParams) : undefined,
+                data: body ? JSON.parse(body) : undefined,
+            };
+            logger.log(`Making external API call...`, { config: requestConfig });
+            const response = await axios(requestConfig);
+            logger.log(`External API call successful (Status: ${response.status})`, { response: response.data });
+            return { output: response.data };
+        } catch (e: any) {
+            const errorMsg = `Error executing API action "${actionName}": ${getErrorMessage(e)}`;
+            logger.log(errorMsg, { stack: e.stack, response: e.response?.data, context: { ...context, interpolatedInputs } });
+            return { error: errorMsg };
+        }
+    }
+
+    // --- SPECIAL CASE: CRM Lead Creation ---
     if (actionName === 'createCrmLead') {
         try {
             const formData = new FormData();
-            
             Object.entries(interpolatedInputs).forEach(([key, value]) => {
+                // The `addCrmLead` expects specific field names from the form, so we map them here.
+                const formKey = { dealName: 'title', dealValue: 'value', dealStage: 'stage' }[key] || key;
                 if (value !== undefined && value !== null) {
-                    formData.append(key, String(value));
+                    formData.append(formKey, String(value));
                 }
             });
 
@@ -96,14 +129,7 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         }
     }
     
-    const actionApp = sabnodeAppActions.find(app => app.actions.some(a => a.name === actionName));
-    if (!actionApp) {
-        const errorMsg = `Action app not found for action: ${actionName}`;
-        logger.log(errorMsg);
-        console.error(errorMsg);
-        return { error: errorMsg };
-    }
-    
+    // --- All other internal app actions ---
     try {
         const actionModule = await importActionModule(actionApp.appId);
         if(!actionModule) {
@@ -118,7 +144,7 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
              return { error: errorMsg };
         }
         
-        logger.log(`Executing action "${actionName}" with inputs:`, interpolatedInputs);
+        logger.log(`Executing internal action "${actionName}" with inputs:`, interpolatedInputs);
         const result = await actionFunction(interpolatedInputs, user);
         logger.log(`Action "${actionName}" completed.`, { result });
         

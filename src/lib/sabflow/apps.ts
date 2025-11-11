@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -35,6 +34,7 @@ import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/c
 
 import { googleSheetsActions } from './actions/google-sheets';
 import { wachatActions } from './actions/wachat';
+import { apiActions } from './actions/api';
 
 export const sabnodeAppActions = [
   // SabNode Internal Apps
@@ -86,7 +86,7 @@ export const sabnodeAppActions = [
                 { name: 'phone', label: 'Contact Phone', type: 'tel', placeholder: 'e.g., {{trigger.phone}}' },
                 { name: 'company', label: 'Company Name', type: 'text', placeholder: 'e.g., {{trigger.company}}' },
                 { name: 'value', label: 'Deal Value', type: 'number', placeholder: 'e.g. 5000' },
-                { name: 'leadSource', label: 'Lead Source', type: 'text', placeholder: 'e.g., Webhook' },
+                { name: 'source', label: 'Lead Source', type: 'text', placeholder: 'e.g., Webhook' },
                 { name: 'status', label: 'Lead Status', type: 'text', placeholder: 'e.g., New' },
                 { name: 'stage', label: 'Pipeline Stage', type: 'text', placeholder: 'e.g., Qualified' },
             ]
@@ -116,7 +116,7 @@ export const sabnodeAppActions = [
     { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon' },
 
   // Core Apps
-  { appId: 'api', name: 'API', icon: Server, actions: [], category: 'Core Apps', connectionType: 'apikey', iconColor: 'text-sabflow-api-icon' },
+  { appId: 'api', name: 'API', icon: Server, actions: apiActions, category: 'Core Apps', connectionType: 'apikey', iconColor: 'text-sabflow-api-icon' },
   { appId: 'array_function', name: 'Array Function', icon: Combine, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-array_function-icon' },
   { appId: 'code', name: 'Code', icon: Code2, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-code-icon' },
   { appId: 'data_forwarder', name: 'Data Forwarder', icon: Forward, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_forwarder-icon' },
