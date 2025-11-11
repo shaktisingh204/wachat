@@ -77,18 +77,18 @@ export const sabnodeAppActions = [
       actions: [
         {
             name: 'createCrmLead',
-            label: 'Create Lead',
-            description: 'Creates a new lead in the CRM.',
+            label: 'Create Lead/Deal',
+            description: 'Creates a new contact and an associated deal in the CRM.',
             inputs: [
-                { name: 'title', label: 'Lead Title', type: 'text', placeholder: 'e.g. New Website for {{trigger.company}}', required: true },
-                { name: 'contactName', label: 'Contact Name', type: 'text', placeholder: 'e.g., {{trigger.name}}', required: true },
-                { name: 'email', label: 'Contact Email', type: 'email', placeholder: 'e.g., {{trigger.email}}', required: true },
-                { name: 'phone', label: 'Contact Phone', type: 'tel', placeholder: 'e.g., {{trigger.phone}}' },
-                { name: 'company', label: 'Company Name', type: 'text', placeholder: 'e.g., {{trigger.company}}' },
-                { name: 'value', label: 'Deal Value', type: 'number', placeholder: 'e.g. 5000' },
-                { name: 'source', label: 'Lead Source', type: 'text', placeholder: 'e.g., Webhook' },
-                { name: 'status', label: 'Lead Status', type: 'text', placeholder: 'e.g., New' },
-                { name: 'stage', label: 'Pipeline Stage', type: 'text', placeholder: 'e.g., Qualified' },
+                { name: 'dealName', formKey: 'title', label: 'Deal Name', type: 'text', placeholder: 'e.g. New Website for {{trigger.company}}', required: true },
+                { name: 'dealValue', formKey: 'value', label: 'Deal Value', type: 'number', placeholder: 'e.g. 5000' },
+                { name: 'dealStage', formKey: 'stage', label: 'Deal Stage', type: 'text', placeholder: 'e.g., New' },
+                { name: 'contactName', formKey: 'contactName', label: 'Contact Name', type: 'text', placeholder: 'e.g., {{trigger.name}}', required: true },
+                { name: 'email', formKey: 'email', label: 'Contact Email', type: 'email', placeholder: 'e.g., {{trigger.email}}', required: true },
+                { name: 'phone', formKey: 'phone', label: 'Contact Phone', type: 'tel', placeholder: 'e.g., {{trigger.phone}}' },
+                { name: 'company', formKey: 'company', label: 'Company Name', type: 'text', placeholder: 'e.g., {{trigger.company}}' },
+                { name: 'leadSource', formKey: 'source', label: 'Lead Source', type: 'text', placeholder: 'e.g., Webhook' },
+                { name: 'status', formKey: 'status', label: 'Lead Status', type: 'text', placeholder: 'e.g., New' },
             ]
         }
       ],
@@ -116,7 +116,7 @@ export const sabnodeAppActions = [
     { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon' },
 
   // Core Apps
-  { appId: 'api', name: 'API', icon: Server, actions: apiActions, category: 'Core Apps', connectionType: 'apikey', iconColor: 'text-sabflow-api-icon' },
+  { appId: 'api', name: 'API Request', icon: Server, actions: apiActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-api-icon' },
   { appId: 'array_function', name: 'Array Function', icon: Combine, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-array_function-icon' },
   { appId: 'code', name: 'Code', icon: Code2, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-code-icon' },
   { appId: 'data_forwarder', name: 'Data Forwarder', icon: Forward, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_forwarder-icon' },
