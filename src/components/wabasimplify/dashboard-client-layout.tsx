@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -34,7 +35,7 @@ import {
   SidebarTrigger,
   SidebarProvider,
 } from '@/components/ui/sidebar';
-import { Drawer, DrawerTrigger } from './ui/drawer';
+import { Drawer, DrawerTrigger } from '../ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '../ui/separator';
@@ -121,7 +122,7 @@ const crmMenuItems = [
         label: "Sales CRM",
         icon: BarChart2,
         subItems: [
-            { href: "/dashboard/crm/contacts", label: "Leads & Contacts" },
+            { href: "/dashboard/crm/sales/clients", label: "Leads & Contacts" },
             { href: "/dashboard/crm/deals", label: "Deals Pipeline" },
             { href: "/dashboard/crm/tasks", label: "Tasks" },
             { href: "/dashboard/crm/automations", label: "Automations" },
