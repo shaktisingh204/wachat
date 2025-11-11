@@ -142,7 +142,14 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                 const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
                                                 return (
                                                      <button type="button" key={app.appId} 
-                                                        className={cn("h-120 w-120 p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-2 transition-colors")} 
+                                                        className={cn("h-120 w-120 p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-2 transition-colors")} style={{
+                                                            transition: 'box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                                                            boxShadow:
+                                                              'rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'center',
+                                                          }} 
                                                         onClick={() => {
                                                             if (app.connectionType === 'internal') {
                                                                 onNodeChange(selectedNode.id, { ...selectedNode.data, connectionId: `${app.name} Connection`, appId: app.appId, actionName: '', inputs: {} });
@@ -156,7 +163,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                             }
                                                         }}
                                                     >
-                                                        <div className={cn("w-full h-full rounded-lg flex items-center justify-center bg-white border")}>
+                                                        <div className={cn("w-full h-full rounded-lg flex items-center justify-center bg-white border") } style={{ display: 'contents', maxWidth: '120px', minHeight: '120px' }}>
                                                             <AppIcon className={cn("h-6 w-6", app.iconColor)}/>
                                                         <p className="text-[10px] font-bold text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
                                                             
