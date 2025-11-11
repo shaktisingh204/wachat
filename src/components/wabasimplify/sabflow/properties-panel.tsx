@@ -15,12 +15,14 @@ import { AppConnectionSetup } from './connections/app-connection-setup';
 import { ApiRequestEditor } from './api-request-editor';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Webhook, Calendar, Zap, GitFork } from 'lucide-react';
 
 const triggers = [
-    { id: 'webhook', name: 'Webhook' },
-    { id: 'manual', name: 'Manual' },
-    { id: 'schedule', name: 'Schedule' },
-    { id: 'app', name: 'App Trigger' },
+    { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
+    { id: 'manual', name: 'Manual', icon: PlayCircle, description: 'Trigger this flow manually from the UI.' },
+    { id: 'schedule', name: 'Schedule', icon: Calendar, description: 'Run this flow on a recurring schedule (e.g., every day).' },
+    { id: 'app', name: 'App Trigger', icon: Zap, description: 'Start this flow based on an event from another app.' },
 ];
 
 function NodeInput({ input, value, onChange }: { input: any, value: any, onChange: (val: any) => void }) {
@@ -37,7 +39,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
     const selectedApp = sabnodeAppActions.find(app => app.appId === selectedNode.data.appId);
     const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
-    const Icon = selectedApp?.icon;
+    const Icon = selectedApp?.icon || Zap;
 
 
     const renderEditorContent = () => {
@@ -67,16 +69,19 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                                     <AccordionContent className="p-2">
                                         <div className="grid grid-cols-3 gap-2">
                                             {apps.map(app => {
-                                                const AppIcon = app.icon;
+                                                const AppIcon = app.icon || Zap;
                                                 const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
                                                 return (
                                                      <button 
                                                         type="button" 
                                                         key={app.appId} 
-                                                        className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border-2", app.bgColor, isConnected ? 'border-green-500' : 'border-border' )}
-                                                        onClick={() => handleDataChange({ appId: app.appId, actionName: app.actions[0]?.name || '', inputs: {} })}
+                                                        className="p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border"
+                                                        onClick={() => {
+                                                            const actionName = app.actions.length === 1 ? app.actions[0].name : '';
+                                                            handleDataChange({ appId: app.appId, actionName: actionName, inputs: {} });
+                                                        }}
                                                     >
-                                                        <AppIcon className={cn("h-6 w-6", app.iconColor)}/>
+                                                        <AppIcon className={cn("h-6 w-6 mb-1", app.iconColor)}/>
                                                         <p className="text-xs font-medium text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
                                                     </button>
                                                 )
@@ -88,30 +93,28 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                         </Accordion>
                    </div>
                );
-           } else if (selectedNode.data.appId === 'api') {
+           } else if (selectedNode.data.actionName === 'apiRequest') {
                 return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
-           } else if (selectedNode.data.appId && !selectedNode.data.connectionId) {
-               return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
-           } else {
-               const actionOptions = selectedApp?.actions || [];
+           } else if (selectedApp && !selectedNode.data.actionName) {
+                 const actionOptions = selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
+                return (
+                    <div className="space-y-2">
+                        <Label>Action</Label>
+                        <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
+                            <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                            <SelectContent>
+                                {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                );
+           }
+           else if (selectedApp && selectedAction) {
                return (
-                   <>
-                       <div className="space-y-2">
-                           <Label>Action</Label>
-                           <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
-                               <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                               <SelectContent>
-                                   {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
-                               </SelectContent>
-                           </Select>
-                       </div>
-                       {selectedAction && (
-                            <div className="space-y-4 pt-4 border-t">
-                               <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                               {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
-                           </div>
-                       )}
-                   </>
+                    <div className="space-y-4 pt-4 border-t">
+                       <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                       {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
+                   </div>
                );
            }
        }
@@ -139,6 +142,37 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             );
         }
 
+        if (isCondition) {
+            const rules = selectedNode.data.rules || [{ field: '', operator: 'equals', value: '' }];
+            const handleRuleChange = (index: number, field: string, value: string) => {
+                const newRules = [...rules];
+                newRules[index] = { ...newRules[index], [field]: value };
+                handleDataChange({ rules: newRules });
+            };
+            const addRule = () => handleDataChange({ rules: [...rules, { field: '', operator: 'equals', value: '' }]});
+            const removeRule = (index: number) => handleDataChange({ rules: rules.filter((_: any, i: number) => i !== index) });
+
+            return (
+                <div className="space-y-4">
+                    <RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleDataChange({ logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">Match ALL conditions (AND)</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">Match ANY condition (OR)</Label></div></RadioGroup>
+                    
+                    <div className="space-y-3">
+                        {rules.map((rule: any, index: number) => (<div key={index} className="p-3 border rounded-md space-y-2 relative">
+                            <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}>
+                                <Trash2 className="h-4 w-4 text-destructive"/>
+                            </Button>
+                            <Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => handleRuleChange(index, 'field', e.target.value)} />
+                            <Select value={rule.operator} onValueChange={val => handleRuleChange(index, 'operator', val)}>
+                                <SelectTrigger><SelectValue placeholder="Select operator..."/></SelectTrigger>
+                                <SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Not Equals</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent>
+                            </Select>
+                            <Input placeholder="Value" value={rule.value} onChange={e => handleRuleChange(index, 'value', e.target.value)} />
+                        </div>))}
+                    </div>
+                    <Button variant="outline" size="sm" onClick={addRule}><Plus className="mr-2 h-4 w-4"/>Add Condition</Button>
+                </div>
+            );
+        }
         return null;
     };
 
@@ -157,9 +191,13 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                     <Separator />
                     {selectedApp && selectedNode.type === 'action' && (
                         <div className="flex items-center gap-2">
-                             <Button variant="ghost" size="sm" onClick={() => handleDataChange({ appId: '', connectionId: '', actionName: '', inputs: {} })}>
+                             <Button variant="ghost" size="sm" onClick={() => handleDataChange({ appId: '', actionName: '', inputs: {} })}>
                                 <ArrowLeft className="mr-2 h-4 w-4"/> Change App
                             </Button>
+                            <div className="flex items-center gap-2 p-2 rounded-md bg-muted text-sm">
+                                <Icon className={cn("h-5 w-5", selectedApp.iconColor)} />
+                                <span className="font-semibold">{selectedApp.name}</span>
+                            </div>
                         </div>
                     )}
                     {renderEditorContent()}
