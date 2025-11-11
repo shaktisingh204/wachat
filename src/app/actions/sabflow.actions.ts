@@ -11,6 +11,7 @@ import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, C
 import { getErrorMessage } from '@/lib/utils';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { addCrmLead } from '@/app/actions/crm-leads.actions';
+import FormData from 'form-data';
 
 // Dynamically import all action files
 async function importActionModule(appId: string) {
@@ -83,6 +84,9 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
     if (actionName === 'apiRequest') {
         try {
             const { apiRequest } = node.data;
+            if (!apiRequest || !apiRequest.url) {
+                throw new Error("API Request node is not configured with a URL.");
+            }
             const interpolatedUrl = interpolate(apiRequest.url, context);
 
             const requestConfig: any = {
@@ -124,20 +128,25 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
             }
 
             // 3. Handle Query Params
+            const url = new URL(requestConfig.url);
             if (Array.isArray(apiRequest.params)) {
-                const url = new URL(requestConfig.url);
                  apiRequest.params.forEach((param: { key: string, value: string, enabled: boolean }) => {
                     if (param.enabled && param.key) {
                         url.searchParams.set(interpolate(param.key, context), interpolate(param.value, context));
                     }
                 });
-                requestConfig.url = url.toString();
             }
+            requestConfig.url = url.toString();
+
 
             // 4. Handle Body
             if (apiRequest.body?.type === 'json' && apiRequest.body.json) {
-                requestConfig.headers['Content-Type'] = 'application/json';
-                requestConfig.data = JSON.parse(interpolate(apiRequest.body.json, context));
+                try {
+                    requestConfig.headers['Content-Type'] = 'application/json';
+                    requestConfig.data = JSON.parse(interpolate(apiRequest.body.json, context));
+                } catch(e) {
+                     throw new Error(`Invalid JSON in request body: ${(e as Error).message}`);
+                }
             } else if (apiRequest.body?.type === 'form_data' && Array.isArray(apiRequest.body.formData)) {
                 const formData = new FormData();
                 apiRequest.body.formData.forEach((item: { key: string, value: string, enabled: boolean }) => {
@@ -153,8 +162,15 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
             const response = await axios(requestConfig);
             logger.log(`External API call successful (Status: ${response.status})`);
             
-            // Return the full response object
-            return { output: { status: response.status, headers: response.headers, data: response.data } };
+            const responseData = { status: response.status, headers: response.headers, data: response.data };
+            
+            // Save response to context
+            const responseVarName = node.data.responseVariableName || node.id.replace(/-/g, '_') + '_response';
+            context[responseVarName] = responseData;
+
+            logger.log(`Saved API response to context variable "${responseVarName}"`);
+
+            return { output: responseData };
 
         } catch (e: any) {
             const errorMsg = `Error executing API action: ${getErrorMessage(e)}`;
@@ -167,8 +183,12 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         try {
             const formData = new FormData();
             Object.keys(interpolatedInputs).forEach(key => {
-                if (interpolatedInputs[key] !== undefined && interpolatedInputs[key] !== null) {
-                    formData.append(key, String(interpolatedInputs[key]));
+                const actionInput = actionApp.actions.find(a => a.name === 'createCrmLead')?.inputs.find(i => i.name === key);
+                if (actionInput) {
+                    const formKey = actionInput.formKey || key;
+                     if (interpolatedInputs[key] !== undefined && interpolatedInputs[key] !== null) {
+                        formData.append(formKey, String(interpolatedInputs[key]));
+                    }
                 }
             });
 
@@ -233,8 +253,7 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, no
             logger.log(`Action failed. Stopping flow.`, { error: result.error, context });
             return null; // Stop execution on error
         }
-        const actionKey = node.data.name?.replace(/\s+/g, '_') || node.id;
-        context[actionKey] = result.output;
+        // The action's output is added to the context inside executeAction
     } else if (node.type === 'condition') {
         const rules = node.data.rules || [];
         const logicType = node.data.logicType || 'AND';
