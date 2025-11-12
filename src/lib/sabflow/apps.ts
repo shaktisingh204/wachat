@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -80,15 +81,14 @@ export const sabnodeAppActions = [
             label: 'Create Lead/Deal',
             description: 'Creates a new contact and an associated deal in the CRM.',
             inputs: [
-                { name: 'dealName', formKey: 'title', label: 'Deal Name', type: 'text', placeholder: 'e.g. New Website for {{trigger.company}}', required: true },
-                { name: 'dealValue', formKey: 'value', label: 'Deal Value', type: 'number', placeholder: 'e.g. 5000' },
-                { name: 'dealStage', formKey: 'stage', label: 'Deal Stage', type: 'text', placeholder: 'e.g., New' },
-                { name: 'contactName', formKey: 'contactName', label: 'Contact Name', type: 'text', placeholder: 'e.g., {{trigger.name}}', required: true },
-                { name: 'email', formKey: 'email', label: 'Contact Email', type: 'email', placeholder: 'e.g., {{trigger.email}}', required: true },
-                { name: 'phone', formKey: 'phone', label: 'Contact Phone', type: 'tel', placeholder: 'e.g., {{trigger.phone}}' },
-                { name: 'company', formKey: 'company', label: 'Company Name', type: 'text', placeholder: 'e.g., {{trigger.company}}' },
-                { name: 'leadSource', formKey: 'source', label: 'Lead Source', type: 'text', placeholder: 'e.g., Webhook' },
-                { name: 'status', formKey: 'status', label: 'Lead Status', type: 'text', placeholder: 'e.g., New' },
+                { name: 'title', label: 'Deal Name', type: 'text', placeholder: 'e.g. New Website for {{trigger.company}}', required: true },
+                { name: 'value', label: 'Deal Value', type: 'number', placeholder: 'e.g. 5000' },
+                { name: 'stage', label: 'Deal Stage', type: 'text', placeholder: 'e.g., New' },
+                { name: 'contactName', label: 'Contact Name', type: 'text', placeholder: 'e.g., {{trigger.name}}', required: true },
+                { name: 'email', label: 'Contact Email', type: 'email', placeholder: 'e.g., {{trigger.email}}', required: true },
+                { name: 'phone', label: 'Contact Phone', type: 'tel', placeholder: 'e.g., {{trigger.phone}}' },
+                { name: 'company', label: 'Company Name', type: 'text', placeholder: 'e.g., {{trigger.company}}' },
+                { name: 'source', label: 'Lead Source', type: 'text', placeholder: 'e.g., Webhook' },
             ]
         }
       ],
@@ -99,7 +99,18 @@ export const sabnodeAppActions = [
       appId: 'email',
       name: 'Email Suite',
       icon: Mail,
-      actions: [],
+      actions: [
+          {
+            name: 'sendEmail',
+            label: 'Send Email',
+            description: 'Sends an email to a recipient.',
+            inputs: [
+                { name: 'to', label: 'To Email', type: 'email', required: true },
+                { name: 'subject', label: 'Subject', type: 'text', required: true },
+                { name: 'body', label: 'Body (HTML)', type: 'textarea', required: true },
+            ]
+          }
+      ],
       connectionType: 'internal',
       iconColor: 'text-sabflow-email-icon',
     },
@@ -107,12 +118,56 @@ export const sabnodeAppActions = [
       appId: 'sms',
       name: 'SMS Suite',
       icon: MessageSquare,
-      actions: [],
+      actions: [
+          {
+            name: 'sendSms',
+            label: 'Send SMS',
+            description: 'Sends an SMS to a phone number.',
+            inputs: [
+                 { name: 'to', label: 'Recipient Phone', type: 'tel', required: true },
+                 { name: 'message', label: 'Message', type: 'textarea', required: true },
+            ]
+          }
+      ],
       connectionType: 'internal',
       iconColor: 'text-sabflow-sms-icon',
     },
-    { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-url-shortener-icon' },
-    { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-qr-code-maker-icon' },
+    { 
+        appId: 'url-shortener', 
+        name: 'URL Shortener', 
+        icon: LinkIcon, 
+        actions: [
+            {
+                name: 'createShortLink',
+                label: 'Create Short Link',
+                description: 'Creates a new short URL.',
+                inputs: [
+                    { name: 'longUrl', label: 'Original URL', type: 'text', required: true },
+                    { name: 'alias', label: 'Custom Alias (Optional)', type: 'text' },
+                ]
+            }
+        ], 
+        connectionType: 'internal', 
+        iconColor: 'text-sabflow-url-shortener-icon' 
+    },
+    { 
+        appId: 'qr-code-maker', 
+        name: 'QR Code Maker', 
+        icon: QrCode, 
+        actions: [
+            {
+                name: 'generateQrCode',
+                label: 'Generate QR Code',
+                description: 'Generates a QR Code for the given data.',
+                inputs: [
+                     { name: 'data', label: 'Data to Encode', type: 'text', required: true },
+                     { name: 'name', label: 'QR Code Name', type: 'text', required: true },
+                ]
+            }
+        ], 
+        connectionType: 'internal', 
+        iconColor: 'text-sabflow-qr-code-maker-icon' 
+    },
     { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon' },
 
   // Core Apps
@@ -229,3 +284,4 @@ export const sabnodeAppActions = [
     actions: []
   }
 ];
+
