@@ -1,4 +1,3 @@
-
 'use server';
 
 import {
@@ -17,6 +16,9 @@ import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, User } from '@/lib/definitions';
 import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
+import axios from 'axios';
+
+const API_VERSION = 'v23.0';
 
 // A helper function to create FormData for actions
 const createFormData = (inputs: any): FormData => {
@@ -40,9 +42,13 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
         if (!project) {
             throw new Error(`Project with ID ${projectId} not found or you do not have access.`);
         }
+        
+        if (!project.facebookPageId || !project.accessToken) {
+            throw new Error(`Project "${project.name}" is not correctly configured for the Meta Suite.`);
+        }
 
         const formData = createFormData(actionInputs);
-        formData.append('projectId', projectId); // Add project ID back for the actions that need it
+        formData.append('projectId', projectId);
 
         switch (actionName) {
             // ----- Content Management -----
@@ -64,7 +70,7 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
             }
             
             // ----- Engagement & Moderation -----
-            case 'getComments': {
+             case 'getComments': {
                 if (!actionInputs.objectId) throw new Error("Object ID (Post or Comment ID) is required.");
                 const result = await getFacebookComments(actionInputs.objectId, projectId);
                 if (result.error) throw new Error(result.error);
@@ -75,6 +81,30 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
                 if (result.error) throw new Error(result.error);
                 return { output: result };
             }
+            case 'likeObject': {
+                if (!actionInputs.objectId) throw new Error("Object ID (Post or Comment ID) is required.");
+                const result = await handleLikeObject(actionInputs.objectId, projectId);
+                if (!result.success) throw new Error(result.error);
+                return { output: result };
+            }
+            case 'deleteComment': {
+                if (!actionInputs.commentId) throw new Error("Comment ID is required.");
+                const result = await handleDeleteComment(actionInputs.commentId, projectId);
+                if (!result.success) throw new Error(result.error);
+                return { output: result };
+            }
+
+            // ----- Data Retrieval -----
+            case 'getPagePosts': {
+                const result = await getFacebookPosts(projectId);
+                if (result.error) throw new Error(result.error);
+                return { output: result.posts };
+            }
+             case 'getPageInsights': {
+                const result = await getPageInsights(projectId);
+                if (result.error) throw new Error(result.error);
+                return { output: result.insights };
+            }
 
             default:
                 throw new Error(`Meta Suite action "${actionName}" is not implemented.`);
@@ -84,3 +114,4 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
         return { error: e.message };
     }
 }
+

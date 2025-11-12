@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -75,7 +74,7 @@ export const metaActions = [
         { name: 'postId', label: 'Post ID', type: 'text', required: true },
     ]},
     
-    // Engagement
+    // Engagement & Moderation
     { name: 'getComments', label: 'Get Post Comments', description: 'Retrieves comments for a specific post.', icon: MessageSquare, inputs: [
         { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
         { name: 'objectId', label: 'Post ID', type: 'text', required: true },
@@ -84,6 +83,22 @@ export const metaActions = [
         { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
         { name: 'objectId', label: 'Post or Comment ID', type: 'text', required: true },
         { name: 'message', label: 'Comment Text', type: 'textarea', required: true },
+    ]},
+    { name: 'likeObject', label: 'Like Post or Comment', description: 'Likes a specific post or comment.', icon: ThumbsUp, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'objectId', label: 'Post or Comment ID', type: 'text', required: true },
+    ]},
+    { name: 'deleteComment', label: 'Delete Comment', description: 'Permanently deletes a comment.', icon: TrashIcon, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'commentId', label: 'Comment ID', type: 'text', required: true },
+    ]},
+
+    // Data Retrieval
+    { name: 'getPagePosts', label: 'Get Page Posts', description: 'Retrieves a list of recent posts from the page.', icon: Newspaper, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+    ]},
+    { name: 'getPageInsights', label: 'Get Page Insights', description: 'Retrieves performance metrics for the page.', icon: Megaphone, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
     ]},
 ];
 
