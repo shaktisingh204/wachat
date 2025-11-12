@@ -29,8 +29,9 @@ export function FacebookEmbeddedSignup({ appId, state }: FacebookEmbeddedSignupP
     }
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
-    // Scopes focused on pages, ads, and business management for Facebook marketing features
-    const scopes = 'pages_show_list,pages_manage_ads,pages_read_engagement,ads_management,business_management';
+    
+    // Request a more comprehensive set of permissions for full Meta Suite functionality
+    const scopes = 'pages_show_list,pages_manage_ads,pages_read_engagement,ads_management,business_management,pages_manage_posts,read_insights,pages_messaging';
     
     const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&state=${state}`;
 
@@ -43,5 +44,3 @@ export function FacebookEmbeddedSignup({ appId, state }: FacebookEmbeddedSignupP
         </Button>
     );
 }
-
-    
