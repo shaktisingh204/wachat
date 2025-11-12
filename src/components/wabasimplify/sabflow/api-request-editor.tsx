@@ -50,12 +50,12 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
 
     const handleAuthChange = (type: string, details?: any) => {
         handleApiChange('auth', { type, ...(details || {}) });
-    }
+    };
     
     const handleBodyChange = (type: string, content?: any) => {
         const bodyContent = content || (type === 'form_data' ? [] : '');
         handleApiChange('body', { type, [type === 'json' ? 'json' : 'formData']: bodyContent });
-    }
+    };
 
     const handleMappingChange = (index: number, field: 'variable' | 'path', value: string) => {
         const mappings = [...(apiRequest.responseMappings || [])];
@@ -165,7 +165,7 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
              <div className="space-y-2 pt-4">
                 <Label>Save Full Response To</Label>
                 <Input placeholder="Variable name for full response..." value={data.responseVariableName || ''} onChange={e => onUpdate({ ...data, responseVariableName: e.target.value })} />
-                <p className="text-xs text-muted-foreground">The entire response object (status, headers, data) will be saved to this variable. e.g. `{{Api_Request.response.data.some_field}}`</p>
+                <p className="text-xs text-muted-foreground">The entire response object (status, headers, data) will be saved to this variable. e.g. `{'{{Api_Request.response.data.some_field}}'}`</p>
             </div>
         </div>
     );
