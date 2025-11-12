@@ -34,6 +34,9 @@ import {
   Users,
   Search,
   UserPlus,
+  Inbox,
+  User,
+  History as HistoryIcon,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
@@ -116,7 +119,7 @@ export const sabnodeAppActions = [
               description: 'Assigns a team member to a chat session.',
               inputs: [
                    { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
-                   { name: 'agentId', label: 'Agent User ID', type: 'text', required: true },
+                   { name: 'agentId', label: 'Agent', type: 'agent-selector', required: true },
               ]
           },
            {
