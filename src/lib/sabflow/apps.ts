@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -44,6 +45,8 @@ import {
   MessageCircle,
   Megaphone,
   LayoutDashboard,
+  Video,
+  ListFilter
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
@@ -75,7 +78,7 @@ export const metaActions = [
     ]},
     
     // Engagement & Moderation
-    { name: 'getComments', label: 'Get Post Comments', description: 'Retrieves comments for a specific post.', icon: MessageSquare, inputs: [
+     { name: 'getComments', label: 'Get Post Comments', description: 'Retrieves comments for a specific post.', icon: MessageSquare, inputs: [
         { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
         { name: 'objectId', label: 'Post ID', type: 'text', required: true },
     ]},
@@ -97,7 +100,33 @@ export const metaActions = [
     { name: 'getPagePosts', label: 'Get Page Posts', description: 'Retrieves a list of recent posts from the page.', icon: Newspaper, inputs: [
         { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
     ]},
-    { name: 'getPageInsights', label: 'Get Page Insights', description: 'Retrieves performance metrics for the page.', icon: Megaphone, inputs: [
+     { name: 'getPageInsights', label: 'Get Page Insights', description: 'Retrieves performance metrics for the page.', icon: Megaphone, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+    ]},
+
+    // Messenger Actions
+    { name: 'sendMessengerMessage', label: 'Send Messenger Message', description: 'Send a text message to a user.', icon: MessageSquare, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'recipientId', label: 'Recipient ID (PSID)', type: 'text', required: true },
+        { name: 'messageText', label: 'Message Text', type: 'textarea', required: true },
+    ]},
+    { name: 'getPageConversations', label: 'Get Page Conversations', description: 'Retrieves a list of recent Messenger conversations.', icon: Inbox, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+    ]},
+    { name: 'getConversationMessages', label: 'Get Conversation Messages', description: 'Fetches the message history for a specific conversation.', icon: HistoryIcon, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'conversationId', label: 'Conversation ID', type: 'text', required: true },
+    ]},
+
+    // Live Video Actions
+    { name: 'scheduleLiveVideo', label: 'Schedule Live Video Premiere', description: 'Schedule a pre-recorded video to go live.', icon: Calendar, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'title', label: 'Video Title', type: 'text', required: true },
+        { name: 'scheduledDate', label: 'Scheduled Date (YYYY-MM-DD)', type: 'text', required: true },
+        { name: 'scheduledTime', label: 'Scheduled Time (HH:MM)', type: 'text', required: true },
+        { name: 'videoUrl', label: 'Video File URL', type: 'text', required: true, placeholder: 'A public URL to an MP4 or MOV file.' },
+    ]},
+    { name: 'getScheduledLiveVideos', label: 'Get Scheduled Live Videos', description: 'Retrieves a list of scheduled and past live streams.', icon: ListFilter, inputs: [
         { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
     ]},
 ];

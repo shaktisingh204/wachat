@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -11,6 +12,10 @@ import {
     getFacebookPosts,
     getFacebookComments,
     getPageInsights,
+    getFacebookConversations,
+    getFacebookConversationMessages,
+    handleScheduleLiveStream,
+    getScheduledLiveStreams,
 } from '@/app/actions/facebook.actions';
 import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, User } from '@/lib/definitions';
@@ -105,6 +110,37 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
                 if (result.error) throw new Error(result.error);
                 return { output: result.insights };
             }
+            
+            // ----- Messenger Actions -----
+            case 'sendMessengerMessage': {
+                if (!actionInputs.recipientId) throw new Error("Recipient ID (PSID) is required.");
+                const result = await sendFacebookMessage(null, formData);
+                if (result.error) throw new Error(result.error);
+                return { output: result };
+            }
+            case 'getPageConversations': {
+                const result = await getFacebookConversations(projectId);
+                if (result.error) throw new Error(result.error);
+                return { output: result.conversations };
+            }
+            case 'getConversationMessages': {
+                if (!actionInputs.conversationId) throw new Error("Conversation ID is required.");
+                const result = await getFacebookConversationMessages(actionInputs.conversationId, projectId);
+                if (result.error) throw new Error(result.error);
+                return { output: result.messages };
+            }
+
+            // ----- Live Video Actions -----
+            case 'scheduleLiveVideo': {
+                const result = await handleScheduleLiveStream(null, formData);
+                if (result.error) throw new Error(result.error);
+                return { output: result };
+            }
+            case 'getScheduledLiveVideos': {
+                const result = await getScheduledLiveStreams(projectId);
+                // The action returns an array directly, not an object with a property.
+                return { output: result };
+            }
 
             default:
                 throw new Error(`Meta Suite action "${actionName}" is not implemented.`);
@@ -114,4 +150,3 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
         return { error: e.message };
     }
 }
-
