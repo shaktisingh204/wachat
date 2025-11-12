@@ -96,6 +96,23 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         logger.log(`External API call successful (Status: ${response.status})`);
         
         const responseData = { status: response.status, headers: response.headers, data: response.data };
+        
+        if (node.data.responseVariableName) {
+            context[node.data.responseVariableName] = { response: responseData };
+        }
+
+        if (apiRequest?.responseMappings?.length > 0) {
+            apiRequest.responseMappings.forEach((mapping: any) => {
+                if (mapping.variable && mapping.path) {
+                    const value = getValueFromPath(response.data, mapping.path);
+                    if (value !== undefined) {
+                        context[mapping.variable] = value;
+                        logger.log(`Mapped response path "${mapping.path}" to context variable "${mapping.variable}".`, { value });
+                    }
+                }
+            });
+        }
+        
         return { output: responseData };
 
     } catch (e: any) {
@@ -104,12 +121,3 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         return { error: errorMsg };
     }
 }
-
-export const apiActions = [
-    {
-        name: 'apiRequest',
-        label: 'API Request',
-        description: 'Make a GET, POST, PUT, or DELETE request to any API endpoint.',
-        inputs: []
-    }
-]
