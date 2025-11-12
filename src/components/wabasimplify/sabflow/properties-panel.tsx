@@ -203,7 +203,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
         if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
-             const triggerApps = sabnodeAppActions.filter(app => app.actions?.some(a => a.isTrigger));
+             const triggerApps = sabnodeAppActions.filter(app => app.actions?.some(a => a.isTrigger === true));
 
              return (
                <div className="space-y-4">
