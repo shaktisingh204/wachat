@@ -46,7 +46,9 @@ import {
   Megaphone,
   LayoutDashboard,
   Video,
-  ListFilter
+  ListFilter,
+  ShoppingBag as CatalogIcon,
+  Package,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
@@ -103,7 +105,7 @@ export const metaActions = [
      { name: 'getPageInsights', label: 'Get Page Insights', description: 'Retrieves performance metrics for the page.', icon: Megaphone, inputs: [
         { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
     ]},
-
+    
     // Messenger Actions
     { name: 'sendMessengerMessage', label: 'Send Messenger Message', description: 'Send a text message to a user.', icon: MessageSquare, inputs: [
         { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
@@ -128,6 +130,31 @@ export const metaActions = [
     ]},
     { name: 'getScheduledLiveVideos', label: 'Get Scheduled Live Videos', description: 'Retrieves a list of scheduled and past live streams.', icon: ListFilter, inputs: [
         { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+    ]},
+
+    // Ads & Catalog Actions
+    { name: 'getAdCampaigns', label: 'Get Ad Campaigns', description: 'Retrieves ad campaigns from the connected ad account.', icon: Megaphone, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+    ]},
+    { name: 'getCatalogs', label: 'Get Product Catalogs', description: 'Retrieves all product catalogs for the business.', icon: CatalogIcon, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+    ]},
+    { name: 'getCatalogProducts', label: 'Get Catalog Products', description: 'Lists all products within a specific catalog.', icon: Package, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'catalogId', label: 'Catalog ID', type: 'text', required: true },
+    ]},
+    { name: 'addProductToCatalog', label: 'Add Product to Catalog', description: 'Creates a new product in a specified catalog.', icon: Plus, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'catalogId', label: 'Catalog ID', type: 'text', required: true },
+        { name: 'retailerId', label: 'SKU / Retailer ID', type: 'text', required: true },
+        { name: 'name', label: 'Product Name', type: 'text', required: true },
+        { name: 'price', label: 'Price', type: 'number', required: true },
+        { name: 'currency', label: 'Currency', type: 'text', required: true, placeholder: 'e.g., INR, USD' },
+        { name: 'imageUrl', label: 'Image URL', type: 'text', required: true },
+    ]},
+    { name: 'deleteProductFromCatalog', label: 'Delete Product from Catalog', description: 'Deletes a product from a specified catalog.', icon: TrashIcon, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'productId', label: 'Product ID', type: 'text', required: true, placeholder: 'The product ID from Meta, not the retailer ID.' },
     ]},
 ];
 
