@@ -13,7 +13,7 @@ import { handleUpdateContactDetails, handleUpdateContactStatus } from '@/app/act
 import { handleRequestWhatsAppPayment } from '@/app/actions/whatsapp.actions';
 import { handlePaymentRequest } from '@/app/actions/integrations.actions';
 import { getProjectById } from '@/app/actions/project.actions';
-import type { WithId, User, Project } from '@/lib/definitions';
+import type { WithId, User, Project, Contact } from '@/lib/definitions';
 import FormData from 'form-data';
 import axios from 'axios';
 import { getErrorMessage } from '@/lib/utils';
@@ -25,7 +25,13 @@ async function getProjectAndContact(projectId: string, waId: string) {
     const project = await getProjectById(projectId);
     if (!project) throw new Error(`Project not found: ${projectId}`);
     
-    const contactResult = await findOrCreateContact(projectId, project.phoneNumbers[0].id, waId);
+    // Ensure the project has at least one phone number to proceed
+    const phoneNumberId = project.phoneNumbers?.[0]?.id;
+    if (!phoneNumberId) {
+        throw new Error(`Project ${project.name} has no configured phone numbers.`);
+    }
+
+    const contactResult = await findOrCreateContact(projectId, phoneNumberId, waId);
     if (contactResult.error || !contactResult.contact) {
         throw new Error(contactResult.error || 'Could not find or create contact.');
     }
@@ -36,6 +42,7 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
     try {
         const { projectId, to, ...restInputs } = inputs;
         if (!projectId) throw new Error("Wachat actions require a 'projectId' to be selected.");
+        if (!to) throw new Error("A 'To' phone number (waId) is required for most Wachat actions.");
 
         const { project, contact } = await getProjectAndContact(projectId, to);
         const phoneNumberId = contact.phoneNumberId || project.phoneNumbers[0]?.id;
@@ -45,26 +52,34 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
         }
 
         const formData = new FormData();
-        Object.keys(inputs).forEach(key => formData.append(key, inputs[key]));
+        Object.keys(inputs).forEach(key => {
+            if (inputs[key] !== undefined && inputs[key] !== null) {
+                formData.append(key, String(inputs[key]));
+            }
+        });
         formData.append('contactId', contact._id.toString());
         formData.append('phoneNumberId', phoneNumberId);
         formData.append('waId', to);
 
         switch (actionName) {
             case 'sendMessage': {
+                if (!inputs.message) throw new Error("Input 'message' is required.");
                 formData.append('messageText', inputs.message);
                 const result = await handleSendMessage(null, formData);
                 if (result.error) throw new Error(result.error);
                 return { output: result };
             }
             case 'sendTemplate': {
+                 if (!inputs.templateId) throw new Error("Input 'templateId' is required.");
                  const result = await handleSendTemplateMessage(null, formData);
                  if (result.error) throw new Error(result.error);
                  return { output: result };
             }
             case 'sendImage':
             case 'sendVideo':
-            case 'sendDocument': {
+            case 'sendDocument':
+            case 'sendAudio':
+            case 'sendSticker': {
                  const mediaUrl = inputs.mediaUrl;
                  if (!mediaUrl) throw new Error('Media URL is required.');
 
@@ -84,6 +99,24 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                  if (result.error) throw new Error(result.error);
                  return { output: result };
             }
+            case 'sendLocation': {
+                 if (!inputs.latitude || !inputs.longitude) throw new Error('Latitude and Longitude are required.');
+                 const payload = {
+                    messaging_product: 'whatsapp', to, type: 'location',
+                    location: { latitude: inputs.latitude, longitude: inputs.longitude, name: inputs.name, address: inputs.address }
+                 };
+                 await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                 return { output: { success: true } };
+            }
+            case 'sendContact': {
+                 if (!inputs.contactName || !inputs.contactPhone) throw new Error('Contact Name and Phone are required.');
+                 const payload = {
+                    messaging_product: 'whatsapp', to, type: 'contacts',
+                    contacts: [{ name: { formatted_name: inputs.contactName, first_name: inputs.contactName }, phones: [{ phone: inputs.contactPhone, type: 'CELL' }] }]
+                 };
+                 await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                 return { output: { success: true } };
+            }
             case 'createContact': {
                 const contactFormData = new FormData();
                 contactFormData.append('projectId', projectId);
@@ -91,7 +124,7 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                 contactFormData.append('name', inputs.name);
                 contactFormData.append('waId', inputs.waId);
                 const result = await handleAddNewContact(null, contactFormData);
-                 if (result.error) throw new Error(result.error);
+                if (result.error) throw new Error(result.error);
                 return { output: result };
             }
             case 'updateContact': {
@@ -100,7 +133,7 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                  updateFormData.append('contactId', contact._id.toString());
                  updateFormData.append('variables', JSON.stringify(variables));
                  const result = await handleUpdateContactDetails(null, updateFormData);
-                 if (result.error) throw new Error(result.error);
+                 if (!result.success) throw new Error(result.error);
                  return { output: result };
             }
             case 'addContactTag':
@@ -140,8 +173,7 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                 return { output: { success: true } };
             }
             case 'triggerFlow': {
-                // This will need a dedicated implementation in webhook processor or similar
-                logger.log('Triggering flow is a complex action that needs to be handled by the main processor.');
+                logger.log('Triggering flow is a complex action handled by the main processor. This action is a placeholder.');
                 return { output: { message: 'Flow trigger initiated.' }};
             }
              case 'requestRazorpayPayment': {
