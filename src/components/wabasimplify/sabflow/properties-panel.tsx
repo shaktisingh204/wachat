@@ -235,7 +235,10 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                                         type="button" 
                                         key={app.appId} 
                                         className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border", isSelected && 'ring-2 ring-primary')}
-                                        onClick={() => handleDataChange({ appId: app.appId, actionName: app.actions.find(a => a.isTrigger)?.name, inputs: {} })}
+                                        onClick={() => {
+                                            const triggerAction = app.actions.find(a => a.isTrigger);
+                                            handleDataChange({ appId: app.appId, actionName: triggerAction?.name, inputs: {} });
+                                        }}
                                     >
                                         <AppIcon className={cn("h-6 w-6 mb-1", app.iconColor)}/>
                                         <p className="text-xs font-medium text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
