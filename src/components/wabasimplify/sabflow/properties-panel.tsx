@@ -19,6 +19,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '../ui/textarea';
 import type { WithId, Project, User } from '@/lib/definitions';
 import { getInvitedUsers } from '@/app/actions/team.actions';
+import { getChatSessionsForUser } from '@/app/actions/sabchat.actions';
+import { DynamicSelector } from './dynamic-selector';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
@@ -27,28 +29,26 @@ const triggers = [
     { id: 'app', name: 'App Trigger', icon: Zap, description: 'Start this flow based on an event from another app.' },
 ];
 
-function NodeInput({ input, value, onChange, projectList, agentList }: { input: any, value: any, onChange: (val: any) => void, projectList: any[], agentList: any[] }) {
-    if (input.type === 'project-selector') {
+function NodeInput({ input, value, onChange, dataOptions }: { input: any, value: any, onChange: (val: any) => void, dataOptions: any }) {
+    if (input.type === 'dynamic-selector') {
         return (
-            <Select value={value} onValueChange={onChange}>
-                <SelectTrigger><SelectValue placeholder="Select a project..." /></SelectTrigger>
-                <SelectContent>
-                    {projectList.map(p => (
-                        <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+            <DynamicSelector
+                value={value}
+                onChange={onChange}
+                options={dataOptions[input.fetch] || []}
+                placeholder={input.placeholder}
+            />
         );
     }
     
-    if (input.type === 'agent-selector') {
+    if (input.type === 'project-selector' || input.type === 'agent-selector') {
+        const options = input.type === 'project-selector' ? dataOptions.projects : dataOptions.agents;
         return (
             <Select value={value} onValueChange={onChange}>
-                <SelectTrigger><SelectValue placeholder="Select an agent..." /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="">Unassigned</SelectItem>
-                    {agentList.map(agent => (
-                        <SelectItem key={agent._id} value={agent._id}>{agent.name}</SelectItem>
+                    {options.map((opt: any) => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                     ))}
                 </SelectContent>
             </Select>
@@ -67,13 +67,24 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const { projects } = useProject();
     const wachatProjects = projects.filter(p => p.wabaId);
     
-    const [agents, setAgents] = useState<WithId<User>[]>([]);
-    const [isLoadingAgents, startAgentLoad] = useTransition();
+    const [dynamicData, setDynamicData] = useState<any>({
+        projects: wachatProjects.map(p => ({ value: p._id, label: p.name })),
+        agents: [],
+        sabChatSessions: [],
+    });
+    const [isLoadingData, startDataLoad] = useTransition();
 
     useEffect(() => {
-        startAgentLoad(async () => {
-            const fetchedAgents = await getInvitedUsers();
-            setAgents(fetchedAgents);
+        startDataLoad(async () => {
+            const [fetchedAgents, fetchedSessions] = await Promise.all([
+                getInvitedUsers(),
+                getChatSessionsForUser()
+            ]);
+            setDynamicData(prev => ({
+                ...prev,
+                agents: fetchedAgents.map(a => ({ value: a._id.toString(), label: a.name })),
+                sabChatSessions: fetchedSessions.map(s => ({ value: s._id.toString(), label: `${s.visitorInfo?.email || 'Visitor'} - ${s._id.toString().slice(-6)}` }))
+            }));
         });
     }, []);
 
@@ -89,7 +100,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     if (selectedNode.data.actionName === 'apiRequest') {
         selectedAction = { name: 'apiRequest', label: 'API Request', description: 'Make a GET, POST, PUT, or DELETE request.', inputs: [] };
     }
-
 
     const renderEditorContent = () => {
         const isAction = selectedNode.type === 'action';
@@ -151,7 +161,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                  return (
                     <div className="space-y-4">
                         <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })} projectList={wachatProjects} agentList={agents} /></div>))}
+                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })} dataOptions={dynamicData} /></div>))}
                     </div>
                 );
             }

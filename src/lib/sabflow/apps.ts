@@ -20,10 +20,11 @@ import {
   Sigma,
   Cable,
   Webhook,
+  Split,
+  CaseSensitive,
   Route,
   Columns,
   Calendar,
-  CaseSensitive,
   Link as LinkIcon,
   QrCode,
   Handshake,
@@ -64,7 +65,7 @@ export const sabnodeAppActions = [
               label: 'Send Message',
               description: 'Sends a message to a visitor in an active chat session.',
               inputs: [
-                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
+                  { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
                   { name: 'content', label: 'Message Text', type: 'textarea', required: true },
               ]
           },
@@ -73,7 +74,7 @@ export const sabnodeAppActions = [
               label: 'Close Session',
               description: 'Closes a live chat session.',
               inputs: [
-                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
+                   { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
               ]
           },
           {
@@ -81,7 +82,7 @@ export const sabnodeAppActions = [
               label: 'Add Tag to Session',
               description: 'Adds a descriptive tag to a chat session for categorization.',
               inputs: [
-                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
+                   { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
                    { name: 'tagName', label: 'Tag Name', type: 'text', required: true },
               ]
           },
@@ -99,7 +100,7 @@ export const sabnodeAppActions = [
               label: 'Get Session Details',
               description: "Retrieves the full details of a session, including its status and visitor info.",
               inputs: [
-                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
+                  { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
               ]
           },
           {
@@ -107,7 +108,7 @@ export const sabnodeAppActions = [
               label: 'Update Visitor Info',
               description: 'Adds or updates information about the visitor in a chat session.',
               inputs: [
-                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
+                  { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
                   { name: 'name', label: 'Visitor Name', type: 'text', required: false },
                   { name: 'email', label: 'Visitor Email', type: 'email', required: false },
                   { name: 'phone', label: 'Visitor Phone', type: 'tel', required: false },
@@ -118,8 +119,8 @@ export const sabnodeAppActions = [
               label: 'Assign Agent',
               description: 'Assigns a team member to a chat session.',
               inputs: [
-                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
-                   { name: 'agentId', label: 'Agent', type: 'agent-selector', required: true },
+                   { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
+                   { name: 'agentId', label: 'Agent', type: 'dynamic-selector', fetch: 'agents', required: true, placeholder: 'Select or enter Agent ID...' },
               ]
           },
            {
@@ -127,7 +128,7 @@ export const sabnodeAppActions = [
               label: 'Get Chat History',
               description: 'Retrieves the message history for a specific session.',
               inputs: [
-                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
+                  { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
               ]
           }
       ],
@@ -223,6 +224,7 @@ export const sabnodeAppActions = [
                 inputs: [
                     { name: 'longUrl', label: 'Original URL', type: 'text', required: true },
                     { name: 'alias', label: 'Custom Alias (Optional)', type: 'text' },
+                    { name: 'saveAsVariable', label: 'Save Link to Variable', type: 'text' },
                 ]
             }
         ], 
@@ -237,10 +239,11 @@ export const sabnodeAppActions = [
             {
                 name: 'generateQrCode',
                 label: 'Generate QR Code',
-                description: 'Generates a QR Code for the given data.',
+                description: 'Generates a QR Code for the given data and saves the image URL to a variable.',
                 inputs: [
                      { name: 'data', label: 'Data to Encode', type: 'text', required: true },
                      { name: 'name', label: 'QR Code Name', type: 'text', required: true },
+                     { name: 'saveAsVariable', label: 'Save Image URL to Variable', type: 'text', required: true },
                 ]
             }
         ], 
