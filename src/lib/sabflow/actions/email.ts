@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { sendCrmEmail } from '@/app/actions/crm-email.actions';
@@ -27,16 +28,3 @@ export async function executeEmailAction(actionName: string, inputs: any, user: 
         return { error: e.message };
     }
 }
-
-export const emailActions = [
-    {
-        name: 'sendEmail',
-        label: 'Send Email',
-        description: 'Sends an email using your configured SMTP or OAuth provider.',
-        inputs: [
-            { name: 'to', label: 'To', type: 'email', required: true },
-            { name: 'subject', label: 'Subject', type: 'text', required: true },
-            { name: 'body', label: 'Body (HTML)', type: 'textarea', required: true },
-        ]
-    }
-];
