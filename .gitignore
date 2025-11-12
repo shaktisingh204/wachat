@@ -65,11 +65,12 @@ Ignore all action files by default
 /src/app/actions/facebook.actions.ts
 /src/app/actions/facebook-flow.actions.ts
 /src/app/actions/instagram.actions.ts
-/src/app/actions/whatsapp.actions.ts
+!/src/app/actions/whatsapp.actions.ts
 !/src/app/actions/index.ts
 /src/app/actions/crm-hr.actions.ts
 /src/components/wabasimplify/meta-flow-editor/
 /src/components/wabasimplify/website-builder/
+/src/app/actions/sabflow.actions.ts
 # debug
 npm-debug.log*
 yarn-debug.log*
