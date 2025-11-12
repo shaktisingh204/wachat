@@ -30,6 +30,8 @@ import {
   Handshake,
   Repeat,
   Zap,
+  Tag,
+  XCircle,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
@@ -51,7 +53,34 @@ export const sabnodeAppActions = [
       appId: 'sabchat',
       name: 'sabChat',
       icon: SabChatIcon,
-      actions: [],
+      actions: [
+          {
+              name: 'sendMessage',
+              label: 'Send Message',
+              description: 'Sends a message to a visitor in an active chat session.',
+              inputs: [
+                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true },
+                  { name: 'content', label: 'Message Text', type: 'textarea', required: true },
+              ]
+          },
+          {
+              name: 'closeSession',
+              label: 'Close Session',
+              description: 'Closes a live chat session.',
+              inputs: [
+                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true },
+              ]
+          },
+          {
+              name: 'addTagToSession',
+              label: 'Add Tag to Session',
+              description: 'Adds a tag to a chat session for categorization.',
+              inputs: [
+                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true },
+                   { name: 'tagName', label: 'Tag Name', type: 'text', required: true },
+              ]
+          }
+      ],
       connectionType: 'internal',
       iconColor: 'text-sabflow-sabchat-icon',
     },
@@ -285,3 +314,4 @@ export const sabnodeAppActions = [
   }
 ];
 
+    
