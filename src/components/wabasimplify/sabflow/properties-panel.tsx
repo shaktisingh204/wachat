@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
@@ -204,7 +203,8 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
         if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
-             const triggerApps = sabnodeAppActions.filter(app => app.actions && app.actions.some(a => a.isTrigger));
+             const triggerApps = sabnodeAppActions.filter(app => app.actions?.some(a => a.isTrigger));
+
              return (
                <div className="space-y-4">
                   <div className="space-y-2">
@@ -246,7 +246,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                                 )
                             })}
                         </div>
-                         {selectedApp && selectedAction && (
+                         {selectedApp && selectedAction && selectedAction.isTrigger && (
                             <AppConnectionSetup app={selectedApp} flowId={params.flowId} onConnectionSaved={onConnectionSaved} />
                          )}
                     </div>
