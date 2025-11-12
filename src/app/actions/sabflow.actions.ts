@@ -15,6 +15,7 @@ import { executeSmsAction } from '@/lib/sabflow/actions/sms';
 import { executeEmailAction } from '@/lib/sabflow/actions/email';
 import { executeUrlShortenerAction } from '@/lib/sabflow/actions/url-shortener';
 import { executeQrCodeAction } from '@/lib/sabflow/actions/qr-code';
+import { executeSabChatAction } from '@/lib/sabflow/actions/sabchat';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
 
 // Helper to interpolate context variables into strings
@@ -56,6 +57,9 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         switch(appId) {
             case 'wachat':
                 result = await executeWachatAction(actionName, interpolatedInputs, user, logger);
+                break;
+            case 'sabchat':
+                result = await executeSabChatAction(actionName, interpolatedInputs, user, logger);
                 break;
             case 'crm':
                 result = await executeCrmAction(actionName, interpolatedInputs, user, logger);
@@ -330,3 +334,5 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
         return { error: getErrorMessage(e) };
     }
 }
+
+    
