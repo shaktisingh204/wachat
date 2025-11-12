@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,8 @@ import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '../ui/textarea';
+import type { WithId, Project, User } from '@/lib/definitions';
+import { getInvitedUsers } from '@/app/actions/team.actions';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
@@ -25,7 +27,7 @@ const triggers = [
     { id: 'app', name: 'App Trigger', icon: Zap, description: 'Start this flow based on an event from another app.' },
 ];
 
-function NodeInput({ input, value, onChange, projectList }: { input: any, value: any, onChange: (val: any) => void, projectList: any[] }) {
+function NodeInput({ input, value, onChange, projectList, agentList }: { input: any, value: any, onChange: (val: any) => void, projectList: any[], agentList: any[] }) {
     if (input.type === 'project-selector') {
         return (
             <Select value={value} onValueChange={onChange}>
@@ -33,6 +35,20 @@ function NodeInput({ input, value, onChange, projectList }: { input: any, value:
                 <SelectContent>
                     {projectList.map(p => (
                         <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        );
+    }
+    
+    if (input.type === 'agent-selector') {
+        return (
+            <Select value={value} onValueChange={onChange}>
+                <SelectTrigger><SelectValue placeholder="Select an agent..." /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="">Unassigned</SelectItem>
+                    {agentList.map(agent => (
+                        <SelectItem key={agent._id} value={agent._id}>{agent.name}</SelectItem>
                     ))}
                 </SelectContent>
             </Select>
@@ -50,6 +66,16 @@ function NodeInput({ input, value, onChange, projectList }: { input: any, value:
 export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: any, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) {
     const { projects } = useProject();
     const wachatProjects = projects.filter(p => p.wabaId);
+    
+    const [agents, setAgents] = useState<WithId<User>[]>([]);
+    const [isLoadingAgents, startAgentLoad] = useTransition();
+
+    useEffect(() => {
+        startAgentLoad(async () => {
+            const fetchedAgents = await getInvitedUsers();
+            setAgents(fetchedAgents);
+        });
+    }, []);
 
     if (!selectedNode) return null;
     
@@ -60,7 +86,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const selectedApp = sabnodeAppActions.find(app => app.appId === selectedNode.data.appId);
     let selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
     
-    // Explicit check for apiRequest
     if (selectedNode.data.actionName === 'apiRequest') {
         selectedAction = { name: 'apiRequest', label: 'API Request', description: 'Make a GET, POST, PUT, or DELETE request.', inputs: [] };
     }
@@ -118,7 +143,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                );
             }
             
-            // This is the main fix. If the action is 'apiRequest', render the dedicated editor.
             if (selectedNode.data.actionName === 'apiRequest') {
                 return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
             }
@@ -127,7 +151,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                  return (
                     <div className="space-y-4">
                         <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })} projectList={wachatProjects} /></div>))}
+                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })} projectList={wachatProjects} agentList={agents} /></div>))}
                     </div>
                 );
             }
