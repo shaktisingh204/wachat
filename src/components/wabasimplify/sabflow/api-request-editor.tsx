@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 
-const KeyValueEditor = ({ items, onItemsChange }: { items: { key: string, value: string, enabled: boolean }[], onItemsChange: (items: any[]) => void }) => {
+const KeyValueEditor: React.FC<{ items: { key: string, value: string, enabled: boolean }[], onItemsChange: (items: any[]) => void }> = ({ items, onItemsChange }) => {
     const handleItemChange = (index: number, field: 'key' | 'value' | 'enabled', value: string | boolean) => {
         const newItems = [...items];
         newItems[index] = { ...newItems[index], [field]: value };
