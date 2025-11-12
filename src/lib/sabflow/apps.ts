@@ -32,14 +32,83 @@ import {
   Zap,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { wachatActions } from './actions/wachat';
-import { crmActions } from './actions/crm';
-import { metaActions } from './actions/meta';
-import { sabChatActions } from './actions/sabchat';
-import { emailActions } from './actions/email';
-import { smsActions } from './actions/sms';
-import { urlShortenerActions } from './actions/url-shortener';
-import { qrCodeMakerActions } from './actions/qr-code';
+
+// --- Action Definitions ---
+
+const wachatActions = [
+    { name: 'sendMessage', label: 'Send Text Message', description: 'Sends a simple text message.', inputs: [{ name: 'message', label: 'Message', type: 'textarea', placeholder: 'Hello {{name}}!' }] },
+    { name: 'sendImage', label: 'Send Image', description: 'Sends an image from a public URL.', inputs: [{ name: 'mediaUrl', label: 'Image URL', type: 'text' }, { name: 'caption', label: 'Caption', type: 'text' }] },
+    { name: 'sendVideo', label: 'Send Video', description: 'Sends a video from a public URL.', inputs: [{ name: 'mediaUrl', label: 'Video URL', type: 'text' }, { name: 'caption', label: 'Caption', type: 'text' }] },
+    { name: 'sendDocument', label: 'Send Document', description: 'Sends a document from a public URL.', inputs: [{ name: 'mediaUrl', label: 'Document URL', type: 'text' }, { name: 'filename', label: 'Filename', type: 'text' }] },
+    { name: 'sendTemplate', label: 'Send Template Message', description: 'Sends a pre-approved WhatsApp template.', inputs: [{ name: 'templateId', label: 'Template ID', type: 'text' }] },
+    { name: 'triggerMetaFlow', label: 'Trigger Meta Flow', description: 'Starts an interactive Meta Flow.', inputs: [{ name: 'metaFlowId', label: 'Meta Flow ID', type: 'text' }] },
+    { name: 'requestRazorpayPayment', label: 'Request Razorpay Payment', description: 'Sends a Razorpay payment link.', inputs: [{ name: 'amount', label: 'Amount (INR)', type: 'number' }, { name: 'description', label: 'Description', type: 'text' }] },
+    { name: 'requestWaPayPayment', label: 'Request WhatsApp Payment', description: 'Initiates a WhatsApp Pay request.', inputs: [{ name: 'amount', label: 'Amount (INR)', type: 'number' }, { name: 'description', label: 'Description', type: 'text' }] },
+    { name: 'createContact', label: 'Create/Update Contact', description: 'Creates a new contact or updates an existing one.', inputs: [{ name: 'name', label: 'Name', type: 'text' }, { name: 'waId', label: 'WhatsApp ID', type: 'text' }] },
+    { name: 'updateContact', label: 'Update Contact Variables', description: 'Updates custom attributes for a contact.', inputs: [{ name: 'variables', label: 'Variables (JSON)', type: 'textarea', placeholder: '{"key": "value"}' }] },
+    { name: 'addContactTag', label: 'Add Tag to Contact', description: 'Adds a tag to a contact.', inputs: [{ name: 'tagId', label: 'Tag ID', type: 'text' }] },
+    { name: 'removeContactTag', label: 'Remove Tag from Contact', description: 'Removes a tag from a contact.', inputs: [{ name: 'tagId', label: 'Tag ID', type: 'text' }] },
+    { name: 'getContact', label: 'Get Contact Details', description: 'Retrieves all data for a contact.', inputs: [] },
+    { name: 'getConversation', label: 'Get Conversation History', description: 'Retrieves recent messages for a contact.', inputs: [] },
+    { name: 'markAsRead', label: 'Mark Conversation as Read', description: 'Marks the conversation as read.', inputs: [] },
+    { name: 'assignAgent', label: 'Assign Agent', description: 'Assigns the conversation to a team member.', inputs: [{ name: 'agentId', label: 'Agent ID', type: 'agent-selector', fetch: 'agents' }] },
+    { name: 'changeConversationStatus', label: 'Change Conversation Status', description: 'Updates the Kanban status of the conversation.', inputs: [{ name: 'status', label: 'New Status', type: 'text' }] },
+    { name: 'triggerFlow', label: 'Trigger Another Flow', description: 'Starts another flow for the current contact.', inputs: [{ name: 'flowId', label: 'Flow ID', type: 'text' }] },
+];
+
+const sabChatActions = [
+    { name: 'sendMessage', label: 'Send Message', description: 'Sends a message to a live chat session.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions' }, { name: 'content', label: 'Message Content', type: 'textarea' }] },
+    { name: 'closeSession', label: 'Close Session', description: 'Closes a live chat session.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions' }] },
+    { name: 'addTagToSession', label: 'Add Tag to Session', description: 'Adds a tag to a live chat session.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions' }, { name: 'tagName', label: 'Tag Name', type: 'text' }] },
+    { name: 'getOrCreateSession', label: 'Get or Create Session', description: 'Finds an existing session or creates a new one for a visitor.', inputs: [{ name: 'email', label: 'Visitor Email', type: 'text' }] },
+    { name: 'getSessionDetails', label: 'Get Session Details', description: 'Retrieves full details for a session.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions' }] },
+    { name: 'updateVisitorInfo', label: 'Update Visitor Info', description: 'Updates the name, email, or phone of a visitor.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions' }, { name: 'name', label: 'Name', type: 'text' }, { name: 'email', label: 'Email', type: 'text' }, { name: 'phone', label: 'Phone', type: 'text' }] },
+    { name: 'assignAgent', label: 'Assign Agent', description: 'Assigns a chat session to a team member.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions' }, { name: 'agentId', label: 'Agent ID', type: 'agent-selector', fetch: 'agents' }] },
+    { name: 'getChatHistory', label: 'Get Chat History', description: 'Retrieves the message history for a session.', inputs: [{ name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions' }] },
+];
+
+const metaActions = [
+    { name: 'createPost', label: 'Create Post', description: 'Create a new post on your Facebook Page.', inputs: [{ name: 'message', label: 'Message', type: 'textarea' }, { name: 'imageUrl', label: 'Image URL (Optional)', type: 'text' }] },
+    { name: 'updatePost', label: 'Update Post', description: 'Update the message of an existing post.', inputs: [{ name: 'postId', label: 'Post ID', type: 'text' }, { name: 'message', label: 'New Message', type: 'textarea' }] },
+    { name: 'deletePost', label: 'Delete Post', description: 'Permanently delete a post.', inputs: [{ name: 'postId', label: 'Post ID', type: 'text' }] },
+    { name: 'getComments', label: 'Get Comments', description: 'Retrieve comments from a post or another comment.', inputs: [{ name: 'objectId', label: 'Post/Comment ID', type: 'text' }] },
+    { name: 'postComment', label: 'Post Comment', description: 'Post a comment or reply.', inputs: [{ name: 'objectId', label: 'Post/Comment ID', type: 'text' }, { name: 'message', label: 'Comment Text', type: 'textarea' }] },
+    { name: 'likeObject', label: 'Like Post/Comment', description: 'Like a post or comment.', inputs: [{ name: 'objectId', label: 'Post/Comment ID', type: 'text' }] },
+    { name: 'deleteComment', label: 'Delete Comment', description: 'Delete a comment.', inputs: [{ name: 'commentId', label: 'Comment ID', type: 'text' }] },
+    { name: 'getPagePosts', label: 'Get Page Posts', description: 'Retrieve a list of recent posts from your page.', inputs: [] },
+    { name: 'getPageInsights', label: 'Get Page Insights', description: 'Get performance metrics for your page.', inputs: [] },
+    { name: 'sendMessengerMessage', label: 'Send Messenger Message', description: 'Send a text message to a user in Messenger.', inputs: [{ name: 'recipientId', label: 'Recipient PSID', type: 'text' }, { name: 'messageText', label: 'Message Text', type: 'textarea' }] },
+    { name: 'getPageConversations', label: 'Get Messenger Conversations', description: 'Retrieve a list of recent conversations.', inputs: [] },
+    { name: 'getConversationMessages', label: 'Get Conversation Messages', description: 'Get messages from a specific Messenger conversation.', inputs: [{ name: 'conversationId', label: 'Conversation ID', type: 'text' }] },
+    { name: 'scheduleLiveVideo', label: 'Schedule Live Video', description: 'Schedule a pre-recorded video to go live.', inputs: [{ name: 'title', label: 'Title', type: 'text' }, { name: 'videoUrl', label: 'Video URL', type: 'text' }, { name: 'scheduledDate', label: 'Date', type: 'date' }, { name: 'scheduledTime', label: 'Time', type: 'time' }] },
+    { name: 'getScheduledLiveVideos', label: 'Get Scheduled Live Videos', description: 'Retrieve a list of scheduled live streams.', inputs: [] },
+    { name: 'getAdCampaigns', label: 'Get Ad Campaigns', description: 'Retrieve a list of ad campaigns.', inputs: [] },
+    { name: 'getCatalogs', label: 'Get Catalogs', description: 'Get a list of product catalogs.', inputs: [] },
+    { name: 'getProductsForCatalog', label: 'Get Products in Catalog', description: 'Get products for a specific catalog ID.', inputs: [{ name: 'catalogId', label: 'Catalog ID', type: 'text' }] },
+    { name: 'addProductToCatalog', label: 'Add Product to Catalog', description: 'Add a new product to a catalog.', inputs: [{ name: 'catalogId', label: 'Catalog ID', type: 'text' }, { name: 'name', label: 'Name', type: 'text' }, { name: 'price', label: 'Price', type: 'number' }, { name: 'currency', label: 'Currency', type: 'text' }, { name: 'retailer_id', label: 'SKU', type: 'text' }, { name: 'image_url', label: 'Image URL', type: 'text' }, { name: 'description', label: 'Description', type: 'textarea' }] },
+    { name: 'deleteProductFromCatalog', label: 'Delete Product from Catalog', description: 'Delete a product from a catalog.', inputs: [{ name: 'productId', label: 'Product ID', type: 'text' }] },
+];
+
+const crmActions = [
+    { name: 'createLead', label: 'Create Lead and Deal', description: 'Create a new contact and an associated sales deal.', inputs: [{ name: 'contactName', label: 'Contact Name', type: 'text' }, { name: 'email', label: 'Email', type: 'text' }, { name: 'phone', label: 'Phone', type: 'text' }, { name: 'company', label: 'Company', type: 'text' }, { name: 'dealName', label: 'Deal Name', type: 'text' }, { name: 'dealValue', label: 'Deal Value', type: 'number' }, { name: 'stage', label: 'Stage', type: 'text' }] },
+    { name: 'addNote', label: 'Add Note', description: 'Add a note to a contact, account, or deal.', inputs: [{ name: 'recordId', label: 'Record ID', type: 'text' }, { name: 'recordType', label: 'Record Type (contact, account, or deal)', type: 'text' }, { name: 'noteContent', label: 'Note Content', type: 'textarea' }] },
+];
+
+const emailActions = [
+    { name: 'sendEmail', label: 'Send Email', description: 'Send an email to a recipient.', inputs: [{ name: 'to', label: 'To', type: 'text' }, { name: 'subject', label: 'Subject', type: 'text' }, { name: 'body', label: 'Body (HTML)', type: 'textarea' }] }
+];
+
+const smsActions = [
+    { name: 'sendSms', label: 'Send SMS', description: 'Send a simple text message.', inputs: [{ name: 'to', label: 'To (Phone Number)', type: 'text' }, { name: 'message', label: 'Message', type: 'textarea' }] }
+];
+
+const urlShortenerActions = [
+    { name: 'createShortLink', label: 'Create Short Link', description: 'Create a new trackable short link.', inputs: [{ name: 'longUrl', label: 'Original URL', type: 'text' }, { name: 'alias', label: 'Custom Alias (Optional)', type: 'text' }] }
+];
+
+const qrCodeMakerActions = [
+    { name: 'generateQrCode', label: 'Generate QR Code', description: 'Generate a QR code from text or a URL.', inputs: [{ name: 'data', label: 'Data to Encode', type: 'text' }, { name: 'name', label: 'QR Code Name', type: 'text' }] }
+];
 
 const apiActions = [
     {
