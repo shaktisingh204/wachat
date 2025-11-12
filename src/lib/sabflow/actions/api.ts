@@ -104,3 +104,12 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         return { error: errorMsg };
     }
 }
+
+export const apiActions = [
+    {
+        name: 'apiRequest',
+        label: 'API Request',
+        description: 'Make a GET, POST, PUT, or DELETE request to any API endpoint.',
+        inputs: []
+    }
+]

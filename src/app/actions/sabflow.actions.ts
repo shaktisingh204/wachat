@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -17,7 +16,6 @@ import { executeUrlShortenerAction } from '@/lib/sabflow/actions/url-shortener';
 import { executeQrCodeAction } from '@/lib/sabflow/actions/qr-code';
 import { executeSabChatAction } from '@/lib/sabflow/actions/sabchat';
 import { executeMetaAction } from '@/lib/sabflow/actions/meta';
-import { sabnodeAppActions } from '@/lib/sabflow/apps';
 
 // Helper to interpolate context variables into strings
 function interpolate(text: string | undefined, context: any): string {
@@ -297,11 +295,6 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
         const connectionName = formData.get('connectionName') as string;
         
         let credentials: Record<string, any> = {};
-        if (formData.get('credentials')) {
-            try {
-                credentials = JSON.parse(formData.get('credentials') as string);
-            } catch { /* ignore invalid json */ }
-        }
         
         const credentialKeysStr = formData.get('credentialKeys') as string | null;
         if(credentialKeysStr) {
