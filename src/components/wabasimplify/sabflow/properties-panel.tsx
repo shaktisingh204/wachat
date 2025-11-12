@@ -77,7 +77,7 @@ function NodeInput({ input, value, onChange, dataOptions }: { input: any, value:
     }
 }
 
-export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: any, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) {
+export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) {
     const { projects } = useProject();
     const wachatProjects = projects.filter(p => p.wabaId);
     const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
@@ -89,6 +89,20 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         sabChatSessions: [],
     });
     const [isLoadingData, startDataLoad] = useTransition();
+
+    // Local state to manage the trigger type for immediate UI updates
+    const [triggerType, setTriggerType] = useState(selectedNode?.data?.triggerType || 'webhook');
+
+    useEffect(() => {
+        if (selectedNode?.data?.triggerType) {
+            setTriggerType(selectedNode.data.triggerType);
+        }
+    }, [selectedNode]);
+
+    const handleTriggerTypeChange = (value: string) => {
+        setTriggerType(value);
+        handleDataChange({ triggerType: value, connectionId: '', appId: '', actionName: '', inputs: {} });
+    };
 
     useEffect(() => {
         startDataLoad(async () => {
@@ -202,28 +216,28 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         }
 
         if (isTrigger) {
-             const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
+             const selectedTriggerInfo = triggers.find(t => t.id === triggerType);
              const triggerApps = sabnodeAppActions.filter(app => app.actions?.some(a => a.isTrigger === true));
 
              return (
                <div className="space-y-4">
                   <div className="space-y-2">
                       <Label>Trigger Type</Label>
-                      <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val, connectionId: '', appId: '', actionName: '', inputs: {} })}>
+                      <Select value={triggerType} onValueChange={handleTriggerTypeChange}>
                           <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
                           <SelectContent>
                               {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
                           </SelectContent>
                       </Select>
-                      {selectedTrigger && <p className="text-xs text-muted-foreground">{selectedTrigger.description}</p>}
+                      {selectedTriggerInfo && <p className="text-xs text-muted-foreground">{selectedTriggerInfo.description}</p>}
                   </div>
-                  {selectedTrigger?.id === 'webhook' && (
+                  {triggerType === 'webhook' && (
                       <div className="pt-4">
                           <Label>Webhook URL</Label>
                           <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${params.flowId}`} />
                       </div>
                   )}
-                  {selectedTrigger?.id === 'app' && (
+                  {triggerType === 'app' && (
                      <div className="space-y-4">
                         <Label>Select App</Label>
                          <div className="grid grid-cols-3 gap-2">
