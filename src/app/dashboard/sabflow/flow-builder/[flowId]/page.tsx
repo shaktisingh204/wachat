@@ -81,11 +81,25 @@ function NodeInput({ input, value, onChange, dataOptions }: { input: any, value:
         );
     }
     
-    if (input.type === 'project-selector' || input.type === 'agent-selector') {
-        const options = input.type === 'project-selector' ? dataOptions.projects : dataOptions.agents;
+    if (input.type === 'project-selector') {
+        const options = input.appType === 'facebook' ? dataOptions.facebookProjects : dataOptions.projects;
         return (
             <Select value={value} onValueChange={onChange}>
-                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select a project..." /></SelectTrigger>
+                <SelectContent>
+                    {options.map((opt: any) => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        );
+    }
+    
+    if (input.type === 'agent-selector') {
+        const options = dataOptions.agents;
+        return (
+            <Select value={value} onValueChange={onChange}>
+                <SelectTrigger><SelectValue placeholder="Select an agent..." /></SelectTrigger>
                 <SelectContent>
                     {options.map((opt: any) => (
                         <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
@@ -124,13 +138,29 @@ function BuilderPageSkeleton() {
 const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) => {
     const { projects } = useProject();
     const wachatProjects = projects.filter(p => p.wabaId);
+    const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
     
     const [dynamicData, setDynamicData] = useState<any>({
         projects: wachatProjects.map(p => ({ value: p._id, label: p.name })),
+        facebookProjects: facebookProjects.map(p => ({ value: p._id, label: p.name })),
         agents: [],
         sabChatSessions: [],
     });
     const [isLoadingData, startDataLoad] = useTransition();
+
+    const [triggerType, setTriggerType] = useState(selectedNode?.data?.triggerType || 'webhook');
+
+    useEffect(() => {
+        if (selectedNode?.data?.triggerType) {
+            setTriggerType(selectedNode.data.triggerType);
+        }
+    }, [selectedNode]);
+
+    const handleTriggerTypeChange = (value: string) => {
+        setTriggerType(value);
+        handleDataChange({ triggerType: value, connectionId: '', appId: '', actionName: '', inputs: {} });
+    };
+
 
     useEffect(() => {
         startDataLoad(async () => {
@@ -152,15 +182,8 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
         onNodeChange(selectedNode.id, { ...selectedNode.data, ...data });
     };
 
-    let selectedConnection = null;
-    if (selectedNode.data.connectionId?.endsWith(' Connection')) {
-        const appName = selectedNode.data.connectionId.replace(' Connection', '');
-        selectedConnection = { appId: sabnodeAppActions.find(a => a.name === appName)?.appId, appName };
-    } else {
-        selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode.data.connectionId);
-    }
-    const selectedApp = sabnodeAppActions.find(app => app.appId === (selectedNode.data.appId || selectedConnection?.appId));
-    let selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
+    const selectedApp = sabnodeAppActions.find(app => app.appId === selectedNode.data.appId);
+    let selectedAction = selectedApp?.actions?.find(a => a.name === selectedNode.data.actionName);
     
     if (selectedNode.data.actionName === 'apiRequest') {
         selectedAction = { name: 'apiRequest', label: 'API Request', description: 'Make a GET, POST, PUT, or DELETE request.', inputs: [] };
@@ -176,7 +199,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                  const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
                 
                  const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
-                    if (app.actions.some(a => a.isTrigger)) return acc;
+                    if (!app.actions || app.actions.every(a => a.isTrigger)) return acc;
                     const category = app.category || 'SabNode Apps';
                     if (!acc[category]) acc[category] = [];
                     acc[category].push(app);
@@ -200,7 +223,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                                         key={app.appId} 
                                                         className="p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border"
                                                         onClick={() => {
-                                                            const actionName = app.actions.length === 1 ? app.actions[0].name : '';
+                                                            const actionName = (app.actions && app.actions.length === 1) ? app.actions[0].name : '';
                                                             handleDataChange({ appId: app.appId, actionName: actionName, inputs: {} });
                                                         }}
                                                     >
@@ -231,7 +254,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                 );
             }
             
-             if (selectedApp) {
+             if (selectedApp?.actions) {
                  const actionOptions = selectedApp.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
                  if (actionOptions.length > 1) {
                      return (
@@ -251,24 +274,61 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
         }
 
         if (isTrigger) {
-             const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
+             const selectedTriggerInfo = triggers.find(t => t.id === triggerType);
+             const triggerApps = sabnodeAppActions.filter(app => app.actions?.some(a => a.isTrigger === true));
+
              return (
                <div className="space-y-4">
                   <div className="space-y-2">
                       <Label>Trigger Type</Label>
-                      <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val, connectionId: '', appId: '', actionName: '', inputs: {} })}>
-                          <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
-                          <SelectContent>
-                              {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
-                          </SelectContent>
-                      </Select>
-                      {selectedTrigger && <p className="text-xs text-muted-foreground">{selectedTrigger.description}</p>}
+                      <RadioGroup value={triggerType} onValueChange={handleTriggerTypeChange} className="grid grid-cols-2 gap-2 mt-2">
+                        {triggers.map(t => (
+                            <div key={t.id}>
+                                <RadioGroupItem value={t.id} id={t.id} className="sr-only" />
+                                <Label htmlFor={t.id} className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer data-[state=checked]:border-primary">
+                                    <t.icon className="mb-3 h-6 w-6" />
+                                    {t.name}
+                                </Label>
+                            </div>
+                        ))}
+                      </RadioGroup>
                   </div>
-                  {selectedTrigger?.id === 'webhook' && (
+                  
+                  {selectedTriggerInfo && <p className="text-xs text-muted-foreground">{selectedTriggerInfo.description}</p>}
+
+                  {triggerType === 'webhook' && (
                       <div className="pt-4">
                           <Label>Webhook URL</Label>
                           <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${params.flowId}`} />
                       </div>
+                  )}
+                  {triggerType === 'app' && (
+                     <div className="space-y-4">
+                        <Label>Select App</Label>
+                         <div className="grid grid-cols-3 gap-2">
+                            {triggerApps.map(app => {
+                                const AppIcon = app.icon || Zap;
+                                const isSelected = selectedNode.data.appId === app.appId;
+                                return (
+                                    <button 
+                                        type="button" 
+                                        key={app.appId} 
+                                        className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border", isSelected && 'ring-2 ring-primary')}
+                                        onClick={() => {
+                                            const triggerAction = app.actions.find(a => a.isTrigger);
+                                            handleDataChange({ appId: app.appId, actionName: triggerAction?.name, inputs: {} });
+                                        }}
+                                    >
+                                        <AppIcon className={cn("h-6 w-6 mb-1", app.iconColor)}/>
+                                        <p className="text-xs font-medium text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
+                                    </button>
+                                )
+                            })}
+                        </div>
+                         {selectedApp && selectedAction && selectedAction.isTrigger && (
+                            <AppConnectionSetup app={selectedApp} flowId={params.flowId} onConnectionSaved={onConnectionSaved} />
+                         )}
+                    </div>
                   )}
                </div>
            );
@@ -658,7 +718,7 @@ export default function EditSabFlowPage() {
                         <Input value={flowName} onChange={(e) => setFlowName(e.target.value)} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4" />Docs</Link></Button>
+                        <Button variant="outline" size="sm" asChild><Link href="/dashboard/sabflow/docs"><BookOpen className="mr-2 h-4 w-4"/>Docs</Link></Button>
                         <Button onClick={() => formRef.current?.requestSubmit()}><Save className="mr-2 h-4 w-4" />Save</Button>
                     </div>
                 </header>
@@ -719,3 +779,4 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
+
