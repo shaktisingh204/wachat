@@ -6,11 +6,12 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/user.actions';
+import { getSession, getProjectById } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
-import { addCrmLead } from '@/app/actions/crm-leads.actions';
+import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
+import { handleAddNewContact } from './contact.actions';
 import FormData from 'form-data';
 
 // Dynamically import all action files
@@ -179,11 +180,11 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         }
     }
 
-    if (actionName === 'createCrmLead') {
+    if (actionApp.appId === 'crm') {
         try {
             const formData = new FormData();
             Object.keys(interpolatedInputs).forEach(key => {
-                const actionInput = actionApp.actions.find(a => a.name === 'createCrmLead')?.inputs.find(i => i.name === key);
+                const actionInput = actionApp.actions.find(a => a.name === actionName)?.inputs.find(i => i.name === key);
                 if (actionInput) {
                     const formKey = actionInput.formKey || key;
                      if (interpolatedInputs[key] !== undefined && interpolatedInputs[key] !== null) {
@@ -192,8 +193,13 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
                 }
             });
 
-            // Call the action with the authenticated user context
-            const result = await addCrmLead(null, formData, user);
+            // Call the specific action
+            let result;
+            if (actionName === 'createCrmLead') {
+                result = await addCrmLeadAndDeal(null, formData);
+            } else {
+                 throw new Error(`CRM action "${actionName}" is not yet implemented.`);
+            }
             
             logger.log(`Action "${actionName}" completed.`, { result });
             if (result.error) {
@@ -206,6 +212,63 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
             const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
             logger.log(errorMsg, { stack: e.stack, context: { ...context, interpolatedInputs } });
             return { error: errorMsg };
+        }
+    }
+    
+    if (actionApp.appId === 'wachat') {
+        const { projectId, to, message, templateName, languageCode, bodyVariables, headerVariables } = interpolatedInputs;
+        if (!projectId) {
+            return { error: `Wachat action "${actionName}" requires a project to be selected.` };
+        }
+        
+        try {
+            const project = await getProjectById(projectId, user._id.toString());
+            if (!project) {
+                return { error: `Project with ID ${projectId} not found or access denied.`};
+            }
+            const phoneNumberId = project.phoneNumbers?.[0]?.id;
+            if (!phoneNumberId) {
+                return { error: `No phone number configured for project ${project.name}.`};
+            }
+
+            switch(actionName) {
+                case 'sendMessage': {
+                    const payload = { messaging_product: 'whatsapp', to, type: 'text', text: { body: message } };
+                    await axios.post(`https://graph.facebook.com/v20.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                    return { output: { success: true } };
+                }
+                case 'sendTemplate': {
+                     const payload: any = {
+                        messaging_product: "whatsapp", to, type: "template",
+                        template: { name: templateName, language: { code: languageCode || 'en_US' } }
+                    };
+                    const components: any[] = [];
+                    if (headerVariables) {
+                        components.push({ type: 'header', parameters: JSON.parse(headerVariables).map((v: any) => ({ type: 'text', text: v })) });
+                    }
+                    if (bodyVariables) {
+                        components.push({ type: 'body', parameters: JSON.parse(bodyVariables).map((v: any) => ({ type: 'text', text: v })) });
+                    }
+                    if(components.length > 0) payload.template.components = components;
+                    
+                    await axios.post(`https://graph.facebook.com/v20.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                    return { output: { success: true } };
+                }
+                case 'createContact': {
+                     const formData = new FormData();
+                     formData.append('projectId', projectId);
+                     formData.append('phoneNumberId', phoneNumberId);
+                     formData.append('name', interpolatedInputs.name);
+                     formData.append('waId', interpolatedInputs.waId);
+                     const result = await handleAddNewContact(null, formData);
+                     return { output: result };
+                }
+                // Add other wachat cases here...
+                default:
+                    return { error: `Wachat action "${actionName}" backend logic is not implemented.` };
+            }
+        } catch(e: any) {
+            return { error: `Error executing Wachat action: ${getErrorMessage(e)}` };
         }
     }
     
