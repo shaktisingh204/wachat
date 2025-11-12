@@ -4,9 +4,10 @@
 import React, { useState, useEffect, useTransition } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash2, ArrowLeft, Zap, Webhook, Calendar, PlayCircle, GitFork } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Zap, Webhook, Calendar, PlayCircle, GitFork } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useProject } from '@/context/project-context';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
@@ -14,7 +15,6 @@ import { cn } from '@/lib/utils';
 import { AppConnectionSetup } from './connections/app-connection-setup';
 import { ApiRequestEditor } from './api-request-editor';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '../ui/textarea';
 import type { WithId, Project, User } from '@/lib/definitions';
@@ -90,7 +90,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     });
     const [isLoadingData, startDataLoad] = useTransition();
 
-    // Local state to manage the trigger type for immediate UI updates
     const [triggerType, setTriggerType] = useState(selectedNode?.data?.triggerType || 'webhook');
 
     useEffect(() => {
@@ -223,14 +222,21 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                <div className="space-y-4">
                   <div className="space-y-2">
                       <Label>Trigger Type</Label>
-                      <Select value={triggerType} onValueChange={handleTriggerTypeChange}>
-                          <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
-                          <SelectContent>
-                              {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
-                          </SelectContent>
-                      </Select>
-                      {selectedTriggerInfo && <p className="text-xs text-muted-foreground">{selectedTriggerInfo.description}</p>}
+                      <RadioGroup value={triggerType} onValueChange={handleTriggerTypeChange} className="grid grid-cols-2 gap-2 mt-2">
+                        {triggers.map(t => (
+                            <div key={t.id}>
+                                <RadioGroupItem value={t.id} id={t.id} className="sr-only" />
+                                <Label htmlFor={t.id} className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer data-[state=checked]:border-primary">
+                                    <t.icon className="mb-3 h-6 w-6" />
+                                    {t.name}
+                                </Label>
+                            </div>
+                        ))}
+                      </RadioGroup>
                   </div>
+                  
+                  {selectedTriggerInfo && <p className="text-xs text-muted-foreground">{selectedTriggerInfo.description}</p>}
+
                   {triggerType === 'webhook' && (
                       <div className="pt-4">
                           <Label>Webhook URL</Label>
