@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
@@ -332,8 +331,10 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         
         if (appConfig) {
             if (node.data.actionName) {
-                 const action = appConfig.actions.find(a => a.name === node.data.actionName);
-                 if(action) return action.label;
+                 if (appConfig.actions && Array.isArray(appConfig.actions)) {
+                    const action = appConfig.actions.find(a => a.name === node.data.actionName);
+                    if(action) return action.label;
+                 }
                  if(node.data.actionName === 'apiRequest') return 'API Request'; // Handle special case
             }
             return appConfig.name;
@@ -667,7 +668,7 @@ export default function EditSabFlowPage() {
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" /></Button>
                         </div>
                     </main>
                     <Sheet open={isSidebarOpen && !!selectedNodeId} onOpenChange={setIsSidebarOpen}>
