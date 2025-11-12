@@ -4,41 +4,18 @@
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
-import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession, getProjectById } from '@/app/actions/user.actions';
-import type { SabFlow, SabFlowNode, SabFlowEdge, WithId as SabWithId, Project, Contact, SabChatSession, User } from '@/lib/definitions';
+import { getSession } from '@/app/actions/user.actions';
+import type { SabFlow, SabFlowNode, SabFlowEdge, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { executeWachatAction } from '@/lib/sabflow/actions/wachat';
+import { executeCrmAction } from '@/lib/sabflow/actions/crm';
+import { executeApiAction } from '@/lib/sabflow/actions/api';
+import { executeSmsAction } from '@/lib/sabflow/actions/sms';
+import { executeEmailAction } from '@/lib/sabflow/actions/email';
+import { executeUrlShortenerAction } from '@/lib/sabflow/actions/url-shortener';
+import { executeQrCodeAction } from '@/lib/sabflow/actions/qr-code';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
-import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
-import { handleAddNewContact } from './contact.actions';
-import FormData from 'form-data';
-
-// Dynamically import all action files
-async function importActionModule(appId: string) {
-    const appActionFiles: Record<string, string> = {
-        'wachat': './whatsapp.actions',
-        'crm': './crm.actions',
-        'email': './email.actions',
-        'sms': './sms.actions',
-        'meta': './facebook.actions',
-        'instagram': './instagram.actions',
-        'sabchat': './sabchat.actions',
-        'url-shortener': './url-shortener.actions',
-        'qr-code-maker': './qr-code.actions',
-        'seo-suite': './seo.actions',
-    };
-    
-    if (appActionFiles[appId]) {
-        try {
-            return await import(`@/app/actions/${appId}.actions`);
-        } catch (e) {
-             console.error(`Could not import action module for ${appId}:`, e);
-            return null;
-        }
-    }
-    return null;
-}
 
 // Helper to interpolate context variables into strings
 function interpolate(text: string | undefined, context: any): string {
@@ -61,10 +38,10 @@ function interpolate(text: string | undefined, context: any): string {
 
 
 async function executeAction(node: SabFlowNode, context: any, user: WithId<User>, logger: any) {
-    const { actionName, inputs } = node.data;
+    const { actionName, appId, inputs } = node.data;
     const interpolatedInputs: Record<string, any> = {};
 
-    logger.log(`Preparing to execute action: ${actionName}`, { inputs, context });
+    logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs, context });
 
     // Interpolate all input values from the context
     if (inputs) {
@@ -73,230 +50,53 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
         }
     }
     
-    // Find which app this action belongs to
-    const actionApp = sabnodeAppActions.find(app => app.actions.some(a => a.name === actionName));
-    if (!actionApp) {
-        const errorMsg = `Action app not found for action: ${actionName}`;
-        logger.log(errorMsg);
-        console.error(errorMsg);
-        return { error: errorMsg };
-    }
-    
-    if (actionName === 'apiRequest') {
-        try {
-            const { apiRequest } = node.data;
-            if (!apiRequest || !apiRequest.url) {
-                throw new Error("API Request node is not configured with a URL.");
-            }
-            const interpolatedUrl = interpolate(apiRequest.url, context);
-
-            const requestConfig: any = {
-                method: apiRequest.method || 'GET',
-                url: interpolatedUrl,
-                headers: {},
-            };
-            
-            // 1. Handle Authentication
-            if (apiRequest.auth?.type) {
-                const { type, ...authDetails } = apiRequest.auth;
-                if (type === 'bearer' && authDetails.token) {
-                    requestConfig.headers['Authorization'] = `Bearer ${interpolate(authDetails.token, context)}`;
-                } else if (type === 'api_key' && authDetails.key && authDetails.value) {
-                    const key = interpolate(authDetails.key, context);
-                    const value = interpolate(authDetails.value, context);
-                    if (authDetails.in === 'header') {
-                        requestConfig.headers[key] = value;
-                    } else { // 'query'
-                        const url = new URL(requestConfig.url);
-                        url.searchParams.set(key, value);
-                        requestConfig.url = url.toString();
-                    }
-                } else if (type === 'basic' && authDetails.username && authDetails.password) {
-                    const username = interpolate(authDetails.username, context);
-                    const password = interpolate(authDetails.password, context);
-                    const encoded = Buffer.from(`${username}:${password}`).toString('base64');
-                    requestConfig.headers['Authorization'] = `Basic ${encoded}`;
-                }
-            }
-            
-            // 2. Handle Headers
-            if (Array.isArray(apiRequest.headers)) {
-                apiRequest.headers.forEach((header: { key: string, value: string, enabled: boolean }) => {
-                    if (header.enabled && header.key) {
-                        requestConfig.headers[interpolate(header.key, context)] = interpolate(header.value, context);
-                    }
-                });
-            }
-
-            // 3. Handle Query Params
-            const url = new URL(requestConfig.url);
-            if (Array.isArray(apiRequest.params)) {
-                 apiRequest.params.forEach((param: { key: string, value: string, enabled: boolean }) => {
-                    if (param.enabled && param.key) {
-                        url.searchParams.set(interpolate(param.key, context), interpolate(param.value, context));
-                    }
-                });
-            }
-            requestConfig.url = url.toString();
-
-
-            // 4. Handle Body
-            if (apiRequest.body?.type === 'json' && apiRequest.body.json) {
-                try {
-                    requestConfig.headers['Content-Type'] = 'application/json';
-                    requestConfig.data = JSON.parse(interpolate(apiRequest.body.json, context));
-                } catch(e) {
-                     throw new Error(`Invalid JSON in request body: ${(e as Error).message}`);
-                }
-            } else if (apiRequest.body?.type === 'form_data' && Array.isArray(apiRequest.body.formData)) {
-                const formData = new FormData();
-                apiRequest.body.formData.forEach((item: { key: string, value: string, enabled: boolean }) => {
-                    if(item.enabled && item.key) {
-                        formData.append(interpolate(item.key, context), interpolate(item.value, context));
-                    }
-                });
-                requestConfig.data = formData;
-                Object.assign(requestConfig.headers, formData.getHeaders());
-            }
-
-            logger.log(`Making external API call...`, { config: { ...requestConfig, headers: {...requestConfig.headers, Authorization: 'REDACTED'} } });
-            const response = await axios(requestConfig);
-            logger.log(`External API call successful (Status: ${response.status})`);
-            
-            const responseData = { status: response.status, headers: response.headers, data: response.data };
-            
-            // Save response to context
-            const responseVarName = node.data.responseVariableName || node.id.replace(/-/g, '_') + '_response';
-            context[responseVarName] = responseData;
-
-            logger.log(`Saved API response to context variable "${responseVarName}"`);
-
-            return { output: responseData };
-
-        } catch (e: any) {
-            const errorMsg = `Error executing API action: ${getErrorMessage(e)}`;
-            logger.log(errorMsg, { stack: e.stack, response: e.response?.data, context });
-            return { error: errorMsg };
-        }
-    }
-
-    if (actionApp.appId === 'crm') {
-        try {
-            const formData = new FormData();
-            Object.keys(interpolatedInputs).forEach(key => {
-                const actionInput = actionApp.actions.find(a => a.name === actionName)?.inputs.find(i => i.name === key);
-                if (actionInput) {
-                    const formKey = actionInput.formKey || key;
-                     if (interpolatedInputs[key] !== undefined && interpolatedInputs[key] !== null) {
-                        formData.append(formKey, String(interpolatedInputs[key]));
-                    }
-                }
-            });
-
-            // Call the specific action
-            let result;
-            if (actionName === 'createCrmLead') {
-                result = await addCrmLeadAndDeal(null, formData);
-            } else {
-                 throw new Error(`CRM action "${actionName}" is not yet implemented.`);
-            }
-            
-            logger.log(`Action "${actionName}" completed.`, { result });
-            if (result.error) {
-                logger.log(`Error during action execution: ${result.error}`);
-                return { error: result.error };
-            }
-            return { output: result };
-
-        } catch(e: any) {
-            const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
-            logger.log(errorMsg, { stack: e.stack, context: { ...context, interpolatedInputs } });
-            return { error: errorMsg };
-        }
-    }
-    
-    if (actionApp.appId === 'wachat') {
-        const { projectId, to, message, templateName, languageCode, bodyVariables, headerVariables } = interpolatedInputs;
-        if (!projectId) {
-            return { error: `Wachat action "${actionName}" requires a project to be selected.` };
-        }
-        
-        try {
-            const project = await getProjectById(projectId, user._id.toString());
-            if (!project) {
-                return { error: `Project with ID ${projectId} not found or access denied.`};
-            }
-            const phoneNumberId = project.phoneNumbers?.[0]?.id;
-            if (!phoneNumberId) {
-                return { error: `No phone number configured for project ${project.name}.`};
-            }
-
-            switch(actionName) {
-                case 'sendMessage': {
-                    const payload = { messaging_product: 'whatsapp', to, type: 'text', text: { body: message } };
-                    await axios.post(`https://graph.facebook.com/v20.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
-                    return { output: { success: true } };
-                }
-                case 'sendTemplate': {
-                     const payload: any = {
-                        messaging_product: "whatsapp", to, type: "template",
-                        template: { name: templateName, language: { code: languageCode || 'en_US' } }
-                    };
-                    const components: any[] = [];
-                    if (headerVariables) {
-                        components.push({ type: 'header', parameters: JSON.parse(headerVariables).map((v: any) => ({ type: 'text', text: v })) });
-                    }
-                    if (bodyVariables) {
-                        components.push({ type: 'body', parameters: JSON.parse(bodyVariables).map((v: any) => ({ type: 'text', text: v })) });
-                    }
-                    if(components.length > 0) payload.template.components = components;
-                    
-                    await axios.post(`https://graph.facebook.com/v20.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
-                    return { output: { success: true } };
-                }
-                case 'createContact': {
-                     const formData = new FormData();
-                     formData.append('projectId', projectId);
-                     formData.append('phoneNumberId', phoneNumberId);
-                     formData.append('name', interpolatedInputs.name);
-                     formData.append('waId', interpolatedInputs.waId);
-                     const result = await handleAddNewContact(null, formData);
-                     return { output: result };
-                }
-                // Add other wachat cases here...
-                default:
-                    return { error: `Wachat action "${actionName}" backend logic is not implemented.` };
-            }
-        } catch(e: any) {
-            return { error: `Error executing Wachat action: ${getErrorMessage(e)}` };
-        }
-    }
-    
-    // --- All other internal app actions ---
     try {
-        const actionModule = await importActionModule(actionApp.appId);
-        if(!actionModule) {
-            throw new Error(`Action module for app "${actionApp.name}" could not be loaded.`);
+        let result: { output?: any, error?: string };
+
+        switch(appId) {
+            case 'wachat':
+                result = await executeWachatAction(actionName, interpolatedInputs, user, logger);
+                break;
+            case 'crm':
+                result = await executeCrmAction(actionName, interpolatedInputs, user, logger);
+                break;
+            case 'api':
+                 result = await executeApiAction(node, context, logger);
+                 break;
+            case 'sms':
+                result = await executeSmsAction(actionName, interpolatedInputs, user, logger);
+                break;
+            case 'email':
+                result = await executeEmailAction(actionName, interpolatedInputs, user, logger);
+                break;
+            case 'url-shortener':
+                result = await executeUrlShortenerAction(actionName, interpolatedInputs, user, logger);
+                break;
+             case 'qr-code-maker':
+                result = await executeQrCodeAction(actionName, interpolatedInputs, user, logger);
+                break;
+            default:
+                throw new Error(`Action app "${appId}" is not implemented.`);
         }
         
-        const actionFunction = actionModule[actionName];
-        if (typeof actionFunction !== 'function') {
-             const errorMsg = `Action function "${actionName}" not found in module.`;
-             logger.log(errorMsg);
-             console.error(errorMsg);
-             return { error: errorMsg };
-        }
-        
-        logger.log(`Executing internal action "${actionName}" with inputs:`, interpolatedInputs);
-        const result = await actionFunction(interpolatedInputs, user);
         logger.log(`Action "${actionName}" completed.`, { result });
         
-        return { output: result };
+        if (result.error) {
+            logger.log(`Error during action execution: ${result.error}`);
+            return { error: result.error };
+        }
         
-    } catch (e: any) {
+        // Save output to context
+        const responseVarName = node.data.name.replace(/ /g, '_');
+        context[responseVarName] = result;
+
+        logger.log(`Saved action output to context variable "${responseVarName}"`);
+
+        return { output: result };
+
+    } catch(e: any) {
         const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
         logger.log(errorMsg, { stack: e.stack, context: { ...context, interpolatedInputs } });
-        console.error(errorMsg, e);
         return { error: errorMsg };
     }
 }
@@ -521,7 +321,7 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
         const { db } = await connectToDatabase();
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user._id) },
-            { $push: { sabFlowConnections: connectionData } }
+            { $push: { sabFlowConnections: connectionData as any } }
         );
         
         revalidatePath('/dashboard/sabflow/connections');
@@ -530,3 +330,4 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
         return { error: getErrorMessage(e) };
     }
 }
+
