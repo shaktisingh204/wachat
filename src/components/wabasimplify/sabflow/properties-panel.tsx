@@ -128,7 +128,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                  const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
                 
                  const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
-                    if (app.actions.some(a => a.isTrigger)) return acc;
+                    if (!app.actions || app.actions.every(a => a.isTrigger)) return acc;
                     const category = app.category || 'SabNode Apps';
                     if (!acc[category]) acc[category] = [];
                     acc[category].push(app);
@@ -204,7 +204,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
         if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
-             const triggerApps = sabnodeAppActions.filter(app => app.actions.some(a => a.isTrigger));
+             const triggerApps = sabnodeAppActions.filter(app => app.actions && app.actions.some(a => a.isTrigger));
              return (
                <div className="space-y-4">
                   <div className="space-y-2">
@@ -281,7 +281,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             );
         }
         return null;
-    }
+    };
 
     return (
         <div className="h-full flex flex-col " style={{ minWidth: '35%', background: 'white' }}>
