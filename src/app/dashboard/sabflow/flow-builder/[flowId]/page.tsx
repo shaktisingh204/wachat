@@ -331,14 +331,10 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         const appConfig = sabnodeAppActions.find(a => a.appId === node.data.appId);
         
         if (appConfig) {
-            // Handle special case for 'API Request'
-            if (appConfig.appId === 'api' && node.data.actionName === 'apiRequest') {
-                return 'API Request';
-            }
-
             if (node.data.actionName) {
                  const action = appConfig.actions.find(a => a.name === node.data.actionName);
                  if(action) return action.label;
+                 if(node.data.actionName === 'apiRequest') return 'API Request'; // Handle special case
             }
             return appConfig.name;
         }
@@ -693,48 +689,3 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
-
-```
-- src/hooks/use-copy-to-clipboard.ts:
-```ts
-
-'use client';
-
-import { useState } from 'react';
-import { useToast } from './use-toast';
-
-export function useCopyToClipboard() {
-  const [isCopied, setIsCopied] = useState(false);
-  const { toast } = useToast();
-
-  const copy = (text: string) => {
-    if (!navigator.clipboard) {
-      toast({
-        title: 'Failed to copy',
-        description: 'Clipboard API is not available. Please use a secure (HTTPS) connection.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    navigator.clipboard.writeText(text).then(
-      () => {
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-        toast({ title: 'Copied to clipboard!' });
-      },
-      (err) => {
-        console.error('Could not copy text: ', err);
-        toast({
-          title: 'Failed to copy',
-          description: 'Could not copy to clipboard. Check browser permissions.',
-          variant: 'destructive',
-        });
-      }
-    );
-  };
-
-  return { isCopied, copy };
-}
-
-```
