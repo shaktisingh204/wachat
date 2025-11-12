@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { 
@@ -95,36 +96,3 @@ export async function executeSabChatAction(actionName: string, inputs: any, user
         return { error: e.message };
     }
 }
-
-export const sabChatActions = [
-    { name: 'sendMessage', label: 'Send Message', description: 'Sends a message to an active chat session.', inputs: [
-        { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true },
-        { name: 'content', label: 'Message Content', type: 'textarea', required: true }
-    ]},
-    { name: 'closeSession', label: 'Close Session', description: 'Closes an active chat session.', inputs: [
-        { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true },
-    ]},
-    { name: 'addTagToSession', label: 'Add Tag to Session', description: 'Adds a tag to a chat session.', inputs: [
-        { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true },
-        { name: 'tagName', label: 'Tag Name', type: 'text', required: true },
-    ]},
-    { name: 'getOrCreateSession', label: 'Get or Create Session', description: 'Finds an existing session by email or creates a new one.', inputs: [
-        { name: 'email', label: 'Visitor Email', type: 'email', required: true },
-    ]},
-    { name: 'getSessionDetails', label: 'Get Session Details', description: 'Retrieves all information for a specific chat session.', inputs: [
-        { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true },
-    ]},
-    { name: 'updateVisitorInfo', label: 'Update Visitor Info', description: 'Updates the name, email, or phone for a visitor.', inputs: [
-        { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true },
-        { name: 'name', label: 'Name', type: 'text' },
-        { name: 'email', label: 'Email', type: 'email' },
-        { name: 'phone', label: 'Phone', type: 'tel' },
-    ]},
-    { name: 'assignAgent', label: 'Assign Agent', description: 'Assigns a team member to a chat session.', inputs: [
-        { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true },
-        { name: 'agentId', label: 'Agent', type: 'agent-selector', required: true },
-    ]},
-    { name: 'getChatHistory', label: 'Get Chat History', description: 'Retrieves the message history for a session.', inputs: [
-        { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true },
-    ]}
-];

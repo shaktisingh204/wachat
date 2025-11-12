@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { sendSingleSms } from '@/app/actions/sms.actions';
@@ -30,15 +31,3 @@ export async function executeSmsAction(actionName: string, inputs: any, user: Wi
         return { error: e.message };
     }
 }
-
-export const smsActions = [
-    {
-        name: 'sendSms',
-        label: 'Send SMS',
-        description: 'Sends a standard SMS message via Twilio.',
-        inputs: [
-            { name: 'to', label: 'To (Phone Number)', type: 'tel', required: true, placeholder: 'e.g. 919876543210' },
-            { name: 'message', label: 'Message', type: 'textarea', required: true },
-        ]
-    }
-];
