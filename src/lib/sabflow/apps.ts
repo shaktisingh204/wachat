@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -39,11 +40,13 @@ import {
   User,
   History as HistoryIcon,
 } from 'lucide-react';
-import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WhatsAppIcon, MetaIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 import { googleSheetsActions } from './actions/google-sheets';
 import { wachatActions } from './actions/wachat';
 import { apiActions } from './actions/api';
+import { sabChatActions } from './actions/sabchat';
+import { metaActions } from './actions/meta';
 
 export const sabnodeAppActions = [
   // SabNode Internal Apps
@@ -59,79 +62,7 @@ export const sabnodeAppActions = [
       appId: 'sabchat',
       name: 'sabChat',
       icon: SabChatIcon,
-      actions: [
-          {
-              name: 'sendMessage',
-              label: 'Send Message',
-              description: 'Sends a message to a visitor in an active chat session.',
-              inputs: [
-                  { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
-                  { name: 'content', label: 'Message Text', type: 'textarea', required: true },
-              ]
-          },
-          {
-              name: 'closeSession',
-              label: 'Close Session',
-              description: 'Closes a live chat session.',
-              inputs: [
-                   { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
-              ]
-          },
-          {
-              name: 'addTagToSession',
-              label: 'Add Tag to Session',
-              description: 'Adds a descriptive tag to a chat session for categorization.',
-              inputs: [
-                   { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
-                   { name: 'tagName', label: 'Tag Name', type: 'text', required: true },
-              ]
-          },
-          {
-              name: 'getOrCreateSession',
-              label: 'Get or Create Session',
-              description: "Finds an existing visitor's session by email or creates a new one.",
-              inputs: [
-                   { name: 'email', label: 'Visitor Email', type: 'email', required: true, placeholder: '{{trigger.email}}' },
-                   { name: 'name', label: 'Visitor Name (Optional)', type: 'text', placeholder: '{{trigger.name}}' },
-              ]
-          },
-          {
-              name: 'getSessionDetails',
-              label: 'Get Session Details',
-              description: "Retrieves the full details of a session, including its status and visitor info.",
-              inputs: [
-                  { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
-              ]
-          },
-          {
-              name: 'updateVisitorInfo',
-              label: 'Update Visitor Info',
-              description: 'Adds or updates information about the visitor in a chat session.',
-              inputs: [
-                  { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
-                  { name: 'name', label: 'Visitor Name', type: 'text', required: false },
-                  { name: 'email', label: 'Visitor Email', type: 'email', required: false },
-                  { name: 'phone', label: 'Visitor Phone', type: 'tel', required: false },
-              ]
-          },
-           {
-              name: 'assignAgent',
-              label: 'Assign Agent',
-              description: 'Assigns a team member to a chat session.',
-              inputs: [
-                   { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
-                   { name: 'agentId', label: 'Agent', type: 'dynamic-selector', fetch: 'agents', required: true, placeholder: 'Select or enter Agent ID...' },
-              ]
-          },
-           {
-              name: 'getChatHistory',
-              label: 'Get Chat History',
-              description: 'Retrieves the message history for a specific session.',
-              inputs: [
-                  { name: 'sessionId', label: 'Session ID', type: 'dynamic-selector', fetch: 'sabChatSessions', required: true, placeholder: 'Select or enter Session ID...' },
-              ]
-          }
-      ],
+      actions: sabChatActions,
       connectionType: 'internal',
       iconColor: 'text-sabflow-sabchat-icon',
     },
@@ -139,7 +70,7 @@ export const sabnodeAppActions = [
       appId: 'meta',
       name: 'Meta Suite',
       icon: MetaIcon,
-      actions: [],
+      actions: metaActions,
       connectionType: 'internal',
       iconColor: 'text-sabflow-meta-icon',
     },
@@ -155,23 +86,7 @@ export const sabnodeAppActions = [
       appId: 'crm',
       name: 'CRM Suite',
       icon: Handshake,
-      actions: [
-        {
-            name: 'createCrmLead',
-            label: 'Create Lead/Deal',
-            description: 'Creates a new contact and an associated deal in the CRM.',
-            inputs: [
-                { name: 'title', label: 'Deal Name', type: 'text', placeholder: 'e.g. New Website for {{trigger.company}}', required: true },
-                { name: 'value', label: 'Deal Value', type: 'number', placeholder: 'e.g. 5000' },
-                { name: 'stage', label: 'Deal Stage', type: 'text', placeholder: 'e.g., New' },
-                { name: 'contactName', label: 'Contact Name', type: 'text', placeholder: 'e.g., {{trigger.name}}', required: true },
-                { name: 'email', label: 'Contact Email', type: 'email', placeholder: 'e.g., {{trigger.email}}', required: true },
-                { name: 'phone', label: 'Contact Phone', type: 'tel', placeholder: 'e.g., {{trigger.phone}}' },
-                { name: 'company', label: 'Company Name', type: 'text', placeholder: 'e.g., {{trigger.company}}' },
-                { name: 'source', label: 'Lead Source', type: 'text', placeholder: 'e.g., Webhook' },
-            ]
-        }
-      ],
+      actions: [],
       connectionType: 'internal',
       iconColor: 'text-sabflow-crm-icon',
     },
@@ -179,18 +94,7 @@ export const sabnodeAppActions = [
       appId: 'email',
       name: 'Email Suite',
       icon: Mail,
-      actions: [
-          {
-            name: 'sendEmail',
-            label: 'Send Email',
-            description: 'Sends an email to a recipient.',
-            inputs: [
-                { name: 'to', label: 'To Email', type: 'email', required: true },
-                { name: 'subject', label: 'Subject', type: 'text', required: true },
-                { name: 'body', label: 'Body (HTML)', type: 'textarea', required: true },
-            ]
-          }
-      ],
+      actions: [],
       connectionType: 'internal',
       iconColor: 'text-sabflow-email-icon',
     },
@@ -198,58 +102,12 @@ export const sabnodeAppActions = [
       appId: 'sms',
       name: 'SMS Suite',
       icon: MessageSquare,
-      actions: [
-          {
-            name: 'sendSms',
-            label: 'Send SMS',
-            description: 'Sends an SMS to a phone number.',
-            inputs: [
-                 { name: 'to', label: 'Recipient Phone', type: 'tel', required: true },
-                 { name: 'message', label: 'Message', type: 'textarea', required: true },
-            ]
-          }
-      ],
+      actions: [],
       connectionType: 'internal',
       iconColor: 'text-sabflow-sms-icon',
     },
-    { 
-        appId: 'url-shortener', 
-        name: 'URL Shortener', 
-        icon: LinkIcon, 
-        actions: [
-            {
-                name: 'createShortLink',
-                label: 'Create Short Link',
-                description: 'Creates a new short URL.',
-                inputs: [
-                    { name: 'longUrl', label: 'Original URL', type: 'text', required: true },
-                    { name: 'alias', label: 'Custom Alias (Optional)', type: 'text' },
-                    { name: 'saveAsVariable', label: 'Save Link to Variable', type: 'text' },
-                ]
-            }
-        ], 
-        connectionType: 'internal', 
-        iconColor: 'text-sabflow-url-shortener-icon' 
-    },
-    { 
-        appId: 'qr-code-maker', 
-        name: 'QR Code Maker', 
-        icon: QrCode, 
-        actions: [
-            {
-                name: 'generateQrCode',
-                label: 'Generate QR Code',
-                description: 'Generates a QR Code for the given data and saves the image URL to a variable.',
-                inputs: [
-                     { name: 'data', label: 'Data to Encode', type: 'text', required: true },
-                     { name: 'name', label: 'QR Code Name', type: 'text', required: true },
-                     { name: 'saveAsVariable', label: 'Save Image URL to Variable', type: 'text', required: true },
-                ]
-            }
-        ], 
-        connectionType: 'internal', 
-        iconColor: 'text-sabflow-qr-code-maker-icon' 
-    },
+    { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-url-shortener-icon' },
+    { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-qr-code-maker-icon' },
     { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon' },
 
   // Core Apps
