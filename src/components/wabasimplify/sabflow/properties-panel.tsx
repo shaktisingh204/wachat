@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
@@ -41,11 +42,25 @@ function NodeInput({ input, value, onChange, dataOptions }: { input: any, value:
         );
     }
     
-    if (input.type === 'project-selector' || input.type === 'agent-selector') {
-        const options = input.type === 'project-selector' ? dataOptions.projects : dataOptions.agents;
+    if (input.type === 'project-selector') {
+        const options = input.appType === 'facebook' ? dataOptions.facebookProjects : dataOptions.projects;
         return (
             <Select value={value} onValueChange={onChange}>
-                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select a project..." /></SelectTrigger>
+                <SelectContent>
+                    {options.map((opt: any) => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        );
+    }
+    
+    if (input.type === 'agent-selector') {
+        const options = dataOptions.agents;
+        return (
+            <Select value={value} onValueChange={onChange}>
+                <SelectTrigger><SelectValue placeholder="Select an agent..." /></SelectTrigger>
                 <SelectContent>
                     {options.map((opt: any) => (
                         <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
@@ -66,9 +81,11 @@ function NodeInput({ input, value, onChange, dataOptions }: { input: any, value:
 export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: any, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) {
     const { projects } = useProject();
     const wachatProjects = projects.filter(p => p.wabaId);
+    const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
     
     const [dynamicData, setDynamicData] = useState<any>({
         projects: wachatProjects.map(p => ({ value: p._id, label: p.name })),
+        facebookProjects: facebookProjects.map(p => ({ value: p._id, label: p.name })),
         agents: [],
         sabChatSessions: [],
     });
@@ -95,7 +112,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     };
 
     const selectedApp = sabnodeAppActions.find(app => app.appId === selectedNode.data.appId);
-    let selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
+    let selectedAction = selectedApp?.actions?.find(a => a.name === selectedNode.data.actionName);
     
     if (selectedNode.data.actionName === 'apiRequest') {
         selectedAction = { name: 'apiRequest', label: 'API Request', description: 'Make a GET, POST, PUT, or DELETE request.', inputs: [] };
@@ -135,7 +152,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                                                         key={app.appId} 
                                                         className="p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border"
                                                         onClick={() => {
-                                                            const actionName = app.actions.length === 1 ? app.actions[0].name : '';
+                                                            const actionName = (app.actions && app.actions.length === 1) ? app.actions[0].name : '';
                                                             handleDataChange({ appId: app.appId, actionName: actionName, inputs: {} });
                                                         }}
                                                     >
@@ -166,7 +183,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                 );
             }
             
-             if (selectedApp) {
+             if (selectedApp?.actions) {
                  const actionOptions = selectedApp.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
                  if (actionOptions.length > 1) {
                      return (

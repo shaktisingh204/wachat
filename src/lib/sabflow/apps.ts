@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -117,6 +118,27 @@ const apiActions = [
     }
 ];
 
+const googleSheetsActions = [
+    {
+        name: 'updatedOrEditedRow',
+        label: 'On Row Updated/Edited',
+        description: 'Triggers when a row is added or modified in the selected sheet.',
+        isTrigger: true,
+        inputs: []
+    },
+    {
+        name: 'addRow',
+        label: 'Add Row',
+        description: 'Adds a new row to a Google Sheet.',
+        isTrigger: false,
+        inputs: [
+            { name: 'spreadsheetId', label: 'Spreadsheet ID', type: 'text', placeholder: 'The ID from your sheet URL', required: true },
+            { name: 'sheetName', label: 'Sheet Name', type: 'text', placeholder: 'e.g. Sheet1', required: true },
+            { name: 'rowData', label: 'Row Data (JSON Array)', type: 'textarea', placeholder: '["Value for A", "Value for B"]', required: true },
+        ]
+    }
+];
+
 export const sabnodeAppActions = [
   // SabNode Internal Apps
     {
@@ -210,7 +232,7 @@ export const sabnodeAppActions = [
     icon: Zap, // Fallback icon
     connectionType: 'webhook',
     iconColor: 'text-sabflow-google_sheets-icon',
-    actions: []
+    actions: googleSheetsActions,
   },
   { 
     appId: 'stripe',
@@ -256,7 +278,6 @@ export const sabnodeAppActions = [
     description: "Connect your Gmail account to send and receive emails.",
     icon: Mail,
     connectionType: 'oauth',
-    color: 'bg-gradient-to-br from-red-500 to-red-600',
     actions: []
   },
   { 
@@ -269,7 +290,6 @@ export const sabnodeAppActions = [
     credentials: [
          { name: 'accessToken', label: 'Private App Access Token', type: 'password' },
     ],
-    color: 'bg-gradient-to-br from-orange-500 to-orange-600',
     actions: []
   },
   {
