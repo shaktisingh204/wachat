@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -39,6 +38,13 @@ import {
   Inbox,
   User,
   History as HistoryIcon,
+  Newspaper,
+  Pencil,
+  Trash2 as TrashIcon,
+  ThumbsUp,
+  MessageCircle,
+  Megaphone,
+  LayoutDashboard,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
@@ -46,12 +52,41 @@ import { googleSheetsActions } from './actions/google-sheets';
 import { wachatActions } from './actions/wachat';
 import { apiActions } from './actions/api';
 import { sabChatActions } from './actions/sabchat';
-import { metaActions } from './actions/meta';
 import { crmActions } from './actions/crm';
 import { smsActions } from './actions/sms';
 import { emailActions } from './actions/email';
 import { urlShortenerActions } from './actions/url-shortener';
 import { qrCodeMakerActions } from './actions/qr-code';
+
+export const metaActions = [
+    // Content Management
+    { name: 'createPost', label: 'Create Post', description: 'Publishes a new post to your Facebook Page.', icon: Pencil, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'message', label: 'Message', type: 'textarea', required: true },
+        { name: 'imageUrl', label: 'Image URL (Optional)', type: 'text' },
+    ]},
+    { name: 'updatePost', label: 'Update Post', description: 'Updates the text message of an existing post.', icon: Pencil, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'postId', label: 'Post ID', type: 'text', required: true },
+        { name: 'message', label: 'New Message', type: 'textarea', required: true },
+    ]},
+    { name: 'deletePost', label: 'Delete Post', description: 'Permanently deletes a post.', icon: TrashIcon, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'postId', label: 'Post ID', type: 'text', required: true },
+    ]},
+    
+    // Engagement
+    { name: 'getComments', label: 'Get Post Comments', description: 'Retrieves comments for a specific post.', icon: MessageSquare, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'objectId', label: 'Post ID', type: 'text', required: true },
+    ]},
+    { name: 'postComment', label: 'Reply to Post/Comment', description: 'Posts a new comment or replies to an existing one.', icon: MessageCircle, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'objectId', label: 'Post or Comment ID', type: 'text', required: true },
+        { name: 'message', label: 'Comment Text', type: 'textarea', required: true },
+    ]},
+];
+
 
 export const sabnodeAppActions = [
   // SabNode Internal Apps
