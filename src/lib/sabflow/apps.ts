@@ -47,6 +47,11 @@ import { wachatActions } from './actions/wachat';
 import { apiActions } from './actions/api';
 import { sabChatActions } from './actions/sabchat';
 import { metaActions } from './actions/meta';
+import { crmActions } from './actions/crm';
+import { smsActions } from './actions/sms';
+import { emailActions } from './actions/email';
+import { urlShortenerActions } from './actions/url-shortener';
+import { qrCodeMakerActions } from './actions/qr-code';
 
 export const sabnodeAppActions = [
   // SabNode Internal Apps
@@ -86,7 +91,7 @@ export const sabnodeAppActions = [
       appId: 'crm',
       name: 'CRM Suite',
       icon: Handshake,
-      actions: [],
+      actions: crmActions,
       connectionType: 'internal',
       iconColor: 'text-sabflow-crm-icon',
     },
@@ -94,7 +99,7 @@ export const sabnodeAppActions = [
       appId: 'email',
       name: 'Email Suite',
       icon: Mail,
-      actions: [],
+      actions: emailActions,
       connectionType: 'internal',
       iconColor: 'text-sabflow-email-icon',
     },
@@ -102,12 +107,12 @@ export const sabnodeAppActions = [
       appId: 'sms',
       name: 'SMS Suite',
       icon: MessageSquare,
-      actions: [],
+      actions: smsActions,
       connectionType: 'internal',
       iconColor: 'text-sabflow-sms-icon',
     },
-    { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-url-shortener-icon' },
-    { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-qr-code-maker-icon' },
+    { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: urlShortenerActions, connectionType: 'internal', iconColor: 'text-sabflow-url-shortener-icon' },
+    { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: qrCodeMakerActions, connectionType: 'internal', iconColor: 'text-sabflow-qr-code-maker-icon' },
     { appId: 'seo-suite', name: 'SEO Suite', icon: SeoIcon, actions: [], connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon' },
 
   // Core Apps
