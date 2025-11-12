@@ -25,7 +25,20 @@ const triggers = [
     { id: 'app', name: 'App Trigger', icon: Zap, description: 'Start this flow based on an event from another app.' },
 ];
 
-function NodeInput({ input, value, onChange }: { input: any, value: any, onChange: (val: any) => void }) {
+function NodeInput({ input, value, onChange, projectList }: { input: any, value: any, onChange: (val: any) => void, projectList: any[] }) {
+    if (input.type === 'project-selector') {
+        return (
+            <Select value={value} onValueChange={onChange}>
+                <SelectTrigger><SelectValue placeholder="Select a project..." /></SelectTrigger>
+                <SelectContent>
+                    {projectList.map(p => (
+                        <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        );
+    }
+    
     switch (input.type) {
         case 'textarea':
             return <Textarea placeholder={input.placeholder} value={value} onChange={e => onChange(e.target.value)} />;
@@ -35,6 +48,8 @@ function NodeInput({ input, value, onChange }: { input: any, value: any, onChang
 }
 
 export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: any, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) {
+    const { projects } = useProject();
+
     if (!selectedNode) {
         return (
             <div className="h-full flex flex-col items-center justify-center p-4 text-center">
@@ -52,12 +67,10 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
 
     const renderActionInputs = () => {
-        // --- PRIORITY 1: The API Request action has a special, full-featured editor ---
         if (selectedAction?.name === 'apiRequest') {
             return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
         }
         
-        // --- PRIORITY 2: Render standard inputs for any other selected action ---
         if (selectedAction?.inputs.length > 0) {
             return (
                 <div className="space-y-4">
@@ -69,6 +82,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                                 input={input} 
                                 value={selectedNode.data.inputs[input.name] || ''} 
                                 onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}
+                                projectList={projects} // Pass project list to NodeInput
                             />
                         </div>
                     ))}
@@ -76,7 +90,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             );
         }
         
-        // --- PRIORITY 3: If an app is chosen but no action, show action selector ---
         if (selectedApp) {
              const actionOptions = selectedApp.actions.filter(a => selectedNode.type === 'trigger' ? a.isTrigger : !a.isTrigger) || [];
              if (actionOptions.length > 1) {
@@ -99,7 +112,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
     const renderEditorContent = () => {
         if (selectedNode.type === 'action') {
-            // Step 1: No app selected, show app grid
             if (!selectedApp) {
                 const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
                 const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
@@ -144,17 +156,16 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                    </div>
                );
             }
-            // An app is selected, render its action inputs or selector
             return renderActionInputs();
         }
 
         if (selectedNode.type === 'trigger') {
-            const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
-            return (
+             const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
+             return (
                <div className="space-y-4">
                   <div className="space-y-2">
                       <Label>Trigger Type</Label>
-                      <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val })}>
+                      <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val, connectionId: '', appId: '', actionName: '', inputs: {} })}>
                           <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
                           <SelectContent>
                               {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
@@ -210,11 +221,11 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                 <h3 className="text-lg font-semibold">Properties</h3>
                 <p className="text-sm text-muted-foreground">Configure the selected step.</p>
             </div>
-            <ScrollArea className="flex-1">
+            <div className="flex-1 overflow-y-auto">
                 <div className="p-4 space-y-4">
                     <div className="space-y-2">
                         <Label>Step Name</Label>
-                        <Input value={selectedNode.data.name || ''} onChange={e => handleDataChange({ name: e.target.value })}/>
+                        <Input value={selectedNode.data.name} onChange={e => handleDataChange({ name: e.target.value })}/>
                     </div>
                     <Separator />
                     {selectedApp && selectedNode.type === 'action' && (
@@ -223,14 +234,14 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                                 <ArrowLeft className="mr-2 h-4 w-4"/> Change App
                             </Button>
                             <div className="flex items-center gap-2 p-2 rounded-md bg-muted text-sm">
-                                <Icon className={cn("h-5 w-5", selectedApp.iconColor)} />
+                                <selectedApp.icon className={cn("h-5 w-5", selectedApp.iconColor)} />
                                 <span className="font-semibold">{selectedApp.name}</span>
                             </div>
                         </div>
                     )}
                     {renderEditorContent()}
                 </div>
-            </ScrollArea>
+            </div>
             {selectedNode?.type !== 'trigger' && (
                 <div className="p-4 border-t flex-shrink-0">
                     <Button variant="destructive" className="w-full" onClick={() => onNodeRemove(selectedNode.id)}>
