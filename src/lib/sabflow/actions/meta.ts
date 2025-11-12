@@ -1,10 +1,13 @@
 
+
 'use server';
 
 import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
+import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 const API_VERSION = 'v23.0';
 
@@ -16,10 +19,19 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
             throw new Error("Meta Suite actions require a 'projectId' to be selected.");
         }
 
-        const project = await getProjectById(projectId);
+        // --- FIX START ---
+        // The original `getProjectById` checks for a dashboard session, which is incorrect for a server-side flow.
+        // We need to fetch the project directly and verify ownership against the user executing the flow.
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne({ 
+            _id: new ObjectId(projectId),
+            userId: user._id 
+        });
+
         if (!project) {
             throw new Error(`Project with ID ${projectId} not found or you do not have access.`);
         }
+        // --- FIX END ---
         
         if (!project.facebookPageId || !project.accessToken) {
             throw new Error(`Project "${project.name}" is not correctly configured for the Meta Suite.`);
