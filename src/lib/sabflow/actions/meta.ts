@@ -82,7 +82,7 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
             }
             
             // ----- Engagement & Moderation -----
-             case 'getComments': {
+            case 'getComments': {
                 if (!actionInputs.objectId) throw new Error("Object ID (Post or Comment ID) is required.");
                 const result = await getFacebookComments(actionInputs.objectId, projectId);
                 if (result.error) throw new Error(result.error);
@@ -146,33 +146,6 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
             case 'getScheduledLiveVideos': {
                 const result = await getScheduledLiveStreams(projectId);
                 // The action returns an array directly, not an object with a property.
-                return { output: result };
-            }
-
-            // ----- Ads & Catalog Actions -----
-            case 'getAdCampaigns': {
-                const result = await getAdCampaigns(projectId);
-                if (result.error) throw new Error(result.error);
-                return { output: result.campaigns };
-            }
-            case 'getCatalogs': {
-                const result = await getCatalogs(projectId);
-                return { output: result };
-            }
-            case 'getCatalogProducts': {
-                if (!actionInputs.catalogId) throw new Error("Catalog ID is required.");
-                const result = await getProductsForCatalog(actionInputs.catalogId, projectId);
-                return { output: result };
-            }
-            case 'addProductToCatalog': {
-                const result = await addProductToCatalog(null, formData);
-                if (result.error) throw new Error(result.error);
-                return { output: result };
-            }
-            case 'deleteProductFromCatalog': {
-                if (!actionInputs.productId) throw new Error("Product ID is required.");
-                const result = await deleteProductFromCatalog(actionInputs.productId, projectId);
-                if (!result.success) throw new Error(result.error);
                 return { output: result };
             }
 
