@@ -32,7 +32,7 @@ export function EmbeddedSignup({ appId, state, includeCatalog }: EmbeddedSignupP
   const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
   
   // Scopes for Wachat should be limited to WhatsApp and business management
-  let scopes = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
+  let scopes = 'whatsapp_business_management,whatsapp_business_messaging';
   
   if (includeCatalog) {
       scopes += ',catalog_management';
