@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -32,6 +31,9 @@ import {
   Zap,
   Tag,
   XCircle,
+  Users,
+  Search,
+  UserPlus,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
@@ -59,7 +61,7 @@ export const sabnodeAppActions = [
               label: 'Send Message',
               description: 'Sends a message to a visitor in an active chat session.',
               inputs: [
-                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true },
+                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
                   { name: 'content', label: 'Message Text', type: 'textarea', required: true },
               ]
           },
@@ -68,16 +70,61 @@ export const sabnodeAppActions = [
               label: 'Close Session',
               description: 'Closes a live chat session.',
               inputs: [
-                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true },
+                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
               ]
           },
           {
               name: 'addTagToSession',
               label: 'Add Tag to Session',
-              description: 'Adds a tag to a chat session for categorization.',
+              description: 'Adds a descriptive tag to a chat session for categorization.',
               inputs: [
-                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true },
+                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
                    { name: 'tagName', label: 'Tag Name', type: 'text', required: true },
+              ]
+          },
+          {
+              name: 'getOrCreateSession',
+              label: 'Get or Create Session',
+              description: "Finds an existing visitor's session by email or creates a new one.",
+              inputs: [
+                   { name: 'email', label: 'Visitor Email', type: 'email', required: true, placeholder: '{{trigger.email}}' },
+                   { name: 'name', label: 'Visitor Name (Optional)', type: 'text', placeholder: '{{trigger.name}}' },
+              ]
+          },
+          {
+              name: 'getSessionDetails',
+              label: 'Get Session Details',
+              description: "Retrieves the full details of a session, including its status and visitor info.",
+              inputs: [
+                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
+              ]
+          },
+          {
+              name: 'updateVisitorInfo',
+              label: 'Update Visitor Info',
+              description: 'Adds or updates information about the visitor in a chat session.',
+              inputs: [
+                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
+                  { name: 'name', label: 'Visitor Name', type: 'text', required: false },
+                  { name: 'email', label: 'Visitor Email', type: 'email', required: false },
+                  { name: 'phone', label: 'Visitor Phone', type: 'tel', required: false },
+              ]
+          },
+           {
+              name: 'assignAgent',
+              label: 'Assign Agent',
+              description: 'Assigns a team member to a chat session.',
+              inputs: [
+                   { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
+                   { name: 'agentId', label: 'Agent User ID', type: 'text', required: true },
+              ]
+          },
+           {
+              name: 'getChatHistory',
+              label: 'Get Chat History',
+              description: 'Retrieves the message history for a specific session.',
+              inputs: [
+                  { name: 'sessionId', label: 'Session ID', type: 'text', required: true, placeholder: '{{Get_Session.output.sessionId}}' },
               ]
           }
       ],
@@ -313,5 +360,3 @@ export const sabnodeAppActions = [
     actions: []
   }
 ];
-
-    
