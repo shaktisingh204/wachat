@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
@@ -57,6 +58,9 @@ import Image from 'next/image';
 import { AppConnectionSetup } from '@/components/wabasimplify/sabflow/connections/app-connection-setup';
 import { ApiRequestEditor } from '@/components/wabasimplify/sabflow/api-request-editor';
 import { DynamicSelector } from '@/components/wabasimplify/sabflow/dynamic-selector';
+import { getInvitedUsers } from '@/app/actions/team.actions';
+import { getChatSessionsForUser } from '@/app/actions/sabchat.actions';
+import { useProject } from '@/context/project-context';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
@@ -118,6 +122,30 @@ function BuilderPageSkeleton() {
 }
 
 const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) => {
+    const { projects } = useProject();
+    const wachatProjects = projects.filter(p => p.wabaId);
+    
+    const [dynamicData, setDynamicData] = useState<any>({
+        projects: wachatProjects.map(p => ({ value: p._id, label: p.name })),
+        agents: [],
+        sabChatSessions: [],
+    });
+    const [isLoadingData, startDataLoad] = useTransition();
+
+    useEffect(() => {
+        startDataLoad(async () => {
+            const [fetchedAgents, fetchedSessions] = await Promise.all([
+                getInvitedUsers(),
+                getChatSessionsForUser()
+            ]);
+            setDynamicData(prev => ({
+                ...prev,
+                agents: fetchedAgents.map(a => ({ value: a._id.toString(), label: a.name })),
+                sabChatSessions: fetchedSessions.map(s => ({ value: s._id.toString(), label: `${s.visitorInfo?.email || 'Visitor'} - ${s._id.toString().slice(-6)}` }))
+            }));
+        });
+    }, []);
+
     if (!selectedNode) return null;
     
     const handleDataChange = (data: any) => {
@@ -198,7 +226,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                  return (
                     <div className="space-y-4">
                         <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })} dataOptions={{}} /></div>))}
+                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })} dataOptions={dynamicData} /></div>))}
                     </div>
                 );
             }
@@ -331,17 +359,17 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         
         if (appConfig) {
             if (node.data.actionName) {
-                 if (appConfig.actions && Array.isArray(appConfig.actions)) {
+                if (appConfig.actions && Array.isArray(appConfig.actions)) {
                     const action = appConfig.actions.find(a => a.name === node.data.actionName);
-                    if(action) return action.label;
-                 }
-                 if(node.data.actionName === 'apiRequest') return 'API Request'; // Handle special case
+                    if (action) return action.label;
+                }
+                if (node.data.actionName === 'apiRequest') return 'API Request';
             }
             return appConfig.name;
         }
         
         return 'Select action';
-    }, [node]);
+    }, [node.data]);
 
 
     let appConfig;
