@@ -19,6 +19,12 @@ function interpolate(text: string | undefined, context: any): string {
     });
 };
 
+function getValueFromPath(obj: any, path: string): any {
+    if (!path) return undefined;
+    const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+    return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
+}
+
 export async function executeApiAction(node: SabFlowNode, context: any, logger: any) {
     try {
         const { apiRequest } = node.data;

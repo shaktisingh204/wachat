@@ -32,14 +32,14 @@ import {
   Zap,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { wachatActions } from './sabflow/actions/wachat';
-import { crmActions } from './sabflow/actions/crm';
-import { metaActions } from './sabflow/actions/meta';
-import { sabChatActions } from './sabflow/actions/sabchat';
-import { emailActions } from './sabflow/actions/email';
-import { smsActions } from './sabflow/actions/sms';
-import { urlShortenerActions } from './sabflow/actions/url-shortener';
-import { qrCodeMakerActions } from './sabflow/actions/qr-code';
+import { wachatActions } from './actions/wachat';
+import { crmActions } from './actions/crm';
+import { metaActions } from './actions/meta';
+import { sabChatActions } from './actions/sabchat';
+import { emailActions } from './actions/email';
+import { smsActions } from './actions/sms';
+import { urlShortenerActions } from './actions/url-shortener';
+import { qrCodeMakerActions } from './actions/qr-code';
 
 const apiActions = [
     {
