@@ -49,72 +49,33 @@ function NodeInput({ input, value, onChange, projectList }: { input: any, value:
 
 export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: any, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) {
     const { projects } = useProject();
+    const wachatProjects = projects.filter(p => p.wabaId);
 
-    if (!selectedNode) {
-        return (
-            <div className="h-full flex flex-col items-center justify-center p-4 text-center">
-                <h3 className="text-lg font-semibold">Properties</h3>
-                <p className="text-sm text-muted-foreground">Select a step to configure its properties.</p>
-            </div>
-        );
-    }
+    if (!selectedNode) return null;
     
     const handleDataChange = (data: any) => {
         onNodeChange(selectedNode.id, { ...selectedNode.data, ...data });
     };
 
     const selectedApp = sabnodeAppActions.find(app => app.appId === selectedNode.data.appId);
-    const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
-
-    const renderActionInputs = () => {
-        if (selectedAction?.name === 'apiRequest') {
-            return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
-        }
-        
-        if (selectedAction?.inputs.length > 0) {
-            return (
-                <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                    {selectedAction.inputs.map((input: any) => (
-                        <div key={input.name} className="space-y-2">
-                            <Label>{input.label}</Label>
-                            <NodeInput 
-                                input={input} 
-                                value={selectedNode.data.inputs[input.name] || ''} 
-                                onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}
-                                projectList={projects} // Pass project list to NodeInput
-                            />
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-        
-        if (selectedApp) {
-             const actionOptions = selectedApp.actions.filter(a => selectedNode.type === 'trigger' ? a.isTrigger : !a.isTrigger) || [];
-             if (actionOptions.length > 1) {
-                 return (
-                    <div className="space-y-2">
-                        <Label>Action</Label>
-                        <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
-                            <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                            <SelectContent>
-                                {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                );
-             }
-        }
-        
-        return null;
+    let selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
+    
+    // Explicit check for apiRequest
+    if (selectedNode.data.actionName === 'apiRequest') {
+        selectedAction = { name: 'apiRequest', label: 'API Request', description: 'Make a GET, POST, PUT, or DELETE request.', inputs: [] };
     }
 
+
     const renderEditorContent = () => {
-        if (selectedNode.type === 'action') {
+        const isAction = selectedNode.type === 'action';
+        const isCondition = selectedNode.type === 'condition';
+        const isTrigger = selectedNode.type === 'trigger';
+
+        if (isAction) {
             if (!selectedApp) {
-                const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
-                const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
+                 const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
+                
+                 const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
                     if (app.actions.some(a => a.isTrigger)) return acc;
                     const category = app.category || 'SabNode Apps';
                     if (!acc[category]) acc[category] = [];
@@ -156,10 +117,41 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                    </div>
                );
             }
-            return renderActionInputs();
+            
+            // This is the main fix. If the action is 'apiRequest', render the dedicated editor.
+            if (selectedNode.data.actionName === 'apiRequest') {
+                return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
+            }
+            
+            if (selectedAction?.inputs.length > 0) {
+                 return (
+                    <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })} projectList={wachatProjects} /></div>))}
+                    </div>
+                );
+            }
+            
+             if (selectedApp) {
+                 const actionOptions = selectedApp.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
+                 if (actionOptions.length > 1) {
+                     return (
+                        <div className="space-y-2">
+                            <Label>Action</Label>
+                            <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
+                                <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                <SelectContent>
+                                    {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    );
+                 }
+             }
+             return <p className="text-sm text-muted-foreground text-center pt-4">This app has no further actions to configure.</p>;
         }
 
-        if (selectedNode.type === 'trigger') {
+        if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
              return (
                <div className="space-y-4">
@@ -183,7 +175,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
            );
         }
         
-        if (selectedNode.type === 'condition') {
+        if (isCondition) {
              const rules = selectedNode.data.rules || [{ field: '', operator: 'equals', value: '' }];
             const handleRuleChange = (index: number, field: string, value: string) => {
                 const newRules = [...rules];
@@ -211,7 +203,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                 </div>
             );
         }
-
         return null;
     }
 
