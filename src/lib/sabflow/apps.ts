@@ -46,11 +46,12 @@ import {
   Megaphone,
   LayoutDashboard,
   Video,
-  ListFilter
+  ListFilter,
+  ShoppingBag,
+  Package
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
-import { googleSheetsActions } from './actions/google-sheets';
 import { wachatActions } from './actions/wachat';
 import { apiActions } from './actions/api';
 import { sabChatActions } from './actions/sabchat';
@@ -129,8 +130,33 @@ export const metaActions = [
     { name: 'getScheduledLiveVideos', label: 'Get Scheduled Live Videos', description: 'Retrieves a list of scheduled and past live streams.', icon: ListFilter, inputs: [
         { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
     ]},
+    
+    // Ad & Catalog Actions
+    { name: 'getAdCampaigns', label: 'Get Ad Campaigns', description: 'Retrieves a list of all ad campaigns.', icon: Megaphone, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+    ]},
+    { name: 'getCatalogs', label: 'Get Product Catalogs', description: 'Fetches all product catalogs for the business.', icon: ShoppingBag, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+    ]},
+    { name: 'getProductsForCatalog', label: 'Get Catalog Products', description: 'Lists all products within a specific catalog.', icon: Package, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'catalogId', label: 'Catalog ID', type: 'text', required: true },
+    ]},
+    { name: 'addProductToCatalog', label: 'Add Product to Catalog', description: 'Creates a new product in a catalog.', icon: Plus, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'catalogId', label: 'Catalog ID', type: 'text', required: true },
+        { name: 'name', label: 'Product Name', type: 'text', required: true },
+        { name: 'price', label: 'Price', type: 'number', required: true },
+        { name: 'currency', label: 'Currency', type: 'text', required: true, placeholder: 'e.g., INR, USD' },
+        { name: 'retailer_id', label: 'SKU / Retailer ID', type: 'text', required: true },
+        { name: 'image_url', label: 'Image URL', type: 'text', required: true },
+        { name: 'description', label: 'Description', type: 'textarea' },
+    ]},
+    { name: 'deleteProductFromCatalog', label: 'Delete Product from Catalog', description: 'Removes a product from a catalog.', icon: TrashIcon, inputs: [
+        { name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', projectType: 'facebook', required: true },
+        { name: 'productId', label: 'Product ID', type: 'text', required: true },
+    ]},
 ];
-
 
 export const sabnodeAppActions = [
   // SabNode Internal Apps
@@ -225,7 +251,7 @@ export const sabnodeAppActions = [
     icon: Zap, // Fallback icon
     connectionType: 'webhook',
     iconColor: 'text-sabflow-google_sheets-icon',
-    actions: googleSheetsActions
+    actions: []
   },
   { 
     appId: 'stripe',
