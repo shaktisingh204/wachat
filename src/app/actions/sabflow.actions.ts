@@ -16,6 +16,7 @@ import { executeEmailAction } from '@/lib/sabflow/actions/email';
 import { executeUrlShortenerAction } from '@/lib/sabflow/actions/url-shortener';
 import { executeQrCodeAction } from '@/lib/sabflow/actions/qr-code';
 import { executeSabChatAction } from '@/lib/sabflow/actions/sabchat';
+import { executeMetaAction } from '@/lib/sabflow/actions/meta';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
 
 // Helper to interpolate context variables into strings
@@ -63,6 +64,9 @@ async function executeAction(node: SabFlowNode, context: any, user: WithId<User>
                 break;
             case 'crm':
                 result = await executeCrmAction(actionName, interpolatedInputs, user, logger);
+                break;
+            case 'meta':
+                result = await executeMetaAction(actionName, interpolatedInputs, user, logger);
                 break;
             case 'api':
                  result = await executeApiAction(node, context, logger);
