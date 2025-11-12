@@ -55,8 +55,9 @@ import {
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { AppConnectionSetup } from '@/components/wabasimplify/connections/app-connection-setup';
-
+import { AppConnectionSetup } from '@/components/wabasimplify/sabflow/connections/app-connection-setup';
+import { ApiRequestEditor } from '@/components/wabasimplify/sabflow/api-request-editor';
+import { DynamicSelector } from '@/components/wabasimplify/sabflow/dynamic-selector';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
@@ -65,7 +66,32 @@ const triggers = [
     { id: 'app', name: 'App Trigger', icon: Zap, description: 'Start this flow based on an event from another app.' },
 ];
 
-function NodeInput({ input, value, onChange }: { input: any, value: any, onChange: (val: any) => void }) {
+function NodeInput({ input, value, onChange, dataOptions }: { input: any, value: any, onChange: (val: any) => void, dataOptions: any }) {
+    if (input.type === 'dynamic-selector') {
+        return (
+            <DynamicSelector
+                value={value}
+                onChange={onChange}
+                options={dataOptions[input.fetch] || []}
+                placeholder={input.placeholder}
+            />
+        );
+    }
+    
+    if (input.type === 'project-selector' || input.type === 'agent-selector') {
+        const options = input.type === 'project-selector' ? dataOptions.projects : dataOptions.agents;
+        return (
+            <Select value={value} onValueChange={onChange}>
+                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>
+                    {options.map((opt: any) => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        );
+    }
+    
     switch (input.type) {
         case 'textarea':
             return <Textarea placeholder={input.placeholder} value={value} onChange={e => onChange(e.target.value)} />;
@@ -107,21 +133,23 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
         selectedConnection = user?.sabFlowConnections?.find((c: any) => c.connectionName === selectedNode.data.connectionId);
     }
     const selectedApp = sabnodeAppActions.find(app => app.appId === (selectedNode.data.appId || selectedConnection?.appId));
-    const selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
-    const Icon = selectedApp?.icon || Zap;
-
+    let selectedAction = selectedApp?.actions.find(a => a.name === selectedNode.data.actionName);
+    
+    if (selectedNode.data.actionName === 'apiRequest') {
+        selectedAction = { name: 'apiRequest', label: 'API Request', description: 'Make a GET, POST, PUT, or DELETE request.', inputs: [] };
+    }
 
     const renderEditorContent = () => {
         const isAction = selectedNode.type === 'action';
         const isCondition = selectedNode.type === 'condition';
         const isTrigger = selectedNode.type === 'trigger';
 
-        if (isAction || (isTrigger && selectedNode.data.triggerType === 'app')) {
-            if (!selectedNode.data.connectionId) {
+        if (isAction) {
+            if (!selectedApp) {
                  const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
                 
                  const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
-                    if (isTrigger && !app.actions.some(a => a.isTrigger)) return acc;
+                    if (app.actions.some(a => a.isTrigger)) return acc;
                     const category = app.category || 'SabNode Apps';
                     if (!acc[category]) acc[category] = [];
                     acc[category].push(app);
@@ -129,46 +157,28 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                 }, {} as Record<string, any[]>));
 
                 return (
-                    <div className="space-y-4">
-                        <h3 className="font-semibold">{isTrigger ? 'Choose a Trigger App' : 'Choose an App'}</h3>
-                         <Accordion type="multiple" defaultValue={['SabNode Apps', 'Core Apps']} className="w-full">
+                   <div className="space-y-4">
+                       <h3 className="font-semibold">Choose an App</h3>
+                        <Accordion type="multiple" defaultValue={['SabNode Apps', 'Core Apps']} className="w-full">
                             {groupedApps.map(([category, apps]: [string, any[]]) => (
                                 <AccordionItem key={category} value={category}>
                                     <AccordionTrigger>{category}</AccordionTrigger>
                                     <AccordionContent className="p-2">
-                                        <div className="grid grid-cols-5 gap-2">
+                                        <div className="grid grid-cols-3 gap-2">
                                             {apps.map(app => {
                                                 const AppIcon = app.icon || Zap;
-                                                const isConnected = connectedAppIds.has(app.appId) || app.connectionType === 'internal';
                                                 return (
-                                                     <button type="button" key={app.appId} 
-                                                        className={cn("h-120 w-120 p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-2 transition-colors")} style={{
-                                                            transition: 'box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                                                            boxShadow:
-                                                              'rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            justifyContent: 'center',
-                                                            maxWidth: '120px', minHeight: '120px'
-                                                          }} 
+                                                     <button 
+                                                        type="button" 
+                                                        key={app.appId} 
+                                                        className="p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border"
                                                         onClick={() => {
-                                                            if (app.connectionType === 'internal') {
-                                                                handleDataChange({ connectionId: `${app.name} Connection`, appId: app.appId, actionName: '', inputs: {} });
-                                                            } else if (isConnected) {
-                                                                const firstConn = user.sabFlowConnections.find((c: any) => c.appId === app.appId);
-                                                                if (firstConn) {
-                                                                    handleDataChange({ connectionId: firstConn.connectionName, appId: app.appId, actionName: '', inputs: {} });
-                                                                }
-                                                            } else {
-                                                               handleDataChange({ connectionId: 'new', appId: app.appId });
-                                                            }
+                                                            const actionName = app.actions.length === 1 ? app.actions[0].name : '';
+                                                            handleDataChange({ appId: app.appId, actionName: actionName, inputs: {} });
                                                         }}
                                                     >
-                                                        <div className={cn("w-full h-full  flex items-center justify-center bg-white border") } style={{borderRadius: '16px', display: 'contents', maxWidth: '120px', minHeight: '120px' }}>
-                                                            <AppIcon className={cn("h-8 w-8", app.iconColor)}/>
-                                                        <p className="text-[10px] font-bold text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
-                                                            
-                                                        </div>
+                                                        <AppIcon className={cn("h-6 w-6 mb-1", app.iconColor)}/>
+                                                        <p className="text-xs font-medium text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
                                                     </button>
                                                 )
                                             })}
@@ -177,15 +187,27 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                 </AccordionItem>
                             ))}
                         </Accordion>
+                   </div>
+               );
+            }
+            
+            if (selectedNode.data.actionName === 'apiRequest') {
+                return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
+            }
+            
+            if (selectedAction?.inputs.length > 0) {
+                 return (
+                    <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })} dataOptions={{}} /></div>))}
                     </div>
                 );
-            } else if (selectedNode.data.connectionId === 'new' && selectedApp) {
-                return <AppConnectionSetup app={selectedApp} onConnectionSaved={onConnectionSaved} flowId={params.flowId} />;
             }
-            else {
-                const actionOptions = selectedApp?.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
-                return (
-                    <>
+            
+             if (selectedApp) {
+                 const actionOptions = selectedApp.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
+                 if (actionOptions.length > 1) {
+                     return (
                         <div className="space-y-2">
                             <Label>Action</Label>
                             <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
@@ -195,43 +217,38 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                                 </SelectContent>
                             </Select>
                         </div>
-                        {selectedAction && (
-                             <div className="space-y-4 pt-4 border-t">
-                                <h4 className="font-semibold">{selectedAction.label}</h4>
-                                <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                                {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })}/></div>))}
-                            </div>
-                        )}
-                    </>
-                );
-            }
+                    );
+                 }
+             }
+             return <p className="text-sm text-muted-foreground text-center pt-4">This app has no further actions to configure.</p>;
         }
 
         if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
-             
              return (
-                <div className="space-y-2">
-                    <Label>Trigger Type</Label>
-                    <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val, connectionId: '', appId: '', actionName: '', inputs: {} })}>
-                        <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
-                        <SelectContent>
-                            {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                    {selectedTrigger && <p className="text-xs text-muted-foreground">{selectedTrigger.description}</p>}
-                    {selectedTrigger?.id === 'webhook' && (
-                        <div className="pt-4">
-                            <Label>Webhook URL</Label>
-                            <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${params.flowId}`} />
-                        </div>
-                    )}
-                </div>
-            );
+               <div className="space-y-4">
+                  <div className="space-y-2">
+                      <Label>Trigger Type</Label>
+                      <Select value={selectedNode.data.triggerType} onValueChange={val => handleDataChange({ triggerType: val, connectionId: '', appId: '', actionName: '', inputs: {} })}>
+                          <SelectTrigger><SelectValue placeholder="Select a trigger"/></SelectTrigger>
+                          <SelectContent>
+                              {triggers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                          </SelectContent>
+                      </Select>
+                      {selectedTrigger && <p className="text-xs text-muted-foreground">{selectedTrigger.description}</p>}
+                  </div>
+                  {selectedTrigger?.id === 'webhook' && (
+                      <div className="pt-4">
+                          <Label>Webhook URL</Label>
+                          <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${params.flowId}`} />
+                      </div>
+                  )}
+               </div>
+           );
         }
-
+        
         if (isCondition) {
-            const rules = selectedNode.data.rules || [{ field: '', operator: 'equals', value: '' }];
+             const rules = selectedNode.data.rules || [{ field: '', operator: 'equals', value: '' }];
             const handleRuleChange = (index: number, field: string, value: string) => {
                 const newRules = [...rules];
                 newRules[index] = { ...newRules[index], [field]: value };
@@ -243,12 +260,9 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
             return (
                 <div className="space-y-4">
                     <RadioGroup value={selectedNode.data.logicType || 'AND'} onValueChange={(val) => handleDataChange({ logicType: val })} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="AND" id="logic-and"/><Label htmlFor="logic-and">Match ALL conditions (AND)</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="OR" id="logic-or"/><Label htmlFor="logic-or">Match ANY condition (OR)</Label></div></RadioGroup>
-                    
                     <div className="space-y-3">
                         {rules.map((rule: any, index: number) => (<div key={index} className="p-3 border rounded-md space-y-2 relative">
-                            <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}>
-                                <Trash2 className="h-4 w-4 text-destructive"/>
-                            </Button>
+                            <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                             <Input placeholder="Variable e.g. {{trigger.name}}" value={rule.field} onChange={e => handleRuleChange(index, 'field', e.target.value)} />
                             <Select value={rule.operator} onValueChange={val => handleRuleChange(index, 'operator', val)}>
                                 <SelectTrigger><SelectValue placeholder="Select operator..."/></SelectTrigger>
@@ -270,7 +284,7 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                 <h3 className="text-lg font-semibold">Properties</h3>
                 <p className="text-sm text-muted-foreground">Configure the selected step.</p>
             </div>
-            <ScrollArea className="flex-1">
+            <div className="flex-1 overflow-y-auto">
                 <div className="p-4 space-y-4">
                     <div className="space-y-2">
                         <Label>Step Name</Label>
@@ -279,18 +293,18 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
                     <Separator />
                     {selectedApp && selectedNode.type === 'action' && (
                         <div className="flex items-center gap-2">
-                             <Button variant="ghost" size="sm" onClick={() => handleDataChange({ connectionId: '', actionName: '', inputs: {} })}>
+                             <Button variant="ghost" size="sm" onClick={() => handleDataChange({ appId: '', actionName: '', inputs: {} })}>
                                 <ArrowLeft className="mr-2 h-4 w-4"/> Change App
                             </Button>
                             <div className="flex items-center gap-2 p-2 rounded-md bg-muted text-sm">
-                                <Icon className={cn("h-5 w-5", selectedApp.iconColor)} />
+                                <selectedApp.icon className={cn("h-5 w-5", selectedApp.iconColor)} />
                                 <span className="font-semibold">{selectedApp.name}</span>
                             </div>
                         </div>
                     )}
                     {renderEditorContent()}
                 </div>
-            </ScrollArea>
+            </div>
             {selectedNode?.type !== 'trigger' && (
                 <div className="p-4 border-t flex-shrink-0">
                     <Button variant="destructive" className="w-full" onClick={() => onNodeRemove(selectedNode.id)}>
@@ -314,16 +328,14 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
             return 'Branching Logic';
         }
         
-        let appConfig;
-        if (node.data.connectionId?.endsWith(' Connection')) {
-            const appName = node.data.connectionId.replace(' Connection', '');
-            appConfig = sabnodeAppActions.find(a => a.name === appName);
-        } else {
-            const app = user?.sabFlowConnections?.find((c: any) => c.connectionName === node.data.connectionId);
-            appConfig = sabnodeAppActions.find(a => a.appId === app?.appId);
-        }
+        const appConfig = sabnodeAppActions.find(a => a.appId === node.data.appId);
         
         if (appConfig) {
+            // Handle special case for 'API Request'
+            if (appConfig.appId === 'api' && node.data.actionName === 'apiRequest') {
+                return 'API Request';
+            }
+
             if (node.data.actionName) {
                  const action = appConfig.actions.find(a => a.name === node.data.actionName);
                  if(action) return action.label;
@@ -332,7 +344,7 @@ const NodeComponent = ({ user, node, onSelectNode, isSelected, onNodeMouseDown, 
         }
         
         return 'Select action';
-    }, [node, user?.sabFlowConnections]);
+    }, [node]);
 
 
     let appConfig;
@@ -681,3 +693,48 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
+
+```
+- src/hooks/use-copy-to-clipboard.ts:
+```ts
+
+'use client';
+
+import { useState } from 'react';
+import { useToast } from './use-toast';
+
+export function useCopyToClipboard() {
+  const [isCopied, setIsCopied] = useState(false);
+  const { toast } = useToast();
+
+  const copy = (text: string) => {
+    if (!navigator.clipboard) {
+      toast({
+        title: 'Failed to copy',
+        description: 'Clipboard API is not available. Please use a secure (HTTPS) connection.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    navigator.clipboard.writeText(text).then(
+      () => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+        toast({ title: 'Copied to clipboard!' });
+      },
+      (err) => {
+        console.error('Could not copy text: ', err);
+        toast({
+          title: 'Failed to copy',
+          description: 'Could not copy to clipboard. Check browser permissions.',
+          variant: 'destructive',
+        });
+      }
+    );
+  };
+
+  return { isCopied, copy };
+}
+
+```
