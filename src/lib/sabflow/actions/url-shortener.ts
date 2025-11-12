@@ -19,7 +19,7 @@ export async function executeUrlShortenerAction(actionName: string, inputs: any,
                 
                 // Construct the full URL for the context
                 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
-                const fullShortUrl = `${appUrl}/s/${result.shortCode}`;
+                const fullShortUrl = `${appUrl}/s/${(result as any).shortCode}`;
                 
                 return { output: { ...result, fullShortUrl } };
             }
@@ -30,3 +30,15 @@ export async function executeUrlShortenerAction(actionName: string, inputs: any,
         return { error: e.message };
     }
 }
+
+export const urlShortenerActions = [
+    {
+        name: 'createShortLink',
+        label: 'Create Short Link',
+        description: 'Creates a new short, trackable link.',
+        inputs: [
+            { name: 'longUrl', label: 'Original URL', type: 'text', required: true },
+            { name: 'alias', label: 'Custom Alias (Optional)', type: 'text' },
+        ]
+    }
+];

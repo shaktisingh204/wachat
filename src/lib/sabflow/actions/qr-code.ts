@@ -26,3 +26,15 @@ export async function executeQrCodeAction(actionName: string, inputs: any, user:
         return { error: e.message };
     }
 }
+
+export const qrCodeMakerActions = [
+    {
+        name: 'generateQrCode',
+        label: 'Generate QR Code',
+        description: 'Generates a QR code from text or a URL.',
+        inputs: [
+            { name: 'data', label: 'Data to Encode', type: 'text', required: true },
+            { name: 'name', label: 'Name for Saving (Optional)', type: 'text' },
+        ]
+    }
+];
