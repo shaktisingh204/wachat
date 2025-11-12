@@ -204,6 +204,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
         if (isTrigger) {
              const selectedTrigger = triggers.find(t => t.id === selectedNode.data.triggerType);
+             const triggerApps = sabnodeAppActions.filter(app => app.actions.some(a => a.isTrigger));
              return (
                <div className="space-y-4">
                   <div className="space-y-2">
@@ -221,6 +222,31 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                           <Label>Webhook URL</Label>
                           <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${params.flowId}`} />
                       </div>
+                  )}
+                  {selectedTrigger?.id === 'app' && (
+                     <div className="space-y-4">
+                        <Label>Select App</Label>
+                         <div className="grid grid-cols-3 gap-2">
+                            {triggerApps.map(app => {
+                                const AppIcon = app.icon || Zap;
+                                const isSelected = selectedNode.data.appId === app.appId;
+                                return (
+                                    <button 
+                                        type="button" 
+                                        key={app.appId} 
+                                        className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border", isSelected && 'ring-2 ring-primary')}
+                                        onClick={() => handleDataChange({ appId: app.appId, actionName: app.actions.find(a => a.isTrigger)?.name, inputs: {} })}
+                                    >
+                                        <AppIcon className={cn("h-6 w-6 mb-1", app.iconColor)}/>
+                                        <p className="text-xs font-medium text-foreground break-words whitespace-normal leading-tight">{app.name}</p>
+                                    </button>
+                                )
+                            })}
+                        </div>
+                         {selectedApp && selectedAction && (
+                            <AppConnectionSetup app={selectedApp} flowId={params.flowId} onConnectionSaved={onConnectionSaved} />
+                         )}
+                    </div>
                   )}
                </div>
            );
