@@ -2,10 +2,10 @@
 'use strict';
 require('dotenv').config();
 
-import { connectToDatabase } from '../src/lib/mongodb.js';
+import { connectToDatabase } from '../lib/mongodb.js';
 import { Kafka, Partitioners } from 'kafkajs';
 import { ObjectId } from 'mongodb';
-import { getErrorMessage } from '../src/lib/utils.js';
+import { getErrorMessage } from '../lib/utils.js';
 
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 const LOW_PRIORITY_TOPIC = 'low-priority-broadcasts';
