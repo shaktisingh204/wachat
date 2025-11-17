@@ -19,6 +19,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Papa from 'papaparse';
 import { cn } from '@/lib/utils';
+import { SpeedDisplay } from '@/components/wabasimplify/broadcast-speed-display';
 
 
 type Broadcast = {

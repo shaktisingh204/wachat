@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
 import type { WithId } from 'mongodb';
 import { getTemplates, handleStopBroadcast, handleRunCron } from '@/app/actions/index.ts';
 import { handleSyncTemplates } from '@/app/actions/template.actions';
@@ -43,6 +43,7 @@ import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import {Calendar} from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import { getBroadcasts } from '@/app/actions/broadcast.actions';
+import { SpeedDisplay } from '@/components/wabasimplify/broadcast-speed-display';
 
 
 type Broadcast = {
@@ -229,58 +230,6 @@ function BroadcastPageSkeleton() {
       </div>
     );
 }
-
-function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
-  const [sendingSpeed, setSendingSpeed] = useState(0);
-  const [acceptingSpeed, setAcceptingSpeed] = useState(0);
-  const lastProcessedRef = useRef(0);
-  const lastSuccessRef = useRef(0);
-  const lastTimestampRef = useRef(Date.now());
-
-  useEffect(() => {
-    if (item.status !== 'PROCESSING') {
-      // Calculate final average speed on completion
-      if (item.startedAt && item.completedAt) {
-        const durationSeconds = (new Date(item.completedAt).getTime() - new Date(item.startedAt).getTime()) / 1000;
-        if (durationSeconds > 0) {
-          const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
-          setSendingSpeed(Math.round(totalProcessed / durationSeconds));
-          setAcceptingSpeed(Math.round((item.successCount || 0) / durationSeconds));
-        }
-      }
-      return;
-    };
-
-    const now = Date.now();
-    const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
-    const totalSuccess = (item.successCount || 0);
-
-    const timeDiff = (now - lastTimestampRef.current) / 1000;
-    
-    if (timeDiff > 0) {
-        const processedInInterval = totalProcessed - lastProcessedRef.current;
-        const successInInterval = totalSuccess - lastSuccessRef.current;
-        setSendingSpeed(Math.round(processedInInterval / timeDiff));
-        setAcceptingSpeed(Math.round(successInInterval / timeDiff));
-    }
-    
-    lastProcessedRef.current = totalProcessed;
-    lastSuccessRef.current = totalSuccess;
-    lastTimestampRef.current = now;
-
-  }, [item]);
-
-  const limit = item.projectMessagesPerSecond;
-
-  return (
-    <div className="font-mono text-xs text-muted-foreground space-y-1" title="App Sending Speed / Meta Accepting Speed / Limit">
-      <div>App Speed: {sendingSpeed} msg/s</div>
-      <div>Meta Speed: {acceptingSpeed} msg/s</div>
-      <div>Limit: {limit !== undefined && limit !== null ? `${limit} msg/s` : 'N/A'}</div>
-    </div>
-  );
-}
-
 
 export default function BroadcastPage() {
   const { activeProject, activeProjectId } = useProject();
