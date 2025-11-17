@@ -1,124 +1,143 @@
-// cronScheduler.ts
 'use strict';
+
 require('dotenv').config();
+const { connectToDatabase } = require('../lib/mongodb.js');
+const { Kafka, Partitioners } = require('kafkajs');
+const { ObjectId } = require('mongodb');
+const { getErrorMessage } = require('../lib/utils.js');
 
-import { connectToDatabase } from '../lib/mongodb.js';
-import { Kafka, Partitioners } from 'kafkajs';
-import { ObjectId } from 'mongodb';
-import { getErrorMessage } from '../lib/utils.js';
-
-const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
+const KAFKA_BROKERS = process.env.KAFKA_BROKERS?.split(',') || ['127.0.0.1:9092'];
 const LOW_PRIORITY_TOPIC = 'low-priority-broadcasts';
 const HIGH_PRIORITY_TOPIC = 'high-priority-broadcasts';
-const MAX_BATCH_CONTACTS = 100; // contacts per Kafka message
+const MAX_BATCH_CONTACTS = 500; // max contacts per Kafka message
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
 
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
-  try {
-    if (!db || !broadcastId || !projectId) return;
-    await db.collection('broadcast_logs').insertOne({
-      broadcastId,
-      projectId,
-      level,
-      message,
-      meta,
-      timestamp: new Date(),
-    });
-  } catch (e) {
-    console.error('Failed to write broadcast log:', e);
-  }
-}
-
-// Reset stuck jobs
-async function resetStuckJobs(db) {
-  const tenMinutesAgo = new Date(Date.now() - STUCK_JOB_TIMEOUT_MINUTES * 60 * 1000);
-  const result = await db.collection('broadcasts').updateMany(
-    { status: 'PROCESSING', startedAt: { $lt: tenMinutesAgo } },
-    { $set: { status: 'QUEUED' }, $unset: { startedAt: '' } }
-  );
-  if (result.modifiedCount > 0) {
-    console.log(`[CRON-SCHEDULER] Reset ${result.modifiedCount} stuck broadcast job(s).`);
-  }
-}
-
-// Queue contacts to Kafka
-async function processSingleJob(db, job) {
-  const broadcastId = job._id;
-  const projectId = job.projectId;
-
-  await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Scheduler picked up job ${broadcastId} for processing.`);
-
-  const contacts = await db.collection('broadcast_contacts').find({ broadcastId, status: 'PENDING' }).toArray();
-  if (!contacts.length) {
-    const jobState = await db.collection('broadcasts').findOne({ _id: broadcastId });
-    if(jobState && (jobState.successCount + jobState.errorCount) >= jobState.contactCount) {
-      await db.collection('broadcasts').updateOne(
-        { _id: broadcastId },
-        { $set: { status: 'Completed', completedAt: new Date() } }
-      );
-      const msg = `Job ${broadcastId} has no pending contacts. Marked as complete.`;
-      console.log(`[CRON-SCHEDULER] ${msg}`);
-      await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
-    } else {
-      const msg = `Job ${broadcastId} has no pending contacts, but counts don't match total. It may be processing or finished.`;
-      console.log(`[CRON-SCHEDULER] ${msg}`);
-      await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
+    try {
+        if (!db || !broadcastId || !projectId) return;
+        await db.collection('broadcast_logs').insertOne({
+            broadcastId,
+            projectId,
+            level,
+            message,
+            meta,
+            timestamp: new Date(),
+        });
+    } catch (e) {
+        console.error('[CRON-SCHEDULER] Failed to write log:', e);
     }
-    return;
-  }
+}
 
-  const KAFKA_TOPIC = contacts.length > 5000 ? HIGH_PRIORITY_TOPIC : LOW_PRIORITY_TOPIC;
-  const kafka = new Kafka({ clientId: `broadcast-producer-${broadcastId}`, brokers: KAFKA_BROKERS });
-  const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
-  await producer.connect();
+async function resetStuckJobs(db) {
+    const tenMinutesAgo = new Date(Date.now() - STUCK_JOB_TIMEOUT_MINUTES * 60 * 1000);
+    const result = await db.collection('broadcasts').updateMany(
+        { status: 'PROCESSING', startedAt: { $lt: tenMinutesAgo } },
+        { $set: { status: 'QUEUED' }, $unset: { startedAt: '' } }
+    );
+    if (result.modifiedCount > 0) {
+        console.log(`[CRON-SCHEDULER] Reset ${result.modifiedCount} stuck broadcast jobs.`);
+    }
+}
 
-  for (let i = 0; i < contacts.length; i += MAX_BATCH_CONTACTS) {
-    const batch = contacts.slice(i, i + MAX_BATCH_CONTACTS);
-    await producer.send({
-      topic: KAFKA_TOPIC,
-      messages: [{ value: JSON.stringify({ jobDetails: job, contacts: batch }) }],
+async function processSingleJob(db, job) {
+    const broadcastId = job._id;
+    const projectId = job.projectId;
+
+    await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Scheduler picked up job ${broadcastId} for processing.`);
+
+    const contacts = await db.collection('broadcast_contacts').find({ broadcastId, status: 'PENDING' }).toArray();
+
+    if (!contacts.length) {
+        const jobState = await db.collection('broadcasts').findOne({ _id: broadcastId });
+        if (jobState && (jobState.successCount + jobState.errorCount) >= jobState.contactCount) {
+            await db.collection('broadcasts').updateOne(
+                { _id: broadcastId },
+                { $set: { status: 'Completed', completedAt: new Date() } }
+            );
+            const msg = `Job ${broadcastId} has no pending contacts. Marked as complete.`;
+            console.log(`[CRON-SCHEDULER] ${msg}`);
+            await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
+        } else {
+            const msg = `Job ${broadcastId} has no pending contacts, counts don't match total.`;
+            console.log(`[CRON-SCHEDULER] ${msg}`);
+            await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
+        }
+        return;
+    }
+
+    const KAFKA_TOPIC = contacts.length > 5000 ? HIGH_PRIORITY_TOPIC : LOW_PRIORITY_TOPIC;
+
+    const kafka = new Kafka({
+        clientId: `broadcast-producer-${broadcastId}`,
+        brokers: KAFKA_BROKERS,
+        connectionTimeout: 5000,
+        requestTimeout: 30000
     });
-  }
 
-  await producer.disconnect();
-  const msg = `Queued ${contacts.length} contacts for job ${broadcastId}`;
-  console.log(`[CRON-SCHEDULER] ${msg}`);
-  await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
+    const producer = kafka.producer({
+        createPartitioner: Partitioners.DefaultPartitioner,
+        maxRequestSize: 100 * 1024 * 1024
+    });
+
+    try {
+        await producer.connect();
+        let totalQueued = 0;
+
+        for (let i = 0; i < contacts.length; i += MAX_BATCH_CONTACTS) {
+            const batch = contacts.slice(i, i + MAX_BATCH_CONTACTS);
+            await producer.send({
+                topic: KAFKA_TOPIC,
+                messages: [{ value: JSON.stringify({ jobDetails: job, contacts: batch }) }],
+            });
+            totalQueued += batch.length;
+        }
+
+        const msg = `Queued ${totalQueued}/${contacts.length} contacts for job ${broadcastId}.`;
+        console.log(`[CRON-SCHEDULER] ${msg}`);
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
+
+    } catch (err) {
+        const errorMsg = getErrorMessage(err);
+        console.error(`[CRON-SCHEDULER] Job ${broadcastId} failed:`, errorMsg);
+        await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Scheduler failed: ${errorMsg}`);
+        await db.collection('broadcasts').updateOne(
+            { _id: broadcastId, status: 'PROCESSING' },
+            { $set: { status: 'QUEUED', lastError: errorMsg }, $unset: { startedAt: '' } }
+        );
+    } finally {
+        await producer.disconnect();
+    }
 }
 
-export async function processBroadcastJob() {
-  console.log(`[CRON-SCHEDULER] Starting broadcast processing job run at ${new Date().toISOString()}`);
+async function processBroadcastJob() {
+    console.log(`[CRON-SCHEDULER] Starting broadcast processing run at ${new Date().toISOString()}`);
 
-  let db;
-  try {
-    const conn = await connectToDatabase();
-    db = conn.db;
-  } catch (dbError) {
-    console.error('[CRON-SCHEDULER] Database connection failed:', getErrorMessage(dbError));
-    return;
-  }
+    let db;
+    try {
+        const conn = await connectToDatabase();
+        db = conn.db;
+    } catch (err) {
+        console.error('[CRON-SCHEDULER] DB connection failed:', getErrorMessage(err));
+        return { error: 'DB connection failed' };
+    }
 
-  try {
-    await resetStuckJobs(db);
-  } catch (err) {
-    console.error('[CRON-SCHEDULER] Maintenance error:', getErrorMessage(err));
-  }
+    try { await resetStuckJobs(db); } catch (err) { console.error('[CRON-SCHEDULER] Error resetting jobs:', getErrorMessage(err)); }
 
-  const jobResult = await db.collection('broadcasts').findOneAndUpdate(
-    { status: 'QUEUED' },
-    { $set: { status: 'PROCESSING', startedAt: new Date() } },
-    { returnDocument: 'after', sort: { createdAt: 1 } }
-  );
+    const jobResult = await db.collection('broadcasts').findOneAndUpdate(
+        { status: 'QUEUED' },
+        { $set: { status: 'PROCESSING', startedAt: new Date() } },
+        { returnDocument: 'after', sort: { createdAt: 1 } }
+    );
 
-  const job = jobResult.value;
-  if (!job) {
-    console.log('[CRON-SCHEDULER] No queued broadcast jobs found.');
-    return;
-  }
+    const job = jobResult.value;
+    if (!job) {
+        console.log('[CRON-SCHEDULER] No queued broadcast jobs found.');
+        return { message: 'No job found' };
+    }
 
-  processSingleJob(db, job).catch(err => {
-    console.error(`[CRON-SCHEDULER] Unhandled error in job ${job._id}:`, getErrorMessage(err));
-  });
+    processSingleJob(db, job).catch(err => console.error(`[CRON-SCHEDULER] Error processing job ${job._id}:`, getErrorMessage(err)));
 
-  console.log(`[CRON-SCHEDULER] Job ${job._id} picked up and is being processed.`);
+    return { message: `Job ${job._id} picked up for processing.` };
 }
+
+module.exports = { processBroadcastJob };
