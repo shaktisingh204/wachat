@@ -1,4 +1,6 @@
 
+'use strict';
+
 require('dotenv').config();
 const { connectToDatabase } = require('../src/lib/mongodb.js');
 const { getErrorMessage } = require('../src/lib/utils.js');
@@ -15,7 +17,7 @@ const importPThrottle = async () => {
 };
 
 if (!process.env.KAFKA_BROKERS) {
-  console.error('[KAFKA-WORKER] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.');
+  console.error('[WORKER] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.');
   process.exit(1);
 }
 
@@ -24,6 +26,12 @@ const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 
 /**
  * Logs a message to the dedicated broadcast log collection in MongoDB.
+ * @param {Db} db - The MongoDB database instance.
+ * @param {ObjectId} broadcastId - The ID of the broadcast job.
+ * @param {ObjectId} projectId - The ID of the project.
+ * @param {'INFO' | 'ERROR' | 'WARN'} level - The log level.
+ * @param {string} message - The log message.
+ * @param {object} [meta={}] - Additional metadata to log.
  */
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta) {
     try {
@@ -43,6 +51,10 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta)
 
 /**
  * Sends a single WhatsApp message using the Meta Graph API.
+ * This function is optimized to be called concurrently by the throttler.
+ * @param {object} job - The sanitized broadcast job details.
+ * @param {object} contact - The contact object.
+ * @returns {Promise<{success: boolean, messageId?: string, error?: string}>} - The result of the send operation.
  */
 async function sendWhatsAppMessage(job, contact) {
   try {
@@ -71,10 +83,12 @@ async function sendWhatsAppMessage(job, contact) {
     if (headerComponent) {
       let parameter;
       const format = headerComponent.format?.toLowerCase();
-      if (headerMediaId) {
-        parameter = { type: format, [format]: { id: headerMediaId } };
-      } else if (headerImageUrl) {
-        parameter = { type: format, [format]: { link: headerImageUrl } };
+      if (format && (format === 'image' || format === 'video' || format === 'document')) {
+        if (headerMediaId) {
+            parameter = { type: format, [format]: { id: headerMediaId } };
+        } else if (headerImageUrl) {
+            parameter = { type: format, [format]: { link: headerImageUrl } };
+        }
       } else if (format === 'text' && headerComponent.text) {
         if (getVars(headerComponent.text).length > 0) {
             parameter = { type: 'text', text: interpolate(headerComponent.text, contact.variables || {}) };
@@ -113,14 +127,24 @@ async function sendWhatsAppMessage(job, contact) {
     
     const response = await undici.request(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
-      { method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) }
+      { 
+          method: 'POST', 
+          headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, 
+          body: JSON.stringify(messageData) 
+      }
     );
-
-    const responseData = await response.body.json();
-    if (response.statusCode < 200 || response.statusCode >= 300) throw new Error(`Meta API error ${response.statusCode}: ${JSON.stringify(responseData?.error || responseData)}`);
     
-    const messageId = responseData?.messages?.[0]?.id;
-    if (!messageId) return { success: false, error: "No message ID returned from Meta." };
+    // Correctly handle the response body from undici
+    const responseBody = await response.body.json();
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw new Error(`Meta API error ${response.statusCode}: ${JSON.stringify(responseBody?.error || responseBody)}`);
+    }
+    
+    const messageId = responseBody?.messages?.[0]?.id;
+    if (!messageId) {
+        return { success: false, error: `No message ID returned from Meta. Response: ${JSON.stringify(responseBody)}` };
+    }
 
     return { success: true, messageId };
   } catch (error) {
@@ -130,116 +154,134 @@ async function sendWhatsAppMessage(job, contact) {
 
 /**
  * Main worker function that connects to Kafka and processes message batches.
+ * @param {string} workerId - A unique identifier for this worker instance.
+ * @param {string} kafkaTopic - The Kafka topic to subscribe to.
  */
 async function startBroadcastWorker(workerId, kafkaTopic) {
   const pThrottle = await importPThrottle();
   const GROUP_ID = `whatsapp-broadcaster-${kafkaTopic}`;
 
-  console.log(`[WORKER ${workerId}] Starting on topic: ${kafkaTopic}`);
+  console.log(`[WORKER ${workerId}] Starting | Topic: ${kafkaTopic} | Group: ${GROUP_ID}`);
 
   const { db } = await connectToDatabase();
 
   const kafka = new Kafka({
     clientId: `whatsapp-worker-${workerId}-${kafkaTopic}`,
-    brokers: KAFKA_BROKERS
+    brokers: KAFKA_BROKERS,
+    connectionTimeout: 5000,
+    requestTimeout: 30000,
   });
 
   const consumer = kafka.consumer({
     groupId: GROUP_ID,
     sessionTimeout: 60000,
     rebalanceTimeout: 90000,
-    heartbeatInterval: 3000
+    heartbeatInterval: 3000,
   });
 
-  await consumer.connect();
-  await consumer.subscribe({ topic: kafkaTopic, fromBeginning: false });
+  const run = async () => {
+    await consumer.connect();
+    await consumer.subscribe({ topic: kafkaTopic, fromBeginning: false });
+    console.log(`[WORKER ${workerId}] Connected to Kafka and subscribed to topic '${kafkaTopic}'.`);
 
-  console.log(`[WORKER ${workerId}] Connected to Kafka and subscribed to topic '${kafkaTopic}'.`);
+    await consumer.run({
+      eachMessage: async ({ topic, partition, message, heartbeat }) => {
+        const startTime = Date.now();
+        let jobDetails;
+        let contacts;
+        
+        try {
+          if (!message.value) return;
 
-  await consumer.run({
-    eachMessage: async ({ message, heartbeat }) => {
-      try {
-        if (!message.value) return;
-
-        const { jobDetails, contacts } = JSON.parse(message.value.toString());
-        if (!jobDetails || !jobDetails._id || !Array.isArray(contacts) || contacts.length === 0) {
-          console.error(`[WORKER ${workerId}] Invalid job data received.`);
-          return;
-        }
-
-        const broadcastId = new ObjectId(jobDetails._id);
-        const projectId = new ObjectId(jobDetails.projectId);
-        const mps = jobDetails.messagesPerSecond || 80;
-
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Picked batch of ${contacts.length}. Throttle: ${mps} MPS.`);
-
-        const throttle = pThrottle({ limit: mps, interval: 1000 });
-
-        const throttledSend = throttle(async contact => {
-          await heartbeat();
-          return sendWhatsAppMessage(jobDetails, contact).then(result => ({
-            contactId: contact._id,
-            ...result
-          }));
-        });
-
-        const results = await Promise.allSettled(
-          contacts.map(contact => throttledSend(contact))
-        );
-
-        const bulkOps = [];
-        let batchSuccessCount = 0;
-        let batchErrorCount = 0;
-
-        for (const r of results) {
-          if (r.status !== 'fulfilled' || !r.value) {
-            batchErrorCount++;
-            continue;
+          ({ jobDetails, contacts } = JSON.parse(message.value.toString()));
+          if (!jobDetails || !jobDetails._id || !Array.isArray(contacts) || contacts.length === 0) {
+            console.error(`[WORKER ${workerId}] Invalid job data received. Skipping message.`);
+            return;
           }
 
-          const { contactId, success, messageId, error } = r.value;
-          if (!contactId) {
-             batchErrorCount++;
-             continue;
-          }
+          const broadcastId = new ObjectId(jobDetails._id);
+          const projectId = new ObjectId(jobDetails.projectId);
+          const mps = jobDetails.messagesPerSecond || 80;
 
-          bulkOps.push({
-            updateOne: {
-              filter: { _id: new ObjectId(contactId) },
-              update: success
-                ? { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } }
-                : { $set: { status: 'FAILED', error } }
-            }
+          await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Picked batch of ${contacts.length} contacts. Throttle: ${mps} MPS.`);
+
+          const throttle = pThrottle({ limit: mps, interval: 1000 });
+
+          const throttledSend = throttle(async (contact) => {
+            await heartbeat(); // Send heartbeat before each API call
+            return sendWhatsAppMessage(jobDetails, contact).then(result => ({
+              contactId: contact._id,
+              ...result
+            }));
           });
 
-          if (success) batchSuccessCount++; else batchErrorCount++;
-        }
+          const results = await Promise.allSettled(
+            contacts.map(contact => throttledSend(contact))
+          );
+          
+          let batchSuccessCount = 0;
+          let batchErrorCount = 0;
+          const bulkOps = results.map(r => {
+            if (r.status !== 'fulfilled' || !r.value?.contactId) {
+              batchErrorCount++;
+              return null;
+            }
+            const { contactId, success, messageId, error } = r.value;
+            success ? batchSuccessCount++ : batchErrorCount++;
+            return {
+              updateOne: {
+                filter: { _id: new ObjectId(contactId) },
+                update: success
+                  ? { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } }
+                  : { $set: { status: 'FAILED', error } }
+              }
+            };
+          }).filter(Boolean);
 
-        if (bulkOps.length > 0) {
-          await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
-        }
+          if (bulkOps.length > 0) {
+            await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
+          }
 
-        const updatedJob = await db.collection('broadcasts').findOneAndUpdate(
-            { _id: broadcastId },
-            { $inc: { successCount: batchSuccessCount, errorCount: batchErrorCount } },
-            { returnDocument: 'after' }
-        );
-        
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Finished batch. Success: ${batchSuccessCount}, Failed: ${batchErrorCount}.`);
-        
-        const finalJobState = updatedJob;
-        if (finalJobState && (finalJobState.successCount + finalJobState.errorCount) >= finalJobState.contactCount) {
-            await db.collection('broadcasts').updateOne(
-                { _id: broadcastId, status: 'PROCESSING' },
-                { $set: { status: 'Completed', completedAt: new Date() } }
-            );
-            await addBroadcastLog(db, broadcastId, projectId, 'INFO', '[WORKER] All contacts processed. Job marked as Completed.');
-        }
+          // Atomically update counts and fetch the updated document
+          const updatedJob = await db.collection('broadcasts').findOneAndUpdate(
+              { _id: broadcastId },
+              { $inc: { successCount: batchSuccessCount, errorCount: batchErrorCount } },
+              { returnDocument: 'after' }
+          );
 
-      } catch (err) {
-        console.error(`[WORKER ${workerId}] CRITICAL ERROR processing Kafka message:`, err);
+          const duration = (Date.now() - startTime) / 1000;
+          const actualMPS = (batchSuccessCount + batchErrorCount) / duration;
+          await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Finished batch of ${contacts.length} in ${duration.toFixed(2)}s. Speed: ~${actualMPS.toFixed(0)} MPS. Success: ${batchSuccessCount}, Failed: ${batchErrorCount}.`);
+          
+          // CRITICAL: Check for job completion
+          const finalJobState = updatedJob.value;
+          if (finalJobState && (finalJobState.successCount + finalJobState.errorCount) >= finalJobState.contactCount) {
+              await db.collection('broadcasts').updateOne(
+                  { _id: broadcastId, status: 'PROCESSING' },
+                  { $set: { status: 'Completed', completedAt: new Date() } }
+              );
+              await addBroadcastLog(db, broadcastId, projectId, 'INFO', '[WORKER] All contacts processed. Job marked as Completed.');
+          }
+
+        } catch (err) {
+          console.error(`[WORKER ${workerId}] CRITICAL ERROR processing Kafka message:`, err);
+          if (jobDetails && jobDetails._id) {
+            await addBroadcastLog(db, new ObjectId(jobDetails._id), new ObjectId(jobDetails.projectId), 'ERROR', `[WORKER ${workerId}] Unhandled exception: ${getErrorMessage(err)}`);
+          }
+        }
       }
+    });
+  };
+
+  run().catch(async (err) => {
+    console.error(`[WORKER ${workerId}] Consumer run failed, restarting...`, err);
+    try {
+        await consumer.disconnect();
+    } catch (e) {
+        console.error(`[WORKER ${workerId}] Failed to disconnect consumer during restart:`, e);
     }
+    // Implement a backoff strategy before retrying
+    setTimeout(() => run(), 5000); 
   });
 }
 
