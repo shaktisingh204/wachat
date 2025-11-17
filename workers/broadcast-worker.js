@@ -1,4 +1,4 @@
-// ./workers/broadcast-worker.js
+
 'use strict';
 
 require('dotenv').config();
@@ -9,7 +9,7 @@ const undici = require('undici');
 const { ObjectId } = require('mongodb');
 
 if (!process.env.KAFKA_BROKERS) {
-  console.error('[WORKER] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.');
+  console.error('[WORKER] FATAL: KAFKA_BROKERS environment variable is not set.');
   process.exit(1);
 }
 
@@ -36,8 +36,7 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta 
 }
 
 /**
- * Send one WhatsApp template message via Meta Graph API (undici).
- * Returns { success: boolean, messageId?: string, error?: string }
+ * Sends one WhatsApp template message via Meta Graph API (undici).
  */
 async function sendWhatsAppMessage(job, contact) {
   try {
@@ -52,9 +51,8 @@ async function sendWhatsAppMessage(job, contact) {
       variableMappings
     } = job;
 
-    const getVars = (text) =>
-      text ? [...new Set((text.match(/{{\s*(\d+)\s*}}/g) || []).map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
-
+    const getVars = (text) => text ? [...new Set((text.match(/{{\s*(\d+)\s*}}/g) || []).map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
+    
     const interpolate = (text, variables) => {
       if (!text) return '';
       return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (m, key) =>
@@ -105,24 +103,22 @@ async function sendWhatsAppMessage(job, contact) {
         ...(payloadComponents.length > 0 && { components: payloadComponents })
       }
     };
-
+    
     const response = await undici.request(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
       {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(messageData),
-        throwOnError: false,
+        throwOnError: false, // Handle non-2xx responses manually
         bodyTimeout: 20000,
       }
     );
 
     const responseBody = await response.body.json();
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      return { success: false, error: `Meta API error ${response.statusCode}: ${JSON.stringify(responseBody?.error || responseBody)}` };
+      const errorDetail = responseBody?.error ? JSON.stringify(responseBody.error) : JSON.stringify(responseBody);
+      return { success: false, error: `Meta API error ${response.statusCode}: ${errorDetail}` };
     }
 
     const messageId = responseBody?.messages?.[0]?.id;
@@ -135,17 +131,10 @@ async function sendWhatsAppMessage(job, contact) {
 }
 
 /**
- * Utility: sleep
- */
-function sleep(ms) {
-  return new Promise(res => setTimeout(res, ms));
-}
-
-/**
  * Worker main: subscribe to topic and process messages.
- * This implementation enforces exact messages-per-second rate by chunking into per-second slices.
  */
 async function startBroadcastWorker(workerId, kafkaTopic) {
+  const pThrottle = await import('p-throttle');
   const GROUP_ID = `whatsapp-broadcaster-${kafkaTopic}`;
   console.log(`[WORKER ${workerId}] Starting | Topic: ${kafkaTopic} | Group: ${GROUP_ID}`);
 
@@ -171,143 +160,106 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
     console.log(`[WORKER ${workerId}] Connected to Kafka and subscribed to '${kafkaTopic}'.`);
 
     await consumer.run({
-      eachMessage: async ({ topic, partition, message, heartbeat }) => {
+      eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
+        const pausable = pause();
+        if(pausable) pausable.pause();
+        
         let parsed;
         try {
           if (!message.value) return;
           parsed = JSON.parse(message.value.toString());
         } catch (e) {
           console.error(`[WORKER ${workerId}] Failed to JSON.parse message`, e);
+          if (pausable) pausable.resume();
           return;
         }
 
-        const jobDetails = parsed.jobDetails;
-        let contacts = parsed.contacts;
-        if (!jobDetails || !jobDetails._id || !Array.isArray(contacts)) {
+        const { jobDetails, contacts } = parsed;
+        if (!jobDetails || !jobDetails._id || !Array.isArray(contacts) || contacts.length === 0) {
           console.error(`[WORKER ${workerId}] Invalid message payload, skipping.`);
+          if (pausable) pausable.resume();
           return;
         }
 
         const broadcastId = new ObjectId(jobDetails._id);
         const projectId = new ObjectId(jobDetails.projectId);
-        const mps = Number(jobDetails.messagesPerSecond) || 80; // target messages per second (exact)
+        const mps = Number(jobDetails.messagesPerSecond) || 80;
 
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Picked batch of ${contacts.length} contacts. Throttle: ${mps} MPS.`);
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Picked batch of ${contacts.length}. Throttle: ${mps} MPS.`);
 
-        // Ensure contact ids are strings for lookups
-        contacts = contacts.map(c => ({ _id: String(c._id), phone: c.phone, variables: c.variables || {} }));
+        const throttle = pThrottle.default({ limit: mps, interval: 1000 });
 
-        // We'll send EXACTLY up to mps messages every second.
-        // Create chunks of size mps
-        const chunks = [];
-        for (let i = 0; i < contacts.length; i += mps) {
-          chunks.push(contacts.slice(i, i + mps));
-        }
+        const throttledSend = throttle(async contact => {
+          await heartbeat();
+          return sendWhatsAppMessage(jobDetails, contact).then(result => ({ contactId: contact._id, ...result }));
+        });
 
-        let totalSuccess = 0;
-        let totalFailed = 0;
+        const results = await Promise.allSettled(
+          contacts.map(contact => throttledSend(contact))
+        );
 
-        // process each chunk (one chunk per second)
-        for (let idx = 0; idx < chunks.length; idx++) {
-          const chunk = chunks[idx];
+        const bulkOps = [];
+        let batchSuccessCount = 0;
+        let batchErrorCount = 0;
 
-          // Launch all sends concurrently for this second
-          const startSec = Date.now();
-          const promises = chunk.map(async contact => {
-            // send heartbeat before each send to keep consumer session alive
-            try { await heartbeat(); } catch (_) {}
-            return sendWhatsAppMessage(jobDetails, contact).then(res => ({ contactId: contact._id, ...res }));
+        for (const r of results) {
+          if (r.status !== 'fulfilled' || !r.value) {
+            batchErrorCount++;
+            continue;
+          }
+
+          const { contactId, success, messageId, error } = r.value;
+          if (!contactId) {
+             batchErrorCount++;
+             continue;
+          }
+
+          bulkOps.push({
+            updateOne: {
+              filter: { _id: new ObjectId(String(contactId)) },
+              update: success
+                ? { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } }
+                : { $set: { status: 'FAILED', error } }
+            }
           });
 
-          const results = await Promise.allSettled(promises);
-
-          const bulkOps = [];
-          let batchSuccess = 0;
-          let batchError = 0;
-
-          for (const r of results) {
-            if (r.status !== 'fulfilled' || !r.value) {
-              batchError++;
-              continue;
-            }
-            const { contactId, success, messageId, error } = r.value;
-            if (!contactId) {
-              batchError++;
-              continue;
-            }
-            if (success) {
-              batchSuccess++;
-              bulkOps.push({
-                updateOne: {
-                  filter: { _id: new ObjectId(contactId) },
-                  update: { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } }
-                }
-              });
-            } else {
-              batchError++;
-              bulkOps.push({
-                updateOne: {
-                  filter: { _id: new ObjectId(contactId) },
-                  update: { $set: { status: 'FAILED', error } }
-                }
-              });
-            }
-          }
-
-          if (bulkOps.length > 0) {
+          if (success) batchSuccessCount++; else batchErrorCount++;
+        }
+        
+        if (bulkOps.length > 0) {
             try {
-              await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
+                await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
             } catch (e) {
-              console.error(`[WORKER ${workerId}] bulkWrite failed:`, e);
+                console.error(`[WORKER ${workerId}] bulkWrite failed for job ${broadcastId}:`, e);
             }
-          }
-
-          // Atomically increment counts on job
-          let updatedJob;
-          try {
-            updatedJob = await db.collection('broadcasts').findOneAndUpdate(
-              { _id: broadcastId },
-              { $inc: { successCount: batchSuccess, errorCount: batchError } },
-              { returnDocument: 'after' }
+        }
+        
+        let finalJobState = null;
+        try {
+            const updateResult = await db.collection('broadcasts').findOneAndUpdate(
+                { _id: broadcastId },
+                { $inc: { successCount: batchSuccessCount, errorCount: batchErrorCount } },
+                { returnDocument: 'after' }
             );
-          } catch (e) {
-            console.error(`[WORKER ${workerId}] Failed to update job counts:`, e);
-          }
+            finalJobState = updateResult;
+        } catch (e) {
+            console.error(`[WORKER ${workerId}] Failed to update job counts for ${broadcastId}:`, e);
+        }
 
-          totalSuccess += batchSuccess;
-          totalFailed += batchError;
-
-          // Log batch
-          const duration = (Date.now() - startSec) / 1000;
-          const actualMPS = (batchSuccess + batchError) / (duration || 1);
-          await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Chunk ${idx + 1}/${chunks.length} finished in ${duration.toFixed(2)}s (~${Math.round(actualMPS)} MPS). Success: ${batchSuccess}, Failed: ${batchError}.`);
-
-          // If job reached complete, mark Completed and stop processing further chunks
-          try {
-            const finalJobState = updatedJob && updatedJob.value ? updatedJob.value : await db.collection('broadcasts').findOne({ _id: broadcastId });
-            if (finalJobState && (finalJobState.successCount + finalJobState.errorCount) >= finalJobState.contactCount) {
-              await db.collection('broadcasts').updateOne(
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Finished batch. Success: ${batchSuccessCount}, Failed: ${batchErrorCount}.`);
+        
+        if (finalJobState && (finalJobState.successCount + finalJobState.errorCount) >= finalJobState.contactCount) {
+            await db.collection('broadcasts').updateOne(
                 { _id: broadcastId, status: 'PROCESSING' },
                 { $set: { status: 'Completed', completedAt: new Date() } }
-              );
-              await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Job completed while processing chunk ${idx + 1}. Marked as Completed.`);
-              break;
-            }
-          } catch (e) {
-            console.error(`[WORKER ${workerId}] Error while checking completion:`, e);
-          }
+            );
+            await addBroadcastLog(db, broadcastId, projectId, 'INFO', '[WORKER] All contacts processed. Job marked as Completed.');
+        }
 
-          // Wait until 1 second from startSec has passed before starting next chunk to respect exact mps
-          const elapsed = Date.now() - startSec;
-          if (elapsed < 1000) {
-            await sleep(1000 - elapsed);
-          }
-        } // end chunks loop
-
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Finished message batch processing. TotalSuccess: ${totalSuccess}, TotalFailed: ${totalFailed}.`);
+        if (pausable) pausable.resume();
       }
     });
-  }; // end run
+  };
 
   run().catch(async (err) => {
     console.error(`[WORKER ${workerId}] Consumer run failed, will attempt restart:`, err);
