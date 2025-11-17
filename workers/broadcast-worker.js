@@ -14,7 +14,7 @@ const importPThrottle = async () => {
   }
   return pThrottle;
 };
-
+//hellow by shakti
 if (!process.env.KAFKA_BROKERS) {
   console.error('[WORKER] FATAL: KAFKA_BROKERS environment variable is not set.');
   process.exit(1);
