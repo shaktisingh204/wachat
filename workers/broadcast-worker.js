@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const path = require('path');
 
@@ -40,7 +39,6 @@ const addBroadcastLog = async (db, broadcastId, projectId, level, message, meta)
   }
 };
 
-
 async function sendWhatsAppMessage(job, contact) {
   try {
     const {
@@ -75,25 +73,18 @@ async function sendWhatsAppMessage(job, contact) {
       let parameter;
 
       if (['image', 'video', 'document'].includes(format)) {
-        if (headerMediaId) {
-          parameter = { type: format, [format]: { id: headerMediaId } };
-        } else if (headerImageUrl) {
-          parameter = { type: format, [format]: { link: headerImageUrl } };
-        }
+        if (headerMediaId) parameter = { type: format, [format]: { id: headerMediaId } };
+        else if (headerImageUrl) parameter = { type: format, [format]: { link: headerImageUrl } };
       } else if (format === 'text' && headerComponent.text) {
         const headerVars = getVars(headerComponent.text);
         if (headerVars.length > 0) {
             const varKey = `header_variable${headerVars[0]}`;
             const value = contact.variables?.[varKey] || '';
-            if (value) {
-                parameter = { type: 'text', text: value };
-            }
+            if (value) parameter = { type: 'text', text: value };
         }
       }
-      
-      if (parameter) {
-        payloadComponents.push({ type: 'header', parameters: [parameter] });
-      }
+
+      if (parameter) payloadComponents.push({ type: 'header', parameters: [parameter] });
     }
 
     const bodyComponent = components.find(c => c.type === 'BODY');
@@ -169,17 +160,8 @@ async function startBroadcastWorker(workerId) {
     requestTimeout: 30000,
   });
 
-  const consumer = kafka.consumer({
-    groupId: GROUP_ID,
-    sessionTimeout: 60000,
-    rebalanceTimeout: 90000,
-    heartbeatInterval: 10000,
-  });
-
+  const consumer = kafka.consumer({ groupId: GROUP_ID });
   await consumer.connect();
-  console.log(`[WORKER ${workerId}] Connected to Kafka brokers on topic "${KAFKA_TOPIC}".`);
-
-  // Subscribe to the topic
   await consumer.subscribe({ topic: KAFKA_TOPIC, fromBeginning: true });
 
   await consumer.run({
@@ -190,11 +172,7 @@ async function startBroadcastWorker(workerId) {
         if (!message.value) return;
 
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
-        
-        if (!jobDetails || !jobDetails._id || !Array.isArray(contacts)) {
-          console.error(`[WORKER ${workerId}] Invalid job data received. Skipping.`);
-          return;
-        }
+        if (!jobDetails || !jobDetails._id || !Array.isArray(contacts)) return;
 
         const { ObjectId } = require('mongodb');
         broadcastId = new ObjectId(jobDetails._id);
@@ -202,93 +180,60 @@ async function startBroadcastWorker(workerId) {
         const mps = jobDetails.messagesPerSecond || 80;
 
         console.log(`[WORKER ${workerId}] Processing ${contacts.length} contacts for broadcast ${broadcastId}`);
-        
-        await addBroadcastLog(
-          db, broadcastId, projectId, 'INFO',
-          `Worker picked batch of ${contacts.length}. Throttle: ${mps} MPS.`
-        );
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker picked batch of ${contacts.length}. Throttle: ${mps} MPS.`);
 
         const throttle = pThrottle({ limit: mps, interval: 1000 });
-
         const throttledSend = throttle(async contact => {
           await heartbeat();
-          return sendWhatsAppMessage(jobDetails, contact).then(result => ({
-            contactId: contact._id,
-            ...result
-          }));
+          return sendWhatsAppMessage(jobDetails, contact).then(result => ({ contactId: contact._id, ...result }));
         });
 
-        const results = await Promise.allSettled(
-          contacts.map(contact => throttledSend(contact))
-        );
-
-        const bulkOps = [];
         let successCount = 0;
         let errorCount = 0;
+        const results = [];
 
-        for (const r of results) {
-          if (r.status !== 'fulfilled') {
-            errorCount++;
-            console.error(`[WORKER ${workerId}] [JOB ${broadcastId}] A throttled promise was rejected.`, r.reason);
-            continue;
-          }
-
-          const { contactId, success, messageId, error } = r.value;
-
-          bulkOps.push({
-            updateOne: {
-              filter: { _id: new ObjectId(contactId) },
-              update: success
-                ? {
-                    $set: {
-                      status: 'SENT',
-                      sentAt: new Date(),
-                      messageId,
-                      error: null
-                    }
-                  }
-                : { $set: { status: 'FAILED', error } }
-            }
-          });
-
-          if(success) successCount++;
+        // Stop sending if total sent + failed >= contacts.length
+        for (const contact of contacts) {
+          if (successCount + errorCount >= contacts.length) break;
+          const res = await throttledSend(contact);
+          results.push(res);
+          if (res.success) successCount++;
           else errorCount++;
         }
 
-        if (bulkOps.length) {
-          await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
-        }
+        const bulkOps = results.map(r => ({
+          updateOne: {
+            filter: { _id: new ObjectId(r.contactId) },
+            update: r.success
+              ? { $set: { status: 'SENT', sentAt: new Date(), messageId: r.messageId, error: null } }
+              : { $set: { status: 'FAILED', error: r.error } }
+          }
+        }));
 
-        let updatedJob;
-        if (successCount > 0 || errorCount > 0) {
-            const updateResult = await db.collection('broadcasts').findOneAndUpdate(
-                { _id: broadcastId },
-                { $inc: { successCount, errorCount } },
-                { returnDocument: 'after' }
-            );
-            updatedJob = updateResult;
-        } else {
-            updatedJob = await db.collection('broadcasts').findOne({_id: broadcastId});
-        }
-        
-        if (updatedJob && (updatedJob.successCount + updatedJob.errorCount) >= updatedJob.contactCount) {
-            await db.collection('broadcasts').updateOne(
-                { _id: broadcastId },
-                { $set: { status: 'Completed', completedAt: new Date() } }
-            );
-            console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Final batch processed. Marked job as Completed.`);
-            await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job marked as Completed.`);
+        if (bulkOps.length) await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
+
+        // Update job counts
+        const updatedJob = await db.collection('broadcasts').findOneAndUpdate(
+          { _id: broadcastId },
+          { $inc: { successCount, errorCount } },
+          { returnDocument: 'after' }
+        );
+
+        if (updatedJob.value && (updatedJob.value.successCount + updatedJob.value.errorCount) >= updatedJob.value.contactCount) {
+          await db.collection('broadcasts').updateOne(
+            { _id: broadcastId },
+            { $set: { status: 'Completed', completedAt: new Date() } }
+          );
+          console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Job marked as Completed.`);
+          await addBroadcastLog(db, broadcastId, projectId, 'INFO', 'Job marked as Completed.');
         }
 
         console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Batch finished. Success: ${successCount}, Failed: ${errorCount}.`);
-        await addBroadcastLog(
-          db, broadcastId, projectId, 'INFO',
-          `Batch finished. Success: ${successCount}, Failed: ${errorCount}.`
-        );
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Batch finished. Success: ${successCount}, Failed: ${errorCount}.`);
       } catch (err) {
-        console.error(`[WORKER ${workerId}] [JOB ${broadcastId}] Critical error processing message:`, { error: err.message, stack: err.stack });
+        console.error(`[WORKER ${workerId}] [JOB ${broadcastId}] Critical error:`, err);
         if(broadcastId && projectId) {
-            await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Worker failed processing batch: ${getErrorMessage(err)}`);
+          await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Worker failed processing batch: ${getErrorMessage(err)}`);
         }
       }
     }
