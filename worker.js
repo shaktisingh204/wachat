@@ -1,3 +1,4 @@
+
 'use strict';
 
 require('dotenv').config();
@@ -5,12 +6,10 @@ const path = require('path');
 const fs = require('fs');
 
 const LOG = '[WORKER-LOADER]';
-
-// Absolute path to worker file
 const WORKER_FILE_PATH = path.resolve(__dirname, 'workers', 'broadcast-worker.js');
 
 /**
- * Load and start Broadcast Worker
+ * Main function to load and start a worker.
  */
 function main() {
   console.log(`${LOG} Booting worker loader...`);
@@ -27,22 +26,20 @@ function main() {
   try {
     ({ startBroadcastWorker } = require(WORKER_FILE_PATH));
   } catch (err) {
-    console.error(`${LOG} FATAL: Failed to import broadcast-worker.js`);
-    console.error(err);
+    console.error(`${LOG} FATAL: Failed to import broadcast-worker.js`, err);
     process.exit(1);
   }
 
   // 3. Create stable worker ID
-  const workerId =
-    process.env.PM2_INSTANCE_ID !== undefined
+  const workerId = process.env.PM2_INSTANCE_ID !== undefined
       ? `pm2-${process.env.PM2_INSTANCE_ID}`
       : `pid-${process.pid}`;
 
-  // 4. Get topic from PM2 args
+  // 4. Get Kafka topic from command line arguments (passed by PM2)
   const kafkaTopic = process.argv[2];
   if (!kafkaTopic) {
     console.error(`${LOG} FATAL: Missing Kafka topic argument!`);
-    console.error(`${LOG} Fix ecosystem.config.js → args: "broadcasts"`);
+    console.error(`${LOG} Correct usage in ecosystem.config.js -> args: "your-topic-name"`);
     process.exit(1);
   }
 
