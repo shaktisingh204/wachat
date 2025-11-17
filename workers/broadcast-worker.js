@@ -181,10 +181,7 @@ async function startBroadcastWorker(workerId) {
   await consumer.subscribe({ topic: KAFKA_TOPIC, fromBeginning: true });
 
   await consumer.run({
-    eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
-      const pausable = pause();
-      if (pausable) pausable.pause();
-
+    eachMessage: async ({ topic, partition, message, heartbeat }) => {
       let broadcastId, projectId;
 
       try {
@@ -277,8 +274,6 @@ async function startBroadcastWorker(workerId) {
         if(broadcastId && projectId) {
             await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Worker failed processing batch: ${getErrorMessage(err)}`);
         }
-      } finally {
-        if (pausable) pausable.resume();
       }
     }
   });
