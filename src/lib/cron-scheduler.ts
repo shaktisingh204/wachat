@@ -210,13 +210,14 @@ export async function processBroadcastJob() {
   let jobDoc: WithId<BroadcastJob> | null = null;
 
   try {
-    const result = await db.collection('broadcasts').findOneAndUpdate(
-      { status: 'QUEUED' },
-      { $set: { status: 'PROCESSING', startedAt: new Date() } },
-      { returnDocument: 'after', sort: { createdAt: 1 } }
-    );
-
-    jobDoc = result?.value ?? null; // ← FIXED
+    const result = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
+        { status: 'QUEUED' },
+        { $set: { status: 'PROCESSING', startedAt: new Date() } },
+        { returnDocument: 'after', sort: { createdAt: 1 } }
+      );
+      
+      jobDoc = result?.value || null;
+      
   } catch (err) {
     return { error: getErrorMessage(err) };
   }
