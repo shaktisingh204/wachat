@@ -67,7 +67,7 @@ async function markCompletedJobs(db: Db) {
   }
 }
 
-// Process single broadcast job
+// Process single broadcast job with speed tracking
 async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
   const broadcastId = job._id;
   const projectId = job.projectId;
@@ -93,19 +93,16 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
     connectionTimeout: 5000,
     requestTimeout: 30000,
   });
-  const producer = kafka.producer({
-    createPartitioner: Partitioners.DefaultPartitioner
-  });
-
+  const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
   await producer.connect();
   console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Kafka producer connected.`);
 
   let successCount = 0;
   let errorCount = 0;
+  const startTime = Date.now();
 
   const queue = new PQueue({ concurrency: speedLimit });
 
-  // Batch contacts for Kafka
   for (let i = 0; i < contacts.length; i += KAFKA_BATCH_SIZE) {
     const batch = contacts.slice(i, i + KAFKA_BATCH_SIZE);
 
@@ -118,12 +115,16 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
 
         // Update counters
         successCount += batch.length;
-
-        // Mark contacts as SENT
         await db.collection('broadcast_contacts').updateMany(
           { _id: { $in: batch.map(c => c._id) } },
           { $set: { status: 'SENT' } }
         );
+
+        // Real-time speed tracking
+        const elapsed = (Date.now() - startTime) / 1000; // seconds
+        const currentSpeed = Math.round(successCount / elapsed);
+        process.stdout.write(`\r[Job ${broadcastId}] Sent: ${successCount} / ${contacts.length} | Speed: ${currentSpeed} msg/s`);
+
       } catch (err) {
         const errMsg = getErrorMessage(err);
         errorCount += batch.length;
@@ -132,16 +133,24 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
     });
   }
 
-  await queue.onIdle(); // wait for all tasks
+  await queue.onIdle();
   await producer.disconnect();
 
-  // Update job status
+  // Final counters
   await db.collection('broadcasts').updateOne(
     { _id: broadcastId },
-    { $set: { successCount, errorCount, status: successCount + errorCount >= contacts.length ? 'PROCESSING' : 'PROCESSING' } }
+    {
+      $set: {
+        successCount,
+        errorCount,
+        status: successCount + errorCount >= contacts.length ? 'Completed' : 'PROCESSING'
+      }
+    }
   );
 
-  await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job completed: Sent ${successCount}, Failed ${errorCount} contacts.`);
+  console.log(`\n[CRON-SCHEDULER] Job ${broadcastId} completed: Sent ${successCount}, Failed ${errorCount}`);
+
+  await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job completed: Sent ${successCount}, Failed ${errorCount}.`);
 
   return { success: true, successCount, errorCount };
 }
