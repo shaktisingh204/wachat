@@ -70,7 +70,7 @@ async function sendWhatsAppMessage(job, contact) {
         else if (headerImageUrl) parameter = { type: format, [format]: { link: headerImageUrl } };
       } else if (format === 'text' && headerComponent.text) {
         if (getVars(headerComponent.text).length > 0) {
-          parameter = { type: 'text', text: interpolate(headerComponent.text, contact.variables || {}) };
+            parameter = { type: 'text', text: interpolate(headerComponent.text, contact.variables || {}) };
         }
       }
       if (parameter) payloadComponents.push({ type: 'header', parameters: [parameter] });
