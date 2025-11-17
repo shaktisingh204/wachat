@@ -1,4 +1,3 @@
-
 'use server';
 
 import { config } from 'dotenv';
@@ -63,32 +62,31 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
     `Scheduler picked up job ${broadcastId} for processing.`
   );
 
-  let contacts = await db
+  const contacts = await db
     .collection('broadcast_contacts')
     .find({ broadcastId: broadcastId, status: 'PENDING' })
     .toArray();
 
   if (contacts.length === 0) {
-    // If no pending contacts, the job might be complete
     const jobState = await db.collection('broadcasts').findOne({ _id: broadcastId });
-    if(jobState && (jobState.successCount + jobState.errorCount) >= jobState.contactCount) {
+    if (jobState && (jobState.successCount + jobState.errorCount) >= jobState.contactCount) {
       await db.collection('broadcasts').updateOne(
-          { _id: broadcastId },
-          { $set: { status: 'Completed', completedAt: new Date() } }
+        { _id: broadcastId },
+        { $set: { status: 'Completed', completedAt: new Date() } }
       );
       const msg = `Job ${broadcastId} has no pending contacts. Marked as complete.`;
       console.log(`[CRON-SCHEDULER] ${msg}`);
       await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
     } else {
-        const msg = `Job ${broadcastId} has no pending contacts, but counts don't match total. It may be processing or finished.`;
-        console.log(`[CRON-SCHEDULER] ${msg}`);
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
+      const msg = `Job ${broadcastId} has no pending contacts, but counts don't match total. It may be processing or finished.`;
+      console.log(`[CRON-SCHEDULER] ${msg}`);
+      await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
     }
     return { success: true, message: "Job has no pending contacts." };
   }
 
   const KAFKA_TOPIC = contacts.length > 5000 ? HIGH_PRIORITY_TOPIC : LOW_PRIORITY_TOPIC;
-  
+
   const kafka = new Kafka({
     clientId: `broadcast-producer-${broadcastId}`,
     brokers: KAFKA_BROKERS,
@@ -103,19 +101,19 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
 
   try {
     await producer.connect();
-    
+
     let messagesSentToKafka = 0;
     for (let i = 0; i < contacts.length; i += MAX_BATCH_SIZE_CONTACTS) {
-        const batch = contacts.slice(i, i + MAX_BATCH_SIZE_CONTACTS);
-        const messageString = JSON.stringify({ jobDetails: job, contacts: batch });
-        await producer.send({ topic: KAFKA_TOPIC, messages: [{ value: messageString }] });
-        messagesSentToKafka += batch.length;
+      const batch = contacts.slice(i, i + MAX_BATCH_SIZE_CONTACTS);
+      const messageString = JSON.stringify({ jobDetails: job, contacts: batch });
+      await producer.send({ topic: KAFKA_TOPIC, messages: [{ value: messageString }] });
+      messagesSentToKafka += batch.length;
     }
 
     const message = `Queued ${messagesSentToKafka}/${contacts.length} contacts for job ${broadcastId}.`;
     console.log(`[CRON-SCHEDULER] ${message}`);
     await addBroadcastLog(db, broadcastId, projectId, 'INFO', message);
-    
+
     return { success: true, message: `Job queued successfully.` };
   } catch (err) {
     const jobError = getErrorMessage(err);
@@ -156,15 +154,14 @@ export async function processBroadcastJob() {
     { returnDocument: 'after', sort: { createdAt: 1 } }
   );
 
-  const job = jobResult; // Use the entire result object which contains the document in `value`
+  const job = jobResult.value as WithId<BroadcastJobType> | null;
 
   if (!job) {
     const msg = 'No queued broadcast jobs found.';
     console.log(`[CRON-SCHEDULER] ${msg}`);
     return { message: msg, error: null };
   }
-  
-  // Asynchronously process the job without awaiting the full completion.
+
   processSingleJob(db, job).catch(err => {
     const errMsg = getErrorMessage(err);
     console.error(`[CRON-SCHEDULER] Unhandled error in job ${job._id}: ${errMsg}`);

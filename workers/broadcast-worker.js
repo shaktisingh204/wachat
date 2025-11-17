@@ -1,12 +1,9 @@
-
 require('dotenv').config();
-const path = require('path');
-
 const { connectToDatabase } = require('../src/lib/mongodb.js');
 const { getErrorMessage } = require('../src/lib/utils.js');
-
 const { Kafka } = require('kafkajs');
 const undici = require('undici');
+const { ObjectId } = require('mongodb');
 
 if (!process.env.KAFKA_BROKERS) {
   console.error('[KAFKA-WORKER] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.');
@@ -49,13 +46,6 @@ async function sendWhatsAppMessage(job, contact) {
       if (!text) return [];
       const matches = text.match(/{{\s*(\d+)\s*}}/g);
       return matches ? [...new Set(matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
-    };
-
-    const interpolate = (text, variables) => {
-      if (!text) return '';
-      return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (m, key) =>
-        variables[key] !== undefined ? String(variables[key]) : m
-      );
     };
 
     const payloadComponents = [];
@@ -123,9 +113,7 @@ async function sendWhatsAppMessage(job, contact) {
     const responseData = await body.json();
 
     if (statusCode < 200 || statusCode >= 300) {
-      throw new Error(
-        `Meta API error ${statusCode}: ${JSON.stringify(responseData?.error || responseData)}`
-      );
+      throw new Error(`Meta API error ${statusCode}: ${JSON.stringify(responseData?.error || responseData)}`);
     }
 
     const messageId = responseData?.messages?.[0]?.id;
@@ -170,14 +158,13 @@ async function startBroadcastWorker(workerId) {
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
         if (!jobDetails || !jobDetails._id || !Array.isArray(contacts)) return;
 
-        const { ObjectId } = require('mongodb');
         broadcastId = new ObjectId(jobDetails._id);
         projectId = new ObjectId(jobDetails.projectId);
-        
+
         console.log(`[WORKER ${workerId}] Processing ${contacts.length} contacts for broadcast ${broadcastId}`);
 
         const sendPromises = contacts.map(contact => 
-            sendWhatsAppMessage(jobDetails, contact).then(result => ({ contactId: contact._id, ...result }))
+          sendWhatsAppMessage(jobDetails, contact).then(result => ({ contactId: contact._id, ...result }))
         );
 
         const results = await Promise.allSettled(sendPromises);
@@ -187,56 +174,55 @@ async function startBroadcastWorker(workerId) {
         const bulkOps = [];
 
         for (const r of results) {
-            if (r.status !== 'fulfilled') {
-                errorCount++;
-                continue;
-            }
-            
-            const { contactId, success, messageId, error } = r.value;
-            
-            if (success) {
-                successCount++;
-                bulkOps.push({
-                    updateOne: {
-                        filter: { _id: new ObjectId(contactId) },
-                        update: { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } }
-                    }
-                });
-            } else {
-                errorCount++;
-                 bulkOps.push({
-                    updateOne: {
-                        filter: { _id: new ObjectId(contactId) },
-                        update: { $set: { status: 'FAILED', error } }
-                    }
-                });
-            }
+          if (r.status !== 'fulfilled') {
+            errorCount++;
+            continue;
+          }
+
+          const { contactId, success, messageId, error } = r.value;
+
+          if (success) {
+            successCount++;
+            bulkOps.push({
+              updateOne: {
+                filter: { _id: new ObjectId(contactId) },
+                update: { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } }
+              }
+            });
+          } else {
+            errorCount++;
+            bulkOps.push({
+              updateOne: {
+                filter: { _id: new ObjectId(contactId) },
+                update: { $set: { status: 'FAILED', error } }
+              }
+            });
+          }
         }
-        
+
         if (bulkOps.length > 0) {
-            await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
+          await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
         }
-        
-        // Atomically update the main broadcast job document
+
         const updatedJob = await db.collection('broadcasts').findOneAndUpdate(
           { _id: broadcastId },
           { $inc: { successCount, errorCount } },
           { returnDocument: 'after' }
         );
 
-        // Check if the job is complete
-        if (updatedJob && (updatedJob.successCount + updatedJob.errorCount) >= updatedJob.contactCount) {
-             await db.collection('broadcasts').updateOne(
-                { _id: broadcastId },
-                { $set: { status: 'Completed', completedAt: new Date() } }
-            );
-            console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Marked as Completed.`);
-            await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job Completed. Final counts - Success: ${updatedJob.successCount}, Failed: ${updatedJob.errorCount}.`);
+        const jobValue = updatedJob.value;
+        if (jobValue && (jobValue.successCount + jobValue.errorCount) >= jobValue.contactCount) {
+          await db.collection('broadcasts').updateOne(
+            { _id: broadcastId },
+            { $set: { status: 'Completed', completedAt: new Date() } }
+          );
+          console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Marked as Completed.`);
+          await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job Completed. Final counts - Success: ${jobValue.successCount}, Failed: ${jobValue.errorCount}.`);
         }
 
       } catch (err) {
         console.error(`[WORKER ${workerId}] [JOB ${broadcastId}] Critical error processing message:`, err);
-        if(broadcastId && projectId) {
+        if (broadcastId && projectId) {
           await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Worker failed processing batch: ${getErrorMessage(err)}`);
         }
       }
