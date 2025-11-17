@@ -148,7 +148,8 @@ export async function handleStartApiBroadcast(
         components: template.components,
         language: template.language,
         category: template.category,
-        variableMappings: variableMappings || []
+        variableMappings: variableMappings || [],
+        messagesPerSecond: project.messagesPerSecond || 80,
     };
     
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
@@ -300,7 +301,8 @@ export async function handleStartBroadcast(
         headerImageUrl: headerImageUrl,
         headerMediaId: headerMediaId,
         category: template.category,
-        variableMappings: variableMappings
+        variableMappings: variableMappings,
+        messagesPerSecond: project.messagesPerSecond || 80,
     };
 
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
@@ -431,7 +433,8 @@ export async function getBroadcasts(
                                 createdAt: 1,
                                 startedAt: 1,
                                 completedAt: 1,
-                                projectMessagesPerSecond: hasAccess.messagesPerSecond,
+                                messagesPerSecond: 1,
+                                projectMessagesPerSecond: '$messagesPerSecond' // Ensure we get this value
                             }
                         }
                     ],
@@ -638,6 +641,7 @@ export async function handleRequeueBroadcast(
             components: newTemplate.components,
             language: newTemplate.language,
             headerImageUrl: finalHeaderImageUrl,
+            messagesPerSecond: originalBroadcast.messagesPerSecond || 80,
         };
 
         const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData);
@@ -764,6 +768,7 @@ export async function handleBulkBroadcast(prevState: any, formData: FormData): P
                 language: template.language,
                 category: template.category,
                 variableMappings: [],
+                messagesPerSecond: project.messagesPerSecond || 80,
             };
 
             const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
@@ -808,6 +813,8 @@ export async function getBroadcastById(broadcastId: string): Promise<WithId<Broa
         return null;
     }
 }
+    
+
     
 
     
