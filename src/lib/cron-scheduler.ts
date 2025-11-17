@@ -119,7 +119,12 @@ export async function processBroadcastJob() {
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Found ${contacts.length} contacts. Routing to topic: ${KAFKA_TOPIC}.`);
             console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Found ${contacts.length} contacts. Routing to topic: ${KAFKA_TOPIC}.`);
 
-            const kafka = new Kafka({ clientId: `broadcast-producer-${broadcastId}`, brokers: KAFKA_BROKERS });
+            const kafka = new Kafka({ 
+                clientId: `broadcast-producer-${broadcastId}`, 
+                brokers: KAFKA_BROKERS,
+                connectionTimeout: 5000,
+                requestTimeout: 30000,
+            });
             const producer = kafka.producer({
                 createPartitioner: Partitioners.DefaultPartitioner,
                 maxRequestSize: ONE_HUNDRED_MEGABYTES,
@@ -137,11 +142,19 @@ export async function processBroadcastJob() {
                     };
                     const messageString = JSON.stringify(messagePayload);
                     
-                    await producer.send({
-                        topic: KAFKA_TOPIC,
-                        messages: [{ value: messageString }]
-                    });
-                    messagesSentToKafka++;
+                    console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Sending batch ${i/KAFKA_MESSAGE_BATCH_SIZE + 1} with ${batch.length} contacts.`);
+                    try {
+                        await producer.send({
+                            topic: KAFKA_TOPIC,
+                            messages: [{ value: messageString }]
+                        });
+                        messagesSentToKafka++;
+                    } catch (kafkaError: any) {
+                        const errorMsg = `Failed to send batch ${i/KAFKA_MESSAGE_BATCH_SIZE + 1} to Kafka: ${getErrorMessage(kafkaError)}`;
+                        console.error(`[CRON-SCHEDULER] ${errorMsg}`);
+                        allErrors.push(errorMsg);
+                        await addBroadcastLog(db, broadcastId, projectId, 'ERROR', errorMsg, { stack: kafkaError.stack });
+                    }
                 }
 
                 await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Queued ${contacts.length} contacts to Kafka in ${messagesSentToKafka} messages.`);
