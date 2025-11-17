@@ -19,8 +19,7 @@ const STUCK_JOB_TIMEOUT_MINUTES = 10;
  * @param {ObjectId} broadcastId - The ID of the broadcast job.
  * @param {ObjectId} projectId - The ID of the project.
  * @param {'INFO' | 'ERROR' | 'WARN'} level - The log level.
- *.gpt-json
-* @param {string} message - The log message.
+ * @param {string} message - The log message.
  * @param {object} [meta={}] - Additional metadata to log.
  */
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
@@ -183,7 +182,6 @@ async function processBroadcastJob() {
 
     try { await resetStuckJobs(db); } catch (err) { console.error('[CRON-SCHEDULER] Error resetting jobs:', getErrorMessage(err)); }
 
-    // Find a single queued job and mark it as processing atomically.
     const findResult = await db.collection('broadcasts').findOneAndUpdate(
         { status: 'QUEUED' },
         { $set: { status: 'PROCESSING', startedAt: new Date() } },
