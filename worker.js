@@ -1,4 +1,3 @@
-
 'use strict';
 
 require('dotenv').config();
@@ -6,7 +5,8 @@ const path = require('path');
 const fs = require('fs');
 
 const LOG_PREFIX = '[WORKER-LOADER]';
-const WORKER_FILE_PATH = path.resolve(__dirname, 'src', 'workers', 'broadcast-worker.js');
+// Correct the path to point to the 'workers' directory at the root level
+const WORKER_FILE_PATH = path.resolve(__dirname, 'workers', 'broadcast-worker.js');
 
 function main() {
   console.log(`${LOG_PREFIX} Booting worker loader...`);
@@ -29,10 +29,11 @@ function main() {
       ? `pm2-cluster-${process.env.PM2_INSTANCE_ID}`
       : `pid-${process.pid}`;
 
+  // PM2 passes arguments as an array of strings.
   const kafkaTopic = process.argv[2];
   if (!kafkaTopic) {
     console.error(`${LOG_PREFIX} FATAL: Missing Kafka topic argument! This is a configuration error.`);
-    console.error(`${LOG_PREFIX} Correct usage in ecosystem.config.js -> args: ["your-topic-name"]`);
+    console.error(`${LOG_PREFIX} Check ecosystem.config.js -> args: ["your-topic-name"]`);
     process.exit(1);
   }
 
