@@ -1,8 +1,8 @@
 
 require('dotenv').config();
 const path = require('path');
-const { connectToDatabase } = require('../lib/mongodb.js');
-const { getErrorMessage } = require('../lib/utils.js');
+const { connectToDatabase } = require('../src/lib/mongodb.js');
+const { getErrorMessage } = require('../src/lib/utils.js');
 const { Kafka } = require('kafkajs');
 const undici = require('undici');
 
