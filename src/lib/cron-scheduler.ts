@@ -60,6 +60,7 @@ async function markCompletedJobs(db: Db) {
 }
 
 export async function processBroadcastJob() {
+    console.log(`[CRON-SCHEDULER] Starting broadcast processing job run at ${new Date().toISOString()}`);
     let db: Db;
     try {
         const conn = await connectToDatabase();
@@ -75,8 +76,7 @@ export async function processBroadcastJob() {
 
     let jobsProcessed = 0;
     const allErrors: string[] = [];
-    const workerId = new ObjectId().toString();
-
+    
     // The while loop allows the single cron instance to process all available jobs in one run
     while (true) {
         let job: WithId<BroadcastJobType> | null = null;
@@ -117,6 +117,7 @@ export async function processBroadcastJob() {
 
             const KAFKA_TOPIC = contacts.length > 5000 ? HIGH_PRIORITY_TOPIC : LOW_PRIORITY_TOPIC;
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Found ${contacts.length} contacts. Routing to topic: ${KAFKA_TOPIC}.`);
+            console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Found ${contacts.length} contacts. Routing to topic: ${KAFKA_TOPIC}.`);
 
             const kafka = new Kafka({ clientId: `broadcast-producer-${broadcastId}`, brokers: KAFKA_BROKERS });
             const producer = kafka.producer({
@@ -124,6 +125,7 @@ export async function processBroadcastJob() {
                 maxRequestSize: ONE_HUNDRED_MEGABYTES,
             });
             await producer.connect();
+            console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Kafka producer connected.`);
             
             try {
                 let messagesSentToKafka = 0;
@@ -143,13 +145,15 @@ export async function processBroadcastJob() {
                 }
 
                 await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Queued ${contacts.length} contacts to Kafka in ${messagesSentToKafka} messages.`);
+                console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Pushed ${contacts.length} contacts to Kafka in ${messagesSentToKafka} message(s).`);
                 jobsProcessed++;
             } finally {
                 await producer.disconnect();
+                 console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Kafka producer disconnected.`);
             }
         } catch (error: any) {
             const baseErrorMessage = `Broadcast processing failed for job ${broadcastId}: ${getErrorMessage(error)}`;
-            console.error(`[CRON-SCHEDULER] ${baseErrorMessage}`, error.stack);
+            console.error(`[CRON-SCHEDULER] ${baseErrorMessage}`, { stack: error.stack });
             allErrors.push(baseErrorMessage);
 
             if (job && db) {
@@ -163,6 +167,8 @@ export async function processBroadcastJob() {
         }
     }
     
+    console.log(`[CRON-SCHEDULER] Finished broadcast job run at ${new Date().toISOString()}. Processed ${jobsProcessed} jobs.`);
+
     if (allErrors.length > 0) {
         throw new Error(`Completed processing with ${allErrors.length} failure(s): ${allErrors.join('; ')}`);
     }
