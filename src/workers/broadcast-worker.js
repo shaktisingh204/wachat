@@ -139,7 +139,7 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
       // USE EXACT mps — no modification
       // ---------------------------------------------------
       const mps = Number(jobDetails.messagesPerSecond) || 80;
-
+console.log(jobDetails.messagesPerSecond);
       // ---------------------------------------------------
       // EXACT rate throttle
       // strict: true ensures NO bursts, EXACT SPEED ONLY
