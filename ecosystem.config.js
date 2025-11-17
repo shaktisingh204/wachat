@@ -12,12 +12,14 @@ module.exports = {
     {
       name: 'sabnode-worker',
       script: './worker.js',
-      instances: 1,
+      args: 'broadcasts', // The unified topic name
+      instances: 1, // Start with 1 and increase if needed
       exec_mode: 'cluster',
       restart_delay: 10000, // 10s delay to reduce rapid restarts
       max_restarts: 10,     // allow more retries
       env: {
         NODE_ENV: 'production',
+        KAFKA_TOPIC: 'broadcasts',
       },
     },
   ],
