@@ -24,9 +24,9 @@ const API_VERSION = 'v23.0';
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 const LOG_PREFIX = '[WORKER]';
 
-// ---------------------------------------------------
+// -------------------------------------------------------------------
 // Logging
-// ---------------------------------------------------
+// -------------------------------------------------------------------
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
   try {
     await db.collection('broadcast_logs').insertOne({
@@ -42,9 +42,9 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta 
   }
 }
 
-// ---------------------------------------------------
+// -------------------------------------------------------------------
 // WhatsApp Message Sender
-// ---------------------------------------------------
+// -------------------------------------------------------------------
 async function sendWhatsAppMessage(job, contact, agent) {
   try {
     const { accessToken, phoneNumberId, templateName, language = 'en_US' } = job;
@@ -80,16 +80,19 @@ async function sendWhatsAppMessage(job, contact, agent) {
       return { success: true, messageId };
     }
 
-    return { success: false, error: JSON.stringify(json?.error || json) };
+    return {
+      success: false,
+      error: JSON.stringify(json?.error || json)
+    };
 
   } catch (err) {
     return { success: false, error: getErrorMessage(err) };
   }
 }
 
-// ---------------------------------------------------
-// MAIN WORKER USING eachBatch
-// ---------------------------------------------------
+// -------------------------------------------------------------------
+// MAIN WORKER: PARALLEL eachBatch
+// -------------------------------------------------------------------
 async function startBroadcastWorker(workerId, kafkaTopic) {
   const { db } = await connectToDatabase();
   const pThrottleLib = await importPThrottle();
@@ -105,13 +108,14 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
     heartbeatInterval: 3000,
   });
 
-  console.log(`${LOG_PREFIX} Worker ${workerId} starting with PARALLEL Kafka Batches...`);
+  console.log(`${LOG_PREFIX} Worker ${workerId} starting with PARALLEL Kafka batches...`);
 
   await consumer.connect();
   await consumer.subscribe({ topic: kafkaTopic });
 
   await consumer.run({
     eachBatch: async ({ batch, heartbeat, resolveOffset, commitOffsetsIfNecessary }) => {
+
       for (const message of batch.messages) {
         if (!message.value) continue;
 
@@ -119,51 +123,56 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
         try {
           payload = JSON.parse(message.value.toString());
         } catch {
-          console.error(`${LOG_PREFIX} Worker ${workerId} | Invalid JSON payload`);
+          console.error(`${LOG_PREFIX} Invalid JSON payload in worker ${workerId}`);
           continue;
         }
 
         const { jobDetails, contacts } = payload;
         if (!jobDetails?._id || !Array.isArray(contacts)) {
-          console.error(`${LOG_PREFIX} Worker ${workerId} | Invalid payload, skipping`);
+          console.error(`${LOG_PREFIX} Worker ${workerId} | Invalid Kafka payload`);
           continue;
         }
 
         const broadcastId = new ObjectId(jobDetails._id);
         const projectId = new ObjectId(jobDetails.projectId);
 
-        // ---------------------------------------------------
-        // EXACT SPEED — NO DEFAULT
-        // ---------------------------------------------------
+        // ---------------------------------------------
+        // EXACT MPS (no fallback, no default)
+        // ---------------------------------------------
         const mps = Number(jobDetails.messagesPerSecond);
 
-        // ---------------------------------------------------
+        // ---------------------------------------------
         // Undici Agent (10,000 connections)
-        // ---------------------------------------------------
+        // ---------------------------------------------
         const agent = new undici.Agent({
           connections: 10000,
-          pipelining: 1
+          pipelining: 1,
         });
 
-        await addBroadcastLog(db, broadcastId, projectId, "INFO",
-          `Worker ${workerId} batch: ${contacts.length} contacts | EXACT MPS: ${mps}`);
+        // ---------------------------------------------
+        // Log batch start
+        // ---------------------------------------------
+        await addBroadcastLog(
+          db, broadcastId, projectId, "INFO",
+          `Worker ${workerId} batch: ${contacts.length} contacts | EXACT MPS: ${mps}`
+        );
 
-        // ---------------------------------------------------
-        // EXACT RATE THROTTLE: interval = 0
-        // ---------------------------------------------------
+        // ---------------------------------------------
+        // EXACT RATE throttling — interval = 0
+        // ---------------------------------------------
         const throttle = pThrottleLib({
           limit: mps,
           interval: 0,
           strict: true
         });
 
-        const throttledSend = throttle(async (contact) =>
+        const throttledSend = throttle((contact) =>
           sendWhatsAppMessage(jobDetails, contact, agent)
         );
 
-        // ---------------------------------------------------
-        // PROCESS CONTACTS IN PARALLEL (Kafka batch parallel)
-        // ---------------------------------------------------
+        // ---------------------------------------------
+        // Send contacts in parallel
+        // ---------------------------------------------
         const results = await Promise.all(
           contacts.map(async (contact) => {
             try { heartbeat(); } catch {}
@@ -172,9 +181,9 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
           })
         );
 
-        // ---------------------------------------------------
-        // Bulk DB Write
-        // ---------------------------------------------------
+        // ---------------------------------------------
+        // Save contact results
+        // ---------------------------------------------
         const bulkOps = [];
         let success = 0;
         let failed = 0;
@@ -215,8 +224,43 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
           await db.collection("broadcast_contacts").bulkWrite(bulkOps, { ordered: false });
         }
 
-        await addBroadcastLog(db, broadcastId, projectId, "INFO",
-          `Worker ${workerId} finished batch — sent: ${success} | failed: ${failed}`);
+        await addBroadcastLog(
+          db, broadcastId, projectId, "INFO",
+          `Worker ${workerId} finished batch — sent: ${success} | failed: ${failed}`
+        );
+
+        // ----------------------------------------------------
+        // 🔥 ATOMIC UPDATE OF JOB COUNTS (NO RACE CONDITIONS)
+        // ----------------------------------------------------
+        await db.collection('broadcasts').updateOne(
+          { _id: broadcastId },
+          {
+            $inc: {
+              successCount: success,
+              errorCount: failed
+            }
+          }
+        );
+
+        const job = await db.collection('broadcasts').findOne({ _id: broadcastId });
+
+        // ----------------------------------------------------
+        // 🔥 CHECK COMPLETION SAFELY
+        // ----------------------------------------------------
+        if ((job.successCount + job.errorCount) >= job.contactCount) {
+          await db.collection('broadcasts').updateOne(
+            { _id: broadcastId },
+            { $set: { status: 'Completed', completedAt: new Date() } }
+          );
+
+          await addBroadcastLog(
+            db,
+            broadcastId,
+            projectId,
+            "INFO",
+            `Worker ${workerId}: Broadcast Completed`
+          );
+        }
 
         resolveOffset(message.offset);
       }
@@ -224,7 +268,6 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
       await commitOffsetsIfNecessary();
     }
   });
-
 }
 
 module.exports = { startBroadcastWorker };
