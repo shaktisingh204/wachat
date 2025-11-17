@@ -1,4 +1,5 @@
 
+
 require('dotenv').config();
 const path = require('path');
 const { connectToDatabase } = require('../lib/mongodb.js');
@@ -23,7 +24,7 @@ if (!process.env.KAFKA_BROKERS) {
 const API_VERSION = 'v23.0';
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 
-const addBroadcastLog = async (db, broadcastId, projectId, level, message, meta) => {
+async function addBroadcastLog(db, broadcastId, projectId, level, message, meta) {
     try {
         if (!db || !broadcastId || !projectId) return;
         await db.collection('broadcast_logs').insertOne({
