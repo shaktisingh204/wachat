@@ -1,8 +1,6 @@
 
 require('dotenv').config();
-const path = require('path');
 const { connectToDatabase } = require('../src/lib/mongodb.js');
-
 const { getErrorMessage } = require('../src/lib/utils.js');
 const { Kafka } = require('kafkajs');
 const undici = require('undici');
@@ -36,9 +34,9 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta)
             timestamp: new Date(),
         });
     } catch (e) {
-        console.error("Failed to write broadcast log in worker:", e);
+        console.error(`[WORKER] Failed to write log for job ${broadcastId}:`, e);
     }
-};
+}
 
 async function sendWhatsAppMessage(job, contact) {
   try {
@@ -63,7 +61,6 @@ async function sendWhatsAppMessage(job, contact) {
     };
 
     const payloadComponents = [];
-
     const headerComponent = components?.find(c => c.type === 'HEADER');
     if (headerComponent) {
       let parameter;
@@ -73,8 +70,7 @@ async function sendWhatsAppMessage(job, contact) {
       } else if (headerImageUrl) {
         parameter = { type: format, [format]: { link: headerImageUrl } };
       } else if (format === 'text' && headerComponent.text) {
-        const headerVars = getVars(headerComponent.text);
-        if (headerVars.length > 0) {
+        if (getVars(headerComponent.text).length > 0) {
             parameter = { type: 'text', text: interpolate(headerComponent.text, contact.variables || {}) };
         }
       }
@@ -108,14 +104,15 @@ async function sendWhatsAppMessage(job, contact) {
         ...(payloadComponents.length > 0 && { components: payloadComponents })
       }
     };
-
-    const { statusCode, body } = await undici.request(
+    
+    // Using undici for performance
+    const response = await undici.request(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
       { method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) }
     );
 
-    const responseData = await body.json();
-    if (statusCode < 200 || statusCode >= 300) throw new Error(`Meta API error ${statusCode}: ${JSON.stringify(responseData?.error || responseData)}`);
+    const responseData = await response.body.json();
+    if (response.statusCode < 200 || response.statusCode >= 300) throw new Error(`Meta API error ${response.statusCode}: ${JSON.stringify(responseData?.error || responseData)}`);
     const messageId = responseData?.messages?.[0]?.id;
     if (!messageId) return { success: false, error: "No message ID returned from Meta." };
 
@@ -151,15 +148,12 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
   console.log(`[WORKER ${workerId}] Connected to Kafka.`);
 
   await consumer.run({
-    eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
-      const pausable = pause();
-      if (pausable) pausable.pause();
-
+    eachMessage: async ({ topic, partition, message, heartbeat }) => {
       try {
         if (!message.value) return;
 
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
-        if (!jobDetails || !jobDetails._id || !Array.isArray(contacts)) {
+        if (!jobDetails || !jobDetails._id || !Array.isArray(contacts) || contacts.length === 0) {
           console.error(`[WORKER ${workerId}] Invalid job data received.`);
           return;
         }
@@ -168,7 +162,7 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
         const projectId = new ObjectId(jobDetails.projectId);
         const mps = jobDetails.messagesPerSecond || 80;
 
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} picked batch of ${contacts.length}. Throttle: ${mps} MPS.`);
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Picked batch of ${contacts.length}. Throttle: ${mps} MPS.`);
 
         const throttle = pThrottle({ limit: mps, interval: 1000 });
 
@@ -180,7 +174,9 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
           }));
         });
 
-        const results = await Promise.allSettled(contacts.map(contact => throttledSend(contact)));
+        const results = await Promise.allSettled(
+          contacts.map(contact => throttledSend(contact))
+        );
 
         const bulkOps = [];
         let batchSuccessCount = 0;
@@ -214,29 +210,25 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
           await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
         }
 
-        // Atomically update counts and check for completion
         const updatedJob = await db.collection('broadcasts').findOneAndUpdate(
             { _id: broadcastId },
             { $inc: { successCount: batchSuccessCount, errorCount: batchErrorCount } },
             { returnDocument: 'after' }
         );
         
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} finished batch. Success: ${batchSuccessCount}, Failed: ${batchErrorCount}.`);
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Finished batch. Success: ${batchSuccessCount}, Failed: ${batchErrorCount}.`);
         
-        // Finalize the job if all contacts are processed
         const finalJobState = updatedJob.value;
         if (finalJobState && (finalJobState.successCount + finalJobState.errorCount) >= finalJobState.contactCount) {
             await db.collection('broadcasts').updateOne(
-                { _id: broadcastId, status: 'PROCESSING' }, // Ensure we only mark processing jobs as complete
+                { _id: broadcastId, status: 'PROCESSING' },
                 { $set: { status: 'Completed', completedAt: new Date() } }
             );
-            await addBroadcastLog(db, broadcastId, projectId, 'INFO', 'All contacts processed. Job marked as Completed.');
+            await addBroadcastLog(db, broadcastId, projectId, 'INFO', '[WORKER] All contacts processed. Job marked as Completed.');
         }
 
       } catch (err) {
-        console.error(`[WORKER ${workerId}] CRITICAL ERROR:`, err);
-      } finally {
-        if (pausable) pausable.resume();
+        console.error(`[WORKER ${workerId}] CRITICAL ERROR processing Kafka message:`, err);
       }
     }
   });
