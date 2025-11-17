@@ -168,7 +168,8 @@ export async function processBroadcastJob() {
         { $set: { status: 'PROCESSING', startedAt: new Date() } },
         { returnDocument: 'after', sort: { createdAt: 1 } }
     );
-
+    
+    // Correctly extract the document from the result
     const job = jobResult;
 
     if (!job) {
