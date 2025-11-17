@@ -7,17 +7,16 @@ const { ObjectId } = require('mongodb');
 const { getErrorMessage } = require('../lib/utils.js');
 
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS?.split(',') || ['127.0.0.1:9092'];
-const LOW_PRIORITY_TOPIC = 'low-priority-broadcasts';
-const HIGH_PRIORITY_TOPIC = 'high-priority-broadcasts';
-const MAX_BATCH_CONTACTS = 500; // max contacts per Kafka message
+const KAFKA_TOPIC = 'broadcasts'; // Unified topic
+const MAX_BATCH_CONTACTS = 500;
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
 
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
     try {
         if (!db || !broadcastId || !projectId) return;
         await db.collection('broadcast_logs').insertOne({
-            broadcastId,
-            projectId,
+            broadcastId: new ObjectId(broadcastId),
+            projectId: new ObjectId(projectId),
             level,
             message,
             meta,
@@ -45,7 +44,10 @@ async function processSingleJob(db, job) {
 
     await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Scheduler picked up job ${broadcastId} for processing.`);
 
-    const contacts = await db.collection('broadcast_contacts').find({ broadcastId, status: 'PENDING' }).toArray();
+    const contacts = await db.collection('broadcast_contacts').find({ 
+        broadcastId: new ObjectId(broadcastId), 
+        status: 'PENDING' 
+    }).toArray();
 
     if (!contacts.length) {
         const jobState = await db.collection('broadcasts').findOne({ _id: broadcastId });
@@ -58,14 +60,12 @@ async function processSingleJob(db, job) {
             console.log(`[CRON-SCHEDULER] ${msg}`);
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
         } else {
-            const msg = `Job ${broadcastId} has no pending contacts, counts don't match total.`;
+            const msg = `Job ${broadcastId} has no pending contacts, but counts don't match total. Worker will finalize.`;
             console.log(`[CRON-SCHEDULER] ${msg}`);
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
         }
         return;
     }
-
-    const KAFKA_TOPIC = contacts.length > 5000 ? HIGH_PRIORITY_TOPIC : LOW_PRIORITY_TOPIC;
 
     const kafka = new Kafka({
         clientId: `broadcast-producer-${broadcastId}`,
@@ -92,14 +92,14 @@ async function processSingleJob(db, job) {
             totalQueued += batch.length;
         }
 
-        const msg = `Queued ${totalQueued}/${contacts.length} contacts for job ${broadcastId}.`;
+        const msg = `Queued ${totalQueued}/${contacts.length} contacts for job ${broadcastId} to topic '${KAFKA_TOPIC}'.`;
         console.log(`[CRON-SCHEDULER] ${msg}`);
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
 
     } catch (err) {
         const errorMsg = getErrorMessage(err);
-        console.error(`[CRON-SCHEDULER] Job ${broadcastId} failed:`, errorMsg);
-        await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Scheduler failed: ${errorMsg}`);
+        console.error(`[CRON-SCHEDULER] Job ${broadcastId} failed to queue:`, errorMsg);
+        await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Scheduler failed to queue messages: ${errorMsg}`);
         await db.collection('broadcasts').updateOne(
             { _id: broadcastId, status: 'PROCESSING' },
             { $set: { status: 'QUEUED', lastError: errorMsg }, $unset: { startedAt: '' } }
@@ -110,7 +110,7 @@ async function processSingleJob(db, job) {
 }
 
 async function processBroadcastJob() {
-    console.log(`[CRON-SCHEDULER] Starting broadcast processing run at ${new Date().toISOString()}`);
+    console.log(`[CRON-SCHEDULER] Starting broadcast processing job run at ${new Date().toISOString()}`);
 
     let db;
     try {
@@ -130,12 +130,13 @@ async function processBroadcastJob() {
     );
 
     const job = jobResult.value;
+
     if (!job) {
         console.log('[CRON-SCHEDULER] No queued broadcast jobs found.');
-        return { message: 'No job found' };
+        return { message: 'No queued jobs found.' };
     }
 
-    processSingleJob(db, job).catch(err => console.error(`[CRON-SCHEDULER] Error processing job ${job._id}:`, getErrorMessage(err)));
+    processSingleJob(db, job).catch(err => console.error(`[CRON-SCHEDULER] Unhandled error in background job processing for ${job._id}:`, getErrorMessage(err)));
 
     return { message: `Job ${job._id} picked up for processing.` };
 }
