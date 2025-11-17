@@ -65,15 +65,13 @@ async function processBroadcastJob() {
             { sort: { createdAt: 1 }, returnDocument: 'after' }
         );
         
-        // **DEFINITIVE FIX:** The document is in the 'value' property.
-        jobDoc = result.value;
+        jobDoc = result;
 
     } catch (dbError) {
         console.error(`${LOG_PREFIX} findOneAndUpdate failed:`, getErrorMessage(dbError));
         return { error: 'Failed to query for a job.' };
     }
     
-    // **DEFINITIVE FIX:** Explicitly check if jobDoc is null or undefined.
     if (!jobDoc) {
         console.log(`${LOG_PREFIX} No queued broadcast jobs found.`);
         return { message: 'No queued jobs found.' };
@@ -129,8 +127,6 @@ async function processBroadcastJob() {
         console.log(msg);
         await addBroadcastLog(db, jobDoc._id, jobDoc.projectId, 'INFO', msg);
         
-        // If there were no contacts to queue, the job is effectively done.
-        // The worker won't receive anything, so the scheduler must handle this case.
         if (totalContactsInJob === 0) {
             await db.collection('broadcasts').updateOne(
                 { _id: jobDoc._id, status: 'PROCESSING' },
@@ -145,7 +141,6 @@ async function processBroadcastJob() {
         const errorMsg = getErrorMessage(err);
         console.error(`${LOG_PREFIX} Failed to process job ${jobDoc._id}:`, errorMsg);
         await addBroadcastLog(db, jobDoc._id, jobDoc.projectId, 'ERROR', `Scheduler failed to queue messages: ${errorMsg}`);
-        // Revert the job status to QUEUED if Kafka fails.
         await db.collection('broadcasts').updateOne({ _id: jobDoc._id }, { $set: { status: 'QUEUED' }, $unset: { startedAt: "" } });
         return { error: `Failed to process job: ${errorMsg}` };
     } finally {

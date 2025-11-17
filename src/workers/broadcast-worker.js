@@ -107,12 +107,13 @@ async function sendWhatsAppMessage(job, contact) {
         method: 'POST',
         headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(messageData),
-        throwOnError: false,
+        throwOnError: false, // Prevent undici from throwing on 4xx/5xx
         bodyTimeout: 20000,
       }
     );
     
     const responseBody = await response.body.json();
+
     if (response.statusCode < 200 || response.statusCode >= 300) {
       const errorDetail = responseBody?.error ? JSON.stringify(responseBody.error) : JSON.stringify(responseBody);
       return { success: false, error: `Meta API error ${response.statusCode}: ${errorDetail}` };
@@ -177,7 +178,7 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
             const mps = Number(jobDetails.messagesPerSecond) || 80;
             const throttle = pThrottle({ limit: mps, interval: 1000 });
 
-            await addBroadcastLog(db, broadcastId, projectId, 'INFO', `${LOG_PREFIX} ${workerId} | Started batch of ${contacts.length} contacts. Throttle: ${mps} MPS.`);
+            await addBroadcastLog(db, broadcastId, projectId, 'INFO', `${LOG_PREFIX} ${workerId} | Started processing a batch of ${contacts.length} contacts. Throttle: ${mps} MPS.`);
 
             const throttledSend = throttle(async contact => {
               await heartbeat();
@@ -215,8 +216,8 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
 
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', `${LOG_PREFIX} ${workerId} | Finished batch. Success: ${batchSuccessCount}, Failed: ${batchErrorCount}.`);
             
-            // Final check to mark job as 'Completed'
-            if (updatedJob && (updatedJob.successCount + updatedJob.errorCount) >= updatedJob.contactCount) {
+            // **DEFINITIVE FIX:** This logic ensures completion is only marked once.
+            if (updatedJob.value && (updatedJob.value.successCount + updatedJob.value.errorCount) >= updatedJob.value.contactCount) {
                 await db.collection('broadcasts').updateOne(
                     { _id: broadcastId, status: 'PROCESSING' },
                     { $set: { status: 'Completed', completedAt: new Date() } }

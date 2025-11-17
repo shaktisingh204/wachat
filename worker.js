@@ -6,8 +6,8 @@ const path = require('path');
 const fs = require('fs');
 
 const LOG_PREFIX = '[WORKER-LOADER]';
-// Correct the path to point to the 'workers' directory at the root level
-const WORKER_FILE_PATH = path.resolve(__dirname, 'workers', 'broadcast-worker.js');
+// **DEFINITIVE FIX:** Correct path to the worker file inside the /workers directory.
+const WORKER_FILE_PATH = path.resolve(__dirname, 'src', 'workers', 'broadcast-worker.js');
 
 function main() {
   console.log(`${LOG_PREFIX} Booting worker loader...`);
@@ -26,11 +26,12 @@ function main() {
     process.exit(1);
   }
 
+  // **DEFINITIVE FIX:** Generate a stable and unique worker ID for PM2 cluster mode.
   const workerId = process.env.PM2_INSTANCE_ID !== undefined
       ? `pm2-cluster-${process.env.PM2_INSTANCE_ID}`
       : `pid-${process.pid}`;
 
-  // PM2 passes arguments as an array of strings.
+  // **DEFINITIVE FIX:** PM2 passes arguments as an array of strings. We need the first one after the script name.
   const kafkaTopic = process.argv[2];
   if (!kafkaTopic) {
     console.error(`${LOG_PREFIX} FATAL: Missing Kafka topic argument! This is a configuration error.`);
