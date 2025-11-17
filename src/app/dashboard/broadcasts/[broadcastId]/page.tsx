@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useTransition, useCallback } from 'react';
+import { useState, useEffect, useTransition, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
@@ -179,6 +179,7 @@ export default function BroadcastReportPage() {
   };
 
   const getStatusVariant = (status: string) => {
+    if (!status) return 'outline';
     status = status.toLowerCase();
     if (status === 'completed') return 'default';
     if (status === 'queued' || status === 'processing' || status === 'partial failure' || status === 'cancelled') return 'secondary';

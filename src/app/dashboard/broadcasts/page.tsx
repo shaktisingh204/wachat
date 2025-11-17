@@ -233,57 +233,50 @@ function BroadcastPageSkeleton() {
 function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
   const [sendingSpeed, setSendingSpeed] = useState(0);
   const [acceptingSpeed, setAcceptingSpeed] = useState(0);
+  const lastProcessedRef = useRef(0);
+  const lastSuccessRef = useRef(0);
+  const lastTimestampRef = useRef(Date.now());
 
   useEffect(() => {
-    if (!item.startedAt) {
-      setSendingSpeed(0);
-      setAcceptingSpeed(0);
-      return;
-    }
-
-    const calculateSpeeds = () => {
-      const now = new Date();
-      // Use completedAt if available, otherwise use now.
-      const endTime = item.completedAt ? new Date(item.completedAt) : now;
-      const durationSeconds = (endTime.getTime() - new Date(item.startedAt!).getTime()) / 1000;
-      
-      if (durationSeconds > 0) {
-        // App's total processing speed (successful API calls + failed API calls)
-        const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
-        setSendingSpeed(Math.round(totalProcessed / durationSeconds));
-        
-        // Meta's acceptance rate (only successful API calls)
-        const totalAccepted = (item.successCount || 0);
-        setAcceptingSpeed(Math.round(totalAccepted / durationSeconds));
-      } else {
-        setSendingSpeed(0);
-        setAcceptingSpeed(0);
+    if (item.status !== 'PROCESSING') {
+      // Calculate final average speed on completion
+      if (item.startedAt && item.completedAt) {
+        const durationSeconds = (new Date(item.completedAt).getTime() - new Date(item.startedAt).getTime()) / 1000;
+        if (durationSeconds > 0) {
+          const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
+          setSendingSpeed(Math.round(totalProcessed / durationSeconds));
+          setAcceptingSpeed(Math.round((item.successCount || 0) / durationSeconds));
+        }
       }
+      return;
     };
 
-    if (item.status !== 'PROCESSING') {
-      calculateSpeeds();
-      return; // No need for an interval if the job is done
+    const now = Date.now();
+    const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
+    const totalSuccess = (item.successCount || 0);
+
+    const timeDiff = (now - lastTimestampRef.current) / 1000;
+    
+    if (timeDiff > 0) {
+        const processedInInterval = totalProcessed - lastProcessedRef.current;
+        const successInInterval = totalSuccess - lastSuccessRef.current;
+        setSendingSpeed(Math.round(processedInInterval / timeDiff));
+        setAcceptingSpeed(Math.round(successInInterval / timeDiff));
     }
+    
+    lastProcessedRef.current = totalProcessed;
+    lastSuccessRef.current = totalSuccess;
+    lastTimestampRef.current = now;
 
-    const intervalId = setInterval(calculateSpeeds, 2000); // Update every 2 seconds for active jobs
-
-    return () => clearInterval(intervalId);
   }, [item]);
 
-  if (!item.startedAt) {
-    return <span>-</span>;
-  }
-  
-  const limit = item.projectMessagesPerSecond !== undefined && item.projectMessagesPerSecond !== null
-        ? `${item.projectMessagesPerSecond} msg/s`
-        : 'N/A';
+  const limit = item.projectMessagesPerSecond;
 
   return (
-    <div className="font-mono text-xs text-muted-foreground space-y-1" title="My App Sending Speed / Meta Accepting Speed / Limit">
+    <div className="font-mono text-xs text-muted-foreground space-y-1" title="App Sending Speed / Meta Accepting Speed / Limit">
       <div>App Speed: {sendingSpeed} msg/s</div>
       <div>Meta Speed: {acceptingSpeed} msg/s</div>
-      <div>Limit: {limit}</div>
+      <div>Limit: {limit !== undefined && limit !== null ? `${limit} msg/s` : 'N/A'}</div>
     </div>
   );
 }
@@ -383,6 +376,7 @@ export default function BroadcastPage() {
 
   const getStatusVariant = (item: WithId<Broadcast>) => {
     const status = item.status;
+    if (!status) return 'outline';
     return status === 'QUEUED'
             ? 'outline'
             : status === 'PROCESSING'
