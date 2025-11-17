@@ -25,14 +25,13 @@ const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 const LOG_PREFIX = '[WORKER]';
 
 // ---------------------------------------------------
-// DB Logging
+// Logging
 // ---------------------------------------------------
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
   try {
-    if (!db || !broadcastId || !projectId) return;
     await db.collection('broadcast_logs').insertOne({
-      broadcastId: new ObjectId(String(broadcastId)),
-      projectId: new ObjectId(String(projectId)),
+      broadcastId,
+      projectId,
       level,
       message,
       meta,
@@ -44,7 +43,7 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta 
 }
 
 // ---------------------------------------------------
-// SEND WHATSAPP MESSAGE
+// WhatsApp Message Sender
 // ---------------------------------------------------
 async function sendWhatsAppMessage(job, contact, agent) {
   try {
@@ -61,7 +60,7 @@ async function sendWhatsAppMessage(job, contact, agent) {
     };
 
     const response = await undici.request(
-      `https://graph.facebook.com/${API_VERSION}/${job.phoneNumberId}/messages`,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
       {
         method: 'POST',
         dispatcher: agent,
@@ -81,10 +80,7 @@ async function sendWhatsAppMessage(job, contact, agent) {
       return { success: true, messageId };
     }
 
-    return {
-      success: false,
-      error: json?.error ? JSON.stringify(json.error) : JSON.stringify(json)
-    };
+    return { success: false, error: JSON.stringify(json?.error || json) };
 
   } catch (err) {
     return { success: false, error: getErrorMessage(err) };
@@ -92,7 +88,7 @@ async function sendWhatsAppMessage(job, contact, agent) {
 }
 
 // ---------------------------------------------------
-// MAIN WORKER
+// MAIN WORKER USING eachBatch
 // ---------------------------------------------------
 async function startBroadcastWorker(workerId, kafkaTopic) {
   const { db } = await connectToDatabase();
@@ -109,138 +105,123 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
     heartbeatInterval: 3000,
   });
 
-  console.log(`${LOG_PREFIX} Worker ${workerId} starting...`);
+  console.log(`${LOG_PREFIX} Worker ${workerId} starting with PARALLEL Kafka Batches...`);
 
   await consumer.connect();
   await consumer.subscribe({ topic: kafkaTopic });
 
   await consumer.run({
-    eachMessage: async ({ message, heartbeat }) => {
-      if (!message.value) return;
+    eachBatch: async ({ batch, heartbeat, resolveOffset, commitOffsetsIfNecessary }) => {
+      for (const message of batch.messages) {
+        if (!message.value) continue;
 
-      let payload;
-      try {
-        payload = JSON.parse(message.value.toString());
-      } catch {
-        console.error(`${LOG_PREFIX} Worker ${workerId} | Invalid JSON payload`);
-        return;
-      }
-
-      const { jobDetails, contacts } = payload;
-      if (!jobDetails?._id || !Array.isArray(contacts) || !contacts.length) {
-        console.error(`${LOG_PREFIX} Worker ${workerId} | Invalid broadcast payload`);
-        return;
-      }
-
-      const broadcastId = new ObjectId(jobDetails._id);
-      const projectId = new ObjectId(jobDetails.projectId);
-
-      // ---------------------------------------------------
-      // EXACT MPS — NO DEFAULT, NO || 80
-      // ---------------------------------------------------
-      const mps = Number(jobDetails.messagesPerSecond);
-
-      // ---------------------------------------------------
-      // Undici agent with EXACT connections: 10000
-      // ---------------------------------------------------
-      const agent = new undici.Agent({
-        connections: 10000,
-        pipelining: 1,
-      });
-
-      await addBroadcastLog(db, broadcastId, projectId, "INFO",
-        `Worker ${workerId} batch: ${contacts.length} contacts | EXACT MPS: ${mps}`);
-
-      // ---------------------------------------------------
-      // EXACT throttle behavior — interval: 0
-      // ---------------------------------------------------
-      const throttle = pThrottleLib({
-        limit: mps,
-        interval: 0,    // You requested interval = 0
-        strict: true    // No bursts, exact limit
-      });
-
-      const throttledSend = throttle(async (contact) => {
-        return sendWhatsAppMessage(jobDetails, contact, agent);
-      });
-
-      // ---------------------------------------------------
-      // Sending loop — EXACT SPEED ONLY
-      // ---------------------------------------------------
-      const results = await Promise.all(
-        contacts.map(async (contact) => {
-          try { heartbeat(); } catch {}
-          const r = await throttledSend(contact);
-          return { contactId: contact._id, ...r };
-        })
-      );
-
-      // ---------------------------------------------------
-      // Bulk DB Update
-      // ---------------------------------------------------
-      const bulk = [];
-      let success = 0;
-      let failed = 0;
-
-      for (const r of results) {
-        if (r.success) {
-          success++;
-          bulk.push({
-            updateOne: {
-              filter: { _id: new ObjectId(r.contactId) },
-              update: {
-                $set: {
-                  status: "SENT",
-                  sentAt: new Date(),
-                  messageId: r.messageId,
-                  error: null
-                }
-              }
-            }
-          });
-        } else {
-          failed++;
-          bulk.push({
-            updateOne: {
-              filter: { _id: new ObjectId(r.contactId) },
-              update: {
-                $set: {
-                  status: "FAILED",
-                  error: r.error
-                }
-              }
-            }
-          });
+        let payload;
+        try {
+          payload = JSON.parse(message.value.toString());
+        } catch {
+          console.error(`${LOG_PREFIX} Worker ${workerId} | Invalid JSON payload`);
+          continue;
         }
-      }
 
-      if (bulk.length > 0) {
-        await db.collection("broadcast_contacts").bulkWrite(bulk, { ordered: false });
-      }
+        const { jobDetails, contacts } = payload;
+        if (!jobDetails?._id || !Array.isArray(contacts)) {
+          console.error(`${LOG_PREFIX} Worker ${workerId} | Invalid payload, skipping`);
+          continue;
+        }
 
-      // Update job stats
-      const updated = await db.collection("broadcasts").findOneAndUpdate(
-        { _id: broadcastId },
-        { $inc: { successCount: success, errorCount: failed } },
-        { returnDocument: "after" }
-      );
+        const broadcastId = new ObjectId(jobDetails._id);
+        const projectId = new ObjectId(jobDetails.projectId);
 
-      await addBroadcastLog(db, broadcastId, projectId, "INFO",
-        `Worker ${workerId} finished batch — sent: ${success} | failed: ${failed}`);
+        // ---------------------------------------------------
+        // EXACT SPEED — NO DEFAULT
+        // ---------------------------------------------------
+        const mps = Number(jobDetails.messagesPerSecond);
 
-      // Mark complete
-      if (updated.value &&
-        (updated.value.successCount + updated.value.errorCount) >= updated.value.contactCount
-      ) {
-        await db.collection("broadcasts").updateOne(
-          { _id: broadcastId },
-          { $set: { status: "Completed", completedAt: new Date() } }
-        );
+        // ---------------------------------------------------
+        // Undici Agent (10,000 connections)
+        // ---------------------------------------------------
+        const agent = new undici.Agent({
+          connections: 10000,
+          pipelining: 1
+        });
 
         await addBroadcastLog(db, broadcastId, projectId, "INFO",
-          `Worker ${workerId}: Broadcast Completed`);
+          `Worker ${workerId} batch: ${contacts.length} contacts | EXACT MPS: ${mps}`);
+
+        // ---------------------------------------------------
+        // EXACT RATE THROTTLE: interval = 0
+        // ---------------------------------------------------
+        const throttle = pThrottleLib({
+          limit: mps,
+          interval: 0,
+          strict: true
+        });
+
+        const throttledSend = throttle(async (contact) =>
+          sendWhatsAppMessage(jobDetails, contact, agent)
+        );
+
+        // ---------------------------------------------------
+        // PROCESS CONTACTS IN PARALLEL (Kafka batch parallel)
+        // ---------------------------------------------------
+        const results = await Promise.all(
+          contacts.map(async (contact) => {
+            try { heartbeat(); } catch {}
+            const r = await throttledSend(contact);
+            return { contactId: contact._id, ...r };
+          })
+        );
+
+        // ---------------------------------------------------
+        // Bulk DB Write
+        // ---------------------------------------------------
+        const bulkOps = [];
+        let success = 0;
+        let failed = 0;
+
+        for (const r of results) {
+          if (r.success) {
+            success++;
+            bulkOps.push({
+              updateOne: {
+                filter: { _id: new ObjectId(r.contactId) },
+                update: {
+                  $set: {
+                    status: "SENT",
+                    sentAt: new Date(),
+                    messageId: r.messageId,
+                    error: null
+                  }
+                }
+              }
+            });
+          } else {
+            failed++;
+            bulkOps.push({
+              updateOne: {
+                filter: { _id: new ObjectId(r.contactId) },
+                update: {
+                  $set: {
+                    status: "FAILED",
+                    error: r.error
+                  }
+                }
+              }
+            });
+          }
+        }
+
+        if (bulkOps.length > 0) {
+          await db.collection("broadcast_contacts").bulkWrite(bulkOps, { ordered: false });
+        }
+
+        await addBroadcastLog(db, broadcastId, projectId, "INFO",
+          `Worker ${workerId} finished batch — sent: ${success} | failed: ${failed}`);
+
+        resolveOffset(message.offset);
       }
 
+      await commitOffsetsIfNecessary();
     }
   });
 
