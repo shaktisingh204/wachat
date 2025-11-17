@@ -164,7 +164,9 @@ async function startBroadcastWorker(workerId) {
 
   const kafka = new Kafka({
     clientId: `whatsapp-worker-${workerId}-${KAFKA_TOPIC}`,
-    brokers: KAFKA_BROKERS
+    brokers: KAFKA_BROKERS,
+    connectionTimeout: 5000,
+    requestTimeout: 30000,
   });
 
   const consumer = kafka.consumer({
@@ -188,6 +190,8 @@ async function startBroadcastWorker(workerId) {
         if (!message.value) return;
 
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
+        
+        console.log(`[WORKER ${workerId}] Received batch with ${contacts.length} contacts for job ${jobDetails._id}`);
 
         if (!jobDetails || !jobDetails._id || !Array.isArray(contacts)) {
           console.error(`[WORKER ${workerId}] Invalid job data received. Skipping.`);
@@ -198,8 +202,7 @@ async function startBroadcastWorker(workerId) {
         broadcastId = new ObjectId(jobDetails._id);
         projectId = new ObjectId(jobDetails.projectId);
         const mps = jobDetails.projectMessagesPerSecond || 80;
-
-        console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Received batch of ${contacts.length} contacts. Throttling at ${mps} MPS.`);
+        
         await addBroadcastLog(
           db, broadcastId, projectId, 'INFO',
           `Worker picked batch of ${contacts.length}. Throttle: ${mps} MPS.`
@@ -248,7 +251,8 @@ async function startBroadcastWorker(workerId) {
             }
           });
 
-          success ? successCount++ : errorCount++;
+          if(success) successCount++;
+          else errorCount++;
         }
 
         if (bulkOps.length) {
@@ -280,5 +284,3 @@ async function startBroadcastWorker(workerId) {
 }
 
 module.exports = { startBroadcastWorker };
-
-    
