@@ -1,4 +1,3 @@
-
 'use server';
 
 import { config } from 'dotenv';
@@ -17,7 +16,6 @@ const importPThrottle = async () => {
   }
   return pThrottle;
 };
-
 
 const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
 const LOW_PRIORITY_TOPIC = 'low-priority-broadcasts';
@@ -185,13 +183,15 @@ export async function processBroadcastJob() {
     { returnDocument: 'after', sort: { createdAt: 1 } }
   );
 
-  if (!jobResult) {
+  const jobDoc = jobResult.value; // ✅ FIX: get the actual document
+
+  if (!jobDoc) {
     const msg = 'No queued broadcast jobs found.';
     console.log(`[CRON-SCHEDULER] ${msg}`);
     return { message: msg, error: null };
   }
 
-  const job = jobResult as WithId<BroadcastJobType>;
+  const job = jobDoc as WithId<BroadcastJobType>;
   
   // Asynchronously process the job without blocking the response
   processSingleJob(db, job).catch(err => {
