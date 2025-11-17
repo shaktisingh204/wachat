@@ -39,7 +39,7 @@ function main() {
   const kafkaTopic = process.argv[2];
   if (!kafkaTopic) {
     console.error(`${LOG} FATAL: Missing Kafka topic argument!`);
-    console.error(`${LOG} Correct usage in ecosystem.config.js -> args: "your-topic-name"`);
+    console.error(`${LOG} Correct usage in ecosystem.config.js -> args: ["your-topic-name"]`);
     process.exit(1);
   }
 
