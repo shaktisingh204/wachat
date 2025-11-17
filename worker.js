@@ -13,15 +13,18 @@ try {
     : `pid-${process.pid}`;
   
   // The Kafka topic is now passed as an argument from ecosystem.config.js
-  // Default to 'broadcasts' if no argument is provided.
-  const kafkaTopic = process.argv[2] || 'broadcasts';
+  const kafkaTopic = process.argv[2];
+  if (!kafkaTopic) {
+      console.error('[Worker Loader] FATAL: Kafka topic argument not provided by PM2. Exiting.');
+      process.exit(1);
+  }
 
-  console.log(`[Worker Script] Starting Broadcast Worker | ID: ${workerId} | Topic: ${kafkaTopic}`);
+  console.log(`[Worker Loader] Starting Broadcast Worker | ID: ${workerId} | Topic: ${kafkaTopic}`);
 
   // Start the worker and tell it which topic to listen to
   startBroadcastWorker(workerId, kafkaTopic);
 
 } catch (err) {
-  console.error('[Worker Script] Failed to start worker. Ensure ./workers/broadcast-worker.js exists and is valid.', err);
+  console.error('[Worker Loader] Failed to start worker. Ensure ./workers/broadcast-worker.js exists and is valid.', err);
   process.exit(1);
 }
