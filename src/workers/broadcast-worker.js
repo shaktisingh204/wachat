@@ -162,7 +162,7 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
         // ---------------------------------------------
         const throttle = pThrottleLib({
           limit: mps,
-          interval: 0,
+          interval: 1000,
           strict: true
         });
 
