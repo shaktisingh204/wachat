@@ -82,7 +82,7 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJob>) {
     }).project({ _id: 1, phone: 1, variables: 1 }).toArray();
 
     if (contacts.length === 0) {
-        // No pending contacts. The worker will handle job completion.
+        // If there are no pending contacts, the worker will handle final completion status.
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[SCHEDULER] Job has no pending contacts to queue. A worker will finalize it.`);
         return;
     }
@@ -91,13 +91,13 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJob>) {
         clientId: `broadcast-producer-${broadcastId.toString()}`,
         brokers: KAFKA_BROKERS,
         connectionTimeout: 5000,
-        requestTimeout: 60000, // Increased for potentially large send operations
+        requestTimeout: 60000,
     });
 
     const producer = kafka.producer({
         createPartitioner: Partitioners.DefaultPartitioner,
-        idempotent: true, // Ensures messages are written exactly once
-        maxInFlightRequests: 1 // Ensures message order on retry
+        idempotent: true,
+        maxInFlightRequests: 1
     });
     
     const sanitizedJobDetails = sanitizeForKafka(job);
@@ -167,12 +167,15 @@ export async function processBroadcastJob() {
     let job: WithId<BroadcastJob> | null = null;
     try {
         // Atomically find one queued job and mark it as processing.
-        const findResult = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
+        const result = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
             { $set: { status: 'PROCESSING', startedAt: new Date() } },
             { returnDocument: 'after', sort: { createdAt: 1 } }
         );
-        job = findResult;
+        
+        // Correctly access the returned document
+        job = result;
+
     } catch (e) {
         const errorMsg = getErrorMessage(e);
         console.error(`[CRON-SCHEDULER] DB Error finding job: ${errorMsg}`);
