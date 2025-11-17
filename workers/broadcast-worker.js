@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const path = require('path');
 
@@ -60,7 +61,6 @@ async function sendWhatsAppMessage(job, contact) {
       variableMappings
     } = job;
 
-    // Detect {{1}}, {{2}} ...
     const getVars = (text) => {
       if (!text) return [];
       const matches = text.match(/{{\s*(\d+)\s*}}/g);
@@ -75,32 +75,34 @@ async function sendWhatsAppMessage(job, contact) {
     };
 
     const payloadComponents = [];
-
-    // HEADER
     const headerComponent = components.find(c => c.type === 'HEADER');
-    if (headerComponent) {
-      let parameter;
-      const format = headerComponent.format?.toLowerCase();
 
-      if (headerMediaId) {
-        parameter = { type: format, [format]: { id: headerMediaId } };
-      } else if (headerImageUrl) {
-        parameter = { type: format, [format]: { link: headerImageUrl } };
+    if (headerComponent) {
+      const format = headerComponent.format?.toLowerCase();
+      let parameter;
+
+      if (['image', 'video', 'document'].includes(format)) {
+        if (headerMediaId) {
+          parameter = { type: format, [format]: { id: headerMediaId } };
+        } else if (headerImageUrl) {
+          parameter = { type: format, [format]: { link: headerImageUrl } };
+        }
       } else if (format === 'text' && headerComponent.text) {
-        if (getVars(headerComponent.text).length > 0) {
-          parameter = {
-            type: 'text',
-            text: interpolate(headerComponent.text, contact.variables || {})
-          };
+        const headerVars = getVars(headerComponent.text);
+        if (headerVars.length > 0) {
+            const varKey = `header_variable${headerVars[0]}`;
+            const value = contact.variables?.[varKey] || '';
+            if (value) {
+                parameter = { type: 'text', text: value };
+            }
         }
       }
-
+      
       if (parameter) {
         payloadComponents.push({ type: 'header', parameters: [parameter] });
       }
     }
 
-    // BODY
     const bodyComponent = components.find(c => c.type === 'BODY');
     if (bodyComponent?.text) {
       const bodyVars = getVars(bodyComponent.text);
@@ -109,16 +111,14 @@ async function sendWhatsAppMessage(job, contact) {
           .sort((a, b) => a - b)
           .map(varNum => {
             const mapping = variableMappings?.find(m => m.var === String(varNum));
-            const varKey = mapping ? mapping.value : `variable${varNum}`;
+            const varKey = mapping ? mapping.value : `body_variable${varNum}`;
             const value = contact.variables?.[varKey] || '';
             return { type: 'text', text: value };
           });
-
         payloadComponents.push({ type: 'body', parameters });
       }
     }
 
-    // FINAL WHATSAPP PAYLOAD
     const messageData = {
       messaging_product: 'whatsapp',
       to: contact.phone,
@@ -147,12 +147,12 @@ async function sendWhatsAppMessage(job, contact) {
 
     if (statusCode < 200 || statusCode >= 300) {
       throw new Error(
-        `Meta API error ${statusCode}: ${JSON.stringify(responseData)}`
+        `Meta API error ${statusCode}: ${JSON.stringify(responseData?.error || responseData)}`
       );
     }
 
     const messageId = responseData?.messages?.[0]?.id;
-    if (!messageId) return { success: false, error: "No message ID returned." };
+    if (!messageId) return { success: false, error: "No message ID returned from Meta." };
 
     return { success: true, messageId };
   } catch (error) {
@@ -194,6 +194,8 @@ async function startBroadcastWorker(workerId) {
       const pausable = pause();
       if (pausable) pausable.pause();
 
+      let broadcastId, projectId;
+
       try {
         if (!message.value) return;
 
@@ -205,8 +207,8 @@ async function startBroadcastWorker(workerId) {
         }
 
         const { ObjectId } = require('mongodb');
-        const broadcastId = new ObjectId(jobDetails._id);
-        const projectId = new ObjectId(jobDetails.projectId);
+        broadcastId = new ObjectId(jobDetails._id);
+        projectId = new ObjectId(jobDetails.projectId);
         const mps = jobDetails.projectMessagesPerSecond || 80;
 
         await addBroadcastLog(
@@ -268,10 +270,12 @@ async function startBroadcastWorker(workerId) {
             .bulkWrite(bulkOps, { ordered: false });
         }
 
-        await db.collection('broadcasts').updateOne(
-          { _id: broadcastId },
-          { $inc: { successCount, errorCount } }
-        );
+        if (successCount > 0 || errorCount > 0) {
+            await db.collection('broadcasts').updateOne(
+                { _id: broadcastId },
+                { $inc: { successCount, errorCount } }
+            );
+        }
 
         await addBroadcastLog(
           db,
@@ -282,6 +286,9 @@ async function startBroadcastWorker(workerId) {
         );
       } catch (err) {
         console.error(`[WORKER ${workerId}] Error:`, err);
+        if(broadcastId && projectId) {
+            await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Worker failed processing batch: ${getErrorMessage(err)}`);
+        }
       } finally {
         if (pausable) pausable.resume();
       }
