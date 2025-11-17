@@ -1,19 +1,20 @@
-
 require('dotenv').config();
 const path = require('path');
 
-// In production, the compiled worker file will be in the .next/server/ directory.
-const workerPath = process.env.NODE_ENV === 'production'
-  ? path.join(__dirname, '.next', 'server', 'src', 'lib', 'broadcast-worker.js')
-  : path.join(__dirname, 'src', 'lib', 'broadcast-worker.js');
+// Always load worker directly from the workers folder (NOT from .next)
+const workerPath = path.join(__dirname, 'workers', 'broadcast-worker.js');
 
 try {
   const { startBroadcastWorker } = require(workerPath);
+
+  // PM2 gives each instance an ID in cluster mode
   const workerId = process.env.PM2_INSTANCE_ID || `pid-${process.pid}`;
-  
-  console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
+
+  console.log(`[Worker Script] Starting Broadcast Worker | ID: ${workerId}`);
+
+  // Start the worker
   startBroadcastWorker(workerId);
-  
+
 } catch (err) {
   console.error('[Worker Script] Failed to start worker:', err);
   process.exit(1);
