@@ -25,7 +25,7 @@ const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 const LOG_PREFIX = '[WORKER]';
 
 // ---------------------------------------------------
-// LOGGING
+// DB Logging
 // ---------------------------------------------------
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
   try {
@@ -44,13 +44,13 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta 
 }
 
 // ---------------------------------------------------
-// SEND WHATSAPP MESSAGE (No rate changes)
+// SEND WHATSAPP MESSAGE
 // ---------------------------------------------------
 async function sendWhatsAppMessage(job, contact, agent) {
   try {
     const { accessToken, phoneNumberId, templateName, language = 'en_US' } = job;
 
-    const body = {
+    const payload = {
       messaging_product: 'whatsapp',
       to: contact.phone,
       type: 'template',
@@ -61,7 +61,7 @@ async function sendWhatsAppMessage(job, contact, agent) {
     };
 
     const response = await undici.request(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
+      `https://graph.facebook.com/${API_VERSION}/${job.phoneNumberId}/messages`,
       {
         method: 'POST',
         dispatcher: agent,
@@ -69,7 +69,7 @@ async function sendWhatsAppMessage(job, contact, agent) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(payload),
         throwOnError: false
       }
     );
@@ -136,50 +136,47 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
       const projectId = new ObjectId(jobDetails.projectId);
 
       // ---------------------------------------------------
-      // USE EXACT mps — no modification
+      // EXACT MPS — NO DEFAULT, NO || 80
       // ---------------------------------------------------
-      const mps = Number(jobDetails.messagesPerSecond) || 80;
-console.log(jobDetails.messagesPerSecond);
-      // ---------------------------------------------------
-      // EXACT rate throttle
-      // strict: true ensures NO bursts, EXACT SPEED ONLY
-      // ---------------------------------------------------
-      const throttle = pThrottleLib({
-        limit: mps,
-        interval: 1000,
-        strict: true
-      });
+      const mps = Number(jobDetails.messagesPerSecond);
 
+      // ---------------------------------------------------
+      // Undici agent with EXACT connections: 10000
+      // ---------------------------------------------------
       const agent = new undici.Agent({
-        connections: 1000,     // static, not tied to mps
+        connections: 10000,
         pipelining: 1,
       });
 
       await addBroadcastLog(db, broadcastId, projectId, "INFO",
-        `Worker ${workerId} started batch: ${contacts.length} contacts | MPS EXACT: ${mps}`);
+        `Worker ${workerId} batch: ${contacts.length} contacts | EXACT MPS: ${mps}`);
+
+      // ---------------------------------------------------
+      // EXACT throttle behavior — interval: 0
+      // ---------------------------------------------------
+      const throttle = pThrottleLib({
+        limit: mps,
+        interval: 0,    // You requested interval = 0
+        strict: true    // No bursts, exact limit
+      });
 
       const throttledSend = throttle(async (contact) => {
         return sendWhatsAppMessage(jobDetails, contact, agent);
       });
 
       // ---------------------------------------------------
-      // EXACT sending speed loop — no modifications
+      // Sending loop — EXACT SPEED ONLY
       // ---------------------------------------------------
       const results = await Promise.all(
         contacts.map(async (contact) => {
           try { heartbeat(); } catch {}
-
-          const res = await throttledSend(contact);
-
-          return {
-            contactId: contact._id,
-            ...res
-          };
+          const r = await throttledSend(contact);
+          return { contactId: contact._id, ...r };
         })
       );
 
       // ---------------------------------------------------
-      // Bulk write results
+      // Bulk DB Update
       // ---------------------------------------------------
       const bulk = [];
       let success = 0;
@@ -221,7 +218,7 @@ console.log(jobDetails.messagesPerSecond);
         await db.collection("broadcast_contacts").bulkWrite(bulk, { ordered: false });
       }
 
-      // Update job counters
+      // Update job stats
       const updated = await db.collection("broadcasts").findOneAndUpdate(
         { _id: broadcastId },
         { $inc: { successCount: success, errorCount: failed } },
@@ -229,9 +226,9 @@ console.log(jobDetails.messagesPerSecond);
       );
 
       await addBroadcastLog(db, broadcastId, projectId, "INFO",
-        `Worker ${workerId} completed batch — sent: ${success} | failed: ${failed}`);
+        `Worker ${workerId} finished batch — sent: ${success} | failed: ${failed}`);
 
-      // Mark completed
+      // Mark complete
       if (updated.value &&
         (updated.value.successCount + updated.value.errorCount) >= updated.value.contactCount
       ) {
