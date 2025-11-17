@@ -22,7 +22,6 @@ const importPThrottle = async () => {
 const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
 const LOW_PRIORITY_TOPIC = 'low-priority-broadcasts';
 const HIGH_PRIORITY_TOPIC = 'high-priority-broadcasts';
-const KAFKA_MESSAGE_BATCH_SIZE = 200;
 const ONE_HUNDRED_MEGABYTES = 100 * 1024 * 1024;
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
 
@@ -104,16 +103,13 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
   
   const allErrors: string[] = [];
 
-  // Throttling logic is now in the scheduler
   const pThrottle = await importPThrottle();
-  const speedLimit = job.messagesPerSecond || 80; // Messages per second
-  const batchSize = KAFKA_MESSAGE_BATCH_SIZE;
-  // Calculate how many batches we can send per second
-  const batchesPerSecond = Math.max(1, Math.floor(speedLimit / batchSize));
-
+  const speedLimit = job.messagesPerSecond || 80;
+  const batchSize = speedLimit; // Set batch size directly to the desired messages per second
+  
   const throttle = pThrottle({
-      limit: batchesPerSecond,
-      interval: 1000
+      limit: 1, // Send one batch
+      interval: 1000 // per second
   });
 
   try {
@@ -122,6 +118,7 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
     const throttledPushToKafka = throttle(async (batch: any[], batchIndex: number) => {
         const messageString = JSON.stringify({ jobDetails: job, contacts: batch });
         try {
+            console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Sending batch ${batchIndex + 1} with ${batch.length} contacts.`);
             await producer.send({ topic: KAFKA_TOPIC, messages: [{ value: messageString }] });
         } catch (kafkaError) {
             const errorMsg = `Failed to send batch ${batchIndex + 1} to Kafka: ${getErrorMessage(kafkaError)}`;
@@ -134,7 +131,6 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
     const batchPromises = [];
     for (let i = 0; i < contacts.length; i += batchSize) {
         const batch = contacts.slice(i, i + batchSize);
-        console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Queueing batch ${i / batchSize + 1} with ${batch.length} contacts.`);
         batchPromises.push(throttledPushToKafka(batch, i / batchSize));
     }
 
@@ -183,20 +179,21 @@ export async function processBroadcastJob() {
     console.error('[CRON-SCHEDULER] Maintenance error (resetting jobs):', maintenanceError);
   }
   
-  const job = await db.collection<WithId<BroadcastJobType>>('broadcasts').findOneAndUpdate(
+  const jobResult = await db.collection('broadcasts').findOneAndUpdate(
     { status: 'QUEUED' },
     { $set: { status: 'PROCESSING', startedAt: new Date() } },
     { returnDocument: 'after', sort: { createdAt: 1 } }
   );
 
-  if (!job) {
+  if (!jobResult) {
     const msg = 'No queued broadcast jobs found.';
     console.log(`[CRON-SCHEDULER] ${msg}`);
     return { message: msg, error: null };
   }
 
-  // The function now returns a promise. We don't need to await it here.
-  // The job will be processed asynchronously.
+  const job = jobResult as WithId<BroadcastJobType>;
+  
+  // Asynchronously process the job without blocking the response
   processSingleJob(db, job).catch(err => {
     const errMsg = getErrorMessage(err);
     console.error(`[CRON-SCHEDULER] Unhandled error in job ${job._id}: ${errMsg}`);
