@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 
 const LOG_PREFIX = '[WORKER-LOADER]';
-const WORKER_FILE_PATH = path.resolve(__dirname, 'workers', 'broadcast-worker.js');
+const WORKER_FILE_PATH = path.resolve(__dirname, 'src', 'workers', 'broadcast-worker.js');
 
 function main() {
   console.log(`${LOG_PREFIX} Booting worker loader...`);
