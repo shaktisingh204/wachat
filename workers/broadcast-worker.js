@@ -8,18 +8,22 @@ const { Kafka } = require('kafkajs');
 const undici = require('undici');
 const { ObjectId } = require('mongodb');
 
-// Ensure KAFKA_BROKERS is set
 if (!process.env.KAFKA_BROKERS) {
   console.error('[WORKER] FATAL: KAFKA_BROKERS environment variable is not set.');
   process.exit(1);
 }
 
+let pThrottle;
+const importPThrottle = async () => {
+  if (!pThrottle) {
+    pThrottle = (await import('p-throttle')).default;
+  }
+  return pThrottle;
+};
+
 const API_VERSION = 'v23.0';
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 
-/**
- * Writes a log entry to broadcast_logs (best-effort).
- */
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
   try {
     if (!db || !broadcastId || !projectId) return;
@@ -36,9 +40,6 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta 
   }
 }
 
-/**
- * Sends a single WhatsApp template message via Meta Graph API.
- */
 async function sendWhatsAppMessage(job, contact) {
   try {
     const {
@@ -105,7 +106,7 @@ async function sendWhatsAppMessage(job, contact) {
         method: 'POST',
         headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(messageData),
-        throwOnError: false, // Handle non-2xx responses manually
+        throwOnError: false,
         bodyTimeout: 20000,
       }
     );
@@ -125,37 +126,9 @@ async function sendWhatsAppMessage(job, contact) {
   }
 }
 
-/**
- * A precise rate-limiter that sends batches of functions at a specified interval.
- */
-function createPreciseThrottler(rate, interval = 1000) {
-    const queue = [];
-    let isRunning = false;
-
-    async function processQueue() {
-        if (queue.length === 0) {
-            isRunning = false;
-            return;
-        }
-        isRunning = true;
-        
-        const itemsToProcess = queue.splice(0, rate);
-        await Promise.allSettled(itemsToProcess.map(fn => fn()));
-
-        setTimeout(processQueue, interval);
-    }
-
-    return (fn) => {
-        queue.push(fn);
-        if (!isRunning) {
-            processQueue();
-        }
-    };
-}
-
-
 async function startBroadcastWorker(workerId, kafkaTopic) {
-  const GROUP_ID = `whatsapp-broadcaster-v2`; // Use a versioned group ID
+  const pThrottle = await importPThrottle();
+  const GROUP_ID = `whatsapp-broadcaster-v3`;
   console.log(`[WORKER ${workerId}] Starting | Topic: ${kafkaTopic} | Group: ${GROUP_ID}`);
 
   const { db } = await connectToDatabase();
@@ -204,31 +177,23 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
             }
 
             const mps = Number(jobDetails.messagesPerSecond) || 80;
-            const throttle = createPreciseThrottler(mps, 1000);
+            const throttle = pThrottle({ limit: mps, interval: 1000 });
 
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Started batch of ${contacts.length}. Throttle: ${mps} MPS.`);
 
-            const sendPromises = contacts.map(contact => {
-                return new Promise(resolve => {
-                    throttle(async () => {
-                        await heartbeat();
-                        const result = await sendWhatsAppMessage(jobDetails, contact);
-                        resolve({ contactId: contact._id, ...result });
-                    });
-                });
+            const throttledSend = throttle(async contact => {
+              await heartbeat();
+              return sendWhatsAppMessage(jobDetails, contact).then(result => ({ contactId: contact._id, ...result }));
             });
-
-            const results = await Promise.all(sendPromises);
+            
+            const results = await Promise.all(contacts.map(contact => throttledSend(contact)));
 
             const bulkOps = [];
             let batchSuccessCount = 0;
             let batchErrorCount = 0;
 
             for (const r of results) {
-              if (!r || !r.contactId) {
-                batchErrorCount++;
-                continue;
-              }
+              if (!r || !r.contactId) { batchErrorCount++; continue; }
               bulkOps.push({
                 updateOne: {
                   filter: { _id: new ObjectId(String(r.contactId)) },
@@ -251,7 +216,7 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
             );
 
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Finished batch. Success: ${batchSuccessCount}, Failed: ${batchErrorCount}.`);
-
+            
             if (updatedJob && (updatedJob.successCount + updatedJob.errorCount) >= updatedJob.contactCount) {
                 await db.collection('broadcasts').updateOne(
                     { _id: broadcastId, status: 'PROCESSING' },
