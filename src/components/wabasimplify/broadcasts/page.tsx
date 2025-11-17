@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
 import type { WithId } from 'mongodb';
 import { getTemplates, handleStopBroadcast, handleRunCron } from '@/app/actions/index.ts';
 import { handleSyncTemplates } from '@/app/actions/template.actions';
@@ -232,31 +233,45 @@ function BroadcastPageSkeleton() {
 function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
   const [sendingSpeed, setSendingSpeed] = useState(0);
   const [acceptingSpeed, setAcceptingSpeed] = useState(0);
+  const lastProcessedRef = useRef(0);
+  const lastSuccessRef = useRef(0);
+  const lastTimestampRef = useRef(Date.now());
 
   useEffect(() => {
     const calculateSpeeds = () => {
-        if (!item.startedAt) {
-            setSendingSpeed(0);
-            setAcceptingSpeed(0);
+        if (item.status !== 'PROCESSING' || !item.startedAt) {
+            // For completed jobs, calculate final average speed
+            if (item.startedAt && item.completedAt) {
+                const durationSeconds = (new Date(item.completedAt).getTime() - new Date(item.startedAt).getTime()) / 1000;
+                if (durationSeconds > 0) {
+                    const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
+                    setSendingSpeed(Math.round(totalProcessed / durationSeconds));
+                    setAcceptingSpeed(Math.round((item.successCount || 0) / durationSeconds));
+                }
+            }
             return;
         }
+
+        const now = Date.now();
+        const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
+        const totalSuccess = item.successCount || 0;
+
+        const timeDiffSeconds = (now - lastTimestampRef.current) / 1000;
         
-        // Use completedAt if available, otherwise use now.
-        const endTime = item.completedAt ? new Date(item.completedAt) : new Date();
-        const durationSeconds = (endTime.getTime() - new Date(item.startedAt).getTime()) / 1000;
-        
-        if (durationSeconds > 0) {
-            const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
-            setSendingSpeed(Math.round(totalProcessed / durationSeconds));
-            setAcceptingSpeed(Math.round((item.successCount || 0) / durationSeconds));
-        } else {
-            setSendingSpeed(0);
-            setAcceptingSpeed(0);
+        if (timeDiffSeconds > 0) {
+            const processedInInterval = totalProcessed - lastProcessedRef.current;
+            const successInInterval = totalSuccess - lastSuccessRef.current;
+            setSendingSpeed(Math.round(processedInInterval / timeDiffSeconds));
+            setAcceptingSpeed(Math.round(successInInterval / timeDiffSeconds));
         }
+        
+        lastProcessedRef.current = totalProcessed;
+        lastSuccessRef.current = totalSuccess;
+        lastTimestampRef.current = now;
     };
-    
+
     calculateSpeeds(); // Initial calculation
-    
+
     if (item.status === 'PROCESSING') {
         const intervalId = setInterval(calculateSpeeds, 2000); // Update every 2 seconds for active jobs
         return () => clearInterval(intervalId);
@@ -264,10 +279,10 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
   }, [item]);
 
   return (
-    <div className="font-mono text-xs text-muted-foreground space-y-1" title="My App Sending Speed / Meta Accepting Speed / Limit">
+    <div className="font-mono text-xs text-muted-foreground space-y-1" title="App Sending Speed / Meta Accepting Speed / Limit">
       <div>App Speed: {sendingSpeed} msg/s</div>
       <div>Meta Speed: {acceptingSpeed} msg/s</div>
-      <div>Limit: {item.projectMessagesPerSecond ?? 'N/A'} msg/s</div>
+      <div>Limit: {item.projectMessagesPerSecond != null ? `${item.projectMessagesPerSecond} msg/s` : 'N/A'}</div>
     </div>
   );
 }

@@ -176,7 +176,6 @@ async function startBroadcastWorker(workerId) {
         
         console.log(`[WORKER ${workerId}] Processing ${contacts.length} contacts for broadcast ${broadcastId}`);
 
-        // The worker now processes the batch as fast as it can. Throttling is handled by the scheduler.
         const sendPromises = contacts.map(contact => 
             sendWhatsAppMessage(jobDetails, contact).then(result => ({ contactId: contact._id, ...result }))
         );
@@ -234,8 +233,6 @@ async function startBroadcastWorker(workerId) {
             console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Marked as Completed.`);
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job Completed. Final counts - Success: ${updatedJob.successCount}, Failed: ${updatedJob.errorCount}.`);
         }
-
-        console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Batch finished. Success: ${successCount}, Failed: ${errorCount}.`);
 
       } catch (err) {
         console.error(`[WORKER ${workerId}] [JOB ${broadcastId}] Critical error processing message:`, err);
