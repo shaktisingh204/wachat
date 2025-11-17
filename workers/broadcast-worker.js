@@ -23,7 +23,7 @@ const API_VERSION = 'v23.0';
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 
 /**
- * Logs a message to the broadcast log collection in MongoDB.
+ * Logs a message to the dedicated broadcast log collection in MongoDB.
  */
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta) {
     try {

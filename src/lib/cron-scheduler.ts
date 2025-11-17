@@ -5,21 +5,24 @@ import { connectToDatabase } from './mongodb';
 import { Kafka, Partitioners } from 'kafkajs';
 import { ObjectId, type Db } from 'mongodb';
 import { getErrorMessage } from './utils';
+import type { BroadcastJob } from './definitions';
 
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS?.split(',') || ['127.0.0.1:9092'];
 const KAFKA_TOPIC = 'broadcasts';
-const MAX_CONTACTS_PER_KAFKA_MESSAGE = 500; // Optimal batch size for a single Kafka message
+const MAX_CONTACTS_PER_KAFKA_MESSAGE = 500;
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
+// Kafka has a default max message size of 1MB. A batch of 500 contacts is well below this.
+// For larger contact schemas, this might need adjustment in both the code and Kafka config.
 
 /**
- * Logs a message to the broadcast log collection.
+ * Logs a message to the dedicated broadcast log collection in MongoDB.
  */
-async function addBroadcastLog(db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR' | 'WARN', message: string, meta = {}) {
+async function addBroadcastLog(db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR' | 'WARN', message: string, meta: object = {}) {
     try {
         if (!db || !broadcastId || !projectId) {
-            console.error(`[CRON-SCHEDULER] Log attempt failed: Missing required IDs.`);
+            console.error(`[CRON-SCHEDULER] Log attempt failed: Missing db, broadcastId, or projectId.`);
             return;
-        }
+        };
         await db.collection('broadcast_logs').insertOne({
             broadcastId: new ObjectId(broadcastId),
             projectId: new ObjectId(projectId),
@@ -38,7 +41,7 @@ async function addBroadcastLog(db: Db, broadcastId: ObjectId, projectId: ObjectI
  */
 async function resetStuckJobs(db: Db) {
     const timeout = new Date(Date.now() - STUCK_JOB_TIMEOUT_MINUTES * 60 * 1000);
-    const result = await db.collection('broadcasts').updateMany(
+    const result = await db.collection<BroadcastJob>('broadcasts').updateMany(
         { status: 'PROCESSING', startedAt: { $lt: timeout } },
         { $set: { status: 'QUEUED' }, $unset: { startedAt: '' } }
     );
@@ -48,61 +51,77 @@ async function resetStuckJobs(db: Db) {
 }
 
 /**
- * Sanitizes a MongoDB document for safe Kafka serialization.
+ * Creates a plain, JSON-serializable object from a MongoDB document, converting ObjectIds and Dates.
  */
 function sanitizeForKafka(job: any): object | null {
     if (!job) return null;
-    const sanitizedJob = JSON.parse(JSON.stringify(job));
-    return sanitizedJob;
+    try {
+        // This creates a deep copy and converts complex types to their string/ISO representations.
+        return JSON.parse(JSON.stringify(job));
+    } catch (error) {
+        console.error("Failed to serialize job details for Kafka", error);
+        return null;
+    }
 }
 
 /**
- * Fetches pending contacts for a job and pushes them in batches to Kafka.
+ * Fetches all pending contacts for a job and pushes them in batches to Kafka.
  */
-async function processSingleJob(db: Db, job: any) {
-    const broadcastId = new ObjectId(job._id);
-    const projectId = new ObjectId(job.projectId);
+async function processSingleJob(db: Db, job: WithId<BroadcastJob>) {
+    const broadcastId = job._id;
+    const projectId = job.projectId;
 
     await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[SCHEDULER] Picked up job ${broadcastId} for processing.`);
 
-    const contactsCursor = db.collection('broadcast_contacts').find({ 
+    const contacts = await db.collection('broadcast_contacts').find({ 
         broadcastId: broadcastId, 
         status: 'PENDING' 
-    }).project({ _id: 1, phone: 1, variables: 1 });
+    }).project({ _id: 1, phone: 1, variables: 1 }).toArray();
+
+    if (contacts.length === 0) {
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[SCHEDULER] Job has no pending contacts. Workers will finalize completion status.`);
+        return;
+    }
 
     const kafka = new Kafka({
-        clientId: `broadcast-producer-${broadcastId}`,
+        clientId: `broadcast-producer-${broadcastId.toString()}`,
         brokers: KAFKA_BROKERS,
-        connectionTimeout: 5000,
-        requestTimeout: 30000,
     });
     const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
     
     const sanitizedJobDetails = sanitizeForKafka(job);
-    if (!sanitizedJobDetails) throw new Error("Failed to serialize job details for Kafka.");
+    if (!sanitizedJobDetails) {
+        throw new Error("Failed to serialize job details for Kafka.");
+    }
 
-    let totalQueued = 0;
     try {
         await producer.connect();
-        let batch = [];
-        for await (const contact of contactsCursor) {
-            batch.push(contact);
-            if (batch.length >= MAX_CONTACTS_PER_KAFKA_MESSAGE) {
-                await producer.send({ topic: KAFKA_TOPIC, messages: [{ value: JSON.stringify({ jobDetails: sanitizedJobDetails, contacts: batch }) }] });
-                totalQueued += batch.length;
-                batch = [];
-            }
-        }
-        if (batch.length > 0) {
-            await producer.send({ topic: KAFKA_TOPIC, messages: [{ value: JSON.stringify({ jobDetails: sanitizedJobDetails, contacts: batch }) }] });
+        let totalQueued = 0;
+        const messages = [];
+
+        for (let i = 0; i < contacts.length; i += MAX_CONTACTS_PER_KAFKA_MESSAGE) {
+            const batch = contacts.slice(i, i + MAX_CONTACTS_PER_KAFKA_MESSAGE);
+            messages.push({ 
+                value: JSON.stringify({ 
+                    jobDetails: sanitizedJobDetails, 
+                    contacts: batch 
+                }) 
+            });
             totalQueued += batch.length;
         }
 
-        const msg = `[SCHEDULER] Queued ${totalQueued} contacts for job ${broadcastId} to topic '${KAFKA_TOPIC}'.`;
+        if (messages.length > 0) {
+            await producer.send({
+                topic: KAFKA_TOPIC,
+                messages: messages,
+            });
+        }
+        
+        const msg = `[SCHEDULER] Queued ${totalQueued}/${contacts.length} contacts for job ${broadcastId} to topic '${KAFKA_TOPIC}'.`;
         console.log(msg);
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
 
-    } catch (err: any) {
+    } catch (err) {
         const errorMsg = getErrorMessage(err);
         console.error(`[CRON-SCHEDULER] Job ${broadcastId} failed to queue:`, errorMsg);
         await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Scheduler failed to queue messages: ${errorMsg}`);
@@ -116,7 +135,7 @@ async function processSingleJob(db: Db, job: any) {
 }
 
 /**
- * Main function for the cron job. Finds and processes one queued broadcast job.
+ * Main function for the cron job. Finds and processes ONE queued broadcast job.
  */
 export async function processBroadcastJob() {
     console.log(`[CRON-SCHEDULER] Starting broadcast processing job run at ${new Date().toISOString()}`);
@@ -132,21 +151,27 @@ export async function processBroadcastJob() {
 
     try { await resetStuckJobs(db); } catch (err) { console.error('[CRON-SCHEDULER] Error resetting jobs:', getErrorMessage(err)); }
 
-    const findResult = await db.collection('broadcasts').findOneAndUpdate(
-        { status: 'QUEUED' },
-        { $set: { status: 'PROCESSING', startedAt: new Date() } },
-        { returnDocument: 'after', sort: { createdAt: 1 } }
-    );
+    let job: WithId<BroadcastJob> | null = null;
+    try {
+        const findResult = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
+            { status: 'QUEUED' },
+            { $set: { status: 'PROCESSING', startedAt: new Date() } },
+            { returnDocument: 'after', sort: { createdAt: 1 } }
+        );
+        job = findResult;
+    } catch (e) {
+        console.error(`[CRON-SCHEDULER] Error finding and updating job: ${getErrorMessage(e)}`);
+        return { error: `DB Error: ${getErrorMessage(e)}` };
+    }
     
-    const job = findResult;
     if (!job) {
         console.log('[CRON-SCHEDULER] No queued broadcast jobs found.');
         return { message: 'No queued jobs found.' };
     }
     
-    // Process the job in the background without awaiting
+    // Don't await this. Let it run in the background. The API route will return immediately.
     processSingleJob(db, job).catch(err => {
-        console.error(`[CRON-SCHEDULER] Unhandled error in background job processing for ${job._id}:`, getErrorMessage(err));
+        console.error(`[CRON-SCHEDULER] Unhandled error in background job processing for ${job?._id}:`, getErrorMessage(err));
     });
 
     return { message: `Job ${job._id} picked up for processing.` };
