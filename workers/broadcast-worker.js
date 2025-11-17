@@ -2,14 +2,12 @@
 require('dotenv').config();
 const path = require('path');
 
-// FIXED: use correct absolute path for shared libs
 const { connectToDatabase } = require('../src/lib/mongodb.js');
 const { getErrorMessage } = require('../src/lib/utils.js');
 
 const { Kafka } = require('kafkajs');
 const undici = require('undici');
 
-// Lazy import of p-throttle
 let pThrottle;
 const importPThrottle = async () => {
   if (!pThrottle) {
@@ -18,19 +16,17 @@ const importPThrottle = async () => {
   return pThrottle;
 };
 
-// Validate Kafka brokers
 if (!process.env.KAFKA_BROKERS) {
-  console.error('[KAFKA-WORKER] FATAL: KAFKA_BROKERS is not set.');
+  console.error('[KAFKA-WORKER] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.');
   process.exit(1);
 }
 
 const API_VERSION = 'v23.0';
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 
-// Helper: save logs to MongoDB
 const addBroadcastLog = async (db, broadcastId, projectId, level, message, meta) => {
   try {
-    if (!db) return;
+    if (!db || !broadcastId || !projectId) return;
     await db.collection('broadcast_logs').insertOne({
       broadcastId,
       projectId,
@@ -40,14 +36,11 @@ const addBroadcastLog = async (db, broadcastId, projectId, level, message, meta)
       timestamp: new Date(),
     });
   } catch (e) {
-    console.error("Failed to write broadcast log:", e);
+    console.error("Failed to write broadcast log in worker:", e);
   }
 };
 
 
-// ---------------------------
-// SEND WABA MESSAGE
-// ---------------------------
 async function sendWhatsAppMessage(job, contact) {
   try {
     const {
@@ -160,15 +153,12 @@ async function sendWhatsAppMessage(job, contact) {
   }
 }
 
-// --------------------------------------------
-// MAIN WORKER START FUNCTION
-// --------------------------------------------
 async function startBroadcastWorker(workerId) {
   const pThrottle = await importPThrottle();
   const KAFKA_TOPIC = process.env.KAFKA_TOPIC || 'low-priority-broadcasts';
   const GROUP_ID = `whatsapp-broadcaster-${KAFKA_TOPIC}`;
 
-  console.log(`[WORKER ${workerId}] Starting on topic: ${KAFKA_TOPIC}`);
+  console.log(`[WORKER ${workerId}] Starting on topic: ${KAFKA_TOPIC} at ${new Date().toISOString()}`);
 
   const { db } = await connectToDatabase();
 
@@ -185,9 +175,7 @@ async function startBroadcastWorker(workerId) {
   });
 
   await consumer.connect();
-  await consumer.subscribe({ topic: KAFKA_TOPIC, fromBeginning: false });
-
-  console.log(`[WORKER ${workerId}] Connected to Kafka.`);
+  console.log(`[WORKER ${workerId}] Connected to Kafka brokers on topic "${KAFKA_TOPIC}".`);
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
@@ -202,7 +190,7 @@ async function startBroadcastWorker(workerId) {
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
 
         if (!jobDetails || !jobDetails._id || !Array.isArray(contacts)) {
-          console.error(`[WORKER ${workerId}] Invalid job data.`);
+          console.error(`[WORKER ${workerId}] Invalid job data received. Skipping.`);
           return;
         }
 
@@ -211,11 +199,9 @@ async function startBroadcastWorker(workerId) {
         projectId = new ObjectId(jobDetails.projectId);
         const mps = jobDetails.projectMessagesPerSecond || 80;
 
+        console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Received batch of ${contacts.length} contacts. Throttling at ${mps} MPS.`);
         await addBroadcastLog(
-          db,
-          broadcastId,
-          projectId,
-          'INFO',
+          db, broadcastId, projectId, 'INFO',
           `Worker picked batch of ${contacts.length}. Throttle: ${mps} MPS.`
         );
 
@@ -240,6 +226,7 @@ async function startBroadcastWorker(workerId) {
         for (const r of results) {
           if (r.status !== 'fulfilled') {
             errorCount++;
+            console.error(`[WORKER ${workerId}] [JOB ${broadcastId}] A throttled promise was rejected.`, r.reason);
             continue;
           }
 
@@ -277,15 +264,13 @@ async function startBroadcastWorker(workerId) {
             );
         }
 
+        console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Batch finished. Success: ${successCount}, Failed: ${errorCount}.`);
         await addBroadcastLog(
-          db,
-          broadcastId,
-          projectId,
-          'INFO',
-          `Batch done. Success: ${successCount}, Failed: ${errorCount}.`
+          db, broadcastId, projectId, 'INFO',
+          `Batch finished. Success: ${successCount}, Failed: ${errorCount}.`
         );
       } catch (err) {
-        console.error(`[WORKER ${workerId}] Error:`, err);
+        console.error(`[WORKER ${workerId}] [JOB ${broadcastId}] Critical error processing message:`, { error: err.message, stack: err.stack });
         if(broadcastId && projectId) {
             await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Worker failed processing batch: ${getErrorMessage(err)}`);
         }
