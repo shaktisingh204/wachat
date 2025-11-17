@@ -171,11 +171,14 @@ async function startBroadcastWorker(workerId) {
     groupId: GROUP_ID,
     sessionTimeout: 60000,
     rebalanceTimeout: 90000,
-    heartbeatInterval: 3000
+    heartbeatInterval: 10000,
   });
 
   await consumer.connect();
   console.log(`[WORKER ${workerId}] Connected to Kafka brokers on topic "${KAFKA_TOPIC}".`);
+
+  // Subscribe to the topic
+  await consumer.subscribe({ topic: KAFKA_TOPIC, fromBeginning: true });
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
