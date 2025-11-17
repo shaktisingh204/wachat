@@ -109,7 +109,7 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
             };
             const messageString = JSON.stringify(messagePayload);
             
-            console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Sending batch ${i/KAFKA_MESSAGE_BATCH_SIZE + 1} with ${batch.length} contacts.`);
+            console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Sending batch ${Math.floor(i / KAFKA_MESSAGE_BATCH_SIZE) + 1} with ${batch.length} contacts.`);
             try {
                 await producer.send({
                     topic: KAFKA_TOPIC,
@@ -117,7 +117,7 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
                 });
                 messagesSentToKafka++;
             } catch (kafkaError: any) {
-                const errorMsg = `Failed to send batch ${i/KAFKA_MESSAGE_BATCH_SIZE + 1} to Kafka: ${getErrorMessage(kafkaError)}`;
+                const errorMsg = `Failed to send batch ${Math.floor(i / KAFKA_MESSAGE_BATCH_SIZE) + 1} to Kafka: ${getErrorMessage(kafkaError)}`;
                 console.error(`[CRON-SCHEDULER] ${errorMsg}`);
                 sendErrors.push(errorMsg);
                 await addBroadcastLog(db, broadcastId, projectId, 'ERROR', errorMsg, { stack: kafkaError.stack });
@@ -163,12 +163,13 @@ export async function processBroadcastJob() {
         console.error("[CRON-SCHEDULER] Error during maintenance tasks:", maintenanceError);
     }
 
-    // Find the next job to process without a while(true) loop
-    const job = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
+    const jobResult = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
         { status: 'QUEUED' },
         { $set: { status: 'PROCESSING', startedAt: new Date() } },
         { returnDocument: 'after', sort: { createdAt: 1 } }
     );
+
+    const job = jobResult;
 
     if (!job) {
         const msg = "No queued broadcast jobs found to process.";
@@ -185,7 +186,6 @@ export async function processBroadcastJob() {
         console.error(`[CRON-SCHEDULER] ${baseErrorMessage}`, { stack: error.stack });
         
         await addBroadcastLog(db, job._id, job.projectId, 'ERROR', baseErrorMessage, { stack: error.stack });
-        // Revert status to QUEUED so it can be retried
         await db.collection('broadcasts').updateOne(
             { _id: job._id, status: 'PROCESSING' },
             { $set: { status: 'QUEUED', lastError: baseErrorMessage }, $unset: { startedAt: '' } }
