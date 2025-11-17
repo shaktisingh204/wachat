@@ -1,4 +1,3 @@
-
 'use strict';
 
 require('dotenv').config();
@@ -8,11 +7,6 @@ const { Kafka } = require('kafkajs');
 const undici = require('undici');
 const { ObjectId } = require('mongodb');
 
-if (!process.env.KAFKA_BROKERS) {
-  console.error('[WORKER] FATAL: KAFKA_BROKERS environment variable is not set.');
-  process.exit(1);
-}
-
 let pThrottle;
 const importPThrottle = async () => {
   if (!pThrottle) {
@@ -21,25 +15,45 @@ const importPThrottle = async () => {
   return pThrottle;
 };
 
+if (!process.env.KAFKA_BROKERS) {
+  console.error('[WORKER] FATAL: KAFKA_BROKERS environment variable is not set.');
+  process.exit(1);
+}
+
 const API_VERSION = 'v23.0';
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 
+/**
+ * Logs a message to the dedicated broadcast log collection in MongoDB.
+ * @param {import('mongodb').Db} db - The MongoDB database instance.
+ * @param {ObjectId|string} broadcastId - The ID of the broadcast job.
+ * @param {ObjectId|string} projectId - The ID of the project.
+ * @param {'INFO' | 'ERROR' | 'WARN'} level - The log level.
+ * @param {string} message - The log message.
+ * @param {object} [meta={}] - Additional metadata to log.
+ */
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
-  try {
-    if (!db || !broadcastId || !projectId) return;
-    await db.collection('broadcast_logs').insertOne({
-      broadcastId: new ObjectId(String(broadcastId)),
-      projectId: new ObjectId(String(projectId)),
-      level,
-      message,
-      meta,
-      timestamp: new Date(),
-    });
-  } catch (e) {
-    console.error(`[WORKER] Failed to write log for job ${String(broadcastId)}:`, e);
-  }
+    try {
+        if (!db || !broadcastId || !projectId) return;
+        await db.collection('broadcast_logs').insertOne({
+            broadcastId: new ObjectId(String(broadcastId)),
+            projectId: new ObjectId(String(projectId)),
+            level,
+            message,
+            meta,
+            timestamp: new Date(),
+        });
+    } catch (e) {
+        console.error(`[WORKER] Failed to write log for job ${String(broadcastId)}:`, e);
+    }
 }
 
+/**
+ * Sends a single WhatsApp message using the Meta Graph API.
+ * @param {object} job - The sanitized broadcast job details.
+ * @param {object} contact - The contact object.
+ * @returns {Promise<{success: boolean, messageId?: string, error?: string}>} - The result of the send operation.
+ */
 async function sendWhatsAppMessage(job, contact) {
   try {
     const {
@@ -106,12 +120,13 @@ async function sendWhatsAppMessage(job, contact) {
         method: 'POST',
         headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(messageData),
-        throwOnError: false,
+        throwOnError: false, // Prevent undici from throwing on 4xx/5xx
         bodyTimeout: 20000,
       }
     );
-
+    
     const responseBody = await response.body.json();
+
     if (response.statusCode < 200 || response.statusCode >= 300) {
       const errorDetail = responseBody?.error ? JSON.stringify(responseBody.error) : JSON.stringify(responseBody);
       return { success: false, error: `Meta API error ${response.statusCode}: ${errorDetail}` };
@@ -126,9 +141,14 @@ async function sendWhatsAppMessage(job, contact) {
   }
 }
 
+/**
+ * Main worker function that connects to Kafka and processes message batches.
+ * @param {string} workerId - A unique identifier for this worker instance.
+ * @param {string} kafkaTopic - The Kafka topic to subscribe to.
+ */
 async function startBroadcastWorker(workerId, kafkaTopic) {
   const pThrottle = await importPThrottle();
-  const GROUP_ID = `whatsapp-broadcaster-v3`;
+  const GROUP_ID = `sabnode-broadcaster-v4`;
   console.log(`[WORKER ${workerId}] Starting | Topic: ${kafkaTopic} | Group: ${GROUP_ID}`);
 
   const { db } = await connectToDatabase();
@@ -153,16 +173,12 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
 
     await consumer.run({
       eachMessage: async ({ topic, partition, message, heartbeat }) => {
-        const pausable = pause();
-        if (pausable) pausable.pause();
-
         let parsedMessage;
         try {
           if (!message.value) return;
           parsedMessage = JSON.parse(message.value.toString());
         } catch (e) {
           console.error(`[WORKER ${workerId}] Failed to JSON.parse message:`, e);
-          if (pausable) pausable.resume();
           return;
         }
 
@@ -179,7 +195,7 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
             const mps = Number(jobDetails.messagesPerSecond) || 80;
             const throttle = pThrottle({ limit: mps, interval: 1000 });
 
-            await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Started batch of ${contacts.length}. Throttle: ${mps} MPS.`);
+            await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Started processing a batch of ${contacts.length} contacts. Throttle: ${mps} MPS.`);
 
             const throttledSend = throttle(async contact => {
               await heartbeat();
@@ -217,6 +233,7 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
 
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Finished batch. Success: ${batchSuccessCount}, Failed: ${batchErrorCount}.`);
             
+            // Final check to mark job as 'Completed'
             if (updatedJob && (updatedJob.successCount + updatedJob.errorCount) >= updatedJob.contactCount) {
                 await db.collection('broadcasts').updateOne(
                     { _id: broadcastId, status: 'PROCESSING' },
@@ -228,8 +245,6 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
             const errorMsg = getErrorMessage(err);
             console.error(`[WORKER ${workerId}] CRITICAL ERROR processing Kafka message for job ${broadcastId}:`, errorMsg);
             await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `[WORKER ${workerId}] Critical error: ${errorMsg}`);
-        } finally {
-            if (pausable) pausable.resume();
         }
       }
     });
