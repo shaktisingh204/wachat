@@ -2,7 +2,7 @@
 require('dotenv').config();
 const { connectToDatabase } = require('../src/lib/mongodb.js');
 const { getErrorMessage } = require('../src/lib/utils.js');
-const { Kafka } = require('kafkajs');
+const { Kafka, Partitioners } = require('kafkajs');
 const undici = require('undici');
 const { ObjectId } = require('mongodb');
 
@@ -116,10 +116,10 @@ async function sendWhatsAppMessage(job, contact) {
       { method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) }
     );
 
-    const responseBody = await response.body.json();
-    if (response.statusCode < 200 || response.statusCode >= 300) throw new Error(`Meta API error ${response.statusCode}: ${JSON.stringify(responseBody?.error || responseBody)}`);
+    const responseData = await response.body.json();
+    if (response.statusCode < 200 || response.statusCode >= 300) throw new Error(`Meta API error ${response.statusCode}: ${JSON.stringify(responseData?.error || responseData)}`);
     
-    const messageId = responseBody?.messages?.[0]?.id;
+    const messageId = responseData?.messages?.[0]?.id;
     if (!messageId) return { success: false, error: "No message ID returned from Meta." };
 
     return { success: true, messageId };
