@@ -11,6 +11,7 @@ const KAFKA_BROKERS = process.env.KAFKA_BROKERS?.split(',') || ['127.0.0.1:9092'
 const KAFKA_TOPIC = 'broadcasts';
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
 const LOG_PREFIX = '[CRON-SCHEDULER]';
+const MAX_CONTACTS_PER_KAFKA_MESSAGE = 3000;
 
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
     try {
@@ -66,7 +67,6 @@ async function processBroadcastJob() {
         
         // **DEFINITIVE FIX:** The document is in the 'value' property.
         jobDoc = result.value;
-const MAX_CONTACTS_PER_KAFKA_MESSAGE = jobDoc.messagesPerSecond;
 
     } catch (dbError) {
         console.error(`${LOG_PREFIX} findOneAndUpdate failed:`, getErrorMessage(dbError));
