@@ -13,7 +13,7 @@ import { getErrorMessage } from './utils';
 const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
 const LOW_PRIORITY_TOPIC = 'low-priority-broadcasts';
 const HIGH_PRIORITY_TOPIC = 'high-priority-broadcasts';
-const KAFKA_MESSAGE_BATCH_SIZE = 5000;
+const KAFKA_MESSAGE_BATCH_SIZE = 200;
 const ONE_HUNDRED_MEGABYTES = 100 * 1024 * 1024;
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
 
