@@ -8,22 +8,24 @@ import { Kafka, Partitioners } from 'kafkajs';
 import { Db, ObjectId } from 'mongodb';
 import type { BroadcastJob as BroadcastJobType, WithId } from './definitions';
 import { getErrorMessage } from './utils';
+import PQueue from 'p-queue';
 
 const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
 const LOW_PRIORITY_TOPIC = 'low-priority-broadcasts';
 const HIGH_PRIORITY_TOPIC = 'high-priority-broadcasts';
-const KAFKA_MESSAGE_BATCH_SIZE = 1000; // Increase batch size for high speed
-const ONE_HUNDRED_MEGABYTES = 100 * 1024 * 1024;
+const KAFKA_BATCH_SIZE = 500; // contacts per Kafka message
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
+const DEFAULT_SPEED = 80; // messages per second
 
-const addBroadcastLog = async (
+// Add log to MongoDB
+async function addBroadcastLog(
   db: Db,
   broadcastId: ObjectId,
   projectId: ObjectId,
   level: 'INFO' | 'ERROR' | 'WARN',
   message: string,
   meta?: Record<string, any>
-) => {
+) {
   try {
     if (!db || !broadcastId || !projectId) return;
     await db.collection('broadcast_logs').insertOne({
@@ -37,8 +39,9 @@ const addBroadcastLog = async (
   } catch (e) {
     console.error("Failed to write broadcast log:", e);
   }
-};
+}
 
+// Reset stuck jobs
 async function resetStuckJobs(db: Db) {
   const tenMinutesAgo = new Date(Date.now() - STUCK_JOB_TIMEOUT_MINUTES * 60 * 1000);
   const result = await db.collection('broadcasts').updateMany(
@@ -50,11 +53,12 @@ async function resetStuckJobs(db: Db) {
   }
 }
 
+// Mark completed jobs
 async function markCompletedJobs(db: Db) {
   const result = await db.collection('broadcasts').updateMany(
     {
       status: 'PROCESSING',
-      $expr: { $gte: [{ $add: ["$successCount", "$errorCount"] }, "$contactCount"] },
+      $expr: { $gte: [{ $add: ["$successCount", "$errorCount"] }, "$contactCount"] }
     },
     { $set: { status: 'Completed', completedAt: new Date() } }
   );
@@ -63,18 +67,17 @@ async function markCompletedJobs(db: Db) {
   }
 }
 
-async function processSingleJob(db: Db, job: WithId<BroadcastJobType>, speedLimit?: number) {
+// Process single broadcast job
+async function processSingleJob(db: Db, job: WithId<BroadcastJobType>) {
   const broadcastId = job._id;
   const projectId = job.projectId;
+  const speedLimit = job.speedLimit || DEFAULT_SPEED;
 
-  await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Cron job picked up broadcast ${broadcastId} and set status to PROCESSING.`);
+  await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job started with concurrency ${speedLimit}.`);
 
-  const contacts = await db.collection('broadcast_contacts').find({
-    broadcastId: broadcastId,
-    status: 'PENDING'
-  }).toArray();
+  const contacts = await db.collection('broadcast_contacts').find({ broadcastId, status: 'PENDING' }).toArray();
 
-  if (contacts.length === 0) {
+  if (!contacts.length) {
     await db.collection('broadcasts').updateOne(
       { _id: broadcastId },
       { $set: { status: 'Completed', completedAt: new Date() } }
@@ -84,101 +87,67 @@ async function processSingleJob(db: Db, job: WithId<BroadcastJobType>, speedLimi
   }
 
   const KAFKA_TOPIC = contacts.length > 5000 ? HIGH_PRIORITY_TOPIC : LOW_PRIORITY_TOPIC;
-  await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Found ${contacts.length} contacts. Routing to topic: ${KAFKA_TOPIC}.`);
-  console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Found ${contacts.length} contacts. Routing to topic: ${KAFKA_TOPIC}.`);
-
   const kafka = new Kafka({
     clientId: `broadcast-producer-${broadcastId}`,
     brokers: KAFKA_BROKERS,
     connectionTimeout: 5000,
     requestTimeout: 30000,
   });
-
   const producer = kafka.producer({
-    createPartitioner: Partitioners.DefaultPartitioner,
-    maxRequestSize: ONE_HUNDRED_MEGABYTES,
+    createPartitioner: Partitioners.DefaultPartitioner
   });
 
-  try {
-    await producer.connect();
-    console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Kafka producer connected.`);
+  await producer.connect();
+  console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Kafka producer connected.`);
 
-    let messagesSentToKafka = 0;
-    const sendErrors: string[] = [];
+  let successCount = 0;
+  let errorCount = 0;
 
-    const startTime = Date.now();
-    let sentInThisSecond = 0;
+  const queue = new PQueue({ concurrency: speedLimit });
 
-    for (let i = 0; i < contacts.length; i += KAFKA_MESSAGE_BATCH_SIZE) {
-      const batch = contacts.slice(i, i + KAFKA_MESSAGE_BATCH_SIZE);
-      const messagePayload = {
-        jobDetails: JSON.parse(JSON.stringify(job)),
-        contacts: JSON.parse(JSON.stringify(batch)),
-      };
-      const messageString = JSON.stringify(messagePayload);
+  // Batch contacts for Kafka
+  for (let i = 0; i < contacts.length; i += KAFKA_BATCH_SIZE) {
+    const batch = contacts.slice(i, i + KAFKA_BATCH_SIZE);
 
-      // Throttle speed if speedLimit is set
-      if (speedLimit) {
-        while (sentInThisSecond + batch.length > speedLimit) {
-          await new Promise(r => setTimeout(r, 100)); // sleep 100ms
-          const elapsed = (Date.now() - startTime) / 1000;
-          sentInThisSecond = Math.floor((i / KAFKA_MESSAGE_BATCH_SIZE) * KAFKA_MESSAGE_BATCH_SIZE / elapsed);
-        }
-      }
-
+    queue.add(async () => {
       try {
         await producer.send({
           topic: KAFKA_TOPIC,
-          messages: [{ value: messageString }]
+          messages: [{ value: JSON.stringify({ job, contacts: batch }) }]
         });
 
-        // Update MongoDB successCount
-        await db.collection('broadcasts').updateOne(
-          { _id: broadcastId },
-          { $inc: { successCount: batch.length } }
+        // Update counters
+        successCount += batch.length;
+
+        // Mark contacts as SENT
+        await db.collection('broadcast_contacts').updateMany(
+          { _id: { $in: batch.map(c => c._id) } },
+          { $set: { status: 'SENT' } }
         );
-
-        messagesSentToKafka++;
-        sentInThisSecond += batch.length;
-
-      } catch (kafkaError: any) {
-        const errorMsg = `Failed to send batch ${Math.floor(i / KAFKA_MESSAGE_BATCH_SIZE) + 1} to Kafka: ${getErrorMessage(kafkaError)}`;
-        console.error(`[CRON-SCHEDULER] ${errorMsg}`);
-        sendErrors.push(errorMsg);
-        await addBroadcastLog(db, broadcastId, projectId, 'ERROR', errorMsg, { stack: kafkaError.stack });
-
-        await db.collection('broadcasts').updateOne(
-          { _id: broadcastId },
-          { $inc: { errorCount: batch.length } }
-        );
+      } catch (err) {
+        const errMsg = getErrorMessage(err);
+        errorCount += batch.length;
+        await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `Failed to send batch: ${errMsg}`, { stack: err.stack });
       }
-    }
-
-    // Mark completed if all contacts processed
-    const jobDoc = await db.collection('broadcasts').findOne({ _id: broadcastId });
-    if ((jobDoc.successCount || 0) + (jobDoc.errorCount || 0) >= jobDoc.contactCount) {
-      await db.collection('broadcasts').updateOne(
-        { _id: broadcastId },
-        { $set: { status: 'Completed', completedAt: new Date() } }
-      );
-    }
-
-    await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Queued ${contacts.length} contacts to Kafka in ${messagesSentToKafka} messages.`);
-    console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Pushed ${contacts.length} contacts to Kafka in ${messagesSentToKafka} message(s).`);
-
-    if (sendErrors.length > 0) {
-      throw new Error(`Encountered ${sendErrors.length} errors while sending to Kafka.`);
-    }
-
-    return { success: true, message: `Successfully queued ${contacts.length} contacts for job ${broadcastId}.` };
-
-  } finally {
-    await producer.disconnect();
-    console.log(`[CRON-SCHEDULER] Job ${broadcastId}: Kafka producer disconnected.`);
+    });
   }
+
+  await queue.onIdle(); // wait for all tasks
+  await producer.disconnect();
+
+  // Update job status
+  await db.collection('broadcasts').updateOne(
+    { _id: broadcastId },
+    { $set: { successCount, errorCount, status: successCount + errorCount >= contacts.length ? 'PROCESSING' : 'PROCESSING' } }
+  );
+
+  await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job completed: Sent ${successCount}, Failed ${errorCount} contacts.`);
+
+  return { success: true, successCount, errorCount };
 }
 
-export async function processBroadcastJob(speedLimit?: number) {
+// Main broadcast job processor
+export async function processBroadcastJob() {
   console.log(`[CRON-SCHEDULER] Starting broadcast processing job run at ${new Date().toISOString()}`);
 
   let db: Db;
@@ -204,16 +173,14 @@ export async function processBroadcastJob(speedLimit?: number) {
   );
 
   const job = jobResult.value;
-
   if (!job) {
-    const msg = "No queued broadcast jobs found to process.";
-    console.log(`[CRON-SCHEDULER] ${msg}`);
-    return { message: msg, error: null };
+    console.log(`[CRON-SCHEDULER] No queued broadcast jobs found to process.`);
+    return { message: "No queued broadcast jobs found.", error: null };
   }
 
   try {
-    const result = await processSingleJob(db, job, speedLimit);
-    console.log(`[CRON-SCHEDULER] Finished job ${job._id}: ${result.message}`);
+    const result = await processSingleJob(db, job);
+    console.log(`[CRON-SCHEDULER] Finished job ${job._id}: Sent ${result.successCount}, Failed ${result.errorCount}`);
     return result;
   } catch (error: any) {
     const baseErrorMessage = `Broadcast processing failed for job ${job._id}: ${getErrorMessage(error)}`;
