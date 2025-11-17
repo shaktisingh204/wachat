@@ -8,7 +8,7 @@ const { ObjectId } = require('mongodb');
 const { getErrorMessage } = require('../lib/utils.js');
 
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS?.split(',') || ['127.0.0.1:9092'];
-const KAFKA_TOPIC = 'broadcasts';
+const KAFKA_TOPIC = 'broadcasts'; // Use a single, unified topic
 const MAX_KAFKA_MESSAGE_SIZE = 100 * 1024 * 1024; // 100MB
 const MAX_CONTACTS_PER_KAFKA_MESSAGE = 500;
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
@@ -102,7 +102,7 @@ async function processSingleJob(db, job) {
             messages: messages,
         });
 
-        const msg = `[SCHEDULER] Instantly queued ${totalQueued}/${contacts.length} contacts in ${messages.length} batches for job ${broadcastId}.`;
+        const msg = `[SCHEDULER] Queued ${totalQueued}/${contacts.length} contacts for job ${broadcastId} to topic '${KAFKA_TOPIC}'.`;
         console.log(msg);
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', msg);
 
@@ -139,7 +139,6 @@ async function processBroadcastJob() {
         { returnDocument: 'after', sort: { createdAt: 1 } }
     );
     
-    // The actual job document is in the 'value' property.
     const job = findResult.value;
 
     if (!job) {
