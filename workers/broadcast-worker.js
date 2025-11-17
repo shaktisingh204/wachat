@@ -22,6 +22,9 @@ if (!process.env.KAFKA_BROKERS) {
 const API_VERSION = 'v23.0';
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 
+/**
+ * Logs a message to the broadcast log collection in MongoDB.
+ */
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta) {
     try {
         if (!db || !broadcastId || !projectId) return;
@@ -38,6 +41,9 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta)
     }
 }
 
+/**
+ * Sends a single WhatsApp message using the Meta Graph API.
+ */
 async function sendWhatsAppMessage(job, contact) {
   try {
     const {
@@ -105,15 +111,15 @@ async function sendWhatsAppMessage(job, contact) {
       }
     };
     
-    // Using undici for performance
     const response = await undici.request(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
       { method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) }
     );
 
-    const responseData = await response.body.json();
-    if (response.statusCode < 200 || response.statusCode >= 300) throw new Error(`Meta API error ${response.statusCode}: ${JSON.stringify(responseData?.error || responseData)}`);
-    const messageId = responseData?.messages?.[0]?.id;
+    const responseBody = await response.body.json();
+    if (response.statusCode < 200 || response.statusCode >= 300) throw new Error(`Meta API error ${response.statusCode}: ${JSON.stringify(responseBody?.error || responseBody)}`);
+    
+    const messageId = responseBody?.messages?.[0]?.id;
     if (!messageId) return { success: false, error: "No message ID returned from Meta." };
 
     return { success: true, messageId };
@@ -122,6 +128,9 @@ async function sendWhatsAppMessage(job, contact) {
   }
 }
 
+/**
+ * Main worker function that connects to Kafka and processes message batches.
+ */
 async function startBroadcastWorker(workerId, kafkaTopic) {
   const pThrottle = await importPThrottle();
   const GROUP_ID = `whatsapp-broadcaster-${kafkaTopic}`;
@@ -145,10 +154,10 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
   await consumer.connect();
   await consumer.subscribe({ topic: kafkaTopic, fromBeginning: false });
 
-  console.log(`[WORKER ${workerId}] Connected to Kafka.`);
+  console.log(`[WORKER ${workerId}] Connected to Kafka and subscribed to topic '${kafkaTopic}'.`);
 
   await consumer.run({
-    eachMessage: async ({ topic, partition, message, heartbeat }) => {
+    eachMessage: async ({ message, heartbeat }) => {
       try {
         if (!message.value) return;
 
@@ -206,7 +215,7 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
           if (success) batchSuccessCount++; else batchErrorCount++;
         }
 
-        if (bulkOps.length) {
+        if (bulkOps.length > 0) {
           await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
         }
 
@@ -218,7 +227,7 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
         
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', `[WORKER ${workerId}] Finished batch. Success: ${batchSuccessCount}, Failed: ${batchErrorCount}.`);
         
-        const finalJobState = updatedJob.value;
+        const finalJobState = updatedJob;
         if (finalJobState && (finalJobState.successCount + finalJobState.errorCount) >= finalJobState.contactCount) {
             await db.collection('broadcasts').updateOne(
                 { _id: broadcastId, status: 'PROCESSING' },
