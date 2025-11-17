@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { processBroadcastJob } from '@/lib/cron-scheduler';
+const { processBroadcastJob } = require('@/lib/cron-scheduler.js');
 
 export const dynamic = 'force-dynamic';
 
