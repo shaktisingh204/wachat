@@ -191,8 +191,6 @@ async function startBroadcastWorker(workerId) {
 
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
         
-        console.log(`[WORKER ${workerId}] Received batch with ${contacts.length} contacts for job ${jobDetails._id}`);
-
         if (!jobDetails || !jobDetails._id || !Array.isArray(contacts)) {
           console.error(`[WORKER ${workerId}] Invalid job data received. Skipping.`);
           return;
@@ -201,7 +199,9 @@ async function startBroadcastWorker(workerId) {
         const { ObjectId } = require('mongodb');
         broadcastId = new ObjectId(jobDetails._id);
         projectId = new ObjectId(jobDetails.projectId);
-        const mps = jobDetails.projectMessagesPerSecond || 80;
+        const mps = jobDetails.messagesPerSecond || 80;
+
+        console.log(`[WORKER ${workerId}] Processing ${contacts.length} contacts for broadcast ${broadcastId}`);
         
         await addBroadcastLog(
           db, broadcastId, projectId, 'INFO',
@@ -256,16 +256,28 @@ async function startBroadcastWorker(workerId) {
         }
 
         if (bulkOps.length) {
-          await db
-            .collection('broadcast_contacts')
-            .bulkWrite(bulkOps, { ordered: false });
+          await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
         }
 
+        let updatedJob;
         if (successCount > 0 || errorCount > 0) {
+            const updateResult = await db.collection('broadcasts').findOneAndUpdate(
+                { _id: broadcastId },
+                { $inc: { successCount, errorCount } },
+                { returnDocument: 'after' }
+            );
+            updatedJob = updateResult;
+        } else {
+            updatedJob = await db.collection('broadcasts').findOne({_id: broadcastId});
+        }
+        
+        if (updatedJob && (updatedJob.successCount + updatedJob.errorCount) >= updatedJob.contactCount) {
             await db.collection('broadcasts').updateOne(
                 { _id: broadcastId },
-                { $inc: { successCount, errorCount } }
+                { $set: { status: 'Completed', completedAt: new Date() } }
             );
+            console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Final batch processed. Marked job as Completed.`);
+            await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job marked as Completed.`);
         }
 
         console.log(`[WORKER ${workerId}] [JOB ${broadcastId}] Batch finished. Success: ${successCount}, Failed: ${errorCount}.`);
