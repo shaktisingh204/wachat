@@ -274,12 +274,16 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
   if (!item.startedAt) {
     return <span>-</span>;
   }
+  
+  const limit = item.projectMessagesPerSecond !== undefined && item.projectMessagesPerSecond !== null
+        ? `${item.projectMessagesPerSecond} msg/s`
+        : 'N/A';
 
   return (
     <div className="font-mono text-xs text-muted-foreground space-y-1" title="My App Sending Speed / Meta Accepting Speed / Limit">
       <div>App Speed: {sendingSpeed} msg/s</div>
       <div>Meta Speed: {acceptingSpeed} msg/s</div>
-      <div>Limit: {item.projectMessagesPerSecond ?? 'N/A'} msg/s</div>
+      <div>Limit: {limit}</div>
     </div>
   );
 }
