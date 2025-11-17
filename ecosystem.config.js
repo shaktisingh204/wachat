@@ -17,6 +17,8 @@ module.exports = {
       args: 'low-priority-broadcasts',
       instances: 1,
       exec_mode: 'cluster',
+      restart_delay: 5000, // Add 5 second delay before restarting
+      max_restarts: 5,      // Max 5 restarts within a time period
       env: {
         NODE_ENV: 'production',
         KAFKA_TOPIC: 'low-priority-broadcasts',
@@ -28,6 +30,8 @@ module.exports = {
       args: 'high-priority-broadcasts',
       instances: 2,
       exec_mode: 'cluster',
+      restart_delay: 5000, // Add 5 second delay before restarting
+      max_restarts: 5,      // Max 5 restarts within a time period
       env: {
         NODE_ENV: 'production',
         KAFKA_TOPIC: 'high-priority-broadcasts',
