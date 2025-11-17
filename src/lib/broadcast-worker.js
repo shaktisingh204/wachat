@@ -162,7 +162,7 @@ async function sendWhatsAppMessage(job, contact) {
 // --------------------------------------------
 async function startBroadcastWorker(workerId) {
   const pThrottle = await importPThrottle();
-  const KAFKA_TOPIC = process.env.KAFKA_TOPIC || 'low-priority-broadcasts';
+  const KAFKA_TOPIC = process.env.KAFKA_TOPIC || 'broadcasts';
   const GROUP_ID = `whatsapp-broadcaster-${KAFKA_TOPIC}`;
 
   console.log(`[WORKER ${workerId}] Starting on topic: ${KAFKA_TOPIC}`);

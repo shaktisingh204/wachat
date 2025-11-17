@@ -8,7 +8,7 @@ const { ObjectId } = require('mongodb');
 const { getErrorMessage } = require('../lib/utils.js');
 
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS?.split(',') || ['127.0.0.1:9092'];
-const LOW_PRIORITY_TOPIC = 'low-priority-broadcasts';
+const LOW_PRIORITY_TOPIC = 'broadcasts';
 const HIGH_PRIORITY_TOPIC = 'high-priority-broadcasts';
 const MAX_BATCH_CONTACTS = 500; // max contacts per Kafka message
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
