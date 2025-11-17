@@ -38,15 +38,19 @@ async function sendWhatsAppMessage(job, contact) {
             template: { name: templateName, language: { code: language || 'en_US' }, ...(payloadComponents.length && { components: payloadComponents }) }
         };
 
-        const { statusCode, body } = await undici.request(
+        // Fixed variable name conflict
+        const response = await undici.request(
             `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
             { method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
         );
 
-        const resData = await body.json();
-        if (statusCode < 200 || statusCode >= 300) throw new Error(JSON.stringify(resData?.error || resData));
-        return { success: true, messageId: resData?.messages?.[0]?.id };
-    } catch (err) { return { success: false, error: getErrorMessage(err) }; }
+        const responseData = await response.body.json();
+        if (response.statusCode < 200 || response.statusCode >= 300) throw new Error(JSON.stringify(responseData?.error || responseData));
+
+        return { success: true, messageId: responseData?.messages?.[0]?.id };
+    } catch (err) {
+        return { success: false, error: getErrorMessage(err) };
+    }
 }
 
 async function startBroadcastWorker(workerId) {
