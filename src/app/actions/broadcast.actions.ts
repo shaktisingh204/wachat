@@ -348,6 +348,13 @@ export async function handleStartBroadcast(
                 throw new Error('The XLSX file contains no sheets.');
             }
             const worksheet = workbook.Sheets[sheetName];
+            // Use `raw: false` for formatted text, and `cellDates: true` if dates are an issue
+            // Set `cellNF: true` and modify the first column to be text format 't'
+            if (worksheet['!cols']?.[0]) {
+                worksheet['!cols'][0].z = '@'; // Set first column format to Text
+            } else {
+                 worksheet['!cols'] = [{ z: '@' }];
+            }
             const csvData = XLSX.utils.sheet_to_csv(worksheet, { raw: false });
             contactCount = await processStreamedContacts(csvData, db, broadcastId);
         } else {
@@ -801,6 +808,8 @@ export async function getBroadcastById(broadcastId: string): Promise<WithId<Broa
         return null;
     }
 }
+    
+
     
 
     
