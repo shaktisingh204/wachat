@@ -6,23 +6,29 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import type { SabFlowNode } from '@/lib/definitions';
 
-function interpolate(text: string | undefined, context: any): string {
-    if (typeof text !== 'string') return '';
-    return text.replace(/{{\s*([^}]+)\s*}}/g, (match: any, varName: string) => {
-        const keys = varName.split('.');
-        let value = context;
-        for (const k of keys) {
-            if (value && typeof value === 'object' && k in value) value = value[k];
-            else return match;
-        }
-        return value !== undefined && value !== null ? String(value) : match;
-    });
-};
-
 function getValueFromPath(obj: any, path: string): any {
     if (!path) return undefined;
     const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
     return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
+}
+
+function interpolate(text: string | undefined, context: any): any {
+    if (typeof text !== 'string') {
+        return text;
+    }
+    const match = text.match(/{{\s*([^}]+)\s*}}/);
+    if (match && match[0] === text) {
+        // If the entire string is a variable, return the raw value (e.g., object, array)
+        return getValueFromPath(context, match[1]);
+    }
+    // Otherwise, perform string interpolation
+    return text.replace(/{{\s*([^}]+)\s*}}/g, (m, varName) => {
+        const value = getValueFromPath(context, varName);
+        if (value !== undefined && value !== null) {
+            return typeof value === 'object' ? JSON.stringify(value) : String(value);
+        }
+        return m; // Return the original placeholder if not found
+    });
 }
 
 export async function executeApiAction(node: SabFlowNode, context: any, logger: any) {
@@ -82,7 +88,9 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         if (apiRequest.body?.type === 'json' && apiRequest.body.json) {
             try {
                 requestConfig.headers['Content-Type'] = 'application/json';
-                requestConfig.data = JSON.parse(interpolate(apiRequest.body.json, context));
+                const interpolatedBody = interpolate(apiRequest.body.json, context);
+                // If interpolate returned an object, use it directly. If string, parse it.
+                requestConfig.data = typeof interpolatedBody === 'object' ? interpolatedBody : JSON.parse(interpolatedBody);
             } catch(e) {
                  throw new Error(`Invalid JSON in request body: ${(e as Error).message}`);
             }
@@ -103,8 +111,11 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         
         const responseData = { status: response.status, headers: response.headers, data: response.data };
         
+        const stepName = node.data.name.replace(/ /g, '_');
+        context[stepName] = {};
+
         if (node.data.responseVariableName) {
-            context[node.data.responseVariableName] = { response: responseData };
+            context[stepName][node.data.responseVariableName] = responseData;
         }
 
         if (apiRequest?.responseMappings?.length > 0) {
@@ -112,8 +123,8 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
                 if (mapping.variable && mapping.path) {
                     const value = getValueFromPath(response.data, mapping.path);
                     if (value !== undefined) {
-                        context[mapping.variable] = value;
-                        logger.log(`Mapped response path "${mapping.path}" to context variable "${mapping.variable}".`, { value });
+                        context[stepName][mapping.variable] = value;
+                        logger.log(`Mapped response path "${mapping.path}" to context variable "${stepName}.${mapping.variable}".`, { value });
                     }
                 }
             });
@@ -127,3 +138,5 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         return { error: errorMsg };
     }
 }
+
+    

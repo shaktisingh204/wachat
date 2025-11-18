@@ -14,22 +14,38 @@ import { executeMetaAction } from './meta';
 import { executeGoogleSheetsAction } from './google-sheets';
 import type { WithId } from 'mongodb';
 
+// Helper to get nested value from context
+function getValueFromPath(obj: any, path: string): any {
+    if (!path) return undefined;
+    const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+    return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
+}
+
 // Helper to interpolate context variables into strings
 function interpolate(text: string | undefined, context: any): string {
     if (typeof text !== 'string') {
         return '';
     }
     return text.replace(/{{\s*([^}]+)\s*}}/g, (match: any, varName: string) => {
-        const keys = varName.split('.');
-        let value = context;
-        for (const k of keys) {
-            if (value && typeof value === 'object' && k in value) {
-                value = value[k];
-            } else {
-                return match; 
+        const value = getValueFromPath(context, varName);
+        
+        if (value !== undefined && value !== null) {
+            // If the value is an object or array, and it's the *only* thing in the string,
+            // we might want to keep it as an object for JSON bodies, but this function returns a string.
+            // For now, we'll stringify it, which is safer for most use cases.
+            if(typeof value === 'object') {
+                 // Check if the entire string is just the variable.
+                if (match === text) {
+                    // This is a special case that we'll handle by returning the object itself,
+                    // but the function signature expects a string. We'll cast it, and the caller
+                    // must be aware of this possibility.
+                    return value as any;
+                }
+                return JSON.stringify(value);
             }
+            return String(value);
         }
-        return value !== undefined && value !== null ? String(value) : match;
+        return match; 
     });
 };
 
@@ -74,3 +90,5 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
             return { error: `Action app "${appId}" is not implemented.` };
     }
 }
+
+    
