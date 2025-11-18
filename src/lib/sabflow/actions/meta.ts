@@ -1,8 +1,6 @@
 
-
 'use server';
 
-import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
@@ -11,7 +9,6 @@ import { ObjectId } from 'mongodb';
 
 const API_VERSION = 'v23.0';
 
-// This function now contains all the logic directly to avoid touching other action files.
 export async function executeMetaAction(actionName: string, inputs: any, user: WithId<User>, logger: any) {
     try {
         const { projectId, ...actionInputs } = inputs;
@@ -19,19 +16,16 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
             throw new Error("Meta Suite actions require a 'projectId' to be selected.");
         }
 
-        // --- FIX START ---
-        // The original `getProjectById` checks for a dashboard session, which is incorrect for a server-side flow.
-        // We need to fetch the project directly and verify ownership against the user executing the flow.
         const { db } = await connectToDatabase();
         const project = await db.collection('projects').findOne({ 
             _id: new ObjectId(projectId),
+            // Ensure the user running the flow owns the project
             userId: user._id 
         });
 
         if (!project) {
             throw new Error(`Project with ID ${projectId} not found or you do not have access.`);
         }
-        // --- FIX END ---
         
         if (!project.facebookPageId || !project.accessToken) {
             throw new Error(`Project "${project.name}" is not correctly configured for the Meta Suite.`);
@@ -180,8 +174,6 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
                 if (!title || !scheduledDate || !scheduledTime || !videoUrl) throw new Error("Title, date, time, and video URL are required.");
                 const scheduledTimestamp = Math.floor(new Date(`${scheduledDate}T${scheduledTime}`).getTime() / 1000);
                 
-                // This is a complex multi-step process, simplified here.
-                // 1. Create live video object
                 const liveVideoResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${pageId}/live_videos`, {
                     title,
                     status: 'SCHEDULED_UNPUBLISHED',
@@ -189,10 +181,6 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
                     access_token: accessToken
                 });
                 if (liveVideoResponse.data.error) throw new Error(getErrorMessage({response: liveVideoResponse}));
-                
-                // 2. Upload the video (This would require file handling which is complex in this context)
-                // For simplicity, we assume the user provides a URL that Facebook can access.
-                // A full implementation would involve resumable uploads.
                 
                 logger.log("Live Video scheduled, but video upload is a complex process not fully implemented in this action.", { response: liveVideoResponse.data });
                 return { output: liveVideoResponse.data };
