@@ -172,10 +172,3 @@ export default function AppDocPage() {
         </div>
     );
 }
-
-// Generate static paths for all apps
-export async function generateStaticParams() {
-  return sabnodeAppActions.map(app => ({
-    appId: app.appId,
-  }));
-}
