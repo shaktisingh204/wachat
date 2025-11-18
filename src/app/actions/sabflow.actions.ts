@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -8,26 +9,6 @@ import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { executeSabFlowAction } from '@/lib/sabflow/actions';
-
-
-// Helper to interpolate context variables into strings
-function interpolate(text: string | undefined, context: any): string {
-    if (typeof text !== 'string') {
-        return '';
-    }
-    return text.replace(/{{\s*([^}]+)\s*}}/g, (match: any, varName: string) => {
-        const keys = varName.split('.');
-        let value = context;
-        for (const k of keys) {
-            if (value && typeof value === 'object' && k in value) {
-                value = value[k];
-            } else {
-                return match; 
-            }
-        }
-        return value !== undefined && value !== null ? String(value) : match;
-    });
-};
 
 
 async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, execution: WithId<any>, logger: any): Promise<string | null> {
@@ -41,11 +22,10 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
 
     logger.log(`Executing node "${node.data.name}" (Type: ${node.type})`);
     
-    // Default next node is the one connected via the main output handle
     let nextNodeId: string | null = flow.edges.find(e => e.source === currentNodeId && (e.sourceHandle === `${node.id}-output-main` || !e.sourceHandle))?.target || null;
 
     if (node.type === 'action') {
-        const result = await executeSabFlowAction(node, execution.context, user, logger);
+        const result = await executeSabFlowAction(execution._id, node, user, logger);
         
         const stepName = node.data.name.replace(/\s+/g, '_');
         
@@ -55,7 +35,6 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
             return null; // Stop execution on error
         }
         
-        // Save action output to a new context object
         const newContext = { ...execution.context, [stepName]: result };
         await db.collection('sabflow_executions').updateOne(
             { _id: execution._id }, 
@@ -68,9 +47,26 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
         const logicType = node.data.logicType || 'AND';
         let finalResult = logicType === 'AND';
 
+        // Custom interpolation for conditions as it's simpler
+        const interpolateCondition = (text: string | undefined, context: any): string => {
+            if (typeof text !== 'string') return '';
+            return text.replace(/{{\s*([^}]+)\s*}}/g, (match: any, varName: string) => {
+                const keys = varName.split('.');
+                let value = context;
+                for (const k of keys) {
+                    if (value && typeof value === 'object' && k in value) {
+                        value = value[k];
+                    } else {
+                        return match; 
+                    }
+                }
+                return value !== undefined && value !== null ? String(value) : match;
+            });
+        };
+
         for (const rule of rules) {
-            const leftValue = interpolate(rule.field, execution.context);
-            const rightValue = interpolate(rule.value, execution.context);
+            const leftValue = interpolateCondition(rule.field, execution.context);
+            const rightValue = interpolateCondition(rule.value, execution.context);
             let ruleResult = false;
             switch(rule.operator) {
                 case 'equals': ruleResult = leftValue === rightValue; break;
@@ -120,7 +116,6 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         return { error: `Flow has no trigger node.` };
     }
 
-    // Create a new execution record in the database
     const executionResult = await db.collection('sabflow_executions').insertOne({
         flowId: flow._id,
         userId: user._id,
@@ -134,8 +129,8 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
     
     let currentNodeId: string | null = startNode.id;
     let executionCount = 0;
-    const maxSteps = 50; // Safety break
-    
+    const maxSteps = 50;
+
     while (currentNodeId && executionCount < maxSteps) {
         executionCount++;
         const executionDoc = await db.collection('sabflow_executions').findOne({ _id: executionId });
@@ -153,7 +148,7 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
     }
     
     await db.collection('sabflow_executions').updateOne(
-        { _id: executionId, status: 'RUNNING' }, // Only update if it hasn't failed
+        { _id: executionId, status: 'RUNNING' }, 
         { $set: { status: 'COMPLETED', finishedAt: new Date() } }
     );
     
