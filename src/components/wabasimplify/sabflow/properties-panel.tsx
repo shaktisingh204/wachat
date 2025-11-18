@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
@@ -97,17 +98,19 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         if (selectedNode?.data?.triggerType) {
             setTriggerType(selectedNode.data.triggerType);
         }
-        if (selectedNode?.data?.actionName === 'sendImage') {
-            if (selectedNode.data.inputs?.imageBase64) setImageSourceType('base64');
-            else if (selectedNode.data.inputs?.imageFile) setImageSourceType('file');
-            else setImageSourceType('url');
-        }
+
+        const inputs = selectedNode?.data?.inputs || {};
+        if (inputs.imageBase64) setImageSourceType('base64');
+        else if (inputs.imageFile) setImageSourceType('file');
+        else setImageSourceType('url');
+
     }, [selectedNode]);
 
     const handleTriggerTypeChange = (value: string) => {
         setTriggerType(value);
         handleDataChange({ triggerType: value, connectionId: '', appId: '', actionName: '', inputs: {} });
     };
+
 
     useEffect(() => {
         startDataLoad(async () => {
@@ -140,7 +143,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         setImageSourceType(type);
         // Clear other sources when switching
         const newInputs = { ...selectedNode.data.inputs };
-        if (type !== 'url') delete newInputs.mediaUrl;
+        if (type !== 'url') delete newInputs.imageUrl;
         if (type !== 'base64') delete newInputs.imageBase64;
         if (type !== 'file') delete newInputs.imageFile;
         handleDataChange({ inputs: newInputs });
@@ -208,8 +211,8 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             if (selectedNode.data.actionName === 'apiRequest') {
                 return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
             }
-
-            if (selectedNode.data.actionName === 'sendImage' && selectedApp.appId === 'wachat') {
+            
+            if (selectedAction?.name === 'sendImage' && selectedApp.appId === 'wachat') {
                  return (
                     <div className="space-y-4">
                         <RadioGroup value={imageSourceType} onValueChange={handleImageSourceChange} className="flex gap-2">
@@ -224,6 +227,23 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                     </div>
                 );
             }
+
+            if (selectedAction?.name === 'createPost' && selectedApp.appId === 'meta') {
+                return (
+                   <div className="space-y-4">
+                       <NodeInput input={{ name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', appType: 'facebook' }} value={selectedNode.data.inputs.projectId || ''} onChange={val => handleInputChange('projectId', val)} dataOptions={dynamicData} />
+                       <div className="space-y-2"><Label>Message</Label><Textarea placeholder="What's on your mind?" value={selectedNode.data.inputs.message || ''} onChange={e => handleInputChange('message', e.target.value)} /></div>
+                       <Separator />
+                       <Label className="text-sm font-medium">Optional Image</Label>
+                       <RadioGroup value={imageSourceType} onValueChange={handleImageSourceChange} className="flex gap-2">
+                           <div className="flex items-center space-x-1"><RadioGroupItem value="url" id="meta-img-url"/><Label htmlFor="meta-img-url" className="text-xs">URL</Label></div>
+                           <div className="flex items-center space-x-1"><RadioGroupItem value="base64" id="meta-img-base64"/><Label htmlFor="meta-img-base64" className="text-xs">Base64</Label></div>
+                       </RadioGroup>
+                       {imageSourceType === 'url' && <div className="space-y-2"><Label>Image URL</Label><Input placeholder="https://..." value={selectedNode.data.inputs.imageUrl || ''} onChange={e => handleInputChange('imageUrl', e.target.value)} /></div>}
+                       {imageSourceType === 'base64' && <div className="space-y-2"><Label>Base64 Data</Label><Textarea placeholder="data:image/png;base64,..." value={selectedNode.data.inputs.imageBase64 || ''} onChange={e => handleInputChange('imageBase64', e.target.value)} className="h-24 font-mono text-xs"/></div>}
+                   </div>
+               );
+           }
             
             if (selectedAction?.inputs.length > 0) {
                  return (
@@ -383,4 +403,4 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         </div>
     );
 };
-```
+
