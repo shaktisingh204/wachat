@@ -7,13 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Trash2, Copy, Wand2 } from 'lucide-react';
+import { Plus, Trash2, Copy, Wand2, FlaskConical, Wrench, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { CodeBlock } from '@/components/wabasimplify/code-block';
+import { testApiRequest } from '@/app/actions/sabflow.actions';
+import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
+import { LoaderCircle } from 'lucide-react';
 
 const KeyValueEditor: React.FC<{ items: { key: string, value: string, enabled: boolean }[], onItemsChange: (items: any[]) => void }> = ({ items, onItemsChange }) => {
     const handleItemChange = (index: number, field: 'key' | 'value' | 'enabled', value: string | boolean) => {
@@ -64,6 +68,9 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
     const { copy } = useCopyToClipboard();
     const [isAutoMapOpen, setIsAutoMapOpen] = useState(false);
     const [exampleJson, setExampleJson] = useState('');
+    const [testResponse, setTestResponse] = useState<any>(null);
+    const [isTesting, setIsTesting] = useState(false);
+    const [testError, setTestError] = useState<string | null>(null);
 
     const handleApiChange = (field: string, value: any) => {
         onUpdate({ ...data, apiRequest: { ...apiRequest, [field]: value }});
@@ -117,6 +124,54 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
         const nodeName = data.name.replace(/ /g, '_');
         copy(`{{${nodeName}.${variableName}}}`);
     }
+
+    const handleTestApi = async () => {
+        setIsTesting(true);
+        setTestResponse(null);
+        setTestError(null);
+        const result = await testApiRequest(apiRequest);
+        if (result.error) {
+            setTestError(result.error);
+        } else {
+            setTestResponse(result.data);
+        }
+        setIsTesting(false);
+    };
+    
+    const tryAutoFix = () => {
+        if (!testError) return;
+        
+        let fixed = false;
+        
+        const tryFixJson = (jsonString: string, updateFn: (fixedJson: string) => void) => {
+            try {
+                // Attempt to re-parse and stringify to fix formatting
+                const parsed = JSON.parse(jsonString);
+                const fixedJson = JSON.stringify(parsed, null, 2);
+                if (fixedJson !== jsonString) {
+                    updateFn(fixedJson);
+                    fixed = true;
+                }
+            } catch (e) {
+                // It's not just a formatting issue, can't auto-fix
+            }
+        };
+
+        if (testError.toLowerCase().includes('json') && testError.toLowerCase().includes('headers')) {
+             tryFixJson(apiRequest.headers, (val) => handleApiChange('headers', val));
+        }
+        if (testError.toLowerCase().includes('json') && testError.toLowerCase().includes('body')) {
+            tryFixJson(apiRequest.body?.json, (val) => handleBodyChange('json', val));
+        }
+
+        if (fixed) {
+            toast({ title: "Auto-Fix Applied", description: "Attempted to fix JSON formatting. Please test again." });
+            setTestError(null);
+        } else {
+            toast({ title: "Auto-Fix Failed", description: "Could not automatically fix the issue. Please check your inputs manually.", variant: "destructive" });
+        }
+    };
+
 
     return (
         <div className="space-y-4">
@@ -190,6 +245,36 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
                     )}
                 </TabsContent>
             </Tabs>
+
+             <div className="pt-4">
+                <Button type="button" onClick={handleTestApi} disabled={isTesting} className="w-full">
+                    {isTesting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <FlaskConical className="mr-2 h-4 w-4"/>}
+                    Test Request
+                </Button>
+                 {testError && (
+                    <Alert variant="destructive" className="mt-4">
+                        <AlertTitle>Test Failed</AlertTitle>
+                        <AlertDescription className="text-xs break-all">
+                            {testError}
+                        </AlertDescription>
+                        <div className="mt-2">
+                            <Button type="button" size="sm" variant="secondary" onClick={tryAutoFix}>
+                                <Wrench className="mr-2 h-4 w-4"/> Try to Auto-Fix
+                            </Button>
+                        </div>
+                    </Alert>
+                )}
+                {testResponse && (
+                     <Alert className="mt-4">
+                        <AlertTitle>Test Successful (Status: {testResponse.status})</AlertTitle>
+                        <AlertDescription className="mt-2">
+                             <pre className="p-2 bg-background rounded-md whitespace-pre-wrap text-xs font-mono max-h-48 overflow-auto">
+                                {JSON.stringify(testResponse.data, null, 2)}
+                            </pre>
+                        </AlertDescription>
+                    </Alert>
+                )}
+            </div>
             
             <Separator />
             
