@@ -16,9 +16,9 @@ import type { WithId } from 'mongodb';
 
 // Helper to get nested value from context
 function getValueFromPath(obj: any, path: string): any {
-    if (!path) return undefined;
+    if (!path || typeof path !== 'string') return undefined;
     const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-    return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
+    return keys.reduce((o, key) => (o && typeof o === 'object' && key in o ? o[key] : undefined), obj);
 }
 
 // Helper to interpolate context variables into strings
@@ -50,14 +50,16 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
     const inputs = node.data.inputs || {};
     const interpolatedInputs: Record<string, any> = {};
 
-    logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs, context });
+    logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs });
 
     // Interpolate all input values from the context
-    if (inputs) {
-        for(const key in inputs) {
+    for (const key in inputs) {
+        if (Object.prototype.hasOwnProperty.call(inputs, key)) {
             interpolatedInputs[key] = interpolate(inputs[key], context);
         }
     }
+    
+    logger.log(`Interpolated inputs:`, { interpolatedInputs });
 
     switch(appId) {
         case 'wachat':
