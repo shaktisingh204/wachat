@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -35,6 +34,7 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
             return null; // Stop execution on error
         }
         
+        // Correctly update the context by merging the output
         const newContext = { ...execution.context, [stepName]: result };
         await db.collection('sabflow_executions').updateOne(
             { _id: execution._id }, 
