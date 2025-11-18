@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useActionState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
@@ -149,10 +150,16 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
     const [isLoadingData, startDataLoad] = useTransition();
 
     const [triggerType, setTriggerType] = useState(selectedNode?.data?.triggerType || 'webhook');
+    const [imageSourceType, setImageSourceType] = useState('url');
 
     useEffect(() => {
         if (selectedNode?.data?.triggerType) {
             setTriggerType(selectedNode.data.triggerType);
+        }
+        if (selectedNode?.data?.actionName === 'sendImage') {
+            if (selectedNode.data.inputs?.imageBase64) setImageSourceType('base64');
+            else if (selectedNode.data.inputs?.imageFile) setImageSourceType('file');
+            else setImageSourceType('url');
         }
     }, [selectedNode]);
 
@@ -181,6 +188,23 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
     const handleDataChange = (data: any) => {
         onNodeChange(selectedNode.id, { ...selectedNode.data, ...data });
     };
+    
+    const handleInputChange = (name: string, value: any) => {
+        onNodeChange(selectedNode.id, {
+            ...selectedNode.data,
+            inputs: { ...selectedNode.data.inputs, [name]: value }
+        });
+    }
+
+    const handleImageSourceChange = (type: string) => {
+        setImageSourceType(type);
+        // Clear other sources when switching
+        const newInputs = { ...selectedNode.data.inputs };
+        if (type !== 'url') delete newInputs.mediaUrl;
+        if (type !== 'base64') delete newInputs.imageBase64;
+        if (type !== 'file') delete newInputs.imageFile;
+        handleDataChange({ inputs: newInputs });
+    }
 
     const selectedApp = sabnodeAppActions.find(app => app.appId === selectedNode.data.appId);
     let selectedAction = selectedApp?.actions?.find(a => a.name === selectedNode.data.actionName);
@@ -243,6 +267,22 @@ const PropertiesPanel = ({ user, selectedNode, onNodeChange, onNodeRemove, onCon
             
             if (selectedNode.data.actionName === 'apiRequest') {
                 return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
+            }
+
+            if (selectedNode.data.actionName === 'sendImage' && selectedApp.appId === 'wachat') {
+                 return (
+                    <div className="space-y-4">
+                        <RadioGroup value={imageSourceType} onValueChange={handleImageSourceChange} className="flex gap-2">
+                            <div className="flex items-center space-x-1"><RadioGroupItem value="url" id="img-url"/><Label htmlFor="img-url" className="text-xs">URL</Label></div>
+                            <div className="flex items-center space-x-1"><RadioGroupItem value="file" id="img-file"/><Label htmlFor="img-file" className="text-xs">Upload</Label></div>
+                            <div className="flex items-center space-x-1"><RadioGroupItem value="base64" id="img-base64"/><Label htmlFor="img-base64" className="text-xs">Base64</Label></div>
+                        </RadioGroup>
+                        {imageSourceType === 'url' && <div className="space-y-2"><Label>Image URL</Label><Input placeholder="https://..." value={selectedNode.data.inputs.mediaUrl || ''} onChange={e => handleInputChange('mediaUrl', e.target.value)} /></div>}
+                        {imageSourceType === 'file' && <div className="space-y-2"><Label>Upload Image</Label><Input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if(file) { const reader = new FileReader(); reader.onloadend = () => handleInputChange('imageBase64', reader.result); reader.readAsDataURL(file); }}} /></div>}
+                        {imageSourceType === 'base64' && <div className="space-y-2"><Label>Base64 Data</Label><Textarea placeholder="data:image/png;base64,..." value={selectedNode.data.inputs.imageBase64 || ''} onChange={e => handleInputChange('imageBase64', e.target.value)} className="h-24 font-mono text-xs"/></div>}
+                        <div className="space-y-2"><Label>Caption</Label><Input placeholder="Optional caption" value={selectedNode.data.inputs.caption || ''} onChange={e => handleInputChange('caption', e.target.value)} /></div>
+                    </div>
+                );
             }
             
             if (selectedAction?.inputs.length > 0) {
@@ -573,14 +613,22 @@ export default function EditSabFlowPage() {
     const handleAddNode = async (type: 'action' | 'condition', sourceNodeId: string, sourceHandle?: string) => {
         const sourceNode = nodes.find(n => n.id === sourceNodeId);
         if (!sourceNode) return;
-
-        const newNodeId = `${type}_${Date.now()}`;
+    
+        const timestamp = Date.now();
+        const randomChar = String.fromCharCode(97 + Math.floor(Math.random() * 26));
+        const newNodeId = `${type}_${timestamp}${randomChar}`;
+        
         const newNode: SabFlowNode = {
             id: newNodeId,
             type: type,
-            data: { name: `New ${type}`, connectionId: '', actionName: '', inputs: {} },
+            data: { name: `action_${timestamp}${randomChar}`, connectionId: '', actionName: '', inputs: {} },
             position: { x: sourceNode.position.x, y: sourceNode.position.y + 200 }
         };
+
+        if (type === 'condition') {
+            newNode.data.name = 'New Condition';
+        }
+    
         const newEdge: SabFlowEdge = {
             id: `edge-${sourceNodeId}-${newNodeId}`,
             source: sourceNodeId,
@@ -588,7 +636,7 @@ export default function EditSabFlowPage() {
             sourceHandle: sourceHandle || `${sourceNodeId}-output-main`,
             targetHandle: `${newNodeId}-input`,
         };
-
+    
         setNodes(prev => [...prev, newNode]);
         setEdges(prev => [...prev, newEdge]);
         setSelectedNodeId(newNodeId);
@@ -779,3 +827,5 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
+
+```
