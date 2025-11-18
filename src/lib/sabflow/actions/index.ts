@@ -21,10 +21,16 @@ function getValueFromPath(obj: any, path: string): any {
     return keys.reduce((o, key) => (o && typeof o === 'object' && key in o ? o[key] : undefined), obj);
 }
 
+
 // Recursive helper to interpolate context variables into strings
 function interpolate(text: string | undefined, context: any): any {
     if (typeof text !== 'string') {
         return text;
+    }
+
+    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
+    if (singleVariableMatch) {
+        return getValueFromPath(context, singleVariableMatch[1].trim());
     }
 
     let interpolatedText = text;
@@ -46,14 +52,6 @@ function interpolate(text: string | undefined, context: any): any {
             const value = getValueFromPath(context, varName);
 
             if (value !== undefined && value !== null) {
-                // If the entire string is just one variable, replace it with the raw value (could be an object/array)
-                if (interpolatedText.trim() === placeholder) {
-                    interpolatedText = value;
-                    madeReplacementInThisPass = true;
-                    // Exit forEach as the entire string is replaced
-                    return; 
-                }
-
                 const replacement = typeof value === 'object' ? JSON.stringify(value) : String(value);
                 if (interpolatedText.includes(placeholder)) {
                     interpolatedText = interpolatedText.replace(placeholder, replacement);
@@ -61,11 +59,6 @@ function interpolate(text: string | undefined, context: any): any {
                 }
             }
         });
-        
-        // If the whole string was replaced with a non-string value, we're done with this text.
-        if (typeof interpolatedText !== 'string') {
-            break;
-        }
         
         if (!madeReplacementInThisPass) {
             keepInterpolating = false;
@@ -83,13 +76,10 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
     
     logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs: rawInputs });
     
-    // Create a deep copy and interpolate every value in place.
-    const interpolatedInputs = JSON.parse(JSON.stringify(rawInputs));
-    for (const key in interpolatedInputs) {
-        if (Object.prototype.hasOwnProperty.call(interpolatedInputs, key)) {
-            interpolatedInputs[key] = interpolate(interpolatedInputs[key], context);
-        }
-    }
+    const interpolatedInputs = Object.keys(rawInputs).reduce((acc, key) => {
+        acc[key] = interpolate(rawInputs[key], context);
+        return acc;
+    }, {} as Record<string, any>);
     
     logger.log(`Interpolated inputs:`, { interpolatedInputs });
 
@@ -103,8 +93,6 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
         case 'meta':
             return await executeMetaAction(actionName, interpolatedInputs, user, logger);
         case 'api':
-            // The API action interpolates internally as it has complex needs (headers, body etc.)
-            // We pass the full context to it.
             return await executeApiAction(node, context, logger);
         case 'sms':
             return await executeSmsAction(actionName, interpolatedInputs, user, logger);
