@@ -10,6 +10,32 @@ import { ObjectId } from 'mongodb';
 
 const API_VERSION = 'v23.0';
 
+// Helper to get nested value from context
+function getValueFromPath(obj: any, path: string): any {
+    if (!path) return undefined;
+    const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+    return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
+}
+
+// Helper to interpolate context variables into strings
+function interpolate(text: string | undefined, context: any): any {
+    if (typeof text !== 'string') {
+        return text;
+    }
+    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
+    if (singleVariableMatch) {
+        return getValueFromPath(context, singleVariableMatch[1]);
+    }
+    return text.replace(/{{\s*([^}]+)\s*}}/g, (m, varName) => {
+        const value = getValueFromPath(context, varName);
+        if (value !== undefined && value !== null) {
+            return typeof value === 'object' ? JSON.stringify(value) : String(value);
+        }
+        return m;
+    });
+};
+
+
 async function uploadBase64ToMeta(base64Data: string, accessToken: string, pageId: string) {
     // This is a simplified example. In production, you'd want to handle different mime types
     // and potentially use Meta's resumable upload API for larger files.
@@ -79,6 +105,11 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
                     endpoint = `https://graph.facebook.com/${API_VERSION}/${pageId}/feed`;
                     payload = { message: message, access_token: accessToken };
                 }
+
+                if (!payload.message && !payload.url && !payload.object_attachment) {
+                    throw new Error("Cannot create an empty post. A message or image is required.");
+                }
+
                 const response = await axios.post(endpoint, payload);
                 if (response.data.error) throw new Error(getErrorMessage({response}));
                 return { output: response.data };
