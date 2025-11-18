@@ -827,5 +827,3 @@ export default function EditSabFlowPage() {
         </div>
     );
 }
-
-```
