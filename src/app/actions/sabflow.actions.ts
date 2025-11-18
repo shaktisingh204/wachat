@@ -7,15 +7,8 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-import { executeWachatAction } from '@/lib/sabflow/actions/wachat';
-import { executeCrmAction } from '@/lib/sabflow/actions/crm';
-import { executeApiAction } from '@/lib/sabflow/actions/api';
-import { executeSmsAction } from '@/lib/sabflow/actions/sms';
-import { executeEmailAction } from '@/lib/sabflow/actions/email';
-import { executeUrlShortenerAction } from '@/lib/sabflow/actions/url-shortener';
-import { executeQrCodeAction } from '@/lib/sabflow/actions/qr-code';
-import { executeSabChatAction } from '@/lib/sabflow/actions/sabchat';
-import { executeMetaAction } from '@/lib/sabflow/actions/meta';
+import { executeSabFlowAction } from '@/lib/sabflow/actions';
+
 
 // Helper to interpolate context variables into strings
 function interpolate(text: string | undefined, context: any): string {
@@ -37,76 +30,6 @@ function interpolate(text: string | undefined, context: any): string {
 };
 
 
-async function executeAction(node: SabFlowNode, context: any, user: WithId<User>, logger: any) {
-    const { actionName, appId, inputs } = node.data;
-    const interpolatedInputs: Record<string, any> = {};
-
-    logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs, context });
-
-    // Interpolate all input values from the context
-    if (inputs) {
-        for(const key in inputs) {
-            interpolatedInputs[key] = interpolate(inputs[key], context);
-        }
-    }
-    
-    try {
-        let result: { output?: any, error?: string };
-
-        switch(appId) {
-            case 'wachat':
-                result = await executeWachatAction(actionName, interpolatedInputs, user, logger);
-                break;
-            case 'sabchat':
-                result = await executeSabChatAction(actionName, interpolatedInputs, user, logger);
-                break;
-            case 'crm':
-                result = await executeCrmAction(actionName, interpolatedInputs, user, logger);
-                break;
-            case 'meta':
-                result = await executeMetaAction(actionName, interpolatedInputs, user, logger);
-                break;
-            case 'api':
-                 result = await executeApiAction(node, context, logger);
-                 break;
-            case 'sms':
-                result = await executeSmsAction(actionName, interpolatedInputs, user, logger);
-                break;
-            case 'email':
-                result = await executeEmailAction(actionName, interpolatedInputs, user, logger);
-                break;
-            case 'url-shortener':
-                result = await executeUrlShortenerAction(actionName, interpolatedInputs, user, logger);
-                break;
-             case 'qr-code-maker':
-                result = await executeQrCodeAction(actionName, interpolatedInputs, user, logger);
-                break;
-            default:
-                throw new Error(`Action app "${appId}" is not implemented.`);
-        }
-        
-        logger.log(`Action "${actionName}" completed.`, { result });
-        
-        if (result.error) {
-            logger.log(`Error during action execution: ${result.error}`);
-            return { error: result.error };
-        }
-        
-        // Save output to context
-        const responseVarName = node.data.name.replace(/ /g, '_');
-        context[responseVarName] = result;
-
-        logger.log(`Saved action output to context variable "${responseVarName}"`);
-
-        return { output: result };
-
-    } catch(e: any) {
-        const errorMsg = `Error executing action "${actionName}": ${getErrorMessage(e)}`;
-        logger.log(errorMsg, { stack: e.stack, context: { ...context, interpolatedInputs } });
-        return { error: errorMsg };
-    }
-}
-
 async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, nodeId: string, context: any, logger: any): Promise<string | null> {
     const node = flow.nodes.find(n => n.id === nodeId);
     if (!node) {
@@ -117,12 +40,17 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, no
     logger.log(`Executing node "${node.data.name}" (Type: ${node.type})`);
     
     if (node.type === 'action') {
-        const result = await executeAction(node, context, user, logger);
+        const result = await executeSabFlowAction(node, context, user, logger);
         if (result.error) {
             logger.log(`Action failed. Stopping flow.`, { error: result.error, context });
             return null; // Stop execution on error
         }
-        // The action's output is added to the context inside executeAction
+        // Save output to context
+        const responseVarName = node.data.name.replace(/ /g, '_');
+        context[responseVarName] = result;
+
+        logger.log(`Saved action output to context variable "${responseVarName}"`);
+
     } else if (node.type === 'condition') {
         const rules = node.data.rules || [];
         const logicType = node.data.logicType || 'AND';
@@ -135,7 +63,7 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, no
             switch(rule.operator) {
                 case 'equals': ruleResult = leftValue === rightValue; break;
                 case 'not_equals': ruleResult = leftValue !== rightValue; break;
-                case 'contains': ruleResult = leftValue.includes(rightValue); break;
+                case 'contains': ruleResult = String(leftValue).includes(String(rightValue)); break;
                 // Add other operators here
             }
             if (logicType === 'AND' && !ruleResult) {
@@ -149,8 +77,8 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, no
         }
         
         logger.log(`Condition result: ${finalResult ? 'Yes' : 'No'}`);
-        const sourceHandle = finalResult ? 'output-yes' : 'output-no';
-        const edge = flow.edges.find(e => e.source === nodeId && e.sourceHandle === sourceHandle);
+        const sourceHandle = finalResult ? `${nodeId}-output-yes` : `${nodeId}-output-no`;
+        const edge = flow.edges.find(e => e.sourceHandle === sourceHandle);
         return edge ? edge.target : null;
     }
     
