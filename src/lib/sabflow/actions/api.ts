@@ -1,5 +1,4 @@
 
-      
 'use server';
 
 import axios from 'axios';
@@ -17,17 +16,27 @@ function interpolate(text: string | undefined, context: any): any {
     if (typeof text !== 'string') {
         return text;
     }
-    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
-    if (singleVariableMatch) {
-        return getValueFromPath(context, singleVariableMatch[1]);
-    }
-    return text.replace(/{{\s*([^}]+)\s*}}/g, (m, varName) => {
+
+    let interpolatedText = text;
+    let match;
+    const regex = /{{\s*([^}]+)\s*}}/g;
+
+    while ((match = regex.exec(interpolatedText)) !== null) {
+        const fullMatch = match[0];
+        const varName = match[1].trim();
+        
         const value = getValueFromPath(context, varName);
+
         if (value !== undefined && value !== null) {
-            return typeof value === 'object' ? JSON.stringify(value) : String(value);
+            if (interpolatedText.trim() === fullMatch) {
+                return value;
+            }
+            interpolatedText = interpolatedText.replace(fullMatch, typeof value === 'object' ? JSON.stringify(value) : String(value));
+            regex.lastIndex = 0; 
         }
-        return m;
-    });
+    }
+
+    return interpolatedText;
 };
 
 export async function executeApiAction(node: SabFlowNode, context: any, logger: any) {
@@ -109,11 +118,10 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         
         const responseData = { status: response.status, headers: response.headers, data: response.data };
         
-        const stepName = node.data.name.replace(/ /g, '_');
-        context[stepName] = { output: {} }; // Ensure the step object exists
+        const output: Record<string, any> = {};
 
         if (node.data.responseVariableName) {
-            context[stepName][node.data.responseVariableName] = responseData;
+            output[node.data.responseVariableName] = responseData;
         }
 
         if (apiRequest?.responseMappings?.length > 0) {
@@ -121,14 +129,14 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
                 if (mapping.variable && mapping.path) {
                     const value = getValueFromPath(response.data, mapping.path);
                     if (value !== undefined) {
-                        context[stepName].output[mapping.variable] = value;
-                        logger.log(`Mapped response path "${mapping.path}" to context variable "${stepName}.output.${mapping.variable}".`, { value });
+                        output[mapping.variable] = value;
+                        logger.log(`Mapped response path "${mapping.path}" to output variable "${mapping.variable}".`, { value });
                     }
                 }
             });
         }
         
-        return { output: responseData };
+        return { output };
 
     } catch (e: any) {
         const errorMsg = `Error executing API action: ${getErrorMessage(e)}`;

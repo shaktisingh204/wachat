@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import type { SabFlowNode, User } from '@/lib/definitions';
@@ -40,7 +39,6 @@ function interpolate(text: string | undefined, context: any): any {
     let match;
     const regex = /{{\s*([^}]+)\s*}}/g;
 
-    // Keep replacing until no more placeholders are found
     while ((match = regex.exec(interpolatedText)) !== null) {
         const fullMatch = match[0];
         const varName = match[1].trim();
@@ -48,13 +46,10 @@ function interpolate(text: string | undefined, context: any): any {
         const value = getValueFromPath(context, varName);
 
         if (value !== undefined && value !== null) {
-            // If the whole string is just one variable, return the raw value
             if (interpolatedText.trim() === fullMatch) {
                 return value;
             }
-            // Otherwise, replace it as a string
             interpolatedText = interpolatedText.replace(fullMatch, typeof value === 'object' ? JSON.stringify(value) : String(value));
-            // Reset regex index to re-evaluate the string from the beginning
             regex.lastIndex = 0; 
         }
     }
