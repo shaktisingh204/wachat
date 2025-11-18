@@ -30,26 +30,33 @@ function interpolate(text: string | undefined, context: any): string {
 };
 
 
-async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, nodeId: string, context: any, logger: any): Promise<string | null> {
-    const node = flow.nodes.find(n => n.id === nodeId);
+async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, execution: WithId<any>, logger: any): Promise<string | null> {
+    const currentNodeId = execution.currentNodeId;
+    const node = flow.nodes.find(n => n.id === currentNodeId);
     if (!node) {
-        logger.log(`Error: Node ${nodeId} not found. Terminating.`);
+        logger.log(`Error: Node ${currentNodeId} not found. Terminating.`);
+        await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { status: 'FAILED', error: 'Node not found', finishedAt: new Date() }});
         return null;
     }
 
     logger.log(`Executing node "${node.data.name}" (Type: ${node.type})`);
     
+    // Default next node is the one connected via the main output handle
+    let nextNodeId: string | null = flow.edges.find(e => e.source === currentNodeId && (e.sourceHandle === `${node.id}-output-main` || !e.sourceHandle))?.target || null;
+
     if (node.type === 'action') {
-        const result = await executeSabFlowAction(node, context, user, logger);
+        const result = await executeSabFlowAction(node, execution.context, user, logger);
         if (result.error) {
-            logger.log(`Action failed. Stopping flow.`, { error: result.error, context });
+            logger.log(`Action failed. Stopping flow.`, { error: result.error });
+            await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { status: 'FAILED', error: result.error, finishedAt: new Date() }});
             return null; // Stop execution on error
         }
-        // Save output to context
-        const responseVarName = node.data.name.replace(/ /g, '_');
-        context[responseVarName] = result;
-
-        logger.log(`Saved action output to context variable "${responseVarName}"`);
+        
+        // Save action output to context
+        const stepName = node.data.name.replace(/ /g, '_');
+        const newContext = { ...execution.context, [stepName]: result };
+        await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { context: newContext }});
+        logger.log(`Saved action output to context under "${stepName}"`);
 
     } else if (node.type === 'condition') {
         const rules = node.data.rules || [];
@@ -57,14 +64,13 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, no
         let finalResult = logicType === 'AND';
 
         for (const rule of rules) {
-            const leftValue = interpolate(rule.field, context);
-            const rightValue = interpolate(rule.value, context);
+            const leftValue = interpolate(rule.field, execution.context);
+            const rightValue = interpolate(rule.value, execution.context);
             let ruleResult = false;
             switch(rule.operator) {
                 case 'equals': ruleResult = leftValue === rightValue; break;
                 case 'not_equals': ruleResult = leftValue !== rightValue; break;
                 case 'contains': ruleResult = String(leftValue).includes(String(rightValue)); break;
-                // Add other operators here
             }
             if (logicType === 'AND' && !ruleResult) {
                 finalResult = false;
@@ -77,14 +83,12 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, no
         }
         
         logger.log(`Condition result: ${finalResult ? 'Yes' : 'No'}`);
-        const sourceHandle = finalResult ? `${nodeId}-output-yes` : `${nodeId}-output-no`;
+        const sourceHandle = finalResult ? `${node.id}-output-yes` : `${node.id}-output-no`;
         const edge = flow.edges.find(e => e.sourceHandle === sourceHandle);
-        return edge ? edge.target : null;
+        nextNodeId = edge ? edge.target : null;
     }
     
-    // For trigger and simple actions, find the single outgoing edge
-    const edge = flow.edges.find(e => e.source === nodeId);
-    return edge ? edge.target : null;
+    return nextNodeId;
 }
 
 export async function runSabFlow(flowId: string, triggerPayload: any) {
@@ -105,16 +109,44 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         logger.log(`Error: User ${flow.userId} for flow not found.`);
         return { error: `User for flow ${flowId} not found.`};
     }
+    
+    const startNode = flow.nodes.find(n => n.type === 'trigger');
+    if (!startNode) {
+        return { error: `Flow has no trigger node.` };
+    }
 
-    // Set the webhook payload directly as the 'trigger' object in the context
-    let context: any = { trigger: triggerPayload };
-
-    let currentNodeId: string | null = flow.nodes.find(n => n.type === 'trigger')?.id || null;
+    // Create a new execution record in the database
+    const executionResult = await db.collection('sabflow_executions').insertOne({
+        flowId: flow._id,
+        userId: user._id,
+        status: 'RUNNING',
+        startedAt: new Date(),
+        context: { trigger: triggerPayload },
+        currentNodeId: startNode.id,
+    });
+    const executionId = executionResult.insertedId;
+    
+    let currentNodeId: string | null = startNode.id;
     
     while (currentNodeId) {
-        const nextNodeId = await executeNode(db, user, flow, currentNodeId, context, logger);
+        const executionDoc = await db.collection('sabflow_executions').findOne({ _id: executionId });
+        if (!executionDoc) {
+            logger.log("Execution document not found. Terminating.");
+            break;
+        }
+
+        const nextNodeId = await executeNode(db, user, flow, executionDoc, logger);
+        
+        if (nextNodeId) {
+            await db.collection('sabflow_executions').updateOne({ _id: executionId }, { $set: { currentNodeId: nextNodeId } });
+        }
         currentNodeId = nextNodeId;
     }
+    
+    await db.collection('sabflow_executions').updateOne(
+        { _id: executionId, status: 'RUNNING' }, // Only update if it hasn't failed
+        { $set: { status: 'COMPLETED', finishedAt: new Date() } }
+    );
     
     logger.log(`Flow execution finished.`);
     return { success: true, message: 'Flow executed.' };

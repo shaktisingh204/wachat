@@ -18,19 +18,13 @@ import type { WithId } from 'mongodb';
 function getValueFromPath(obj: any, path: string): any {
     if (!path || typeof path !== 'string') return undefined;
     const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-    return keys.reduce((o, key) => (o && typeof o === 'object' && o.hasOwnProperty(key) ? o[key] : undefined), obj);
+    return keys.reduce((o, key) => (o && typeof o === 'object' && key in o ? o[key] : undefined), obj);
 }
 
 // Recursive helper to interpolate context variables into strings
 function interpolate(text: string | undefined, context: any): any {
     if (typeof text !== 'string') {
         return text;
-    }
-
-    // If the entire string is a single variable, return its raw value
-    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
-    if (singleVariableMatch) {
-        return getValueFromPath(context, singleVariableMatch[1]);
     }
 
     let interpolatedText = text;
@@ -52,6 +46,14 @@ function interpolate(text: string | undefined, context: any): any {
             const value = getValueFromPath(context, varName);
 
             if (value !== undefined && value !== null) {
+                // If the entire string is just one variable, replace it with the raw value (could be an object/array)
+                if (interpolatedText.trim() === placeholder) {
+                    interpolatedText = value;
+                    madeReplacement = true;
+                    // Exit the forEach loop as we've replaced the whole string
+                    return; 
+                }
+
                 const replacement = typeof value === 'object' ? JSON.stringify(value) : String(value);
                 if (interpolatedText.includes(placeholder)) {
                     interpolatedText = interpolatedText.replace(new RegExp(placeholder.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), replacement);
@@ -59,6 +61,11 @@ function interpolate(text: string | undefined, context: any): any {
                 }
             }
         });
+        
+        // If the whole string was replaced with a non-string value, we're done with this text.
+        if (typeof interpolatedText !== 'string') {
+            break;
+        }
 
         if (!madeReplacement) {
             keepInterpolating = false;
@@ -76,13 +83,11 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
     
     logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs: rawInputs });
     
-    // **DEFINITIVE FIX**: Create a deep copy and interpolate every value in place.
-    const interpolatedInputs = JSON.parse(JSON.stringify(rawInputs));
-    for (const key in interpolatedInputs) {
-        if (Object.prototype.hasOwnProperty.call(interpolatedInputs, key)) {
-            interpolatedInputs[key] = interpolate(interpolatedInputs[key], context);
-        }
-    }
+    // Create a deep copy and interpolate every value in place.
+    const interpolatedInputs = Object.keys(rawInputs).reduce((acc, key) => {
+        acc[key] = interpolate(rawInputs[key], context);
+        return acc;
+    }, {} as Record<string, any>);
     
     logger.log(`Interpolated inputs:`, { interpolatedInputs });
 
@@ -96,6 +101,7 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
         case 'meta':
             return await executeMetaAction(actionName, interpolatedInputs, user, logger);
         case 'api':
+            // The API action interpolates internally as it has complex needs (headers, body etc.)
             return await executeApiAction(node, context, logger);
         case 'sms':
             return await executeSmsAction(actionName, interpolatedInputs, user, logger);
