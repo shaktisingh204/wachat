@@ -21,23 +21,24 @@ function getValueFromPath(obj: any, path: string): any {
     return keys.reduce((o, key) => (o && typeof o === 'object' && o.hasOwnProperty(key) ? o[key] : undefined), obj);
 }
 
-// Helper to recursively interpolate context variables into strings
+// Recursive helper to interpolate context variables into strings
 function interpolate(text: string | undefined, context: any): any {
     if (typeof text !== 'string') {
         return text;
     }
 
+    // If the entire string is a single variable, return its raw value
     const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
     if (singleVariableMatch) {
-        // If the entire string is a single variable, return its raw value from the context.
         return getValueFromPath(context, singleVariableMatch[1]);
     }
 
     let interpolatedText = text;
     let keepInterpolating = true;
-    const maxIterations = 10; // To prevent infinite loops
+    const maxIterations = 10;
     let iterations = 0;
 
+    // Continuously replace variables until no more placeholders are found
     while (keepInterpolating && iterations < maxIterations) {
         const placeholders = interpolatedText.match(/{{\s*([^}]+)\s*}}/g);
         if (!placeholders) {
@@ -53,33 +54,35 @@ function interpolate(text: string | undefined, context: any): any {
             if (value !== undefined && value !== null) {
                 const replacement = typeof value === 'object' ? JSON.stringify(value) : String(value);
                 if (interpolatedText.includes(placeholder)) {
-                    interpolatedText = interpolatedText.replace(new RegExp(placeholder, 'g'), replacement);
+                    interpolatedText = interpolatedText.replace(new RegExp(placeholder.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), replacement);
                     madeReplacement = true;
                 }
             }
         });
-        
+
         if (!madeReplacement) {
             keepInterpolating = false;
         }
-        
         iterations++;
     }
 
     return interpolatedText;
-};
+}
 
 
 export async function executeSabFlowAction(node: SabFlowNode, context: any, user: WithId<User>, logger: any) {
     const { actionName, appId } = node.data;
-    const inputs = node.data.inputs || {};
+    const rawInputs = node.data.inputs || {};
     
-    logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs });
+    logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs: rawInputs });
     
-    const interpolatedInputs = Object.keys(inputs).reduce((acc, key) => {
-        acc[key] = interpolate(inputs[key], context);
-        return acc;
-    }, {} as Record<string, any>);
+    // **DEFINITIVE FIX**: Create a deep copy and interpolate every value in place.
+    const interpolatedInputs = JSON.parse(JSON.stringify(rawInputs));
+    for (const key in interpolatedInputs) {
+        if (Object.prototype.hasOwnProperty.call(interpolatedInputs, key)) {
+            interpolatedInputs[key] = interpolate(interpolatedInputs[key], context);
+        }
+    }
     
     logger.log(`Interpolated inputs:`, { interpolatedInputs });
 
