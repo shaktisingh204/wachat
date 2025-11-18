@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { testApiRequest } from '@/app/actions/sabflow.actions';
-import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { LoaderCircle } from 'lucide-react';
 
 const KeyValueEditor: React.FC<{ items: { key: string, value: string, enabled: boolean }[], onItemsChange: (items: any[]) => void }> = ({ items, onItemsChange }) => {
@@ -138,7 +138,7 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
     
     const handleCopyToClipboard = (variableName: string) => {
         const stepName = data.name.replace(/ /g, '_');
-        copy(`{{${stepName}.${variableName}}}`);
+        copy(`{{${stepName}.output.${variableName}}}`);
     }
 
     const handleTestApi = async () => {
