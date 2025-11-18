@@ -28,47 +28,24 @@ function interpolate(text: string | undefined, context: any): any {
         return text;
     }
     
-    const maxIterations = 10;
-    let interpolatedText = text;
-    let iteration = 0;
-    let placeholdersFound = true;
-
-    while(placeholdersFound && iteration < maxIterations) {
-        const placeholders = interpolatedText.match(/{{\s*([^}]+)\s*}}/g);
-        if (!placeholders) {
-            placeholdersFound = false;
-            continue;
-        }
-
-        let madeReplacement = false;
-        for (const placeholder of placeholders) {
-            const varName = placeholder.replace(/{{\s*|\s*}}/g, '').trim();
-            const value = getValueFromPath(context, varName);
-
-            if (value !== undefined && value !== null) {
-                const replacement = typeof value === 'object' ? JSON.stringify(value) : String(value);
-                if (interpolatedText.includes(placeholder)) {
-                    interpolatedText = interpolatedText.replace(new RegExp(placeholder, 'g'), replacement);
-                    madeReplacement = true;
-                }
-            }
-        }
-        
-        if (!madeReplacement) {
-            placeholdersFound = false;
-        }
-        iteration++;
-    }
-
-    // Final check for single variable match to return non-string types
+    // Check if the entire string is just a single variable. If so, return the raw value (e.g., an object or array)
     const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
     if (singleVariableMatch) {
-         const resolvedValue = getValueFromPath(context, singleVariableMatch[1].trim());
-         if (resolvedValue !== undefined) return resolvedValue;
+        const value = getValueFromPath(context, singleVariableMatch[1].trim());
+        if (value !== undefined) {
+            return value;
+        }
     }
-
-    return interpolatedText;
-}
+    
+    // Otherwise, perform string interpolation for all variables found.
+    return text.replace(/{{\s*([^}]+)\s*}}/g, (match, varName) => {
+        const value = getValueFromPath(context, varName.trim());
+        if (value !== undefined && value !== null) {
+            return typeof value === 'object' ? JSON.stringify(value) : String(value);
+        }
+        return match; // Return the original placeholder if value not found
+    });
+};
 
 
 export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowNode, user: WithId<User>, logger: any) {
@@ -88,11 +65,6 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         acc[key] = interpolate(rawInputs[key], context);
         return acc;
     }, {} as Record<string, any>);
-
-    // This ensures that even if inputs don't have projectId, it gets added if the action needs it.
-    if (!interpolatedInputs.projectId && rawInputs.projectId) {
-        interpolatedInputs.projectId = rawInputs.projectId;
-    }
     
     logger.log(`Interpolated inputs:`, { interpolatedInputs });
 
