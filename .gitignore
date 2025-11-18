@@ -73,6 +73,12 @@ Ignore all action files by default
 /src/components/wabasimplify/website-builder/
 !/src/app/actions/sabflow.actions.ts
 
+
+#for now only
+/src/lib/cron-scheduler.js
+/src/lib/cron-scheduler.ts
+/src/lib/broadcast-worker.js
+/workers/
 # debug
 npm-debug.log*
 yarn-debug.log*

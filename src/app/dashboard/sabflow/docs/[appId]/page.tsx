@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Badge } from '@/components/ui/badge';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Separator } from '@/components/ui/separator';
 
 export default function AppDocPage() {
     const params = useParams();
@@ -47,45 +48,76 @@ export default function AppDocPage() {
             {appId === 'api' ? (
                 <Card>
                     <CardHeader>
-                        <CardTitle>API Request Action</CardTitle>
-                        <CardDescription>Make HTTP requests to any external API or webhook.</CardDescription>
+                        <CardTitle>API Request Action Guide</CardTitle>
+                        <CardDescription>Make HTTP requests to any external API or webhook to fetch or send data.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                        <p>This action is one of the most powerful in SabFlow. It allows you to connect to virtually any service that has a REST API. You can fetch data to use in later steps or send data to other systems.</p>
+                    <CardContent className="space-y-8">
+                        <p>This action is one of the most powerful in SabFlow. It allows you to connect to virtually any service with a REST API. You can fetch data to use in later steps or send data to other systems.</p>
                         
-                        <div>
-                            <h4 className="font-semibold text-lg">Configuration Tabs</h4>
-                            <p className="text-sm text-muted-foreground mb-2">The API action is configured using several tabs:</p>
-                            <ul className="list-disc pl-5 space-y-1 text-sm">
-                                <li><strong>Params:</strong> URL query parameters to add to the request URL.</li>
-                                <li><strong>Auth:</strong> Authentication method (Bearer Token, API Key, Basic Auth).</li>
-                                <li><strong>Headers:</strong> Custom HTTP headers for the request.</li>
-                                <li><strong>Body:</strong> The request payload, either as Form Data or a JSON object.</li>
-                            </ul>
-                        </div>
+                        <Separator />
 
                         <div>
-                            <h4 className="font-semibold text-lg">Response Mapping</h4>
-                            <p className="text-sm text-muted-foreground mb-2">After the API call is successful, you can save parts of the JSON response into variables to use in subsequent steps. Use dot notation to specify the path to the data you want.</p>
-                             <CodeBlock language="json" code={
+                            <h4 className="font-semibold text-lg mb-2">Configuration Breakdown</h4>
+                            <p className="text-sm text-muted-foreground mb-4">The API action is configured using several tabs:</p>
+                             <Accordion type="multiple" defaultValue={['url', 'auth', 'body', 'response']} className="w-full">
+                                <AccordionItem value="url">
+                                    <AccordionTrigger>URL & Method</AccordionTrigger>
+                                    <AccordionContent className="space-y-4 pt-2">
+                                        <p>Select the HTTP method (GET, POST, etc.) and enter the full URL of the API endpoint. You can use variables from previous steps in the URL.</p>
+                                        <CodeBlock language="text" code={'https://api.example.com/users/{{trigger.userId}}'}/>
+                                    </AccordionContent>
+                                </AccordionItem>
+                                 <AccordionItem value="auth">
+                                    <AccordionTrigger>Authentication</AccordionTrigger>
+                                    <AccordionContent className="space-y-4 pt-2">
+                                        <p>Secure your requests using one of the supported authentication methods.</p>
+                                        <ul className="list-disc pl-5 space-y-2 text-sm">
+                                            <li><strong>Bearer Token:</strong> Sends an `Authorization: Bearer YOUR_TOKEN` header.</li>
+                                            <li><strong>API Key:</strong> Sends a key-value pair in either the headers or as a URL query parameter.</li>
+                                            <li><strong>Basic Auth:</strong> Sends a base64-encoded `username:password` string in the `Authorization` header.</li>
+                                        </ul>
+                                    </AccordionContent>
+                                </AccordionItem>
+                                 <AccordionItem value="body">
+                                    <AccordionTrigger>Request Body</AccordionTrigger>
+                                    <AccordionContent className="space-y-4 pt-2">
+                                        <p>For POST or PUT requests, you can define the payload.</p>
+                                         <ul className="list-disc pl-5 space-y-2 text-sm">
+                                            <li><strong>Form Data:</strong> Sends data as `multipart/form-data`, useful for file uploads or simple key-value submissions.</li>
+                                            <li><strong>JSON:</strong> Sends a raw JSON payload. You can use variables to construct the JSON dynamically.</li>
+                                        </ul>
+                                         <CodeBlock language="json" code={'{\n  "name": "{{trigger.userName}}",\n  "status": "active"\n}'}/>
+                                    </AccordionContent>
+                                </AccordionItem>
+                                <AccordionItem value="response">
+                                    <AccordionTrigger>Response Mapping</AccordionTrigger>
+                                    <AccordionContent className="space-y-4 pt-2">
+                                        <p>After the API call succeeds, you can save parts of the JSON response into variables for use in subsequent steps. Use dot notation for nested data and square brackets for array elements.</p>
+                                        <CodeBlock language="json" code={
 `// Example API Response:
 {
   "user": {
     "id": 123,
     "email": "test@example.com",
-    "details": {
-      "subscription_plan": "Pro"
-    }
-  }
+    "roles": ["admin", "editor"]
+  },
+  "posts": [
+    { "id": "post1", "title": "First Post" }
+  ]
 }
 
-// To save the email and plan, you would create two mappings:
-// 1. Variable Name: user_email,   Response Path: user.email
-// 2. Variable Name: subscription, Response Path: user.details.subscription_plan
+// To save data from this response:
+// 1. Save email:         Variable: user_email,   Response Path: user.email
+// 2. Save first role:    Variable: first_role,   Response Path: user.roles[0]
+// 3. Save first post ID: Variable: first_post,   Response Path: posts[0].id
 
-// You can then use them in another step like so:
-// "User {{user_email}} is on the {{subscription}} plan."
+// Then use them in another step like so:
+// "User {{user_email}} (role: {{first_role}}) wrote post {{first_post}}."
 `} />
+                                         <p className="text-sm text-muted-foreground pt-2">You can also save the entire response object (status, headers, and data) to a single variable using the "Save Full Response To" field for advanced debugging or conditional logic.</p>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                         </div>
                     </CardContent>
                 </Card>
