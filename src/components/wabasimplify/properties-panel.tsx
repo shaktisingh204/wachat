@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Label } from '@/components/ui/label';
@@ -6,9 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import type { WithId, CrmEmailTemplate, Template, MetaFlow } from '@/lib/definitions';
+import type { WithId, Template, MetaFlow } from '@/lib/definitions';
 import { useEffect, useState } from 'react';
-import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -80,10 +80,41 @@ export function PropertiesPanel({ node, onUpdate, deleteNode }: PropertiesPanelP
             case 'text':
                 return <Textarea id="text-content" placeholder="Enter your message here..." value={node.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />;
              case 'image':
+                 const [mediaSource, setMediaSource] = useState(node.data.imageBase64 ? 'upload' : 'url');
+
+                const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            handleDataChange('imageBase64', reader.result as string);
+                            handleDataChange('imageUrl', ''); // Clear the URL field
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+
                  return (
                     <div className="space-y-4">
-                        <div className="space-y-2"><Label htmlFor="image-url">Image URL</Label><Input id="image-url" placeholder="https://example.com/image.png" value={node.data.imageUrl || ''} onChange={(e) => handleDataChange('imageUrl', e.target.value)} /></div>
-                        <div className="space-y-2"><Label htmlFor="image-caption">Caption (Optional)</Label><Textarea id="image-caption" placeholder="A caption for your image..." value={node.data.caption || ''} onChange={(e) => handleDataChange('caption', e.target.value)} /></div>
+                         <RadioGroup value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="img-url" /><Label htmlFor="img-url">From URL</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="upload" id="img-upload" /><Label htmlFor="img-upload">Upload</Label></div>
+                        </RadioGroup>
+                        {mediaSource === 'url' ? (
+                            <div className="space-y-2">
+                                <Label htmlFor="image-url">Image URL</Label>
+                                <Input id="image-url" placeholder="https://example.com/image.png" value={node.data.imageUrl || ''} onChange={(e) => { handleDataChange('imageUrl', e.target.value); handleDataChange('imageBase64', null); }} />
+                            </div>
+                        ) : (
+                             <div className="space-y-2">
+                                <Label htmlFor="image-file">Upload Image</Label>
+                                <Input id="image-file" type="file" accept="image/*" onChange={handleFileChange} />
+                            </div>
+                        )}
+                        <div className="space-y-2">
+                            <Label htmlFor="image-caption">Caption (Optional)</Label>
+                            <Textarea id="image-caption" placeholder="A caption for your image..." value={node.data.caption || ''} onChange={(e) => handleDataChange('caption', e.target.value)} />
+                        </div>
                     </div>
                 );
             case 'buttons':
