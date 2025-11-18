@@ -2,15 +2,25 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, GitFork } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
-import { sabnodeAppActions } from '@/lib/sabflow-actions';
+import { sabnodeAppActions } from '@/lib/sabflow/apps';
+import { cn } from '@/lib/utils';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function SabFlowDocsPage() {
+
+    const groupedApps = sabnodeAppActions.reduce((acc, app) => {
+        const category = app.category || 'SabNode Apps';
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(app);
+        return acc;
+    }, {} as Record<string, typeof sabnodeAppActions>);
+
+
     return (
         <div className="flex flex-col gap-8">
             <div>
@@ -47,47 +57,40 @@ export default function SabFlowDocsPage() {
                         Variables allow you to pass data between steps. The initial data comes from the trigger. For a webhook trigger, this is the JSON body you send. The output of each action is then added to the context.
                     </p>
                     <p>
-                        To use a variable from a previous step, use the double curly brace syntax: <Badge variant="outline" className="font-mono">{"{{trigger.data.name}}"}</Badge> to get a 'name' field from the webhook payload, or <Badge variant="outline" className="font-mono">{"{{Create_CRM_Lead.output.dealId}}"}</Badge> to get the ID from a previous CRM action.
+                        To use a variable from a previous step, use the double curly brace syntax: <code className="bg-muted px-1 rounded-sm">{'{{trigger.data.name}}'}</code> to get a 'name' field from the webhook payload, or <code className="bg-muted px-1 rounded-sm">{'{{Create_CRM_Lead.output.dealId}}'}</code> to get the ID from a previous CRM action.
                     </p>
                 </CardContent>
             </Card>
-
-            <Separator />
-
+            
             <div>
-                <h2 className="text-2xl font-bold font-headline">Available Actions</h2>
+                <h2 className="text-2xl font-bold font-headline">App & Action Reference</h2>
                 <p className="text-muted-foreground mt-1">
-                    An overview of all available triggers and actions.
+                    Select an app to view its detailed documentation and available actions.
                 </p>
             </div>
 
-            <Accordion type="multiple" className="w-full">
-                {sabnodeAppActions.map((app) => (
-                     <AccordionItem value={app.appId} key={app.appId}>
-                        <AccordionTrigger className="text-lg font-semibold">{app.name}</AccordionTrigger>
-                        <AccordionContent className="space-y-4 pt-2">
-                             {app.actions.map((action, index) => (
-                                 <div key={index} className="p-3 border rounded-md">
-                                     <h4 className="font-semibold text-base">{action.label}</h4>
-                                     <p className="text-sm text-muted-foreground">{action.description}</p>
-                                     {action.inputs.length > 0 && (
-                                         <div className="mt-2">
-                                             <h5 className="font-medium text-xs uppercase text-muted-foreground">Inputs:</h5>
-                                             <ul className="list-disc list-inside space-y-1 text-sm mt-1">
-                                                 {action.inputs.map((input, i) => (
-                                                     <li key={i}><strong>{input.label}:</strong> ({input.type})</li>
-                                                 ))}
-                                             </ul>
-                                         </div>
-                                     )}
-                                 </div>
-                             ))}
-                        </AccordionContent>
-                    </AccordionItem>
+            <div className="space-y-4">
+                {Object.entries(groupedApps).map(([category, apps]) => (
+                    <div key={category}>
+                        <h3 className="text-xl font-semibold mb-2">{category}</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {apps.map(app => {
+                                const AppIcon = app.icon;
+                                return (
+                                <Link key={app.appId} href={`/dashboard/sabflow/docs/${app.appId}`} passHref>
+                                    <Card className="h-full hover:border-primary hover:shadow-lg transition-all">
+                                        <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+                                            <AppIcon className={cn("h-8 w-8 mb-2", app.iconColor)} />
+                                            <p className="font-semibold text-sm">{app.name}</p>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
+                                )
+                            })}
+                        </div>
+                    </div>
                 ))}
-            </Accordion>
+            </div>
         </div>
     );
 }
-
-    
