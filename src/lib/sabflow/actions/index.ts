@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import type { SabFlowNode, User } from '@/lib/definitions';
@@ -12,7 +13,8 @@ import { executeQrCodeAction } from './qr-code';
 import { executeSabChatAction } from './sabchat';
 import { executeMetaAction } from './meta';
 import { executeGoogleSheetsAction } from './google-sheets';
-import type { WithId } from 'mongodb';
+import type { WithId, ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
 
 // Helper to get nested value from context
 function getValueFromPath(obj: any, path: string): any {
@@ -21,31 +23,24 @@ function getValueFromPath(obj: any, path: string): any {
     return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
 }
 
-
 function interpolate(text: string | undefined, context: any): any {
     if (typeof text !== 'string') {
         return text;
     }
     
-    let interpolatedText = text;
-    let keepInterpolating = true;
     const maxIterations = 10;
-    let iterations = 0;
+    let interpolatedText = text;
+    let iteration = 0;
+    let placeholdersFound = true;
 
-    while (keepInterpolating && iterations < maxIterations) {
-        const singleVariableMatch = interpolatedText.match(/^{{\s*([^}]+)\s*}}$/);
-        if (singleVariableMatch) {
-            const resolvedValue = getValueFromPath(context, singleVariableMatch[1].trim());
-            return resolvedValue !== undefined ? resolvedValue : interpolatedText;
-        }
-
+    while(placeholdersFound && iteration < maxIterations) {
         const placeholders = interpolatedText.match(/{{\s*([^}]+)\s*}}/g);
         if (!placeholders) {
-            keepInterpolating = false;
+            placeholdersFound = false;
             continue;
         }
-        
-        let madeReplacementInThisPass = false;
+
+        let madeReplacement = false;
         for (const placeholder of placeholders) {
             const varName = placeholder.replace(/{{\s*|\s*}}/g, '').trim();
             const value = getValueFromPath(context, varName);
@@ -53,34 +48,56 @@ function interpolate(text: string | undefined, context: any): any {
             if (value !== undefined && value !== null) {
                 const replacement = typeof value === 'object' ? JSON.stringify(value) : String(value);
                 if (interpolatedText.includes(placeholder)) {
-                    interpolatedText = interpolatedText.replace(placeholder, replacement);
-                    madeReplacementInThisPass = true;
+                    interpolatedText = interpolatedText.replace(new RegExp(placeholder, 'g'), replacement);
+                    madeReplacement = true;
                 }
             }
         }
         
-        if (!madeReplacementInThisPass) {
-            keepInterpolating = false;
+        if (!madeReplacement) {
+            placeholdersFound = false;
         }
-        iterations++;
+        iteration++;
+    }
+
+    // Final check for single variable match to return non-string types
+    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
+    if (singleVariableMatch) {
+         const resolvedValue = getValueFromPath(context, singleVariableMatch[1].trim());
+         if (resolvedValue !== undefined) return resolvedValue;
     }
 
     return interpolatedText;
 }
 
 
-export async function executeSabFlowAction(node: SabFlowNode, context: any, user: WithId<User>, logger: any) {
-    const { actionName, appId } = node.data;
+export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowNode, user: WithId<User>, logger: any) {
+    const { db } = await connectToDatabase();
+    const execution = await db.collection('sabflow_executions').findOne({ _id: executionId });
+    if (!execution) {
+        logger.log(`Error: Could not find execution document with ID ${executionId}`);
+        return { error: 'Execution context not found.' };
+    }
+
+    const context = execution.context || {};
     const rawInputs = node.data.inputs || {};
     
-    logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs: rawInputs });
+    logger.log(`Preparing to execute action: ${node.data.actionName} for app: ${node.data.appId}`, { inputs: rawInputs });
     
     const interpolatedInputs = Object.keys(rawInputs).reduce((acc, key) => {
         acc[key] = interpolate(rawInputs[key], context);
         return acc;
     }, {} as Record<string, any>);
+
+    // This ensures that even if inputs don't have projectId, it gets added if the action needs it.
+    if (!interpolatedInputs.projectId && rawInputs.projectId) {
+        interpolatedInputs.projectId = rawInputs.projectId;
+    }
     
     logger.log(`Interpolated inputs:`, { interpolatedInputs });
+
+    const appId = node.data.appId;
+    const actionName = node.data.actionName;
 
     switch(appId) {
         case 'wachat':
@@ -108,5 +125,3 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
             return { error: `Action app "${appId}" is not implemented.` };
     }
 }
-
-    
