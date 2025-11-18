@@ -319,7 +319,7 @@ export function FlowBuilder() {
                             flows.map(flow => (
                                 <div key={flow._id.toString()} className="flex items-center group">
                                     <Button variant="ghost" className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && 'bg-muted font-semibold')} onClick={() => handleSelectFlow(flow._id.toString())}>
-                                        <FileIcon className="mr-2 h-4 w-4"/>
+                                        <File className="mr-2 h-4 w-4"/>
                                         {flow.name}
                                     </Button>
                                     <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}>
