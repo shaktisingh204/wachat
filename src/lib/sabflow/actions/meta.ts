@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import type { WithId, User } from '@/lib/definitions';
@@ -8,6 +9,29 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 const API_VERSION = 'v23.0';
+
+async function uploadBase64ToMeta(base64Data: string, accessToken: string, pageId: string) {
+    // This is a simplified example. In production, you'd want to handle different mime types
+    // and potentially use Meta's resumable upload API for larger files.
+    
+    // Convert base64 to buffer
+    const buffer = Buffer.from(base64Data.split(',')[1], 'base64');
+    
+    const formData = new FormData();
+    formData.append('source', buffer);
+    formData.append('access_token', accessToken);
+    
+    const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${pageId}/photos`, formData, {
+        headers: formData.getHeaders(),
+    });
+
+    if (response.data.error) {
+        throw new Error(`Meta API error during image upload: ${response.data.error.message}`);
+    }
+
+    return response.data.id;
+}
+
 
 export async function executeMetaAction(actionName: string, inputs: any, user: WithId<User>, logger: any) {
     try {
@@ -37,9 +61,18 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
         switch (actionName) {
             // ----- Content Management -----
             case 'createPost': {
-                const { message, imageUrl } = actionInputs;
+                const { message, imageUrl, imageBase64 } = actionInputs;
                 let endpoint, payload;
-                if (imageUrl) {
+
+                if (imageBase64) {
+                    const photoId = await uploadBase64ToMeta(imageBase64, accessToken, pageId);
+                    endpoint = `https://graph.facebook.com/${API_VERSION}/${pageId}/feed`;
+                    payload = {
+                        message: message,
+                        object_attachment: photoId,
+                        access_token: accessToken
+                    };
+                } else if (imageUrl) {
                     endpoint = `https://graph.facebook.com/${API_VERSION}/${pageId}/photos`;
                     payload = { url: imageUrl, caption: message, access_token: accessToken };
                 } else {
