@@ -1,4 +1,5 @@
 
+      
 'use server';
 
 import type { SabFlowNode, User } from '@/lib/definitions';
@@ -22,30 +23,26 @@ function getValueFromPath(obj: any, path: string): any {
 }
 
 // Helper to interpolate context variables into strings
-function interpolate(text: string | undefined, context: any): string {
+function interpolate(text: string | undefined, context: any): any {
     if (typeof text !== 'string') {
-        return '';
+        return text;
     }
+    // Check if the entire string is a single variable, e.g., "{{user}}"
+    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
+    if (singleVariableMatch) {
+        // If so, return the raw value from context, which could be an object, array, etc.
+        return getValueFromPath(context, singleVariableMatch[1]);
+    }
+
+    // Otherwise, perform standard string interpolation
     return text.replace(/{{\s*([^}]+)\s*}}/g, (match: any, varName: string) => {
         const value = getValueFromPath(context, varName);
         
         if (value !== undefined && value !== null) {
-            // If the value is an object or array, and it's the *only* thing in the string,
-            // we might want to keep it as an object for JSON bodies, but this function returns a string.
-            // For now, we'll stringify it, which is safer for most use cases.
-            if(typeof value === 'object') {
-                 // Check if the entire string is just the variable.
-                if (match === text) {
-                    // This is a special case that we'll handle by returning the object itself,
-                    // but the function signature expects a string. We'll cast it, and the caller
-                    // must be aware of this possibility.
-                    return value as any;
-                }
-                return JSON.stringify(value);
-            }
-            return String(value);
+            // If we find a value, stringify it for interpolation, even if it's an object.
+            return typeof value === 'object' ? JSON.stringify(value) : String(value);
         }
-        return match; 
+        return match; // Return the original placeholder like "{{...}}" if not found
     });
 };
 
@@ -90,5 +87,5 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
             return { error: `Action app "${appId}" is not implemented.` };
     }
 }
-
+      
     
