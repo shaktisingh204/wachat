@@ -1,4 +1,5 @@
 
+      
 'use server';
 
 import axios from 'axios';
@@ -16,20 +17,18 @@ function interpolate(text: string | undefined, context: any): any {
     if (typeof text !== 'string') {
         return text;
     }
-    const match = text.match(/{{\s*([^}]+)\s*}}/);
-    if (match && match[0] === text) {
-        // If the entire string is a variable, return the raw value (e.g., object, array)
-        return getValueFromPath(context, match[1]);
+    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
+    if (singleVariableMatch) {
+        return getValueFromPath(context, singleVariableMatch[1]);
     }
-    // Otherwise, perform string interpolation
     return text.replace(/{{\s*([^}]+)\s*}}/g, (m, varName) => {
         const value = getValueFromPath(context, varName);
         if (value !== undefined && value !== null) {
             return typeof value === 'object' ? JSON.stringify(value) : String(value);
         }
-        return m; // Return the original placeholder if not found
+        return m;
     });
-}
+};
 
 export async function executeApiAction(node: SabFlowNode, context: any, logger: any) {
     try {
@@ -89,7 +88,6 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
             try {
                 requestConfig.headers['Content-Type'] = 'application/json';
                 const interpolatedBody = interpolate(apiRequest.body.json, context);
-                // If interpolate returned an object, use it directly. If string, parse it.
                 requestConfig.data = typeof interpolatedBody === 'object' ? interpolatedBody : JSON.parse(interpolatedBody);
             } catch(e) {
                  throw new Error(`Invalid JSON in request body: ${(e as Error).message}`);
@@ -112,7 +110,7 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         const responseData = { status: response.status, headers: response.headers, data: response.data };
         
         const stepName = node.data.name.replace(/ /g, '_');
-        context[stepName] = {};
+        context[stepName] = { output: {} }; // Ensure the step object exists
 
         if (node.data.responseVariableName) {
             context[stepName][node.data.responseVariableName] = responseData;
@@ -123,8 +121,8 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
                 if (mapping.variable && mapping.path) {
                     const value = getValueFromPath(response.data, mapping.path);
                     if (value !== undefined) {
-                        context[stepName][mapping.variable] = value;
-                        logger.log(`Mapped response path "${mapping.path}" to context variable "${stepName}.${mapping.variable}".`, { value });
+                        context[stepName].output[mapping.variable] = value;
+                        logger.log(`Mapped response path "${mapping.path}" to context variable "${stepName}.output.${mapping.variable}".`, { value });
                     }
                 }
             });
@@ -138,5 +136,5 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         return { error: errorMsg };
     }
 }
-
+      
     

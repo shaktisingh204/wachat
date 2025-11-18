@@ -1,13 +1,14 @@
 
+      
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Trash2, Copy, Wand2, FlaskConical, Wrench, X } from 'lucide-react';
+import { Plus, Trash2, Copy, Wand2, FlaskConical, Wrench } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
@@ -51,11 +52,18 @@ const KeyValueEditor: React.FC<{ items: { key: string, value: string, enabled: b
 function flattenObject(obj: any, parentKey = '', result: { [key: string]: any } = {}) {
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            const newKey = parentKey ? `${parentKey}.${key}` : key;
+            const propName = parentKey ? `${parentKey}.${key}` : key;
             if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-                flattenObject(obj[key], newKey, result);
+                flattenObject(obj[key], propName, result);
+            } else if (Array.isArray(obj[key])) {
+                if (obj[key].length > 0 && typeof obj[key][0] === 'object') {
+                    // Handle array of objects by inspecting the first element
+                    flattenObject(obj[key][0], `${propName}[0]`, result);
+                } else {
+                     result[propName] = obj[key];
+                }
             } else {
-                result[newKey] = obj[key];
+                result[propName] = obj[key];
             }
         }
     }
@@ -104,11 +112,19 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
     const generateMappingsFromExample = () => {
         try {
             const parsed = JSON.parse(exampleJson);
-            const flattened = flattenObject(parsed);
+            
+            // Check if the response is wrapped in a "data" object
+            const dataToFlatten = (Object.keys(parsed).length === 1 && parsed.data && typeof parsed.data === 'object') 
+                ? parsed.data 
+                : parsed;
+
+            const prefix = (Object.keys(parsed).length === 1 && parsed.data) ? 'data.' : '';
+
+            const flattened = flattenObject(dataToFlatten);
             
             const newMappings = Object.keys(flattened).map(path => {
                 const variableName = path.replace(/\[\d+\]/g, '').replace(/\./g, '_');
-                return { variable: variableName, path };
+                return { variable: variableName, path: prefix + path };
             });
 
             handleApiChange('responseMappings', newMappings);
@@ -121,8 +137,8 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
     }
     
     const handleCopyToClipboard = (variableName: string) => {
-        const nodeName = data.name.replace(/ /g, '_');
-        copy(`{{${nodeName}.${variableName}}}`);
+        const stepName = data.name.replace(/ /g, '_');
+        copy(`{{${stepName}.${variableName}}}`);
     }
 
     const handleTestApi = async () => {
@@ -332,5 +348,5 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
         </div>
     );
 }
-
+      
     
