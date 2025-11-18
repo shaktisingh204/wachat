@@ -53,12 +53,10 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
     logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs });
 
     // Correctly interpolate all input values from the context.
-    const interpolatedInputs: Record<string, any> = {};
-    for (const key in inputs) {
-        if (Object.prototype.hasOwnProperty.call(inputs, key)) {
-            interpolatedInputs[key] = interpolate(inputs[key], context);
-        }
-    }
+    const interpolatedInputs = Object.keys(inputs).reduce((acc, key) => {
+        acc[key] = interpolate(inputs[key], context);
+        return acc;
+    }, {} as Record<string, any>);
     
     logger.log(`Interpolated inputs:`, { interpolatedInputs });
 
