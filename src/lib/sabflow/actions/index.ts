@@ -32,7 +32,7 @@ function interpolate(text: string | undefined, context: any): any {
     const maxIterations = 10;
     let iterations = 0;
 
-    // Continuously replace variables until no more placeholders are found
+    // This loop handles nested variables like {{step1.output.{{trigger.field}}}}
     while (keepInterpolating && iterations < maxIterations) {
         const placeholders = interpolatedText.match(/{{\s*([^}]+)\s*}}/g);
         if (!placeholders) {
@@ -40,24 +40,24 @@ function interpolate(text: string | undefined, context: any): any {
             continue;
         }
 
-        let madeReplacement = false;
+        let madeReplacementInThisPass = false;
         placeholders.forEach(placeholder => {
-            const varName = placeholder.replace(/{{\s*|\s*}}/g, '');
+            const varName = placeholder.replace(/{{\s*|\s*}}/g, '').trim();
             const value = getValueFromPath(context, varName);
 
             if (value !== undefined && value !== null) {
                 // If the entire string is just one variable, replace it with the raw value (could be an object/array)
                 if (interpolatedText.trim() === placeholder) {
                     interpolatedText = value;
-                    madeReplacement = true;
-                    // Exit the forEach loop as we've replaced the whole string
+                    madeReplacementInThisPass = true;
+                    // Exit forEach as the entire string is replaced
                     return; 
                 }
 
                 const replacement = typeof value === 'object' ? JSON.stringify(value) : String(value);
                 if (interpolatedText.includes(placeholder)) {
-                    interpolatedText = interpolatedText.replace(new RegExp(placeholder.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), replacement);
-                    madeReplacement = true;
+                    interpolatedText = interpolatedText.replace(placeholder, replacement);
+                    madeReplacementInThisPass = true;
                 }
             }
         });
@@ -66,8 +66,8 @@ function interpolate(text: string | undefined, context: any): any {
         if (typeof interpolatedText !== 'string') {
             break;
         }
-
-        if (!madeReplacement) {
+        
+        if (!madeReplacementInThisPass) {
             keepInterpolating = false;
         }
         iterations++;
@@ -84,10 +84,12 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
     logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs: rawInputs });
     
     // Create a deep copy and interpolate every value in place.
-    const interpolatedInputs = Object.keys(rawInputs).reduce((acc, key) => {
-        acc[key] = interpolate(rawInputs[key], context);
-        return acc;
-    }, {} as Record<string, any>);
+    const interpolatedInputs = JSON.parse(JSON.stringify(rawInputs));
+    for (const key in interpolatedInputs) {
+        if (Object.prototype.hasOwnProperty.call(interpolatedInputs, key)) {
+            interpolatedInputs[key] = interpolate(interpolatedInputs[key], context);
+        }
+    }
     
     logger.log(`Interpolated inputs:`, { interpolatedInputs });
 
@@ -102,6 +104,7 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
             return await executeMetaAction(actionName, interpolatedInputs, user, logger);
         case 'api':
             // The API action interpolates internally as it has complex needs (headers, body etc.)
+            // We pass the full context to it.
             return await executeApiAction(node, context, logger);
         case 'sms':
             return await executeSmsAction(actionName, interpolatedInputs, user, logger);
