@@ -20,31 +20,46 @@ import { connectToDatabase } from '@/lib/mongodb';
 function getValueFromPath(obj: any, path: string): any {
     if (!path || typeof path !== 'string') return undefined;
     const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-    return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
+    let result = obj;
+    for (const key of keys) {
+        if (result && typeof result === 'object' && key in result) {
+            result = result[key];
+        } else {
+            return undefined; // Path does not exist
+        }
+    }
+    return result;
 }
 
 function interpolate(text: string | undefined, context: any): any {
     if (typeof text !== 'string') {
         return text;
     }
-    
-    // Check if the entire string is just a single variable. If so, return the raw value (e.g., an object or array)
-    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
-    if (singleVariableMatch) {
-        const value = getValueFromPath(context, singleVariableMatch[1].trim());
-        if (value !== undefined) {
-            return value;
+
+    let interpolatedText = text;
+    let match;
+    const regex = /{{\s*([^}]+)\s*}}/g;
+
+    // Keep replacing until no more placeholders are found
+    while ((match = regex.exec(interpolatedText)) !== null) {
+        const fullMatch = match[0];
+        const varName = match[1].trim();
+        
+        const value = getValueFromPath(context, varName);
+
+        if (value !== undefined && value !== null) {
+            // If the whole string is just one variable, return the raw value
+            if (interpolatedText.trim() === fullMatch) {
+                return value;
+            }
+            // Otherwise, replace it as a string
+            interpolatedText = interpolatedText.replace(fullMatch, typeof value === 'object' ? JSON.stringify(value) : String(value));
+            // Reset regex index to re-evaluate the string from the beginning
+            regex.lastIndex = 0; 
         }
     }
-    
-    // Otherwise, perform string interpolation for all variables found.
-    return text.replace(/{{\s*([^}]+)\s*}}/g, (match, varName) => {
-        const value = getValueFromPath(context, varName.trim());
-        if (value !== undefined && value !== null) {
-            return typeof value === 'object' ? JSON.stringify(value) : String(value);
-        }
-        return match; // Return the original placeholder if value not found
-    });
+
+    return interpolatedText;
 };
 
 
@@ -81,6 +96,7 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'meta':
             return await executeMetaAction(actionName, interpolatedInputs, user, logger);
         case 'api':
+            // The API action interpolates internally as it needs the full context
             return await executeApiAction(node, context, logger);
         case 'sms':
             return await executeSmsAction(actionName, interpolatedInputs, user, logger);
