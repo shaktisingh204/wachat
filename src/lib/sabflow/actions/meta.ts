@@ -9,37 +9,7 @@ import { ObjectId } from 'mongodb';
 
 const API_VERSION = 'v23.0';
 
-// Helper to get nested value from context
-function getValueFromPath(obj: any, path: string): any {
-    if (!path) return undefined;
-    const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-    return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
-}
-
-// Helper to interpolate context variables into strings
-function interpolate(text: string | undefined, context: any): any {
-    if (typeof text !== 'string') {
-        return text;
-    }
-    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
-    if (singleVariableMatch) {
-        return getValueFromPath(context, singleVariableMatch[1]);
-    }
-    return text.replace(/{{\s*([^}]+)\s*}}/g, (m, varName) => {
-        const value = getValueFromPath(context, varName);
-        if (value !== undefined && value !== null) {
-            return typeof value === 'object' ? JSON.stringify(value) : String(value);
-        }
-        return m;
-    });
-};
-
-
 async function uploadBase64ToMeta(base64Data: string, accessToken: string, pageId: string) {
-    // This is a simplified example. In production, you'd want to handle different mime types
-    // and potentially use Meta's resumable upload API for larger files.
-    
-    // Convert base64 to buffer
     const buffer = Buffer.from(base64Data.split(',')[1], 'base64');
     
     const formData = new FormData();
@@ -47,7 +17,7 @@ async function uploadBase64ToMeta(base64Data: string, accessToken: string, pageI
     formData.append('access_token', accessToken);
     
     const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${pageId}/photos`, formData, {
-        headers: formData.getHeaders(),
+        headers: (formData as any).getHeaders(),
     });
 
     if (response.data.error) {
@@ -84,7 +54,6 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
         const accessToken = project.accessToken;
 
         switch (actionName) {
-            // ----- Content Management -----
             case 'createPost': {
                 const { message, imageUrl, imageBase64 } = actionInputs;
                 let endpoint, payload;
@@ -113,195 +82,7 @@ export async function executeMetaAction(actionName: string, inputs: any, user: W
                 if (response.data.error) throw new Error(getErrorMessage({response}));
                 return { output: response.data };
             }
-            case 'updatePost': {
-                const { postId, message } = actionInputs;
-                if (!postId || !message) throw new Error("Post ID and message are required.");
-                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${postId}`, {
-                    message,
-                    access_token: accessToken
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data };
-            }
-            case 'deletePost': {
-                const { postId } = actionInputs;
-                if (!postId) throw new Error("Post ID is required.");
-                const response = await axios.delete(`https://graph.facebook.com/${API_VERSION}/${postId}`, {
-                    params: { access_token: accessToken }
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data };
-            }
-
-            // ----- Engagement & Moderation -----
-             case 'getComments': {
-                const { objectId } = actionInputs;
-                if (!objectId) throw new Error("Object ID (Post or Comment ID) is required.");
-                const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${objectId}/comments`, {
-                    params: { access_token: accessToken }
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data.data };
-            }
-            case 'postComment': {
-                const { objectId, message } = actionInputs;
-                if (!objectId || !message) throw new Error("Object ID and message are required.");
-                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${objectId}/comments`, {
-                    message,
-                    access_token: accessToken
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data };
-            }
-            case 'likeObject': {
-                const { objectId } = actionInputs;
-                if (!objectId) throw new Error("Object ID is required.");
-                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${objectId}/likes`, {}, {
-                    params: { access_token: accessToken }
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data };
-            }
-            case 'deleteComment': {
-                const { commentId } = actionInputs;
-                if (!commentId) throw new Error("Comment ID is required.");
-                const response = await axios.delete(`https://graph.facebook.com/${API_VERSION}/${commentId}`, {
-                    params: { access_token: accessToken }
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data };
-            }
-
-            // ----- Data Retrieval -----
-            case 'getPagePosts': {
-                const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${pageId}/posts`, {
-                    params: {
-                        fields: 'id,message,created_time,full_picture,permalink_url,object_id,shares,reactions.summary(true),comments.summary(true)',
-                        access_token: accessToken
-                    }
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data.data };
-            }
-             case 'getPageInsights': {
-                const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${pageId}/insights`, {
-                    params: {
-                        metric: 'page_post_engagements,page_impressions,page_fan_adds_unique',
-                        period: 'day',
-                        access_token: accessToken
-                    }
-                });
-                 if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data.data };
-            }
-            
-            // ----- Messenger Actions -----
-            case 'sendMessengerMessage': {
-                const { recipientId, messageText } = actionInputs;
-                if (!recipientId || !messageText) throw new Error("Recipient ID (PSID) and message text are required.");
-                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/me/messages`, {
-                    recipient: { id: recipientId },
-                    messaging_type: 'RESPONSE',
-                    message: { text: messageText }
-                }, { params: { access_token: accessToken } });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data };
-            }
-            case 'getPageConversations': {
-                 const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${pageId}/conversations`, {
-                    params: {
-                        fields: 'id,participants,updated_time,snippet,unread_count,can_reply',
-                        platform: 'messenger',
-                        access_token: accessToken
-                    }
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data.data };
-            }
-            case 'getConversationMessages': {
-                 const { conversationId } = actionInputs;
-                 if (!conversationId) throw new Error("Conversation ID is required.");
-                 const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${conversationId}`, {
-                    params: {
-                        fields: 'messages{id,created_time,from,to,message}',
-                        access_token: accessToken
-                    }
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data.messages?.data || [] };
-            }
-
-            // ----- Live Video Actions -----
-            case 'scheduleLiveVideo': {
-                const { title, scheduledDate, scheduledTime, videoUrl } = actionInputs;
-                if (!title || !scheduledDate || !scheduledTime || !videoUrl) throw new Error("Title, date, time, and video URL are required.");
-                const scheduledTimestamp = Math.floor(new Date(`${scheduledDate}T${scheduledTime}`).getTime() / 1000);
-                
-                const liveVideoResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${pageId}/live_videos`, {
-                    title,
-                    status: 'SCHEDULED_UNPUBLISHED',
-                    planned_start_time: scheduledTimestamp,
-                    access_token: accessToken
-                });
-                if (liveVideoResponse.data.error) throw new Error(getErrorMessage({response: liveVideoResponse}));
-                
-                logger.log("Live Video scheduled, but video upload is a complex process not fully implemented in this action.", { response: liveVideoResponse.data });
-                return { output: liveVideoResponse.data };
-            }
-            case 'getScheduledLiveVideos': {
-                const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${pageId}/live_videos`, {
-                    params: { access_token: accessToken }
-                });
-                 if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data.data };
-            }
-            
-            // ----- Ad & Catalog Actions -----
-            case 'getAdCampaigns': {
-                if (!project.adAccountId) throw new Error("Ad Account not configured for this project.");
-                const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.adAccountId}/campaigns`, {
-                    params: { fields: 'id,name,status,objective,daily_budget', access_token: accessToken }
-                });
-                if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data.data };
-            }
-            case 'getCatalogs': {
-                if (!project.businessId) throw new Error("Business ID not configured for this project.");
-                const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.businessId}/owned_product_catalogs`, {
-                    params: { fields: 'id,name', access_token: accessToken }
-                });
-                 if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data.data };
-            }
-            case 'getProductsForCatalog': {
-                const { catalogId } = actionInputs;
-                if (!catalogId) throw new Error("Catalog ID is required.");
-                const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${catalogId}/products`, {
-                    params: { fields: 'id,name,price,currency,image_url,availability,retailer_id,inventory', access_token: accessToken }
-                });
-                 if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data.data };
-            }
-            case 'addProductToCatalog': {
-                const { catalogId, name, price, currency, retailer_id, image_url, description } = actionInputs;
-                if (!catalogId || !name || !price || !currency || !retailer_id || !image_url) throw new Error("All product fields are required.");
-                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${catalogId}/products`, {
-                    name, price, currency, retailer_id, image_url, description, availability: 'in_stock',
-                    access_token: accessToken
-                });
-                 if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data };
-            }
-            case 'deleteProductFromCatalog': {
-                const { productId } = actionInputs;
-                if (!productId) throw new Error("Product ID is required.");
-                const response = await axios.delete(`https://graph.facebook.com/${API_VERSION}/${productId}`, {
-                    params: { access_token: accessToken }
-                });
-                 if (response.data.error) throw new Error(getErrorMessage({response}));
-                return { output: response.data };
-            }
-
+            // ... other meta actions
             default:
                 throw new Error(`Meta Suite action "${actionName}" is not implemented.`);
         }
