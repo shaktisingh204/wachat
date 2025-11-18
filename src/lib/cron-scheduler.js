@@ -9,9 +9,9 @@ const { getErrorMessage } = require('../lib/utils.ts');
 
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS?.split(',') || ['127.0.0.1:9092'];
 const KAFKA_TOPIC = 'broadcasts';
-const MAX_CONTACTS_PER_KAFKA_MESSAGE = 500;
 const STUCK_JOB_TIMEOUT_MINUTES = 10;
 const LOG_PREFIX = '[CRON-SCHEDULER]';
+const MAX_CONTACTS_PER_KAFKA_MESSAGE = 3000;
 
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
     try {
