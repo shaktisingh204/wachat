@@ -18,36 +18,35 @@ import type { WithId } from 'mongodb';
 function getValueFromPath(obj: any, path: string): any {
     if (!path || typeof path !== 'string') return undefined;
     const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-    return keys.reduce((o, key) => (o && typeof o === 'object' && key in o ? o[key] : undefined), obj);
+    return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
 }
 
 
-// Recursive helper to interpolate context variables into strings
 function interpolate(text: string | undefined, context: any): any {
     if (typeof text !== 'string') {
         return text;
     }
-
-    const singleVariableMatch = text.match(/^{{\s*([^}]+)\s*}}$/);
-    if (singleVariableMatch) {
-        return getValueFromPath(context, singleVariableMatch[1].trim());
-    }
-
+    
     let interpolatedText = text;
     let keepInterpolating = true;
     const maxIterations = 10;
     let iterations = 0;
 
-    // This loop handles nested variables like {{step1.output.{{trigger.field}}}}
     while (keepInterpolating && iterations < maxIterations) {
+        const singleVariableMatch = interpolatedText.match(/^{{\s*([^}]+)\s*}}$/);
+        if (singleVariableMatch) {
+            const resolvedValue = getValueFromPath(context, singleVariableMatch[1].trim());
+            return resolvedValue !== undefined ? resolvedValue : interpolatedText;
+        }
+
         const placeholders = interpolatedText.match(/{{\s*([^}]+)\s*}}/g);
         if (!placeholders) {
             keepInterpolating = false;
             continue;
         }
-
+        
         let madeReplacementInThisPass = false;
-        placeholders.forEach(placeholder => {
+        for (const placeholder of placeholders) {
             const varName = placeholder.replace(/{{\s*|\s*}}/g, '').trim();
             const value = getValueFromPath(context, varName);
 
@@ -58,7 +57,7 @@ function interpolate(text: string | undefined, context: any): any {
                     madeReplacementInThisPass = true;
                 }
             }
-        });
+        }
         
         if (!madeReplacementInThisPass) {
             keepInterpolating = false;
@@ -109,5 +108,5 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
             return { error: `Action app "${appId}" is not implemented.` };
     }
 }
-      
+
     
