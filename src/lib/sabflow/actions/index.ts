@@ -17,8 +17,9 @@ import type { WithId } from 'mongodb';
 // Helper to get nested value from context
 function getValueFromPath(obj: any, path: string): any {
     if (!path || typeof path !== 'string') return undefined;
+    // Updated to handle step names with numbers and special characters by default
     const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-    return keys.reduce((o, key) => (o && typeof o === 'object' && key in o ? o[key] : undefined), obj);
+    return keys.reduce((o, key) => (o && typeof o === 'object' && o.hasOwnProperty(key) ? o[key] : undefined), obj);
 }
 
 // Helper to interpolate context variables into strings
@@ -51,7 +52,7 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
     
     logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs });
 
-    // Interpolate all input values from the context directly into the inputs object
+    // Correctly interpolate all input values from the context.
     const interpolatedInputs: Record<string, any> = {};
     for (const key in inputs) {
         if (Object.prototype.hasOwnProperty.call(inputs, key)) {
@@ -71,7 +72,7 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
         case 'meta':
             return await executeMetaAction(actionName, interpolatedInputs, user, logger);
         case 'api':
-            // The API action handles its own complex internal interpolation.
+            // The API action handles its own complex internal interpolation based on the raw context.
             return await executeApiAction(node, context, logger);
         case 'sms':
             return await executeSmsAction(actionName, interpolatedInputs, user, logger);
