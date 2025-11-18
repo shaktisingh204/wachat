@@ -48,11 +48,11 @@ function interpolate(text: string | undefined, context: any): any {
 export async function executeSabFlowAction(node: SabFlowNode, context: any, user: WithId<User>, logger: any) {
     const { actionName, appId } = node.data;
     const inputs = node.data.inputs || {};
-    const interpolatedInputs: Record<string, any> = {};
-
+    
     logger.log(`Preparing to execute action: ${actionName} for app: ${appId}`, { inputs });
 
-    // Interpolate all input values from the context
+    // Interpolate all input values from the context directly into the inputs object
+    const interpolatedInputs: Record<string, any> = {};
     for (const key in inputs) {
         if (Object.prototype.hasOwnProperty.call(inputs, key)) {
             interpolatedInputs[key] = interpolate(inputs[key], context);
@@ -71,7 +71,7 @@ export async function executeSabFlowAction(node: SabFlowNode, context: any, user
         case 'meta':
             return await executeMetaAction(actionName, interpolatedInputs, user, logger);
         case 'api':
-            // API action interpolates internally as it has a more complex structure
+            // The API action handles its own complex internal interpolation.
             return await executeApiAction(node, context, logger);
         case 'sms':
             return await executeSmsAction(actionName, interpolatedInputs, user, logger);
