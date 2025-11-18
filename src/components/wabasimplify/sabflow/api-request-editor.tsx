@@ -1,16 +1,19 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Copy, Wand2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 
 const KeyValueEditor: React.FC<{ items: { key: string, value: string, enabled: boolean }[], onItemsChange: (items: any[]) => void }> = ({ items, onItemsChange }) => {
     const handleItemChange = (index: number, field: 'key' | 'value' | 'enabled', value: string | boolean) => {
@@ -41,8 +44,26 @@ const KeyValueEditor: React.FC<{ items: { key: string, value: string, enabled: b
     );
 };
 
+function flattenObject(obj: any, parentKey = '', result: { [key: string]: any } = {}) {
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const newKey = parentKey ? `${parentKey}.${key}` : key;
+            if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+                flattenObject(obj[key], newKey, result);
+            } else {
+                result[newKey] = obj[key];
+            }
+        }
+    }
+    return result;
+}
+
 export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (data: any) => void }) {
     const apiRequest = data.apiRequest || {};
+    const { toast } = useToast();
+    const { copy } = useCopyToClipboard();
+    const [isAutoMapOpen, setIsAutoMapOpen] = useState(false);
+    const [exampleJson, setExampleJson] = useState('');
 
     const handleApiChange = (field: string, value: any) => {
         onUpdate({ ...data, apiRequest: { ...apiRequest, [field]: value }});
@@ -73,6 +94,30 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
         handleApiChange('responseMappings', mappings);
     };
     
+    const generateMappingsFromExample = () => {
+        try {
+            const parsed = JSON.parse(exampleJson);
+            const flattened = flattenObject(parsed);
+            
+            const newMappings = Object.keys(flattened).map(path => {
+                const variableName = path.replace(/\[\d+\]/g, '').replace(/\./g, '_');
+                return { variable: variableName, path };
+            });
+
+            handleApiChange('responseMappings', newMappings);
+            toast({ title: 'Success', description: `Generated ${newMappings.length} mappings.` });
+            setIsAutoMapOpen(false);
+
+        } catch (e) {
+            toast({ title: 'Error', description: 'Invalid JSON provided.', variant: 'destructive' });
+        }
+    }
+    
+    const handleCopyToClipboard = (variableName: string) => {
+        const nodeName = data.name.replace(/ /g, '_');
+        copy(`{{${nodeName}.${variableName}}}`);
+    }
+
     return (
         <div className="space-y-4">
             <div className="flex items-center gap-2">
@@ -149,24 +194,56 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
             <Separator />
             
              <div className="space-y-2">
-                <Label>Response Mapping</Label>
+                 <div className="flex justify-between items-center">
+                    <Label>Response Mapping</Label>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setIsAutoMapOpen(true)}><Wand2 className="mr-2 h-4 w-4"/>Auto-map</Button>
+                </div>
                 <p className="text-xs text-muted-foreground">Save parts of the API response to variables for use in later steps.</p>
                 <div className="space-y-3">
                     {(apiRequest?.responseMappings || []).map((mapping: any, index: number) => (
                         <div key={index} className="p-2 border rounded-md space-y-2 relative">
-                            <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeMapping(index)}><Trash2 className="h-3 w-3" /></Button>
-                            <Input placeholder="Save to variable..." value={mapping.variable || ''} onChange={(e) => handleMappingChange(index, 'variable', e.target.value)} />
+                            <div className="flex items-center gap-2">
+                                <Input placeholder="Save to variable..." value={mapping.variable || ''} onChange={(e) => handleMappingChange(index, 'variable', e.target.value)} />
+                                 <Button type="button" variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleCopyToClipboard(mapping.variable)}>
+                                    <Copy className="h-4 w-4"/>
+                                </Button>
+                            </div>
                             <Input placeholder="Response path (e.g., data.id)" value={mapping.path || ''} onChange={(e) => handleMappingChange(index, 'path', e.target.value)} />
+                            <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeMapping(index)}><Trash2 className="h-3 w-3" /></Button>
                         </div>
                     ))}
                 </div>
                 <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addMapping}><Plus className="mr-2 h-4 w-4" />Add Mapping</Button>
             </div>
-             <div className="space-y-2 pt-4">
+            
+            <Separator/>
+
+            <div className="space-y-2 pt-4">
                 <Label>Save Full Response To</Label>
                 <Input placeholder="Variable name for full response..." value={data.responseVariableName || ''} onChange={e => onUpdate({ ...data, responseVariableName: e.target.value })} />
-                <p className="text-xs text-muted-foreground">The entire response object (status, headers, data) will be saved to this variable. e.g. `{'{{Api_Request.response.data.some_field}}'}`</p>
+                <p className="text-xs text-muted-foreground">The entire response object (status, headers, data) will be saved to this variable. e.g. <code className="bg-muted px-1 rounded-sm">{'{{Api_Request.response.data.some_field}}'}</code></p>
             </div>
+
+            <Dialog open={isAutoMapOpen} onOpenChange={setIsAutoMapOpen}>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Auto-map from Example</DialogTitle>
+                        <DialogDescription>Paste a sample JSON response below to automatically generate mappings.</DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Textarea
+                            placeholder='{\n  "user": {\n    "id": 123,\n    "email": "test@example.com"\n  }\n}'
+                            className="font-mono text-xs h-64"
+                            value={exampleJson}
+                            onChange={e => setExampleJson(e.target.value)}
+                        />
+                    </div>
+                    <DialogFooter>
+                         <Button type="button" variant="ghost" onClick={() => setIsAutoMapOpen(false)}>Cancel</Button>
+                         <Button type="button" onClick={generateMappingsFromExample}>Generate Mappings</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
