@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import {
@@ -53,8 +52,9 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
         }
 
         const formData = new FormData();
+        // Pass all interpolated inputs to the form data
         Object.keys(inputs).forEach(key => {
-             if (inputs[key] !== undefined && inputs[key] !== null) {
+            if (inputs[key] !== undefined && inputs[key] !== null) {
                 formData.append(key, String(inputs[key]));
             }
         });
@@ -124,7 +124,7 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                 contactFormData.append('phoneNumberId', phoneNumberId);
                 contactFormData.append('name', inputs.name);
                 contactFormData.append('waId', inputs.waId);
-                const result = await handleAddNewContact(null, contactFormData);
+                const result = await handleAddNewContact(null, contactFormData, user);
                 if (result.error) throw new Error(result.error);
                 return { output: result };
             }

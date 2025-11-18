@@ -53,7 +53,7 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
         }
         
         // Save action output to context
-        const stepName = node.data.name.replace(/ /g, '_');
+        const stepName = node.data.name.replace(/\s+/g, '_');
         const newContext = { ...execution.context, [stepName]: result };
         await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { context: newContext }});
         logger.log(`Saved action output to context under "${stepName}"`);
@@ -288,6 +288,25 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
         revalidatePath('/dashboard/sabflow/connections');
         return { message: `${connectionData.appName} account connected successfully.` };
     } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function testApiRequest(apiRequest: any) {
+    try {
+        if (!apiRequest || !apiRequest.url) {
+            throw new Error("API Request node is not configured with a URL.");
+        }
+        
+        const requestConfig: any = {
+            method: apiRequest.method || 'GET',
+            url: apiRequest.url,
+        };
+        
+        const response = await axios(requestConfig);
+        
+        return { data: { status: response.status, headers: response.headers, data: response.data } };
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
