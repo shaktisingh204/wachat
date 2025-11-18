@@ -46,16 +46,21 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
 
     if (node.type === 'action') {
         const result = await executeSabFlowAction(node, execution.context, user, logger);
+        
+        const stepName = node.data.name.replace(/\s+/g, '_');
+        
         if (result.error) {
             logger.log(`Action failed. Stopping flow.`, { error: result.error });
-            await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { status: 'FAILED', error: result.error, finishedAt: new Date() }});
+            await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { status: 'FAILED', error: result.error, finishedAt: new Date(), [`history.${stepName}`]: result  }});
             return null; // Stop execution on error
         }
         
-        // Save action output to context
-        const stepName = node.data.name.replace(/\s+/g, '_');
+        // Save action output to a new context object
         const newContext = { ...execution.context, [stepName]: result };
-        await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { context: newContext }});
+        await db.collection('sabflow_executions').updateOne(
+            { _id: execution._id }, 
+            { $set: { context: newContext, [`history.${stepName}`]: result } }
+        );
         logger.log(`Saved action output to context under "${stepName}"`);
 
     } else if (node.type === 'condition') {
@@ -122,13 +127,17 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         status: 'RUNNING',
         startedAt: new Date(),
         context: { trigger: triggerPayload },
+        history: {},
         currentNodeId: startNode.id,
     });
     const executionId = executionResult.insertedId;
     
     let currentNodeId: string | null = startNode.id;
+    let executionCount = 0;
+    const maxSteps = 50; // Safety break
     
-    while (currentNodeId) {
+    while (currentNodeId && executionCount < maxSteps) {
+        executionCount++;
         const executionDoc = await db.collection('sabflow_executions').findOne({ _id: executionId });
         if (!executionDoc) {
             logger.log("Execution document not found. Terminating.");
