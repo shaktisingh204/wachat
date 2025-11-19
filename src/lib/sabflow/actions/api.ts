@@ -52,6 +52,10 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
             url: interpolatedUrl,
             headers: {},
         };
+
+        if (apiRequest.isDirectFileResponse) {
+            requestConfig.responseType = 'arraybuffer';
+        }
         
         if (apiRequest.auth?.type) {
             const { type, ...authDetails } = apiRequest.auth;
@@ -116,24 +120,32 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         const response = await axios(requestConfig);
         logger.log(`External API call successful (Status: ${response.status})`);
         
-        const responseData = { status: response.status, headers: response.headers, data: response.data };
-        
+        let responseData;
         const output: Record<string, any> = {};
+
+        if (apiRequest.isDirectFileResponse) {
+            const contentType = response.headers['content-type'] || 'application/octet-stream';
+            const base64Data = Buffer.from(response.data, 'binary').toString('base64');
+            const dataUri = `data:${contentType};base64,${base64Data}`;
+            responseData = { fileDataUri: dataUri };
+            output['fileDataUri'] = dataUri;
+        } else {
+            responseData = { status: response.status, headers: response.headers, data: response.data };
+             if (apiRequest?.responseMappings?.length > 0) {
+                apiRequest.responseMappings.forEach((mapping: any) => {
+                    if (mapping.variable && mapping.path) {
+                        const value = getValueFromPath(response.data, mapping.path);
+                        if (value !== undefined) {
+                            output[mapping.variable] = value;
+                            logger.log(`Mapped response path "${mapping.path}" to output variable "${mapping.variable}".`, { value });
+                        }
+                    }
+                });
+            }
+        }
 
         if (node.data.responseVariableName) {
             output[node.data.responseVariableName] = responseData;
-        }
-
-        if (apiRequest?.responseMappings?.length > 0) {
-            apiRequest.responseMappings.forEach((mapping: any) => {
-                if (mapping.variable && mapping.path) {
-                    const value = getValueFromPath(response.data, mapping.path);
-                    if (value !== undefined) {
-                        output[mapping.variable] = value;
-                        logger.log(`Mapped response path "${mapping.path}" to output variable "${mapping.variable}".`, { value });
-                    }
-                }
-            });
         }
         
         return { output };

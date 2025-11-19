@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
@@ -211,7 +210,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             if (selectedNode.data.actionName === 'apiRequest') {
                 return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
             }
-            
+
             if (selectedAction?.name === 'sendImage' && selectedApp.appId === 'wachat') {
                  return (
                     <div className="space-y-4">
@@ -227,7 +226,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                     </div>
                 );
             }
-
+            
             if (selectedAction?.name === 'createPost' && selectedApp.appId === 'meta') {
                 return (
                    <div className="space-y-4">
@@ -403,4 +402,3 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         </div>
     );
 };
-
