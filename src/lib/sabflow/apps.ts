@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import {
@@ -65,7 +63,7 @@ const sabChatActions = [
 ];
 
 const metaActions = [
-    { name: 'createPost', label: 'Create Post', description: 'Create a new post on your Facebook Page.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook' }, { name: 'message', label: 'Message', type: 'textarea' }, { name: 'imageUrl', label: 'Image URL (Optional)', type: 'text' }] },
+    { name: 'createPost', label: 'Create Post', description: 'Create a new post on your Facebook Page.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook' }, { name: 'message', label: 'Message', type: 'textarea' }, { name: 'imageUrl', label: 'Image URL (Optional)', type: 'text' }, { name: 'imageBase64', label: 'Image (Base64)', type: 'textarea'}] },
     { name: 'updatePost', label: 'Update Post', description: 'Update the message of an existing post.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook' }, { name: 'postId', label: 'Post ID', type: 'text' }, { name: 'message', label: 'New Message', type: 'textarea' }] },
     { name: 'deletePost', label: 'Delete Post', description: 'Permanently delete a post.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook' }, { name: 'postId', label: 'Post ID', type: 'text' }] },
     { name: 'getComments', label: 'Get Comments', description: 'Retrieve comments from a post or another comment.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook' }, { name: 'objectId', label: 'Post/Comment ID', type: 'text' }] },
@@ -334,4 +332,3 @@ export const sabnodeAppActions = [
     actions: []
   }
 ];
-
