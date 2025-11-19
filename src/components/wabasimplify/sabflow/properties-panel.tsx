@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
@@ -356,4 +357,4 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             )}
         </div>
     );
-};
+}

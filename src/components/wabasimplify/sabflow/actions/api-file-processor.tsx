@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -24,7 +25,7 @@ export function ApiFileProcessorEditor({ node, onUpdate, nodes }: ApiFileProcess
 
     return nodes
       .slice(0, currentStepIndex)
-      .filter(n => n.type === 'action' && n.data.appId === 'api')
+      .filter(n => n.type === 'action' && n.data.appId === 'api') // Correctly filter for API steps
       .map(n => ({ value: n.data.name.replace(/ /g, '_'), label: n.data.name || n.id }));
   }, [nodes, node.id]);
 
@@ -47,6 +48,7 @@ export function ApiFileProcessorEditor({ node, onUpdate, nodes }: ApiFileProcess
           onChange={(val) => handleInputChange('sourceApiStepName', val)}
           options={apiSteps}
           placeholder="Select an API step..."
+          emptyPlaceholder="No preceding API steps found."
         />
       </div>
       <div className="space-y-2">
@@ -73,4 +75,3 @@ export function ApiFileProcessorEditor({ node, onUpdate, nodes }: ApiFileProcess
     </div>
   );
 }
-
