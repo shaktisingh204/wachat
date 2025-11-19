@@ -7,7 +7,7 @@ import { getErrorMessage } from '@/lib/utils';
 import type { SabFlowNode } from '@/lib/definitions';
 
 function getValueFromPath(obj: any, path: string): any {
-    if (!path) return undefined;
+    if (!path || typeof path !== 'string') return undefined;
     const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
     return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
 }

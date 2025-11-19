@@ -21,6 +21,7 @@ import { getErrorMessage } from '@/lib/utils';
 
 function getValueFromPath(obj: any, path: string): any {
     if (!path || typeof path !== 'string') return undefined;
+    // Updated to handle array access like `items[0]` correctly.
     const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
     return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
 }
@@ -31,35 +32,37 @@ function interpolate(text: string | undefined, context: any): any {
     }
 
     let interpolatedText = text;
+    // Using a global regex to find ALL occurrences, not just the first one.
     const regex = /{{\s*([^}]+)\s*}}/g;
     
     let maxIterations = 10;
     let i = 0;
-    let lastText = interpolatedText;
-
+    
     while (i < maxIterations) {
-        const matches = [...interpolatedText.matchAll(regex)];
-        if (matches.length === 0) {
-            break;
-        }
-
-        for (const match of matches) {
-            const fullMatch = match[0];
-            const varName = match[1].trim();
-            const value = getValueFromPath(context, varName);
-
+        let matchFound = false;
+        interpolatedText = interpolatedText.replace(regex, (fullMatch, varName) => {
+            const trimmedVarName = varName.trim();
+            const value = getValueFromPath(context, trimmedVarName);
+            
             if (value !== undefined && value !== null) {
-                 if (interpolatedText.trim() === fullMatch && (typeof value === 'object' || typeof value === 'number' || typeof value === 'boolean')) {
+                matchFound = true;
+                // If the entire string is just a single variable, return the raw value (e.g., for arrays/objects)
+                if (interpolatedText.trim() === fullMatch) {
                     return value;
                 }
-                interpolatedText = interpolatedText.replace(fullMatch, typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value));
+                return typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value);
             }
+            return fullMatch; // Return the original placeholder if value not found
+        });
+
+        // If a single pass results in an object or array, return it directly.
+        if (typeof interpolatedText !== 'string') {
+            return interpolatedText;
         }
-        
-        if (interpolatedText === lastText) {
-            break;
+
+        if (!matchFound) {
+            break; // No more variables found, exit loop
         }
-        lastText = interpolatedText;
         i++;
     }
 

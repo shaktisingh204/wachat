@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, ArrowLeft, Zap, Webhook, Calendar, PlayCircle, GitFork } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Zap, Webhook, Calendar, PlayCircle, GitFork, Copy } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useProject } from '@/context/project-context';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
@@ -21,6 +21,7 @@ import type { WithId, Project, User } from '@/lib/definitions';
 import { getInvitedUsers } from '@/app/actions/team.actions';
 import { getChatSessionsForUser } from '@/app/actions/sabchat.actions';
 import { DynamicSelector } from './dynamic-selector';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
@@ -77,17 +78,25 @@ function NodeInput({ input, value, onChange, dataOptions }: { input: any, value:
     }
 }
 
-export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any }) {
+export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove, onConnectionSaved, params, nodes }: { user: any, selectedNode: SabFlowNode, onNodeChange: (id: string, data: any) => void, onNodeRemove: (id: string) => void, onConnectionSaved: () => void, params: any, nodes: SabFlowNode[] }) {
     const { projects } = useProject();
     const wachatProjects = projects.filter(p => p.wabaId);
     const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
+    const { copy } = useCopyToClipboard();
     
+    const apiSteps = useMemo(() => 
+        nodes
+            .filter(n => n.type === 'action' && n.data.appId === 'api')
+            .map(n => ({ value: n.data.name, label: n.data.name || n.id })),
+        [nodes]
+    );
+
     const [dynamicData, setDynamicData] = useState<any>({
         projects: wachatProjects.map(p => ({ value: p._id, label: p.name })),
         facebookProjects: facebookProjects.map(p => ({ value: p._id, label: p.name })),
         agents: [],
         sabChatSessions: [],
-        apiSteps: [],
+        apiSteps: apiSteps,
     });
     const [isLoadingData, startDataLoad] = useTransition();
 
@@ -125,6 +134,10 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             }));
         });
     }, []);
+
+    useEffect(() => {
+        setDynamicData(prev => ({ ...prev, apiSteps }));
+    }, [apiSteps]);
 
     if (!selectedNode) return null;
     
@@ -211,66 +224,29 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             if (selectedNode.data.actionName === 'apiRequest') {
                 return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
             }
+            
+            const actionOutput = selectedAction?.outputs?.[0];
 
-            if (selectedAction?.name === 'sendImage' && selectedApp.appId === 'wachat') {
-                 return (
-                    <div className="space-y-4">
-                        <RadioGroup value={imageSourceType} onValueChange={handleImageSourceChange} className="flex gap-2">
-                            <div className="flex items-center space-x-1"><RadioGroupItem value="url" id="img-url"/><Label htmlFor="img-url" className="text-xs">URL</Label></div>
-                            <div className="flex items-center space-x-1"><RadioGroupItem value="file" id="img-file"/><Label htmlFor="img-file" className="text-xs">Upload</Label></div>
-                            <div className="flex items-center space-x-1"><RadioGroupItem value="base64" id="img-base64"/><Label htmlFor="img-base64" className="text-xs">Base64</Label></div>
-                        </RadioGroup>
-                        {imageSourceType === 'url' && <div className="space-y-2"><Label>Image URL</Label><Input placeholder="https://..." value={selectedNode.data.inputs.imageUrl || ''} onChange={e => handleInputChange('imageUrl', e.target.value)} /></div>}
-                        {imageSourceType === 'file' && <div className="space-y-2"><Label>Upload Image</Label><Input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if(file) { const reader = new FileReader(); reader.onloadend = () => handleInputChange('imageBase64', reader.result); reader.readAsDataURL(file); }}} /></div>}
-                        {imageSourceType === 'base64' && <div className="space-y-2"><Label>Base64 Data</Label><Textarea placeholder="data:image/png;base64,..." value={selectedNode.data.inputs.imageBase64 || ''} onChange={e => handleInputChange('imageBase64', e.target.value)} className="h-24 font-mono text-xs"/></div>}
-                        <div className="space-y-2"><Label>Caption</Label><Input placeholder="Optional caption" value={selectedNode.data.inputs.caption || ''} onChange={e => handleInputChange('caption', e.target.value)} /></div>
-                    </div>
-                );
-            }
-            
-            if (selectedAction?.name === 'createPost' && selectedApp.appId === 'meta') {
-                return (
-                   <div className="space-y-4">
-                       <NodeInput input={{ name: 'projectId', label: 'Facebook Page Project', type: 'project-selector', appType: 'facebook' }} value={selectedNode.data.inputs.projectId || ''} onChange={val => handleInputChange('projectId', val)} dataOptions={dynamicData} />
-                       <div className="space-y-2"><Label>Message</Label><Textarea placeholder="What's on your mind?" value={selectedNode.data.inputs.message || ''} onChange={e => handleInputChange('message', e.target.value)} /></div>
-                       <Separator />
-                       <Label className="text-sm font-medium">Optional Image</Label>
-                       <RadioGroup value={imageSourceType} onValueChange={handleImageSourceChange} className="flex gap-2">
-                           <div className="flex items-center space-x-1"><RadioGroupItem value="url" id="meta-img-url"/><Label htmlFor="meta-img-url" className="text-xs">URL</Label></div>
-                           <div className="flex items-center space-x-1"><RadioGroupItem value="base64" id="meta-img-base64"/><Label htmlFor="meta-img-base64" className="text-xs">Base64</Label></div>
-                       </RadioGroup>
-                       {imageSourceType === 'url' && <div className="space-y-2"><Label>Image URL</Label><Input placeholder="https://..." value={selectedNode.data.inputs.imageUrl || ''} onChange={e => handleInputChange('imageUrl', e.target.value)} /></div>}
-                       {imageSourceType === 'base64' && <div className="space-y-2"><Label>Base64 Data</Label><Textarea placeholder="data:image/png;base64,..." value={selectedNode.data.inputs.imageBase64 || ''} onChange={e => handleInputChange('imageBase64', e.target.value)} className="h-24 font-mono text-xs"/></div>}
-                   </div>
-               );
-           }
-            
-            if (selectedAction?.inputs.length > 0) {
-                 return (
-                    <div className="space-y-4">
-                        <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs[input.name] || ''} onChange={val => handleDataChange({ inputs: {...selectedNode.data.inputs, [input.name]: val} })} dataOptions={dynamicData} /></div>))}
-                    </div>
-                );
-            }
-            
-             if (selectedApp?.actions) {
-                 const actionOptions = selectedApp.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
-                 if (actionOptions.length > 1) {
-                     return (
-                        <div className="space-y-2">
-                            <Label>Action</Label>
-                            <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
-                                <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
-                                <SelectContent>
-                                    {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
-                                </SelectContent>
-                            </Select>
+            return (
+                <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">{selectedAction?.description}</p>
+                    {selectedAction?.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs?.[input.name] || ''} onChange={val => handleInputChange(input.name, val)} dataOptions={dynamicData} /></div>))}
+                    {actionOutput && (
+                        <div className="pt-4 mt-4 border-t">
+                            <h4 className="font-semibold mb-2">Output</h4>
+                            <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
+                                <div>
+                                    <p className="font-mono text-xs">{{`{{${selectedNode.data.name.replace(/ /g, '_')}.output.${actionOutput.name}}}`}}</p>
+                                    <p className="text-xs text-muted-foreground">{actionOutput.description}</p>
+                                </div>
+                                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => copy(`{{${selectedNode.data.name.replace(/ /g, '_')}.output.${actionOutput.name}}}`)}>
+                                    <Copy className="h-4 w-4"/>
+                                </Button>
+                            </div>
                         </div>
-                    );
-                 }
-             }
-             return <p className="text-sm text-muted-foreground text-center pt-4">This app has no further actions to configure.</p>;
+                    )}
+                </div>
+            );
         }
 
         if (isTrigger) {
