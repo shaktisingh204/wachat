@@ -124,6 +124,14 @@ const apiFileProcessorActions = [
             { name: 'fileData', label: 'File Data (Base64)', type: 'textarea', placeholder: 'e.g., {{api_step.output.file_content}}', required: true },
             { name: 'filename', label: 'Filename', type: 'text', placeholder: 'e.g., invoice.pdf or image.png', required: true }
         ]
+    },
+    {
+        name: 'processDirectUrl',
+        label: 'Process Direct File URL',
+        description: 'Fetches a file from a URL, saves it, and returns a public URL.',
+        inputs: [
+            { name: 'fileUrl', label: 'File URL', type: 'text', placeholder: 'e.g., https://example.com/image.jpg', required: true },
+        ]
     }
 ];
 
