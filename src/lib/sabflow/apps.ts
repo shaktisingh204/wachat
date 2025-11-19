@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -121,7 +122,7 @@ const apiFileProcessorActions = [
         label: 'Grab File from API Step',
         description: 'Processes a direct file response from a previous API step and saves it.',
         inputs: [
-            { name: 'sourceApiStepId', label: 'Source API Step', type: 'dynamic-selector', fetch: 'apiSteps', required: true },
+            { name: 'sourceApiStepName', label: 'Source API Step', type: 'dynamic-selector', fetch: 'apiSteps', required: true },
             { name: 'filename', label: 'Filename (with extension)', type: 'text', placeholder: 'e.g., invoice.pdf or image.png', required: true }
         ],
         outputs: [
@@ -334,4 +335,4 @@ export const sabnodeAppActions = [
   }
 ];
 
-    
+```
