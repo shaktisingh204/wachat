@@ -1,5 +1,3 @@
-
-      
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -19,6 +17,7 @@ import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { testApiRequest } from '@/app/actions/sabflow.actions';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { LoaderCircle } from 'lucide-react';
+import { Switch } from '../ui/switch';
 
 const KeyValueEditor: React.FC<{ items: { key: string, value: string, enabled: boolean }[], onItemsChange: (items: any[]) => void }> = ({ items, onItemsChange }) => {
     const handleItemChange = (index: number, field: 'key' | 'value' | 'enabled', value: string | boolean) => {
@@ -262,6 +261,12 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
                 </TabsContent>
             </Tabs>
 
+            <Separator />
+            <div className="flex items-center space-x-2 pt-2">
+                <Switch id="isDirectFileResponse" checked={apiRequest.isDirectFileResponse} onCheckedChange={checked => handleApiChange('isDirectFileResponse', checked)} />
+                <Label htmlFor="isDirectFileResponse">Response is a direct file (e.g. image, PDF)</Label>
+            </div>
+            
              <div className="pt-4">
                 <Button type="button" onClick={handleTestApi} disabled={isTesting} className="w-full">
                     {isTesting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <FlaskConical className="mr-2 h-4 w-4"/>}
@@ -348,5 +353,3 @@ export function ApiRequestEditor({ data, onUpdate }: { data: any, onUpdate: (dat
         </div>
     );
 }
-      
-    
