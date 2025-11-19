@@ -121,6 +121,48 @@ export default function AppDocPage() {
                         </div>
                     </CardContent>
                 </Card>
+            ) : appId === 'array_function' ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Array Function Action Guide</CardTitle>
+                        <CardDescription>Perform common operations on arrays of data within your flow.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-8">
+                        <p>This app provides utility functions to manipulate arrays that you might get from an API response or a Webhook trigger.</p>
+                        <Separator />
+                        <Accordion type="single" collapsible className="w-full">
+                            {app.actions?.map((action, index) => (
+                                <AccordionItem value={`item-${index}`} key={index}>
+                                    <AccordionTrigger>{action.label}</AccordionTrigger>
+                                    <AccordionContent className="space-y-4 pt-2">
+                                        <p className="text-muted-foreground">{action.description}</p>
+                                        <div>
+                                            <h5 className="font-semibold mb-2">Inputs:</h5>
+                                            <div className="border rounded-md">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow>
+                                                            <TableHead>Field</TableHead>
+                                                            <TableHead>Description</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {action.inputs.map((input: any, i: number) => (
+                                                            <TableRow key={i}>
+                                                                <TableCell className="font-mono text-xs">{input.name}</TableCell>
+                                                                <TableCell>{input.placeholder}</TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
+                    </CardContent>
+                </Card>
             ) : (
                 <Card>
                     <CardHeader>

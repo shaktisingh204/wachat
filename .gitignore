@@ -32,10 +32,10 @@
 /src/app/actions/catalog.actions.ts
 /src/app/actions/billing.actions.ts
 /src/app/actions/qr-code.actions.ts
- /src/app/actions/contact.actions.ts
- /src/app/actions/broadcast.actions.ts
- /src/app/actions/email.actions.ts
- /src/app/actions/crm-accounting.actions.ts
+/src/app/actions/contact.actions.ts
+/src/app/actions/broadcast.actions.ts
+/src/app/actions/email.actions.ts
+/src/app/actions/crm-accounting.actions.ts
  /src/app/actions/crm-accounts.actions.ts
  /src/app/actions/crm-automations.actions.ts
 /src/app/actions/crm-credit-notes.actions.ts
@@ -78,6 +78,7 @@ Ignore all action files by default
 /src/lib/cron-scheduler.js
 /src/lib/cron-scheduler.ts
 /src/lib/broadcast-worker.js
+/src/lib/webhook-processor.ts
 /workers/
 # debug
 npm-debug.log*
