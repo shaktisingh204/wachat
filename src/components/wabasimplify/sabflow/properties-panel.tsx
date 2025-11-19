@@ -85,6 +85,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const { copy } = useCopyToClipboard();
     
     const apiSteps = useMemo(() => {
+        if (!selectedNode || !nodes) return [];
         const currentStepIndex = nodes.findIndex(n => n.id === selectedNode.id);
         if (currentStepIndex === -1) return [];
 
@@ -92,7 +93,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             .slice(0, currentStepIndex) // Only consider nodes before the current one
             .filter(n => n.type === 'action' && n.data.appId === 'api')
             .map(n => ({ value: n.data.name || n.id, label: n.data.name || n.id }));
-    }, [nodes, selectedNode.id]);
+    }, [nodes, selectedNode]);
 
     const [dynamicData, setDynamicData] = useState<any>({
         projects: wachatProjects.map(p => ({ value: p._id.toString(), label: p.name })),
@@ -210,7 +211,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             if (selectedNode.data.actionName === 'apiRequest') {
                 return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
             }
-            
+
             const actionOutput = selectedAction?.outputs?.[0];
 
             return (
@@ -365,5 +366,3 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         </div>
     );
 };
-
-    
