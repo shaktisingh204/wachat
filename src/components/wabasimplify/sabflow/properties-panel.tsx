@@ -84,16 +84,19 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
     const { copy } = useCopyToClipboard();
     
-    const apiSteps = useMemo(() => 
-        nodes
+    const apiSteps = useMemo(() => {
+        const currentStepIndex = nodes.findIndex(n => n.id === selectedNode.id);
+        if (currentStepIndex === -1) return [];
+
+        return nodes
+            .slice(0, currentStepIndex) // Only consider nodes before the current one
             .filter(n => n.type === 'action' && n.data.appId === 'api')
-            .map(n => ({ value: n.id, label: n.data.name || n.id })),
-        [nodes]
-    );
+            .map(n => ({ value: n.data.name || n.id, label: n.data.name || n.id }));
+    }, [nodes, selectedNode.id]);
 
     const [dynamicData, setDynamicData] = useState<any>({
-        projects: wachatProjects.map(p => ({ value: p._id, label: p.name })),
-        facebookProjects: facebookProjects.map(p => ({ value: p._id, label: p.name })),
+        projects: wachatProjects.map(p => ({ value: p._id.toString(), label: p.name })),
+        facebookProjects: facebookProjects.map(p => ({ value: p._id.toString(), label: p.name })),
         agents: [],
         sabChatSessions: [],
         apiSteps: apiSteps,
@@ -101,18 +104,11 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const [isLoadingData, startDataLoad] = useTransition();
 
     const [triggerType, setTriggerType] = useState(selectedNode?.data?.triggerType || 'webhook');
-    const [imageSourceType, setImageSourceType] = useState('url');
 
     useEffect(() => {
         if (selectedNode?.data?.triggerType) {
             setTriggerType(selectedNode.data.triggerType);
         }
-
-        const inputs = selectedNode?.data?.inputs || {};
-        if (inputs.imageBase64) setImageSourceType('base64');
-        else if (inputs.imageFile) setImageSourceType('file');
-        else setImageSourceType('url');
-
     }, [selectedNode]);
 
     const handleTriggerTypeChange = (value: string) => {
@@ -134,7 +130,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             }));
         });
     }, []);
-
+    
     useEffect(() => {
         setDynamicData(prev => ({ ...prev, apiSteps }));
     }, [apiSteps]);
@@ -150,16 +146,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             ...selectedNode.data,
             inputs: { ...selectedNode.data.inputs, [name]: value }
         });
-    }
-
-    const handleImageSourceChange = (type: string) => {
-        setImageSourceType(type);
-        // Clear other sources when switching
-        const newInputs = { ...selectedNode.data.inputs };
-        if (type !== 'url') delete newInputs.imageUrl;
-        if (type !== 'base64') delete newInputs.imageBase64;
-        if (type !== 'file') delete newInputs.imageFile;
-        handleDataChange({ inputs: newInputs });
     }
 
     const selectedApp = sabnodeAppActions.find(app => app.appId === selectedNode.data.appId);
@@ -236,10 +222,10 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                             <h4 className="font-semibold mb-2">Output</h4>
                             <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
                                 <div>
-                                    <p className="font-mono text-xs">{{`{{${selectedNode.data.name.replace(/ /g, '_')}.output.${actionOutput.name}}}`}}</p>
+                                    <p className="font-mono text-xs">{{`{{${selectedNode.data.name.replace(/ /g, '_')}.${actionOutput.name}}}`}}</p>
                                     <p className="text-xs text-muted-foreground">{actionOutput.description}</p>
                                 </div>
-                                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => copy(`{{${selectedNode.data.name.replace(/ /g, '_')}.output.${actionOutput.name}}}`)}>
+                                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => copy(`{{${selectedNode.data.name.replace(/ /g, '_')}.${actionOutput.name}}}`)}>
                                     <Copy className="h-4 w-4"/>
                                 </Button>
                             </div>
@@ -379,3 +365,5 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         </div>
     );
 };
+
+    
