@@ -137,9 +137,9 @@ const googleSheetsActions = [
 ];
 
 const arrayFunctionActions = [
-    { name: 'getCount', label: 'Get Count', description: 'Get the number of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'text', placeholder: '{{trigger.data.items}}' }] },
-    { name: 'arrayReverse', label: 'Array Reverse', description: 'Reverse the order of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'text', placeholder: '{{trigger.data.items}}' }] },
-    { name: 'getValueByIndex', label: 'Get Value By Index', description: 'Get an item from a specific position in an array.', inputs: [{ name: 'array', label: 'Array', type: 'text', placeholder: '{{trigger.data.items}}' }, { name: 'index', label: 'Index', type: 'number', placeholder: '0' }] },
+    { name: 'getCount', label: 'Get Count', description: 'Get the number of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: '{{trigger.data.items}}' }] },
+    { name: 'arrayReverse', label: 'Array Reverse', description: 'Reverse the order of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: '{{trigger.data.items}}' }] },
+    { name: 'getValueByIndex', label: 'Get Value By Index', description: 'Get an item from a specific position in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: '{{trigger.data.items}}' }, { name: 'index', label: 'Index', type: 'number', placeholder: '0' }] },
 ];
 
 export const sabnodeAppActions = [
