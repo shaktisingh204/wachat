@@ -35,22 +35,9 @@ export async function executeApiFileProcessorAction(actionName: string, inputs: 
                 if (!sourceApiStepName) {
                     throw new Error("You must select a source API step from the dropdown.");
                 }
+                
+                const apiStepOutput = context[sourceApiStepName]?.output;
 
-                // Check if the previous step's output is directly available
-                let apiStepOutput = context[sourceApiStepName]?.output;
-                
-                // If not, check if the full response was saved to a variable
-                if (!apiStepOutput) {
-                    const stepNames = Object.keys(context);
-                    for (const name of stepNames) {
-                        const step = context[name];
-                        if (step?.output?.response?.data) { // Check for full response structure
-                           apiStepOutput = step.output;
-                           break;
-                        }
-                    }
-                }
-                
                 if (!apiStepOutput) {
                     throw new Error(`Could not find output for the selected API step "${sourceApiStepName}" in the flow context. Check if the previous step ran successfully and if its output variable is correct.`);
                 }
@@ -59,7 +46,7 @@ export async function executeApiFileProcessorAction(actionName: string, inputs: 
 
                 if (apiStepOutput.fileDataUri) {
                     fileDataUri = apiStepOutput.fileDataUri;
-                } else if (apiStepOutput.response && apiStepOutput.response.data.startsWith('data:')) {
+                } else if (apiStepOutput.response && typeof apiStepOutput.response.data === 'string' && apiStepOutput.response.data.startsWith('data:')) {
                     // Handle case where full response is saved and data is the URI
                     fileDataUri = apiStepOutput.response.data;
                 }
