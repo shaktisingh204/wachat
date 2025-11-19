@@ -29,56 +29,34 @@ async function processAndSaveFile(buffer: Buffer, originalFilename: string, logg
 export async function executeApiFileProcessorAction(actionName: string, inputs: any, context: any, logger: any) {
     try {
         switch (actionName) {
-            case 'saveFile': {
-                let { fileData, filename } = inputs;
-                
-                // If fileData is not provided, try to find it from the previous step's output
-                if (!fileData) {
-                    const previousStepOutput = Object.values(context).find((val: any) => val?.output?.fileDataUri) as any;
-                    if (previousStepOutput?.output?.fileDataUri) {
-                        fileData = previousStepOutput.output.fileDataUri;
-                        logger.log('Auto-detected fileDataUri from previous step.');
-                    }
+            case 'grabFileFromApiStep': {
+                const { sourceApiStepId, filename } = inputs;
+
+                if (!sourceApiStepId) {
+                    throw new Error("You must select a source API step from the dropdown.");
+                }
+
+                // Find the output of the selected API step in the context
+                const apiStepOutput = context[sourceApiStepId]?.output;
+                if (!apiStepOutput) {
+                    throw new Error(`Could not find output for the selected API step "${sourceApiStepId}" in the flow context.`);
                 }
                 
-                if (!fileData) {
-                    throw new Error("Input 'fileData' (Base64 string or data URI) is required, or the previous step must output 'fileDataUri'.");
+                const fileDataUri = apiStepOutput.fileDataUri;
+                if (!fileDataUri) {
+                    throw new Error(`The selected API step "${sourceApiStepId}" did not output a 'fileDataUri'. Ensure the 'Response is a direct file' toggle is enabled on the API step.`);
                 }
-                if (!filename) {
-                     // Try to generate a reasonable default filename
-                    const mimeTypeMatch = fileData.match(/^data:(image\/[a-zA-Z]+);base64,/);
-                    const extension = mimeTypeMatch ? `.${mimeTypeMatch[1].split('/')[1]}` : '.dat';
-                    filename = `downloaded_file${extension}`;
-                    logger.log(`Filename not provided, auto-generated: ${filename}`);
-                }
+
+                const finalFilename = filename || 'downloaded-file';
                 
-                const base64Data = fileData.startsWith('data:') 
-                    ? fileData.split(',')[1] 
-                    : fileData;
-                    
+                const base64Data = fileDataUri.split(',')[1];
                 if (!base64Data) {
-                    throw new Error("Invalid Base64 or data URI format.");
+                    throw new Error("Invalid data URI format from the source API step.");
                 }
 
                 const buffer = Buffer.from(base64Data, 'base64');
                 
-                const output = await processAndSaveFile(buffer, filename, logger);
-                return { output };
-            }
-             case 'processDirectUrl': {
-                const { fileUrl } = inputs;
-                if (!fileUrl) {
-                    throw new Error("Input 'fileUrl' is required.");
-                }
-
-                logger.log(`Fetching file from URL: ${fileUrl}`);
-                const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
-                const buffer = Buffer.from(response.data, 'binary');
-
-                const urlPath = new URL(fileUrl).pathname;
-                const filename = path.basename(urlPath);
-                
-                const output = await processAndSaveFile(buffer, filename, logger);
+                const output = await processAndSaveFile(buffer, finalFilename, logger);
                 return { output };
             }
             default:

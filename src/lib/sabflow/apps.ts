@@ -117,20 +117,12 @@ const apiActions = [
 
 const apiFileProcessorActions = [
     {
-        name: 'saveFile',
-        label: 'Save File from Buffer/Base64',
-        description: 'Saves file data from a previous step and provides a public URL.',
+        name: 'grabFileFromApiStep',
+        label: 'Grab File from API Step',
+        description: 'Processes a direct file response from a previous API step and saves it.',
         inputs: [
-            { name: 'fileData', label: 'File Data (Base64)', type: 'textarea', placeholder: 'e.g., {{api_step.output.file_content}}', required: true },
-            { name: 'filename', label: 'Filename', type: 'text', placeholder: 'e.g., invoice.pdf or image.png', required: true }
-        ]
-    },
-    {
-        name: 'processDirectUrl',
-        label: 'Process Direct File URL',
-        description: 'Fetches a file from a URL, saves it, and returns a public URL.',
-        inputs: [
-            { name: 'fileUrl', label: 'File URL', type: 'text', placeholder: 'e.g., https://example.com/image.jpg', required: true },
+            { name: 'sourceApiStepId', label: 'Source API Step', type: 'dynamic-selector', fetch: 'apiSteps', required: true },
+            { name: 'filename', label: 'Filename (with extension)', type: 'text', placeholder: 'e.g., invoice.pdf or image.png', required: true }
         ]
     }
 ];
