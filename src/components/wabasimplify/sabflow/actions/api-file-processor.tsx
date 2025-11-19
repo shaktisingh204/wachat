@@ -25,7 +25,7 @@ export function ApiFileProcessorEditor({ node, onUpdate, nodes }: ApiFileProcess
 
     return nodes
       .slice(0, currentStepIndex)
-      .filter(n => n.type === 'action' && n.data.actionName === 'apiRequest')
+      .filter(n => n.type === 'action' && n.data.appId === 'api' && n.data.actionName === 'apiRequest')
       .map(n => ({ value: n.data.name.replace(/ /g, '_'), label: n.data.name || n.id }));
   }, [nodes, node.id]);
 
@@ -74,4 +74,3 @@ export function ApiFileProcessorEditor({ node, onUpdate, nodes }: ApiFileProcess
     </div>
   );
 }
-

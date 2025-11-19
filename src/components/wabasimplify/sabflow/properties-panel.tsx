@@ -83,7 +83,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const { projects } = useProject();
     const wachatProjects = projects.filter(p => p.wabaId);
     const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
-    const { copy } = useCopyToClipboard();
     
     const [dynamicData, setDynamicData] = useState<any>({
         projects: wachatProjects.map(p => ({ value: p._id.toString(), label: p.name })),
@@ -359,4 +358,3 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         </div>
     );
 };
-
