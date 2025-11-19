@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -334,5 +333,3 @@ export const sabnodeAppActions = [
     actions: []
   }
 ];
-
-```

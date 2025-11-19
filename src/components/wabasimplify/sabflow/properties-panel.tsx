@@ -90,7 +90,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         if (currentStepIndex === -1) return [];
 
         return nodes
-            .slice(0, currentStepIndex) // Only consider nodes before the current one
+            .slice(0, currentStepIndex)
             .filter(n => n.type === 'action' && n.data.actionName === 'apiRequest')
             .map(n => ({ value: n.data.name.replace(/ /g, '_'), label: n.data.name || n.id }));
     }, [nodes, selectedNode]);
@@ -366,5 +366,3 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         </div>
     );
 };
-
-```
