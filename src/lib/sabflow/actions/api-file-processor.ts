@@ -8,7 +8,7 @@ import { nanoid } from 'nanoid';
 import axios from 'axios';
 
 async function processAndSaveFile(buffer: Buffer, originalFilename: string, logger: any) {
-    const extension = path.extname(originalFilename);
+    const extension = path.extname(originalFilename) || '.tmp';
     const uniqueFilename = `${nanoid(12)}${extension}`;
     
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
@@ -30,23 +30,21 @@ export async function executeApiFileProcessorAction(actionName: string, inputs: 
     try {
         switch (actionName) {
             case 'grabFileFromApiStep': {
-                const { sourceApiStepId, filename } = inputs;
+                const { sourceApiStepName, filename } = inputs;
 
-                if (!sourceApiStepId) {
+                if (!sourceApiStepName) {
                     throw new Error("You must select a source API step from the dropdown.");
                 }
 
-                // The step name in the context is the node's `data.name`, not its ID.
-                const sourceStepName = sourceApiStepId;
-                const apiStepOutput = context[sourceStepName]?.output;
+                const apiStepOutput = context[sourceApiStepName]?.output;
                 
                 if (!apiStepOutput) {
-                    throw new Error(`Could not find output for the selected API step "${sourceStepName}" in the flow context. Check if the previous step ran successfully.`);
+                    throw new Error(`Could not find output for the selected API step "${sourceApiStepName}" in the flow context. Check if the previous step ran successfully.`);
                 }
                 
                 const fileDataUri = apiStepOutput.fileDataUri;
                 if (!fileDataUri) {
-                    throw new Error(`The selected API step "${sourceStepName}" did not output a 'fileDataUri'. Ensure the 'Response is a direct file' toggle is enabled on the API step.`);
+                    throw new Error(`The selected API step "${sourceApiStepName}" did not output a 'fileDataUri'. Ensure the 'Response is a direct file' toggle is enabled on the API step.`);
                 }
 
                 const finalFilename = filename || 'downloaded-file';
