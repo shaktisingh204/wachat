@@ -91,8 +91,8 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
         return nodes
             .slice(0, currentStepIndex) // Only consider nodes before the current one
-            .filter(n => n.type === 'action' && n.data.appId === 'api')
-            .map(n => ({ value: n.data.name || n.id, label: n.data.name || n.id }));
+            .filter(n => n.type === 'action' && n.data.actionName === 'apiRequest')
+            .map(n => ({ value: n.data.name.replace(/ /g, '_'), label: n.data.name || n.id }));
     }, [nodes, selectedNode]);
 
     const [dynamicData, setDynamicData] = useState<any>({
@@ -366,3 +366,5 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         </div>
     );
 };
+
+```
