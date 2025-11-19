@@ -35,7 +35,7 @@ import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/c
 
 const wachatActions = [
     { name: 'sendMessage', label: 'Send Text Message', description: 'Sends a simple text message.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', required: true }, { name: 'to', label: 'To (WA ID)', type: 'text', placeholder: 'e.g. 919876543210', required: true }, { name: 'message', label: 'Message', type: 'textarea', placeholder: 'Hello {{name}}!' }] },
-    { name: 'sendImage', label: 'Send Image', description: 'Sends an image from a URL, Base64, or file upload.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', required: true }, { name: 'to', label: 'To (WA ID)', type: 'text', required: true }, { name: 'mediaUrl', label: 'Image URL', type: 'text' }, { name: 'imageBase64', label: 'Base64 Data', type: 'textarea' }, { name: 'imageFile', label: 'Upload File', type: 'file' }, { name: 'caption', label: 'Caption', type: 'text' }] },
+    { name: 'sendImage', label: 'Send Image', description: 'Sends an image from a URL, Base64, or file upload.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', required: true }, { name: 'to', label: 'To (WA ID)', type: 'text', required: true }, { name: 'mediaUrl', label: 'Image URL', type: 'text' }, { name: 'imageBase64', label: 'Base64 Data', type: 'textarea' }, { name: 'caption', label: 'Caption', type: 'text' }] },
     { name: 'sendTemplate', label: 'Send Template Message', description: 'Sends a pre-approved WhatsApp template.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', required: true }, { name: 'to', label: 'To (WA ID)', type: 'text', required: true }, { name: 'templateId', label: 'Template', type: 'dynamic-selector', fetch: 'wachatTemplates' }] },
     { name: 'triggerMetaFlow', label: 'Trigger Meta Flow', description: 'Starts an interactive Meta Flow.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', required: true }, { name: 'to', label: 'To (WA ID)', type: 'text', required: true }, { name: 'metaFlowId', label: 'Meta Flow', type: 'dynamic-selector', fetch: 'metaFlows' }, { name: 'header', label: 'Header Text', type: 'text' }, { name: 'body', label: 'Body Text', type: 'textarea' }, { name: 'footer', label: 'Footer Text', type: 'text' }] },
     { name: 'requestRazorpayPayment', label: 'Request Razorpay Payment', description: 'Sends a Razorpay payment link.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', required: true }, { name: 'to', label: 'To (WA ID)', type: 'text', required: true }, { name: 'amount', label: 'Amount (INR)', type: 'number' }, { name: 'description', label: 'Description', type: 'text' }] },
@@ -121,7 +121,7 @@ const apiFileProcessorActions = [
         label: 'Grab File from API Step',
         description: 'Processes a direct file response from a previous API step and saves it.',
         inputs: [
-            { name: 'sourceApiStepName', label: 'Source API Step', type: 'dynamic-selector', fetch: 'apiSteps', required: true },
+            { name: 'sourceApiStepName', label: 'Source API Step', type: 'dynamic-selector', fetch: 'apiSteps', required: true, placeholder: 'Select an API step...' },
             { name: 'filename', label: 'Filename (with extension)', type: 'text', placeholder: 'e.g., invoice.pdf or image.png', required: true }
         ],
         outputs: [
@@ -333,3 +333,4 @@ export const sabnodeAppActions = [
     actions: []
   }
 ];
+

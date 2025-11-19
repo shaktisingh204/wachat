@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import type { SabFlowNode } from '@/lib/definitions';
+import { Input } from '@/components/ui/input';
 
 interface ApiFileProcessorEditorProps {
   node: SabFlowNode;
@@ -73,3 +74,4 @@ export function ApiFileProcessorEditor({ node, onUpdate, nodes }: ApiFileProcess
     </div>
   );
 }
+
