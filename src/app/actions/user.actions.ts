@@ -342,9 +342,10 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     
+    let user;
     try {
         const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne({ email: email.toLowerCase() });
+        user = await db.collection<User>('users').findOne({ email: email.toLowerCase() });
 
         if (!user || !user.password) {
             return { error: 'Invalid email or password.' };
@@ -359,11 +360,13 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
         const sessionToken = await createSessionToken({ userId: user._id.toString(), email: user.email });
         cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
-        return { success: true };
-
+        // Don't return from inside the try block
     } catch (e: any) {
         return { error: e.message || 'An unexpected server error occurred.' };
     }
+    
+    // Redirect must be called outside the try-catch block
+    redirect('/dashboard');
 }
 
 export async function handleSignup(prevState: any, formData: FormData): Promise<{ error?: string }> {
@@ -408,11 +411,12 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
         const cookieStore = await cookies();
         cookieStore.set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
-        return redirect('/dashboard');
-        
     } catch (e: any) {
         return { error: e.message || 'An unexpected error occurred during signup.' };
     }
+    
+    // Redirect must be called outside the try-catch block
+    redirect('/dashboard');
 }
 
 export async function handleForgotPassword(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
