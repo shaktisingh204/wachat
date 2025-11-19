@@ -1,15 +1,24 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Users as UsersIcon, BarChart, Wrench, Settings, Bot, HelpCircle, LifeBuoy } from 'lucide-react';
+import { MessageSquare, Users as UsersIcon, BarChart, Wrench, Settings, Bot, HelpCircle, LifeBuoy, Inbox } from 'lucide-react';
 import { SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { AlertTriangle } from 'lucide-react';
 
 const navItems = [
-    { href: "/dashboard/sabchat/inbox", label: "Inbox", icon: MessageSquare },
+    { href: "/dashboard/sabchat/inbox", label: "Inbox", icon: Inbox },
     { href: "/dashboard/sabchat/visitors", label: "Visitors", icon: UsersIcon },
     { href: "/dashboard/sabchat/analytics", label: "Analytics", icon: BarChart },
     { href: "/dashboard/sabchat/widget", label: "Widget Setup", icon: Wrench },
@@ -20,11 +29,45 @@ const navItems = [
     { href: "/dashboard/sabchat/settings", label: "Settings", icon: Settings },
 ];
 
+function DevelopmentWarningDialog({ open, onOk, onExit }: { open: boolean, onOk: () => void, onExit: () => void }) {
+    return (
+        <AlertDialog open={open}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <div className="flex justify-center mb-4">
+                        <AlertTriangle className="h-12 w-12 text-yellow-500" />
+                    </div>
+                    <AlertDialogTitle className="text-center">Under Development</AlertDialogTitle>
+                    <AlertDialogDescription className="text-center">
+                        This feature is currently in active development. Please use it at your own risk.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="sm:justify-center">
+                    <Button variant="outline" onClick={onExit}>Exit</Button>
+                    <Button onClick={onOk}>Ok, I understand</Button>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    );
+}
+
 export default function SabChatLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const router = useRouter();
+    const [showWarning, setShowWarning] = useState(true);
+
+    const handleExit = () => {
+        setShowWarning(false);
+        router.push('/dashboard');
+    };
 
     return (
         <div className="w-full">
+             <DevelopmentWarningDialog 
+                open={showWarning}
+                onOk={() => setShowWarning(false)}
+                onExit={handleExit}
+            />
              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
