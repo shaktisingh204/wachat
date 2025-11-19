@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -17,7 +18,7 @@ import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { testApiRequest } from '@/app/actions/sabflow.actions';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { LoaderCircle } from 'lucide-react';
-import { Switch } from '../ui/switch';
+import { Switch } from '@/components/ui/switch';
 
 const KeyValueEditor: React.FC<{ items: { key: string, value: string, enabled: boolean }[], onItemsChange: (items: any[]) => void }> = ({ items, onItemsChange }) => {
     const handleItemChange = (index: number, field: 'key' | 'value' | 'enabled', value: string | boolean) => {
