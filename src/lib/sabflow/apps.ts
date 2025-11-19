@@ -115,6 +115,19 @@ const apiActions = [
     }
 ];
 
+const apiFileProcessorActions = [
+    {
+        name: 'saveFile',
+        label: 'Save File from Buffer/Base64',
+        description: 'Saves file data from a previous step and provides a public URL.',
+        inputs: [
+            { name: 'fileData', label: 'File Data (Base64)', type: 'textarea', placeholder: 'e.g., {{api_step.output.file_content}}', required: true },
+            { name: 'filename', label: 'Filename', type: 'text', placeholder: 'e.g., invoice.pdf or image.png', required: true }
+        ]
+    }
+];
+
+
 const googleSheetsActions = [
     {
         name: 'updatedOrEditedRow',
@@ -137,9 +150,9 @@ const googleSheetsActions = [
 ];
 
 const arrayFunctionActions = [
-    { name: 'getCount', label: 'Get Count', description: 'Get the number of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: '{{trigger.data.items}}' }] },
-    { name: 'arrayReverse', label: 'Array Reverse', description: 'Reverse the order of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: '{{trigger.data.items}}' }] },
-    { name: 'getValueByIndex', label: 'Get Value By Index', description: 'Get an item from a specific position in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: '{{trigger.data.items}}' }, { name: 'index', label: 'Index', type: 'number', placeholder: '0' }] },
+    { name: 'getCount', label: 'Get Count', description: 'Get the number of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: 'e.g., {{trigger.data.items}}' }] },
+    { name: 'arrayReverse', label: 'Array Reverse', description: 'Reverse the order of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: 'e.g., {{trigger.data.items}}' }] },
+    { name: 'getValueByIndex', label: 'Get Value By Index', description: 'Get an item from a specific position in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: 'e.g., {{trigger.data.items}}' }, { name: 'index', label: 'Index', type: 'number', placeholder: '0' }] },
 ];
 
 export const sabnodeAppActions = [
@@ -206,6 +219,7 @@ export const sabnodeAppActions = [
 
   // Core Apps
   { appId: 'api', name: 'API Request', icon: Server, actions: apiActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-api-icon' },
+  { appId: 'api_file_processor', name: 'API File Processor', icon: FileUp, actions: apiFileProcessorActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-file_uploader-icon' },
   { appId: 'array_function', name: 'Array Function', icon: Combine, actions: arrayFunctionActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-array_function-icon' },
   { appId: 'code', name: 'Code', icon: Code2, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-code-icon' },
   { appId: 'data_forwarder', name: 'Data Forwarder', icon: Forward, actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_forwarder-icon' },
