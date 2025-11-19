@@ -87,6 +87,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
         facebookProjects: facebookProjects.map(p => ({ value: p._id, label: p.name })),
         agents: [],
         sabChatSessions: [],
+        apiSteps: [],
     });
     const [isLoadingData, startDataLoad] = useTransition();
 
@@ -219,7 +220,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                             <div className="flex items-center space-x-1"><RadioGroupItem value="file" id="img-file"/><Label htmlFor="img-file" className="text-xs">Upload</Label></div>
                             <div className="flex items-center space-x-1"><RadioGroupItem value="base64" id="img-base64"/><Label htmlFor="img-base64" className="text-xs">Base64</Label></div>
                         </RadioGroup>
-                        {imageSourceType === 'url' && <div className="space-y-2"><Label>Image URL</Label><Input placeholder="https://..." value={selectedNode.data.inputs.mediaUrl || ''} onChange={e => handleInputChange('mediaUrl', e.target.value)} /></div>}
+                        {imageSourceType === 'url' && <div className="space-y-2"><Label>Image URL</Label><Input placeholder="https://..." value={selectedNode.data.inputs.imageUrl || ''} onChange={e => handleInputChange('imageUrl', e.target.value)} /></div>}
                         {imageSourceType === 'file' && <div className="space-y-2"><Label>Upload Image</Label><Input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if(file) { const reader = new FileReader(); reader.onloadend = () => handleInputChange('imageBase64', reader.result); reader.readAsDataURL(file); }}} /></div>}
                         {imageSourceType === 'base64' && <div className="space-y-2"><Label>Base64 Data</Label><Textarea placeholder="data:image/png;base64,..." value={selectedNode.data.inputs.imageBase64 || ''} onChange={e => handleInputChange('imageBase64', e.target.value)} className="h-24 font-mono text-xs"/></div>}
                         <div className="space-y-2"><Label>Caption</Label><Input placeholder="Optional caption" value={selectedNode.data.inputs.caption || ''} onChange={e => handleInputChange('caption', e.target.value)} /></div>
