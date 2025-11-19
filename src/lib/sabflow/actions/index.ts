@@ -13,6 +13,7 @@ import { executeSabChatAction } from './sabchat';
 import { executeMetaAction } from './meta';
 import { executeGoogleSheetsAction } from './google-sheets';
 import { executeArrayFunctionAction } from './array-function';
+import { executeApiFileProcessorAction } from './api-file-processor';
 import type { WithId, ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
@@ -31,30 +32,44 @@ function interpolate(text: string | undefined, context: any): any {
     }
 
     let interpolatedText = text;
-    let match;
     const regex = /{{\s*([^}]+)\s*}}/g;
     
-    // Safety net to prevent infinite loops
-    let recursionDepth = 0;
-    const maxRecursionDepth = 10;
+    // Limit iterations to prevent infinite loops from something like {{variable}} that resolves to itself
+    let maxIterations = 10; 
+    let i = 0;
 
-    while ((match = regex.exec(interpolatedText)) !== null && recursionDepth < maxRecursionDepth) {
-        const fullMatch = match[0];
-        const varName = match[1].trim();
+    while (regex.test(interpolatedText) && i < maxIterations) {
+        // We have to reset the regex lastIndex because the string is modified in place.
+        regex.lastIndex = 0; 
         
-        const value = getValueFromPath(context, varName);
+        let match;
+        const replacements: {placeholder: string, value: any}[] = [];
 
-        if (value !== undefined && value !== null) {
-            // If the variable is the entire string, return the raw value (e.g., an array or object)
-            if (interpolatedText.trim() === fullMatch) {
-                return value;
+        while ((match = regex.exec(interpolatedText)) !== null) {
+            const fullMatch = match[0];
+            const varName = match[1].trim();
+            const value = getValueFromPath(context, varName);
+            if (value !== undefined) {
+                 replacements.push({placeholder: fullMatch, value});
             }
-            // Otherwise, replace the variable within the string
-            interpolatedText = interpolatedText.replace(fullMatch, typeof value === 'object' ? JSON.stringify(value) : String(value));
-            // Reset regex to re-evaluate the string for nested variables
-            regex.lastIndex = 0; 
         }
-        recursionDepth++;
+        
+        if(replacements.length === 0) {
+            // No more variables can be resolved in this pass
+            break;
+        }
+
+        // Handle the case where the entire string is just one variable
+        if (replacements.length === 1 && replacements[0].placeholder === interpolatedText.trim()) {
+            return replacements[0].value;
+        }
+
+        // Replace all found variables in this pass
+        for (const rep of replacements) {
+            interpolatedText = interpolatedText.replace(rep.placeholder, typeof rep.value === 'object' ? JSON.stringify(rep.value) : String(rep.value));
+        }
+
+        i++;
     }
 
     return interpolatedText;
@@ -115,6 +130,8 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
             return await executeGoogleSheetsAction(actionName, interpolatedInputs, user, logger);
         case 'array_function':
             return await executeArrayFunctionAction(actionName, interpolatedInputs, user, logger);
+        case 'api_file_processor':
+            return await executeApiFileProcessorAction(actionName, interpolatedInputs, logger);
         default:
             logger.log(`Error: Action app "${appId}" is not implemented.`);
             return { error: `Action app "${appId}" is not implemented.` };
