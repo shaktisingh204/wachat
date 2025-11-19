@@ -22,6 +22,7 @@ import { getInvitedUsers } from '@/app/actions/team.actions';
 import { getChatSessionsForUser } from '@/app/actions/sabchat.actions';
 import { DynamicSelector } from './dynamic-selector';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { ApiFileProcessorEditor } from './actions/api-file-processor';
 
 const triggers = [
     { id: 'webhook', name: 'Webhook', icon: Webhook, description: 'Trigger this flow by sending a POST request to a unique URL.' },
@@ -84,23 +85,11 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
     const { copy } = useCopyToClipboard();
     
-    const apiSteps = useMemo(() => {
-        if (!selectedNode || !nodes) return [];
-        const currentStepIndex = nodes.findIndex(n => n.id === selectedNode.id);
-        if (currentStepIndex === -1) return [];
-
-        return nodes
-            .slice(0, currentStepIndex)
-            .filter(n => n.type === 'action' && n.data.actionName === 'apiRequest')
-            .map(n => ({ value: n.data.name.replace(/ /g, '_'), label: n.data.name || n.id }));
-    }, [nodes, selectedNode]);
-
     const [dynamicData, setDynamicData] = useState<any>({
         projects: wachatProjects.map(p => ({ value: p._id.toString(), label: p.name })),
         facebookProjects: facebookProjects.map(p => ({ value: p._id.toString(), label: p.name })),
         agents: [],
         sabChatSessions: [],
-        apiSteps: apiSteps,
     });
     const [isLoadingData, startDataLoad] = useTransition();
 
@@ -131,10 +120,6 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
             }));
         });
     }, []);
-    
-    useEffect(() => {
-        setDynamicData(prev => ({ ...prev, apiSteps }));
-    }, [apiSteps]);
 
     if (!selectedNode) return null;
     
@@ -212,28 +197,36 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                 return <ApiRequestEditor data={selectedNode.data} onUpdate={handleDataChange} />;
             }
 
-            const actionOutput = selectedAction?.outputs?.[0];
-
-            return (
-                <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">{selectedAction?.description}</p>
-                    {selectedAction?.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs?.[input.name] || ''} onChange={val => handleInputChange(input.name, val)} dataOptions={dynamicData} /></div>))}
-                    {actionOutput && (
-                        <div className="pt-4 mt-4 border-t">
-                            <h4 className="font-semibold mb-2">Output</h4>
-                            <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-                                <div>
-                                    <p className="font-mono text-xs">{{`{{${selectedNode.data.name.replace(/ /g, '_')}.${actionOutput.name}}}`}}</p>
-                                    <p className="text-xs text-muted-foreground">{actionOutput.description}</p>
-                                </div>
-                                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => copy(`{{${selectedNode.data.name.replace(/ /g, '_')}.${actionOutput.name}}}`)}>
-                                    <Copy className="h-4 w-4"/>
-                                </Button>
-                            </div>
+            if (selectedApp.appId === 'api_file_processor' && selectedNode.data.actionName === 'grabFileFromApiStep') {
+                return <ApiFileProcessorEditor node={selectedNode} onUpdate={handleDataChange} nodes={nodes} />;
+            }
+            
+            if (selectedAction?.inputs.length > 0) {
+                 return (
+                    <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
+                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs?.[input.name] || ''} onChange={val => handleInputChange(input.name, val)} dataOptions={dynamicData} /></div>))}
+                    </div>
+                );
+            }
+            
+             if (selectedApp?.actions) {
+                 const actionOptions = selectedApp.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
+                 if (actionOptions.length > 1) {
+                     return (
+                        <div className="space-y-2">
+                            <Label>Action</Label>
+                            <Select value={selectedNode.data.actionName} onValueChange={val => handleDataChange({ actionName: val, inputs: {} })}>
+                                <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                <SelectContent>
+                                    {actionOptions.map((action: any) => (<SelectItem key={action.name} value={action.name}>{action.label}</SelectItem>))}
+                                </SelectContent>
+                            </Select>
                         </div>
-                    )}
-                </div>
-            );
+                    );
+                 }
+             }
+             return <p className="text-sm text-muted-foreground text-center pt-4">This app has no further actions to configure.</p>;
         }
 
         if (isTrigger) {
