@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -17,7 +17,7 @@ import { ApiRequestEditor } from './api-request-editor';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '../ui/textarea';
-import type { WithId, Project, User } from '@/lib/definitions';
+import type { WithId, Project, User, SabFlowNode } from '@/lib/definitions';
 import { getInvitedUsers } from '@/app/actions/team.actions';
 import { getChatSessionsForUser } from '@/app/actions/sabchat.actions';
 import { DynamicSelector } from './dynamic-selector';
@@ -87,7 +87,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
     const apiSteps = useMemo(() => 
         nodes
             .filter(n => n.type === 'action' && n.data.appId === 'api')
-            .map(n => ({ value: n.data.name, label: n.data.name || n.id })),
+            .map(n => ({ value: n.id, label: n.data.name || n.id })),
         [nodes]
     );
 
