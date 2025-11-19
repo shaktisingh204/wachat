@@ -18,26 +18,41 @@ function interpolate(text: string | undefined, context: any): any {
     }
 
     let interpolatedText = text;
-    let match;
     const regex = /{{\s*([^}]+)\s*}}/g;
+    
+    let maxIterations = 10;
+    let i = 0;
+    let lastText = interpolatedText;
 
-    while ((match = regex.exec(interpolatedText)) !== null) {
-        const fullMatch = match[0];
-        const varName = match[1].trim();
-        
-        const value = getValueFromPath(context, varName);
-
-        if (value !== undefined && value !== null) {
-            if (interpolatedText.trim() === fullMatch) {
-                return value;
-            }
-            interpolatedText = interpolatedText.replace(fullMatch, typeof value === 'object' ? JSON.stringify(value) : String(value));
-            regex.lastIndex = 0; 
+    while (i < maxIterations) {
+        const matches = [...interpolatedText.matchAll(regex)];
+        if (matches.length === 0) {
+            break;
         }
+
+        for (const match of matches) {
+            const fullMatch = match[0];
+            const varName = match[1].trim();
+            const value = getValueFromPath(context, varName);
+
+            if (value !== undefined && value !== null) {
+                 if (interpolatedText.trim() === fullMatch && (typeof value === 'object' || typeof value === 'number' || typeof value === 'boolean')) {
+                    return value;
+                }
+                interpolatedText = interpolatedText.replace(fullMatch, typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value));
+            }
+        }
+        
+        if (interpolatedText === lastText) {
+            break;
+        }
+        lastText = interpolatedText;
+        i++;
     }
 
     return interpolatedText;
 };
+
 
 export async function executeApiAction(node: SabFlowNode, context: any, logger: any) {
     try {
@@ -120,17 +135,16 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         const response = await axios(requestConfig);
         logger.log(`External API call successful (Status: ${response.status})`);
         
-        let responseData;
         const output: Record<string, any> = {};
 
         if (apiRequest.isDirectFileResponse) {
             const contentType = response.headers['content-type'] || 'application/octet-stream';
             const base64Data = Buffer.from(response.data, 'binary').toString('base64');
             const dataUri = `data:${contentType};base64,${base64Data}`;
-            responseData = { fileDataUri: dataUri };
-            output['fileDataUri'] = dataUri;
+            // The file processor will look for this specific key.
+            output['fileDataUri'] = dataUri; 
         } else {
-            responseData = { status: response.status, headers: response.headers, data: response.data };
+            // This is for regular JSON responses
              if (apiRequest?.responseMappings?.length > 0) {
                 apiRequest.responseMappings.forEach((mapping: any) => {
                     if (mapping.variable && mapping.path) {
@@ -144,8 +158,9 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
             }
         }
 
+        // Always provide the full response under a predictable key if requested.
         if (node.data.responseVariableName) {
-            output[node.data.responseVariableName] = responseData;
+            output[node.data.responseVariableName] = { status: response.status, headers: response.headers, data: response.data };
         }
         
         return { output };
@@ -156,5 +171,3 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
         return { error: errorMsg };
     }
 }
-      
-    

@@ -19,7 +19,6 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
 
 
-// Helper to get nested value from context
 function getValueFromPath(obj: any, path: string): any {
     if (!path || typeof path !== 'string') return undefined;
     const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
@@ -34,41 +33,33 @@ function interpolate(text: string | undefined, context: any): any {
     let interpolatedText = text;
     const regex = /{{\s*([^}]+)\s*}}/g;
     
-    // Limit iterations to prevent infinite loops from something like {{variable}} that resolves to itself
-    let maxIterations = 10; 
+    let maxIterations = 10;
     let i = 0;
+    let lastText = interpolatedText;
 
-    while (regex.test(interpolatedText) && i < maxIterations) {
-        // We have to reset the regex lastIndex because the string is modified in place.
-        regex.lastIndex = 0; 
-        
-        let match;
-        const replacements: {placeholder: string, value: any}[] = [];
-
-        while ((match = regex.exec(interpolatedText)) !== null) {
-            const fullMatch = match[0];
-            const varName = match[1].trim();
-            const value = getValueFromPath(context, varName);
-            if (value !== undefined) {
-                 replacements.push({placeholder: fullMatch, value});
-            }
-        }
-        
-        if(replacements.length === 0) {
-            // No more variables can be resolved in this pass
+    while (i < maxIterations) {
+        const matches = [...interpolatedText.matchAll(regex)];
+        if (matches.length === 0) {
             break;
         }
 
-        // Handle the case where the entire string is just one variable
-        if (replacements.length === 1 && replacements[0].placeholder === interpolatedText.trim()) {
-            return replacements[0].value;
-        }
+        for (const match of matches) {
+            const fullMatch = match[0];
+            const varName = match[1].trim();
+            const value = getValueFromPath(context, varName);
 
-        // Replace all found variables in this pass
-        for (const rep of replacements) {
-            interpolatedText = interpolatedText.replace(rep.placeholder, typeof rep.value === 'object' ? JSON.stringify(rep.value) : String(rep.value));
+            if (value !== undefined && value !== null) {
+                 if (interpolatedText.trim() === fullMatch && (typeof value === 'object' || typeof value === 'number' || typeof value === 'boolean')) {
+                    return value;
+                }
+                interpolatedText = interpolatedText.replace(fullMatch, typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value));
+            }
         }
-
+        
+        if (interpolatedText === lastText) {
+            break;
+        }
+        lastText = interpolatedText;
         i++;
     }
 
@@ -94,7 +85,6 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
     
     logger.log(`Preparing to execute action: ${node.data.actionName} for app: ${node.data.appId}`, { inputs: rawInputs });
     
-    // Create a new object for interpolated inputs
     const interpolatedInputs: Record<string, any> = {};
     for (const key in rawInputs) {
         if (Object.prototype.hasOwnProperty.call(rawInputs, key)) {
@@ -117,6 +107,7 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'meta':
             return await executeMetaAction(actionName, interpolatedInputs, user, logger);
         case 'api':
+            // Pass the whole context for interpolation inside the API action
             return await executeApiAction(node, context, logger);
         case 'sms':
             return await executeSmsAction(actionName, interpolatedInputs, user, logger);
@@ -131,7 +122,7 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'array_function':
             return await executeArrayFunctionAction(actionName, interpolatedInputs, user, logger);
         case 'api_file_processor':
-            return await executeApiFileProcessorAction(actionName, interpolatedInputs, logger);
+            return await executeApiFileProcessorAction(actionName, interpolatedInputs, context, logger);
         default:
             logger.log(`Error: Action app "${appId}" is not implemented.`);
             return { error: `Action app "${appId}" is not implemented.` };

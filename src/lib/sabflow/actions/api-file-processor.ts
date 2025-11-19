@@ -26,21 +26,40 @@ async function processAndSaveFile(buffer: Buffer, originalFilename: string, logg
 }
 
 
-export async function executeApiFileProcessorAction(actionName: string, inputs: any, logger: any) {
+export async function executeApiFileProcessorAction(actionName: string, inputs: any, context: any, logger: any) {
     try {
         switch (actionName) {
             case 'saveFile': {
-                const { fileData, filename } = inputs;
+                let { fileData, filename } = inputs;
+                
+                // If fileData is not provided, try to find it from the previous step's output
                 if (!fileData) {
-                    throw new Error("Input 'fileData' (Base64 string) is required.");
+                    const previousStepOutput = Object.values(context).find((val: any) => val?.output?.fileDataUri) as any;
+                    if (previousStepOutput?.output?.fileDataUri) {
+                        fileData = previousStepOutput.output.fileDataUri;
+                        logger.log('Auto-detected fileDataUri from previous step.');
+                    }
+                }
+                
+                if (!fileData) {
+                    throw new Error("Input 'fileData' (Base64 string or data URI) is required, or the previous step must output 'fileDataUri'.");
                 }
                 if (!filename) {
-                    throw new Error("Input 'filename' is required to determine the file type.");
+                     // Try to generate a reasonable default filename
+                    const mimeTypeMatch = fileData.match(/^data:(image\/[a-zA-Z]+);base64,/);
+                    const extension = mimeTypeMatch ? `.${mimeTypeMatch[1].split('/')[1]}` : '.dat';
+                    filename = `downloaded_file${extension}`;
+                    logger.log(`Filename not provided, auto-generated: ${filename}`);
                 }
                 
                 const base64Data = fileData.startsWith('data:') 
                     ? fileData.split(',')[1] 
                     : fileData;
+                    
+                if (!base64Data) {
+                    throw new Error("Invalid Base64 or data URI format.");
+                }
+
                 const buffer = Buffer.from(base64Data, 'base64');
                 
                 const output = await processAndSaveFile(buffer, filename, logger);
