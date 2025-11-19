@@ -25,7 +25,7 @@ export function ApiFileProcessorEditor({ node, onUpdate, nodes }: ApiFileProcess
 
     return nodes
       .slice(0, currentStepIndex)
-      .filter(n => n.type === 'action' && n.data.appId === 'api' && n.data.actionName === 'apiRequest')
+      .filter(n => n.type === 'action' && n.data.appId === 'api')
       .map(n => ({ value: n.data.name.replace(/ /g, '_'), label: n.data.name || n.id }));
   }, [nodes, node.id]);
 
@@ -63,7 +63,7 @@ export function ApiFileProcessorEditor({ node, onUpdate, nodes }: ApiFileProcess
         <h4 className="font-semibold mb-2">Output</h4>
         <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
           <div>
-            <p className="font-mono text-xs">{{`{{${node.data.name.replace(/ /g, '_')}.output.fileUrl}}`}}</p>
+            <p className="font-mono text-xs">{`{{${node.data.name.replace(/ /g, '_')}.output.fileUrl}}`}</p>
             <p className="text-xs text-muted-foreground">The public URL of the saved file.</p>
           </div>
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleCopyToClipboard('fileUrl')}>

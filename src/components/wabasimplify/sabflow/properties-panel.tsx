@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
@@ -7,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, ArrowLeft, Zap, Webhook, Calendar, PlayCircle, GitFork, Copy } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Zap, Webhook, Calendar, PlayCircle, GitFork } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useProject } from '@/context/project-context';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
