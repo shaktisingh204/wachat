@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Label } from '@/components/ui/label';
@@ -29,7 +28,7 @@ export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {
                             Log into your Google Sheets account.
                         </li>
                         <li>
-                            Create a new spreadsheet and navigate to <code className="bg-muted px-1 rounded-sm">Extensions > Add-ons > Get add-ons</code>.
+                            Create a new spreadsheet and navigate to <code className="bg-muted px-1 rounded-sm">Extensions &gt; Add-ons &gt; Get add-ons</code>.
                         </li>
                         <li>
                             Search for and install the <strong>"SabFlow Webhooks"</strong> add-on, then refresh the page.
