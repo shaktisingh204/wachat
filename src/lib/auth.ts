@@ -33,6 +33,7 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
     }
 }
 
+
 // Full verification for server components (with DB access)
 export async function verifyJwt(token: string): Promise<SessionPayload | null> {
     try {
@@ -55,7 +56,7 @@ export async function verifyJwt(token: string): Promise<SessionPayload | null> {
     }
 }
 
-// Full admin verification for server components (with DB access)
+
 export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());

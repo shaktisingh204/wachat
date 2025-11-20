@@ -51,6 +51,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+       {
+        protocol: 'https',
+        hostname: 'scontent.*.fbcdn.net',
+        port: '',
+        pathname: '/**',
+      },
       {
         protocol: 'https',
         hostname: 'static5.lenskart.com',
@@ -66,6 +72,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'assets.sabnode.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
         port: '',
         pathname: '/**',
       },

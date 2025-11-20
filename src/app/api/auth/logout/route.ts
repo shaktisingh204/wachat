@@ -1,35 +1,22 @@
 
-import { NextResponse, type NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
-import { connectToDatabase } from '@/lib/mongodb';
+import { signOut } from 'next-auth/react';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('session')?.value;
-
-    if (sessionToken) {
-        try {
-            const payload = decodeJwt(sessionToken);
-            if (payload && payload.jti && payload.exp) {
-                const { db } = await connectToDatabase();
-                await db.collection('revoked_tokens').insertOne({
-                    jti: payload.jti,
-                    expireAt: new Date(payload.exp * 1000), // exp is in seconds, Date needs ms
-                });
-            }
-        } catch (error) {
-            console.error("Error during token revocation on logout:", error);
-        }
-    }
-
-    const response = NextResponse.redirect(new URL('/login', request.url));
-    cookieStore.set({
-        name: 'session',
-        value: '',
-        path: '/',
-        expires: new Date(0),
-    });
-    
-    return response;
+export async function GET(request: Request) {
+  // This route is tricky with server components. 
+  // The recommended way is to use a client component with a button that calls `signOut()`.
+  // For a direct GET request, we can redirect.
+  const url = new URL('/login', request.url);
+  return NextResponse.redirect(url);
 }
+
+// In your UI, you would have a component like this:
+/*
+'use client';
+import { signOut } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+
+export function LogoutButton() {
+  return <Button onClick={() => signOut({ callbackUrl: '/login' })}>Logout</Button>;
+}
+*/

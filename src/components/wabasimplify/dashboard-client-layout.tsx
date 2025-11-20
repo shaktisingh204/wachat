@@ -4,6 +4,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +21,7 @@ import {
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getSession, getProjects } from '@/app/actions/index.ts';
+import { getProjects } from '@/app/actions/index.ts';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
@@ -588,8 +589,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                                 <Avatar>
-                                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" data-ai-hint="person avatar"/>
-                                    <AvatarFallback>{sessionUser?.name.charAt(0) || 'U'}</AvatarFallback>
+                                    <AvatarImage src={sessionUser?.image || `https://i.pravatar.cc/150?u=${sessionUser?.email}`} data-ai-hint="person avatar"/>
+                                    <AvatarFallback>{sessionUser?.name?.charAt(0) || 'U'}</AvatarFallback>
                                 </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
@@ -599,8 +600,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
                                 <DropdownMenuSeparator/>
-                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout"><LogOut className="mr-2 h-4 w-4"/>Admin Logout</Link></DropdownMenuItem>
-                                <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/login' })}><LogOut className="mr-2 h-4 w-4"/>Logout</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -712,37 +712,25 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
 // This is the main exported component
 export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
-    const [isClient, setIsClient] = React.useState(false);
-    const [initialData, setInitialData] = React.useState<{ user: any, projects: any[] } | null>(null);
+    const { data: session, status } = useSession();
     const router = useRouter();
 
+    const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
+    
     React.useEffect(() => {
-        setIsClient(true);
-        const fetchInitial = async () => {
-            try {
-                const session = await getSession();
-                if (!session?.user) {
-                    router.push('/login');
-                    return;
-                }
-                const projects = await getProjects() || [];
-                const plainUser = JSON.parse(JSON.stringify(session.user));
-                const plainProjects = JSON.parse(JSON.stringify(projects));
-                setInitialData({ user: plainUser, projects: plainProjects });
-            } catch (error) {
-                console.error("Initialization failed:", error);
-                router.push('/login');
-            }
-        };
-        fetchInitial();
-    }, [router]);
+        if (status === 'unauthenticated') {
+            router.push('/login');
+        } else if (status === 'authenticated') {
+            getProjects().then(setProjects).catch(() => setProjects([]));
+        }
+    }, [status, router]);
 
-    if (!isClient || !initialData) {
+    if (status === 'loading' || !session) {
         return <FullPageSkeleton />;
     }
 
     return (
-        <ProjectProvider initialProjects={initialData.projects} user={initialData.user}>
+        <ProjectProvider initialProjects={projects} user={session.user as any}>
             <DashboardLayoutContent>{children}</DashboardLayoutContent>
         </ProjectProvider>
     );

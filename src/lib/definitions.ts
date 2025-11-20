@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -79,6 +78,7 @@ export type Website = {
 export type WebsitePage = {
     _id: ObjectId;
     siteId: ObjectId;
+    userId: ObjectId;
     name: string;
     slug: string;
     layout: WebsiteBlock[];
@@ -289,7 +289,7 @@ export type CrmDeal = {
     leadSource?: string;
     pipelineId?: string;
     createdAt: Date;
-    updatedAt?: Date;
+    updatedAt: Date;
     notes?: {
         content: string;
         createdAt: Date;
@@ -1458,8 +1458,11 @@ export type Plan = {
 
 export type User = {
     _id: ObjectId;
+    id: string;
     name: string;
     email: string;
+    image?: string;
+    emailVerified?: Date | null;
     password?: string;
     createdAt: Date;
     apiKeys?: ApiKey[];
@@ -1494,6 +1497,8 @@ export type User = {
         credentials?: any; // For API keys etc.
         createdAt: Date;
     }[];
+    planId?: ObjectId;
+    credits?: number;
 };
 
 export type Invitation = {

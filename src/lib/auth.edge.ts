@@ -1,10 +1,10 @@
-// IMPORTANT: This file is intended for use in Edge runtime environments (like Next.js Middleware).
-// It contains a subset of auth functions that do NOT depend on Node.js APIs (e.g., database connections).
+
+// This file is deprecated as middleware is now handled by NextAuth.js
+// It is kept for reference but is no longer used in the auth flow.
 
 import { jwtVerify } from 'jose';
 import type { SessionPayload, AdminSessionPayload } from './definitions';
 
-// This is a simplified secret retrieval that does not involve database calls.
 function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
     if (!secret) {
@@ -13,11 +13,6 @@ function getJwtSecretKey(): Uint8Array {
     return new TextEncoder().encode(secret);
 }
 
-/**
- * Verifies a JWT signature for the Edge runtime.
- * This function DOES NOT check for token revocation in the database.
- * It's suitable for initial, fast checks in middleware.
- */
 export async function verifyJwtEdge(token: string): Promise<SessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
@@ -27,15 +22,10 @@ export async function verifyJwtEdge(token: string): Promise<SessionPayload | nul
         }
         return payload as SessionPayload;
     } catch (error) {
-        // Errors like token expiration will be caught here.
         return null;
     }
 }
 
-/**
- * Verifies an Admin JWT signature for the Edge runtime.
- * This function DOES NOT check for token revocation in the database.
- */
 export async function verifyAdminJwtEdge(token: string): Promise<AdminSessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
