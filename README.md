@@ -7,6 +7,7 @@ This document provides a comprehensive guide to setting up, running, and using t
 
 1.  [Prerequisites](#prerequisites)
 2.  [Environment Setup](#environment-setup)
+    - [OAuth Setup (Google & Facebook)](#oauth-setup-google--facebook)
 3.  [Running the Application](#running-the-application)
     - [Development Mode](#development-mode)
     - [Production Mode](#production-mode)
@@ -51,19 +52,29 @@ Before you begin, ensure you have the following installed on your system:
     # This must be your publicly accessible application URL
     NEXT_PUBLIC_APP_URL=https://your-app-domain.com
 
+    # --- Next-Auth Configuration ---
+    # Used for OAuth providers and securing sessions. Generate a strong secret.
+    NEXTAUTH_SECRET=a_very_strong_random_secret_for_nextauth
+    NEXTAUTH_URL=https://your-app-domain.com
+
     # --- Meta/Facebook Integration ---
 
     # For WhatsApp Account Onboarding (Wachat Suite)
     NEXT_PUBLIC_META_ONBOARDING_APP_ID=your_whatsapp_onboarding_app_id
     META_ONBOARDING_APP_SECRET=your_whatsapp_onboarding_app_secret
 
-    # For Facebook Page Integration (Meta Suite)
-    NEXT_PUBLIC_FACEBOOK_APP_ID=your_facebook_page_app_id
-    FACEBOOK_APP_SECRET=your_facebook_page_app_secret
+    # For Facebook Page Integration & Login (Meta Suite)
+    FACEBOOK_CLIENT_ID=your_facebook_page_app_id
+    FACEBOOK_CLIENT_SECRET=your_facebook_page_app_secret
     
     # For Instagram Integration
-    NEXT_PUBLIC_INSTAGRAM_APP_ID=your_instagram_app_id
-    INSTAGRAM_APP_SECRET=your_instagram_app_secret
+    INSTAGRAM_CLIENT_ID=your_instagram_app_id
+    INSTAGRAM_CLIENT_SECRET=your_instagram_app_secret
+    
+    # --- Google Integration ---
+    # For Google Login and other Google APIs
+    GOOGLE_CLIENT_ID=your_google_oauth_client_id
+    GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
     
     # Meta Webhooks (for receiving messages and updates)
     META_VERIFY_TOKEN=a_random_secure_string_for_webhooks
@@ -79,6 +90,41 @@ Before you begin, ensure you have the following installed on your system:
     # If running Redpanda via Docker, this is usually correct.
     KAFKA_BROKERS=127.0.0.1:9092
     ```
+
+### OAuth Setup (Google & Facebook)
+
+To enable "Sign in with Google" and "Sign in with Facebook", you must configure their respective developer projects.
+
+#### Google OAuth Setup
+
+1.  **Go to the Google Cloud Console**: `console.cloud.google.com`
+2.  Create a new project or select an existing one.
+3.  Go to **APIs & Services &rarr; OAuth consent screen**.
+    *   Choose **External** user type and create the consent screen.
+    *   Fill in the required app information (app name, user support email, developer contact). You can skip scopes for now.
+4.  Go to **APIs & Services &rarr; Credentials**.
+    *   Click **+ CREATE CREDENTIALS** and select **OAuth client ID**.
+    *   Choose **Web application** as the application type.
+    *   Under **Authorized JavaScript origins**, add your app's URL (e.g., `https://your-app-domain.com` or `http://localhost:3001` for development).
+    *   Under **Authorized redirect URIs**, add `https://your-app-domain.com/api/auth/callback/google` (and a `http://localhost:3001/api/auth/callback/google` version for development).
+    *   Click **Create**.
+5.  Copy the **Client ID** and **Client Secret**.
+6.  Paste these values into your `.env` file for `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+
+#### Facebook OAuth Setup
+
+1.  **Go to Meta for Developers**: `developers.facebook.com`
+2.  Go to **My Apps** and click **Create App**.
+3.  Select **Consumer** as the app type and click Next.
+4.  Provide an App Name and your contact email.
+5.  From your new app's dashboard, find the **Facebook Login** product and click **Set up**.
+6.  In the left sidebar under "Facebook Login", click **Settings**.
+7.  Under **Valid OAuth Redirect URIs**, add `https://your-app-domain.com/api/auth/callback/facebook` (and a `http://localhost:3001/api/auth/callback/facebook` version for development).
+8.  Click **Save Changes**.
+9.  In the sidebar, go to **App Settings &rarr; Basic**.
+10. Copy the **App ID** and **App Secret**.
+11. Paste these values into your `.env` file for `FACEBOOK_CLIENT_ID` and `FACEBOOK_CLIENT_SECRET`. **Note:** For login, `FACEBOOK_CLIENT_ID` should be the same as `NEXT_PUBLIC_FACEBOOK_APP_ID`.
+
 
 ## Running the Application
 
