@@ -1,12 +1,12 @@
 
-import type { NextConfig } from 'next';
+/** @type {import('next').NextConfig} */
 const webpack = require('webpack');
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
