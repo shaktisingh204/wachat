@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { Inter } from 'next/font/google';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import SessionProvider from '@/components/wabasimplify/session-provider';
 
 export const metadata: Metadata = {
   title: 'SabNode',
@@ -32,9 +33,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body className="antialiased overflow-hidden font-sans">
-        <TooltipProvider>
-            {children}
-        </TooltipProvider>
+        <SessionProvider>
+            <TooltipProvider>
+                {children}
+            </TooltipProvider>
+        </SessionProvider>
         <Toaster />
       </body>
     </html>
