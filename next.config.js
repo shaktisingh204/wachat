@@ -99,6 +99,7 @@ const nextConfig = {
         net: false,
         dns: false,
         tls: false,
+        'timers/promises': false,
         timers: false,
         child_process: false,
         module: false,
