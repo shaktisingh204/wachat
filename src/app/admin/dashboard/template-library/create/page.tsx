@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProjectById } from '@/app/actions/index.ts';
 
-export const dynamic = 'force-dynamic';
 
 const LoadingSkeleton = () => (
     <div className="flex flex-col gap-8">
