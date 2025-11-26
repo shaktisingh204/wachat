@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -158,8 +158,16 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
   let serverAction: any = handleCreateTemplate;
   if(isAdminForm) serverAction = saveLibraryTemplate;
   if(isBulkForm) serverAction = handleBulkCreateTemplate;
+  
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState(createTemplateInitialState);
 
-  const [state, formAction] = useActionState(serverAction, createTemplateInitialState);
+  const formAction = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await serverAction(createTemplateInitialState, formData);
+        setState(result);
+    })
+  }
   
   const [templateType, setTemplateType] = useState<'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL'>('STANDARD');
 
