@@ -1,9 +1,7 @@
 
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -27,11 +25,10 @@ const initialState = {
 };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
-
+  const [isPending, startTransition] = useTransition();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
+    <Button type="submit" disabled={isPending}>
+      {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           Syncing...
@@ -49,9 +46,17 @@ interface SyncProjectsDialogProps {
 
 export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(handleSyncWabas, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState<any>(initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  
+  const action = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await handleSyncWabas(null, formData);
+        setState(result);
+    });
+  };
 
   useEffect(() => {
     if (state.message) {
@@ -74,7 +79,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
+        <form action={action} ref={formRef}>
           <DialogHeader>
             <DialogTitle>Sync Projects with Meta</DialogTitle>
             <DialogDescription>
@@ -122,7 +127,16 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <SubmitButton />
+            <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                    <>
+                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                    Syncing...
+                    </>
+                ) : (
+                    'Sync Projects'
+                )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

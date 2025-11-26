@@ -1,40 +1,32 @@
 
-const { MongoClient, Db } = require('mongodb');
-const { config } = require('dotenv');
+import { MongoClient, Db } from 'mongodb';
 
-config(); // Load environment variables from .env file
+if (!process.env.MONGODB_URI) {
+  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+}
 
-const uri = process.env.MONGODB_URI;
-const dbName = process.env.MONGODB_DB;
+if (!process.env.MONGODB_DB) {
+  throw new Error('Please define the MONGODB_DB environment variable inside .env.local');
+}
 
-let cachedClient = null;
-let cachedDb = null;
+let cachedClient: MongoClient | null = null;
+let cachedDb: Db | null = null;
 
-async function connectToDatabase() {
-  if (!uri) {
-    throw new Error('Please define the MONGODB_URI environment variable inside .env');
-  }
-  if (!dbName) {
-      throw new Error('Please define the MONGODB_DB environment variable inside .env');
-  }
-
+export async function connectToDatabase() {
   if (cachedClient && cachedDb) {
     return { client: cachedClient, db: cachedDb };
   }
 
-  // Cap the connection pool size to 90% of the default (100)
-  const client = new MongoClient(uri, {
-    maxPoolSize: 90,
+  const client = new MongoClient(process.env.MONGODB_URI!, {
+     maxPoolSize: 90,
   });
 
   await client.connect();
 
-  const db = client.db(dbName);
+  const db = client.db(process.env.MONGODB_DB);
 
   cachedClient = client;
   cachedDb = db;
 
   return { client, db };
 }
-
-module.exports = { connectToDatabase };

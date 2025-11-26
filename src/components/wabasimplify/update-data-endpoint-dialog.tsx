@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -23,10 +22,11 @@ import type { WithId, Project, PaymentConfiguration } from '@/lib/definitions';
 const initialState = { message: null, error: undefined };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const [isPending, startTransition] = useTransition();
+
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Link className="mr-2 h-4 w-4" />}
+    <Button type="submit" disabled={isPending}>
+      {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Link className="mr-2 h-4 w-4" />}
       Update Endpoint
     </Button>
   );
@@ -40,9 +40,17 @@ interface UpdateDataEndpointDialogProps {
 
 export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateDataEndpointDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(handleUpdateDataEndpoint, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState<any>(initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+
+  const action = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await handleUpdateDataEndpoint(null, formData);
+        setState(result);
+    });
+  };
 
   useEffect(() => {
     if (state.message) {
@@ -64,7 +72,7 @@ export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateD
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
+        <form action={action} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input type="hidden" name="configurationName" value={config.configuration_name} />
           <DialogHeader>
@@ -81,12 +89,13 @@ export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateD
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <SubmitButton />
+            <Button type="submit" disabled={isPending}>
+                {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Link className="mr-2 h-4 w-4" />}
+                Update Endpoint
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   );
 }
-
-    

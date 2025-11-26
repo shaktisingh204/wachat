@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,10 +21,11 @@ import { importSmsContacts } from '@/app/actions/sms.actions';
 const initialState = { message: null, error: null };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const [isPending, startTransition] = useTransition();
+
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+    <Button type="submit" disabled={isPending}>
+      {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
       Import Contacts
     </Button>
   );
@@ -37,9 +37,17 @@ interface SmsImportContactsDialogProps {
 
 export function SmsImportContactsDialog({ onImported }: SmsImportContactsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(importSmsContacts, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState<any>(initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+
+  const action = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await importSmsContacts(null, formData);
+        setState(result);
+    });
+  };
 
   useEffect(() => {
     if (state.message) {
@@ -62,7 +70,7 @@ export function SmsImportContactsDialog({ onImported }: SmsImportContactsDialogP
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
+        <form action={action} ref={formRef}>
             <DialogHeader>
                 <DialogTitle>Import SMS Contacts</DialogTitle>
                 <DialogDescription>
@@ -77,12 +85,13 @@ export function SmsImportContactsDialog({ onImported }: SmsImportContactsDialogP
             </div>
             <DialogFooter>
                 <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                <SubmitButton />
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Import Contacts
+                </Button>
             </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   );
 }
-
-    

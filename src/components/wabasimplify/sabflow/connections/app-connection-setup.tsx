@@ -1,8 +1,7 @@
 
 'use client';
 
-import React, { useState, useActionState, useEffect, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
+import React, { useState, useEffect, useRef, useTransition } from 'react';
 import { saveSabFlowConnection } from '@/app/actions/sabflow.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -11,29 +10,35 @@ import { Label } from '@/components/ui/label';
 import { LoaderCircle, Key } from 'lucide-react';
 import { GoogleSheetsConnection } from './google-sheets-connection';
 
-const initialState = { message: null, error: null };
-
 function SubmitButton() {
-    const { pending } = useFormStatus();
+    const [isPending, startTransition] = useTransition();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Key className="mr-2 h-4 w-4" />}
+        <Button type="submit" disabled={isPending}>
+            {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Key className="mr-2 h-4 w-4" />}
             Connect Account
         </Button>
     )
 }
 
 export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: any, onConnectionSaved: () => void, flowId?: string }) {
-    const [state, formAction] = useActionState(saveSabFlowConnection, initialState);
     const { toast } = useToast();
+    const [isPending, startTransition] = useTransition();
+    const [state, setState] = useState<any>(null);
     const formRef = useRef<HTMLFormElement>(null);
+    
+    const action = (formData: FormData) => {
+        startTransition(async () => {
+            const result = await saveSabFlowConnection(null, formData);
+            setState(result);
+        });
+    };
 
     useEffect(() => {
-        if (state.message) {
+        if (state?.message) {
             toast({ title: "Success!", description: state.message });
             onConnectionSaved();
         }
-        if (state.error) {
+        if (state?.error) {
             toast({ title: "Error", description: state.error, variant: 'destructive' });
         }
     }, [state, toast, onConnectionSaved]);
@@ -58,7 +63,7 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
     
     if (app.connectionType === 'apikey') {
         return (
-            <form action={formAction} ref={formRef} className="space-y-4">
+            <form action={action} ref={formRef} className="space-y-4">
                 <input type="hidden" name="appId" value={app.appId} />
                 <input type="hidden" name="appName" value={app.name} />
                 <input type="hidden" name="credentialKeys" value={(app.credentials || []).map((c: any) => c.name).join(',')} />
@@ -79,7 +84,10 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
                         />
                     </div>
                 ))}
-                <SubmitButton />
+                <Button type="submit" disabled={isPending}>
+                    {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Key className="mr-2 h-4 w-4" />}
+                    Connect Account
+                </Button>
             </form>
         );
     }

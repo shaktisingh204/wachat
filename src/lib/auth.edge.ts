@@ -2,7 +2,7 @@
 // This file is deprecated as middleware is now handled by NextAuth.js
 // It is kept for reference but is no longer used in the auth flow.
 
-import { jwtVerify } from 'jose';
+import { jwtVerify, JWTExpired } from 'jose';
 import type { SessionPayload, AdminSessionPayload } from './definitions';
 
 function getJwtSecretKey(): Uint8Array {
@@ -22,6 +22,9 @@ export async function verifyJwtEdge(token: string): Promise<SessionPayload | nul
         }
         return payload as SessionPayload;
     } catch (error) {
+        if (error instanceof JWTExpired) {
+            throw error; // Re-throw to be caught by middleware
+        }
         return null;
     }
 }
@@ -35,6 +38,9 @@ export async function verifyAdminJwtEdge(token: string): Promise<AdminSessionPay
         }
         return payload as AdminSessionPayload;
     } catch (error) {
+         if (error instanceof JWTExpired) {
+            throw error; // Re-throw to be caught by middleware
+        }
         return null;
     }
 }

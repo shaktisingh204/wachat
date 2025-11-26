@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import {
   Card,
   CardContent,
@@ -22,10 +21,11 @@ import type { WithId, User } from '@/lib/definitions';
 const initialState = { message: null, error: undefined };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const [isPending, startTransition] = useTransition();
+
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+    <Button type="submit" disabled={isPending}>
+      {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Twilio Settings
     </Button>
   );
@@ -36,9 +36,17 @@ interface SmsSettingsFormProps {
 }
 
 export function SmsSettingsForm({ user }: SmsSettingsFormProps) {
-    const [state, formAction] = useActionState(saveSmsSettings, initialState);
+    const [isPending, startTransition] = useTransition();
+    const [state, setState] = useState<any>(initialState);
     const { toast } = useToast();
     const settings = user.smsProviderSettings?.twilio;
+
+    const action = (formData: FormData) => {
+        startTransition(async () => {
+            const result = await saveSmsSettings(null, formData);
+            setState(result);
+        });
+    };
     
     useEffect(() => {
         if (state.message) {
@@ -50,7 +58,7 @@ export function SmsSettingsForm({ user }: SmsSettingsFormProps) {
     }, [state, toast]);
 
     return (
-        <form action={formAction}>
+        <form action={action}>
             <Card className="card-gradient card-gradient-blue">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -74,11 +82,12 @@ export function SmsSettingsForm({ user }: SmsSettingsFormProps) {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <SubmitButton />
+                    <Button type="submit" disabled={isPending}>
+                        {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                        Save Twilio Settings
+                    </Button>
                 </CardFooter>
             </Card>
         </form>
     );
 }
-
-    

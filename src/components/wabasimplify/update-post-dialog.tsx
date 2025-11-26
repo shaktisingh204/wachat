@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,11 +21,11 @@ import { handleUpdatePost } from '@/app/actions/facebook.actions';
 const initialState = { success: false, error: undefined };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const [isPending, startTransition] = useTransition();
 
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+    <Button type="submit" disabled={isPending}>
+      {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Changes
     </Button>
   );
@@ -41,9 +40,17 @@ interface UpdatePostDialogProps {
 }
 
 export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPostUpdated }: UpdatePostDialogProps) {
-  const [state, formAction] = useActionState(handleUpdatePost, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState<any>(initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  
+  const action = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await handleUpdatePost(null, formData);
+        setState(result);
+    });
+  };
 
   useEffect(() => {
     if (state.success) {
@@ -59,7 +66,7 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
-        <form action={formAction} ref={formRef}>
+        <form action={action} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="postId" value={post.id} />
           <DialogHeader>
@@ -82,7 +89,10 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <SubmitButton />
+            <Button type="submit" disabled={isPending}>
+                {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                Save Changes
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

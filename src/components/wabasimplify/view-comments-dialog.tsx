@@ -1,40 +1,32 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { useEffect, useState, useTransition } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Send, ThumbsUp, Trash2 } from 'lucide-react';
-import { handlePostComment, handleDeleteComment, handleLikeObject } from '@/app/actions/facebook.actions';
 import { useToast } from '@/hooks/use-toast';
-import type { FacebookPost, FacebookComment } from '@/lib/definitions';
 import { ScrollArea } from '../ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
+import { getInstagramComments } from '@/app/actions/instagram.actions';
+import { Skeleton } from '../ui/skeleton';
+import { handlePostComment, handleDeleteComment, handleLikeObject } from '@/app/actions/facebook.actions';
 
 const commentInitialState = { success: false, error: undefined };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-      Comment
-    </Button>
-  );
+    const [isPending, startTransition] = useTransition();
+    return (
+        <Button type="submit" disabled={isPending}>
+            {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+            Comment
+        </Button>
+    );
 }
 
-function Comment({ comment, projectId, onActionComplete }: { comment: FacebookComment, projectId: string, onActionComplete: () => void }) {
+function Comment({ comment, projectId, onActionComplete }: { comment: any, projectId: string, onActionComplete: () => void }) {
     const { toast } = useToast();
     const [isLiking, startLiking] = useTransition();
     const [isDeleting, startDeleting] = useTransition();
@@ -85,34 +77,35 @@ function Comment({ comment, projectId, onActionComplete }: { comment: FacebookCo
 interface ViewCommentsDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  post: FacebookPost;
+  post: any;
   projectId: string;
   onActionComplete: () => void;
 }
 
 export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onActionComplete }: ViewCommentsDialogProps) {
-  const [state, formAction] = useActionState(handlePostComment, commentInitialState);
-  const { toast } = useToast();
-  const formRef = useRef<HTMLFormElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+    const [state, setState] = useState<any>(commentInitialState);
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
+    const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (state.success) {
-        toast({ description: 'Comment posted successfully.' });
-        formRef.current?.reset();
-        onActionComplete();
-    }
-    if (state.error) {
-      toast({ title: 'Error Posting Comment', description: state.error, variant: 'destructive' });
-    }
-  }, [state, toast, onActionComplete]);
+    const action = (formData: FormData) => {
+        startTransition(async () => {
+            const result = await handlePostComment(null, formData);
+            setState(result);
+        });
+    };
+
+    useEffect(() => {
+        if (state.success) {
+            toast({ description: 'Comment posted successfully.' });
+            formRef.current?.reset();
+            onActionComplete();
+        }
+        if (state.error) {
+            toast({ title: 'Error Posting Comment', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, onActionComplete]);
   
-  useEffect(() => {
-      if (scrollRef.current) {
-          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }
-  }, [post.comments]);
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
@@ -122,10 +115,10 @@ export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onAc
             Viewing comments for post: "{post.message?.substring(0, 30)}..."
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-1 -mx-6 px-6" ref={scrollRef as any}>
+        <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-4 py-4">
                 {(post.comments?.data || []).length > 0 ? (
-                    post.comments?.data.map(comment => (
+                    post.comments?.data.map((comment: any) => (
                         <Comment key={comment.id} comment={comment} projectId={projectId} onActionComplete={onActionComplete} />
                     ))
                 ) : (
@@ -134,16 +127,17 @@ export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onAc
             </div>
         </ScrollArea>
         <DialogFooter className="mt-auto border-t pt-4">
-           <form action={formAction} ref={formRef} className="w-full flex items-center gap-2">
+           <form action={action} ref={formRef} className="w-full flex items-center gap-2">
                 <input type="hidden" name="projectId" value={projectId} />
                 <input type="hidden" name="objectId" value={post.id} />
                 <Textarea name="message" placeholder="Write a comment..." className="flex-1" required />
-                <SubmitButton />
+                <Button type="submit" disabled={isPending}>
+                    {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                    Comment
+                </Button>
            </form>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
-    
