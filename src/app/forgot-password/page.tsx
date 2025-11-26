@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,15 @@ function SubmitButton() {
 }
 
 export default function ForgotPasswordPage() {
-  const [state, formAction] = useActionState(handleForgotPassword, initialState);
+  const [state, setState] = useState<any>(initialState);
+  const [isPending, startTransition] = useTransition();
+  
+  const formAction = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await handleForgotPassword(null, formData);
+        setState(result);
+    });
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-auth-texture p-4 sm:p-6 lg:p-8">

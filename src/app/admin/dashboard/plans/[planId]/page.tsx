@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useEffect, useActionState, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
@@ -40,11 +40,20 @@ export default function PlanEditorPage() {
     const planId = params.planId as string;
     const router = useRouter();
     const { toast } = useToast();
-    const [state, formAction] = useActionState(savePlan, initialState);
+    const [state, setState] = useState<any>(initialState);
+    const [isPending, startTransition] = useTransition();
+
     const [plan, setPlan] = useState<WithId<Plan> | null>(null);
     const [loading, setLoading] = useState(true);
     
     const isNew = planId === 'new';
+    
+    const formAction = (formData: FormData) => {
+        startTransition(async () => {
+            const result = await savePlan(null, formData);
+            setState(result);
+        });
+    };
 
     useEffect(() => {
         if (!isNew) {
