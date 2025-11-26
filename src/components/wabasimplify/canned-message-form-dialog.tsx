@@ -1,9 +1,7 @@
 
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { saveCannedMessageAction } from '@/app/actions/project.actions';
 import type { CannedMessage } from '@/lib/definitions';
@@ -30,11 +28,11 @@ const initialState = {
 };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const [isPending, startTransition] = useTransition();
 
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+    <Button type="submit" disabled={isPending}>
+      {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Message
     </Button>
   );
@@ -49,10 +47,18 @@ interface CannedMessageFormDialogProps {
 }
 
 export function CannedMessageFormDialog({ isOpen, setIsOpen, projectId, existingMessage, onSubmitted }: CannedMessageFormDialogProps) {
-    const [state, formAction] = useActionState(saveCannedMessageAction, initialState);
+    const [isPending, startTransition] = useTransition();
+    const [state, setState] = useState<any>(initialState);
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
     const [messageType, setMessageType] = useState<CannedMessage['type'] | ''>(existingMessage?.type || 'text');
+    
+    const action = (formData: FormData) => {
+        startTransition(async () => {
+            const result = await saveCannedMessageAction(null, formData);
+            setState(result);
+        });
+    };
 
     useEffect(() => {
         if (state?.message) {
@@ -75,7 +81,7 @@ export function CannedMessageFormDialog({ isOpen, setIsOpen, projectId, existing
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className="sm:max-w-lg">
-                <form action={formAction} ref={formRef}>
+                <form action={action} ref={formRef}>
                     <input type="hidden" name="projectId" value={projectId} />
                     {existingMessage && <input type="hidden" name="_id" value={existingMessage._id.toString()} />}
 
@@ -139,7 +145,10 @@ export function CannedMessageFormDialog({ isOpen, setIsOpen, projectId, existing
                     
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                        <SubmitButton />
+                         <Button type="submit" disabled={isPending}>
+                            {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                            Save Message
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

@@ -12,6 +12,10 @@ const WORKER_FILE_PATH = path.resolve(__dirname, 'src', 'workers', 'broadcast-wo
 function main() {
   console.log(`${LOG_PREFIX} Booting worker loader...`);
 
+  // **NO LONGER NEEDED with correct path**
+  // const buildId = fs.readFileSync(path.join(__dirname, '.next', 'BUILD_ID'), 'utf8').trim();
+  // const WORKER_FILE_PATH = path.resolve(__dirname, '.next', 'server', 'src', 'workers', 'broadcast-worker.js');
+
   if (!fs.existsSync(WORKER_FILE_PATH)) {
     console.error(`${LOG_PREFIX} FATAL: Worker file not found!`);
     console.error(`${LOG_PREFIX} Expected at: ${WORKER_FILE_PATH}`);

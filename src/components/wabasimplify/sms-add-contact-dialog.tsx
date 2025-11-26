@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,10 +21,11 @@ import { addSmsContact } from '@/app/actions/sms.actions';
 const initialState = { message: null, error: null };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const [isPending, startTransition] = useTransition();
+
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+    <Button type="submit" disabled={isPending}>
+      {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
       Add Contact
     </Button>
   );
@@ -37,9 +37,17 @@ interface SmsAddContactDialogProps {
 
 export function SmsAddContactDialog({ onAdded }: SmsAddContactDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(addSmsContact, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState<any>(initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+
+  const action = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await addSmsContact(null, formData);
+        setState(result);
+    });
+  };
 
   useEffect(() => {
     if (state.message) {
@@ -62,7 +70,7 @@ export function SmsAddContactDialog({ onAdded }: SmsAddContactDialogProps) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
+        <form action={action} ref={formRef}>
             <DialogHeader>
                 <DialogTitle>Add New SMS Contact</DialogTitle>
                 <DialogDescription>Manually add a contact to your SMS list.</DialogDescription>
@@ -80,7 +88,10 @@ export function SmsAddContactDialog({ onAdded }: SmsAddContactDialogProps) {
             </div>
             <DialogFooter>
                 <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                <SubmitButton />
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Add Contact
+                </Button>
             </DialogFooter>
         </form>
       </DialogContent>
@@ -88,4 +99,3 @@ export function SmsAddContactDialog({ onAdded }: SmsAddContactDialogProps) {
   );
 }
 
-    
