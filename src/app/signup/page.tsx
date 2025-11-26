@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
@@ -30,8 +30,16 @@ function SubmitButton() {
 }
 
 export default function SignupPage() {
-  const [state, formAction] = useActionState(handleSignup, initialState);
+  const [state, setState] = useState<any>(initialState);
+  const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
+  
+  const formAction = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await handleSignup(null, formData);
+        setState(result);
+    });
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-auth-texture p-4 sm:p-6 lg:p-8">
