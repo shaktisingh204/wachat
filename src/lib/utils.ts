@@ -53,4 +53,42 @@ const getErrorMessage = (error) => {
     return String(error) || 'An unknown error occurred';
 };
 
-module.exports = { cn, getErrorMessage };
+
+const VALIDATION_MESSAGES = {
+  unsupportedType: (fileName) => `File '${fileName}' has an unsupported file type.`,
+  sizeExceeded: (fileName, maxSizeMB) => `File '${fileName}' exceeds the size limit of ${maxSizeMB}MB.`,
+  noFile: "No file was uploaded.",
+  invalidName: "Invalid filename.",
+};
+
+const sanitizeFilename = (filename) => {
+    // Replace spaces with underscores and remove characters that are not alphanumeric, underscores, hyphens, or dots.
+    return filename.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_.-]/g, '');
+};
+
+const validateFile = (file, allowedTypes, maxSizeMB = 5) => {
+    if (!file || file.size === 0) {
+        return { isValid: false, error: VALIDATION_MESSAGES.noFile };
+    }
+
+    const sanitizedName = sanitizeFilename(file.name);
+    if (!sanitizedName) {
+        return { isValid: false, error: VALIDATION_MESSAGES.invalidName };
+    }
+
+    const fileType = file.type;
+    const fileSize = file.size;
+
+    if (!allowedTypes.includes(fileType)) {
+        return { isValid: false, error: VALIDATION_MESSAGES.unsupportedType(file.name) };
+    }
+
+    if (fileSize > maxSizeMB * 1024 * 1024) {
+        return { isValid: false, error: VALIDATION_MESSAGES.sizeExceeded(file.name, maxSizeMB) };
+    }
+
+    return { isValid: true, error: null, sanitizedName };
+};
+
+
+module.exports = { cn, getErrorMessage, validateFile };
