@@ -1,9 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
-import { signIn } from 'next-auth/react';
+import * as React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,42 +10,31 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { handleLogin } from '@/app/actions/index.ts';
-import { useRouter, useSearchParams } from 'next/navigation';
-
-const initialState = {
-  message: null,
-  error: null,
-  success: false,
-};
+import { useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import { useState } from 'react';
 
 function SubmitButton() {
-    const { pending } = useFormStatus();
+    const [isPending, startTransition] = React.useTransition();
     return (
-        <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+        <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Sign In
         </Button>
     )
 }
 
 export function LoginForm() {
-  const [state, setState] = useState<any>(initialState);
-  const [isPending, startTransition] = useTransition();
-  const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
   
-  const formAction = (formData: FormData) => {
-    startTransition(async () => {
-        const result = await handleLogin(null, formData);
-        setState(result);
-    });
-  };
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <Card className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up relative overflow-hidden">
-        <form action={formAction}>
+        <form action={async (formData) => {
+            await handleLogin(null, formData);
+        }}>
             <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold font-headline">Sign In to your Account</CardTitle>
                 <CardDescription>Welcome back! Please enter your details.</CardDescription>
@@ -58,18 +45,11 @@ export function LoginForm() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Login Failed</AlertTitle>
                     <AlertDescription>
-                        {error === 'OAuthAccountNotLinked' 
-                        ? 'This email is already associated with another provider. Please sign in using the original method.'
+                        {error === 'CredentialsSignin' 
+                        ? 'Invalid email or password.'
                         : 'An error occurred during sign-in. Please try again.'
                         }
                     </AlertDescription>
-                    </Alert>
-                )}
-                {state?.error && (
-                    <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Login Failed</AlertTitle>
-                    <AlertDescription>{state.error}</AlertDescription>
                     </Alert>
                 )}
                 <div className="space-y-2">
