@@ -52,11 +52,6 @@ Before you begin, ensure you have the following installed on your system:
     # This must be your publicly accessible application URL
     NEXT_PUBLIC_APP_URL=https://your-app-domain.com
 
-    # --- Firebase Admin SDK Configuration (for server-side auth) ---
-    # Create a service account in Firebase (Project Settings -> Service accounts -> Generate new private key)
-    # and provide the JSON content as a single-line string.
-    FIREBASE_ADMIN_SDK_CONFIG=your_firebase_admin_sdk_json_string
-
     # --- Firebase Client SDK Configuration ---
     # These values can be found in your Firebase project settings under "Your apps".
     NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
@@ -101,10 +96,10 @@ Before you begin, ensure you have the following installed on your system:
 2.  **Create a Project**: Create a new Firebase project or select an existing one.
 3.  **Create a Web App**: Go to Project Settings (gear icon) &rarr; **Your apps**. Click "Add app" and select the Web platform (`</>`).
 4.  **Register App**: Give your app a nickname and register it. Firebase will provide you with a `firebaseConfig` object.
-5.  **Copy Config to `.env`**: Copy the values from the `firebaseConfig` object into the `NEXT_PUBLIC_FIREBASE_*` variables in your `.env` file.
+5.  **Copy Client Config to `.env`**: Copy the values from the `firebaseConfig` object into the `NEXT_PUBLIC_FIREBASE_*` variables in your `.env` file.
 6.  **Enable Authentication**: In the Firebase console, go to **Build &rarr; Authentication**. Click "Get started". Enable the **Email/Password**, **Google**, and **Facebook** sign-in providers.
 7.  **Create Service Account**: Go to Project Settings &rarr; **Service accounts**. Click "Generate new private key". This will download a JSON file.
-8.  **Add Admin SDK to `.env`**: Open the downloaded JSON file, copy its entire content, and paste it as a single-line string into the `FIREBASE_ADMIN_SDK_CONFIG` variable in your `.env` file.
+8.  **Add Admin SDK to Code**: Open the downloaded JSON file. Copy its entire content and paste it into the `src/lib/firebase/service-account.ts` file, replacing the placeholder content. **This file should never be committed to version control.**
 
 ### Meta/Facebook Setup
 

@@ -1,9 +1,12 @@
 
+import 'server-only';
 import bcrypt from 'bcryptjs';
 import { connectToDatabase } from './mongodb';
 import { SignJWT, jwtVerify } from 'jose';
 import { nanoid } from 'nanoid';
 import type { SessionPayload, AdminSessionPayload } from './definitions';
+import * as admin from 'firebase-admin';
+import { serviceAccount } from './firebase/service-account';
 
 const SALT_ROUNDS = 10;
 
@@ -13,6 +16,16 @@ function getJwtSecretKey(): Uint8Array {
         throw new Error('JWT_SECRET is not defined in the environment variables.');
     }
     return new TextEncoder().encode(secret);
+}
+
+function initializeFirebaseAdmin() {
+  if (admin.apps.length > 0) {
+    return admin.app();
+  }
+
+  return admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -34,25 +47,13 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
     }
 }
 
-
-// Full verification for server components (with DB access)
-export async function verifyJwt(token: string): Promise<SessionPayload | null> {
+export async function verifyJwt(token: string): Promise<any | null> {
     try {
-        const { payload } = await jwtVerify(token, getJwtSecretKey());
-        
-        if (!payload.jti || !payload.exp || !payload.userId || !payload.email) {
-            console.error('JWT payload missing required fields');
-            return null;
-        }
-
-        if (await isTokenRevoked(payload.jti)) {
-            console.warn(`Attempted to use a revoked token: ${payload.jti}`);
-            return null;
-        }
-
-        return payload as SessionPayload;
+        const firebaseAdmin = initializeFirebaseAdmin();
+        const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+        return decodedToken;
     } catch (error) {
-        console.error('Error verifying JWT:', error);
+        console.error('Error verifying Firebase ID token in server component:', error);
         return null;
     }
 }
@@ -76,17 +77,6 @@ export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload
         console.error("Admin JWT verification failed:", error);
         return null;
     }
-}
-
-
-export async function createSessionToken(payload: Omit<SessionPayload, 'expires' | 'jti'>): Promise<string> {
-    const jti = nanoid();
-    return new SignJWT({ ...payload })
-        .setProtectedHeader({ alg: 'HS256' })
-        .setJti(jti)
-        .setIssuedAt()
-        .setExpirationTime('7d')
-        .sign(getJwtSecretKey());
 }
 
 export async function createAdminSessionToken(): Promise<string> {
