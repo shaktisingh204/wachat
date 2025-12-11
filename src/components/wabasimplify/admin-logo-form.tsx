@@ -1,9 +1,7 @@
 
-
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,32 +12,23 @@ import { setAppLogo } from '@/app/actions/admin.actions';
 import { useRouter } from 'next/navigation';
 import { Separator } from '../ui/separator';
 
-const initialState = { success: false, error: undefined };
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Save Logo
-    </Button>
-  );
-}
-
 export function AppLogoForm() {
-    const [state, formAction] = useActionState(setAppLogo, initialState);
+    const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
     const router = useRouter();
 
-    useEffect(() => {
-        if (state.success) {
-            toast({ title: 'Success!', description: 'App logo updated. It may take a moment to reflect everywhere.' });
-            router.refresh();
-        }
-        if (state.error) {
-            toast({ title: 'Error', description: state.error, variant: 'destructive' });
-        }
-    }, [state, toast, router]);
+    const formAction = (formData: FormData) => {
+        startTransition(async () => {
+            const result = await setAppLogo(null, formData);
+            if (result.success) {
+                toast({ title: 'Success!', description: 'App logo updated. It may take a moment to reflect everywhere.' });
+                router.refresh();
+            }
+            if (result.error) {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    }
 
     return (
         <form action={formAction}>
@@ -70,7 +59,10 @@ export function AppLogoForm() {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <SubmitButton />
+                    <Button type="submit" disabled={isPending}>
+                        {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                        Save Logo
+                    </Button>
                 </CardFooter>
             </Card>
         </form>
