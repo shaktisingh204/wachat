@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
-import { verifyFirebaseIdToken } from '@/lib/auth.edge';
+import { verifyJwt } from '@/lib/auth';
 import type { User } from '@/lib/definitions';
 
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
@@ -16,7 +16,11 @@ export async function POST(request: NextRequest) {
     const idToken = authHeader.split('Bearer ')[1];
     
     try {
-        const decodedToken = await verifyFirebaseIdToken(idToken);
+        const decodedToken = await verifyJwt(idToken);
+        if (!decodedToken) {
+            throw new Error("Invalid token");
+        }
+        
         const { db } = await connectToDatabase();
         
         const now = new Date();
