@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useState, useTransition } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,20 +18,6 @@ import { LoaderCircle, Trash2 } from 'lucide-react';
 import { deleteLibraryTemplate } from '@/app/actions/template.actions';
 import { useToast } from '@/hooks/use-toast';
 
-const initialState = { message: null, error: null };
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <AlertDialogAction asChild>
-      <Button type="submit" variant="destructive" disabled={pending}>
-        {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-        Yes, Delete
-      </Button>
-    </AlertDialogAction>
-  );
-}
-
 interface AdminDeleteLibraryTemplateButtonProps {
   templateId: string;
   templateName: string;
@@ -40,19 +25,22 @@ interface AdminDeleteLibraryTemplateButtonProps {
 
 export function AdminDeleteLibraryTemplateButton({ templateId, templateName }: AdminDeleteLibraryTemplateButtonProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(deleteLibraryTemplate, initialState);
+  const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (state?.message) {
-      toast({ title: 'Success!', description: state.message });
-      setOpen(false);
-    }
-    if (state?.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
-      setOpen(false);
-    }
-  }, [state, toast]);
+  const handleDelete = () => {
+    startTransition(async () => {
+      const result = await deleteLibraryTemplate(templateId);
+      if (result.message) {
+        toast({ title: 'Success!', description: result.message });
+        setOpen(false);
+      }
+      if (result.error) {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        setOpen(false);
+      }
+    });
+  }
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -62,8 +50,6 @@ export function AdminDeleteLibraryTemplateButton({ templateId, templateName }: A
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form action={formAction}>
-          <input type="hidden" name="templateId" value={templateId} />
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -72,9 +58,11 @@ export function AdminDeleteLibraryTemplateButton({ templateId, templateName }: A
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <SubmitButton />
+            <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
+              {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Yes, Delete
+            </Button>
           </AlertDialogFooter>
-        </form>
       </AlertDialogContent>
     </AlertDialog>
   );
