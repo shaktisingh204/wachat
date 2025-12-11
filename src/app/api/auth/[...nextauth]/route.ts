@@ -9,20 +9,12 @@ import type { Adapter } from 'next-auth/adapters';
 import { comparePassword } from '@/lib/auth';
 import type { User } from '@/lib/definitions';
 
-export const { handlers: { GET, POST }, signIn, signOut, auth } = NextAuth({
-    adapter: MongoDBAdapter(connectToDatabase().then(c => c.client), { databaseName: process.env.MONGODB_DB }) as Adapter,
-    session: { strategy: 'jwt' },
-    providers: [
-      Google({
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      }),
-      Facebook({
-        clientId: process.env.FACEBOOK_CLIENT_ID,
-        clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-      }),
-      Credentials({
-          async authorize(credentials) {
+const providers = [];
+
+// Only add Credentials provider if it's needed
+providers.push(
+    Credentials({
+        async authorize(credentials) {
             if (!credentials?.email || !credentials.password) {
                 return null;
             }
@@ -39,9 +31,35 @@ export const { handlers: { GET, POST }, signIn, signOut, auth } = NextAuth({
             }
 
             return { id: user._id.toString(), name: user.name, email: user.email, image: user.image };
-          }
-      })
-    ],
+        }
+    })
+);
+
+// Only add Google provider if credentials are provided
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.push(
+        Google({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        })
+    );
+}
+
+// Only add Facebook provider if credentials are provided
+if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
+    providers.push(
+        Facebook({
+            clientId: process.env.FACEBOOK_CLIENT_ID,
+            clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+        })
+    );
+}
+
+
+export const { handlers: { GET, POST }, signIn, signOut, auth } = NextAuth({
+    adapter: MongoDBAdapter(connectToDatabase().then(c => c.client), { databaseName: process.env.MONGODB_DB }) as Adapter,
+    session: { strategy: 'jwt' },
+    providers,
     callbacks: {
         async signIn({ user, account, profile }) {
             const { db } = await connectToDatabase();
