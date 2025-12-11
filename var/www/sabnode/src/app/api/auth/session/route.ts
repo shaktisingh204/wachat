@@ -17,6 +17,10 @@ export async function POST(request: NextRequest) {
     
     try {
         const decodedToken = await verifyFirebaseIdToken(idToken);
+        if (!decodedToken) {
+            throw new Error("Invalid or expired token.");
+        }
+
         const { db } = await connectToDatabase();
         
         const now = new Date();
