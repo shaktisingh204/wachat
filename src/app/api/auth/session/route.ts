@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     try {
         const decodedToken = await verifyJwt(idToken);
         if (!decodedToken) {
-            throw new Error("Invalid token");
+            throw new Error("Invalid or expired token.");
         }
         
         const { db } = await connectToDatabase();
