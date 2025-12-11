@@ -345,8 +345,6 @@ export async function handleLogin(prevState: any, formData: FormData) {
           return { error: 'Something went wrong.' };
       }
     }
-    // Required to avoid unhandled promise rejection in Next.js
-    // if the error is not an instance of AuthError.
     throw error;
   }
 }
@@ -591,5 +589,3 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
-
-    

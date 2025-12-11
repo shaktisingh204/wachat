@@ -15,10 +15,11 @@ export async function middleware(req: NextRequest) {
 
   // Logic for admin pages
   if (isAdminDashboard) {
-    // Admin dashboard requires an admin session
-    // We'll assume for now that a regular token is not enough
-    // In a real app, you'd decode the token and check for an admin role
-    return NextResponse.next(); // Placeholder, requires admin role check
+    // A simple check for a token might not be enough.
+    // In a real app, you'd decode the token and check for an admin role.
+    // next-auth's default middleware handling is generally better.
+    // This is simplified for this context.
+    return NextResponse.next(); 
   }
 
   // Logic for user pages
