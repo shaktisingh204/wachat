@@ -1,22 +1,16 @@
 
-import { signOut } from 'next-auth/react';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
-export async function GET(request: Request) {
-  // This route is tricky with server components. 
-  // The recommended way is to use a client component with a button that calls `signOut()`.
-  // For a direct GET request, we can redirect.
-  const url = new URL('/login', request.url);
-  return NextResponse.redirect(url);
+export async function GET(request: NextRequest) {
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    
+    // Clear the session cookie by setting its expiration to a past date
+    response.cookies.set({
+        name: 'session',
+        value: '',
+        path: '/',
+        expires: new Date(0),
+    });
+    
+    return response;
 }
-
-// In your UI, you would have a component like this:
-/*
-'use client';
-import { signOut } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
-
-export function LogoutButton() {
-  return <Button onClick={() => signOut({ callbackUrl: '/login' })}>Logout</Button>;
-}
-*/

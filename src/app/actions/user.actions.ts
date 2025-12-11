@@ -6,15 +6,15 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type WithId, ObjectId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { createSessionToken, verifyJwt, hashPassword, comparePassword, createAdminSessionToken, verifyAdminJwt, type SessionPayload, type AdminSessionPayload } from '@/lib/auth';
+import { getDecodedSession } from '@/lib/auth.edge';
+import { createAdminSessionToken, verifyAdminJwt } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/utils';
-import type { Project, User, Plan, Invitation } from '@/lib/definitions';
+import type { Project, User, Plan } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { headers } from 'next/headers';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
-import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
-import { signIn } from '@/app/api/auth/[...nextauth]/route';
-import { AuthError } from 'next-auth';
+import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
+import axios from 'axios';
 
 
 export async function getProjectById(projectId?: string | null, userId?: string): Promise<WithId<Project> | null> {
@@ -55,7 +55,6 @@ export async function getProjectById(projectId?: string | null, userId?: string)
         if (project.planId && ObjectId.isValid(project.planId)) {
             plan = await db.collection<WithId<Plan>>('plans').findOne({ _id: new ObjectId(project.planId) });
         }
-        // If the specific plan is not found, or if no planId is set, fall back to the default plan.
         if (!plan) {
             plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
         }
@@ -70,10 +69,10 @@ export async function getProjectById(projectId?: string | null, userId?: string)
 }
 
 
-export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<WithId<Project>[]> {
+export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<{ projects: WithId<Project>[] }> {
     const session = await getSession();
     if (!session?.user) {
-        return [];
+        return { projects: [] };
     }
 
     try {
@@ -102,10 +101,10 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             .sort({ createdAt: -1 })
             .toArray();
             
-        return JSON.parse(JSON.stringify(projects));
+        return { projects: JSON.parse(JSON.stringify(projects)) };
     } catch (error) {
         console.error("Failed to fetch projects:", error);
-        return [];
+        return { projects: [] };
     }
 }
 
@@ -332,77 +331,6 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     }
 }
 
-export async function handleLogin(prevState: any, formData: FormData) {
-  try {
-    const credentials = Object.fromEntries(formData);
-    await signIn('credentials', credentials);
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return { error: 'Invalid email or password.' };
-        default:
-          return { error: 'Something went wrong.' };
-      }
-    }
-    throw error;
-  }
-}
-
-export async function handleSignup(prevState: any, formData: FormData): Promise<{ error?: string }> {
-    const headersList = await headers();
-    const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
-
-    const { success, error } = await checkRateLimit(`signup:${ip}`, 5, 60 * 60 * 1000); // 5 signups per hour
-    if (!success) {
-        return { error };
-    }
-    
-    const name = formData.get('name') as string;
-    const email = (formData.get('email') as string).toLowerCase();
-    const password = formData.get('password') as string;
-
-    if (password.length < 6) {
-        return { error: 'Password must be at least 6 characters long.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-
-        const existingUser = await db.collection('users').findOne({ email });
-        if (existingUser) {
-            return { error: 'A user with this email already exists.' };
-        }
-
-        const hashedPassword = await hashPassword(password);
-        const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
-
-        const newUser: Omit<User, '_id'> = {
-            name,
-            email,
-            password: hashedPassword,
-            createdAt: new Date(),
-            ...(defaultPlan && { planId: defaultPlan._id, credits: defaultPlan?.signupCredits || 0 }),
-        };
-
-        const result = await db.collection('users').insertOne(newUser as User);
-
-        // After successful user creation, sign them in
-        await signIn('credentials', {
-            email,
-            password,
-            redirectTo: '/dashboard',
-        });
-
-    } catch (e: any) {
-        if (e instanceof AuthError) {
-            return { error: 'An error occurred during sign-up. Please try again.' };
-        }
-        return { error: e.message || 'An unexpected error occurred during signup.' };
-    }
-    // Redirect is now handled by the signIn function
-    return {};
-}
 
 export async function handleForgotPassword(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     // This is a placeholder. In a real app, you would generate a secure token,
@@ -411,46 +339,35 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
-    try {
-        const { auth } = await import('@/app/api/auth/[...nextauth]/route');
-        const session = await auth();
-        
-        if (!session?.user?.email) {
-            return null;
-        }
+  const decoded = await getDecodedSession();
+  if (!decoded) return null;
 
-        const { db } = await connectToDatabase();
-        const dbUser = await db.collection('users').findOne(
-            { email: session.user.email },
-            { projection: { password: 0 } }
-        );
+  try {
+    const { db } = await connectToDatabase();
+    const dbUser = await db.collection('users').findOne({ email: decoded.email }, { projection: { password: 0 } });
+    if (!dbUser) return null;
 
-        if (!dbUser) return null;
-        
-        let plan: WithId<Plan> | null = null;
-        if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
-            plan = await db.collection<WithId<Plan>>('plans').findOne({ _id: new ObjectId(dbUser.planId) });
-        }
-        // Fallback to default plan if user's plan is not found or not set
-        if (!plan) {
-            plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
-        }
-        
-        // This is a bit of a hack to merge the DB user data with the NextAuth session user data.
-        // next-auth session callback is a better place for this.
-        const mergedUser = {
-            ...session.user,
-            ...dbUser,
-            _id: dbUser._id.toString(), // Ensure _id is a string
-            plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
-        };
-
-        return { user: mergedUser };
-
-    } catch (e: any) {
-        console.error("Session retrieval failed:", e);
-        return null;
+    let plan: WithId<Plan> | null = null;
+    if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
+        plan = await db.collection<WithId<Plan>>('plans').findOne({ _id: new ObjectId(dbUser.planId) });
     }
+    if (!plan) {
+        plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
+    }
+    
+    const mergedUser = {
+        ...dbUser,
+        _id: dbUser._id.toString(),
+        name: dbUser.name || decoded.name,
+        image: dbUser.image || decoded.picture,
+        plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
+    };
+
+    return { user: mergedUser };
+  } catch (e) {
+    console.error("Failed to fetch user from DB in getSession:", e);
+    return null;
+  }
 }
 
 
