@@ -334,7 +334,8 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
 
 export async function handleLogin(prevState: any, formData: FormData) {
   try {
-    await signIn('credentials', formData);
+    const credentials = Object.fromEntries(formData);
+    await signIn('credentials', credentials);
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -412,43 +413,48 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('session')?.value;
-    if (!sessionToken) return null;
-
-    const payload = await verifyJwt(sessionToken);
-    if (!payload) return null;
-
     try {
+        const { auth } = await import('@/app/api/auth/[...nextauth]/route');
+        const session = await auth();
+        
+        if (!session?.user?.email) {
+            return null;
+        }
+
         const { db } = await connectToDatabase();
-        const user = await db.collection('users').findOne(
-            { _id: new ObjectId(payload.userId) },
+        const dbUser = await db.collection('users').findOne(
+            { email: session.user.email },
             { projection: { password: 0 } }
         );
 
-        if (!user) return null;
+        if (!dbUser) return null;
         
         let plan: WithId<Plan> | null = null;
-        if (user.planId && ObjectId.isValid(user.planId)) {
-            plan = await db.collection<WithId<Plan>>('plans').findOne({ _id: new ObjectId(user.planId) });
+        if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
+            plan = await db.collection<WithId<Plan>>('plans').findOne({ _id: new ObjectId(dbUser.planId) });
         }
         // Fallback to default plan if user's plan is not found or not set
         if (!plan) {
             plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
         }
-
-        return {
-            user: {
-                ...user,
-                plan,
-            }
+        
+        // This is a bit of a hack to merge the DB user data with the NextAuth session user data.
+        // next-auth session callback is a better place for this.
+        const mergedUser = {
+            ...session.user,
+            ...dbUser,
+            _id: dbUser._id.toString(), // Ensure _id is a string
+            plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
         };
+
+        return { user: mergedUser };
 
     } catch (e: any) {
         console.error("Session retrieval failed:", e);
         return null;
     }
 }
+
 
 export async function getUsersForAdmin(
     page: number = 1,
