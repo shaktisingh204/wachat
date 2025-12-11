@@ -2,10 +2,12 @@ import { notFound, redirect } from 'next/navigation';
 import { trackClickAndGetUrl } from '@/app/actions/url-shortener.actions';
 import { headers } from 'next/headers';
 
-// This page handles custom domain redirects, e.g., my.link/abc
-export default async function CustomDomainRedirectPage({ params }: { params: { shortCode: string } }) {
-    const headersList = headers();
-    const host = headersList.get('host');
+type PageProps = {
+    params: { shortCode: string };
+};
+
+export default async function CustomDomainRedirectPage({ params }: PageProps) {
+    const host = headers().get('host');
     const { shortCode } = params;
 
     // Don't try to process paths that are clearly not shortcodes on custom domains

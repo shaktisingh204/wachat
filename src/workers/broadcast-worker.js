@@ -1,8 +1,8 @@
 'use strict';
 
 require('dotenv').config();
-const { connectToDatabase } = require('../lib/mongodb.ts');
-const { getErrorMessage } = require('../lib/utils.ts');
+const { connectToDatabase } = require('../lib/mongodb.js');
+const { getErrorMessage } = require('../lib/utils.js');
 const { Kafka } = require('kafkajs');
 const undici = require('undici');
 const { ObjectId } = require('mongodb');
