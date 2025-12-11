@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -14,6 +13,9 @@ import { checkRateLimit } from '@/lib/rate-limiter';
 import { headers } from 'next/headers';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
+import { signIn } from '@/app/api/auth/[...nextauth]/route';
+import { AuthError } from 'next-auth';
+
 
 export async function getProjectById(projectId?: string | null, userId?: string): Promise<WithId<Project> | null> {
     if (!projectId || !ObjectId.isValid(projectId)) {
@@ -330,43 +332,22 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     }
 }
 
-export async function handleLogin(prevState: any, formData: FormData): Promise<{ error?: string; success?: boolean }> {
-    const headersList = await headers();
-    const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
-
-    const { success, error } = await checkRateLimit(`login:${ip}`, 10, 60 * 1000); // 10 attempts per minute
-    if (!success) {
-        return { error };
+export async function handleLogin(prevState: any, formData: FormData) {
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return { error: 'Invalid email or password.' };
+        default:
+          return { error: 'Something went wrong.' };
+      }
     }
-
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    
-    let user;
-    try {
-        const { db } = await connectToDatabase();
-        user = await db.collection<User>('users').findOne({ email: email.toLowerCase() });
-
-        if (!user || !user.password) {
-            return { error: 'Invalid email or password.' };
-        }
-
-        const passwordMatch = await comparePassword(password, user.password);
-
-        if (!passwordMatch) {
-            return { error: 'Invalid email or password.' };
-        }
-
-        const sessionToken = await createSessionToken({ userId: user._id.toString(), email: user.email });
-        cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
-
-        // Don't return from inside the try block
-    } catch (e: any) {
-        return { error: e.message || 'An unexpected server error occurred.' };
-    }
-    
-    // Redirect must be called outside the try-catch block
-    redirect('/dashboard');
+    // Required to avoid unhandled promise rejection in Next.js
+    // if the error is not an instance of AuthError.
+    throw error;
+  }
 }
 
 export async function handleSignup(prevState: any, formData: FormData): Promise<{ error?: string }> {
@@ -407,16 +388,21 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
 
         const result = await db.collection('users').insertOne(newUser as User);
 
-        const sessionToken = await createSessionToken({ userId: result.insertedId.toString(), email: newUser.email });
-        const cookieStore = await cookies();
-        cookieStore.set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        // After successful user creation, sign them in
+        await signIn('credentials', {
+            email,
+            password,
+            redirectTo: '/dashboard',
+        });
 
     } catch (e: any) {
+        if (e instanceof AuthError) {
+            return { error: 'An error occurred during sign-up. Please try again.' };
+        }
         return { error: e.message || 'An unexpected error occurred during signup.' };
     }
-    
-    // Redirect must be called outside the try-catch block
-    redirect('/dashboard');
+    // Redirect is now handled by the signIn function
+    return {};
 }
 
 export async function handleForgotPassword(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
