@@ -7,6 +7,7 @@ import { nanoid } from 'nanoid';
 import type { SessionPayload, AdminSessionPayload } from './definitions';
 import * as admin from 'firebase-admin';
 import { serviceAccount } from './firebase/service-account';
+import { cookies } from 'next/headers';
 
 const SALT_ROUNDS = 10;
 
@@ -87,4 +88,18 @@ export async function createAdminSessionToken(): Promise<string> {
         .setIssuedAt()
         .setExpirationTime('1d')
         .sign(getJwtSecretKey());
+}
+
+// This function is for server components/actions ONLY
+export async function getDecodedSession() {
+  const sessionCookie = cookies().get('session')?.value;
+  if (!sessionCookie) return null;
+
+  try {
+    const firebaseAdmin = initializeFirebaseAdmin();
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(sessionCookie);
+    return decodedToken;
+  } catch (e) {
+    return null;
+  }
 }
