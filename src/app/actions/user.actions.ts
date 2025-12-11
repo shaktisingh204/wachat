@@ -1,12 +1,12 @@
 
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/headers';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type WithId, ObjectId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getDecodedSession } from '@/lib/auth.edge';
+import { getDecodedSession } from '@/lib/auth';
 import { createAdminSessionToken, verifyAdminJwt } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, User, Plan } from '@/lib/definitions';
@@ -197,7 +197,7 @@ export async function getWhatsAppProjectsForAdmin(
             total: total,
             users: JSON.parse(JSON.stringify(users))
         };
-    } catch(e) {
+    } catch (e: any) {
         console.error("Failed to get WhatsApp projects for admin:", e);
         return { projects: [], total: 0, users: [] };
     }
