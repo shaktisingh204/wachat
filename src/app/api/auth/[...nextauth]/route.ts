@@ -9,7 +9,7 @@ import type { Adapter } from 'next-auth/adapters';
 import { comparePassword } from '@/lib/auth';
 import type { User } from '@/lib/definitions';
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const { handlers: { GET, POST }, signIn, signOut, auth } = NextAuth({
     adapter: MongoDBAdapter(connectToDatabase().then(c => c.client), { databaseName: process.env.MONGODB_DB }) as Adapter,
     session: { strategy: 'jwt' },
     providers: [

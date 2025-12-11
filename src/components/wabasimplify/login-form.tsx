@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
-import { handleLogin } from '@/app/actions/index.ts';
 import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
@@ -32,9 +31,11 @@ export function LoginForm() {
 
   return (
     <Card className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up relative overflow-hidden">
-        <form action={async (formData) => {
-            await handleLogin(null, formData);
-        }}>
+        <form
+            action={async (formData) => {
+                await signIn('credentials', formData);
+            }}
+        >
             <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold font-headline">Sign In to your Account</CardTitle>
                 <CardDescription>Welcome back! Please enter your details.</CardDescription>
