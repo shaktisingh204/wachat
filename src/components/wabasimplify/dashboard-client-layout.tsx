@@ -4,7 +4,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +20,7 @@ import {
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getProjects } from '@/app/actions/index.ts';
+import { getSession, getProjects } from '@/app/actions/index.ts';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
@@ -600,7 +599,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
                                 <DropdownMenuSeparator/>
-                                <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/login' })}><LogOut className="mr-2 h-4 w-4"/>Logout</DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -712,25 +711,35 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
 // This is the main exported component
 export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
-    const { data: session, status } = useSession();
+    const [isClient, setIsClient] = React.useState(false);
+    const [initialData, setInitialData] = React.useState<{ user: any, projects: any[] } | null>(null);
     const router = useRouter();
 
-    const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
-    
     React.useEffect(() => {
-        if (status === 'unauthenticated') {
-            router.push('/login');
-        } else if (status === 'authenticated') {
-            getProjects().then(setProjects).catch(() => setProjects([]));
-        }
-    }, [status, router]);
+        setIsClient(true);
+        const fetchInitial = async () => {
+            try {
+                const session = await getSession();
+                if (!session?.user) {
+                    router.push('/login');
+                    return;
+                }
+                const { projects } = await getProjects() || { projects: [] };
+                setInitialData({ user: session.user, projects });
+            } catch (error) {
+                console.error("Initialization failed:", error);
+                router.push('/login');
+            }
+        };
+        fetchInitial();
+    }, [router]);
 
-    if (status === 'loading' || !session) {
+    if (!isClient || !initialData) {
         return <FullPageSkeleton />;
     }
 
     return (
-        <ProjectProvider initialProjects={projects} user={session.user as any}>
+        <ProjectProvider initialProjects={initialData.projects} user={initialData.user}>
             <DashboardLayoutContent>{children}</DashboardLayoutContent>
         </ProjectProvider>
     );

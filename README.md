@@ -7,7 +7,8 @@ This document provides a comprehensive guide to setting up, running, and using t
 
 1.  [Prerequisites](#prerequisites)
 2.  [Environment Setup](#environment-setup)
-    - [OAuth Setup (Google & Facebook)](#oauth-setup-google--facebook)
+    - [Firebase Setup](#firebase-setup)
+    - [Meta/Facebook Setup](#metafacebook-setup)
 3.  [Running the Application](#running-the-application)
     - [Development Mode](#development-mode)
     - [Production Mode](#production-mode)
@@ -47,15 +48,23 @@ Before you begin, ensure you have the following installed on your system:
     # SabNode Core Configuration
     MONGODB_URI=your_mongodb_connection_string
     MONGODB_DB=your_mongodb_database_name
-    JWT_SECRET=a_long_random_secure_string_for_sessions
-
+    
     # This must be your publicly accessible application URL
     NEXT_PUBLIC_APP_URL=https://your-app-domain.com
 
-    # --- Next-Auth Configuration ---
-    # Used for OAuth providers and securing sessions. Generate a strong secret.
-    NEXTAUTH_SECRET=a_very_strong_random_secret_for_nextauth
-    NEXTAUTH_URL=https://your-app-domain.com
+    # --- Firebase Admin SDK Configuration (for server-side auth) ---
+    # Create a service account in Firebase (Project Settings -> Service accounts -> Generate new private key)
+    # and provide the JSON content as a single-line string.
+    FIREBASE_ADMIN_SDK_CONFIG=your_firebase_admin_sdk_json_string
+
+    # --- Firebase Client SDK Configuration ---
+    # These values can be found in your Firebase project settings under "Your apps".
+    NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+    NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
 
     # --- Meta/Facebook Integration ---
 
@@ -64,17 +73,12 @@ Before you begin, ensure you have the following installed on your system:
     META_ONBOARDING_APP_SECRET=your_whatsapp_onboarding_app_secret
 
     # For Facebook Page Integration & Login (Meta Suite)
-    FACEBOOK_CLIENT_ID=your_facebook_page_app_id
-    FACEBOOK_CLIENT_SECRET=your_facebook_page_app_secret
+    NEXT_PUBLIC_FACEBOOK_APP_ID=your_facebook_page_app_id
+    FACEBOOK_APP_SECRET=your_facebook_page_app_secret
     
     # For Instagram Integration
-    INSTAGRAM_CLIENT_ID=your_instagram_app_id
-    INSTAGRAM_CLIENT_SECRET=your_instagram_app_secret
-    
-    # --- Google Integration ---
-    # For Google Login and other Google APIs
-    GOOGLE_CLIENT_ID=your_google_oauth_client_id
-    GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+    NEXT_PUBLIC_INSTAGRAM_APP_ID=your_instagram_app_id
+    INSTAGRAM_APP_SECRET=your_instagram_app_secret
     
     # Meta Webhooks (for receiving messages and updates)
     META_VERIFY_TOKEN=a_random_secure_string_for_webhooks
@@ -91,39 +95,30 @@ Before you begin, ensure you have the following installed on your system:
     KAFKA_BROKERS=127.0.0.1:9092
     ```
 
-### OAuth Setup (Google & Facebook)
+### Firebase Setup
 
-To enable "Sign in with Google" and "Sign in with Facebook", you must configure their respective developer projects.
+1.  **Go to the Firebase Console**: `console.firebase.google.com`
+2.  **Create a Project**: Create a new Firebase project or select an existing one.
+3.  **Create a Web App**: Go to Project Settings (gear icon) &rarr; **Your apps**. Click "Add app" and select the Web platform (`</>`).
+4.  **Register App**: Give your app a nickname and register it. Firebase will provide you with a `firebaseConfig` object.
+5.  **Copy Config to `.env`**: Copy the values from the `firebaseConfig` object into the `NEXT_PUBLIC_FIREBASE_*` variables in your `.env` file.
+6.  **Enable Authentication**: In the Firebase console, go to **Build &rarr; Authentication**. Click "Get started". Enable the **Email/Password**, **Google**, and **Facebook** sign-in providers.
+7.  **Create Service Account**: Go to Project Settings &rarr; **Service accounts**. Click "Generate new private key". This will download a JSON file.
+8.  **Add Admin SDK to `.env`**: Open the downloaded JSON file, copy its entire content, and paste it as a single-line string into the `FIREBASE_ADMIN_SDK_CONFIG` variable in your `.env` file.
 
-#### Google OAuth Setup
+### Meta/Facebook Setup
 
-1.  **Go to the Google Cloud Console**: `console.cloud.google.com`
-2.  Create a new project or select an existing one.
-3.  Go to **APIs & Services &rarr; OAuth consent screen**.
-    *   Choose **External** user type and create the consent screen.
-    *   Fill in the required app information (app name, user support email, developer contact). You can skip scopes for now.
-4.  Go to **APIs & Services &rarr; Credentials**.
-    *   Click **+ CREATE CREDENTIALS** and select **OAuth client ID**.
-    *   Choose **Web application** as the application type.
-    *   Under **Authorized JavaScript origins**, add your app's URL (e.g., `https://your-app-domain.com` or `http://localhost:3001` for development).
-    *   Under **Authorized redirect URIs**, add `https://your-app-domain.com/api/auth/callback/google` (and a `http://localhost:3001/api/auth/callback/google` version for development).
-    *   Click **Create**.
-5.  Copy the **Client ID** and **Client Secret**.
-6.  Paste these values into your `.env` file for `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
-
-#### Facebook OAuth Setup
+To enable "Sign in with Facebook" and other Meta integrations, you must configure a Meta for Developers App.
 
 1.  **Go to Meta for Developers**: `developers.facebook.com`
-2.  Go to **My Apps** and click **Create App**.
-3.  Select **Consumer** as the app type and click Next.
-4.  Provide an App Name and your contact email.
-5.  From your new app's dashboard, find the **Facebook Login** product and click **Set up**.
-6.  In the left sidebar under "Facebook Login", click **Settings**.
-7.  Under **Valid OAuth Redirect URIs**, add `https://your-app-domain.com/api/auth/callback/facebook` (and a `http://localhost:3001/api/auth/callback/facebook` version for development).
-8.  Click **Save Changes**.
-9.  In the sidebar, go to **App Settings &rarr; Basic**.
-10. Copy the **App ID** and **App Secret**.
-11. Paste these values into your `.env` file for `FACEBOOK_CLIENT_ID` and `FACEBOOK_CLIENT_SECRET`. **Note:** For login, `FACEBOOK_CLIENT_ID` should be the same as `NEXT_PUBLIC_FACEBOOK_APP_ID`.
+2.  Go to **My Apps** and click **Create App**. Select **Consumer** or **Business** as the app type.
+3.  From your app's dashboard, add the **Facebook Login** product.
+4.  In the left sidebar under "Facebook Login", click **Settings**.
+5.  Under **Valid OAuth Redirect URIs**, add your Firebase auth domain: `https://your_project_id.firebaseapp.com/__/auth/handler`. You can find this in your Firebase Authentication settings under "Authorized domains".
+6.  Click **Save Changes**.
+7.  In the sidebar, go to **App Settings &rarr; Basic**.
+8.  Copy the **App ID** and **App Secret**.
+9.  Paste these values into your `.env` file for `NEXT_PUBLIC_FACEBOOK_APP_ID` and `FACEBOOK_APP_SECRET`.
 
 
 ## Running the Application

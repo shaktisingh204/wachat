@@ -1,46 +1,41 @@
+import 'server-only'
+import * as admin from 'firebase-admin';
+import { DecodedIdToken } from 'firebase-admin/auth';
+import { cookies } from 'next/headers';
 
-// This file is deprecated as middleware is now handled by NextAuth.js
-// It is kept for reference but is no longer used in the auth flow.
+function initializeFirebaseAdmin() {
+  if (admin.apps.length > 0) {
+    return admin.app();
+  }
 
-import { jwtVerify, JWTExpired } from 'jose';
-import type { SessionPayload, AdminSessionPayload } from './definitions';
+  const serviceAccount = process.env.FIREBASE_ADMIN_SDK_CONFIG;
+  if (!serviceAccount) {
+    throw new Error('FIREBASE_ADMIN_SDK_CONFIG environment variable is not set.');
+  }
 
-function getJwtSecretKey(): Uint8Array {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-        throw new Error('JWT_SECRET is not defined in the environment variables.');
-    }
-    return new TextEncoder().encode(secret);
+  return admin.initializeApp({
+    credential: admin.credential.cert(JSON.parse(serviceAccount)),
+  });
 }
 
-export async function verifyJwtEdge(token: string): Promise<SessionPayload | null> {
+export async function verifyFirebaseIdToken(token: string): Promise<DecodedIdToken> {
+    const firebaseAdmin = initializeFirebaseAdmin();
     try {
-        const { payload } = await jwtVerify(token, getJwtSecretKey());
-        
-        if (!payload.jti || !payload.exp || !payload.userId || !payload.email) {
-            return null;
-        }
-        return payload as SessionPayload;
+        const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+        return decodedToken;
     } catch (error) {
-        if (error instanceof JWTExpired) {
-            throw error; // Re-throw to be caught by middleware
-        }
-        return null;
+        console.error('Error verifying Firebase ID token:', error);
+        throw new Error('Invalid authentication token.');
     }
 }
 
-export async function verifyAdminJwtEdge(token: string): Promise<AdminSessionPayload | null> {
-    try {
-        const { payload } = await jwtVerify(token, getJwtSecretKey());
+export async function getDecodedSession() {
+  const sessionCookie = cookies().get('session')?.value;
+  if (!sessionCookie) return null;
 
-        if (payload.role !== 'admin' || !payload.jti || !payload.exp) {
-            return null;
-        }
-        return payload as AdminSessionPayload;
-    } catch (error) {
-         if (error instanceof JWTExpired) {
-            throw error; // Re-throw to be caught by middleware
-        }
-        return null;
-    }
+  try {
+    return await verifyFirebaseIdToken(sessionCookie);
+  } catch (e) {
+    return null;
+  }
 }

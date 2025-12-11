@@ -1,10 +1,8 @@
 
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,34 +10,75 @@ import { Label } from '@/components/ui/label';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
-import { handleSignup } from '@/app/actions/index.ts';
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
+import { auth } from '@/lib/firebase/config';
+import { useRouter } from 'next/navigation';
 
-const initialState = {
-  message: null,
-  error: null,
-};
 
-function SubmitButton() {
-    const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
     return (
-        <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+        <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Create Account
         </Button>
     )
 }
 
 export default function SignupPage() {
-  const [state, setState] = useState<any>(initialState);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
+  const handleSignup = async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      setError(null);
+      const formData = new FormData(event.currentTarget);
+      const name = formData.get('name') as string;
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
+
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters long.');
+        return;
+      }
+
+      startTransition(async () => {
+          try {
+              const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+              const idToken = await userCredential.user.getIdToken();
+              
+              await fetch('/api/auth/session', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${idToken}` },
+                body: JSON.stringify({ name: name })
+              });
+
+              router.push('/dashboard');
+          } catch (err: any) {
+              setError(err.message || 'An unknown error occurred.');
+          }
+      });
+  }
   
-  const formAction = (formData: FormData) => {
-    startTransition(async () => {
-        const result = await handleSignup(null, formData);
-        setState(result);
-    });
-  };
+   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+      const authProvider = provider === 'google' ? new GoogleAuthProvider() : new FacebookAuthProvider();
+      startTransition(async () => {
+          try {
+              const result = await signInWithPopup(auth, authProvider);
+              const idToken = await result.user.getIdToken();
+              const name = result.user.displayName;
+              await fetch('/api/auth/session', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${idToken}` },
+                body: JSON.stringify({ name: name })
+              });
+              router.push('/dashboard');
+          } catch(err: any) {
+              setError(err.message || 'An unknown error occurred.');
+          }
+      });
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-auth-texture p-4 sm:p-6 lg:p-8">
@@ -50,17 +89,17 @@ export default function SignupPage() {
         </div>
         
         <Card className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up relative overflow-hidden">
-            <form action={formAction}>
+            <form onSubmit={handleSignup}>
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl font-bold font-headline">Create your Account</CardTitle>
                     <CardDescription>Let's get started with your 30-day free trial.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 p-6">
-                    {state?.error && (
+                    {error && (
                         <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Signup Failed</AlertTitle>
-                        <AlertDescription>{state.error}</AlertDescription>
+                        <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
                     <div className="space-y-2">
@@ -79,7 +118,7 @@ export default function SignupPage() {
                         </button>
                         <p className="text-xs text-muted-foreground">Must be at least 6 characters long.</p>
                     </div>
-                    <SubmitButton />
+                    <SubmitButton isPending={isPending} />
                      <div className="relative my-4">
                         <div className="absolute inset-0 flex items-center">
                             <span className="w-full border-t" />
@@ -89,11 +128,11 @@ export default function SignupPage() {
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <Button variant="outline" type="button" onClick={() => signIn('google', { callbackUrl: '/dashboard' })}>
+                        <Button variant="outline" type="button" onClick={() => handleSocialLogin('google')} disabled={isPending}>
                             <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4"><path fill="currentColor" d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.08-2.58 1.98-4.48 1.98-3.79 0-7.17-3.22-7.17-7.22s3.38-7.22 7.17-7.22c2.23 0 3.63.92 4.48 1.75l2.72-2.72C19.62 3.39 16.67 2 12.48 2 7.01 2 2.56 6.18 2.56 12s4.45 10 9.92 10c2.79 0 5.1-1 6.88-2.84 1.92-1.92 2.58-4.75 2.58-7.17 0-.66-.07-1.32-.19-1.98z"/></svg>
                             Google
                         </Button>
-                        <Button variant="outline" type="button" onClick={() => signIn('facebook', { callbackUrl: '/dashboard' })}>
+                        <Button variant="outline" type="button" onClick={() => handleSocialLogin('facebook')} disabled={isPending}>
                             <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4"><path fill="currentColor" d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.35C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.732 0 1.325-.593 1.325-1.325V1.325C24 .593 23.407 0 22.675 0z"/></svg>
                             Facebook
                         </Button>
