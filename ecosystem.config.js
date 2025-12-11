@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'sabnode-web',
       script: 'node_modules/.bin/next',
-      args: 'start -p 3001',
+      args: 'start -p 3002',
       instances: 1,
       exec_mode: 'fork',
       env: { NODE_ENV: 'production' },
