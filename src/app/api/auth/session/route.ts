@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
-import { verifyJwt } from '@/lib/auth';
+import { verifyJwt as verifyFirebaseIdToken } from '@/lib/auth';
 import type { User } from '@/lib/definitions';
 
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
@@ -16,11 +16,11 @@ export async function POST(request: NextRequest) {
     const idToken = authHeader.split('Bearer ')[1];
     
     try {
-        const decodedToken = await verifyJwt(idToken);
+        const decodedToken = await verifyFirebaseIdToken(idToken);
         if (!decodedToken) {
             throw new Error("Invalid or expired token.");
         }
-        
+
         const { db } = await connectToDatabase();
         
         const now = new Date();
@@ -47,8 +47,10 @@ export async function POST(request: NextRequest) {
             { upsert: true, returnDocument: 'after' }
         );
 
-        // Set session cookie
-        cookies().set('session', idToken, {
+        const response = NextResponse.json({ success: true, user: updateResult });
+
+        // Set session cookie on the response
+        response.cookies.set('session', idToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
             maxAge: SESSION_DURATION / 1000,
         });
 
-        return NextResponse.json({ success: true, user: updateResult });
+        return response;
     } catch (error: any) {
         console.error('Session creation failed:', error);
         return new Response(`Authentication error: ${error.message}`, { status: 401 });
