@@ -11,7 +11,6 @@ import { createAdminSessionToken, verifyAdminJwt } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
-import { headers } from 'next/headers';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import axios from 'axios';
@@ -339,7 +338,9 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
-  const decoded = await getDecodedSession();
+  const sessionCookie = cookies().get('session')?.value;
+  const decoded = await getDecodedSession(sessionCookie);
+
   if (!decoded) return null;
 
   try {

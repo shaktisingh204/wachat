@@ -71,9 +71,6 @@ export async function verifyJwt(token: string): Promise<any | null> {
     try {
         const firebaseAdmin = initializeFirebaseAdmin();
         const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-        if (!decodedToken) {
-            throw new Error("Invalid or expired token.");
-        }
         return decodedToken;
     } catch (error) {
         console.error('Error verifying Firebase ID token in server component:', error);
@@ -113,8 +110,7 @@ export async function createAdminSessionToken(): Promise<string> {
 }
 
 // This function is for server components/actions ONLY
-export async function getDecodedSession() {
-  const sessionCookie = cookies().get('session')?.value;
+export async function getDecodedSession(sessionCookie?: string) {
   if (!sessionCookie) return null;
 
   try {
