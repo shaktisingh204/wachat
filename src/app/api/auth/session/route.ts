@@ -1,6 +1,5 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
 import { verifyJwt as verifyFirebaseIdToken } from '@/lib/auth';
 import type { User } from '@/lib/definitions';
