@@ -1,31 +1,59 @@
 
-import 'server-only'
-import { jwtVerify } from 'jose';
+'use server';
 
-// This function only checks if the JWT signature is valid and if it's expired.
-// It CANNOT verify if the token was revoked or if the user exists.
-// Full verification happens on the server with the Admin SDK.
+import 'server-only'
+import { jwtVerify, decodeJwt, JWTExpired } from 'jose';
+
+// This function performs a lightweight check on the Edge without full verification.
+// It decodes the token and checks the expiration time. The full, secure verification
+// happens on the server with the Firebase Admin SDK.
 export async function verifyJwtEdge(token: string): Promise<any | null> {
-    // This is a simplified check for the Edge runtime. We assume if a token exists and is validly signed by Firebase,
-    // it's likely a valid session for middleware purposes. The full check happens in `getDecodedSession`.
-    // A more secure approach could use a different JWT library that doesn't rely on Node.js APIs
-    // to fully parse the Firebase token, or use a custom token system.
-    // For now, this placeholder logic allows the middleware to pass through.
-    return { user: "edge-verified" };
+    try {
+        const payload = decodeJwt(token);
+
+        // Check if token has an expiration time
+        if (!payload.exp) {
+            return null;
+        }
+
+        // Check if token is expired. `exp` is in seconds, Date.now() is in milliseconds.
+        const isExpired = Date.now() >= payload.exp * 1000;
+
+        if (isExpired) {
+            // Throw the specific error the middleware expects
+            throw new JWTExpired('Firebase ID token has expired.');
+        }
+
+        // If not expired, return the payload so the check passes
+        return payload;
+    } catch (error) {
+        // Re-throw JWTExpired so the middleware can catch it, return null for other parsing issues.
+        if (error instanceof JWTExpired) {
+            throw error;
+        }
+        return null;
+    }
 }
 
 
 export async function verifyAdminJwtEdge(token: string): Promise<any | null> {
-    // This is also a placeholder. A real implementation would use a library like 'jose'
-    // to verify a custom-signed admin JWT.
     try {
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-        const { payload } = await jwtVerify(token, secret);
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            throw new Error('JWT_SECRET is not defined in environment variables for admin verification.');
+        }
+        const secretKey = new TextEncoder().encode(secret);
+        const { payload } = await jwtVerify(token, secretKey);
         if (payload.role === 'admin') {
             return payload;
         }
         return null;
     } catch(e) {
+        // Re-throw JWTExpired so middleware can handle it
+        if (e instanceof JWTExpired) {
+            throw e;
+        }
+        console.error("Admin JWT Edge Verification Error:", e);
         return null;
     }
 }
