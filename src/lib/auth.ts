@@ -1,5 +1,6 @@
 
-import 'server-only';
+'use server';
+
 import bcrypt from 'bcryptjs';
 import { connectToDatabase } from './mongodb';
 import { SignJWT, jwtVerify } from 'jose';
@@ -24,8 +25,26 @@ function initializeFirebaseAdmin() {
     return admin.app();
   }
 
+  // Handle potential JSON parsing errors
+  let parsedServiceAccount;
+  try {
+      if (typeof serviceAccount === 'string') {
+          parsedServiceAccount = JSON.parse(serviceAccount);
+      } else {
+          parsedServiceAccount = serviceAccount;
+      }
+  } catch (e) {
+      console.error("FATAL: Could not parse Firebase service account JSON.");
+      throw new Error("Invalid Firebase service account configuration.");
+  }
+
+  // Ensure the private key is correctly formatted
+  if (parsedServiceAccount.private_key && !parsedServiceAccount.private_key.includes('-----BEGIN PRIVATE KEY-----')) {
+       parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
+  }
+
   return admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert(parsedServiceAccount),
   });
 }
 
@@ -52,6 +71,9 @@ export async function verifyJwt(token: string): Promise<any | null> {
     try {
         const firebaseAdmin = initializeFirebaseAdmin();
         const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+        if (!decodedToken) {
+            throw new Error("Invalid or expired token.");
+        }
         return decodedToken;
     } catch (error) {
         console.error('Error verifying Firebase ID token in server component:', error);
@@ -92,7 +114,8 @@ export async function createAdminSessionToken(): Promise<string> {
 
 // This function is for server components/actions ONLY
 export async function getDecodedSession() {
-  const sessionCookie = cookies().get('session')?.value;
+  const cookieStore = cookies();
+  const sessionCookie = cookieStore.get('session')?.value;
   if (!sessionCookie) return null;
 
   try {
@@ -100,6 +123,7 @@ export async function getDecodedSession() {
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(sessionCookie);
     return decodedToken;
   } catch (e) {
+    console.error('Failed to decode session:', e);
     return null;
   }
 }
