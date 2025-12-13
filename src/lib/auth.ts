@@ -114,8 +114,7 @@ export async function createAdminSessionToken(): Promise<string> {
 
 // This function is for server components/actions ONLY
 export async function getDecodedSession() {
-  const cookieStore = cookies();
-  const sessionCookie = cookieStore.get('session')?.value;
+  const sessionCookie = cookies().get('session')?.value;
   if (!sessionCookie) return null;
 
   try {
