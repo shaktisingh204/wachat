@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -6,8 +7,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type WithId, ObjectId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getDecodedSession } from '@/lib/auth';
-import { createAdminSessionToken, verifyAdminJwt } from '@/lib/auth';
+import { getDecodedSession, verifyAdminJwt } from '@/lib/auth';
+import { createAdminSessionToken } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
@@ -338,7 +339,8 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
-  const sessionCookie = cookies().get('session')?.value;
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('session')?.value;
   const decoded = await getDecodedSession(sessionCookie);
 
   if (!decoded) return null;
