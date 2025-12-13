@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
 
         const response = NextResponse.json({ success: true, user: updateResult });
 
-        // Correctly set the cookie on the response object
         response.cookies.set('session', idToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
