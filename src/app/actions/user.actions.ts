@@ -1,7 +1,7 @@
 
 'use server';
 
-import { revalidatePath } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type WithId, ObjectId, Filter } from 'mongodb';
@@ -69,10 +69,10 @@ export async function getProjectById(projectId?: string | null, userId?: string)
 }
 
 
-export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<{ projects: WithId<Project>[] }> {
+export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<WithId<Project>[]> {
     const session = await getSession();
     if (!session?.user) {
-        return { projects: [] };
+        return [];
     }
 
     try {
@@ -101,10 +101,10 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             .sort({ createdAt: -1 })
             .toArray();
             
-        return { projects: JSON.parse(JSON.stringify(projects)) };
+        return JSON.parse(JSON.stringify(projects));
     } catch (error) {
         console.error("Failed to fetch projects:", error);
-        return { projects: [] };
+        return [];
     }
 }
 
