@@ -1,35 +1,69 @@
 
 'use client';
 
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useState, useTransition } from 'react';
 import { LoaderCircle } from 'lucide-react';
 import React from 'react';
+import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
-// This component's only job is to run once the popup is redirected here.
-// It will close the popup window, which signals the parent window (the one with the "Continue with Facebook" button)
-// that the FB.login() call has completed. The parent window's callback then handles the `code`.
 function FacebookCallbackHandler() {
-    
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const { toast } = useToast();
+    const [isProcessing, startTransition] = useTransition();
+    const [error, setError] = useState<string | null>(null);
+
     useEffect(() => {
-        // The FB.login callback in the parent window is what receives the code.
-        // We just need to close this popup so that callback can fire.
-        if (window.opener) {
-            console.log("Callback page loaded in popup. Closing...");
-            window.close();
+        const code = searchParams.get('code');
+
+        if (code) {
+            console.log('[CALLBACK] Authorization code received. Initiating server action.');
+            startTransition(async () => {
+                const result = await handleWabaOnboarding(code);
+                if (result.error) {
+                    setError(result.error);
+                    toast({
+                        title: 'Onboarding Failed',
+                        description: result.error,
+                        variant: 'destructive',
+                        duration: 10000,
+                    });
+                } else {
+                    toast({
+                        title: 'Onboarding Success!',
+                        description: result.message || 'Your account has been connected.',
+                    });
+                    // Redirect to the dashboard after success
+                    router.push('/dashboard');
+                }
+            });
+        } else {
+            const errorParam = searchParams.get('error_description') || 'No authorization code received.';
+            setError(errorParam);
+             toast({
+                title: 'Onboarding Cancelled or Failed',
+                description: errorParam,
+                variant: 'destructive',
+            });
         }
-    }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
             <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-            <p className="mt-4 text-muted-foreground">Finalizing connection, please wait...</p>
-            <p className="mt-2 text-xs">This window should close automatically.</p>
+            <p className="mt-4 text-muted-foreground">
+                {isProcessing ? 'Finalizing connection, please wait...' : error ? 'An error occurred.' : 'Processing...'}
+            </p>
+            {error && <p className="mt-2 text-xs text-destructive max-w-sm text-center">{error}</p>}
+            <p className="mt-2 text-xs text-muted-foreground">This window should close automatically.</p>
         </div>
     );
 }
 
-// The main page is now a Server Component that wraps the client component in Suspense
 export default function FacebookCallbackPage() {
     return (
         <Suspense fallback={<div>Loading...</div>}>
