@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useEffect, useState, useTransition, useCallback } from 'react';
+import React, { useEffect, useState, useTransition, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import { LoaderCircle, AlertCircle } from 'lucide-react';
@@ -22,10 +22,9 @@ interface EmbeddedSignupProps {
   configId: string;
   state: string;
   includeCatalog?: boolean;
-  onSuccess?: () => void;
 }
 
-export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSuccess }: EmbeddedSignupProps) {
+export function EmbeddedSignup({ appId, configId, state, includeCatalog }: EmbeddedSignupProps) {
     const [isSdkLoaded, setIsSdkLoaded] = useState(false);
     const [isProcessing, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
@@ -35,7 +34,8 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
     const [wabaData, setWabaData] = useState<any>(null);
     const [authCode, setAuthCode] = useState<string | null>(null);
 
-    // This is the key change: a useEffect hook that triggers the server action only when BOTH pieces of data are available.
+    // This is the core logic fix: A useEffect that watches both pieces of data.
+    // It will only fire when both `wabaData` and `authCode` are populated.
     useEffect(() => {
         if (wabaData && authCode) {
             startTransition(async () => {
@@ -47,17 +47,16 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
 
                     if (result.error) throw new Error(result.error);
 
-                    toast({ title: "Success!", description: result.message });
-                    if (onSuccess) onSuccess();
+                    toast({ title: "Onboarding Successful!", description: result.message });
                     router.push('/dashboard');
                 } catch (e: any) {
-                    setError(e.message || 'An unknown error occurred during setup.');
+                    setError(e.message || 'An unknown error occurred during final setup.');
                 }
             });
         }
-    }, [wabaData, authCode, onSuccess, router, toast]);
+    }, [wabaData, authCode, router, toast]);
 
-    // Sets up the message listener for WABA data
+    // Sets up the message listener for WABA data from the popup
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (event.origin !== "https://www.facebook.com") return;
@@ -65,12 +64,14 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
                 const data = JSON.parse(event.data);
                 if (data.type === 'WA_EMBEDDED_SIGNUP') {
                     if (data.event === 'FINISH') {
-                        setWabaData(data.data); // Store the WABA data in state
+                        setWabaData(data.data); // Store the WABA asset data
                     } else if (data.event === 'ERROR') {
                         setError(data.data.message || 'An error occurred during onboarding.');
                     }
                 }
-            } catch (e) {}
+            } catch (e) {
+                // Silently ignore non-JSON messages
+            }
         };
         
         window.addEventListener('message', handleMessage);
@@ -99,6 +100,13 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
             window.FB.init({ appId, cookie: true, xfbml: true, version: 'v23.0' });
             setIsSdkLoaded(true);
         };
+
+        return () => {
+            const sdkScript = document.getElementById('facebook-jssdk');
+            if (sdkScript) {
+                document.body.removeChild(sdkScript);
+            }
+        }
     }, [appId]);
 
     const launchWhatsAppSignup = () => {
@@ -107,12 +115,11 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
             return;
         }
 
+        // Reset state before starting a new flow
         setError(null);
         setWabaData(null);
         setAuthCode(null);
 
-        // The FB.login callback now ONLY sets the auth code.
-        // The useEffect hook will handle the rest.
         const loginCallback = (response: any) => {
             if (response.authResponse && response.authResponse.code) {
                 setAuthCode(response.authResponse.code);
