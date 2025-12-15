@@ -27,25 +27,20 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
                 client_secret: appSecret,
                 code: code,
             },
-            // The response is a URL-encoded string, not JSON. Treat it as text.
             responseType: 'text' 
         });
 
-        // Use URLSearchParams to correctly parse the URL-encoded response body.
         const responseParams = new URLSearchParams(response.data);
         const accessToken = responseParams.get('access_token');
         
         if (!accessToken) {
             let errorResponse;
             try {
-                // If parsing fails, it might be a JSON error response.
                 errorResponse = JSON.parse(response.data);
                 if (errorResponse.error) {
                     throw new Error(errorResponse.error.message);
                 }
-            } catch (parseError) {
-                // Not JSON, and no access_token found. The response itself is the error.
-            }
+            } catch (parseError) {}
             throw new Error('Could not retrieve access token from Meta. The response was not in the expected format.');
         }
 
@@ -73,7 +68,6 @@ export async function handleWabaOnboarding(data: {
     }
 
     try {
-        // Step 1: Exchange code for access token
         const tokenResult = await exchangeCodeForTokens(data.code);
         if (tokenResult.error || !tokenResult.accessToken) {
             throw new Error(tokenResult.error || 'Failed to get access token.');
@@ -84,23 +78,14 @@ export async function handleWabaOnboarding(data: {
         const bulkOps = [];
         const hasCatalogManagement = data.granted_scopes.includes('catalog_management');
 
-        // Determine the plan ID to use
         const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
         if (!user) return { error: "User not found." };
         
-        let planIdToAssign: ObjectId | undefined = user.planId;
-        let signupCredits = 0;
-        
-        if (!planIdToAssign) {
-            const defaultPlan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
-            if (defaultPlan) {
-                planIdToAssign = defaultPlan._id;
-                signupCredits = defaultPlan.signupCredits || 0;
-            }
-        } else {
-            // If the user already has a plan, don't re-assign signup credits
-             signupCredits = 0;
-        }
+        // Simplified and safer plan assignment.
+        // It relies on the user document's planId. If it's missing, a separate process should assign it.
+        // This avoids a potential point of failure during the critical onboarding flow.
+        const planIdToAssign = user.planId;
+        const creditsToAssign = user.credits || 0;
 
         for (const waba of data.wabas) {
             const projectData = {
@@ -112,7 +97,7 @@ export async function handleWabaOnboarding(data: {
                 accessToken: accessToken,
                 messagesPerSecond: 80,
                 planId: planIdToAssign,
-                credits: signupCredits,
+                credits: creditsToAssign, // Assign existing credits, or 0 if none.
                 hasCatalogManagement,
                 phoneNumbers: data.phone_numbers
                     .filter((p: any) => p.waba_id === waba.id)
@@ -120,8 +105,8 @@ export async function handleWabaOnboarding(data: {
                         id: p.id,
                         display_phone_number: p.display_phone_number,
                         verified_name: p.verified_name,
-                        code_verification_status: 'VERIFIED', // Assume verified from this flow
-                        quality_rating: 'GREEN', // Assume initial state is green
+                        code_verification_status: 'VERIFIED',
+                        quality_rating: 'GREEN',
                     })),
             };
 
