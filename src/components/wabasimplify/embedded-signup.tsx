@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useEffect, useState, useTransition } from 'react';
+import React, { useEffect, useState, useTransition, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import { LoaderCircle } from 'lucide-react';
@@ -32,77 +32,20 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
+    
+    // Using refs to hold the results from the two separate async events
+    const wabaDataRef = useRef<any>(null);
+    const authCodeRef = useRef<string | null>(null);
 
     useEffect(() => {
-        const loadFacebookSDK = () => {
-            if (document.getElementById('facebook-jssdk')) {
-                if (window.FB) {
-                    try {
-                        window.FB.init({ appId, cookie: true, xfbml: true, version: 'v23.0' });
-                        setIsSdkLoaded(true);
-                    } catch (e) {
-                        console.error("FB.init error:", e);
-                    }
-                }
-                return;
-            };
-
-            const script = document.createElement('script');
-            script.id = 'facebook-jssdk';
-            script.src = "https://connect.facebook.net/en_US/sdk.js";
-            script.async = true;
-            script.defer = true;
-            script.crossOrigin = "anonymous";
-            document.body.appendChild(script);
-        };
-
-        window.fbAsyncInit = function() {
-            window.FB.init({ appId, cookie: true, xfbml: true, version: 'v23.0' });
-            setIsSdkLoaded(true);
-        };
-        
-        loadFacebookSDK();
-    }, [appId]);
-
-    const launchWhatsAppSignup = () => {
-        if (!isSdkLoaded) {
-            toast({ title: 'SDK Not Ready', description: 'Facebook SDK is still loading. Please wait a moment and try again.', variant: 'destructive'});
-            return;
-        }
-
-        setError(null);
-
-        const assetDataPromise = new Promise((resolve, reject) => {
-            const messageHandler = (event: MessageEvent) => {
-                if (event.origin !== "https://www.facebook.com") return;
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'WA_EMBEDDED_SIGNUP') {
-                        window.removeEventListener('message', messageHandler);
-                        if (data.event === 'FINISH') {
-                            resolve(data.data);
-                        } else if (data.event === 'ERROR') {
-                            reject(new Error(data.data.message || 'An error occurred during onboarding.'));
-                        }
-                    }
-                } catch (e) {}
-            };
-            window.addEventListener('message', messageHandler);
-        });
-
-        window.FB.login(async (response: any) => {
-            if (response.authResponse && response.authResponse.code) {
+        // Function to process onboarding once both pieces of data are available
+        const processOnboarding = () => {
+            if (wabaDataRef.current && authCodeRef.current) {
                 startTransition(async () => {
                     try {
-                        const code = response.authResponse.code;
-                        toast({ title: "Authorization successful", description: "Finalizing setup..." });
-
-                        const assets: any = await assetDataPromise;
-                        
                         const result = await handleWabaOnboarding({
-                            ...assets,
-                            code: code,
-                            granted_scopes: response.authResponse.granted_scopes.split(','),
+                            ...wabaDataRef.current,
+                            code: authCodeRef.current,
                         });
 
                         if (result.error) throw new Error(result.error);
@@ -116,10 +59,97 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
                         setError(e.message || 'An unknown error occurred during setup.');
                     }
                 });
+            }
+        };
+
+        // If data arrives, check if the other part is also ready
+        if (wabaDataRef.current || authCodeRef.current) {
+            processOnboarding();
+        }
+
+    }, [isProcessing, onSuccess, router, toast]);
+
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.origin !== "https://www.facebook.com") return;
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'WA_EMBEDDED_SIGNUP') {
+                    if (data.event === 'FINISH') {
+                        wabaDataRef.current = data.data;
+                         if (authCodeRef.current) {
+                            startTransition(() => {
+                                handleWabaOnboarding({ ...wabaDataRef.current, code: authCodeRef.current! }).then(result => {
+                                    if (result.error) throw new Error(result.error);
+                                    toast({ title: "Success!", description: result.message });
+                                    if (onSuccess) onSuccess();
+                                    router.push('/dashboard');
+                                });
+                            });
+                        }
+                    } else if (data.event === 'ERROR') {
+                        setError(data.data.message || 'An error occurred during onboarding.');
+                    }
+                }
+            } catch (e) {}
+        };
+        
+        window.addEventListener('message', handleMessage);
+        
+        return () => {
+            window.removeEventListener('message', handleMessage);
+        };
+    }, [onSuccess, router, toast]);
+
+    useEffect(() => {
+        if (window.FB) {
+            setIsSdkLoaded(true);
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.id = 'facebook-jssdk';
+        script.src = "https://connect.facebook.net/en_US/sdk.js";
+        script.async = true;
+        script.defer = true;
+        script.crossOrigin = "anonymous";
+        document.body.appendChild(script);
+        
+        window.fbAsyncInit = function() {
+            window.FB.init({ appId, cookie: true, xfbml: true, version: 'v23.0' });
+            setIsSdkLoaded(true);
+        };
+    }, [appId]);
+
+    const launchWhatsAppSignup = () => {
+        if (!isSdkLoaded) {
+            toast({ title: 'SDK Not Ready', description: 'Facebook SDK is still loading. Please wait a moment and try again.', variant: 'destructive'});
+            return;
+        }
+
+        setError(null);
+        wabaDataRef.current = null;
+        authCodeRef.current = null;
+
+        const loginCallback = (response: any) => {
+            if (response.authResponse && response.authResponse.code) {
+                authCodeRef.current = response.authResponse.code;
+                if (wabaDataRef.current) {
+                     startTransition(() => {
+                        handleWabaOnboarding({ ...wabaDataRef.current, code: authCodeRef.current! }).then(result => {
+                            if (result.error) throw new Error(result.error);
+                            toast({ title: "Success!", description: result.message });
+                            if (onSuccess) onSuccess();
+                            router.push('/dashboard');
+                        });
+                    });
+                }
             } else {
                 setError('Onboarding cancelled or permissions not granted.');
             }
-        }, {
+        };
+
+        window.FB.login(loginCallback, {
             config_id: configId,
             response_type: 'code',
             override_default_response_type: true,
@@ -144,3 +174,4 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
         </div>
     );
 }
+
