@@ -21,8 +21,6 @@ export async function exchangeCodeForTokens(code: string): Promise<{ accessToken
     }
 
     try {
-        // The redirect_uri is not needed for the server-to-server token exchange
-        // when using the Embedded Signup flow with a code. The code is self-contained.
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
             params: {
                 client_id: appId,
@@ -61,6 +59,21 @@ export async function handleWabaOnboarding(data: {
         const bulkOps = [];
         const hasCatalogManagement = data.granted_scopes.includes('catalog_management');
 
+        // Determine the plan ID to use
+        let planIdToAssign: ObjectId | undefined;
+        let signupCredits = 0;
+        
+        if (session.user.planId) {
+            planIdToAssign = new ObjectId(session.user.planId);
+            signupCredits = session.user.plan?.signupCredits || 0;
+        } else {
+            const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
+            if (defaultPlan) {
+                planIdToAssign = defaultPlan._id;
+                signupCredits = defaultPlan.signupCredits || 0;
+            }
+        }
+
         for (const waba of data.wabas) {
             const projectData = {
                 userId: new ObjectId(session.user._id),
@@ -69,10 +82,9 @@ export async function handleWabaOnboarding(data: {
                 businessId: data.business_id,
                 appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
                 accessToken: data.access_token,
-                createdAt: new Date(),
                 messagesPerSecond: 80,
-                planId: session.user.plan?._id ? new ObjectId(session.user.plan._id) : undefined,
-                credits: session.user.plan?.signupCredits || 0,
+                planId: planIdToAssign,
+                credits: signupCredits,
                 hasCatalogManagement,
                 phoneNumbers: data.phone_numbers
                     .filter(p => p.waba_id === waba.id)
