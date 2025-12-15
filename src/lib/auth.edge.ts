@@ -2,7 +2,7 @@
 'use server';
 
 import 'server-only'
-import { jwtVerify, decodeJwt, JWTExpired } from 'jose';
+import { jwtVerify, decodeJwt } from 'jose';
 
 // This function performs a lightweight check on the Edge without full verification.
 // It decodes the token and checks the expiration time. The full, secure verification
@@ -20,15 +20,17 @@ export async function verifyJwtEdge(token: string): Promise<any | null> {
         const isExpired = Date.now() >= payload.exp * 1000;
 
         if (isExpired) {
-            // Throw the specific error the middleware expects
-            throw new JWTExpired('Firebase ID token has expired.');
+            // Throw an error that the middleware will catch
+            const error = new Error('Firebase ID token has expired.');
+            (error as any).code = 'ERR_JWT_EXPIRED';
+            throw error;
         }
 
         // If not expired, return the payload so the check passes
         return payload;
-    } catch (error) {
+    } catch (error: any) {
         // Re-throw JWTExpired so the middleware can catch it, return null for other parsing issues.
-        if (error instanceof JWTExpired) {
+        if (error.code === 'ERR_JWT_EXPIRED') {
             throw error;
         }
         return null;
@@ -48,9 +50,9 @@ export async function verifyAdminJwtEdge(token: string): Promise<any | null> {
             return payload;
         }
         return null;
-    } catch(e) {
+    } catch(e: any) {
         // Re-throw JWTExpired so middleware can handle it
-        if (e instanceof JWTExpired) {
+        if (e.code === 'ERR_JWT_EXPIRED') {
             throw e;
         }
         console.error("Admin JWT Edge Verification Error:", e);

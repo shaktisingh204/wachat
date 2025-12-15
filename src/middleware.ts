@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAdminJwtEdge, verifyJwtEdge } from './lib/auth.edge';
-import { JWTExpired } from 'jose/errors';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -23,8 +22,8 @@ export async function middleware(request: NextRequest) {
   if (sessionToken) {
     try {
       sessionValid = !!await verifyJwtEdge(sessionToken);
-    } catch (error) {
-      if (error instanceof JWTExpired) {
+    } catch (error: any) {
+      if (error.code === 'ERR_JWT_EXPIRED') {
         sessionExpired = true;
       }
     }
@@ -33,8 +32,8 @@ export async function middleware(request: NextRequest) {
   if (adminSessionToken) {
     try {
       adminSessionValid = !!await verifyAdminJwtEdge(adminSessionToken);
-    } catch (error) {
-      if (error instanceof JWTExpired) {
+    } catch (error: any) {
+      if (error.code === 'ERR_JWT_EXPIRED') {
         adminSessionExpired = true;
       }
     }
