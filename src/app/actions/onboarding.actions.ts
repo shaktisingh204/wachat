@@ -6,12 +6,13 @@ import { ObjectId, WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '.';
-import type { Project, Plan, User } from '@/lib/definitions';
+import type { Project, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook } from './whatsapp.actions';
 
 const API_VERSION = 'v23.0';
 
+// This function now correctly handles the URL-encoded response from Meta.
 async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: string; error?: string }> {
     const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
@@ -27,7 +28,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
                 client_secret: appSecret,
                 code: code,
             },
-            responseType: 'text' 
+            responseType: 'text' // Explicitly request a text response
         });
 
         const responseParams = new URLSearchParams(response.data);
@@ -36,11 +37,12 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         if (!accessToken) {
             let errorResponse;
             try {
+                // If it's not a success, it might be a JSON error object
                 errorResponse = JSON.parse(response.data);
                 if (errorResponse.error) {
                     throw new Error(errorResponse.error.message);
                 }
-            } catch (parseError) {}
+            } catch (parseError) {} // Ignore if parsing fails, it's just not JSON
             throw new Error('Could not retrieve access token from Meta. The response was not in the expected format.');
         }
 
@@ -53,6 +55,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
 }
 
 
+// This function is now more robust and handles data types correctly.
 export async function handleWabaOnboarding(data: {
     wabas: any[],
     phone_numbers: any[],
@@ -81,14 +84,12 @@ export async function handleWabaOnboarding(data: {
         const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
         if (!user) return { error: "User not found." };
         
-        // Simplified and safer plan assignment.
-        // It relies on the user document's planId. If it's missing, a separate process should assign it.
-        // This avoids a potential point of failure during the critical onboarding flow.
-        const planIdToAssign = user.planId;
+        // This is the robust way to handle plan assignment.
+        const planIdToAssign = user.planId; // This is already an ObjectId or undefined
         const creditsToAssign = user.credits || 0;
 
         for (const waba of data.wabas) {
-            const projectData = {
+            const projectData: Partial<Project> & { userId: ObjectId; wabaId: string; name: string } = {
                 userId: new ObjectId(session.user._id),
                 name: waba.name,
                 wabaId: waba.id,
@@ -96,8 +97,6 @@ export async function handleWabaOnboarding(data: {
                 appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
                 accessToken: accessToken,
                 messagesPerSecond: 80,
-                planId: planIdToAssign,
-                credits: creditsToAssign, // Assign existing credits, or 0 if none.
                 hasCatalogManagement,
                 phoneNumbers: data.phone_numbers
                     .filter((p: any) => p.waba_id === waba.id)
@@ -109,6 +108,12 @@ export async function handleWabaOnboarding(data: {
                         quality_rating: 'GREEN',
                     })),
             };
+
+            // Only assign plan and credits if a valid planId exists on the user document
+            if (planIdToAssign) {
+                projectData.planId = planIdToAssign;
+                projectData.credits = creditsToAssign;
+            }
 
             bulkOps.push({
                 updateOne: {

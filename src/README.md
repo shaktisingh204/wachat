@@ -7,6 +7,8 @@ This document provides a comprehensive guide to setting up, running, and using t
 
 1.  [Prerequisites](#prerequisites)
 2.  [Environment Setup](#environment-setup)
+    - [Firebase Setup](#firebase-setup)
+    - [Meta/Facebook Setup (for WhatsApp & Social Suite)](#metafacebook-setup-for-whatsapp--social-suite)
 3.  [Running the Application](#running-the-application)
     - [Development Mode](#development-mode)
     - [Production Mode](#production-mode)
@@ -46,18 +48,28 @@ Before you begin, ensure you have the following installed on your system:
     # SabNode Core Configuration
     MONGODB_URI=your_mongodb_connection_string
     MONGODB_DB=your_mongodb_database_name
-    JWT_SECRET=a_long_random_secure_string_for_sessions
-
-    # This must be your publicly accessible application URL
+    
+    # This must be your publicly accessible HTTPS application URL for Webhooks and OAuth
     NEXT_PUBLIC_APP_URL=https://your-app-domain.com
+
+    # --- Firebase Client SDK Configuration ---
+    # These values can be found in your Firebase project settings under "Your apps".
+    NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+    NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
 
     # --- Meta/Facebook Integration ---
 
     # For WhatsApp Account Onboarding (Wachat Suite)
+    # The App ID and a generated Config ID for the Embedded Signup flow
     NEXT_PUBLIC_META_ONBOARDING_APP_ID=your_whatsapp_onboarding_app_id
+    NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID=your_whatsapp_onboarding_config_id
     META_ONBOARDING_APP_SECRET=your_whatsapp_onboarding_app_secret
 
-    # For Facebook Page Integration (Meta Suite)
+    # For Facebook Page Integration & Login (Meta Suite)
     NEXT_PUBLIC_FACEBOOK_APP_ID=your_facebook_page_app_id
     FACEBOOK_APP_SECRET=your_facebook_page_app_secret
     
@@ -80,6 +92,32 @@ Before you begin, ensure you have the following installed on your system:
     KAFKA_BROKERS=127.0.0.1:9092
     ```
 
+### Firebase Setup
+
+1.  **Go to the Firebase Console**: `console.firebase.google.com`
+2.  **Create a Project**: Create a new Firebase project or select an existing one.
+3.  **Create a Web App**: Go to Project Settings (gear icon) &rarr; **Your apps**. Click "Add app" and select the Web platform (`</>`).
+4.  **Register App**: Give your app a nickname and register it. Firebase will provide you with a `firebaseConfig` object.
+5.  **Copy Client Config to `.env`**: Copy the values from the `firebaseConfig` object into the `NEXT_PUBLIC_FIREBASE_*` variables in your `.env` file.
+6.  **Enable Authentication**: In the Firebase console, go to **Build &rarr; Authentication**. Click "Get started". Enable the **Email/Password**, **Google**, and **Facebook** sign-in providers.
+7.  **Create Service Account**: Go to Project Settings &rarr; **Service accounts**. Click "Generate new private key". This will download a JSON file.
+8.  **Add Admin SDK to Code**: Open the downloaded JSON file. Copy its entire content and paste it into the `src/lib/firebase/service-account.ts` file, replacing the placeholder content. **This file should never be committed to version control.**
+
+### Meta/Facebook Setup (for WhatsApp & Social Suite)
+
+1.  **Go to Meta for Developers**: `developers.facebook.com`
+2.  Go to **My Apps** and click **Create App**. Select **Business** as the app type.
+3.  From your app dashboard, add the **WhatsApp Business** and **Facebook Login for Business** products.
+4.  In the left sidebar, go to **App Settings &rarr; Basic**. Copy your **App ID** and **App Secret**. Paste these into your `.env` file (`NEXT_PUBLIC_META_ONBOARDING_APP_ID`, `META_ONBOARDING_APP_SECRET`, etc.).
+5.  **Configure WhatsApp Embedded Signup**:
+    *   In the sidebar, go to **WhatsApp &rarr; Embedded Signup**.
+    *   Click "Create Embedded Signup Flow". Follow the prompts to configure the flow. This will generate a **Configuration ID**.
+    *   Copy the Configuration ID and paste it into your `.env` file for `NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID`.
+6.  **Configure Facebook Login Settings**:
+    *   In the sidebar, under **Facebook Login &rarr; Settings**, find the "Allowed Domains for JavaScript SDK" section.
+    *   Add your publicly accessible application domain (e.g., `your-app-domain.com`). This **must** be an HTTPS domain. For local development, you may need to use a tunneling service like `ngrok` to get a temporary HTTPS URL.
+    * This step is crucial for the Embedded Signup flow to work correctly.
+
 ## Running the Application
 
 ### Development Mode
@@ -89,7 +127,7 @@ This mode is ideal for local development and testing, with hot-reloading enabled
 ```bash
 npm run dev
 ```
-The application will be available at `http://localhost:3001`.
+The application will be available at `http://localhost:3002`.
 
 ### Production Mode
 
@@ -150,7 +188,7 @@ This command starts a single Redpanda broker and makes it available on `localhos
 3.  **Queue a Broadcast**: Go to the SabNode dashboard, navigate to "Campaigns", and create a new broadcast campaign by selecting a template and uploading a contact list.
 4.  **Trigger the Cron Job**: The system uses a cron job to find queued broadcasts and push them to the Kafka `messages` topic. In production, this happens automatically. In development, you must trigger it manually by opening this URL in your browser:
     ```
-    http://localhost:3001/api/cron/send-broadcasts
+    http://localhost:3002/api/cron/send-broadcasts
     ```
 5.  **Monitor the Output**:
     *   **In Production**: Check the worker logs with `pm2 logs sabnode-worker`. You will see logs from the workers as they pick up and process the message batches from Kafka.
