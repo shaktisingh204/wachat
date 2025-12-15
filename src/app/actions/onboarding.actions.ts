@@ -12,7 +12,7 @@ import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook } from './whatsap
 
 const API_VERSION = 'v23.0';
 
-export async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: string; error?: string }> {
+async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: string; error?: string }> {
     const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
 
@@ -21,26 +21,31 @@ export async function exchangeCodeForTokens(code: string): Promise<{ accessToken
     }
 
     try {
-        // Facebook returns URL-encoded data, not JSON, so we request as text.
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
             params: {
                 client_id: appId,
                 client_secret: appSecret,
                 code: code,
             },
+            // Explicitly tell axios to treat the response as plain text
             responseType: 'text' 
         });
 
-        // The response body is a string like "access_token=...&token_type=...".
-        // We parse it as URL search parameters.
+        // The response is a URL-encoded string, e.g., "access_token=...&expires_in=..."
+        // Use URLSearchParams to correctly parse it.
         const responseParams = new URLSearchParams(response.data);
         const accessToken = responseParams.get('access_token');
         
         if (!accessToken) {
-            // Check if there's an error in the response from Facebook
-            const errorResponse = JSON.parse(response.data);
-            if (errorResponse.error) {
-                throw new Error(errorResponse.error.message);
+            let errorResponse;
+            try {
+                // If it's not URL-encoded, it might be a JSON error response
+                errorResponse = JSON.parse(response.data);
+                if (errorResponse.error) {
+                    throw new Error(errorResponse.error.message);
+                }
+            } catch (parseError) {
+                // Not JSON, and no access_token found. The response itself is the error.
             }
             throw new Error('Could not retrieve access token from Meta.');
         }
@@ -58,7 +63,7 @@ export async function handleWabaOnboarding(data: {
     wabas: any[],
     phone_numbers: any[],
     business_id?: string,
-    access_token: string,
+    code: string,
     granted_scopes: string[],
 }) {
     const session = await getSession();
@@ -69,6 +74,13 @@ export async function handleWabaOnboarding(data: {
     }
 
     try {
+        // Step 1: Exchange code for access token
+        const tokenResult = await exchangeCodeForTokens(data.code);
+        if (tokenResult.error || !tokenResult.accessToken) {
+            throw new Error(tokenResult.error || 'Failed to get access token.');
+        }
+        
+        const accessToken = tokenResult.accessToken;
         const { db } = await connectToDatabase();
         const bulkOps = [];
         const hasCatalogManagement = data.granted_scopes.includes('catalog_management');
@@ -87,8 +99,8 @@ export async function handleWabaOnboarding(data: {
                 signupCredits = defaultPlan.signupCredits || 0;
             }
         } else {
-            const userPlan = await db.collection('plans').findOne({ _id: user.planId });
-            signupCredits = userPlan?.signupCredits || 0;
+            // If the user already has a plan, don't re-assign signup credits
+             signupCredits = 0;
         }
 
         for (const waba of data.wabas) {
@@ -98,7 +110,7 @@ export async function handleWabaOnboarding(data: {
                 wabaId: waba.id,
                 businessId: data.business_id,
                 appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
-                accessToken: data.access_token,
+                accessToken: accessToken,
                 messagesPerSecond: 80,
                 planId: planIdToAssign,
                 credits: signupCredits,
@@ -109,8 +121,8 @@ export async function handleWabaOnboarding(data: {
                         id: p.id,
                         display_phone_number: p.display_phone_number,
                         verified_name: p.verified_name,
-                        code_verification_status: 'VERIFIED',
-                        quality_rating: 'GREEN',
+                        code_verification_status: 'VERIFIED', // Assume verified from this flow
+                        quality_rating: 'GREEN', // Assume initial state is green
                     })),
             };
 

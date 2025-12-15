@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useTransition } from 'react';
@@ -6,7 +7,9 @@ import { WhatsAppIcon } from './custom-sidebar-components';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { exchangeCodeForTokens, handleWabaOnboarding } from '@/app/actions/onboarding.actions';
+import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -19,20 +22,27 @@ interface EmbeddedSignupProps {
   appId: string;
   configId: string;
   state: string;
-  includeCatalog: boolean;
+  includeCatalog?: boolean;
   onSuccess?: () => void;
 }
 
 export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSuccess }: EmbeddedSignupProps) {
     const [isSdkLoaded, setIsSdkLoaded] = useState(false);
     const [isProcessing, startTransition] = useTransition();
+    const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
 
     useEffect(() => {
-        // Function to load the Facebook SDK script
         const loadFacebookSDK = () => {
-            if (document.getElementById('facebook-jssdk')) return;
+            if (document.getElementById('facebook-jssdk')) {
+                // If SDK is already loaded, ensure it's initialized
+                if (window.FB) {
+                    window.FB.init({ appId, cookie: true, xfbml: true, version: 'v23.0' });
+                    setIsSdkLoaded(true);
+                }
+                return;
+            };
 
             const script = document.createElement('script');
             script.id = 'facebook-jssdk';
@@ -43,103 +53,103 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
             document.body.appendChild(script);
         };
 
-        // Set up the fbAsyncInit function BEFORE loading the script
         window.fbAsyncInit = function() {
-            window.FB.init({
-                appId: appId,
-                cookie: true,
-                xfbml: true,
-                version: 'v20.0'
-            });
+            window.FB.init({ appId, cookie: true, xfbml: true, version: 'v23.0' });
             setIsSdkLoaded(true);
         };
         
         loadFacebookSDK();
     }, [appId]);
 
-    const launchWhatsAppSignup = async () => {
+    const launchWhatsAppSignup = () => {
         if (!isSdkLoaded) {
             toast({ title: 'SDK Not Ready', description: 'Facebook SDK is still loading. Please wait a moment and try again.', variant: 'destructive'});
             return;
         }
 
-        startTransition(async () => {
-            const messageHandler = async (event: MessageEvent) => {
-                if (event.origin !== "https://www.facebook.com") return;
-                
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'WA_EMBEDDED_SIGNUP') {
-                        // This means the user has completed the flow in the popup.
-                        // Now we can use the `code` to get an access token.
-                        if (data.event === 'FINISH') {
-                            const code = data.data.code;
-                            
-                            // Step 1: Exchange code for access token
-                            const tokenResult = await exchangeCodeForTokens(code);
-                            if (tokenResult.error || !tokenResult.accessToken) {
-                                throw new Error(tokenResult.error || 'Failed to get access token.');
+        setError(null);
+        startTransition(() => {
+            // This promise will resolve with the asset data from postMessage
+            const assetDataPromise = new Promise((resolve, reject) => {
+                const messageHandler = (event: MessageEvent) => {
+                    if (event.origin !== "https://www.facebook.com") return;
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'WA_EMBEDDED_SIGNUP') {
+                            window.removeEventListener('message', messageHandler); // Clean up listener
+                            if (data.event === 'FINISH') {
+                                resolve(data.data);
+                            } else if (data.event === 'ERROR') {
+                                reject(new Error(data.data.message || 'An error occurred during onboarding.'));
                             }
-                            
-                            // Step 2: Use the asset data from postMessage and the new token to complete onboarding
-                            const onboardingResult = await handleWabaOnboarding({
-                                ...data.data,
-                                access_token: tokenResult.accessToken,
-                            });
-                            
-                            if (onboardingResult.error) {
-                                throw new Error(onboardingResult.error);
-                            }
-
-                            toast({ title: "Success!", description: onboardingResult.message });
-                            if (onSuccess) onSuccess();
-                            router.refresh();
-
-                        } else if (data.event === 'ERROR') {
-                             throw new Error(`Onboarding failed: ${data.data.message}`);
                         }
+                    } catch (e) {
+                        // Ignore non-JSON messages
                     }
-                } catch (error: any) {
-                    toast({ title: "Onboarding Error", description: error.message, variant: 'destructive'});
-                    console.error("Onboarding processing error:", error);
-                } finally {
-                    window.removeEventListener('message', messageHandler);
-                }
-            };
+                };
+                window.addEventListener('message', messageHandler);
+            });
 
-            window.addEventListener('message', messageHandler);
+            window.FB.login(async (response: any) => {
+                if (response.authResponse && response.authResponse.code) {
+                    try {
+                        const code = response.authResponse.code;
+                        toast({ title: "Authorization successful", description: "Finalizing setup..." });
 
-            let extras = {};
-            if (includeCatalog) {
-                extras = {
-                    ...extras,
-                    feature: 'CATALOG_MANAGEMENT'
-                }
-            }
+                        // Wait for both the code and the asset data to be available
+                        const assets: any = await assetDataPromise;
+                        
+                        const result = await handleWabaOnboarding({
+                            ...assets,
+                            code: code,
+                        });
 
-            window.FB.login(
-                function(response: any) {
-                    if (!response.authResponse) {
-                        // The user closed the popup or did not grant permissions.
-                        window.removeEventListener('message', messageHandler);
+                        if (result.error) {
+                            throw new Error(result.error);
+                        }
+
+                        toast({ title: "Success!", description: result.message });
+                        if (onSuccess) onSuccess();
+                        router.push('/dashboard');
+                        router.refresh();
+
+                    } catch (e: any) {
+                        setError(e.message || 'An unknown error occurred during setup.');
                     }
-                },
-                {
-                    config_id: configId,
-                    response_type: 'code',
-                    override_default_response_type: true,
-                    state: state,
-                    scope: 'whatsapp_business_management,whatsapp_business_messaging,business_management' + (includeCatalog ? ',catalog_management' : ''),
-                    extras: extras,
+                } else {
+                    setError('Onboarding cancelled or permissions not granted.');
                 }
-            );
+            }, {
+                config_id: configId,
+                response_type: 'code',
+                override_default_response_type: true,
+                state: state,
+                scope: 'whatsapp_business_management,whatsapp_business_messaging' + (includeCatalog ? ',business_management,catalog_management' : ''),
+                extras: includeCatalog ? {
+                    feature: 'whatsapp_embedded_signup',
+                    version: 4,
+                    session_info_version: 2,
+                    setup: {
+                        "external_business_id": "SABNODE_UNIQUE_BIZ_ID" 
+                    }
+                } : {},
+            });
         });
-    }
+    };
 
     return (
-        <Button onClick={launchWhatsAppSignup} disabled={!isSdkLoaded || isProcessing} size="lg" className="bg-[#19D163] hover:bg-[#19D163]/90 text-white w-full">
-            {isProcessing ? <LoaderCircle className="mr-2 h-5 w-5 animate-spin"/> : <WhatsAppIcon className="mr-2 h-5 w-5" />}
-            Continue with Facebook
-        </Button>
+        <div className="w-full space-y-4">
+             {error && (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Onboarding Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
+            <Button onClick={launchWhatsAppSignup} disabled={!isSdkLoaded || isProcessing} size="lg" className="bg-[#19D163] hover:bg-[#19D163]/90 text-white w-full">
+                {isProcessing ? <LoaderCircle className="mr-2 h-5 w-5 animate-spin"/> : <WhatsAppIcon className="mr-2 h-5 w-5" />}
+                Continue with Facebook
+            </Button>
+        </div>
     );
 }
