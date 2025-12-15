@@ -22,6 +22,9 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         console.error('[ONBOARDING] FATAL: Server is not configured for Meta OAuth. Missing App ID or Secret.');
         return { error: 'Server is not configured for Meta OAuth. Missing App ID or Secret.' };
     }
+    
+    // **DEFINITIVE FIX**: Use the hardcoded, correct redirect URI.
+    const redirectUri = 'https://sabnode.com/auth/facebook/callback';
 
     try {
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
@@ -29,7 +32,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
                 client_id: appId,
                 client_secret: appSecret,
                 code: code,
-                redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`,
+                redirect_uri: redirectUri,
             },
             responseType: 'text' 
         });
@@ -98,7 +101,7 @@ export async function handleWabaOnboarding(data: {
         let planIdToAssign: ObjectId | undefined = user.planId;
         let creditsToAssign: number = user.credits || 0;
 
-        // If user has no plan, assign the default one.
+        // If user has no plan, assign the default one. This is a critical fallback.
         if (!planIdToAssign) {
             console.log('[ONBOARDING] User has no plan. Fetching default plan.');
             const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
@@ -107,7 +110,10 @@ export async function handleWabaOnboarding(data: {
                 throw new Error("System configuration error: No default plan is set for new users. Onboarding cannot proceed.");
             }
             planIdToAssign = defaultPlan._id;
-            creditsToAssign = defaultPlan.signupCredits || 0;
+            // Only assign signup credits if the user doesn't already have credits.
+            if (!user.credits || user.credits === 0) {
+                creditsToAssign = defaultPlan.signupCredits || 0;
+            }
              console.log(`[ONBOARDING] Assigning default plan ID: ${planIdToAssign}`);
         } else {
              console.log(`[ONBOARDING] User has existing plan ID: ${planIdToAssign}`);
@@ -118,7 +124,7 @@ export async function handleWabaOnboarding(data: {
         console.log(`[ONBOARDING] Step 5: Preparing to create/update ${data.wabas.length} project(s).`);
 
         for (const waba of data.wabas) {
-            const projectData: Partial<Project> & { userId: ObjectId; wabaId: string; name: string } = {
+            const projectData: Partial<Project> & { userId: ObjectId; wabaId: string; name: string, planId: ObjectId, credits: number } = {
                 userId: new ObjectId(session.user._id),
                 name: waba.name,
                 wabaId: waba.id,
@@ -133,8 +139,8 @@ export async function handleWabaOnboarding(data: {
                         id: p.id,
                         display_phone_number: p.display_phone_number,
                         verified_name: p.verified_name,
-                        code_verification_status: 'VERIFIED',
-                        quality_rating: 'GREEN',
+                        code_verification_status: 'VERIFIED', // Assume verified if it comes through this flow
+                        quality_rating: 'GREEN', // Assume green initially
                     })),
                 planId: planIdToAssign,
                 credits: creditsToAssign,
@@ -152,17 +158,19 @@ export async function handleWabaOnboarding(data: {
         if (bulkOps.length > 0) {
             console.log('[ONBOARDING] Step 6: Executing database bulk write operation.');
             const result = await db.collection('projects').bulkWrite(bulkOps);
-            console.log(`[ONBOARDING] Step 7: Database operation complete. Upserted IDs: ${Object.keys(result.upsertedIds).length}, Modified: ${result.modifiedCount}`);
+            console.log(`[ONBOARDING] Step 7: Database operation complete. Upserted IDs: ${Object.values(result.upsertedIds).length}, Modified: ${result.modifiedCount}`);
             
-            if (result.upsertedIds) {
-                console.log('[ONBOARDING] Step 8: Post-creation setup for new projects (webhook subscription).');
-                for (const id of Object.values(result.upsertedIds)) {
-                    const newProject = await db.collection<Project>('projects').findOne({_id: id});
-                    if(newProject && newProject.wabaId && newProject.appId && newProject.accessToken) {
-                        await handleSyncPhoneNumbers(newProject._id.toString());
-                        await handleSubscribeProjectWebhook(newProject.wabaId, newProject.appId, newProject.accessToken);
-                    }
-                }
+            const newProjectIds = Object.values(result.upsertedIds);
+            
+            if (newProjectIds.length > 0) {
+                 console.log('[ONBOARDING] Step 8: Post-creation setup for new projects (webhook subscription & phone sync).');
+                 for (const id of newProjectIds) {
+                     const newProject = await db.collection<Project>('projects').findOne({_id: id});
+                     if(newProject && newProject.wabaId && newProject.appId && newProject.accessToken) {
+                         await handleSyncPhoneNumbers(newProject._id.toString());
+                         await handleSubscribeProjectWebhook(newProject.wabaId, newProject.appId, newProject.accessToken);
+                     }
+                 }
             }
         }
 

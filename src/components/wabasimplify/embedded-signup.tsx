@@ -35,29 +35,31 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
     const [wabaData, setWabaData] = useState<any | null>(null);
     const [isServerActionPending, startServerActionTransition] = useTransition();
 
-    // This effect runs when both pieces of information are available
+    const callServerAction = useCallback((code: string, data: any) => {
+        console.log("[EMBEDDED] Calling server action with code and WABA data.");
+        startServerActionTransition(async () => {
+            const result = await handleWabaOnboarding({ ...data, code });
+            if (result.error) {
+                setError(result.error);
+                setIsProcessing(false);
+            } else {
+                toast({ title: "Onboarding Successful!", description: "Your WhatsApp Business Account is connected." });
+                setIsProcessing(false);
+                router.push('/dashboard');
+                router.refresh();
+            }
+        });
+    }, [router, toast]);
+
     useEffect(() => {
         if (authCode && wabaData) {
-            console.log("[EMBEDDED] Both code and WABA data received. Calling server action.");
-            startServerActionTransition(async () => {
-                const result = await handleWabaOnboarding({ ...wabaData, code: authCode });
-                if (result.error) {
-                    setError(result.error);
-                    setIsProcessing(false);
-                } else {
-                    toast({ title: "Onboarding Successful!", description: "Your WhatsApp Business Account is connected." });
-                    setIsProcessing(false);
-                    router.push('/dashboard');
-                    router.refresh();
-                }
-            });
+            callServerAction(authCode, wabaData);
         }
-    }, [authCode, wabaData, router, toast]);
+    }, [authCode, wabaData, callServerAction]);
 
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-             // Check for the specific event type from Meta
             if (event.data && event.data.type === 'WA_EMBEDDED_SIGNUP') {
                  if (event.data.event === 'FINISH') {
                     console.log("[EMBEDDED] postMessage 'FINISH' event received with data:", event.data.data);
@@ -122,7 +124,8 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
         setAuthCode(null);
         setWabaData(null);
 
-        const redirectUri = new URL('/auth/facebook/callback', window.location.origin).toString();
+        // **DEFINITIVE FIX**: Use the hardcoded, correct redirect URI.
+        const redirectUri = 'https://sabnode.com/auth/facebook/callback';
 
         const fbLoginCallback = (response: any) => {
             console.log("[EMBEDDED] FB.login callback fired.");
@@ -155,8 +158,8 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
-            <Button onClick={launchWhatsAppSignup} disabled={!isSdkLoaded || isProcessing} size="lg" className="bg-[#19D163] hover:bg-[#19D163]/90 text-white w-full">
-                {isProcessing ? <LoaderCircle className="mr-2 h-5 w-5 animate-spin"/> : <WhatsAppIcon className="mr-2 h-5 w-5" />}
+            <Button onClick={launchWhatsAppSignup} disabled={!isSdkLoaded || isProcessing || isServerActionPending} size="lg" className="bg-[#19D163] hover:bg-[#19D163]/90 text-white w-full">
+                {(isProcessing || isServerActionPending) ? <LoaderCircle className="mr-2 h-5 w-5 animate-spin"/> : <WhatsAppIcon className="mr-2 h-5 w-5" />}
                 Continue with Facebook
             </Button>
         </div>
