@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Suspense, useEffect, useState, useTransition } from 'react';
@@ -40,7 +39,7 @@ function FacebookCallbackHandler() {
                 }
             });
         } else {
-            const errorParam = searchParams.get('error_description') || 'No authorization code received.';
+            const errorParam = searchParams.get('error_description') || 'No authorization code received from Meta.';
             setError(errorParam);
              toast({
                 title: 'Onboarding Cancelled or Failed',
@@ -66,7 +65,7 @@ function FacebookCallbackHandler() {
 
 export default function FacebookCallbackPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
             <FacebookCallbackHandler />
         </Suspense>
     );
