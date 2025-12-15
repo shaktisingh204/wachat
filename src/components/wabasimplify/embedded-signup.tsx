@@ -1,73 +1,52 @@
+
 'use client';
 
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
-export const revalidate = 0;
-export const runtime = 'nodejs';
-
-import { Suspense, useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { WhatsAppIcon } from './custom-sidebar-components';
 import { LoaderCircle } from 'lucide-react';
-import React from 'react';
-import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
 
-function FacebookCallbackHandler() {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const { toast } = useToast();
-    const [isProcessing, startTransition] = useTransition();
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const code = searchParams.get('code');
-
-        if (code) {
-            console.log('[CALLBACK] Authorization code received. Sending to server action...');
-            startTransition(async () => {
-                const result = await handleWabaOnboarding(code);
-                if (result.error) {
-                    setError(result.error);
-                    toast({
-                        title: 'Onboarding Failed',
-                        description: result.error,
-                        variant: 'destructive',
-                        duration: 10000,
-                    });
-                } else {
-                    toast({
-                        title: 'Onboarding Success!',
-                        description: result.message || 'Your account has been connected.',
-                    });
-                    router.push('/dashboard');
-                }
-            });
-        } else {
-            const err = searchParams.get('error_description') || 'No authorization code received';
-            setError(err);
-            toast({
-                title: 'Onboarding Cancelled',
-                description: err,
-                variant: 'destructive',
-            });
-        }
-    }, [searchParams]);
-
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-            <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-            <p className="mt-4 text-muted-foreground">
-                {isProcessing ? 'Finalizing connection...' : error ? 'An error occurred' : 'Processing...'}
-            </p>
-            {error && <p className="text-destructive text-xs mt-2">{error}</p>}
-        </div>
-    );
+interface EmbeddedSignupProps {
+  appId: string;
+  configId: string;
+  includeCatalog: boolean;
+  state: 'whatsapp' | 'facebook';
+  onSuccess?: () => void;
 }
 
-export default function FacebookCallbackPage() {
+export default function EmbeddedSignup({ appId, configId, includeCatalog, state }: EmbeddedSignupProps) {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+    if (!appUrl) {
+        console.error("NEXT_PUBLIC_APP_URL is not set.");
+        return <Button disabled size="lg">App URL not configured</Button>;
+    }
+    
+    if (!isClient) {
+        return <Button disabled size="lg"><LoaderCircle className="mr-2 h-5 w-5 animate-spin"/>Loading...</Button>;
+    }
+
+    const redirectUri = `https://sabnode.com/auth/facebook/callback`;
+
+    let scopes = 'whatsapp_business_management,whatsapp_business_messaging';
+    if (includeCatalog) {
+        scopes += ',catalog_management,business_management';
+    }
+
+    const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&config_id=${configId}&state=${state}`;
+
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-            <FacebookCallbackHandler />
-        </Suspense>
+        <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
+            <a href={facebookLoginUrl}>
+                <WhatsAppIcon className="mr-2 h-5 w-5" />
+                Connect with Facebook
+            </a>
+        </Button>
     );
 }
