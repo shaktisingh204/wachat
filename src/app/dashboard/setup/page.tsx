@@ -5,16 +5,16 @@ import { useState } from 'react';
 /**
  * ✅ IMPORTANT:
  * These two MUST be default imports.
- * If you use `{ EmbeddedSignup }` or `{ WhatsAppIcon }`,
+ * If you use `{ EmbeddedSignup }` or `{ Icon }`,
  * the build WILL FAIL with "Element type is invalid".
  */
 import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
-import WhatsAppIcon from '@/components/wabasimplify/custom-sidebar-components';
+import { createIcons, chevronsLeftRightEllipsis } from 'lucide';
 
 import {
   Card,
   CardContent,
-  CardHeader,
+  CardHeader,whatsa
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
@@ -77,15 +77,15 @@ export default function SetupPage() {
       <Card className="w-full max-w-2xl text-center">
         <CardHeader>
           <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-            <WhatsAppIcon className="h-12 w-12 text-primary" />
+            <Icon className="h-12 w-12 text-primary" />
           </div>
 
           <CardTitle className="mt-4 text-2xl">
-            Connect Your WhatsApp Account
+            Connect Your  Account
           </CardTitle>
 
           <CardDescription>
-            Securely connect your WhatsApp Business Account to start sending
+            Securely connect your  Business Account to start sending
             messages, managing templates, and automating conversations.
           </CardDescription>
         </CardHeader>
@@ -94,13 +94,13 @@ export default function SetupPage() {
           <Dialog>
             <DialogTrigger asChild>
               <Button size="lg">
-                Connect WhatsApp Account
+                Connect  Account
               </Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Guided WhatsApp Setup</DialogTitle>
+                <DialogTitle>Guided  Setup</DialogTitle>
                 <DialogDescription>
                   You will be redirected to Facebook to authorize access.
                 </DialogDescription>
@@ -111,7 +111,7 @@ export default function SetupPage() {
                   appId={appId}
                   configId={configId}
                   includeCatalog={includeCatalog}
-                  state="whatsapp"
+                  state=""
                 />
 
                 <div className="flex items-center space-x-2 pt-2">
