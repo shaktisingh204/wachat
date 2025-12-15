@@ -3,18 +3,19 @@
 import { useState } from 'react';
 
 /**
- * ✅ IMPORTANT:
- * These two MUST be default imports.
- * If you use `{ EmbeddedSignup }` or `{ Icon }`,
- * the build WILL FAIL with "Element type is invalid".
+ * ✅ EmbeddedSignup MUST be a default import
  */
 import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
-import { createIcons, chevronsLeftRightEllipsis } from 'lucide';
+
+/**
+ * ✅ Use lucide-react icons properly
+ */
+import { MessageCircle, AlertCircle } from 'lucide-react';
 
 import {
   Card,
   CardContent,
-  CardHeader,whatsa
+  CardHeader,
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
@@ -25,7 +26,6 @@ import {
   AlertTitle,
 } from '@/components/ui/alert';
 
-import { AlertCircle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
@@ -46,8 +46,7 @@ export default function SetupPage() {
   const [includeCatalog, setIncludeCatalog] = useState(true);
 
   /**
-   * ✅ Safe guard for missing env vars
-   * This is CLIENT-SAFE and BUILD-SAFE
+   * ✅ Build-safe env guard
    */
   if (!appId || !configId) {
     return (
@@ -56,9 +55,7 @@ export default function SetupPage() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Configuration Error</AlertTitle>
           <AlertDescription className="space-y-2">
-            <p>
-              The following environment variables are missing:
-            </p>
+            <p>The following environment variables are missing:</p>
             <ul className="list-disc list-inside text-xs">
               <li>NEXT_PUBLIC_META_ONBOARDING_APP_ID</li>
               <li>NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID</li>
@@ -77,15 +74,15 @@ export default function SetupPage() {
       <Card className="w-full max-w-2xl text-center">
         <CardHeader>
           <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-            <Icon className="h-12 w-12 text-primary" />
+            <MessageCircle className="h-12 w-12 text-primary" />
           </div>
 
           <CardTitle className="mt-4 text-2xl">
-            Connect Your  Account
+            Connect Your WhatsApp Account
           </CardTitle>
 
           <CardDescription>
-            Securely connect your  Business Account to start sending
+            Securely connect your WhatsApp Business Account to start sending
             messages, managing templates, and automating conversations.
           </CardDescription>
         </CardHeader>
@@ -93,14 +90,12 @@ export default function SetupPage() {
         <CardContent>
           <Dialog>
             <DialogTrigger asChild>
-              <Button size="lg">
-                Connect  Account
-              </Button>
+              <Button size="lg">Connect WhatsApp Account</Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Guided  Setup</DialogTitle>
+                <DialogTitle>Guided WhatsApp Setup</DialogTitle>
                 <DialogDescription>
                   You will be redirected to Facebook to authorize access.
                 </DialogDescription>
@@ -111,7 +106,7 @@ export default function SetupPage() {
                   appId={appId}
                   configId={configId}
                   includeCatalog={includeCatalog}
-                  state=""
+                  state="whatsapp"
                 />
 
                 <div className="flex items-center space-x-2 pt-2">
@@ -137,4 +132,3 @@ export default function SetupPage() {
     </div>
   );
 }
-
