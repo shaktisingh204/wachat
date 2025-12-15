@@ -1,3 +1,4 @@
+
 {
   "name": "nextn",
   "version": "0.1.0",
@@ -84,7 +85,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^14.2.4",
+    "@next/bundle-analyzer": "14.2.35",
     "@types/bcryptjs": "^2.4.6",
     "@types/form-data": "^2.5.0",
     "@types/node": "^20",

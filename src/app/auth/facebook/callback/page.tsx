@@ -1,74 +1,38 @@
 
 'use client';
 
-import { Suspense, useEffect, useTransition } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
+import { Suspense, useEffect } from 'react';
 import { LoaderCircle } from 'lucide-react';
 import React from 'react';
 
+// This component is intentionally kept minimal.
+// Its primary purpose is to be the redirect target for the OAuth flow.
+// The actual logic is handled by the parent window that opened this popup.
 function FacebookCallbackHandler() {
-    const searchParams = useSearchParams();
-    const [error, setError] = React.useState<string | null>(null);
-    const [isProcessing, startTransition] = useTransition();
-
+    
     useEffect(() => {
-        const code = searchParams.get('code');
-        
-        if (code) {
-            startTransition(async () => {
-                try {
-                    const wabaDataString = localStorage.getItem('wabaData');
-                    if (!wabaDataString) {
-                        throw new Error('Onboarding data not found. Please try the connection process again.');
-                    }
-                    const wabaData = JSON.parse(wabaDataString);
-
-                    const result = await handleWabaOnboarding({ ...wabaData, code });
-
-                    if (result.error) {
-                        throw new Error(result.error);
-                    }
-
-                    if (window.opener) {
-                        window.opener.postMessage('WABASimplifyOnboardingSuccess', window.location.origin);
-                    }
-                    window.close();
-
-                } catch (e: any) {
-                    setError(e.message || 'An unknown error occurred.');
-                    if (window.opener) {
-                        window.opener.postMessage({ type: 'WABASimplifyOnboardingError', error: e.message }, window.location.origin);
-                    }
-                } finally {
-                    localStorage.removeItem('wabaData');
-                }
-            });
-        } else {
-            const errorParam = searchParams.get('error_message') || "Authorization failed. No code returned from Facebook.";
-            setError(errorParam);
-             if (window.opener) {
-                window.opener.postMessage({ type: 'WABASimplifyOnboardingError', error: errorParam }, window.location.origin);
-                window.close();
-            }
+        // The parent window listens for the code via the redirect URL of the popup.
+        // It's crucial to close this window so the parent's FB.login callback can fire.
+        if (window.opener) {
+            console.log("Callback page loaded, signaling parent window might be possible here if needed, but closing is primary.");
         }
-    }, [searchParams]);
+        // The FB.login callback in the parent window is what receives the code, so we just close this popup.
+        // If the code were in the URL, we could post it back:
+        // const urlParams = new URLSearchParams(window.location.search);
+        // const code = urlParams.get('code');
+        // if (window.opener && code) {
+        //     window.opener.postMessage({ type: 'oauthCode', code: code }, '*');
+        // }
+        // For embedded signup, this window should close automatically or be closed by the parent.
+        // If it remains open, it means the flow has likely failed. We'll leave it open for debugging.
+    }, []);
+
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            {isProcessing && (
-                <>
-                    <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-                    <p className="mt-4 text-muted-foreground">Finalizing connection, please wait...</p>
-                </>
-            )}
-            {error && (
-                <div className="text-center text-destructive p-4">
-                    <h1 className="font-bold">Onboarding Failed</h1>
-                    <p>{error}</p>
-                    <p className="mt-4 text-xs">You can close this window.</p>
-                </div>
-            )}
+            <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
+            <p className="mt-4 text-muted-foreground">Finalizing connection, please wait...</p>
+            <p className="mt-2 text-xs">This window should close automatically.</p>
         </div>
     );
 }
