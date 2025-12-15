@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense, useEffect, useState, useTransition } from 'react';
@@ -6,6 +7,8 @@ import React from 'react';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+
+export const dynamic = 'force-dynamic';
 
 function FacebookCallbackHandler() {
     const searchParams = useSearchParams();
