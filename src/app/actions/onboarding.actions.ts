@@ -89,15 +89,21 @@ export async function handleWabaOnboarding(data: {
         let planIdToAssign: ObjectId | undefined;
         let creditsToAssign: number = 0;
 
-        if (user.planId) {
+        if (user.planId && ObjectId.isValid(user.planId)) {
             planIdToAssign = user.planId;
+            // User already has a plan, so they don't get new signup credits.
+            creditsToAssign = user.credits || 0;
         } else {
             const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
             if (defaultPlan) {
                 planIdToAssign = defaultPlan._id;
                 creditsToAssign = defaultPlan.signupCredits || 0;
+            } else {
+                // This is a critical configuration error. The system MUST have a default plan.
+                throw new Error("System configuration error: No default plan is set for new users. Onboarding cannot proceed.");
             }
         }
+
 
         for (const waba of data.wabas) {
             const projectData: Partial<Project> & { userId: ObjectId; wabaId: string; name: string } = {
@@ -118,12 +124,9 @@ export async function handleWabaOnboarding(data: {
                         code_verification_status: 'VERIFIED',
                         quality_rating: 'GREEN',
                     })),
+                planId: planIdToAssign,
+                credits: creditsToAssign,
             };
-
-            if (planIdToAssign) {
-                projectData.planId = planIdToAssign;
-                projectData.credits = creditsToAssign;
-            }
 
             bulkOps.push({
                 updateOne: {
@@ -151,6 +154,7 @@ export async function handleWabaOnboarding(data: {
         return { success: true, message: `${bulkOps.length} project(s) connected/updated successfully.` };
 
     } catch (e: any) {
+        console.error("Onboarding failed:", e);
         return { error: getErrorMessage(e) };
     }
 }
