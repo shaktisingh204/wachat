@@ -9,13 +9,21 @@ export async function GET(
 ) {
     const { userId } = params;
 
-    if (!userId || !ObjectId.isValid(userId)) {
-        return new NextResponse('Invalid User ID', { status: 400 });
+    if (!userId) {
+        return new NextResponse('User ID is required', { status: 400 });
     }
     
     try {
         const { db } = await connectToDatabase();
-        const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+        
+        let userObjectId;
+        try {
+            userObjectId = new ObjectId(userId);
+        } catch (error) {
+            return new NextResponse('Invalid User ID format', { status: 400 });
+        }
+
+        const user = await db.collection('users').findOne({ _id: userObjectId });
 
         if (!user) {
             return new NextResponse('User not found', { status: 404 });
