@@ -1,15 +1,14 @@
 
 'use client';
 
-import React, { useEffect, useState, useTransition, useRef } from 'react';
+import React, { useEffect, useState, useTransition, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from './custom-sidebar-components';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { AlertCircle } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -32,43 +31,33 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
-    
-    // Using refs to hold the results from the two separate async events
-    const wabaDataRef = useRef<any>(null);
-    const authCodeRef = useRef<string | null>(null);
 
+    const [wabaData, setWabaData] = useState<any>(null);
+    const [authCode, setAuthCode] = useState<string | null>(null);
+
+    // This is the key change: a useEffect hook that triggers the server action only when BOTH pieces of data are available.
     useEffect(() => {
-        // Function to process onboarding once both pieces of data are available
-        const processOnboarding = () => {
-            if (wabaDataRef.current && authCodeRef.current) {
-                startTransition(async () => {
-                    try {
-                        const result = await handleWabaOnboarding({
-                            ...wabaDataRef.current,
-                            code: authCodeRef.current,
-                        });
+        if (wabaData && authCode) {
+            startTransition(async () => {
+                try {
+                    const result = await handleWabaOnboarding({
+                        ...wabaData,
+                        code: authCode,
+                    });
 
-                        if (result.error) throw new Error(result.error);
+                    if (result.error) throw new Error(result.error);
 
-                        toast({ title: "Success!", description: result.message });
-                        if (onSuccess) onSuccess();
-                        router.push('/dashboard');
-                        router.refresh();
-
-                    } catch (e: any) {
-                        setError(e.message || 'An unknown error occurred during setup.');
-                    }
-                });
-            }
-        };
-
-        // If data arrives, check if the other part is also ready
-        if (wabaDataRef.current || authCodeRef.current) {
-            processOnboarding();
+                    toast({ title: "Success!", description: result.message });
+                    if (onSuccess) onSuccess();
+                    router.push('/dashboard');
+                } catch (e: any) {
+                    setError(e.message || 'An unknown error occurred during setup.');
+                }
+            });
         }
+    }, [wabaData, authCode, onSuccess, router, toast]);
 
-    }, [isProcessing, onSuccess, router, toast]);
-
+    // Sets up the message listener for WABA data
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (event.origin !== "https://www.facebook.com") return;
@@ -76,17 +65,7 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
                 const data = JSON.parse(event.data);
                 if (data.type === 'WA_EMBEDDED_SIGNUP') {
                     if (data.event === 'FINISH') {
-                        wabaDataRef.current = data.data;
-                         if (authCodeRef.current) {
-                            startTransition(() => {
-                                handleWabaOnboarding({ ...wabaDataRef.current, code: authCodeRef.current! }).then(result => {
-                                    if (result.error) throw new Error(result.error);
-                                    toast({ title: "Success!", description: result.message });
-                                    if (onSuccess) onSuccess();
-                                    router.push('/dashboard');
-                                });
-                            });
-                        }
+                        setWabaData(data.data); // Store the WABA data in state
                     } else if (data.event === 'ERROR') {
                         setError(data.data.message || 'An error occurred during onboarding.');
                     }
@@ -99,8 +78,9 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
         return () => {
             window.removeEventListener('message', handleMessage);
         };
-    }, [onSuccess, router, toast]);
+    }, []);
 
+    // Initializes the Facebook SDK
     useEffect(() => {
         if (window.FB) {
             setIsSdkLoaded(true);
@@ -128,22 +108,14 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
         }
 
         setError(null);
-        wabaDataRef.current = null;
-        authCodeRef.current = null;
+        setWabaData(null);
+        setAuthCode(null);
 
+        // The FB.login callback now ONLY sets the auth code.
+        // The useEffect hook will handle the rest.
         const loginCallback = (response: any) => {
             if (response.authResponse && response.authResponse.code) {
-                authCodeRef.current = response.authResponse.code;
-                if (wabaDataRef.current) {
-                     startTransition(() => {
-                        handleWabaOnboarding({ ...wabaDataRef.current, code: authCodeRef.current! }).then(result => {
-                            if (result.error) throw new Error(result.error);
-                            toast({ title: "Success!", description: result.message });
-                            if (onSuccess) onSuccess();
-                            router.push('/dashboard');
-                        });
-                    });
-                }
+                setAuthCode(response.authResponse.code);
             } else {
                 setError('Onboarding cancelled or permissions not granted.');
             }
@@ -174,4 +146,3 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
         </div>
     );
 }
-
