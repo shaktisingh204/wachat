@@ -24,16 +24,22 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         return { error: 'Server is not configured for Meta OAuth. Missing App ID or Secret.' };
     }
     
+    // This MUST be identical to the one used on the client-side.
     const redirectUri = 'https://sabnode.com/auth/facebook/callback';
 
     try {
-        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, null, {
-            params: {
-                client_id: appId,
-                client_secret: appSecret,
-                code: code,
-                redirect_uri: redirectUri,
-            },
+        const params = new URLSearchParams();
+        params.append('client_id', appId);
+        params.append('client_secret', appSecret);
+        params.append('redirect_uri', redirectUri);
+        params.append('code', code);
+        
+        console.log(`[ONBOARDING] Step 2.1: Sending POST to https://graph.facebook.com/${API_VERSION}/oauth/access_token`);
+        
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, params, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
         });
         
         const accessToken = response.data.access_token;
