@@ -114,9 +114,9 @@ Before you begin, ensure you have the following installed on your system:
     *   Click "Create Embedded Signup Flow". Follow the prompts to configure the flow. This will generate a **Configuration ID**.
     *   Copy the Configuration ID and paste it into your `.env` file for `NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID`.
 6.  **Configure Facebook Login Settings**:
-    *   In the sidebar, under "Use Cases", find **Authentication and account creation** and click **Customize**.
-    *   Under **Facebook Login for Business &rarr; Settings**, find the "Allowed Domains for JavaScript SDK" section.
+    *   In the sidebar, under **Facebook Login &rarr; Settings**, find the "Allowed Domains for JavaScript SDK" section.
     *   Add your publicly accessible application domain (e.g., `your-app-domain.com`). This **must** be an HTTPS domain. For local development, you may need to use a tunneling service like `ngrok` to get a temporary HTTPS URL.
+    * This step is crucial for the Embedded Signup flow to work correctly.
 
 ## Running the Application
 

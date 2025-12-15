@@ -27,19 +27,18 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
                 client_secret: appSecret,
                 code: code,
             },
-            // Explicitly tell axios to treat the response as plain text
+            // The response is a URL-encoded string, not JSON. Treat it as text.
             responseType: 'text' 
         });
 
-        // The response is a URL-encoded string, e.g., "access_token=...&expires_in=..."
-        // Use URLSearchParams to correctly parse it.
+        // Use URLSearchParams to correctly parse the URL-encoded response body.
         const responseParams = new URLSearchParams(response.data);
         const accessToken = responseParams.get('access_token');
         
         if (!accessToken) {
             let errorResponse;
             try {
-                // If it's not URL-encoded, it might be a JSON error response
+                // If parsing fails, it might be a JSON error response.
                 errorResponse = JSON.parse(response.data);
                 if (errorResponse.error) {
                     throw new Error(errorResponse.error.message);
@@ -47,7 +46,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
             } catch (parseError) {
                 // Not JSON, and no access_token found. The response itself is the error.
             }
-            throw new Error('Could not retrieve access token from Meta.');
+            throw new Error('Could not retrieve access token from Meta. The response was not in the expected format.');
         }
 
         return { accessToken };
