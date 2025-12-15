@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -15,10 +14,9 @@ const API_VERSION = 'v23.0';
 export async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: string; error?: string }> {
     const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
-    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`;
 
     if (!appId || !appSecret) {
-        return { error: 'Server is not configured for Meta OAuth.' };
+        return { error: 'Server is not configured for Meta OAuth. Missing App ID or Secret.' };
     }
 
     try {
@@ -26,7 +24,6 @@ export async function exchangeCodeForTokens(code: string): Promise<{ accessToken
             params: {
                 client_id: appId,
                 client_secret: appSecret,
-                redirect_uri: redirectUri,
                 code: code,
             }
         });
@@ -38,7 +35,9 @@ export async function exchangeCodeForTokens(code: string): Promise<{ accessToken
 
         return { accessToken };
     } catch (e: any) {
-        return { error: getErrorMessage(e) };
+        const errorMessage = getErrorMessage(e);
+        console.error("Token Exchange Error:", errorMessage);
+        return { error: `Token Exchange Failed: ${errorMessage}` };
     }
 }
 
@@ -53,7 +52,7 @@ export async function handleWabaOnboarding(data: {
     if (!session?.user) return { error: 'Authentication required' };
     
     if (!data.wabas || data.wabas.length === 0 || !data.phone_numbers || data.phone_numbers.length === 0) {
-        return { error: 'Incomplete data received from Meta. Please try again.' };
+        return { error: 'Incomplete data received from Meta. Please ensure you select at least one phone number.' };
     }
 
     try {
@@ -62,22 +61,21 @@ export async function handleWabaOnboarding(data: {
         const hasCatalogManagement = data.granted_scopes.includes('catalog_management');
 
         // Determine the plan ID to use
-        let planIdToAssign: ObjectId | undefined;
-        let signupCredits = 0;
-        
         const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
         if (!user) return { error: "User not found." };
         
-        if (user.planId) {
-            planIdToAssign = user.planId;
-            const userPlan = await db.collection('plans').findOne({ _id: user.planId });
-            signupCredits = userPlan?.signupCredits || 0;
-        } else {
+        let planIdToAssign: ObjectId | undefined = user.planId;
+        let signupCredits = 0;
+        
+        if (!planIdToAssign) {
             const defaultPlan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
             if (defaultPlan) {
                 planIdToAssign = defaultPlan._id;
                 signupCredits = defaultPlan.signupCredits || 0;
             }
+        } else {
+            const userPlan = await db.collection('plans').findOne({ _id: user.planId });
+            signupCredits = userPlan?.signupCredits || 0;
         }
 
         for (const waba of data.wabas) {
