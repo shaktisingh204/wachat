@@ -5,26 +5,18 @@ import { Suspense, useEffect } from 'react';
 import { LoaderCircle } from 'lucide-react';
 import React from 'react';
 
-// This component is intentionally kept minimal.
-// Its primary purpose is to be the redirect target for the OAuth flow.
-// The actual logic is handled by the parent window that opened this popup.
+// This component's only job is to run once the popup is redirected here.
+// It will close the popup window, which signals the parent window (the one with the "Continue with Facebook" button)
+// that the FB.login() call has completed. The parent window's callback then handles the `code`.
 function FacebookCallbackHandler() {
     
     useEffect(() => {
-        // The parent window listens for the code via the redirect URL of the popup.
-        // It's crucial to close this window so the parent's FB.login callback can fire.
+        // The FB.login callback in the parent window is what receives the code.
+        // We just need to close this popup so that callback can fire.
         if (window.opener) {
-            console.log("Callback page loaded, signaling parent window might be possible here if needed, but closing is primary.");
+            console.log("Callback page loaded in popup. Closing...");
+            window.close();
         }
-        // The FB.login callback in the parent window is what receives the code, so we just close this popup.
-        // If the code were in the URL, we could post it back:
-        // const urlParams = new URLSearchParams(window.location.search);
-        // const code = urlParams.get('code');
-        // if (window.opener && code) {
-        //     window.opener.postMessage({ type: 'oauthCode', code: code }, '*');
-        // }
-        // For embedded signup, this window should close automatically or be closed by the parent.
-        // If it remains open, it means the flow has likely failed. We'll leave it open for debugging.
     }, []);
 
 
