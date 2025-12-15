@@ -59,41 +59,35 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
 
 
 // Fetches the WABA details using the debug_token endpoint
-async function getWabaDebugData(accessToken: string): Promise<{ wabas: any[], phone_numbers: any[], business_id?: string, granted_scopes: string[], error?: string }> {
-     console.log('[ONBOARDING] Step 4: Fetching WABA debug data.');
+export async function getWabaDebugData(accessToken: string) {
     try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/debug_token`, {
+        const url = `https://graph.facebook.com/${API_VERSION}/debug_token`;
+
+        const response = await axios.get(url, {
             params: {
                 input_token: accessToken,
-                access_token: `${process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID}|${process.env.META_ONBOARDING_APP_SECRET}`
-            }
+                access_token: `${process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID}|${process.env.META_ONBOARDING_APP_SECRET}`,
+            },
         });
 
-        const data = response.data.data;
-        if (!data || data.error) {
-             throw new Error(data.error?.message || 'Invalid token data received from debug endpoint.');
+        const data = response.data?.data;
+
+        if (!data) {
+            return { error: "Failed to fetch WABA debug data." };
         }
 
-        const granularScopes = data.granular_scopes || [];
-        const businessId = data.granular_scopes.find((s:any) => s.scope === 'whatsapp_business_management')?.target_ids[0];
-
-        // This is a simplified reconstruction of what the embedded signup postMessage would have provided
-        const debugData = {
-            wabas: data.granular_scopes.filter((s:any) => s.scope === 'whatsapp_business_management').map((s:any) => ({ id: s.target_ids[0] })),
-            phone_numbers: data.granular_scopes.filter((s:any) => s.scope === 'whatsapp_business_messaging').map((s:any) => ({ id: s.target_ids[0] })),
-            business_id: businessId,
-            granted_scopes: data.granular_scopes.map((s:any) => s.scope),
+        return {
+            business_id: data.business_id,
+            wabas: data.waba ? [{ id: data.waba }] : [],
+            phone_numbers: data.phone_numbers || [],
+            granted_scopes: data.granted_scopes || [],
         };
-        
-        console.log('[ONBOARDING] Step 5: Successfully retrieved debug data.');
-        return debugData;
-
-    } catch (e) {
-        const errorMessage = getErrorMessage(e);
-        console.error("[ONBOARDING] WABA Debug Data Fetch Error:", errorMessage);
-        return { error: `Could not fetch account details from token: ${errorMessage}`, wabas: [], phone_numbers: [], business_id: undefined, granted_scopes: [] };
+    } catch (e: any) {
+        console.error("getWabaDebugData() failed:", e);
+        return { error: e.message || "Unknown error fetching debug token" };
     }
 }
+
 
 
 // Handles the creation or update of projects after successful WABA onboarding.
