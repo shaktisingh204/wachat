@@ -13,16 +13,17 @@ export async function GET(
         return new NextResponse('User ID is required', { status: 400 });
     }
     
+    // The definitive fix: Check if the ID is a valid 24-char hex string BEFORE trying to use it.
+    if (!ObjectId.isValid(userId)) {
+        // If the ID format is wrong, the user can never be found.
+        return new NextResponse('User not found', { status: 404 });
+    }
+
     try {
         const { db } = await connectToDatabase();
         
-        let userObjectId;
-        try {
-            userObjectId = new ObjectId(userId);
-        } catch (error) {
-            return new NextResponse('Invalid User ID format', { status: 400 });
-        }
-
+        // Now we can safely create the ObjectId
+        const userObjectId = new ObjectId(userId);
         const user = await db.collection('users').findOne({ _id: userObjectId });
 
         if (!user) {
