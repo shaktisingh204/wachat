@@ -6,7 +6,7 @@ import { ObjectId, WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '.';
-import type { Project, User } from '@/lib/definitions';
+import type { Project, User, Plan } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook } from './whatsapp.actions';
 
@@ -31,19 +31,20 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
             responseType: 'text' // Explicitly request a text response
         });
 
+        // The response is a URL-encoded string, not JSON.
         const responseParams = new URLSearchParams(response.data);
         const accessToken = responseParams.get('access_token');
         
         if (!accessToken) {
+            // If access_token is missing, there might be an error object in the response.
             let errorResponse;
             try {
-                // If it's not a success, it might be a JSON error object
                 errorResponse = JSON.parse(response.data);
                 if (errorResponse.error) {
                     throw new Error(errorResponse.error.message);
                 }
             } catch (parseError) {} // Ignore if parsing fails, it's just not JSON
-            throw new Error('Could not retrieve access token from Meta. The response was not in the expected format.');
+            throw new Error('Could not retrieve access token from Meta.');
         }
 
         return { accessToken };
@@ -53,7 +54,6 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         return { error: `Token Exchange Failed: ${errorMessage}` };
     }
 }
-
 
 // This function is now more robust and handles data types correctly.
 export async function handleWabaOnboarding(data: {
@@ -85,8 +85,23 @@ export async function handleWabaOnboarding(data: {
         if (!user) return { error: "User not found." };
         
         // This is the robust way to handle plan assignment.
-        const planIdToAssign = user.planId; // This is already an ObjectId or undefined
-        const creditsToAssign = user.credits || 0;
+        let planIdToAssign: ObjectId | undefined = user.planId;
+        let creditsToAssign: number = user.credits || 0;
+
+        // If user has no plan, fetch the default plan as a fallback.
+        if (!planIdToAssign) {
+            const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
+            if (defaultPlan) {
+                planIdToAssign = defaultPlan._id;
+                // Only assign signup credits if they are getting the default plan for the first time.
+                // Assuming if they had no planId, they are a new user.
+                creditsToAssign = defaultPlan.signupCredits || 0;
+            }
+        } else {
+            // User already has a plan, so don't give them more signup credits.
+            creditsToAssign = 0;
+        }
+
 
         for (const waba of data.wabas) {
             const projectData: Partial<Project> & { userId: ObjectId; wabaId: string; name: string } = {
@@ -109,7 +124,7 @@ export async function handleWabaOnboarding(data: {
                     })),
             };
 
-            // Only assign plan and credits if a valid planId exists on the user document
+            // Only assign plan and credits if a valid planId exists
             if (planIdToAssign) {
                 projectData.planId = planIdToAssign;
                 projectData.credits = creditsToAssign;
