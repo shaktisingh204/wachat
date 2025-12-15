@@ -1,13 +1,12 @@
 
 'use client';
 
-import React, { useEffect, useState, useTransition, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import { LoaderCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 declare global {
@@ -26,51 +25,40 @@ interface EmbeddedSignupProps {
 
 export function EmbeddedSignup({ appId, configId, state, includeCatalog }: EmbeddedSignupProps) {
     const [isSdkLoaded, setIsSdkLoaded] = useState(false);
-    const [isProcessing, startTransition] = useTransition();
+    const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
 
-    const [wabaData, setWabaData] = useState<any>(null);
-    const [authCode, setAuthCode] = useState<string | null>(null);
-
-    // This is the core logic fix: A useEffect that watches both pieces of data.
-    // It will only fire when both `wabaData` and `authCode` are populated.
-    useEffect(() => {
-        if (wabaData && authCode) {
-            startTransition(async () => {
-                try {
-                    const result = await handleWabaOnboarding({
-                        ...wabaData,
-                        code: authCode,
-                    });
-
-                    if (result.error) throw new Error(result.error);
-
-                    toast({ title: "Onboarding Successful!", description: result.message });
-                    router.push('/dashboard');
-                } catch (e: any) {
-                    setError(e.message || 'An unknown error occurred during final setup.');
-                }
-            });
-        }
-    }, [wabaData, authCode, router, toast]);
-
-    // Sets up the message listener for WABA data from the popup
+    // The definitive fix: This effect handles all messages from popups
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            if (event.origin !== "https://www.facebook.com") return;
-            try {
-                const data = JSON.parse(event.data);
-                if (data.type === 'WA_EMBEDDED_SIGNUP') {
-                    if (data.event === 'FINISH') {
-                        setWabaData(data.data); // Store the WABA asset data
-                    } else if (data.event === 'ERROR') {
-                        setError(data.data.message || 'An error occurred during onboarding.');
-                    }
+            // Security: Ensure message is from a trusted source if needed, though for FB popup it's generally safe
+            // if (event.origin !== window.location.origin) return;
+
+            // Handle WABA asset data from the embedded signup flow
+            if (event.data && event.data.type === 'WA_EMBEDDED_SIGNUP') {
+                if (event.data.event === 'FINISH') {
+                    // Temporarily store the asset data for the callback page to retrieve
+                    localStorage.setItem('wabaData', JSON.stringify(event.data.data));
+                } else if (event.data.event === 'ERROR') {
+                    setError(event.data.data.message || 'An error occurred during onboarding.');
+                    setIsProcessing(false);
                 }
-            } catch (e) {
-                // Silently ignore non-JSON messages
+            }
+
+            // Handle the final success signal from our callback page
+            if (event.data === 'WABASimplifyOnboardingSuccess') {
+                toast({ title: "Onboarding Successful!", description: "Your WhatsApp Business Account is connected." });
+                setIsProcessing(false);
+                router.push('/dashboard');
+                router.refresh();
+            }
+
+            // Handle error signals from our callback page
+            if (event.data && event.data.type === 'WABASimplifyOnboardingError') {
+                 setError(event.data.error || 'An unknown error occurred during final setup.');
+                 setIsProcessing(false);
             }
         };
         
@@ -78,12 +66,13 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
         
         return () => {
             window.removeEventListener('message', handleMessage);
+            localStorage.removeItem('wabaData'); // Clean up on unmount
         };
-    }, []);
+    }, [router, toast]);
 
     // Initializes the Facebook SDK
     useEffect(() => {
-        if (window.FB) {
+        if (document.getElementById('facebook-jssdk')) {
             setIsSdkLoaded(true);
             return;
         }
@@ -104,7 +93,11 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
         return () => {
             const sdkScript = document.getElementById('facebook-jssdk');
             if (sdkScript) {
-                document.body.removeChild(sdkScript);
+                try {
+                    document.body.removeChild(sdkScript);
+                } catch (e) {
+                    // Ignore errors on cleanup
+                }
             }
         }
     }, [appId]);
@@ -115,24 +108,27 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
             return;
         }
 
-        // Reset state before starting a new flow
         setError(null);
-        setWabaData(null);
-        setAuthCode(null);
+        setIsProcessing(true);
+        localStorage.removeItem('wabaData'); // Clear previous data before starting
 
-        const loginCallback = (response: any) => {
-            if (response.authResponse && response.authResponse.code) {
-                setAuthCode(response.authResponse.code);
-            } else {
-                setError('Onboarding cancelled or permissions not granted.');
-            }
-        };
+        const redirectUri = new URL('/auth/facebook/callback', window.location.origin).toString();
 
-        window.FB.login(loginCallback, {
+        window.FB.login(() => {
+            // The actual logic is now handled by the callback page and postMessage listener.
+            // This callback can be used for cleanup if the user closes the popup prematurely.
+            // A timeout helps detect if the flow was abandoned without a redirect.
+            setTimeout(() => {
+                 if (!localStorage.getItem('wabaData')) {
+                    setIsProcessing(false);
+                 }
+            }, 5000);
+        }, {
             config_id: configId,
             response_type: 'code',
             override_default_response_type: true,
             state: state,
+            redirect_uri: redirectUri,
             scope: 'whatsapp_business_management,whatsapp_business_messaging' + (includeCatalog ? ',business_management,catalog_management' : ''),
         });
     };
