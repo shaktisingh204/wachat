@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -5,7 +6,7 @@ import { ObjectId, WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '.';
-import type { Project, Plan } from '@/lib/definitions';
+import type { Project, Plan, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook } from './whatsapp.actions';
 
@@ -20,16 +21,27 @@ export async function exchangeCodeForTokens(code: string): Promise<{ accessToken
     }
 
     try {
+        // Facebook returns URL-encoded data, not JSON, so we request as text.
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
             params: {
                 client_id: appId,
                 client_secret: appSecret,
                 code: code,
-            }
+            },
+            responseType: 'text' 
         });
+
+        // The response body is a string like "access_token=...&token_type=...".
+        // We parse it as URL search parameters.
+        const responseParams = new URLSearchParams(response.data);
+        const accessToken = responseParams.get('access_token');
         
-        const accessToken = response.data.access_token;
         if (!accessToken) {
+            // Check if there's an error in the response from Facebook
+            const errorResponse = JSON.parse(response.data);
+            if (errorResponse.error) {
+                throw new Error(errorResponse.error.message);
+            }
             throw new Error('Could not retrieve access token from Meta.');
         }
 
@@ -40,6 +52,7 @@ export async function exchangeCodeForTokens(code: string): Promise<{ accessToken
         return { error: `Token Exchange Failed: ${errorMessage}` };
     }
 }
+
 
 export async function handleWabaOnboarding(data: {
     wabas: any[],
@@ -91,8 +104,8 @@ export async function handleWabaOnboarding(data: {
                 credits: signupCredits,
                 hasCatalogManagement,
                 phoneNumbers: data.phone_numbers
-                    .filter(p => p.waba_id === waba.id)
-                    .map(p => ({
+                    .filter((p: any) => p.waba_id === waba.id)
+                    .map((p: any) => ({
                         id: p.id,
                         display_phone_number: p.display_phone_number,
                         verified_name: p.verified_name,
