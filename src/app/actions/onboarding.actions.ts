@@ -32,13 +32,16 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         params.append('redirect_uri', redirectUri);
         params.append('code', code);
         
-        console.log(`[ONBOARDING] Step 2.1: Sending POST to https://graph.facebook.com/${API_VERSION}/oauth/access_token`);
+        const url = `https://graph.facebook.com/${API_VERSION}/oauth/access_token`;
+        console.log(`[ONBOARDING] Step 2.1: Sending POST to ${url}`);
 
-        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, params, {
+        const response = await axios.post(url, params, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         });
+
+        console.log('[ONBOARDING] Step 2.2: Received response from Meta:', response.data);
         
         const accessToken = response.data.access_token;
         
@@ -60,6 +63,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
 
 // Fetches the WABA details using the debug_token endpoint
 export async function getWabaDebugData(accessToken: string) {
+    console.log('[ONBOARDING] Step 4: Fetching WABA details via debug_token endpoint.');
     try {
         const url = `https://graph.facebook.com/${API_VERSION}/debug_token`;
 
@@ -71,6 +75,7 @@ export async function getWabaDebugData(accessToken: string) {
         });
 
         const data = response.data?.data;
+        console.log('[ONBOARDING] Step 4.1: Received debug_token data from Meta:', data);
 
         if (!data) {
             return { error: "Failed to fetch WABA debug data." };
@@ -78,12 +83,11 @@ export async function getWabaDebugData(accessToken: string) {
 
         return {
             business_id: data.business_id,
-            wabas: data.waba ? [{ id: data.waba }] : [],
-            phone_numbers: data.phone_numbers || [],
-            granted_scopes: data.granted_scopes || [],
+            wabas: data.waba_ids || [], // Ensure it's an array
+            granted_scopes: data.granular_scopes?.map((s: any) => s.scope) || [],
         };
     } catch (e: any) {
-        console.error("getWabaDebugData() failed:", e);
+        console.error("[ONBOARDING] getWabaDebugData() failed:", e);
         return { error: e.message || "Unknown error fetching debug token" };
     }
 }
@@ -107,14 +111,15 @@ export async function handleWabaOnboarding(code: string) {
         
         const accessToken = tokenResult.accessToken;
         
+        console.log('[ONBOARDING] Step 5: Getting WABA data from new access token.');
         const wabaData = await getWabaDebugData(accessToken);
         if (wabaData.error) {
              throw new Error(wabaData.error);
         }
 
-        if (!wabaData.wabas || wabaData.wabas.length === 0 || !wabaData.phone_numbers || wabaData.phone_numbers.length === 0) {
-            console.error('[ONBOARDING] Error: No WABA or phone numbers found for the provided token.', wabaData);
-            return { error: 'No WhatsApp accounts or phone numbers were found for the provided token. Please ensure you selected them during the flow.' };
+        if (!wabaData.wabas || wabaData.wabas.length === 0) {
+            console.error('[ONBOARDING] Error: No WABA IDs found for the provided token.', wabaData);
+            return { error: 'No WhatsApp accounts were found for the provided token. Please ensure you selected them during the flow.' };
         }
 
         console.log('[ONBOARDING] Step 6: Onboarding data is valid. Preparing to save to database.');
