@@ -1,19 +1,13 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
-export const revalidate = 0;
-export const runtime = 'nodejs';
-
 import { Suspense, useEffect, useState, useTransition } from 'react';
 import { LoaderCircle } from 'lucide-react';
-import React from 'react';
-import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { useToast } from '@/hooks/use-toast';
 
 function FacebookCallbackHandler() {
-    const params = useSearchParams();
+    const searchParams = useSearchParams();
     const router = useRouter();
     const { toast } = useToast();
 
@@ -21,52 +15,47 @@ function FacebookCallbackHandler() {
     const [isProcessing, startTransition] = useTransition();
 
     useEffect(() => {
-        const code = params.get('code');
+        const code = searchParams.get('code');
 
         if (code) {
-            console.log('[CALLBACK] Auth code received.');
             startTransition(async () => {
-                const res = await handleWabaOnboarding(code);
+                const result = await handleWabaOnboarding(code);
 
-                if (res.error) {
-                    setError(res.error);
+                if (result.error) {
+                    setError(result.error);
                     toast({
-                        title: 'Onboarding failed',
-                        description: res.error,
+                        title: 'Onboarding Failed',
+                        description: result.error,
                         variant: 'destructive',
                     });
                 } else {
                     toast({
-                        title: 'Success',
-                        description: res.message,
+                        title: 'Onboarding Complete',
+                        description: result.message,
                     });
                     router.push('/dashboard');
                 }
             });
         } else {
-            const err = params.get('error_description') || 'Missing authorization code.';
+            const err =
+                searchParams.get('error_description') ??
+                'No authorization code received from Meta';
             setError(err);
-            toast({
-                title: 'Onboarding failed',
-                description: err,
-                variant: 'destructive',
-            });
         }
-    }, [params]);
+    }, [searchParams]);
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center">
             <LoaderCircle className="h-12 w-12 animate-spin" />
-            {error && <p className="text-red-500 mt-4">{error}</p>}
+            {error && <p className="mt-4 text-red-500">{error}</p>}
         </div>
     );
 }
 
 export default function FacebookCallbackPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>Loading…</div>}>
             <FacebookCallbackHandler />
         </Suspense>
     );
 }
-
