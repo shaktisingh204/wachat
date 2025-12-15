@@ -1,12 +1,13 @@
 
 'use client';
 
-import { useEffect, useTransition } from 'react';
+import { Suspense, useEffect, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { LoaderCircle } from 'lucide-react';
+import React from 'react';
 
-export default function FacebookCallbackPage() {
+function FacebookCallbackHandler() {
     const searchParams = useSearchParams();
     const [error, setError] = React.useState<string | null>(null);
     const [isProcessing, startTransition] = useTransition();
@@ -17,21 +18,18 @@ export default function FacebookCallbackPage() {
         if (code) {
             startTransition(async () => {
                 try {
-                    // Retrieve asset data stored by the parent window's postMessage listener
                     const wabaDataString = localStorage.getItem('wabaData');
                     if (!wabaDataString) {
                         throw new Error('Onboarding data not found. Please try the connection process again.');
                     }
                     const wabaData = JSON.parse(wabaDataString);
 
-                    // Call the server action with both the code and the asset data
                     const result = await handleWabaOnboarding({ ...wabaData, code });
 
                     if (result.error) {
                         throw new Error(result.error);
                     }
 
-                    // Signal success to parent window and close self
                     if (window.opener) {
                         window.opener.postMessage('WABASimplifyOnboardingSuccess', window.location.origin);
                     }
@@ -72,5 +70,14 @@ export default function FacebookCallbackPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+// The main page is now a Server Component that wraps the client component in Suspense
+export default function FacebookCallbackPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <FacebookCallbackHandler />
+        </Suspense>
     );
 }
