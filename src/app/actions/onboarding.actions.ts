@@ -14,7 +14,7 @@ const API_VERSION = 'v23.0';
 
 // Exchanges the short-lived authorization code for a long-lived access token.
 async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: string; error?: string }> {
-    console.log('[ONBOARDING] Step 2: Starting token exchange.');
+    console.log('[ONBOARDING] Step 2: Starting token exchange with Meta.');
     const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
 
@@ -27,7 +27,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
     const redirectUri = 'https://sabnode.com/auth/facebook/callback';
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, null, {
             params: {
                 client_id: appId,
                 client_secret: appSecret,
@@ -44,11 +44,11 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
             throw new Error(errorMsg);
         }
 
-        console.log('[ONBOARDING] Step 3: Token exchange successful.');
+        console.log('[ONBOARDING] Step 3: Token exchange successful. Access token received.');
         return { accessToken };
     } catch (e: any) {
         const errorMessage = getErrorMessage(e);
-        console.error("[ONBOARDING] Token Exchange Error:", errorMessage);
+        console.error("[ONBOARDING] Token Exchange Error:", errorMessage, e.response?.data || '');
         return { error: `Token Exchange Failed: ${errorMessage}` };
     }
 }
