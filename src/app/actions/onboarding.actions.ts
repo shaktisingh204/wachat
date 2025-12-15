@@ -21,11 +21,11 @@ export async function exchangeCodeForTokens(code: string): Promise<{ accessToken
     }
 
     try {
-        const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/setup`;
+        // The redirect_uri is not needed for the server-to-server token exchange
+        // when using the Embedded Signup flow with a code. The code is self-contained.
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
             params: {
                 client_id: appId,
-                redirect_uri: redirectUri,
                 client_secret: appSecret,
                 code: code,
             }
