@@ -14,10 +14,12 @@ const API_VERSION = 'v23.0';
 
 // Exchanges the short-lived authorization code for a long-lived access token.
 async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: string; error?: string }> {
+    console.log('[ONBOARDING] Step 4a: Starting token exchange.');
     const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
 
     if (!appId || !appSecret) {
+        console.error('[ONBOARDING] FATAL: Server is not configured for Meta OAuth. Missing App ID or Secret.');
         return { error: 'Server is not configured for Meta OAuth. Missing App ID or Secret.' };
     }
 
@@ -29,13 +31,14 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
                 code: code,
                 redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`,
             },
-            responseType: 'text' // Expect a URL-encoded string, not JSON
+            responseType: 'text' 
         });
         
         const responseParams = new URLSearchParams(response.data);
         const accessToken = responseParams.get('access_token');
         
         if (!accessToken) {
+            console.error('[ONBOARDING] Token exchange failed. Response from Meta:', response.data);
             try {
                 const errorResponse = JSON.parse(response.data);
                 if (errorResponse.error) {
@@ -47,10 +50,11 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
             throw new Error('Could not retrieve access token from Meta. The code may be invalid or expired.');
         }
 
+        console.log('[ONBOARDING] Step 4b: Token exchange successful.');
         return { accessToken };
     } catch (e: any) {
         const errorMessage = getErrorMessage(e);
-        console.error("Token Exchange Error:", errorMessage);
+        console.error("[ONBOARDING] Token Exchange Error:", errorMessage);
         return { error: `Token Exchange Failed: ${errorMessage}` };
     }
 }
@@ -64,20 +68,28 @@ export async function handleWabaOnboarding(data: {
     code: string,
     granted_scopes: string[],
 }) {
+    console.log('[ONBOARDING] Step 1: Received onboarding data from client.');
     const session = await getSession();
-    if (!session?.user) return { error: 'Authentication required' };
+    if (!session?.user) {
+        console.error('[ONBOARDING] Error: Authentication required.');
+        return { error: 'Authentication required' };
+    }
     
     if (!data.wabas || data.wabas.length === 0 || !data.phone_numbers || data.phone_numbers.length === 0) {
+        console.error('[ONBOARDING] Error: Incomplete data received from Meta.', data);
         return { error: 'Incomplete data received from Meta. Please ensure you select at least one phone number.' };
     }
+     console.log('[ONBOARDING] Step 2: Onboarding data is valid.');
 
     try {
+        console.log('[ONBOARDING] Step 3: Attempting to exchange code for access token.');
         const tokenResult = await exchangeCodeForTokens(data.code);
         if (tokenResult.error || !tokenResult.accessToken) {
             throw new Error(tokenResult.error || 'Failed to get access token.');
         }
         
         const accessToken = tokenResult.accessToken;
+        console.log('[ONBOARDING] Step 4: Access token received.');
         const { db } = await connectToDatabase();
         
         const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
@@ -86,17 +98,24 @@ export async function handleWabaOnboarding(data: {
         let planIdToAssign: ObjectId | undefined = user.planId;
         let creditsToAssign: number = user.credits || 0;
 
+        // If user has no plan, assign the default one.
         if (!planIdToAssign) {
+            console.log('[ONBOARDING] User has no plan. Fetching default plan.');
             const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
             if (!defaultPlan) {
+                console.error("[ONBOARDING] FATAL: No default plan is set for new users. Onboarding cannot proceed.");
                 throw new Error("System configuration error: No default plan is set for new users. Onboarding cannot proceed.");
             }
             planIdToAssign = defaultPlan._id;
             creditsToAssign = defaultPlan.signupCredits || 0;
+             console.log(`[ONBOARDING] Assigning default plan ID: ${planIdToAssign}`);
+        } else {
+             console.log(`[ONBOARDING] User has existing plan ID: ${planIdToAssign}`);
         }
 
         const hasCatalogManagement = data.granted_scopes.includes('catalog_management');
         const bulkOps = [];
+        console.log(`[ONBOARDING] Step 5: Preparing to create/update ${data.wabas.length} project(s).`);
 
         for (const waba of data.wabas) {
             const projectData: Partial<Project> & { userId: ObjectId; wabaId: string; name: string } = {
@@ -131,9 +150,12 @@ export async function handleWabaOnboarding(data: {
         }
         
         if (bulkOps.length > 0) {
+            console.log('[ONBOARDING] Step 6: Executing database bulk write operation.');
             const result = await db.collection('projects').bulkWrite(bulkOps);
+            console.log(`[ONBOARDING] Step 7: Database operation complete. Upserted IDs: ${Object.keys(result.upsertedIds).length}, Modified: ${result.modifiedCount}`);
             
             if (result.upsertedIds) {
+                console.log('[ONBOARDING] Step 8: Post-creation setup for new projects (webhook subscription).');
                 for (const id of Object.values(result.upsertedIds)) {
                     const newProject = await db.collection<Project>('projects').findOne({_id: id});
                     if(newProject && newProject.wabaId && newProject.appId && newProject.accessToken) {
@@ -145,10 +167,11 @@ export async function handleWabaOnboarding(data: {
         }
 
         revalidatePath('/dashboard');
+        console.log('[ONBOARDING] Step 9: Onboarding complete! Success response sent.');
         return { success: true, message: `Onboarding complete!` };
 
     } catch (e: any) {
-        console.error("Onboarding failed:", e);
+        console.error("[ONBOARDING] Onboarding process failed:", e);
         return { error: getErrorMessage(e) };
     }
 }

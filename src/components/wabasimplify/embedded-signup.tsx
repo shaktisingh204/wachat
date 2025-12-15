@@ -1,13 +1,14 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import { LoaderCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 
 declare global {
   interface Window {
@@ -30,27 +31,42 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
     const { toast } = useToast();
     const router = useRouter();
 
+    const [authCode, setAuthCode] = useState<string | null>(null);
+    const [wabaData, setWabaData] = useState<any | null>(null);
+    const [isServerActionPending, startServerActionTransition] = useTransition();
+
+    // This effect runs when both pieces of information are available
+    useEffect(() => {
+        if (authCode && wabaData) {
+            console.log("[EMBEDDED] Both code and WABA data received. Calling server action.");
+            startServerActionTransition(async () => {
+                const result = await handleWabaOnboarding({ ...wabaData, code: authCode });
+                if (result.error) {
+                    setError(result.error);
+                    setIsProcessing(false);
+                } else {
+                    toast({ title: "Onboarding Successful!", description: "Your WhatsApp Business Account is connected." });
+                    setIsProcessing(false);
+                    router.push('/dashboard');
+                    router.refresh();
+                }
+            });
+        }
+    }, [authCode, wabaData, router, toast]);
+
+
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
+             // Check for the specific event type from Meta
             if (event.data && event.data.type === 'WA_EMBEDDED_SIGNUP') {
-                if (event.data.event === 'FINISH') {
-                    localStorage.setItem('wabaData', JSON.stringify(event.data.data));
+                 if (event.data.event === 'FINISH') {
+                    console.log("[EMBEDDED] postMessage 'FINISH' event received with data:", event.data.data);
+                    setWabaData(event.data.data);
                 } else if (event.data.event === 'ERROR') {
-                    setError(event.data.data.message || 'An error occurred during onboarding.');
+                    console.error("[EMBEDDED] postMessage 'ERROR' event received:", event.data.data);
+                    setError(event.data.data.message || 'An error occurred during the onboarding flow.');
                     setIsProcessing(false);
                 }
-            }
-
-            if (event.data === 'WABASimplifyOnboardingSuccess') {
-                toast({ title: "Onboarding Successful!", description: "Your WhatsApp Business Account is connected." });
-                setIsProcessing(false);
-                router.push('/dashboard');
-                router.refresh();
-            }
-
-            if (event.data && event.data.type === 'WABASimplifyOnboardingError') {
-                 setError(event.data.error || 'An unknown error occurred during final setup.');
-                 setIsProcessing(false);
             }
         };
         
@@ -59,7 +75,7 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
         return () => {
             window.removeEventListener('message', handleMessage);
         };
-    }, [router, toast]);
+    }, []);
 
     useEffect(() => {
         if (document.getElementById('facebook-jssdk')) {
@@ -80,6 +96,7 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
         window.fbAsyncInit = function() {
             window.FB.init({ appId, cookie: true, xfbml: true, version: 'v23.0' });
             setIsSdkLoaded(true);
+            console.log("[EMBEDDED] Facebook SDK initialized.");
         };
 
         return () => {
@@ -102,21 +119,24 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog }: Embed
 
         setError(null);
         setIsProcessing(true);
-        localStorage.removeItem('wabaData');
+        setAuthCode(null);
+        setWabaData(null);
 
         const redirectUri = new URL('/auth/facebook/callback', window.location.origin).toString();
 
-        window.FB.login(() => {
-            // This callback is triggered when the popup closes.
-            // The actual logic is now handled by the callback page and postMessage listener.
-            // A timeout helps detect if the flow was abandoned without a redirect.
-            setTimeout(() => {
-                 if (isProcessing) {
-                    // If still processing after 5s, likely user closed popup manually
-                    setIsProcessing(false);
-                 }
-            }, 5000);
-        }, {
+        const fbLoginCallback = (response: any) => {
+            console.log("[EMBEDDED] FB.login callback fired.");
+            if (response.authResponse && response.authResponse.code) {
+                 console.log("[EMBEDDED] Authorization code received from FB.login callback.");
+                 setAuthCode(response.authResponse.code);
+            } else {
+                console.error("[EMBEDDED] FB.login failed or was cancelled.", response);
+                setError("Login failed or was cancelled by user.");
+                setIsProcessing(false);
+            }
+        }
+
+        window.FB.login(fbLoginCallback, {
             config_id: configId,
             response_type: 'code',
             override_default_response_type: true,
