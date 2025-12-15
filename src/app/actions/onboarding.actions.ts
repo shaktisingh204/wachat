@@ -17,6 +17,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
     console.log('[ONBOARDING] Step 2: Starting token exchange with Meta.');
     const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
+    const redirectUri = 'https://sabnode.com/auth/facebook/callback';
 
     if (!appId || !appSecret) {
         const errorMsg = '[ONBOARDING] FATAL: Server is not configured for Meta OAuth. Missing App ID or Secret.';
@@ -24,9 +25,6 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         return { error: 'Server is not configured for Meta OAuth. Missing App ID or Secret.' };
     }
     
-    // This MUST be identical to the one used on the client-side.
-    const redirectUri = 'https://sabnode.com/auth/facebook/callback';
-
     try {
         const params = new URLSearchParams();
         params.append('client_id', appId);
@@ -35,7 +33,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         params.append('code', code);
         
         console.log(`[ONBOARDING] Step 2.1: Sending POST to https://graph.facebook.com/${API_VERSION}/oauth/access_token`);
-        
+
         const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, params, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
