@@ -9,10 +9,11 @@ This document provides a comprehensive guide to setting up, running, and using t
 2.  [Environment Setup](#environment-setup)
     - [Firebase Setup](#firebase-setup)
     - [Meta/Facebook Setup (for WhatsApp & Social Suite)](#metafacebook-setup-for-whatsapp--social-suite)
-3.  [Running the Application](#running-the-application)
+3.  [Database Setup (MongoDB)](#database-setup-mongodb)
+4.  [Running the Application](#running-the-application)
     - [Development Mode](#development-mode)
     - [Production Mode](#production-mode)
-4.  [High-Throughput Broadcasting System](#high-throughput-broadcasting-system)
+5.  [High-Throughput Broadcasting System](#high-throughput-broadcasting-system)
     - [1. Start Redpanda (Kafka)](#1-start-redpanda-kafka)
     - [2. Triggering a WhatsApp Broadcast](#2-triggering-a-whatsapp-broadcast)
 
@@ -21,6 +22,7 @@ This document provides a comprehensive guide to setting up, running, and using t
 Before you begin, ensure you have the following installed on your system:
 *   **Node.js** (v18.x or later recommended)
 *   **npm** or a compatible package manager
+*   **MongoDB Shell (`mongosh`)** for database setup.
 *   **Docker** (for running Redpanda)
 *   **PM2** (a production process manager for Node.js)
     ```bash
@@ -50,6 +52,7 @@ Before you begin, ensure you have the following installed on your system:
     MONGODB_DB=your_mongodb_database_name
     
     # This must be your publicly accessible HTTPS application URL for Webhooks and OAuth
+    # The callback path for Meta onboarding is /auth/facebook/callback
     NEXT_PUBLIC_APP_URL=https://your-app-domain.com
 
     # --- Firebase Client SDK Configuration ---
@@ -115,9 +118,39 @@ Before you begin, ensure you have the following installed on your system:
     *   Copy the Configuration ID and paste it into your `.env` file for `NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID`.
 6.  **Configure Facebook Login Settings**:
     *   In the sidebar, under **Facebook Login for Business &rarr; Settings**, find the "Valid OAuth Redirect URIs" section.
-    *   Add your publicly accessible application callback URL: `https://your-app-domain.com/auth/facebook/callback`. This **must** be an HTTPS domain.
+    *   **Crucially, add your publicly accessible application callback URL:** `https://your-app-domain.com/auth/facebook/callback`. This **must** be an HTTPS domain.
     *   Under "Allowed Domains for JavaScript SDK", add your app domain: `https://your-app-domain.com`.
     * This step is crucial for the Embedded Signup flow to work correctly.
+
+## Database Setup (MongoDB)
+
+Before running the application for the first time, you must create a default subscription plan in your MongoDB database. This plan is assigned to all new users upon signup.
+
+There are two ways to do this:
+
+### Option 1: Using `mongosh` (Recommended)
+
+This is the most direct method.
+
+1.  Open your terminal.
+2.  Run the following command, replacing `"your_mongodb_connection_string"` with your actual MongoDB connection string from your `.env` file.
+
+    ```bash
+    mongosh "your_mongodb_connection_string" --file scripts/assign-default-plan.mongo.js
+    ```
+3.  The script will connect to your database, create the plan if it doesn't exist, and then exit.
+
+### Option 2: Using the `npm` Script
+
+This method uses `tsx` to run a TypeScript file that performs the same database operation.
+
+1.  Open your terminal in the project root.
+2.  Run the following command:
+
+    ```bash
+    npm run db:assign-plan
+    ```
+3.  The script will execute and log its progress in the console.
 
 ## Running the Application
 
@@ -197,5 +230,3 @@ This command starts a single Redpanda broker and makes it available on `localhos
 
 ---
 That's it! Your SabNode application is now fully configured for development and production, including the high-performance broadcasting system.
-
-```
