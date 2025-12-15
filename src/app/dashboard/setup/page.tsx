@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { EmbeddedSignup } from '@/components/wabasimplify/embedded-signup';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Key, Check } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';

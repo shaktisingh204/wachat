@@ -36,10 +36,13 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
     useEffect(() => {
         const loadFacebookSDK = () => {
             if (document.getElementById('facebook-jssdk')) {
-                // If SDK is already loaded, ensure it's initialized
                 if (window.FB) {
-                    window.FB.init({ appId, cookie: true, xfbml: true, version: 'v23.0' });
-                    setIsSdkLoaded(true);
+                    try {
+                        window.FB.init({ appId, cookie: true, xfbml: true, version: 'v23.0' });
+                        setIsSdkLoaded(true);
+                    } catch (e) {
+                        console.error("FB.init error:", e);
+                    }
                 }
                 return;
             };
@@ -68,45 +71,41 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
         }
 
         setError(null);
-        startTransition(() => {
-            // This promise will resolve with the asset data from postMessage
-            const assetDataPromise = new Promise((resolve, reject) => {
-                const messageHandler = (event: MessageEvent) => {
-                    if (event.origin !== "https://www.facebook.com") return;
-                    try {
-                        const data = JSON.parse(event.data);
-                        if (data.type === 'WA_EMBEDDED_SIGNUP') {
-                            window.removeEventListener('message', messageHandler); // Clean up listener
-                            if (data.event === 'FINISH') {
-                                resolve(data.data);
-                            } else if (data.event === 'ERROR') {
-                                reject(new Error(data.data.message || 'An error occurred during onboarding.'));
-                            }
-                        }
-                    } catch (e) {
-                        // Ignore non-JSON messages
-                    }
-                };
-                window.addEventListener('message', messageHandler);
-            });
 
-            window.FB.login(async (response: any) => {
-                if (response.authResponse && response.authResponse.code) {
+        const assetDataPromise = new Promise((resolve, reject) => {
+            const messageHandler = (event: MessageEvent) => {
+                if (event.origin !== "https://www.facebook.com") return;
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'WA_EMBEDDED_SIGNUP') {
+                        window.removeEventListener('message', messageHandler);
+                        if (data.event === 'FINISH') {
+                            resolve(data.data);
+                        } else if (data.event === 'ERROR') {
+                            reject(new Error(data.data.message || 'An error occurred during onboarding.'));
+                        }
+                    }
+                } catch (e) {}
+            };
+            window.addEventListener('message', messageHandler);
+        });
+
+        window.FB.login(async (response: any) => {
+            if (response.authResponse && response.authResponse.code) {
+                startTransition(async () => {
                     try {
                         const code = response.authResponse.code;
                         toast({ title: "Authorization successful", description: "Finalizing setup..." });
 
-                        // Wait for both the code and the asset data to be available
                         const assets: any = await assetDataPromise;
                         
                         const result = await handleWabaOnboarding({
                             ...assets,
                             code: code,
+                            granted_scopes: response.authResponse.granted_scopes.split(','),
                         });
 
-                        if (result.error) {
-                            throw new Error(result.error);
-                        }
+                        if (result.error) throw new Error(result.error);
 
                         toast({ title: "Success!", description: result.message });
                         if (onSuccess) onSuccess();
@@ -116,24 +115,16 @@ export function EmbeddedSignup({ appId, configId, state, includeCatalog, onSucce
                     } catch (e: any) {
                         setError(e.message || 'An unknown error occurred during setup.');
                     }
-                } else {
-                    setError('Onboarding cancelled or permissions not granted.');
-                }
-            }, {
-                config_id: configId,
-                response_type: 'code',
-                override_default_response_type: true,
-                state: state,
-                scope: 'whatsapp_business_management,whatsapp_business_messaging' + (includeCatalog ? ',business_management,catalog_management' : ''),
-                extras: includeCatalog ? {
-                    feature: 'whatsapp_embedded_signup',
-                    version: 4,
-                    session_info_version: 2,
-                    setup: {
-                        "external_business_id": "SABNODE_UNIQUE_BIZ_ID" 
-                    }
-                } : {},
-            });
+                });
+            } else {
+                setError('Onboarding cancelled or permissions not granted.');
+            }
+        }, {
+            config_id: configId,
+            response_type: 'code',
+            override_default_response_type: true,
+            state: state,
+            scope: 'whatsapp_business_management,whatsapp_business_messaging' + (includeCatalog ? ',business_management,catalog_management' : ''),
         });
     };
 
