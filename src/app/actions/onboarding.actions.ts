@@ -12,7 +12,7 @@ import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook } from './whatsap
 
 const API_VERSION = 'v23.0';
 
-// This function now correctly handles the URL-encoded response from Meta.
+// Exchanges the short-lived authorization code for a long-lived access token.
 async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: string; error?: string }> {
     const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
@@ -22,29 +22,30 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
     }
 
     try {
+        // The API returns a URL-encoded string, not JSON. We must request it as text.
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
             params: {
                 client_id: appId,
                 client_secret: appSecret,
                 code: code,
             },
-            responseType: 'text' // Explicitly request a text response
+            responseType: 'text' 
         });
 
-        // The response is a URL-encoded string, not JSON.
         const responseParams = new URLSearchParams(response.data);
         const accessToken = responseParams.get('access_token');
         
         if (!accessToken) {
-            // If access_token is missing, there might be an error object in the response.
             let errorResponse;
             try {
                 errorResponse = JSON.parse(response.data);
                 if (errorResponse.error) {
                     throw new Error(errorResponse.error.message);
                 }
-            } catch (parseError) {} // Ignore if parsing fails, it's just not JSON
-            throw new Error('Could not retrieve access token from Meta.');
+            } catch (parseError) {
+                // Ignore if parsing fails, it's not a JSON error.
+            }
+            throw new Error('Could not retrieve access token from Meta. The code may be invalid or expired.');
         }
 
         return { accessToken };
@@ -55,7 +56,8 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
     }
 }
 
-// This function is now more robust and handles data types correctly.
+
+// Handles the creation or update of projects after successful WABA onboarding.
 export async function handleWabaOnboarding(data: {
     wabas: any[],
     phone_numbers: any[],
@@ -84,24 +86,18 @@ export async function handleWabaOnboarding(data: {
         const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
         if (!user) return { error: "User not found." };
         
-        // This is the robust way to handle plan assignment.
-        let planIdToAssign: ObjectId | undefined = user.planId;
-        let creditsToAssign: number = user.credits || 0;
+        let planIdToAssign: ObjectId | undefined;
+        let creditsToAssign: number = 0;
 
-        // If user has no plan, fetch the default plan as a fallback.
-        if (!planIdToAssign) {
+        if (user.planId) {
+            planIdToAssign = user.planId;
+        } else {
             const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
             if (defaultPlan) {
                 planIdToAssign = defaultPlan._id;
-                // Only assign signup credits if they are getting the default plan for the first time.
-                // Assuming if they had no planId, they are a new user.
                 creditsToAssign = defaultPlan.signupCredits || 0;
             }
-        } else {
-            // User already has a plan, so don't give them more signup credits.
-            creditsToAssign = 0;
         }
-
 
         for (const waba of data.wabas) {
             const projectData: Partial<Project> & { userId: ObjectId; wabaId: string; name: string } = {
@@ -124,7 +120,6 @@ export async function handleWabaOnboarding(data: {
                     })),
             };
 
-            // Only assign plan and credits if a valid planId exists
             if (planIdToAssign) {
                 projectData.planId = planIdToAssign;
                 projectData.credits = creditsToAssign;
@@ -153,7 +148,7 @@ export async function handleWabaOnboarding(data: {
         }
 
         revalidatePath('/dashboard');
-        return { success: true, message: `${bulkOps.length} project(s) connected/updated.` };
+        return { success: true, message: `${bulkOps.length} project(s) connected/updated successfully.` };
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };
