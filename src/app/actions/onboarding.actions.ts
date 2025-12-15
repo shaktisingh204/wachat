@@ -27,7 +27,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
                 client_id: appId,
                 client_secret: appSecret,
                 code: code,
-                redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`, // This must match the redirect_uri used in FB.login
+                redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`,
             },
             responseType: 'text' // Expect a URL-encoded string, not JSON
         });
@@ -36,7 +36,6 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         const accessToken = responseParams.get('access_token');
         
         if (!accessToken) {
-            // Try to parse as JSON for a potential error object
             try {
                 const errorResponse = JSON.parse(response.data);
                 if (errorResponse.error) {
@@ -81,81 +80,68 @@ export async function handleWabaOnboarding(data: {
         const accessToken = tokenResult.accessToken;
         const { db } = await connectToDatabase();
         
-        // Use a transaction for atomicity
-        const mongoClient = db.client;
-        const dbSession = mongoClient.startSession();
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
+        if (!user) throw new Error("User not found.");
 
-        let result;
-        try {
-            await dbSession.withTransaction(async () => {
-                const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) }, { session: dbSession });
-                if (!user) throw new Error("User not found.");
+        let planIdToAssign: ObjectId | undefined = user.planId;
+        let creditsToAssign: number = user.credits || 0;
 
-                let planIdToAssign: ObjectId | undefined = user.planId;
-                let creditsToAssign: number = user.credits || 0;
+        if (!planIdToAssign) {
+            const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
+            if (!defaultPlan) {
+                throw new Error("System configuration error: No default plan is set for new users. Onboarding cannot proceed.");
+            }
+            planIdToAssign = defaultPlan._id;
+            creditsToAssign = defaultPlan.signupCredits || 0;
+        }
 
-                if (!planIdToAssign) {
-                    const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true }, { session: dbSession });
-                    if (!defaultPlan) {
-                        throw new Error("System configuration error: No default plan is set for new users. Onboarding cannot proceed.");
-                    }
-                    planIdToAssign = defaultPlan._id;
-                    creditsToAssign = defaultPlan.signupCredits || 0;
-                }
+        const hasCatalogManagement = data.granted_scopes.includes('catalog_management');
+        const bulkOps = [];
 
-                const hasCatalogManagement = data.granted_scopes.includes('catalog_management');
-                const bulkOps = [];
+        for (const waba of data.wabas) {
+            const projectData: Partial<Project> & { userId: ObjectId; wabaId: string; name: string } = {
+                userId: new ObjectId(session.user._id),
+                name: waba.name,
+                wabaId: waba.id,
+                businessId: data.business_id,
+                appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
+                accessToken: accessToken,
+                messagesPerSecond: 80,
+                hasCatalogManagement,
+                phoneNumbers: data.phone_numbers
+                    .filter((p: any) => p.waba_id === waba.id)
+                    .map((p: any) => ({
+                        id: p.id,
+                        display_phone_number: p.display_phone_number,
+                        verified_name: p.verified_name,
+                        code_verification_status: 'VERIFIED',
+                        quality_rating: 'GREEN',
+                    })),
+                planId: planIdToAssign,
+                credits: creditsToAssign,
+            };
 
-                for (const waba of data.wabas) {
-                    const projectData: Partial<Project> & { userId: ObjectId; wabaId: string; name: string } = {
-                        userId: new ObjectId(session.user._id),
-                        name: waba.name,
-                        wabaId: waba.id,
-                        businessId: data.business_id,
-                        appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
-                        accessToken: accessToken,
-                        messagesPerSecond: 80,
-                        hasCatalogManagement,
-                        phoneNumbers: data.phone_numbers
-                            .filter((p: any) => p.waba_id === waba.id)
-                            .map((p: any) => ({
-                                id: p.id,
-                                display_phone_number: p.display_phone_number,
-                                verified_name: p.verified_name,
-                                code_verification_status: 'VERIFIED', // Assume verified from this flow
-                                quality_rating: 'GREEN', // Assume good quality initially
-                            })),
-                        planId: planIdToAssign,
-                        credits: creditsToAssign,
-                    };
-
-                    bulkOps.push({
-                        updateOne: {
-                            filter: { userId: projectData.userId, wabaId: projectData.wabaId },
-                            update: { $set: projectData, $setOnInsert: { createdAt: new Date() } },
-                            upsert: true,
-                        },
-                    });
-                }
-                
-                if (bulkOps.length > 0) {
-                    result = await db.collection('projects').bulkWrite(bulkOps, { session: dbSession });
-                    
-                    if (result.upsertedIds) {
-                        for (const id of Object.values(result.upsertedIds)) {
-                            const newProject = await db.collection<Project>('projects').findOne({_id: id}, { session: dbSession });
-                            if(newProject && newProject.wabaId && newProject.appId && newProject.accessToken) {
-                                // These actions don't need to be part of the transaction
-                                // as they are external API calls.
-                                await handleSyncPhoneNumbers(newProject._id.toString());
-                                await handleSubscribeProjectWebhook(newProject.wabaId, newProject.appId, newProject.accessToken);
-                            }
-                        }
-                    }
-                }
+            bulkOps.push({
+                updateOne: {
+                    filter: { userId: projectData.userId, wabaId: projectData.wabaId },
+                    update: { $set: projectData, $setOnInsert: { createdAt: new Date() } },
+                    upsert: true,
+                },
             });
-        } finally {
-            await dbSession.endSession();
+        }
+        
+        if (bulkOps.length > 0) {
+            const result = await db.collection('projects').bulkWrite(bulkOps);
+            
+            if (result.upsertedIds) {
+                for (const id of Object.values(result.upsertedIds)) {
+                    const newProject = await db.collection<Project>('projects').findOne({_id: id});
+                    if(newProject && newProject.wabaId && newProject.appId && newProject.accessToken) {
+                        await handleSyncPhoneNumbers(newProject._id.toString());
+                        await handleSubscribeProjectWebhook(newProject.wabaId, newProject.appId, newProject.accessToken);
+                    }
+                }
+            }
         }
 
         revalidatePath('/dashboard');

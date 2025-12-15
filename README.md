@@ -107,15 +107,16 @@ Before you begin, ensure you have the following installed on your system:
 
 1.  **Go to Meta for Developers**: `developers.facebook.com`
 2.  Go to **My Apps** and click **Create App**. Select **Business** as the app type.
-3.  From your app dashboard, add the **WhatsApp Business** and **Facebook Login** products.
+3.  From your app dashboard, add the **WhatsApp Business** and **Facebook Login for Business** products.
 4.  In the left sidebar, go to **App Settings &rarr; Basic**. Copy your **App ID** and **App Secret**. Paste these into your `.env` file (`NEXT_PUBLIC_META_ONBOARDING_APP_ID`, `META_ONBOARDING_APP_SECRET`, etc.).
 5.  **Configure WhatsApp Embedded Signup**:
     *   In the sidebar, go to **WhatsApp &rarr; Embedded Signup**.
     *   Click "Create Embedded Signup Flow". Follow the prompts to configure the flow. This will generate a **Configuration ID**.
     *   Copy the Configuration ID and paste it into your `.env` file for `NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID`.
 6.  **Configure Facebook Login Settings**:
-    *   In the sidebar, under **Facebook Login &rarr; Settings**, find the "Allowed Domains for JavaScript SDK" section.
-    *   Add your publicly accessible application domain (e.g., `your-app-domain.com`). This **must** be an HTTPS domain. For local development, you may need to use a tunneling service like `ngrok` to get a temporary HTTPS URL.
+    *   In the sidebar, under **Facebook Login for Business &rarr; Settings**, find the "Valid OAuth Redirect URIs" section.
+    *   Add your publicly accessible application callback URL: `https://your-app-domain.com/auth/facebook/callback`. This **must** be an HTTPS domain.
+    *   Under "Allowed Domains for JavaScript SDK", add your app domain: `https://your-app-domain.com`.
     * This step is crucial for the Embedded Signup flow to work correctly.
 
 ## Running the Application
