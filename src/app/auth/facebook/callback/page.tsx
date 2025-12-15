@@ -1,5 +1,9 @@
-
 'use client';
+
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+export const runtime = 'nodejs';
 
 import { Suspense, useEffect, useState, useTransition } from 'react';
 import { LoaderCircle } from 'lucide-react';
@@ -8,68 +12,61 @@ import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 
-export const dynamic = 'force-dynamic';
-
 function FacebookCallbackHandler() {
-    const searchParams = useSearchParams();
+    const params = useSearchParams();
     const router = useRouter();
     const { toast } = useToast();
-    const [isProcessing, startTransition] = useTransition();
+
     const [error, setError] = useState<string | null>(null);
+    const [isProcessing, startTransition] = useTransition();
 
     useEffect(() => {
-        const code = searchParams.get('code');
+        const code = params.get('code');
 
         if (code) {
-            console.log('[CALLBACK] Authorization code received. Initiating server action.');
+            console.log('[CALLBACK] Auth code received.');
             startTransition(async () => {
-                const result = await handleWabaOnboarding(code);
-                if (result.error) {
-                    setError(result.error);
+                const res = await handleWabaOnboarding(code);
+
+                if (res.error) {
+                    setError(res.error);
                     toast({
-                        title: 'Onboarding Failed',
-                        description: result.error,
+                        title: 'Onboarding failed',
+                        description: res.error,
                         variant: 'destructive',
-                        duration: 10000,
                     });
                 } else {
                     toast({
-                        title: 'Onboarding Success!',
-                        description: result.message || 'Your account has been connected.',
+                        title: 'Success',
+                        description: res.message,
                     });
-                    // Redirect to the dashboard after success
                     router.push('/dashboard');
                 }
             });
         } else {
-            const errorParam = searchParams.get('error_description') || 'No authorization code received from Meta.';
-            setError(errorParam);
-             toast({
-                title: 'Onboarding Cancelled or Failed',
-                description: errorParam,
+            const err = params.get('error_description') || 'Missing authorization code.';
+            setError(err);
+            toast({
+                title: 'Onboarding failed',
+                description: err,
                 variant: 'destructive',
             });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams]);
-
+    }, [params]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-            <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-            <p className="mt-4 text-muted-foreground">
-                {isProcessing ? 'Finalizing connection, please wait...' : error ? 'An error occurred.' : 'Processing...'}
-            </p>
-            {error && <p className="mt-2 text-xs text-destructive max-w-sm text-center">{error}</p>}
-            <p className="mt-2 text-xs text-muted-foreground">This window should close automatically.</p>
+        <div className="min-h-screen flex flex-col items-center justify-center">
+            <LoaderCircle className="h-12 w-12 animate-spin" />
+            {error && <p className="text-red-500 mt-4">{error}</p>}
         </div>
     );
 }
 
 export default function FacebookCallbackPage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+        <Suspense fallback={<div>Loading...</div>}>
             <FacebookCallbackHandler />
         </Suspense>
     );
 }
+
