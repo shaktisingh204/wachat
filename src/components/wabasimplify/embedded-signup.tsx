@@ -1,55 +1,73 @@
-
 'use client';
 
-import React, { useEffect, useState, useCallback, useTransition } from 'react';
-import { Button } from '@/components/ui/button';
-import { WhatsAppIcon } from './custom-sidebar-components';
-import { LoaderCircle, AlertCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+export const runtime = 'nodejs';
+
+import { Suspense, useEffect, useState, useTransition } from 'react';
+import { LoaderCircle } from 'lucide-react';
+import React from 'react';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
-import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
-interface EmbeddedSignupProps {
-  appId: string;
-  configId: string;
-  state: string;
-  includeCatalog?: boolean;
-}
-
-export function EmbeddedSignup({ appId, configId, state, includeCatalog }: EmbeddedSignupProps) {
-    const [isClient, setIsClient] = useState(false);
+function FacebookCallbackHandler() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const { toast } = useToast();
+    const [isProcessing, startTransition] = useTransition();
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        setIsClient(true);
-    }, []);
+        const code = searchParams.get('code');
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-
-    if (!appUrl) {
-        return <Button disabled size="lg">App URL not configured</Button>;
-    }
-    
-    if (!isClient) {
-        return <Button disabled size="lg"><LoaderCircle className="mr-2 h-5 w-5 animate-spin"/>Loading...</Button>;
-    }
-
-    const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
-    
-    let scope = 'whatsapp_business_management,whatsapp_business_messaging';
-    if (includeCatalog) {
-        scope += ',business_management,catalog_management';
-    }
-    
-    const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=code&config_id=${configId}&state=${state}`;
+        if (code) {
+            console.log('[CALLBACK] Authorization code received. Sending to server action...');
+            startTransition(async () => {
+                const result = await handleWabaOnboarding(code);
+                if (result.error) {
+                    setError(result.error);
+                    toast({
+                        title: 'Onboarding Failed',
+                        description: result.error,
+                        variant: 'destructive',
+                        duration: 10000,
+                    });
+                } else {
+                    toast({
+                        title: 'Onboarding Success!',
+                        description: result.message || 'Your account has been connected.',
+                    });
+                    router.push('/dashboard');
+                }
+            });
+        } else {
+            const err = searchParams.get('error_description') || 'No authorization code received';
+            setError(err);
+            toast({
+                title: 'Onboarding Cancelled',
+                description: err,
+                variant: 'destructive',
+            });
+        }
+    }, [searchParams]);
 
     return (
-        <Button asChild size="lg" className="bg-[#19D163] hover:bg-[#19D163]/90 text-white w-full">
-            <a href={facebookLoginUrl}>
-                <WhatsAppIcon className="mr-2 h-5 w-5" />
-                Continue with Facebook
-            </a>
-        </Button>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+            <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
+            <p className="mt-4 text-muted-foreground">
+                {isProcessing ? 'Finalizing connection...' : error ? 'An error occurred' : 'Processing...'}
+            </p>
+            {error && <p className="text-destructive text-xs mt-2">{error}</p>}
+        </div>
+    );
+}
+
+export default function FacebookCallbackPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <FacebookCallbackHandler />
+        </Suspense>
     );
 }
