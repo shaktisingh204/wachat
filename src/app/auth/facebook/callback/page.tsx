@@ -11,6 +11,8 @@ import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 function FacebookCallbackHandler() {
     const searchParams = useSearchParams();
     const router = useRouter();

@@ -17,6 +17,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
     console.log('[ONBOARDING] Step 2: Starting token exchange with Meta.');
     const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
+    // This MUST be identical to the URI used in the initial client-side OAuth dialog link.
     const redirectUri = 'https://sabnode.com/auth/facebook/callback';
 
     if (!appId || !appSecret) {
@@ -33,13 +34,10 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         params.append('code', code);
         
         const url = `https://graph.facebook.com/${API_VERSION}/oauth/access_token`;
-        console.log(`[ONBOARDING] Step 2.1: Sending POST to ${url}`);
+        console.log(`[ONBOARDING] Step 2.1: Sending POST to ${url} with code.`);
 
-        const response = await axios.post(url, params, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        });
+        // The data is sent as 'application/x-www-form-urlencoded' by default when using URLSearchParams.
+        const response = await axios.post(url, params);
 
         console.log('[ONBOARDING] Step 2.2: Received response from Meta:', response.data);
         
@@ -51,7 +49,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
             throw new Error(errorMsg);
         }
 
-        console.log('[ONBOARDING] Step 3: Token exchange successful. Access token received.');
+        console.log('[ONBOARDING] Step 3: Token exchange successful. Long-lived access token received.');
         return { accessToken };
     } catch (e: any) {
         const errorMessage = getErrorMessage(e);
