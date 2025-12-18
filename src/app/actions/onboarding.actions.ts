@@ -35,11 +35,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         const url = `https://graph.facebook.com/${API_VERSION}/oauth/access_token`;
         console.log(`[ONBOARDING] Step 2.1: Sending POST to ${url}.`);
 
-        const response = await axios.post(url, params, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        });
+        const response = await axios.post(url, params);
 
         console.log('[ONBOARDING] Step 2.3: Received response from Meta:', response.data);
         
