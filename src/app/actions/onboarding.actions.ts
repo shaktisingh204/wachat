@@ -34,8 +34,6 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         
         const url = `https://graph.facebook.com/${API_VERSION}/oauth/access_token`;
         console.log(`[ONBOARDING] Step 2.1: Sending POST to ${url}.`);
-        console.log('[ONBOARDING] Step 2.2: Parameters being sent:', { client_id: appId, redirect_uri: redirectUri, code_length: code.length });
-
 
         const response = await axios.post(url, params, {
             headers: {
@@ -208,3 +206,5 @@ export async function handleWabaOnboarding(code: string) {
         return { error: getErrorMessage(e) };
     }
 }
+
+    
