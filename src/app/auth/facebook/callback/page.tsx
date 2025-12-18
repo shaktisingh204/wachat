@@ -4,7 +4,11 @@ import { redirect } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
 import { Suspense } from 'react';
 
-async function OnboardingProcessor({ code }: { code: string | null }) {
+async function OnboardingProcessor({ code, error }: { code: string | null, error: string | null }) {
+    if (error) {
+        redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
+    }
+    
     if (!code) {
         redirect('/dashboard/setup?error=No%20authorization%20code%20received.');
     }
@@ -27,10 +31,6 @@ export default function FacebookCallbackPage({
     const code = searchParams.code as string | undefined;
     const error = searchParams.error_description as string | undefined;
 
-    if (error) {
-        redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
-    }
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-muted/50 p-4">
             <Suspense fallback={
@@ -39,7 +39,7 @@ export default function FacebookCallbackPage({
                     <p className="mt-4 text-lg font-semibold text-muted-foreground">Loading...</p>
                 </div>
             }>
-                <OnboardingProcessor code={code || null} />
+                <OnboardingProcessor code={code || null} error={error || null} />
             </Suspense>
              <div className="flex flex-col items-center justify-center text-center">
                 <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
