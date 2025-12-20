@@ -37,14 +37,4 @@ export default async function FacebookCallbackPage({
     // If the action throws an error, redirect with the error message
     redirect(`/dashboard/setup?error=${encodeURIComponent(e.message)}`);
   }
-
-  // This part is for visual feedback during the server-side processing, though the redirect is usually very fast.
-  return (
-    <div className="flex h-screen w-screen items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-muted-foreground">Finalizing connection, please wait...</p>
-      </div>
-    </div>
-  );
 }
