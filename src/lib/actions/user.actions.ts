@@ -354,9 +354,11 @@ export async function getSession() {
         plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
     }
     
+    // Create a plain object for the client
     const mergedUser = {
         ...dbUser,
         _id: dbUser._id.toString(),
+        planId: dbUser.planId?.toString(),
         name: dbUser.name || decoded.name,
         image: dbUser.image || decoded.picture,
         plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
@@ -507,4 +509,3 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
-
