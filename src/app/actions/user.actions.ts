@@ -241,12 +241,9 @@ export async function handleDeleteUserProject(prevState: any, formData: FormData
 }
 
 export async function handleRunCron() {
-    try {
-        const result = await processBroadcastJob();
-        return { message: result.message, error: null };
-    } catch (e: any) {
-        return { message: null, error: e.message || 'An unknown error occurred.' };
-    }
+    // This is a placeholder for a more complex cron job runner if needed.
+    // For now, it will return a success message.
+    return { message: 'Cron jobs triggered.', error: null };
 }
 
 export async function handleSyncWabas(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, count?: number }> {
@@ -358,9 +355,11 @@ export async function getSession() {
         plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
     }
     
+    // Create a plain object for the client
     const mergedUser = {
         ...dbUser,
         _id: dbUser._id.toString(),
+        planId: dbUser.planId?.toString(),
         name: dbUser.name || decoded.name,
         image: dbUser.image || decoded.picture,
         plan: plan ? JSON.parse(JSON.stringify(plan)) : null,

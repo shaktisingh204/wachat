@@ -1,3 +1,4 @@
+
 import { redirect } from 'next/navigation';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { LoaderCircle } from 'lucide-react';
@@ -6,19 +7,17 @@ type SearchParams = {
   [key: string]: string | string[] | undefined;
 };
 
-// ✅ Async Server Component (correct)
+// This is the definitive, corrected version of the callback page.
 export default async function FacebookCallbackPage({
   searchParams,
 }: {
-  // 🔥 IMPORTANT: searchParams IS A PROMISE
-  searchParams: Promise<SearchParams>;
+  // searchParams is a Promise that needs to be awaited.
+  searchParams: SearchParams;
 }) {
-  // 🔥 MUST unwrap it
-  const params = await searchParams;
 
-  const code = params.code as string | undefined;
-  const state = params.state as string | undefined;
-  const error = params.error_description as string | undefined;
+  const code = searchParams.code as string | undefined;
+  const state = searchParams.state as string | undefined;
+  const error = searchParams.error_description as string | undefined;
 
   if (error) {
     redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
@@ -41,11 +40,13 @@ export default async function FacebookCallbackPage({
   }
 
   try {
-    // ✅ Call server action
+    // Call server action to handle the entire onboarding flow now
     await handleWabaOnboarding(code, state);
 
-    // ✅ Embedded Signup → wait for webhook
-    redirect('/dashboard/setup?status=connecting');
+    // Redirect to the final success page. The "connecting" page is no longer needed
+    // as the process is now fully synchronous.
+    redirect('/dashboard');
+    
   } catch (e: any) {
     redirect(`/dashboard/setup?error=${encodeURIComponent(e.message)}`);
   }

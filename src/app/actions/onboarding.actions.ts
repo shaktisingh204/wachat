@@ -32,12 +32,55 @@ export async function saveOnboardingState(state: string, userId: string) {
     return { success: true };
 }
 
+async function getWabaDetails(accessToken: string) {
+    console.log(`${LOG_PREFIX} Step 4: Fetching WABA details via /me.`);
+
+    try {
+        const response = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/me`,
+            {
+                params: {
+                    fields: 'whatsapp_business_accounts{id,name,business}',
+                    access_token: accessToken,
+                },
+            }
+        );
+
+        console.log('[ONBOARDING] Step 4.1: /me response:', response.data);
+
+        const wabas = response.data?.whatsapp_business_accounts?.data;
+
+        if (!wabas || wabas.length === 0) {
+            return { error: 'No WhatsApp Business Accounts found for this user.' };
+        }
+
+        return {
+            wabas: wabas.map((w: any) => ({
+                id: w.id,
+                name: w.name,
+                businessId: w.business?.id,
+            })),
+        };
+    } catch (e: any) {
+        console.error(
+            '[ONBOARDING] getWabaDetails() failed:',
+            e.response?.data || e.message
+        );
+
+        return {
+            error: `Failed to retrieve WhatsApp account details: ${
+                e.response?.data?.error?.message || e.message
+            }`,
+        };
+    }
+}
+
 
 export async function handleWabaOnboarding(code: string, state: string) {
     console.log(`${LOG_PREFIX} Step 1: Received onboarding callback with authorization code.`);
     
     const { db } = await connectToDatabase();
-    const stateDoc = await db.collection('oauth_states').findOne({ state: state });
+    const stateDoc = await db.collection('oauth_states').findOneAndDelete({ state: state });
 
     if (!stateDoc) {
         console.error(`${LOG_PREFIX} Invalid or expired state received: ${state}`);
@@ -66,70 +109,50 @@ export async function handleWabaOnboarding(code: string, state: string) {
             throw new Error('Meta did not return an access token.');
         }
 
+        const accessToken = data.access_token;
         console.log(`${LOG_PREFIX} Step 3: Token exchange successful. Long-lived access token received.`);
+        
+        console.log(`${LOG_PREFIX} Step 4: Fetching WABA data with new access token.`);
+        const wabaData = await getWabaDetails(accessToken);
+        if (wabaData.error) {
+             throw new Error(wabaData.error);
+        }
 
-        await db.collection('meta_tokens').updateOne(
-            { userId: new ObjectId(userId) },
-            {
-                $set: {
-                userId: new ObjectId(userId),
-                systemToken: data.access_token,
-                createdAt: new Date(),
-                },
-            },
-            { upsert: true }
-        );
+        if (!wabaData.wabas || wabaData.wabas.length === 0) {
+            throw new Error('No WhatsApp Business Accounts were found.');
+        }
+        
+        const waba = wabaData.wabas[0]; // Process the first WABA found
+        console.log(`${LOG_PREFIX} Step 5: Found WABA: ${waba.name} (${waba.id})`);
 
-        console.log(`${LOG_PREFIX} Step 4: System user token saved to database for user ${userId}. Waiting for webhook...`);
-
+        await finalizeOnboarding(userId.toString(), waba, accessToken);
+        
+        console.log(`${LOG_PREFIX} Onboarding process completed successfully for user ${userId}.`);
         return { success: true };
+
     } catch (e: any) {
         const errorMsg = getErrorMessage(e);
-        console.error(`${LOG_PREFIX} Error during token exchange for user ${userId}:`, errorMsg, e);
-        throw new Error(`Token exchange failed: ${errorMsg}`);
+        console.error(`${LOG_PREFIX} Onboarding process failed:`, errorMsg, e);
+        throw new Error(errorMsg);
     }
 }
 
 
-export async function finalizeEmbeddedSignup(
+export async function finalizeOnboarding(
   userId: string,
-  wabaId: string
+  waba: { id: string, name: string, businessId?: string },
+  accessToken: string
 ) {
-  console.log(`${LOG_PREFIX} Step 5: Finalizing embedded signup for user ${userId} and WABA ${wabaId}.`);
+  console.log(`${LOG_PREFIX} Step 6: Finalizing onboarding for user ${userId} and WABA ${waba.id}.`);
   const { db } = await connectToDatabase();
 
-  const tokenDoc = await db
-    .collection('meta_tokens')
-    .findOne({ userId: new ObjectId(userId) });
-
-  if (!tokenDoc?.systemToken) {
-    console.error(`${LOG_PREFIX} Error: System token not found for user ${userId}.`);
-    throw new Error('System token not found');
-  }
-  console.log(`${LOG_PREFIX} Step 5.1: Found system token for user.`);
-
-  const accessToken = tokenDoc.systemToken;
-
   try {
-    console.log(`${LOG_PREFIX} Step 5.2: Fetching WABA details from Meta.`);
-    const { data: waba } = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/${wabaId}`,
-      {
-        params: { 
-            fields: 'id,name,timezone,business',
-            access_token: accessToken 
-        },
-      }
-    );
-     console.log(`${LOG_PREFIX} Step 5.3: Successfully fetched WABA details:`, waba);
-     
-    const businessId = waba.business?.id;
     let businessCaps: BusinessCapabilities | undefined;
 
-    if (businessId) {
-        console.log(`${LOG_PREFIX} Step 5.4: Fetching business capabilities for business ID ${businessId}.`);
+    if (waba.businessId) {
+        console.log(`${LOG_PREFIX} Step 6.1: Fetching business capabilities for business ID ${waba.businessId}.`);
         const { data: capsData } = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/${businessId}`,
+            `https://graph.facebook.com/${API_VERSION}/${waba.businessId}`,
             {
                 params: {
                     fields: 'business_capabilities',
@@ -138,19 +161,19 @@ export async function finalizeEmbeddedSignup(
             }
         );
         businessCaps = capsData?.business_capabilities;
-        console.log(`${LOG_PREFIX} Step 5.5: Fetched business capabilities:`, businessCaps);
+        console.log(`${LOG_PREFIX} Step 6.2: Fetched business capabilities:`, businessCaps);
     }
 
     const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
     if (defaultPlan) {
-        console.log(`${LOG_PREFIX} Step 5.6: Found default plan "${defaultPlan.name}".`);
+        console.log(`${LOG_PREFIX} Step 6.3: Found default plan "${defaultPlan.name}".`);
     }
 
     const project: Omit<Project, '_id'> = {
       userId: new ObjectId(userId),
       name: waba.name || `WABA ${waba.id}`,
       wabaId: waba.id,
-      businessId: businessId,
+      businessId: waba.businessId,
       accessToken,
       messagesPerSecond: 80,
       phoneNumbers: [],
@@ -160,27 +183,27 @@ export async function finalizeEmbeddedSignup(
       businessCapabilities: businessCaps,
     };
     
-    console.log(`${LOG_PREFIX} Step 5.7: Upserting project into database.`);
+    console.log(`${LOG_PREFIX} Step 6.4: Upserting project into database.`);
     const updateResult = await db.collection<Project>('projects').updateOne(
       { userId: project.userId, wabaId: project.wabaId },
       { $set: project },
       { upsert: true }
     );
     
-    const projectId = updateResult.upsertedId ? updateResult.upsertedId : (await db.collection('projects').findOne({ userId: project.userId, wabaId: project.wabaId }))?._id;
+    const findResult = await db.collection<Project>('projects').findOne({ userId: project.userId, wabaId: project.wabaId });
+    const projectId = findResult?._id;
     
     if (projectId) {
-        console.log(`${LOG_PREFIX} Step 5.8: Project upserted. Project ID: ${projectId}. Now syncing phone numbers and subscribing to webhooks.`);
+        console.log(`${LOG_PREFIX} Step 6.5: Project upserted. Project ID: ${projectId}. Now syncing phone numbers and subscribing to webhooks.`);
         await handleSyncPhoneNumbers(projectId.toString());
-        await handleSubscribeProjectWebhook(project.wabaId, project.appId!, project.accessToken);
+        await handleSubscribeProjectWebhook(project.wabaId!, project.appId!, project.accessToken);
     }
 
-
-    console.log(`${LOG_PREFIX} Step 6: Onboarding finalized successfully.`);
+    console.log(`${LOG_PREFIX} Step 7: Finalization complete.`);
     return { success: true };
   } catch (e: any) {
     const errorMsg = getErrorMessage(e);
-    console.error(`${LOG_PREFIX} FATAL: Failed to finalize embedded signup. Error:`, errorMsg, e);
+    console.error(`${LOG_PREFIX} FATAL: Failed to finalize signup. Error:`, errorMsg, e);
     throw new Error(`Failed to finalize onboarding: ${errorMsg}`);
   }
 }
