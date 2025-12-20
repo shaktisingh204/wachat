@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -58,45 +57,46 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
     }
 }
 
-// Fetches the Business ID and then the WABA details using the access token.
+// Fetches the WABA details using the access token.
 export async function getWabaDetails(accessToken: string) {
-    console.log('[ONBOARDING] Step 4: Fetching Business and WABA details.');
+    console.log('[ONBOARDING] Step 4: Fetching WABA details via /me.');
+
     try {
-        // Step 1: Get the user's associated business accounts
-        const businessResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/businesses`, {
-            params: { access_token: accessToken }
-        });
-        console.log('[ONBOARDING] Step 4.1: Received business data:', businessResponse.data);
-
-        const businesses = businessResponse.data.data;
-        if (!businesses || businesses.length === 0) {
-            return { error: "No Meta Business Account found for this user." };
-        }
-        // Use the first business account found
-        const businessId = businesses[0].id;
-
-        // Step 2: Use the Business ID to get owned WABAs
-        const wabaResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/${businessId}/owned_whatsapp_business_accounts`, {
-            params: {
-                fields: 'name,id',
-                access_token: accessToken,
+        const response = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/me`,
+            {
+                params: {
+                    fields: 'whatsapp_business_accounts{id,name}',
+                    access_token: accessToken,
+                },
             }
-        });
-        console.log('[ONBOARDING] Step 4.2: Received WABA data:', wabaResponse.data);
-        
-        const wabas = wabaResponse.data.data;
+        );
+
+        console.log('[ONBOARDING] Step 4.1: /me response:', response.data);
+
+        const wabas = response.data?.whatsapp_business_accounts?.data;
+
         if (!wabas || wabas.length === 0) {
-             return { error: "No WhatsApp Business Accounts found in the connected Meta Business Account." };
+            return { error: 'No WhatsApp Business Accounts found for this user.' };
         }
 
         return {
-            business_id: businessId,
-            wabas: wabas.map((w: any) => ({ id: w.id, name: w.name })),
+            wabas: wabas.map((w: any) => ({
+                id: w.id,
+                name: w.name,
+            })),
         };
     } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error("[ONBOARDING] getWabaDetails() failed:", errorMessage, e.response?.data || '');
-        return { error: `Failed to retrieve account details from Meta: ${errorMessage}` };
+        console.error(
+            '[ONBOARDING] getWabaDetails() failed:',
+            e.response?.data || e.message
+        );
+
+        return {
+            error: `Failed to retrieve WhatsApp account details: ${
+                e.response?.data?.error?.message || e.message
+            }`,
+        };
     }
 }
 
@@ -163,7 +163,6 @@ export async function handleWabaOnboarding(code: string) {
                 userId: new ObjectId(session.user._id),
                 name: waba.name || `WABA ${waba.id}`,
                 wabaId: waba.id,
-                businessId: wabaData.business_id,
                 appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
                 accessToken: accessToken,
                 messagesPerSecond: 80,
