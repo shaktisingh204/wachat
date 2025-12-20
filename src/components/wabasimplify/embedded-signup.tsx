@@ -64,7 +64,7 @@ export default function EmbeddedSignup({
     setIsProcessing(false);
   }, [sessionUser, toast, router]);
 
-  const launchWhatsAppSignup = useCallback(() => {
+  const launchWhatsAppSignup = () => {
     if (!window.FB) {
       console.error('Facebook SDK not loaded.');
       return;
@@ -75,7 +75,7 @@ export default function EmbeddedSignup({
       override_default_response_type: true,
       scope: 'whatsapp_business_management,whatsapp_business_messaging' + (includeCatalog ? ',catalog_management,business_management' : ''),
     });
-  }, [configId, includeCatalog, fbLoginCallback]);
+  };
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
