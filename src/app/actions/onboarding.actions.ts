@@ -1,3 +1,4 @@
+
 'use server';
 
 import axios from 'axios';
@@ -11,6 +12,32 @@ import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/act
 const API_VERSION = 'v23.0';
 
 const LOG_PREFIX = '[ONBOARDING]';
+
+export async function saveOnboardingState(state: string) {
+    const session = await getSession();
+    if (!session?.user) {
+        console.error(`${LOG_PREFIX} saveOnboardingState failed: User not authenticated.`);
+        return { error: "User not authenticated." };
+    }
+    
+    const { db } = await connectToDatabase();
+    
+    // Create an index on `createdAt` to automatically expire documents
+    const collection = db.collection('oauth_states');
+    const indexes = await collection.indexes();
+    if (!indexes.some(index => index.key?.createdAt === 1)) {
+        await collection.createIndex({ "createdAt": 1 }, { expireAfterSeconds: 600 }); // Expire after 10 minutes
+    }
+    
+    await collection.insertOne({
+        state,
+        userId: new ObjectId(session.user._id),
+        createdAt: new Date(),
+    });
+    console.log(`${LOG_PREFIX} Saved onboarding state for user ${session.user._id}`);
+    return { success: true };
+}
+
 
 /* ──────────────────────────────────────────────
    STEP 1: EXCHANGE CODE → SYSTEM USER TOKEN
@@ -58,7 +85,7 @@ export async function saveSystemToken(code: string) {
       },
       { upsert: true }
     );
-    console.log(`${LOG_PREFIX} Step 4: System user token saved to database for user ${session.user._id}.`);
+    console.log(`${LOG_PREFIX} Step 4: System user token saved to database for user ${session.user._id}. Waiting for webhook...`);
 
     return { success: true };
   } catch (e) {
