@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
@@ -12,6 +13,7 @@ import {
     processCommentWebhook,
     processMessengerWebhook
 } from '@/lib/webhook-processor';
+import { finalizeEmbeddedSignup } from '@/app/actions/onboarding.actions';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -128,6 +130,21 @@ export async function POST(request: NextRequest) {
     }
     const payload = JSON.parse(payloadText);
     const { db } = await connectToDatabase();
+    
+    // Handle Embedded Signup Flow
+    if (payload.object === 'whatsapp_business_account') {
+        for (const entry of payload.entry || []) {
+            for (const change of entry.changes || []) {
+                const value = change.value;
+                if (change.field === 'account_update' && value.event === 'embedded_signup') {
+                    const wabaId = value.whatsapp_business_account.id;
+                    const userId = value.business.id; // Correct way to get the user context
+                    await finalizeEmbeddedSignup(userId, wabaId);
+                    return NextResponse.json({ success: true, message: 'Onboarding webhook processed.' });
+                }
+            }
+        }
+    }
     
     // Asynchronously log the webhook without waiting for it to complete
     findProjectIdFromWebhook(db, payload).then(projectId => {
