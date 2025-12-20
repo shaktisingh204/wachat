@@ -202,5 +202,3 @@ export async function handleWabaOnboarding(code: string) {
         return { error: getErrorMessage(e) };
     }
 }
-
-    
