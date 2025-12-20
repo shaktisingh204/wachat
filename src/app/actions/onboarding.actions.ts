@@ -17,7 +17,7 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
     console.log('[ONBOARDING] Step 2: Starting token exchange with Meta.');
     const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
-    const redirectUri = 'https://sabnode.com/auth/facebook/callback';
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`;
 
     if (!appId || !appSecret) {
         const errorMsg = '[ONBOARDING] FATAL: Server is not configured for Meta OAuth. Missing App ID or Secret.';
@@ -35,7 +35,9 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
         const url = `https://graph.facebook.com/${API_VERSION}/oauth/access_token`;
         console.log(`[ONBOARDING] Step 2.1: Sending POST to ${url}.`);
 
-        const response = await axios.post(url, params);
+        const response = await axios.post(url, params, {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
 
         console.log('[ONBOARDING] Step 2.3: Received response from Meta:', response.data);
         
@@ -56,35 +58,45 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
     }
 }
 
-
-// Fetches the WABA details using the debug_token endpoint
-export async function getWabaDebugData(accessToken: string) {
-    console.log('[ONBOARDING] Step 4: Fetching WABA details via debug_token endpoint.');
+// Fetches the Business ID and then the WABA details using the access token.
+export async function getWabaDetails(accessToken: string) {
+    console.log('[ONBOARDING] Step 4: Fetching Business and WABA details.');
     try {
-        const url = `https://graph.facebook.com/${API_VERSION}/debug_token`;
-
-        const response = await axios.get(url, {
-            params: {
-                input_token: accessToken,
-                access_token: `${process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID}|${process.env.META_ONBOARDING_APP_SECRET}`,
-            },
+        // Step 1: Get the user's associated business accounts
+        const businessResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/businesses`, {
+            params: { access_token: accessToken }
         });
+        console.log('[ONBOARDING] Step 4.1: Received business data:', businessResponse.data);
 
-        const data = response.data?.data;
-        console.log('[ONBOARDING] Step 4.1: Received debug_token data from Meta:', data);
+        const businesses = businessResponse.data.data;
+        if (!businesses || businesses.length === 0) {
+            return { error: "No Meta Business Account found for this user." };
+        }
+        // Use the first business account found
+        const businessId = businesses[0].id;
 
-        if (!data) {
-            return { error: "Failed to fetch WABA debug data." };
+        // Step 2: Use the Business ID to get owned WABAs
+        const wabaResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/${businessId}/owned_whatsapp_business_accounts`, {
+            params: {
+                fields: 'name,id',
+                access_token: accessToken,
+            }
+        });
+        console.log('[ONBOARDING] Step 4.2: Received WABA data:', wabaResponse.data);
+        
+        const wabas = wabaResponse.data.data;
+        if (!wabas || wabas.length === 0) {
+             return { error: "No WhatsApp Business Accounts found in the connected Meta Business Account." };
         }
 
         return {
-            business_id: data.business_id,
-            wabas: data.waba_ids || [], // Ensure it's an array
-            granted_scopes: data.granular_scopes?.map((s: any) => s.scope) || [],
+            business_id: businessId,
+            wabas: wabas.map((w: any) => ({ id: w.id, name: w.name })),
         };
     } catch (e: any) {
-        console.error("[ONBOARDING] getWabaDebugData() failed:", e);
-        return { error: e.message || "Unknown error fetching debug token" };
+        const errorMessage = getErrorMessage(e);
+        console.error("[ONBOARDING] getWabaDetails() failed:", errorMessage, e.response?.data || '');
+        return { error: `Failed to retrieve account details from Meta: ${errorMessage}` };
     }
 }
 
@@ -108,7 +120,7 @@ export async function handleWabaOnboarding(code: string) {
         const accessToken = tokenResult.accessToken;
         
         console.log('[ONBOARDING] Step 5: Getting WABA data from new access token.');
-        const wabaData = await getWabaDebugData(accessToken);
+        const wabaData = await getWabaDetails(accessToken);
         if (wabaData.error) {
              throw new Error(wabaData.error);
         }
@@ -143,26 +155,18 @@ export async function handleWabaOnboarding(code: string) {
             console.log(`[ONBOARDING] Assigning default plan ID: ${planIdToAssign}`);
         }
 
-        const hasCatalogManagement = wabaData.granted_scopes.includes('catalog_management');
         const bulkOps = [];
         console.log(`[ONBOARDING] Step 7: Preparing to create/update ${wabaData.wabas.length} project(s).`);
 
-        // Because debug_token doesn't give names, we have to fetch them.
         for (const waba of wabaData.wabas) {
-             const wabaDetailsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/${waba.id}`, {
-                params: { fields: 'name', access_token: accessToken }
-            });
-            const wabaName = wabaDetailsResponse.data.name || `WABA ${waba.id}`;
-            
             const projectData = {
                 userId: new ObjectId(session.user._id),
-                name: wabaName,
+                name: waba.name || `WABA ${waba.id}`,
                 wabaId: waba.id,
                 businessId: wabaData.business_id,
                 appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
                 accessToken: accessToken,
                 messagesPerSecond: 80,
-                hasCatalogManagement,
                 phoneNumbers: [], // Will be synced later
                 planId: planIdToAssign,
                 credits: creditsToAssign,
