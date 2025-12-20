@@ -110,11 +110,12 @@ export async function GET(request: NextRequest) {
   const token = searchParams.get('hub.verify_token');
   const challenge = searchParams.get('hub.challenge');
 
+  // Verify the token from environment variables
   if (mode === 'subscribe' && token === process.env.META_VERIFY_TOKEN) {
     console.log(`${LOG_PREFIX} Webhook verified successfully!`);
     return new NextResponse(challenge, { status: 200 });
   } else {
-    console.error(`${LOG_PREFIX} Webhook verification failed. Tokens do not match.`);
+    console.error(`${LOG_PREFIX} Webhook verification failed. Provided token: ${token} | Expected token: ${process.env.META_VERIFY_TOKEN}`);
     return new NextResponse('Forbidden', { status: 403 });
   }
 }
@@ -140,11 +141,12 @@ export async function POST(request: NextRequest) {
                 const value = change.value;
                 if (change.field === 'account_update' && value.event === 'EMBEDDED_SIGNUP') {
                     console.log(`${LOG_PREFIX} Received Embedded Signup webhook.`);
-                    const waba = { id: value.whatsapp_business_account_id, name: 'New WABA' }; // Name will be fetched later
+                    
+                    const wabaId = value.whatsapp_business_account_id;
                     const state = value.oauth_config_state;
 
-                    if (!state) {
-                        console.error(`${LOG_PREFIX} No state found in Embedded Signup webhook.`);
+                    if (!state || !wabaId) {
+                        console.error(`${LOG_PREFIX} Incomplete Embedded Signup data. State: ${state}, WABA ID: ${wabaId}`);
                         continue;
                     }
 
@@ -161,8 +163,8 @@ export async function POST(request: NextRequest) {
                         continue;
                     }
 
-                    console.log(`${LOG_PREFIX} Found user ${userId} for state. Finalizing signup for WABA ${waba.id}.`);
-                    await finalizeOnboarding(userId, waba, tokenDoc.systemToken);
+                    console.log(`${LOG_PREFIX} Found user ${userId} for state. Finalizing signup for WABA ${wabaId}.`);
+                    await finalizeOnboarding(userId, { id: wabaId, name: 'New WABA', businessId: value.business_id }, tokenDoc.systemToken);
                     
                     return NextResponse.json({ success: true, message: 'Onboarding webhook processed.' });
                 }
