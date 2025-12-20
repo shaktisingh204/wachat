@@ -4,15 +4,20 @@ import { redirect } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
 import { Suspense } from 'react';
 
-async function OnboardingProcessor({ code, error }: { code: string | null, error: string | null }) {
+// This is now the definitive, server-side implementation for the callback.
+// It directly receives searchParams and calls the server action, avoiding all
+// client-side hook issues.
+
+async function ProcessOnboarding({ code, error }: { code: string | null, error: string | null }) {
     if (error) {
         redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
     }
-    
+
     if (!code) {
-        redirect('/dashboard/setup?error=No%20authorization%20code%20received.');
+        redirect('/dashboard/setup?error=No%20authorization%20code%20received');
     }
 
+    // The server action is awaited directly on the server.
     const result = await handleWabaOnboarding(code);
     
     if (result.error) {
@@ -20,9 +25,11 @@ async function OnboardingProcessor({ code, error }: { code: string | null, error
         redirect(`/dashboard/setup?error=${errorMessage}`);
     }
 
+    // On success, redirect to the dashboard.
     redirect('/dashboard');
 }
 
+// The page itself is an async Server Component.
 export default function FacebookCallbackPage({
     searchParams,
 }: {
@@ -36,20 +43,11 @@ export default function FacebookCallbackPage({
             <Suspense fallback={
                 <div className="flex flex-col items-center justify-center text-center">
                     <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-                    <p className="mt-4 text-lg font-semibold text-muted-foreground">Loading...</p>
+                    <p className="mt-4 text-lg font-semibold text-muted-foreground">Processing...</p>
                 </div>
             }>
-                <OnboardingProcessor code={code || null} error={error || null} />
+                <ProcessOnboarding code={code || null} error={error || null} />
             </Suspense>
-             <div className="flex flex-col items-center justify-center text-center">
-                <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-                <p className="mt-4 text-lg font-semibold text-muted-foreground">
-                    Finalizing connection, please wait...
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                    This may take a moment. Do not close this window.
-                </p>
-            </div>
         </div>
     );
 }
