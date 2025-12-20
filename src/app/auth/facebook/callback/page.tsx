@@ -1,53 +1,55 @@
 
+'use client';
+
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { redirect } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
-// This is now the definitive, server-side implementation for the callback.
-// It directly receives searchParams and calls the server action, avoiding all
-// client-side hook issues.
+// This is a client-side wrapper to safely read searchParams
+function OnboardingProcessor() {
+    const searchParams = useSearchParams();
+    const code = searchParams.get('code');
+    const error = searchParams.get('error_description');
 
-async function ProcessOnboarding({ code, error }: { code: string | null, error: string | null }) {
-    if (error) {
-        redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
-    }
+    useEffect(() => {
+        async function processOnboarding() {
+            if (error) {
+                redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
+                return;
+            }
 
-    if (!code) {
-        redirect('/dashboard/setup?error=No%20authorization%20code%20received');
-    }
+            if (!code) {
+                redirect(`/dashboard/setup?error=No%20authorization%20code%20received`);
+                return;
+            }
 
-    // The server action is awaited directly on the server.
-    const result = await handleWabaOnboarding(code);
-    
-    if (result.error) {
-        const errorMessage = encodeURIComponent(result.error);
-        redirect(`/dashboard/setup?error=${errorMessage}`);
-    }
+            const result = await handleWabaOnboarding(code);
+            
+            if (result.error) {
+                const errorMessage = encodeURIComponent(result.error);
+                redirect(`/dashboard/setup?error=${errorMessage}`);
+            } else {
+                redirect('/dashboard');
+            }
+        }
+        processOnboarding();
+    }, [code, error]);
 
-    // On success, redirect to the dashboard.
-    redirect('/dashboard');
+    return null; // The logic is in useEffect, which handles redirection
 }
 
-// The page itself is an async Server Component.
-export default function FacebookCallbackPage({
-    searchParams,
-}: {
-    searchParams: { [key: string]: string | string[] | undefined };
-}) {
-    const code = searchParams.code as string | undefined;
-    const error = searchParams.error_description as string | undefined;
-
+export default function FacebookCallbackPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-muted/50 p-4">
-            <Suspense fallback={
-                <div className="flex flex-col items-center justify-center text-center">
-                    <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-                    <p className="mt-4 text-lg font-semibold text-muted-foreground">Processing...</p>
-                </div>
-            }>
-                <ProcessOnboarding code={code || null} error={error || null} />
+            <Suspense fallback={null}>
+                <OnboardingProcessor />
             </Suspense>
+            <div className="flex flex-col items-center justify-center text-center">
+                <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
+                <p className="mt-4 text-lg font-semibold text-muted-foreground">Finalizing connection, please wait...</p>
+            </div>
         </div>
     );
 }
