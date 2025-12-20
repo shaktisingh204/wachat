@@ -11,10 +11,9 @@ type SearchParams = {
 export default async function FacebookCallbackPage({
   searchParams,
 }: {
-  // searchParams is a Promise that needs to be awaited.
+  // The searchParams object is a Promise that needs to be awaited.
   searchParams: SearchParams;
 }) {
-
   const code = searchParams.code as string | undefined;
   const state = searchParams.state as string | undefined;
   const error = searchParams.error_description as string | undefined;
