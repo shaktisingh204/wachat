@@ -7,27 +7,33 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
 import type { User, Project, BusinessCapabilities } from '@/lib/definitions';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
-import { getProjectById } from '@/app/actions/user.actions';
+import { redirect } from 'next/navigation';
 
 const API_VERSION = 'v23.0';
 const LOG_PREFIX = '[ONBOARDING]';
 
 export async function finalizeOnboarding(
-  userId: string,
-  wabaId: string,
-  phoneNumberId: string,
   authCode: string,
+  state: string,
 ) {
-    console.log(`${LOG_PREFIX} Step 1: Finalizing onboarding for user ${userId} and WABA ${wabaId}.`);
+    console.log(`${LOG_PREFIX} Step 1: Finalizing onboarding with state ${state}.`);
+    
+    // State is expected to be in format "whatsapp-userId" or "facebook-userId"
+    const [flowType, userId] = state.split('-');
+    if (!userId || !ObjectId.isValid(userId)) {
+        console.error(`${LOG_PREFIX} Invalid state received. Expected format '[type]-[userId]'. Got: ${state}`);
+        return redirect('/dashboard/setup?error=invalid_state');
+    }
+    
     const { db } = await connectToDatabase();
 
     try {
         // Step 2: Exchange the short-lived auth code for a long-lived system user access token.
-        console.log(`${LOG_PREFIX} Step 2: Exchanging auth code for access token.`);
+        console.log(`${LOG_PREFIX} Step 2: Exchanging auth code for access token for user ${userId}.`);
         const params = new URLSearchParams({
             client_id: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!,
             client_secret: process.env.META_ONBOARDING_APP_SECRET!,
-            redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`, // Must match a valid URI in app settings
+            redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`,
             code: authCode,
         });
 
@@ -43,17 +49,25 @@ export async function finalizeOnboarding(
         }
         console.log(`${LOG_PREFIX} Step 3: Access token received successfully.`);
 
-        // Step 4: Fetch details about the WABA using the new token to get its name and associated business.
-        const wabaDetailsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/${wabaId}`, {
+        // Step 4: Get associated WhatsApp Business Accounts (WABAs) for this system user token.
+        const wabaResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/whatsapp_business_accounts`, {
             params: {
-                fields: 'name,business',
-                access_token: accessToken,
-            },
+                fields: 'id,name,business',
+                access_token: accessToken
+            }
         });
 
-        const wabaName = wabaDetailsResponse.data?.name || `WABA ${wabaId}`;
-        const businessId = wabaDetailsResponse.data?.business?.id;
-        console.log(`${LOG_PREFIX} Step 4: Fetched WABA details. Name: ${wabaName}, Business ID: ${businessId}`);
+        const wabas = wabaResponse.data?.data;
+        if (!wabas || wabas.length === 0) {
+            throw new Error("No WhatsApp Business Accounts found for the connected Meta account.");
+        }
+
+        // For simplicity, we'll use the first WABA returned.
+        const waba = wabas[0];
+        const wabaId = waba.id;
+        const wabaName = waba.name || `WABA ${wabaId}`;
+        const businessId = waba.business?.id;
+        console.log(`${LOG_PREFIX} Step 4: Found WABA. Name: ${wabaName}, ID: ${wabaId}, Business ID: ${businessId}`);
         
         let businessCaps: BusinessCapabilities | undefined;
         if (businessId) {
@@ -82,7 +96,7 @@ export async function finalizeOnboarding(
             planId: defaultPlan?._id,
             credits: defaultPlan?.signupCredits || 0,
             businessCapabilities: businessCaps,
-            hasCatalogManagement: true, // Assuming this is granted by default in the new flow
+            hasCatalogManagement: true,
         };
         
         const updateResult = await db.collection<Project>('projects').updateOne(
@@ -100,12 +114,13 @@ export async function finalizeOnboarding(
             await handleSubscribeProjectWebhook(project.wabaId!, project.appId!, project.accessToken);
         }
 
-        console.log(`${LOG_PREFIX} Step 7: Finalization complete.`);
-        return { success: true };
+        console.log(`${LOG_PREFIX} Step 7: Finalization complete. Redirecting to dashboard.`);
         
     } catch (e: any) {
         const errorMsg = getErrorMessage(e);
         console.error(`${LOG_PREFIX} FATAL: Failed to finalize signup. Error:`, errorMsg, e);
-        return { error: `Failed to finalize onboarding: ${errorMsg}` };
+        return redirect(`/dashboard/setup?error=${encodeURIComponent(errorMsg)}`);
     }
+
+    redirect('/dashboard');
 }
