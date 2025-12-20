@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
@@ -20,7 +19,7 @@ interface EmbeddedSignupProps {
 declare global {
   interface Window {
     FB: any;
-    fbAsyncInit: any;
+    fbAsyncInit: () => void;
   }
 }
 
@@ -28,104 +27,186 @@ export default function EmbeddedSignup({
   appId,
   configId,
   includeCatalog,
-  state,
 }: EmbeddedSignupProps) {
   const [isSdkLoaded, setIsSdkLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
   const { sessionUser } = useProject();
   const { toast } = useToast();
   const router = useRouter();
 
-  const wabaDataRef = useRef<{ waba_id: string; phone_number_id: string } | null>(null);
+  /**
+   * Stores data received from Embedded Signup iframe
+   * (before FB.login callback fires)
+   */
+  const wabaDataRef = useRef<{
+    waba_id: string;
+    phone_number_id: string;
+  } | null>(null);
 
-  const fbLoginCallback = useCallback(async (response: any) => {
-    setIsProcessing(true);
-    if (response.authResponse && wabaDataRef.current) {
-      const code = response.authResponse.code;
-      const { waba_id, phone_number_id } = wabaDataRef.current;
+  /**
+   * 🔒 ALL async logic is isolated here
+   * NEVER pass async functions to FB SDK
+   */
+  const processOnboarding = async (
+    response: any,
+    wabaData: { waba_id: string; phone_number_id: string }
+  ) => {
+    try {
+      setIsProcessing(true);
+
+      const code = response.authResponse?.code;
+      if (!code) {
+        throw new Error('Authorization code missing');
+      }
 
       const result = await finalizeOnboarding(
         sessionUser!._id.toString(),
-        waba_id,
-        phone_number_id,
+        wabaData.waba_id,
+        wabaData.phone_number_id,
         code
       );
 
-      if (result.error) {
-        toast({ title: 'Onboarding Error', description: result.error, variant: 'destructive' });
-      } else {
-        toast({ title: 'Success!', description: 'Your WhatsApp account has been connected.' });
-        router.push('/dashboard');
-        router.refresh();
+      if (result?.error) {
+        toast({
+          title: 'Onboarding Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
       }
-    } else {
-      toast({ title: 'Onboarding Incomplete', description: 'Could not get required permissions or data. Please try again.', variant: 'destructive' });
-    }
-    setIsProcessing(false);
-  }, [sessionUser, toast, router]);
 
-  const launchWhatsAppSignup = () => {
-    if (!window.FB) {
-      console.error('Facebook SDK not loaded.');
+      toast({
+        title: 'Success',
+        description: 'Your WhatsApp account has been connected.',
+      });
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: 'Unexpected Error',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  /**
+   * 🚫 MUST NOT BE ASYNC
+   * Facebook SDK requires a plain function
+   */
+  const fbLoginCallback = useCallback((response: any) => {
+    if (!response?.authResponse) {
+      toast({
+        title: 'Login Cancelled',
+        description: 'Facebook login was not completed.',
+        variant: 'destructive',
+      });
       return;
     }
+
+    if (!wabaDataRef.current) {
+      toast({
+        title: 'Signup Incomplete',
+        description: 'Missing WhatsApp account data.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    processOnboarding(response, wabaDataRef.current);
+  }, []);
+
+  /**
+   * Launch Facebook Embedded Signup
+   */
+  const launchWhatsAppSignup = () => {
+    if (!window.FB) {
+      console.error('Facebook SDK not loaded');
+      return;
+    }
+
     window.FB.login(fbLoginCallback, {
       config_id: configId,
       response_type: 'code',
       override_default_response_type: true,
-      scope: 'whatsapp_business_management,whatsapp_business_messaging' + (includeCatalog ? ',catalog_management,business_management' : ''),
+      scope:
+        'whatsapp_business_management,whatsapp_business_messaging' +
+        (includeCatalog
+          ? ',catalog_management,business_management'
+          : ''),
     });
   };
 
+  /**
+   * Listen for Embedded Signup postMessage events
+   */
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== "https://www.facebook.com" && event.origin !== "https://web.facebook.com") {
+      if (
+        event.origin !== 'https://www.facebook.com' &&
+        event.origin !== 'https://web.facebook.com'
+      ) {
         return;
       }
+
       try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'WA_EMBEDDED_SIGNUP') {
-          if (data.event === 'FINISH') {
-            const { phone_number_id, waba_id } = data.data;
-            wabaDataRef.current = { waba_id, phone_number_id };
+        const data =
+          typeof event.data === 'string'
+            ? JSON.parse(event.data)
+            : event.data;
+
+        if (data?.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
+          const { phone_number_id, waba_id } = data.data || {};
+          if (phone_number_id && waba_id) {
+            wabaDataRef.current = { phone_number_id, waba_id };
           }
         }
-      } catch (e) {
-        console.warn('Non JSON response from parent window');
+      } catch {
+        // Ignore non-JSON messages
       }
     };
 
     window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
+  /**
+   * Load Facebook SDK
+   */
+  useEffect(() => {
     if (window.FB) {
       setIsSdkLoaded(true);
-    } else {
-      window.fbAsyncInit = function () {
-        window.FB.init({
-          appId: appId,
-          autoLogAppEvents: true,
-          xfbml: true,
-          version: 'v23.0',
-        });
-        setIsSdkLoaded(true);
-      };
-
-      const script = document.createElement('script');
-      script.src = 'https://connect.facebook.net/en_US/sdk.js';
-      script.async = true;
-      script.defer = true;
-      script.crossOrigin = 'anonymous';
-      document.body.appendChild(script);
+      return;
     }
 
-    return () => {
-      window.removeEventListener('message', handleMessage);
+    window.fbAsyncInit = function () {
+      window.FB.init({
+        appId,
+        autoLogAppEvents: true,
+        xfbml: true,
+        version: 'v23.0',
+      });
+      setIsSdkLoaded(true);
     };
+
+    const script = document.createElement('script');
+    script.src = 'https://connect.facebook.net/en_US/sdk.js';
+    script.async = true;
+    script.defer = true;
+    script.crossOrigin = 'anonymous';
+    document.body.appendChild(script);
   }, [appId]);
 
+  /**
+   * UI States
+   */
   if (!isSdkLoaded || isProcessing) {
     return (
-      <Button disabled size="lg">
+      <Button disabled size="lg" className="w-full">
         <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
         {isProcessing ? 'Finalizing...' : 'Loading...'}
       </Button>
