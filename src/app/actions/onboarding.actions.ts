@@ -5,16 +5,24 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '.';
 import { getErrorMessage } from '@/lib/utils';
-import type { User, Project } from '@/lib/definitions';
+import type { User, Project, BusinessCapabilities } from '@/lib/definitions';
+import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 
 const API_VERSION = 'v23.0';
+
+const LOG_PREFIX = '[ONBOARDING]';
 
 /* ──────────────────────────────────────────────
    STEP 1: EXCHANGE CODE → SYSTEM USER TOKEN
 ────────────────────────────────────────────── */
 export async function saveSystemToken(code: string) {
+  console.log(`${LOG_PREFIX} Step 1: Starting system token save with authorization code.`);
   const session = await getSession();
-  if (!session?.user) return { error: 'Authentication required' };
+  if (!session?.user) {
+    const errorMsg = 'Authentication required to save system token.';
+    console.error(`${LOG_PREFIX} Error: ${errorMsg}`);
+    return { error: errorMsg };
+  }
 
   try {
     const params = new URLSearchParams({
@@ -24,6 +32,7 @@ export async function saveSystemToken(code: string) {
       code,
     });
 
+    console.log(`${LOG_PREFIX} Step 2: Exchanging code for access token.`);
     const { data } = await axios.post(
       `https://graph.facebook.com/${API_VERSION}/oauth/access_token`,
       params,
@@ -31,8 +40,10 @@ export async function saveSystemToken(code: string) {
     );
 
     if (!data.access_token) {
+      console.error(`${LOG_PREFIX} Error: Meta did not return an access token. Response:`, data);
       throw new Error('Meta did not return access token');
     }
+    console.log(`${LOG_PREFIX} Step 3: Access token received successfully.`);
 
     const { db } = await connectToDatabase();
 
@@ -47,10 +58,13 @@ export async function saveSystemToken(code: string) {
       },
       { upsert: true }
     );
+    console.log(`${LOG_PREFIX} Step 4: System user token saved to database for user ${session.user._id}.`);
 
     return { success: true };
   } catch (e) {
-    return { error: getErrorMessage(e) };
+    const errorMsg = getErrorMessage(e);
+    console.error(`${LOG_PREFIX} Error during token exchange:`, errorMsg, e);
+    return { error: errorMsg };
   }
 }
 
@@ -61,6 +75,7 @@ export async function finalizeEmbeddedSignup(
   userId: string,
   wabaId: string
 ) {
+  console.log(`${LOG_PREFIX} Step 5: Finalizing embedded signup for user ${userId} and WABA ${wabaId}.`);
   const { db } = await connectToDatabase();
 
   const tokenDoc = await db
@@ -68,35 +83,84 @@ export async function finalizeEmbeddedSignup(
     .findOne({ userId: new ObjectId(userId) });
 
   if (!tokenDoc?.systemToken) {
+    console.error(`${LOG_PREFIX} Error: System token not found for user ${userId}.`);
     throw new Error('System token not found');
   }
+  console.log(`${LOG_PREFIX} Step 5.1: Found system token for user.`);
 
   const accessToken = tokenDoc.systemToken;
 
-  // ✅ Validate WABA directly
-  const { data: waba } = await axios.get(
-    `https://graph.facebook.com/${API_VERSION}/${wabaId}`,
-    {
-      params: { fields: 'id,name,timezone' },
-      headers: { Authorization: `Bearer ${accessToken}` },
+  try {
+    console.log(`${LOG_PREFIX} Step 5.2: Fetching WABA details from Meta.`);
+    const { data: waba } = await axios.get(
+      `https://graph.facebook.com/${API_VERSION}/${wabaId}`,
+      {
+        params: { 
+            fields: 'id,name,timezone,business',
+            access_token: accessToken 
+        },
+      }
+    );
+     console.log(`${LOG_PREFIX} Step 5.3: Successfully fetched WABA details:`, waba);
+     
+    const businessId = waba.business?.id;
+    let businessCaps: BusinessCapabilities | undefined;
+
+    if (businessId) {
+        console.log(`${LOG_PREFIX} Step 5.4: Fetching business capabilities for business ID ${businessId}.`);
+        const { data: capsData } = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/${businessId}`,
+            {
+                params: {
+                    fields: 'business_capabilities',
+                    access_token: accessToken
+                }
+            }
+        );
+        businessCaps = capsData?.business_capabilities;
+        console.log(`${LOG_PREFIX} Step 5.5: Fetched business capabilities:`, businessCaps);
     }
-  );
 
-  const project: Project = {
-    userId: new ObjectId(userId),
-    name: waba.name || `WABA ${waba.id}`,
-    wabaId: waba.id,
-    accessToken,
-    messagesPerSecond: 80,
-    phoneNumbers: [],
-    createdAt: new Date(),
-  };
+    const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
+    if (defaultPlan) {
+        console.log(`${LOG_PREFIX} Step 5.6: Found default plan "${defaultPlan.name}".`);
+    }
 
-  await db.collection<Project>('projects').updateOne(
-    { userId: project.userId, wabaId: project.wabaId },
-    { $set: project },
-    { upsert: true }
-  );
+    const project: Omit<Project, '_id'> = {
+      userId: new ObjectId(userId),
+      name: waba.name || `WABA ${waba.id}`,
+      wabaId: waba.id,
+      businessId: businessId,
+      accessToken,
+      messagesPerSecond: 80,
+      phoneNumbers: [],
+      createdAt: new Date(),
+      planId: defaultPlan?._id,
+      credits: defaultPlan?.signupCredits || 0,
+      businessCapabilities: businessCaps,
+    };
+    
+    console.log(`${LOG_PREFIX} Step 5.7: Upserting project into database.`);
+    const updateResult = await db.collection<Project>('projects').updateOne(
+      { userId: project.userId, wabaId: project.wabaId },
+      { $set: project },
+      { upsert: true }
+    );
+    
+    const projectId = updateResult.upsertedId ? updateResult.upsertedId : (await db.collection('projects').findOne({ userId: project.userId, wabaId: project.wabaId }))?._id;
+    
+    if (projectId) {
+        console.log(`${LOG_PREFIX} Step 5.8: Project upserted. Project ID: ${projectId}. Now syncing phone numbers and subscribing to webhooks.`);
+        await handleSyncPhoneNumbers(projectId.toString());
+        await handleSubscribeProjectWebhook(project.wabaId, project.appId!, project.accessToken);
+    }
 
-  return { success: true };
+
+    console.log(`${LOG_PREFIX} Step 6: Onboarding finalized successfully.`);
+    return { success: true };
+  } catch (e: any) {
+    const errorMsg = getErrorMessage(e);
+    console.error(`${LOG_PREFIX} FATAL: Failed to finalize embedded signup. Error:`, errorMsg, e);
+    throw new Error(`Failed to finalize onboarding: ${errorMsg}`);
+  }
 }

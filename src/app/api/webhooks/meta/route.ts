@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
@@ -14,6 +13,8 @@ import {
     processMessengerWebhook
 } from '@/lib/webhook-processor';
 import { finalizeEmbeddedSignup } from '@/app/actions/onboarding.actions';
+
+const LOG_PREFIX = '[META WEBHOOK]';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -110,10 +111,10 @@ export async function GET(request: NextRequest) {
   const challenge = searchParams.get('hub.challenge');
 
   if (mode === 'subscribe' && token === process.env.META_VERIFY_TOKEN) {
-    console.log("Webhook verified successfully!");
+    console.log(`${LOG_PREFIX} Webhook verified successfully!`);
     return new NextResponse(challenge, { status: 200 });
   } else {
-    console.error("Webhook verification failed. Tokens do not match.");
+    console.error(`${LOG_PREFIX} Webhook verification failed. Tokens do not match.`);
     return new NextResponse('Forbidden', { status: 403 });
   }
 }
@@ -136,9 +137,15 @@ export async function POST(request: NextRequest) {
         for (const entry of payload.entry || []) {
             for (const change of entry.changes || []) {
                 const value = change.value;
-                if (change.field === 'account_update' && value.event === 'embedded_signup') {
-                    const wabaId = value.whatsapp_business_account.id;
-                    const userId = value.business.id; // Correct way to get the user context
+                if (change.field === 'account_update' && value.event === 'EMBEDDED_SIGNUP') {
+                    console.log(`${LOG_PREFIX} Received Embedded Signup webhook.`);
+                    const wabaId = value.whatsapp_business_account_id;
+                    const userId = change.value.business.id; // User ID from the business object
+                    if (!userId) {
+                        console.error(`${LOG_PREFIX} Could not find Business ID (acting as user context) in Embedded Signup webhook.`);
+                        continue;
+                    }
+                    console.log(`${LOG_PREFIX} Initiating finalizeEmbeddedSignup for user ${userId} and WABA ${wabaId}.`);
                     await finalizeEmbeddedSignup(userId, wabaId);
                     return NextResponse.json({ success: true, message: 'Onboarding webhook processed.' });
                 }
@@ -155,7 +162,7 @@ export async function POST(request: NextRequest) {
             projectId,
             processed: true, // Assume processed unless an error occurs below
             createdAt: new Date(),
-        }).catch(err => console.error("Failed to insert webhook log:", err));
+        }).catch(err => console.error(`${LOG_PREFIX} Failed to insert webhook log:`, err));
     });
 
     // Main processing logic
@@ -221,7 +228,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof SyntaxError) {
         return NextResponse.json({ status: "ignored_invalid_json" }, { status: 200 });
     }
-    console.error('Fatal error in webhook ingestion:', error);
+    console.error(`${LOG_PREFIX} Fatal error in webhook ingestion:`, error);
     // Don't throw an error back to Meta, just log it.
     return NextResponse.json({ status: 'error' }, { status: 200 });
   }
