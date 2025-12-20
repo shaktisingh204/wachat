@@ -12,7 +12,6 @@ import {
     processCommentWebhook,
     processMessengerWebhook
 } from '@/lib/webhook-processor';
-import { finalizeOnboarding } from '@/app/actions/onboarding.actions';
 
 const LOG_PREFIX = '[META WEBHOOK]';
 
@@ -133,44 +132,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "ignored_empty_body" }, { status: 200 });
     }
     const payload = JSON.parse(payloadText);
-    
-    // Handle Embedded Signup Flow
-    if (payload.object === 'whatsapp_business_account') {
-        for (const entry of payload.entry || []) {
-            for (const change of entry.changes || []) {
-                const value = change.value;
-                if (change.field === 'account_update' && value.event === 'EMBEDDED_SIGNUP') {
-                    console.log(`${LOG_PREFIX} Received Embedded Signup webhook.`);
-                    
-                    const wabaId = value.whatsapp_business_account_id;
-                    const state = value.oauth_config_state;
-
-                    if (!state || !wabaId) {
-                        console.error(`${LOG_PREFIX} Incomplete Embedded Signup data. State: ${state}, WABA ID: ${wabaId}`);
-                        continue;
-                    }
-
-                    const stateDoc = await db.collection('oauth_states').findOneAndDelete({ state: state });
-                    if (!stateDoc) {
-                        console.error(`${LOG_PREFIX} Invalid or expired state received from webhook. State: ${state}`);
-                        continue;
-                    }
-
-                    const userId = stateDoc.userId.toString();
-                    const tokenDoc = await db.collection('meta_tokens').findOne({ userId: new ObjectId(userId) });
-                    if (!tokenDoc?.systemToken) {
-                        console.error(`${LOG_PREFIX} No system token found for user ${userId} during webhook finalization.`);
-                        continue;
-                    }
-
-                    console.log(`${LOG_PREFIX} Found user ${userId} for state. Finalizing signup for WABA ${wabaId}.`);
-                    await finalizeOnboarding(userId, { id: wabaId, name: 'New WABA', businessId: value.business_id }, tokenDoc.systemToken);
-                    
-                    return NextResponse.json({ success: true, message: 'Onboarding webhook processed.' });
-                }
-            }
-        }
-    }
     
     // Asynchronously log the webhook without waiting for it to complete
     findProjectIdFromWebhook(db, payload).then(projectId => {

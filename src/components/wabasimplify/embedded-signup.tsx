@@ -1,12 +1,14 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import { LoaderCircle } from 'lucide-react';
 import { useProject } from '@/context/project-context';
-import { saveOnboardingState } from '@/app/actions/onboarding.actions';
+import { finalizeOnboarding } from '@/app/actions/onboarding.actions';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 interface EmbeddedSignupProps {
   appId: string;
@@ -15,74 +17,129 @@ interface EmbeddedSignupProps {
   state: 'whatsapp' | 'facebook';
 }
 
+declare global {
+  interface Window {
+    FB: any;
+    fbAsyncInit: any;
+  }
+}
+
 export default function EmbeddedSignup({
   appId,
   configId,
   includeCatalog,
   state,
 }: EmbeddedSignupProps) {
-  const [isClient, setIsClient] = useState(false);
-  const [facebookLoginUrl, setFacebookLoginUrl] = useState<string | null>(null);
+  const [isSdkLoaded, setIsSdkLoaded] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { sessionUser } = useProject();
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const wabaDataRef = useRef<{ waba_id: string; phone_number_id: string } | null>(null);
+
+  const fbLoginCallback = useCallback(async (response: any) => {
+    setIsProcessing(true);
+    if (response.authResponse && wabaDataRef.current) {
+      const code = response.authResponse.code;
+      const { waba_id, phone_number_id } = wabaDataRef.current;
+
+      const result = await finalizeOnboarding(
+        sessionUser!._id.toString(),
+        waba_id,
+        phone_number_id,
+        code
+      );
+
+      if (result.error) {
+        toast({ title: 'Onboarding Error', description: result.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Success!', description: 'Your WhatsApp account has been connected.' });
+        router.push('/dashboard');
+        router.refresh();
+      }
+    } else {
+      toast({ title: 'Onboarding Incomplete', description: 'Could not get required permissions or data. Please try again.', variant: 'destructive' });
+    }
+    setIsProcessing(false);
+  }, [sessionUser, toast, router]);
+
+  const launchWhatsAppSignup = useCallback(() => {
+    if (!window.FB) {
+      console.error('Facebook SDK not loaded.');
+      return;
+    }
+    window.FB.login(fbLoginCallback, {
+      config_id: configId,
+      response_type: 'code',
+      override_default_response_type: true,
+      scope: 'whatsapp_business_management,whatsapp_business_messaging' + (includeCatalog ? ',catalog_management,business_management' : ''),
+    });
+  }, [configId, includeCatalog, fbLoginCallback]);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isClient || !sessionUser) return;
-
-    const setupLoginUrl = async () => {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-      if (!appUrl) {
-        console.error('NEXT_PUBLIC_APP_URL is not set.');
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== "https://www.facebook.com" && event.origin !== "https://web.facebook.com") {
         return;
       }
-      
-      const uniqueState = crypto.randomUUID();
-      await saveOnboardingState(uniqueState, sessionUser._id.toString());
-
-      const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
-
-      // For WhatsApp onboarding, we need business_management to find the WABA later
-      // The other permissions are requested by the Embedded Signup flow itself.
-      const scopes = 'business_management,whatsapp_business_management,whatsapp_business_messaging' + (includeCatalog ? ',catalog_management' : '');
-
-      const url =
-        `https://www.facebook.com/v23.0/dialog/oauth` +
-        `?client_id=${appId}` +
-        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-        `&scope=${encodeURIComponent(scopes)}` +
-        `&response_type=code` +
-        `&config_id=${configId}` +
-        `&state=${uniqueState}`;
-
-      setFacebookLoginUrl(url);
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'WA_EMBEDDED_SIGNUP') {
+          if (data.event === 'FINISH') {
+            const { phone_number_id, waba_id } = data.data;
+            wabaDataRef.current = { waba_id, phone_number_id };
+          }
+        }
+      } catch (e) {
+        console.warn('Non JSON response from parent window');
+      }
     };
 
-    setupLoginUrl();
-  }, [isClient, sessionUser, appId, configId, includeCatalog, state]);
+    window.addEventListener('message', handleMessage);
 
+    if (window.FB) {
+      setIsSdkLoaded(true);
+    } else {
+      window.fbAsyncInit = function () {
+        window.FB.init({
+          appId: appId,
+          autoLogAppEvents: true,
+          xfbml: true,
+          version: 'v23.0',
+        });
+        setIsSdkLoaded(true);
+      };
 
-  if (!isClient || !facebookLoginUrl) {
+      const script = document.createElement('script');
+      script.src = 'https://connect.facebook.net/en_US/sdk.js';
+      script.async = true;
+      script.defer = true;
+      script.crossOrigin = 'anonymous';
+      document.body.appendChild(script);
+    }
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [appId]);
+
+  if (!isSdkLoaded || isProcessing) {
     return (
       <Button disabled size="lg">
         <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
-        Loading…
+        {isProcessing ? 'Finalizing...' : 'Loading...'}
       </Button>
     );
   }
 
   return (
     <Button
-      asChild
+      onClick={launchWhatsAppSignup}
       size="lg"
       className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full"
     >
-      <a href={facebookLoginUrl}>
-        <WhatsAppIcon className="mr-2 h-5 w-5" />
-        Connect with Facebook
-      </a>
+      <WhatsAppIcon className="mr-2 h-5 w-5" />
+      Connect with Facebook
     </Button>
   );
 }
