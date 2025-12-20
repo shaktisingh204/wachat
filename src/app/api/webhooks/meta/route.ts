@@ -124,13 +124,14 @@ export async function GET(request: NextRequest) {
  * It now processes events directly for lower latency.
  */
 export async function POST(request: NextRequest) {
+  const { db } = await connectToDatabase();
+
   try {
     const payloadText = await request.text();
     if (!payloadText) {
         return NextResponse.json({ status: "ignored_empty_body" }, { status: 200 });
     }
     const payload = JSON.parse(payloadText);
-    const { db } = await connectToDatabase();
     
     // Handle Embedded Signup Flow
     if (payload.object === 'whatsapp_business_account') {
@@ -140,12 +141,21 @@ export async function POST(request: NextRequest) {
                 if (change.field === 'account_update' && value.event === 'EMBEDDED_SIGNUP') {
                     console.log(`${LOG_PREFIX} Received Embedded Signup webhook.`);
                     const wabaId = value.whatsapp_business_account_id;
-                    const userId = change.value.business.id; // User ID from the business object
-                    if (!userId) {
-                        console.error(`${LOG_PREFIX} Could not find Business ID (acting as user context) in Embedded Signup webhook.`);
+                    const state = value.oauth_config_state;
+
+                    if (!state) {
+                        console.error(`${LOG_PREFIX} No state found in Embedded Signup webhook.`);
                         continue;
                     }
-                    console.log(`${LOG_PREFIX} Initiating finalizeEmbeddedSignup for user ${userId} and WABA ${wabaId}.`);
+
+                    const stateDoc = await db.collection('oauth_states').findOneAndDelete({ state: state });
+                    if (!stateDoc) {
+                        console.error(`${LOG_PREFIX} Invalid or expired state received from webhook. State: ${state}`);
+                        continue;
+                    }
+
+                    const userId = stateDoc.userId.toString();
+                    console.log(`${LOG_PREFIX} Found user ${userId} for state. Finalizing signup for WABA ${wabaId}.`);
                     await finalizeEmbeddedSignup(userId, wabaId);
                     return NextResponse.json({ success: true, message: 'Onboarding webhook processed.' });
                 }
