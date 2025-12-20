@@ -1,55 +1,72 @@
 
-import { redirect } from 'next/navigation';
-import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
+'use client';
+
+import { useEffect, useTransition, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
+import { handleWabaOnboardingTokenExchange } from '@/app/actions/onboarding.actions';
 
-type SearchParams = {
-  [key: string]: string | string[] | undefined;
-};
+function FacebookCallbackContent() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const [error, setError] = React.useState<string | null>(null);
 
-// This is the definitive, corrected version of the callback page.
-export default async function FacebookCallbackPage({
-  // 🔥 IMPORTANT: searchParams IS A PROMISE
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  // 🔥 MUST unwrap it
-  const params = await searchParams;
+    useEffect(() => {
+        const code = searchParams.get('code');
+        const state = searchParams.get('state');
+        const errorParam = searchParams.get('error_description');
+        
+        if (errorParam) {
+            router.replace(`/dashboard/setup?error=${encodeURIComponent(errorParam)}`);
+            return;
+        }
 
-  const code = params.code as string | undefined;
-  const state = params.state as string | undefined;
-  const error = params.error_description as string | undefined;
+        if (!code || !state) {
+            setError('Missing authorization code or state. Please try the connection process again.');
+            return;
+        }
 
-  if (error) {
-    redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
-  }
+        const exchangeToken = async () => {
+            const result = await handleWabaOnboardingTokenExchange(code, state);
+            if (result.error) {
+                router.replace(`/dashboard/setup?error=${encodeURIComponent(result.error)}`);
+            } else {
+                // Successfully stored token, now wait for webhook
+                router.replace('/dashboard/setup?status=connecting');
+            }
+        };
 
-  if (!code || !state) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <h1 className="text-xl font-semibold text-destructive">
-            Authentication Error
-          </h1>
-          <p className="text-muted-foreground">
-            Missing authorization code or state. Please try the connection
-            process again.
-          </p>
-        </div>
-      </div>
-    );
-  }
+        exchangeToken();
 
-  try {
-    // Call server action to handle the entire onboarding flow now
-    await handleWabaOnboarding(code, state);
-
-    // Redirect to the final success page. The "connecting" page is no longer needed
-    // as the process is now fully synchronous.
-    redirect('/dashboard');
+    }, [searchParams, router]);
     
-  } catch (e: any) {
-    redirect(`/dashboard/setup?error=${encodeURIComponent(e.message)}`);
-  }
+    if (error) {
+         return (
+             <div className="flex flex-col items-center gap-4 text-center">
+                <h1 className="text-xl font-semibold text-destructive">
+                    Authentication Error
+                </h1>
+                <p className="text-muted-foreground">{error}</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col items-center gap-4 text-center">
+            <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
+            <h1 className="text-xl font-semibold">Finalizing connection, please wait...</h1>
+            <p className="text-muted-foreground">Do not close this window. You will be redirected shortly.</p>
+        </div>
+    );
+}
+
+
+export default function FacebookCallbackPage() {
+  return (
+    <div className="flex h-screen w-screen items-center justify-center">
+      <Suspense fallback={<LoaderCircle className="h-12 w-12 animate-spin text-primary" />}>
+        <FacebookCallbackContent />
+      </Suspense>
+    </div>
+  );
 }
