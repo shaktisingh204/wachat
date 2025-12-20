@@ -70,7 +70,7 @@ function interpolate(text: string | undefined, context: any): any {
 };
 
 
-export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowNode, logger: any) {
+export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowNode, user: WithId<User>, logger: any) {
     const { db } = await connectToDatabase();
     const execution = await db.collection('sabflow_executions').findOne({ _id: executionId });
     if (!execution) {
@@ -78,11 +78,6 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         return { error: 'Execution context not found.' };
     }
     
-    const user = await db.collection<User>('users').findOne({ _id: execution.userId });
-    if (!user) {
-        throw new Error("User not found for this execution.");
-    }
-
     const context = execution.context || {};
     const rawInputs = node.data.inputs || {};
     
