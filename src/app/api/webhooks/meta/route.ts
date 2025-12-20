@@ -12,7 +12,7 @@ import {
     processCommentWebhook,
     processMessengerWebhook
 } from '@/lib/webhook-processor';
-import { finalizeEmbeddedSignup } from '@/app/actions/onboarding.actions';
+import { finalizeOnboarding } from '@/app/actions/onboarding.actions';
 
 const LOG_PREFIX = '[META WEBHOOK]';
 
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
                 const value = change.value;
                 if (change.field === 'account_update' && value.event === 'EMBEDDED_SIGNUP') {
                     console.log(`${LOG_PREFIX} Received Embedded Signup webhook.`);
-                    const wabaId = value.whatsapp_business_account_id;
+                    const waba = { id: value.whatsapp_business_account_id, name: 'New WABA' }; // Name will be fetched later
                     const state = value.oauth_config_state;
 
                     if (!state) {
@@ -155,8 +155,15 @@ export async function POST(request: NextRequest) {
                     }
 
                     const userId = stateDoc.userId.toString();
-                    console.log(`${LOG_PREFIX} Found user ${userId} for state. Finalizing signup for WABA ${wabaId}.`);
-                    await finalizeEmbeddedSignup(userId, wabaId);
+                    const tokenDoc = await db.collection('meta_tokens').findOne({ userId: new ObjectId(userId) });
+                    if (!tokenDoc?.systemToken) {
+                        console.error(`${LOG_PREFIX} No system token found for user ${userId} during webhook finalization.`);
+                        continue;
+                    }
+
+                    console.log(`${LOG_PREFIX} Found user ${userId} for state. Finalizing signup for WABA ${waba.id}.`);
+                    await finalizeOnboarding(userId, waba, tokenDoc.systemToken);
+                    
                     return NextResponse.json({ success: true, message: 'Onboarding webhook processed.' });
                 }
             }
