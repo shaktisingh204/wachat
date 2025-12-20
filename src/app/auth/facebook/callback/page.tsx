@@ -1,29 +1,32 @@
 
 import { redirect } from 'next/navigation';
-import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
+import { handleWabaOnboardingTokenExchange } from '@/app/actions/onboarding.actions';
 import { LoaderCircle } from 'lucide-react';
 
 type SearchParams = {
   [key: string]: string | string[] | undefined;
 };
 
-// This is now a Server Component
+// This is now an async Server Component to correctly handle searchParams
 export default async function FacebookCallbackPage({
   searchParams,
 }: {
   // 🔥 IMPORTANT: searchParams IS A PROMISE
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
+  // 🔥 MUST unwrap it
+  const params = await searchParams;
 
-  const code = searchParams.code as string | undefined;
-  const state = searchParams.state as string | undefined;
-  const error = searchParams.error_description as string | undefined;
+  const code = params.code as string | undefined;
+  const state = params.state as string | undefined;
+  const error = params.error_description as string | undefined;
   
   if (error) {
     redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
   }
 
   if (!code || !state) {
+      // This is a user-facing error for a failed OAuth flow.
       return (
             <div className="flex h-screen w-screen items-center justify-center">
                 <div className="flex flex-col items-center gap-4 text-center">
@@ -36,23 +39,14 @@ export default async function FacebookCallbackPage({
       );
   }
 
-  const result = await handleWabaOnboarding(code, state);
+  // If we have a code and state, proceed with the server action.
+  const result = await handleWabaOnboardingTokenExchange(code, state);
 
   if (result.error) {
     redirect(`/dashboard/setup?error=${encodeURIComponent(result.error)}`);
   } else {
-    // Successfully stored token, now wait for webhook
+    // Successfully stored token, now wait for webhook.
+    // The UI will show a "connecting" state based on this URL param.
     redirect('/dashboard/setup?status=connecting');
   }
-
-  // This part is for visual feedback while the server-side logic runs, though redirect is usually instant.
-  return (
-    <div className="flex h-screen w-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-center">
-            <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-            <h1 className="text-xl font-semibold">Finalizing connection, please wait...</h1>
-            <p className="text-muted-foreground">Do not close this window. You will be redirected shortly.</p>
-        </div>
-    </div>
-  );
 }
