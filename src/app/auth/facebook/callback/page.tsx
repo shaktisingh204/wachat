@@ -1,40 +1,52 @@
-
 import { redirect } from 'next/navigation';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { LoaderCircle } from 'lucide-react';
 
-// This is now a single, async Server Component.
+type SearchParams = {
+  [key: string]: string | string[] | undefined;
+};
+
+// ✅ Async Server Component (correct)
 export default async function FacebookCallbackPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  // 🔥 IMPORTANT: searchParams IS A PROMISE
+  searchParams: Promise<SearchParams>;
 }) {
-  const code = searchParams.code as string | undefined;
-  const state = searchParams.state as string | undefined;
-  const error = searchParams.error_description as string | undefined;
+  // 🔥 MUST unwrap it
+  const params = await searchParams;
+
+  const code = params.code as string | undefined;
+  const state = params.state as string | undefined;
+  const error = params.error_description as string | undefined;
 
   if (error) {
-      redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
+    redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
   }
-  
+
   if (!code || !state) {
-       return (
-        <div className="flex h-screen w-screen items-center justify-center">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <h1 className="text-xl font-semibold text-destructive">Authentication Error</h1>
-            <p className="text-muted-foreground">Missing authorization code or state. Please try the connection process again.</p>
-          </div>
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <h1 className="text-xl font-semibold text-destructive">
+            Authentication Error
+          </h1>
+          <p className="text-muted-foreground">
+            Missing authorization code or state. Please try the connection
+            process again.
+          </p>
         </div>
-      );
+      </div>
+    );
   }
 
   try {
-    // Await the server action directly
+    // ✅ Call server action
     await handleWabaOnboarding(code, state);
-    // If the action is successful, redirect server-side
+
+    // ✅ Embedded Signup → wait for webhook
     redirect('/dashboard/setup?status=connecting');
   } catch (e: any) {
-    // If the action throws an error, redirect with the error message
     redirect(`/dashboard/setup?error=${encodeURIComponent(e.message)}`);
   }
 }
