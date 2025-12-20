@@ -12,6 +12,7 @@ import { createAdminSessionToken } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
+import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import axios from 'axios';
 
