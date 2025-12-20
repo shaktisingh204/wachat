@@ -5,13 +5,14 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import { LoaderCircle } from 'lucide-react';
+import { useProject } from '@/context/project-context';
 import { saveOnboardingState } from '@/app/actions/onboarding.actions';
 
 interface EmbeddedSignupProps {
   appId: string;
   configId: string;
   includeCatalog: boolean;
-  state: 'whatsapp' | 'facebook'; // Distinguish between flows
+  state: 'whatsapp' | 'facebook';
 }
 
 export default function EmbeddedSignup({
@@ -22,9 +23,14 @@ export default function EmbeddedSignup({
 }: EmbeddedSignupProps) {
   const [isClient, setIsClient] = useState(false);
   const [facebookLoginUrl, setFacebookLoginUrl] = useState<string | null>(null);
+  const { sessionUser } = useProject();
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient || !sessionUser) return;
 
     const setupLoginUrl = async () => {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL;
@@ -34,7 +40,7 @@ export default function EmbeddedSignup({
       }
       
       const uniqueState = crypto.randomUUID();
-      await saveOnboardingState(uniqueState);
+      await saveOnboardingState(uniqueState, sessionUser._id.toString());
 
       const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
 
@@ -55,7 +61,7 @@ export default function EmbeddedSignup({
     };
 
     setupLoginUrl();
-  }, [appId, configId, includeCatalog, state]);
+  }, [isClient, sessionUser, appId, configId, includeCatalog, state]);
 
 
   if (!isClient || !facebookLoginUrl) {

@@ -4,99 +4,93 @@
 import axios from 'axios';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '.';
 import { getErrorMessage } from '@/lib/utils';
 import type { User, Project, BusinessCapabilities } from '@/lib/definitions';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 
 const API_VERSION = 'v23.0';
-
 const LOG_PREFIX = '[ONBOARDING]';
 
-export async function saveOnboardingState(state: string) {
-    const session = await getSession();
-    if (!session?.user) {
-        console.error(`${LOG_PREFIX} saveOnboardingState failed: User not authenticated.`);
+export async function saveOnboardingState(state: string, userId: string) {
+    if (!userId) {
+        console.error(`${LOG_PREFIX} saveOnboardingState failed: User ID is missing.`);
         return { error: "User not authenticated." };
     }
     
     const { db } = await connectToDatabase();
     const collection = db.collection('oauth_states');
 
-    // Create a TTL index. MongoDB will not create it if it already exists.
-    // This avoids the "ns does not exist" error when checking for indexes on a new collection.
-    await collection.createIndex({ "createdAt": 1 }, { expireAfterSeconds: 600 }); // Expire after 10 minutes
+    await collection.createIndex({ "createdAt": 1 }, { expireAfterSeconds: 600 });
     
     await collection.insertOne({
         state,
-        userId: new ObjectId(session.user._id),
+        userId: new ObjectId(userId),
         createdAt: new Date(),
     });
 
-    console.log(`${LOG_PREFIX} Saved onboarding state for user ${session.user._id}`);
+    console.log(`${LOG_PREFIX} Saved onboarding state for user ${userId}`);
     return { success: true };
 }
 
 
-/* ──────────────────────────────────────────────
-   STEP 1: EXCHANGE CODE → SYSTEM USER TOKEN
-────────────────────────────────────────────── */
-export async function saveSystemToken(code: string) {
-  console.log(`${LOG_PREFIX} Step 1: Starting system token save with authorization code.`);
-  const session = await getSession();
-  if (!session?.user) {
-    const errorMsg = 'Authentication required to save system token.';
-    console.error(`${LOG_PREFIX} Error: ${errorMsg}`);
-    return { error: errorMsg };
-  }
-
-  try {
-    const params = new URLSearchParams({
-      client_id: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!,
-      client_secret: process.env.META_ONBOARDING_APP_SECRET!,
-      redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`,
-      code,
-    });
-
-    console.log(`${LOG_PREFIX} Step 2: Exchanging code for access token.`);
-    const { data } = await axios.post(
-      `https://graph.facebook.com/${API_VERSION}/oauth/access_token`,
-      params,
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-    );
-
-    if (!data.access_token) {
-      console.error(`${LOG_PREFIX} Error: Meta did not return an access token. Response:`, data);
-      throw new Error('Meta did not return access token');
-    }
-    console.log(`${LOG_PREFIX} Step 3: Access token received successfully.`);
-
+export async function handleWabaOnboarding(code: string, state: string) {
+    console.log(`${LOG_PREFIX} Step 1: Received onboarding callback with authorization code.`);
+    
     const { db } = await connectToDatabase();
+    const stateDoc = await db.collection('oauth_states').findOne({ state: state });
 
-    await db.collection('meta_tokens').updateOne(
-      { userId: new ObjectId(session.user._id) },
-      {
-        $set: {
-          userId: new ObjectId(session.user._id),
-          systemToken: data.access_token,
-          createdAt: new Date(),
-        },
-      },
-      { upsert: true }
-    );
-    console.log(`${LOG_PREFIX} Step 4: System user token saved to database for user ${session.user._id}. Waiting for webhook...`);
+    if (!stateDoc) {
+        console.error(`${LOG_PREFIX} Invalid or expired state received: ${state}`);
+        throw new Error('Invalid or expired authentication state. Please try again.');
+    }
 
-    return { success: true };
-  } catch (e) {
-    const errorMsg = getErrorMessage(e);
-    console.error(`${LOG_PREFIX} Error during token exchange:`, errorMsg, e);
-    return { error: errorMsg };
-  }
+    const userId = stateDoc.userId;
+
+    console.log(`${LOG_PREFIX} Step 2: Starting token exchange with Meta for user ${userId}.`);
+
+    try {
+        const params = new URLSearchParams({
+            client_id: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!,
+            client_secret: process.env.META_ONBOARDING_APP_SECRET!,
+            redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`,
+            code,
+        });
+
+        const { data } = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/oauth/access_token`,
+            params,
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        );
+
+        if (!data.access_token) {
+            throw new Error('Meta did not return an access token.');
+        }
+
+        console.log(`${LOG_PREFIX} Step 3: Token exchange successful. Long-lived access token received.`);
+
+        await db.collection('meta_tokens').updateOne(
+            { userId: new ObjectId(userId) },
+            {
+                $set: {
+                userId: new ObjectId(userId),
+                systemToken: data.access_token,
+                createdAt: new Date(),
+                },
+            },
+            { upsert: true }
+        );
+
+        console.log(`${LOG_PREFIX} Step 4: System user token saved to database for user ${userId}. Waiting for webhook...`);
+
+        return { success: true };
+    } catch (e: any) {
+        const errorMsg = getErrorMessage(e);
+        console.error(`${LOG_PREFIX} Error during token exchange for user ${userId}:`, errorMsg, e);
+        throw new Error(`Token exchange failed: ${errorMsg}`);
+    }
 }
 
-/* ──────────────────────────────────────────────
-   STEP 3: FINALIZE PROJECT AFTER WEBHOOK
-────────────────────────────────────────────── */
+
 export async function finalizeEmbeddedSignup(
   userId: string,
   wabaId: string
