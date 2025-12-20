@@ -34,6 +34,7 @@ export default function EmbeddedSignup({ appId, configId, includeCatalog, state 
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
 
+    // The business_management permission is required to read the /me/businesses endpoint.
     let scopes = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
     if (includeCatalog) {
         scopes += ',catalog_management';
@@ -50,5 +51,3 @@ export default function EmbeddedSignup({ appId, configId, includeCatalog, state 
         </Button>
     );
 }
-
-    
