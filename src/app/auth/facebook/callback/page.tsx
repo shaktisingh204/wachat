@@ -1,43 +1,35 @@
-
 import { redirect } from 'next/navigation';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { LoaderCircle } from 'lucide-react';
 
-// This is now a pure Server Component that directly handles the callback.
+type SearchParams = {
+  [key: string]: string | string[] | undefined;
+};
+
 export default async function FacebookCallbackPage({
-    searchParams,
+  searchParams,
 }: {
-    searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<SearchParams>;
 }) {
-    const code = searchParams.code as string | undefined;
-    const error = searchParams.error_description as string | undefined;
+  // ✅ UNWRAP searchParams
+  const params = await searchParams;
 
-    if (error) {
-        redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
-    }
+  const code = params.code as string | undefined;
+  const error = params.error_description as string | undefined;
 
-    if (!code) {
-        // This case handles when the user denies the permission on Facebook's side.
-        redirect(`/dashboard/setup?error=No%20authorization%20code%20received.`);
-    }
+  if (error) {
+    redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
+  }
 
-    // Directly await the server action with the code.
-    const result = await handleWabaOnboarding(code);
-    
-    // Redirect based on the outcome of the server action.
-    if (result.error) {
-        const errorMessage = encodeURIComponent(result.error);
-        redirect(`/dashboard/setup?error=${errorMessage}`);
-    } else {
-        // On success, redirect to the main dashboard.
-        redirect('/dashboard');
-    }
+  if (!code) {
+    redirect(`/dashboard/setup?error=No%20authorization%20code%20received.`);
+  }
 
-    // A fallback loader, though the user will likely be redirected before seeing this.
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-            <p className="mt-4 text-lg text-muted-foreground">Finalizing connection...</p>
-        </div>
-    );
+  const result = await handleWabaOnboarding(code);
+
+  if (result?.error) {
+    redirect(`/dashboard/setup?error=${encodeURIComponent(result.error)}`);
+  }
+
+  redirect('/dashboard');
 }
