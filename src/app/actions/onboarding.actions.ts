@@ -21,19 +21,18 @@ export async function saveOnboardingState(state: string) {
     }
     
     const { db } = await connectToDatabase();
-    
-    // Create an index on `createdAt` to automatically expire documents
     const collection = db.collection('oauth_states');
-    const indexes = await collection.indexes();
-    if (!indexes.some(index => index.key?.createdAt === 1)) {
-        await collection.createIndex({ "createdAt": 1 }, { expireAfterSeconds: 600 }); // Expire after 10 minutes
-    }
+
+    // Create a TTL index. MongoDB will not create it if it already exists.
+    // This avoids the "ns does not exist" error when checking for indexes on a new collection.
+    await collection.createIndex({ "createdAt": 1 }, { expireAfterSeconds: 600 }); // Expire after 10 minutes
     
     await collection.insertOne({
         state,
         userId: new ObjectId(session.user._id),
         createdAt: new Date(),
     });
+
     console.log(`${LOG_PREFIX} Saved onboarding state for user ${session.user._id}`);
     return { success: true };
 }
