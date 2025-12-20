@@ -9,14 +9,17 @@ type SearchParams = {
 
 // This is the definitive, corrected version of the callback page.
 export default async function FacebookCallbackPage({
+  // 🔥 IMPORTANT: searchParams IS A PROMISE
   searchParams,
 }: {
-  // The searchParams object is a Promise that needs to be awaited.
   searchParams: SearchParams;
 }) {
-  const code = searchParams.code as string | undefined;
-  const state = searchParams.state as string | undefined;
-  const error = searchParams.error_description as string | undefined;
+  // 🔥 MUST unwrap it
+  const params = await searchParams;
+
+  const code = params.code as string | undefined;
+  const state = params.state as string | undefined;
+  const error = params.error_description as string | undefined;
 
   if (error) {
     redirect(`/dashboard/setup?error=${encodeURIComponent(error)}`);
