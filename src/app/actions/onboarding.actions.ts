@@ -20,6 +20,7 @@ export async function saveOnboardingState(state: string, userId: string) {
     const { db } = await connectToDatabase();
     const collection = db.collection('oauth_states');
 
+    // Create an index on `createdAt` to automatically expire documents after 10 minutes
     await collection.createIndex({ "createdAt": 1 }, { expireAfterSeconds: 600 });
     
     await collection.insertOne({
@@ -32,61 +33,20 @@ export async function saveOnboardingState(state: string, userId: string) {
     return { success: true };
 }
 
-async function getWabaDetails(accessToken: string) {
-    console.log(`${LOG_PREFIX} Step 4: Fetching WABA details via /me.`);
-
-    try {
-        const response = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/me`,
-            {
-                params: {
-                    fields: 'whatsapp_business_accounts{id,name,business}',
-                    access_token: accessToken,
-                },
-            }
-        );
-
-        console.log('[ONBOARDING] Step 4.1: /me response:', response.data);
-
-        const wabas = response.data?.whatsapp_business_accounts?.data;
-
-        if (!wabas || wabas.length === 0) {
-            return { error: 'No WhatsApp Business Accounts found for this user.' };
-        }
-
-        return {
-            wabas: wabas.map((w: any) => ({
-                id: w.id,
-                name: w.name,
-                businessId: w.business?.id,
-            })),
-        };
-    } catch (e: any) {
-        console.error(
-            '[ONBOARDING] getWabaDetails() failed:',
-            e.response?.data || e.message
-        );
-
-        return {
-            error: `Failed to retrieve WhatsApp account details: ${
-                e.response?.data?.error?.message || e.message
-            }`,
-        };
-    }
-}
-
-
-export async function handleWabaOnboarding(code: string, state: string) {
+export async function handleWabaOnboardingTokenExchange(code: string, state: string) {
     console.log(`${LOG_PREFIX} Step 1: Received onboarding callback with authorization code.`);
     
     const { db } = await connectToDatabase();
-    const stateDoc = await db.collection('oauth_states').findOneAndDelete({ state: state });
+    const stateDoc = await db.collection('oauth_states').findOne({ state: state });
 
     if (!stateDoc) {
         console.error(`${LOG_PREFIX} Invalid or expired state received: ${state}`);
         throw new Error('Invalid or expired authentication state. Please try again.');
     }
-
+    
+    // Mark state as used to prevent replay attacks
+    await db.collection('oauth_states').deleteOne({ _id: stateDoc._id });
+    
     const userId = stateDoc.userId;
 
     console.log(`${LOG_PREFIX} Step 2: Starting token exchange with Meta for user ${userId}.`);
@@ -110,29 +70,22 @@ export async function handleWabaOnboarding(code: string, state: string) {
         }
 
         const accessToken = data.access_token;
-        console.log(`${LOG_PREFIX} Step 3: Token exchange successful. Long-lived access token received.`);
+        console.log(`${LOG_PREFIX} Step 3: Token exchange successful. System user token received.`);
         
-        console.log(`${LOG_PREFIX} Step 4: Fetching WABA data with new access token.`);
-        const wabaData = await getWabaDetails(accessToken);
-        if (wabaData.error) {
-             throw new Error(wabaData.error);
-        }
+        // Store the system user token temporarily, associated with the user.
+        await db.collection('meta_tokens').updateOne(
+            { userId: userId },
+            { $set: { systemToken: accessToken, updatedAt: new Date() } },
+            { upsert: true }
+        );
 
-        if (!wabaData.wabas || wabaData.wabas.length === 0) {
-            throw new Error('No WhatsApp Business Accounts were found.');
-        }
+        console.log(`${LOG_PREFIX} Step 4: System user token saved to database for user ${userId}. Waiting for webhook...`);
         
-        const waba = wabaData.wabas[0]; // Process the first WABA found
-        console.log(`${LOG_PREFIX} Step 5: Found WABA: ${waba.name} (${waba.id})`);
-
-        await finalizeOnboarding(userId.toString(), waba, accessToken);
-        
-        console.log(`${LOG_PREFIX} Onboarding process completed successfully for user ${userId}.`);
         return { success: true };
 
     } catch (e: any) {
         const errorMsg = getErrorMessage(e);
-        console.error(`${LOG_PREFIX} Onboarding process failed:`, errorMsg, e);
+        console.error(`${LOG_PREFIX} Onboarding process failed at token exchange:`, errorMsg, e);
         throw new Error(errorMsg);
     }
 }
@@ -143,14 +96,14 @@ export async function finalizeOnboarding(
   waba: { id: string, name: string, businessId?: string },
   accessToken: string
 ) {
-  console.log(`${LOG_PREFIX} Step 6: Finalizing onboarding for user ${userId} and WABA ${waba.id}.`);
+  console.log(`${LOG_PREFIX} Step 5: Finalizing onboarding for user ${userId} and WABA ${waba.id}.`);
   const { db } = await connectToDatabase();
 
   try {
     let businessCaps: BusinessCapabilities | undefined;
 
     if (waba.businessId) {
-        console.log(`${LOG_PREFIX} Step 6.1: Fetching business capabilities for business ID ${waba.businessId}.`);
+        console.log(`${LOG_PREFIX} Step 5.1: Fetching business capabilities for business ID ${waba.businessId}.`);
         const { data: capsData } = await axios.get(
             `https://graph.facebook.com/${API_VERSION}/${waba.businessId}`,
             {
@@ -161,12 +114,12 @@ export async function finalizeOnboarding(
             }
         );
         businessCaps = capsData?.business_capabilities;
-        console.log(`${LOG_PREFIX} Step 6.2: Fetched business capabilities:`, businessCaps);
+        console.log(`${LOG_PREFIX} Step 5.2: Fetched business capabilities:`, businessCaps);
     }
 
     const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
     if (defaultPlan) {
-        console.log(`${LOG_PREFIX} Step 6.3: Found default plan "${defaultPlan.name}".`);
+        console.log(`${LOG_PREFIX} Step 5.3: Found default plan "${defaultPlan.name}".`);
     }
 
     const project: Omit<Project, '_id'> = {
@@ -183,7 +136,7 @@ export async function finalizeOnboarding(
       businessCapabilities: businessCaps,
     };
     
-    console.log(`${LOG_PREFIX} Step 6.4: Upserting project into database.`);
+    console.log(`${LOG_PREFIX} Step 5.4: Upserting project into database.`);
     const updateResult = await db.collection<Project>('projects').updateOne(
       { userId: project.userId, wabaId: project.wabaId },
       { $set: project },
@@ -194,12 +147,12 @@ export async function finalizeOnboarding(
     const projectId = findResult?._id;
     
     if (projectId) {
-        console.log(`${LOG_PREFIX} Step 6.5: Project upserted. Project ID: ${projectId}. Now syncing phone numbers and subscribing to webhooks.`);
+        console.log(`${LOG_PREFIX} Step 5.5: Project upserted. Project ID: ${projectId}. Now syncing phone numbers and subscribing to webhooks.`);
         await handleSyncPhoneNumbers(projectId.toString());
         await handleSubscribeProjectWebhook(project.wabaId!, project.appId!, project.accessToken);
     }
 
-    console.log(`${LOG_PREFIX} Step 7: Finalization complete.`);
+    console.log(`${LOG_PREFIX} Step 6: Finalization complete.`);
     return { success: true };
   } catch (e: any) {
     const errorMsg = getErrorMessage(e);
