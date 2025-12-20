@@ -11,88 +11,103 @@ import type { User, Plan, Project } from '@/lib/definitions';
 
 const API_VERSION = 'v23.0';
 
-/* --------------------------------------------------
-   STEP 1: EXCHANGE AUTH CODE → ACCESS TOKEN
--------------------------------------------------- */
-async function exchangeCodeForTokens(code: string) {
+/* ──────────────────────────────────────────────
+   META TOKEN DEBUGGER (CRITICAL)
+────────────────────────────────────────────── */
+async function debugMetaToken(accessToken: string) {
+  const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!;
+  const appSecret = process.env.META_ONBOARDING_APP_SECRET!;
+
+  const { data } = await axios.get(
+    'https://graph.facebook.com/debug_token',
+    {
+      params: {
+        input_token: accessToken,
+        access_token: `${appId}|${appSecret}`,
+      },
+    }
+  );
+
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('[META DEBUG] Token Debug Result');
+  console.log('User ID:', data.data.user_id);
+  console.log('App ID:', data.data.app_id);
+  console.log('Token Type:', data.data.type);
+  console.log('Is Valid:', data.data.is_valid);
+  console.log(
+    'Expires At:',
+    data.data.expires_at
+      ? new Date(data.data.expires_at * 1000)
+      : 'never'
+  );
+  console.log('Scopes Granted:', data.data.scopes);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+  return data.data;
+}
+
+/* ──────────────────────────────────────────────
+   STEP 1: EXCHANGE CODE → TOKEN
+────────────────────────────────────────────── */
+async function exchangeCodeForToken(code: string) {
+  console.log('[ONBOARDING] Step 2: Exchanging code for access token');
+
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!;
   const appSecret = process.env.META_ONBOARDING_APP_SECRET!;
   const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`;
 
-  try {
-    const params = new URLSearchParams({
-      client_id: appId,
-      client_secret: appSecret,
-      redirect_uri: redirectUri,
-      code,
-    });
-
-    const { data } = await axios.post(
-      `https://graph.facebook.com/${API_VERSION}/oauth/access_token`,
-      params,
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-    );
-
-    if (!data.access_token) {
-      throw new Error('Access token not returned by Meta');
-    }
-
-    return { accessToken: data.access_token };
-  } catch (e: any) {
-    return { error: getErrorMessage(e) };
-  }
-}
-
-/* --------------------------------------------------
-   STEP 2: VERIFY TOKEN SCOPES
--------------------------------------------------- */
-async function verifyTokenScopes(accessToken: string) {
-  const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!;
-  const appSecret = process.env.META_ONBOARDING_APP_SECRET!;
-
-  const { data } = await axios.get('https://graph.facebook.com/debug_token', {
-    params: {
-      input_token: accessToken,
-      access_token: `${appId}|${appSecret}`,
-    },
+  const params = new URLSearchParams({
+    client_id: appId,
+    client_secret: appSecret,
+    redirect_uri: redirectUri,
+    code,
   });
 
-  const scopes: string[] = data.data.scopes || [];
+  const { data } = await axios.post(
+    `https://graph.facebook.com/${API_VERSION}/oauth/access_token`,
+    params,
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+  );
 
-  const requiredScopes = [
-    'business_management',
-    'whatsapp_business_management',
-    'whatsapp_business_messaging',
-  ];
+  console.log('[ONBOARDING] Token exchange response:', data);
 
-  const missing = requiredScopes.filter(s => !scopes.includes(s));
-
-  if (missing.length) {
-    throw new Error(
-      `Missing Meta permissions: ${missing.join(', ')}. Please reconnect and approve access.`
-    );
+  if (!data.access_token) {
+    throw new Error('Meta did not return an access token');
   }
+
+  return data.access_token;
 }
 
-/* --------------------------------------------------
-   STEP 3: FETCH BUSINESSES + WABAs
--------------------------------------------------- */
-async function getWabaDetails(accessToken: string) {
-  try {
-    const { data } = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/me/businesses`,
-      { params: { access_token: accessToken } }
+/* ──────────────────────────────────────────────
+   STEP 2: FETCH BUSINESSES + WABAs
+────────────────────────────────────────────── */
+async function fetchWabas(accessToken: string) {
+  console.log('[ONBOARDING] Fetching businesses via /me/businesses');
+
+  const businessRes = await axios.get(
+    `https://graph.facebook.com/${API_VERSION}/me/businesses`,
+    { params: { access_token: accessToken } }
+  );
+
+  console.log(
+    '[ONBOARDING] /me/businesses response:',
+    JSON.stringify(businessRes.data, null, 2)
+  );
+
+  const businesses = businessRes.data?.data || [];
+  if (!businesses.length) {
+    throw new Error('No Meta Business accounts found');
+  }
+
+  const wabas: { id: string; name: string }[] = [];
+
+  for (const business of businesses) {
+    console.log(
+      `[ONBOARDING] Fetching WABAs for business ${business.id}`
     );
 
-    const businesses = data.data || [];
-    if (!businesses.length) {
-      throw new Error('No Meta Business accounts found');
-    }
-
-    const wabas: { id: string; name: string }[] = [];
-
-    for (const business of businesses) {
-      const res = await axios.get(
+    try {
+      const wabaRes = await axios.get(
         `https://graph.facebook.com/${API_VERSION}/${business.id}/owned_whatsapp_business_accounts`,
         {
           params: {
@@ -102,44 +117,63 @@ async function getWabaDetails(accessToken: string) {
         }
       );
 
-      if (res.data?.data?.length) {
-        wabas.push(...res.data.data);
+      console.log(
+        `[ONBOARDING] WABA response for ${business.id}:`,
+        JSON.stringify(wabaRes.data, null, 2)
+      );
+
+      if (wabaRes.data?.data?.length) {
+        wabas.push(...wabaRes.data.data);
       }
+    } catch (err: any) {
+      console.warn(
+        `[ONBOARDING] Failed fetching WABAs for business ${business.id}`,
+        err.response?.data || err.message
+      );
     }
-
-    if (!wabas.length) {
-      throw new Error('No WhatsApp Business Accounts found');
-    }
-
-    return wabas;
-  } catch (e: any) {
-    throw new Error(e.response?.data?.error?.message || e.message);
   }
+
+  if (!wabas.length) {
+    throw new Error('No WhatsApp Business Accounts found');
+  }
+
+  return wabas;
 }
 
-/* --------------------------------------------------
-   STEP 4: MAIN ONBOARDING HANDLER
--------------------------------------------------- */
+/* ──────────────────────────────────────────────
+   MAIN HANDLER
+────────────────────────────────────────────── */
 export async function handleWabaOnboarding(code?: string) {
+  console.log('[ONBOARDING] Step 1: Callback received');
+
   if (!code) return { error: 'Authorization code missing' };
 
   const session = await getSession();
   if (!session?.user) return { error: 'Authentication required' };
 
   try {
-    const tokenRes = await exchangeCodeForTokens(code);
-    if (tokenRes.error || !tokenRes.accessToken) {
-      throw new Error(tokenRes.error);
+    /* 🔑 TOKEN */
+    const accessToken = await exchangeCodeForToken(code);
+
+    /* 🔍 TOKEN DEBUG */
+    const debugData = await debugMetaToken(accessToken);
+
+    if (!debugData.scopes?.includes('business_management')) {
+      console.error(
+        '[ONBOARDING] business_management NOT GRANTED',
+        debugData.scopes
+      );
+
+      return {
+        error:
+          'Meta did not grant business access. Remove the app from Facebook settings and reconnect.',
+      };
     }
 
-    const accessToken = tokenRes.accessToken;
+    /* 🏢 FETCH WABAs */
+    const wabas = await fetchWabas(accessToken);
 
-    // 🔐 Validate permissions
-    await verifyTokenScopes(accessToken);
-
-    // 📦 Fetch WABAs
-    const wabas = await getWabaDetails(accessToken);
-
+    /* 💾 DATABASE */
     const { db } = await connectToDatabase();
 
     const user = await db
@@ -184,9 +218,10 @@ export async function handleWabaOnboarding(code?: string) {
       },
     }));
 
+    console.log(`[ONBOARDING] Writing ${ops.length} project(s)`);
     await db.collection<Project>('projects').bulkWrite(ops);
 
-    // 🔁 Post-setup
+    /* 🔔 POST SETUP */
     for (const waba of wabas) {
       const project = await db
         .collection<Project>('projects')
@@ -203,9 +238,11 @@ export async function handleWabaOnboarding(code?: string) {
     }
 
     revalidatePath('/dashboard');
+    console.log('[ONBOARDING] SUCCESS');
 
     return { success: true };
   } catch (e: any) {
+    console.error('[ONBOARDING] FAILED', e);
     return { error: getErrorMessage(e) };
   }
 }
