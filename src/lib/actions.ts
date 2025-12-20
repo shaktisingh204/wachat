@@ -3,7 +3,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { getDecodedSession, verifyAdminJwt } from './auth';
+import { getDecodedSession, verifyAdminJwt, createSessionToken } from './auth';
 import type { User, Project, Plan, Tag } from './definitions';
 import { connectToDatabase } from './mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -128,6 +128,3 @@ export async function getAdminSession() {
 
   return { isAdmin: true, user: decoded };
 }
-
-
-
