@@ -1,234 +1,211 @@
-
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { ObjectId, WithId } from 'mongodb';
 import axios from 'axios';
+import { ObjectId } from 'mongodb';
+import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '.';
-import type { Project, User, Plan } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { handleSyncPhoneNumbers, handleSubscribeProjectWebhook } from './whatsapp.actions';
+import type { User, Plan, Project } from '@/lib/definitions';
 
 const API_VERSION = 'v23.0';
 
-// Exchanges the short-lived authorization code for a long-lived access token.
-async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: string; error?: string }> {
-    console.log('[ONBOARDING] Step 2: Starting token exchange with Meta.');
-    const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
-    const appSecret = process.env.META_ONBOARDING_APP_SECRET;
-    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`;
+/* --------------------------------------------------
+   STEP 1: EXCHANGE AUTH CODE → ACCESS TOKEN
+-------------------------------------------------- */
+async function exchangeCodeForTokens(code: string) {
+  const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!;
+  const appSecret = process.env.META_ONBOARDING_APP_SECRET!;
+  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`;
 
-    if (!appId || !appSecret) {
-        const errorMsg = '[ONBOARDING] FATAL: Server is not configured for Meta OAuth. Missing App ID or Secret.';
-        console.error(errorMsg);
-        return { error: 'Server is not configured for Meta OAuth. Missing App ID or Secret.' };
+  try {
+    const params = new URLSearchParams({
+      client_id: appId,
+      client_secret: appSecret,
+      redirect_uri: redirectUri,
+      code,
+    });
+
+    const { data } = await axios.post(
+      `https://graph.facebook.com/${API_VERSION}/oauth/access_token`,
+      params,
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+
+    if (!data.access_token) {
+      throw new Error('Access token not returned by Meta');
     }
-    
-    try {
-        const params = new URLSearchParams();
-        params.append('client_id', appId);
-        params.append('client_secret', appSecret);
-        params.append('redirect_uri', redirectUri);
-        params.append('code', code);
-        
-        const url = `https://graph.facebook.com/${API_VERSION}/oauth/access_token`;
-        console.log(`[ONBOARDING] Step 2.1: Sending POST to ${url}.`);
 
-        const response = await axios.post(url, params, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-
-        console.log('[ONBOARDING] Step 2.3: Received response from Meta:', response.data);
-        
-        const accessToken = response.data.access_token;
-        
-        if (!accessToken) {
-            const errorMsg = 'Could not retrieve access token from Meta. The code may be invalid or expired.';
-            console.error('[ONBOARDING] Token exchange failed. Response from Meta:', response.data);
-            throw new Error(errorMsg);
-        }
-
-        console.log('[ONBOARDING] Step 3: Token exchange successful. Long-lived access token received.');
-        return { accessToken };
-    } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error("[ONBOARDING] Token Exchange Error:", errorMessage, e.response?.data || '');
-        return { error: `Token Exchange Failed: ${errorMessage}` };
-    }
+    return { accessToken: data.access_token };
+  } catch (e: any) {
+    return { error: getErrorMessage(e) };
+  }
 }
 
-// Fetches the WABA details using the access token by first finding the business, then the WABAs.
-export async function getWabaDetails(accessToken: string) {
-    console.log('[ONBOARDING] Step 4: Fetching associated Business accounts via /me/businesses.');
+/* --------------------------------------------------
+   STEP 2: VERIFY TOKEN SCOPES
+-------------------------------------------------- */
+async function verifyTokenScopes(accessToken: string) {
+  const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!;
+  const appSecret = process.env.META_ONBOARDING_APP_SECRET!;
 
-    try {
-        const businessResponse = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/me/businesses`,
-            {
-                params: {
-                    access_token: accessToken,
-                },
-            }
-        );
+  const { data } = await axios.get('https://graph.facebook.com/debug_token', {
+    params: {
+      input_token: accessToken,
+      access_token: `${appId}|${appSecret}`,
+    },
+  });
 
-        const businesses = businessResponse.data.data;
-        if (!businesses || businesses.length === 0) {
-            return { error: 'No Meta Business Accounts found for this user.' };
-        }
-        
-        const allWabas: { id: string, name: string }[] = [];
+  const scopes: string[] = data.data.scopes || [];
 
-        for (const business of businesses) {
-             console.log(`[ONBOARDING] Step 4.1: Found Business ID: ${business.id}. Fetching WABAs for this business.`);
-             try {
-                const wabaResponse = await axios.get(
-                    `https://graph.facebook.com/${API_VERSION}/${business.id}/owned_whatsapp_business_accounts`,
-                    {
-                        params: {
-                             fields: 'name,id',
-                             access_token: accessToken,
-                        }
-                    }
-                );
-                
-                const wabas = wabaResponse.data.data;
-                if (wabas && wabas.length > 0) {
-                    allWabas.push(...wabas);
-                }
-             } catch (wabaError) {
-                 console.warn(`[ONBOARDING] Could not fetch WABAs for business ${business.id}. It might not have any, or permissions are missing.`, wabaError);
-             }
-        }
-        
-        if (allWabas.length === 0) {
-            return { error: 'No WhatsApp Business Accounts found across all your Meta Business portfolios.' };
-        }
-        
-        console.log(`[ONBOARDING] Step 4.2: Found ${allWabas.length} total WABA(s).`);
-        return { wabas: allWabas };
+  const requiredScopes = [
+    'business_management',
+    'whatsapp_business_management',
+    'whatsapp_business_messaging',
+  ];
 
-    } catch (e: any) {
-        console.error(
-            '[ONBOARDING] getWabaDetails() failed:',
-            e.response?.data || e.message
-        );
+  const missing = requiredScopes.filter(s => !scopes.includes(s));
 
-        return {
-            error: `Failed to retrieve business account details: ${
-                e.response?.data?.error?.message || e.message
-            }`,
-        };
-    }
+  if (missing.length) {
+    throw new Error(
+      `Missing Meta permissions: ${missing.join(', ')}. Please reconnect and approve access.`
+    );
+  }
 }
 
+/* --------------------------------------------------
+   STEP 3: FETCH BUSINESSES + WABAs
+-------------------------------------------------- */
+async function getWabaDetails(accessToken: string) {
+  try {
+    const { data } = await axios.get(
+      `https://graph.facebook.com/${API_VERSION}/me/businesses`,
+      { params: { access_token: accessToken } }
+    );
 
-// Handles the creation or update of projects after successful WABA onboarding.
+    const businesses = data.data || [];
+    if (!businesses.length) {
+      throw new Error('No Meta Business accounts found');
+    }
+
+    const wabas: { id: string; name: string }[] = [];
+
+    for (const business of businesses) {
+      const res = await axios.get(
+        `https://graph.facebook.com/${API_VERSION}/${business.id}/owned_whatsapp_business_accounts`,
+        {
+          params: {
+            fields: 'id,name',
+            access_token: accessToken,
+          },
+        }
+      );
+
+      if (res.data?.data?.length) {
+        wabas.push(...res.data.data);
+      }
+    }
+
+    if (!wabas.length) {
+      throw new Error('No WhatsApp Business Accounts found');
+    }
+
+    return wabas;
+  } catch (e: any) {
+    throw new Error(e.response?.data?.error?.message || e.message);
+  }
+}
+
+/* --------------------------------------------------
+   STEP 4: MAIN ONBOARDING HANDLER
+-------------------------------------------------- */
 export async function handleWabaOnboarding(code?: string) {
-    console.log('[ONBOARDING] Step 1: Received onboarding callback with authorization code.');
-    if (!code) {
-        return { error: 'No authorization code received.' };
+  if (!code) return { error: 'Authorization code missing' };
+
+  const session = await getSession();
+  if (!session?.user) return { error: 'Authentication required' };
+
+  try {
+    const tokenRes = await exchangeCodeForTokens(code);
+    if (tokenRes.error || !tokenRes.accessToken) {
+      throw new Error(tokenRes.error);
     }
-    
-    const session = await getSession();
-    if (!session?.user) {
-        console.error('[ONBOARDING] Error: Authentication required.');
-        return { error: 'Authentication required' };
+
+    const accessToken = tokenRes.accessToken;
+
+    // 🔐 Validate permissions
+    await verifyTokenScopes(accessToken);
+
+    // 📦 Fetch WABAs
+    const wabas = await getWabaDetails(accessToken);
+
+    const { db } = await connectToDatabase();
+
+    const user = await db
+      .collection<User>('users')
+      .findOne({ _id: new ObjectId(session.user._id) });
+
+    if (!user) throw new Error('User not found');
+
+    let planId = user.planId;
+    let credits = user.credits || 0;
+
+    if (!planId) {
+      const defaultPlan = await db
+        .collection<Plan>('plans')
+        .findOne({ isDefault: true });
+
+      if (!defaultPlan) throw new Error('Default plan not configured');
+
+      planId = defaultPlan._id;
+      credits = defaultPlan.signupCredits || 0;
     }
-    
-    try {
-        const tokenResult = await exchangeCodeForTokens(code);
-        if (tokenResult.error || !tokenResult.accessToken) {
-            throw new Error(tokenResult.error || 'Failed to get access token.');
-        }
-        
-        const accessToken = tokenResult.accessToken;
-        
-        console.log('[ONBOARDING] Step 5: Getting WABA data from new access token.');
-        const wabaData = await getWabaDetails(accessToken);
-        if (wabaData.error) {
-             throw new Error(wabaData.error);
-        }
 
-        if (!wabaData.wabas || wabaData.wabas.length === 0) {
-            console.error('[ONBOARDING] Error: No WABA IDs found for the provided token.', wabaData);
-            return { error: 'No WhatsApp accounts were found for the provided token. Please ensure you selected them during the flow.' };
-        }
+    const ops = wabas.map(waba => ({
+      updateOne: {
+        filter: { userId: user._id, wabaId: waba.id },
+        update: {
+          $set: {
+            userId: user._id,
+            name: waba.name || `WABA ${waba.id}`,
+            wabaId: waba.id,
+            appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
+            accessToken,
+            planId,
+            credits,
+            messagesPerSecond: 80,
+            phoneNumbers: [],
+            updatedAt: new Date(),
+          },
+          $setOnInsert: { createdAt: new Date() },
+        },
+        upsert: true,
+      },
+    }));
 
-        console.log('[ONBOARDING] Step 6: Onboarding data is valid. Preparing to save to database.');
-        const { db } = await connectToDatabase();
-        
-        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
-        if (!user) throw new Error("User not found.");
+    await db.collection<Project>('projects').bulkWrite(ops);
 
-        let planIdToAssign: ObjectId;
-        let creditsToAssign: number = user.credits || 0;
+    // 🔁 Post-setup
+    for (const waba of wabas) {
+      const project = await db
+        .collection<Project>('projects')
+        .findOne({ userId: user._id, wabaId: waba.id });
 
-        if (user.planId) {
-            planIdToAssign = user.planId;
-            console.log(`[ONBOARDING] User has existing plan ID: ${planIdToAssign}`);
-        } else {
-            console.log('[ONBOARDING] User has no plan. Fetching default plan.');
-            const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
-            if (!defaultPlan) {
-                const errorMsg = "[ONBOARDING] FATAL: No default plan is set for new users. Onboarding cannot proceed.";
-                console.error(errorMsg);
-                throw new Error("System configuration error: No default plan is set for new users.");
-            }
-            planIdToAssign = defaultPlan._id;
-            creditsToAssign = defaultPlan.signupCredits || 0;
-            console.log(`[ONBOARDING] Assigning default plan ID: ${planIdToAssign}`);
-        }
-
-        const bulkOps = [];
-        console.log(`[ONBOARDING] Step 7: Preparing to create/update ${wabaData.wabas.length} project(s).`);
-
-        for (const waba of wabaData.wabas) {
-            const projectData = {
-                userId: new ObjectId(session.user._id),
-                name: waba.name || `WABA ${waba.id}`,
-                wabaId: waba.id,
-                appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
-                accessToken: accessToken,
-                messagesPerSecond: 80,
-                phoneNumbers: [], // Will be synced later
-                planId: planIdToAssign,
-                credits: creditsToAssign,
-            };
-
-            bulkOps.push({
-                updateOne: {
-                    filter: { userId: projectData.userId, wabaId: projectData.wabaId },
-                    update: { $set: projectData, $setOnInsert: { createdAt: new Date() } },
-                    upsert: true,
-                },
-            });
-        }
-        
-        if (bulkOps.length > 0) {
-            console.log('[ONBOARDING] Step 8: Executing database bulk write operation.');
-            const result = await db.collection('projects').bulkWrite(bulkOps);
-            console.log(`[ONBOARDING] Step 9: Database operation complete. Upserted IDs: ${Object.values(result.upsertedIds).length}, Modified: ${result.modifiedCount}`);
-            
-            // Post-creation/update tasks
-             console.log('[ONBOARDING] Step 10: Post-creation setup for projects (webhook subscription & phone sync).');
-            for (const op of bulkOps) {
-                const updatedProject = await db.collection<Project>('projects').findOne(op.updateOne.filter);
-                if(updatedProject) {
-                    await handleSyncPhoneNumbers(updatedProject._id.toString());
-                    await handleSubscribeProjectWebhook(updatedProject.wabaId!, updatedProject.appId!, updatedProject.accessToken);
-                }
-            }
-        }
-
-        revalidatePath('/dashboard');
-        console.log('[ONBOARDING] Step 11: Onboarding complete! Success response sent.');
-        return { success: true, message: `Onboarding complete! Your projects have been synced.` };
-
-    } catch (e: any) {
-        console.error("[ONBOARDING] Onboarding process failed:", e);
-        return { error: getErrorMessage(e) };
+      if (project) {
+        await handleSyncPhoneNumbers(project._id.toString());
+        await handleSubscribeProjectWebhook(
+          project.wabaId!,
+          project.appId!,
+          project.accessToken
+        );
+      }
     }
+
+    revalidatePath('/dashboard');
+
+    return { success: true };
+  } catch (e: any) {
+    return { error: getErrorMessage(e) };
+  }
 }
-
-    
