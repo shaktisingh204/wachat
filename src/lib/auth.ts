@@ -100,6 +100,16 @@ export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload
     }
 }
 
+export async function createSessionToken(payload: Omit<SessionPayload, 'expires' | 'jti'>): Promise<string> {
+    const jti = nanoid();
+    return new SignJWT({ ...payload })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setJti(jti)
+        .setIssuedAt()
+        .setExpirationTime('7d')
+        .sign(getJwtSecretKey());
+}
+
 export async function createAdminSessionToken(): Promise<string> {
     const jti = nanoid();
     return new SignJWT({ role: 'admin', loggedInAt: Date.now() })
