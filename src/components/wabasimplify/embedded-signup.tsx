@@ -32,11 +32,11 @@ export default function EmbeddedSignup({ appId, configId, includeCatalog, state 
         return <Button disabled size="lg"><LoaderCircle className="mr-2 h-5 w-5 animate-spin"/>Loading...</Button>;
     }
 
-    const redirectUri = 'https://sabnode.com/auth/facebook/callback';
+    const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
 
-    let scopes = 'whatsapp_business_management,whatsapp_business_messaging';
+    let scopes = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
     if (includeCatalog) {
-        scopes += ',catalog_management,business_management';
+        scopes += ',catalog_management';
     }
 
     const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&config_id=${configId}&state=${state}`;

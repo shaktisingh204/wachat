@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -57,35 +58,56 @@ async function exchangeCodeForTokens(code: string): Promise<{ accessToken?: stri
     }
 }
 
-// Fetches the WABA details using the access token.
+// Fetches the WABA details using the access token by first finding the business, then the WABAs.
 export async function getWabaDetails(accessToken: string) {
-    console.log('[ONBOARDING] Step 4: Fetching WABA details via /me.');
+    console.log('[ONBOARDING] Step 4: Fetching associated Business accounts via /me/businesses.');
 
     try {
-        const response = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/me`,
+        const businessResponse = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/me/businesses`,
             {
                 params: {
-                    fields: 'whatsapp_business_accounts{id,name}',
                     access_token: accessToken,
                 },
             }
         );
 
-        console.log('[ONBOARDING] Step 4.1: /me response:', response.data);
-
-        const wabas = response.data?.whatsapp_business_accounts?.data;
-
-        if (!wabas || wabas.length === 0) {
-            return { error: 'No WhatsApp Business Accounts found for this user.' };
+        const businesses = businessResponse.data.data;
+        if (!businesses || businesses.length === 0) {
+            return { error: 'No Meta Business Accounts found for this user.' };
         }
+        
+        const allWabas: { id: string, name: string }[] = [];
 
-        return {
-            wabas: wabas.map((w: any) => ({
-                id: w.id,
-                name: w.name,
-            })),
-        };
+        for (const business of businesses) {
+             console.log(`[ONBOARDING] Step 4.1: Found Business ID: ${business.id}. Fetching WABAs for this business.`);
+             try {
+                const wabaResponse = await axios.get(
+                    `https://graph.facebook.com/${API_VERSION}/${business.id}/owned_whatsapp_business_accounts`,
+                    {
+                        params: {
+                             fields: 'name,id',
+                             access_token: accessToken,
+                        }
+                    }
+                );
+                
+                const wabas = wabaResponse.data.data;
+                if (wabas && wabas.length > 0) {
+                    allWabas.push(...wabas);
+                }
+             } catch (wabaError) {
+                 console.warn(`[ONBOARDING] Could not fetch WABAs for business ${business.id}. It might not have any, or permissions are missing.`, wabaError);
+             }
+        }
+        
+        if (allWabas.length === 0) {
+            return { error: 'No WhatsApp Business Accounts found across all your Meta Business portfolios.' };
+        }
+        
+        console.log(`[ONBOARDING] Step 4.2: Found ${allWabas.length} total WABA(s).`);
+        return { wabas: allWabas };
+
     } catch (e: any) {
         console.error(
             '[ONBOARDING] getWabaDetails() failed:',
@@ -93,7 +115,7 @@ export async function getWabaDetails(accessToken: string) {
         );
 
         return {
-            error: `Failed to retrieve WhatsApp account details: ${
+            error: `Failed to retrieve business account details: ${
                 e.response?.data?.error?.message || e.message
             }`,
         };
@@ -101,10 +123,13 @@ export async function getWabaDetails(accessToken: string) {
 }
 
 
-
 // Handles the creation or update of projects after successful WABA onboarding.
-export async function handleWabaOnboarding(code: string) {
+export async function handleWabaOnboarding(code?: string) {
     console.log('[ONBOARDING] Step 1: Received onboarding callback with authorization code.');
+    if (!code) {
+        return { error: 'No authorization code received.' };
+    }
+    
     const session = await getSession();
     if (!session?.user) {
         console.error('[ONBOARDING] Error: Authentication required.');
@@ -205,3 +230,5 @@ export async function handleWabaOnboarding(code: string) {
         return { error: getErrorMessage(e) };
     }
 }
+
+    
