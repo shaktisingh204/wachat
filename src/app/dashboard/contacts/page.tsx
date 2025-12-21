@@ -107,7 +107,9 @@ export default function ContactsPage() {
 
     const currentPage = Number(searchParams.get('page')) || 1;
     const searchQuery = searchParams.get('query') || '';
-    const selectedTags = searchParams.get('tags')?.split(',').filter(Boolean) || [];
+    
+    const tagsParam = searchParams.get('tags');
+    const selectedTags = useMemo(() => tagsParam?.split(',').filter(Boolean) || [], [tagsParam]);
     
     const [totalPages, setTotalPages] = useState(0);
     const { toast } = useToast();
@@ -127,11 +129,11 @@ export default function ContactsPage() {
                 });
              }
         });
-    }, [activeProjectId, currentPage, searchQuery, selectedTags]);
+    }, [activeProjectId, currentPage, searchQuery, selectedTags, toast]);
 
 
     const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams.toString());
         if (value && value.trim() !== '') {
             params.set(key, value);
         } else {
@@ -179,8 +181,8 @@ export default function ContactsPage() {
                             <div className="flex items-center gap-2">
                                 {activeProject && (
                                     <>
-                                        <ImportContactsDialog project={activeProject} onImported={() => router.refresh()} />
-                                        <AddContactDialog project={activeProject} onAdded={() => router.refresh()} />
+                                        <ImportContactsDialog project={activeProject} onImported={() => updateSearchParam('query', null)} />
+                                        <AddContactDialog project={activeProject} onAdded={() => updateSearchParam('query', null)} />
                                     </>
                                 )}
                             </div>
