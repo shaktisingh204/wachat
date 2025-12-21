@@ -112,7 +112,7 @@ export default function ContactsPage() {
     const [totalPages, setTotalPages] = useState(0);
     const { toast } = useToast();
     
-    const fetchData = useCallback(() => {
+    useEffect(() => {
         if (!activeProjectId) return;
         startTransition(async () => {
              try {
@@ -127,11 +127,7 @@ export default function ContactsPage() {
                 });
              }
         });
-    }, [activeProjectId, currentPage, searchQuery, selectedTags, toast]);
-
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    }, [activeProjectId, currentPage, searchQuery, selectedTags]);
 
 
     const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
@@ -183,8 +179,8 @@ export default function ContactsPage() {
                             <div className="flex items-center gap-2">
                                 {activeProject && (
                                     <>
-                                        <ImportContactsDialog project={activeProject} onImported={fetchData} />
-                                        <AddContactDialog project={activeProject} onAdded={fetchData} />
+                                        <ImportContactsDialog project={activeProject} onImported={() => router.refresh()} />
+                                        <AddContactDialog project={activeProject} onAdded={() => router.refresh()} />
                                     </>
                                 )}
                             </div>
