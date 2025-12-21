@@ -1,4 +1,3 @@
-
 // The page is a Server Component to correctly await `searchParams`.
 // It then renders a Client Component, passing the data as props.
 // The Client Component handles all the hook-based logic.
