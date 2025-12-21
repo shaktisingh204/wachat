@@ -1,10 +1,9 @@
 
 'use client';
 
-import { useEffect, useState, useCallback, useTransition } from 'react';
-import Link from 'next/link';
+import { useEffect, useState, useCallback, useTransition, useMemo } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { getContactsPageData } from '@/app/actions/index.ts';
+import { getContactsPageData } from '@/app/actions/contact.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, Tag } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +22,6 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-
 
 const CONTACTS_PER_PAGE = 20;
 
