@@ -12,7 +12,7 @@ import { handleAddNewContact, updateContactTags } from '@/app/actions/contact.ac
 import { handleUpdateContactDetails, handleUpdateContactStatus } from '@/app/actions/project.actions';
 import { handleRequestWhatsAppPayment } from '@/app/actions/whatsapp.actions';
 import { handlePaymentRequest } from '@/app/actions/integrations.actions';
-import { getProjectById } from '@/app/actions/project.actions';
+import { getProjectById } from '@/lib/actions/user.actions';
 import type { WithId, User, Project, Contact } from '@/lib/definitions';
 import FormData from 'form-data';
 import axios from 'axios';
