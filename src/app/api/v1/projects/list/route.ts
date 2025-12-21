@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/app/actions/api-keys.actions';
-import { getProjects } from '@/app/actions/index.ts';
+import { getProjects } from "@/lib/actions/user.actions.ts";
 import { checkRateLimit } from '@/lib/rate-limiter';
 
 export async function GET(request: NextRequest) {

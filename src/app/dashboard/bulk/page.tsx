@@ -2,7 +2,7 @@
 'use client';
 
 import { Suspense, useEffect, useState, useTransition, useMemo, useCallback } from 'react';
-import { getProjects } from '@/app/actions/index.ts';
+import { getProjects } from "@/lib/actions/user.actions.ts";
 import { getTemplates } from '@/app/actions/template.actions';
 import type { WithId, Project, Template } from '@/lib/definitions';
 import { BulkActionsClient } from '@/components/wabasimplify/bulk-actions-client';
