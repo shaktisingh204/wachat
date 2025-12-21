@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import {
@@ -24,15 +25,15 @@ const API_VERSION = 'v23.0';
 async function getProjectAndContact(projectId: string, waId: string) {
     // Pass null as the second argument to bypass user ownership check for system-level actions
     const project = await getProjectById(projectId, null);
-    if (!project) throw new Error(`Project not found: ${projectId}`);
+    if (!project) throw new Error(`Access denied.`);
     
-    // Ensure the project has at least one phone number to proceed
     const phoneNumberId = project.phoneNumbers?.[0]?.id;
     if (!phoneNumberId) {
         throw new Error(`Project ${project.name} has no configured phone numbers.`);
     }
-
-    const contactResult = await findOrCreateContact(projectId, phoneNumberId, waId);
+    
+    // Pass the fetched project object to avoid re-fetching and permission errors
+    const contactResult = await findOrCreateContact(projectId, phoneNumberId, waId, project);
     if (contactResult.error || !contactResult.contact) {
         throw new Error(contactResult.error || 'Could not find or create contact.');
     }

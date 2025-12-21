@@ -293,7 +293,7 @@ export async function handleSubscribeAllProjects(): Promise<{ message?: string; 
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };
     
-    const projects = await getProjects(session.user._id.toString());
+    const { projects } = await getProjects();
     const results = await Promise.all(
         projects.map(p => handleSubscribeProjectWebhook(p.wabaId!, p.appId!, p.accessToken))
     );
@@ -421,7 +421,7 @@ export async function handleSendMessage(prevState: any, formData: FormData, proj
     }
 }
 
-export async function handleSendTemplateMessage(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleSendTemplateMessage(prevState: any, formData: FormData, projectFromAction?: WithId<Project>): Promise<{ message?: string; error?: string }> {
     const contactId = formData.get('contactId') as string;
     const templateId = formData.get('templateId') as string;
     const mediaSource = formData.get('mediaSource') as 'url' | 'file';
@@ -440,7 +440,7 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
     ]);
     
     if (!contact) return { error: 'Contact not found.' };
-    const hasAccess = await getProjectById(contact.projectId.toString());
+    const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString());
     if (!hasAccess) return { error: 'Access Denied.' };
     if (!template) return { error: 'Template not found.' };
     if (template.status !== 'APPROVED') return { error: 'Cannot send a template that is not approved.' };
@@ -537,12 +537,12 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
     }
 }
 
-export async function findOrCreateContact(projectId: string, phoneNumberId: string, waId: string): Promise<{ contact?: WithId<Contact>; error?: string }> {
+export async function findOrCreateContact(projectId: string, phoneNumberId: string, waId: string, projectFromAction?: WithId<Project>): Promise<{ contact?: WithId<Contact>; error?: string }> {
     if (!projectId || !phoneNumberId || !waId) {
         return { error: 'Missing required information.' };
     }
 
-    const hasAccess = await getProjectById(projectId);
+    const hasAccess = projectFromAction || await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
 
     try {
@@ -796,54 +796,6 @@ export async function getPaymentConfigurations(projectId: string): Promise<{ con
         return { configurations: response.data.data || [] };
     } catch (e: any) {
         return { configurations: [], error: getErrorMessage(e) };
-    }
-}
-
-export async function getPaymentConfigurationByName(projectId: string, configurationName: string): Promise<{ configuration?: PaymentConfiguration, error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.wabaId || !project.accessToken) {
-        return { configuration: undefined, error: 'Project not found or is missing WABA ID or Access Token.' };
-    }
-
-    if (!configurationName) {
-        return { configuration: undefined, error: 'Configuration name is required.' };
-    }
-
-    try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configurations/${configurationName}`, {
-            params: {
-                access_token: project.accessToken,
-            }
-        });
-        
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        const configuration = response.data;
-
-        return { configuration };
-    } catch (e: any) {
-        return { configuration: undefined, error: getErrorMessage(e) };
-    }
-}
-
-export async function getTransactionsForProject(projectId: string): Promise<WithId<Transaction>[]> {
-    const session = await getSession();
-    if (!session?.user) return [];
-
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
-    
-    try {
-        const { db } = await connectToDatabase();
-        const transactions = await db.collection('transactions').find({
-            projectId: new ObjectId(projectId)
-        }).sort({ createdAt: -1 }).toArray();
-        return JSON.parse(JSON.stringify(transactions));
-    } catch (error) {
-        console.error("Failed to fetch transactions for project:", error);
-        return [];
     }
 }
     
