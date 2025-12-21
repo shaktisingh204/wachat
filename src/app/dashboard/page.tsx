@@ -137,7 +137,7 @@ export default function SelectProjectPage() {
             />
             <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Select a Project ({projects.length})</h1>
+                    <h1 className="text-3xl font-bold font-headline">Select a Project ({projects?.length || 0})</h1>
                     <p className="text-muted-foreground">
                         Choose an existing project or connect a new one to get started.
                     </p>
