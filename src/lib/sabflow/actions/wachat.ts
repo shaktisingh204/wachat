@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import {
@@ -68,13 +67,13 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
             case 'sendMessage': {
                 if (!inputs.message) throw new Error("Input 'message' is required.");
                 formData.append('messageText', inputs.message);
-                const result = await handleSendMessage(null, formData);
+                const result = await handleSendMessage(null, formData, project);
                 if (result.error) throw new Error(result.error);
                 return { output: result };
             }
             case 'sendTemplate': {
                  if (!inputs.templateId) throw new Error("Input 'templateId' is required.");
-                 const result = await handleSendTemplateMessage(null, formData);
+                 const result = await handleSendTemplateMessage(null, formData, project);
                  if (result.error) throw new Error(result.error);
                  return { output: result };
             }
@@ -98,7 +97,7 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                  mediaFormData.append('phoneNumberId', phoneNumberId);
                  mediaFormData.append('waId', to);
 
-                 const result = await handleSendMessage(null, mediaFormData);
+                 const result = await handleSendMessage(null, mediaFormData, project);
                  if (result.error) throw new Error(result.error);
                  return { output: result };
             }
@@ -205,3 +204,5 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
         return { error: e.message };
     }
 }
+
+    

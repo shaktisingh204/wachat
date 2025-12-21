@@ -331,7 +331,7 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
 
 // --- MESSAGE ACTIONS ---
 
-export async function handleSendMessage(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleSendMessage(prevState: any, formData: FormData, projectFromAction?: WithId<Project>): Promise<{ message?: string; error?: string }> {
     const contactId = formData.get('contactId') as string;
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
@@ -343,7 +343,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
         return { error: 'Required fields are missing to send message.' };
     }
     
-    const project = await getProjectById(projectId);
+    const project = projectFromAction || await getProjectById(projectId);
     if (!project) return { error: 'Project not found or you do not have access.' };
 
     try {
@@ -991,3 +991,5 @@ export async function handleDeletePaymentConfiguration(
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+    
