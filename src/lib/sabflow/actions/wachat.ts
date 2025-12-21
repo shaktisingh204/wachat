@@ -3,7 +3,7 @@
 
 import {
     handleSendMessage,
-    handleSendTemplateMessage,
+    
     findOrCreateContact,
     getConversation,
     markConversationAsRead,
@@ -17,6 +17,7 @@ import type { WithId, User, Project, Contact } from '@/lib/definitions';
 import axios from 'axios';
 import { getErrorMessage } from '@/lib/utils';
 import { ObjectId } from 'mongodb';
+import { handleSendTemplateMessage } from './send-template.actions';
 
 const API_VERSION = 'v23.0';
 
