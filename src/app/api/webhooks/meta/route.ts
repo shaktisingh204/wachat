@@ -7,7 +7,7 @@ import type { Db, Filter, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
 import { 
     processSingleWebhook, 
-    processIncomingMessageBatch,
+    handleSingleMessageEvent,
     processStatusUpdateBatch,
     processCommentWebhook,
     processMessengerWebhook
