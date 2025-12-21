@@ -91,9 +91,9 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         }
         
         if (type === 'whatsapp') {
-            projectFilter.wabaId = { $exists: true, $ne: null };
+            projectFilter.wabaId = { $exists: true, $ne: "" };
         } else if (type === 'facebook') {
-            projectFilter.facebookPageId = { $exists: true, $ne: null };
+            projectFilter.facebookPageId = { $exists: true, $ne: "" };
         }
 
         const projects = await db.collection<Project>('projects')
@@ -510,3 +510,4 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
