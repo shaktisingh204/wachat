@@ -20,7 +20,7 @@ import { handleImportContacts } from '@/app/actions/contact.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const initialState = {
   message: null,
