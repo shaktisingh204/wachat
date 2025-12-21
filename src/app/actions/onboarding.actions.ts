@@ -18,14 +18,11 @@ const LOG_PREFIX = '[ONBOARDING]';
 
 export async function handleWabaOnboarding(data: {
     code: string;
-    wabaId: string;
-    phoneNumberId: string;
-    includeCatalog: boolean;
     userId: string;
 }): Promise<{ success: boolean; error?: string }> {
-    const { code, wabaId, phoneNumberId, includeCatalog, userId } = data;
+    const { code, userId } = data;
     
-    console.log(`${LOG_PREFIX} Step 1: Finalizing onboarding for user ${userId} with WABA ${wabaId}.`);
+    console.log(`${LOG_PREFIX} Step 1: Finalizing onboarding for user ${userId}.`);
     
     if (!userId || !ObjectId.isValid(userId)) {
         const errorMsg = `Invalid user ID provided: ${userId}`;
@@ -42,6 +39,7 @@ export async function handleWabaOnboarding(data: {
             client_id: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!,
             client_secret: process.env.META_ONBOARDING_APP_SECRET!,
             code: code,
+            redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`,
         });
         
         const tokenResponse = await axios.post(
@@ -54,7 +52,24 @@ export async function handleWabaOnboarding(data: {
         }
         console.log(`${LOG_PREFIX} Step 3: Access token received successfully.`);
 
-        // Step 4: Get WABA name and business ID
+        // Step 4: Use the System User Token to get the associated WABAs
+        const wabasResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/debug_token`, {
+            params: {
+                input_token: accessToken,
+                access_token: `${process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID}|${process.env.META_ONBOARDING_APP_SECRET}`
+            }
+        });
+
+        const granularScopes = wabasResponse.data.data?.granular_scopes || [];
+        const wabaId = granularScopes.find((s: any) => s.scope === 'whatsapp_business_management')?.target_ids?.[0];
+
+        if (!wabaId) {
+            throw new Error("Could not find a WhatsApp Business Account ID associated with the provided token.");
+        }
+        console.log(`${LOG_PREFIX} Step 4: Found WABA ID: ${wabaId}`);
+        
+
+        // Step 5: Get WABA name and business ID
         const { data: wabaData } = await axios.get(`https://graph.facebook.com/${API_VERSION}/${wabaId}`, {
           params: {
             fields: 'name,business',
@@ -64,9 +79,11 @@ export async function handleWabaOnboarding(data: {
 
         const wabaName = wabaData?.name || `WABA ${wabaId}`;
         const businessId = wabaData?.business?.id;
-        console.log(`${LOG_PREFIX} Step 4: Fetched WABA details. Name: ${wabaName}, Business ID: ${businessId}`);
+        console.log(`${LOG_PREFIX} Step 5: Fetched WABA details. Name: ${wabaName}, Business ID: ${businessId}`);
         
         let businessCaps: BusinessCapabilities | undefined;
+        const stateCookie = cookies().get('onboarding_state')?.value;
+        const includeCatalog = stateCookie ? JSON.parse(stateCookie).includeCatalog : false;
         if (businessId && includeCatalog) {
              try {
                  const { data: capsData } = await axios.get(
@@ -74,14 +91,14 @@ export async function handleWabaOnboarding(data: {
                     { params: { fields: 'business_capabilities', access_token: accessToken } }
                 );
                 businessCaps = capsData?.business_capabilities;
-                console.log(`${LOG_PREFIX} Step 4.1: Fetched business capabilities.`);
+                console.log(`${LOG_PREFIX} Step 5.1: Fetched business capabilities.`);
              } catch(e) {
                  console.warn(`${LOG_PREFIX} Could not fetch business capabilities. Catalog management might be limited.`, getErrorMessage(e));
              }
         }
 
-        // Step 5: Upsert the project into the database.
-        console.log(`${LOG_PREFIX} Step 5: Upserting project into database.`);
+        // Step 6: Upsert the project into the database.
+        console.log(`${LOG_PREFIX} Step 6: Upserting project into database.`);
         const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
 
         const projectData: Partial<Project> = {
@@ -109,12 +126,14 @@ export async function handleWabaOnboarding(data: {
         const projectId = findResult?._id;
         
         if (projectId) {
-            console.log(`${LOG_PREFIX} Step 6: Project upserted. Project ID: ${projectId}. Now syncing phone numbers and subscribing to webhooks.`);
+            console.log(`${LOG_PREFIX} Step 7: Project upserted. Project ID: ${projectId}. Now syncing phone numbers and subscribing to webhooks.`);
             await handleSyncPhoneNumbers(projectId.toString());
             await handleSubscribeProjectWebhook(projectData.wabaId!, projectData.appId!, projectData.accessToken!);
         }
         
-        console.log(`${LOG_PREFIX} Step 7: Finalization complete.`);
+        console.log(`${LOG_PREFIX} Step 8: Finalization complete.`);
+        
+        // This was the missing piece
         return { success: true };
         
     } catch (e: any) {
