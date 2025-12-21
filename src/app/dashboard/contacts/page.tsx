@@ -7,7 +7,6 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { getContactsPageData } from '@/app/actions/index.ts';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, Tag } from '@/lib/definitions';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -45,7 +44,6 @@ function ContactsPageSkeleton() {
             </CardHeader>
             <CardContent>
                 <div className="mb-4 flex flex-wrap gap-4 items-center">
-                    <Skeleton className="h-10 w-full sm:w-auto sm:min-w-[250px]" />
                     <Skeleton className="h-10 flex-grow" />
                 </div>
                 <div className="border rounded-md">
@@ -105,7 +103,6 @@ export default function ContactsPage() {
     const { activeProject, activeProjectId } = useProject();
     const [contacts, setContacts] = useState<WithId<Contact>[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -121,13 +118,9 @@ export default function ContactsPage() {
         if (!activeProjectId) return;
         startTransition(async () => {
              try {
-                const data = await getContactsPageData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags);
+                const data = await getContactsPageData(activeProjectId, undefined, currentPage, searchQuery, selectedTags);
                 setContacts(data.contacts);
                 setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
-                
-                if (!selectedPhoneNumberId && data.selectedPhoneNumberId) {
-                    setSelectedPhoneNumberId(data.selectedPhoneNumberId);
-                }
              } catch (error) {
                  toast({
                     title: "Error",
@@ -136,7 +129,7 @@ export default function ContactsPage() {
                 });
              }
         });
-    }, [activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags, toast]);
+    }, [activeProjectId, currentPage, searchQuery, selectedTags, toast]);
 
      useEffect(() => {
         fetchData();
@@ -155,13 +148,6 @@ export default function ContactsPage() {
         }
         router.replace(`${pathname}?${params.toString()}`);
     }, 300);
-    
-    const handlePhoneChange = (phoneId: string) => {
-        setSelectedPhoneNumberId(phoneId);
-        updateSearchParam('page', '1');
-        updateSearchParam('query', null);
-        updateSearchParam('tags', null);
-    }
 
     const handleMessageContact = (contact: WithId<Contact>) => {
         router.push(`/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`);
@@ -194,13 +180,13 @@ export default function ContactsPage() {
                         <div className="flex flex-wrap items-center justify-between gap-4">
                             <div>
                                 <CardTitle>Contact List</CardTitle>
-                                <CardDescription>Select a business number to view its associated contacts.</CardDescription>
+                                <CardDescription>All contacts associated with this project.</CardDescription>
                             </div>
                             <div className="flex items-center gap-2">
                                 {activeProject && (
                                     <>
-                                        <ImportContactsDialog project={activeProject} selectedPhoneNumberId={selectedPhoneNumberId} />
-                                        <AddContactDialog project={activeProject} selectedPhoneNumberId={selectedPhoneNumberId} />
+                                        <ImportContactsDialog project={activeProject} onImported={fetchData} />
+                                        <AddContactDialog project={activeProject} onAdded={fetchData} />
                                     </>
                                 )}
                             </div>
@@ -208,18 +194,6 @@ export default function ContactsPage() {
                     </CardHeader>
                     <CardContent>
                          <div className="mb-4 flex flex-wrap gap-4 items-center">
-                            <Select value={selectedPhoneNumberId} onValueChange={handlePhoneChange} disabled={!activeProject?.phoneNumbers || activeProject.phoneNumbers.length === 0}>
-                                <SelectTrigger id="phoneNumberId" className="w-full sm:w-auto sm:min-w-[250px]">
-                                    <SelectValue placeholder="Select a phone number..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {(activeProject?.phoneNumbers || []).map((phone) => (
-                                        <SelectItem key={phone.id} value={phone.id}>
-                                            {phone.display_phone_number} ({phone.verified_name})
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
                              <div className="relative flex-grow">
                                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
