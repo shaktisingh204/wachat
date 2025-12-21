@@ -20,6 +20,7 @@ import { handleImportContacts } from '@/app/actions/contact.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 
 const initialState = {
   message: null,
@@ -45,30 +46,32 @@ function SubmitButton() {
 
 interface ImportContactsDialogProps {
     project: WithId<Project>;
-    selectedPhoneNumberId: string;
+    onImported: () => void;
 }
 
-export function ImportContactsDialog({ project, selectedPhoneNumberId }: ImportContactsDialogProps) {
+export function ImportContactsDialog({ project, onImported }: ImportContactsDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(handleImportContacts, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState(project.phoneNumbers?.[0]?.id || '');
 
   useEffect(() => {
     if (state?.message) {
       toast({ title: 'Success!', description: state.message });
       formRef.current?.reset();
+      onImported();
       setOpen(false);
     }
     if (state?.error) {
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
-  }, [state, toast]);
+  }, [state, toast, onImported]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" disabled={!selectedPhoneNumberId}>
+        <Button variant="outline">
             <FileUp className="mr-2 h-4 w-4" />
             Import
         </Button>
@@ -76,7 +79,6 @@ export function ImportContactsDialog({ project, selectedPhoneNumberId }: ImportC
       <DialogContent className="sm:max-w-[425px]">
         <form action={formAction} ref={formRef}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
-            <input type="hidden" name="phoneNumberId" value={selectedPhoneNumberId} />
             <DialogHeader>
                 <DialogTitle>Import Contacts</DialogTitle>
                 <DialogDescription>
@@ -84,6 +86,21 @@ export function ImportContactsDialog({ project, selectedPhoneNumberId }: ImportC
                 </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
+                 <div className="space-y-2">
+                    <Label htmlFor="phoneNumberId-import">Phone Number</Label>
+                    <Select name="phoneNumberId" required value={selectedPhoneNumberId} onValueChange={setSelectedPhoneNumberId}>
+                        <SelectTrigger id="phoneNumberId-import">
+                            <SelectValue placeholder="Associate with number..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {(project?.phoneNumbers || []).map((phone) => (
+                            <SelectItem key={phone.id} value={phone.id}>
+                                {phone.display_phone_number} ({phone.verified_name})
+                            </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
                 <div className="space-y-2">
                     <Label htmlFor="contactFile">Contact File</Label>
                     <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />

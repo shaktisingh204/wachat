@@ -20,6 +20,7 @@ import { handleAddNewContact } from '@/app/actions/contact.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 
 const initialState = {
   message: null,
@@ -45,31 +46,28 @@ function SubmitButton() {
 
 interface AddContactDialogProps {
     project: WithId<Project>;
-    selectedPhoneNumberId: string;
+    onAdded: () => void;
 }
 
-export function AddContactDialog({ project, selectedPhoneNumberId }: AddContactDialogProps) {
+export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(handleAddNewContact, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState(project.phoneNumbers?.[0]?.id || '');
+
 
   useEffect(() => {
     if (state.message) {
       toast({ title: 'Success!', description: state.message });
       formRef.current?.reset();
+      onAdded();
       setOpen(false);
     }
     if (state.error) {
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
-    // Reset form state after processing, successful or not, to re-enable the button
-    const form = formRef.current;
-    if (form) {
-        // This is a way to tell react-dom to reset the form state for the next submission
-        form.requestSubmit(); 
-    }
-  }, [state, toast]);
+  }, [state, toast, onAdded]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -81,29 +79,43 @@ export function AddContactDialog({ project, selectedPhoneNumberId }: AddContactD
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button disabled={!selectedPhoneNumberId}>
+        <Button>
             <UserPlus className="mr-2 h-4 w-4" />
             Add New
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
-            <input type="hidden" name="phoneNumberId" value={selectedPhoneNumberId} />
             <DialogHeader>
                 <DialogTitle>Add New Contact</DialogTitle>
                 <DialogDescription>
-                    Manually add a contact to your list for the selected phone number.
+                    Manually add a contact to your list.
                 </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">Name</Label>
-                    <Input id="name" name="name" className="col-span-3" required />
+                <div className="space-y-2">
+                    <Label htmlFor="phoneNumberId-dialog">Phone Number</Label>
+                    <Select name="phoneNumberId" required value={selectedPhoneNumberId} onValueChange={setSelectedPhoneNumberId}>
+                        <SelectTrigger id="phoneNumberId-dialog">
+                            <SelectValue placeholder="Choose a number..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {(project?.phoneNumbers || []).map((phone) => (
+                            <SelectItem key={phone.id} value={phone.id}>
+                                {phone.display_phone_number} ({phone.verified_name})
+                            </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="name" className="text-right">Name</Label>
+                    <Input id="name" name="name" required />
+                </div>
+                <div className="space-y-2">
                     <Label htmlFor="waId" className="text-right">WhatsApp ID</Label>
-                    <Input id="waId" name="waId" placeholder="e.g. 15551234567" className="col-span-3" required />
+                    <Input id="waId" name="waId" placeholder="e.g. 15551234567" required />
                 </div>
             </div>
             <DialogFooter>
