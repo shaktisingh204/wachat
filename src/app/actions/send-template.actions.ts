@@ -11,8 +11,6 @@ import { getProjectById } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { Contact, Template, OutgoingMessage, Project } from '@/lib/definitions';
 
-const API_VERSION = 'v23.0';
-
 export async function handleSendTemplateMessage(
     prevState: any, 
     data: { [key: string]: any }, 
@@ -23,7 +21,7 @@ export async function handleSendTemplateMessage(
         templateId,
         mediaSource,
         headerMediaUrl,
-        headerMediaFile,
+        headerMediaFile, // This will be a base64 string or similar from the client
         ...variables
     } = data;
 
@@ -63,14 +61,15 @@ export async function handleSendTemplateMessage(
         const headerComponent = template.components?.find(c => c.type === 'HEADER');
         if (headerComponent) {
             let mediaId: string | null = null;
-            const file = headerMediaFile as File;
+            const fileData = headerMediaFile as { content: string, name: string, type: string };
             
-            if (mediaSource === 'file' && file && file.size > 0) {
+            if (mediaSource === 'file' && fileData?.content) {
                  const form = new FormData();
-                form.append('file', Buffer.from(await file.arrayBuffer()), { filename: file.name, contentType: file.type });
-                form.append('messaging_product', 'whatsapp');
-                const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
-                mediaId = uploadResponse.data.id;
+                 const buffer = Buffer.from(fileData.content, 'base64');
+                 form.append('file', buffer, { filename: fileData.name, contentType: fileData.type });
+                 form.append('messaging_product', 'whatsapp');
+                 const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
+                 mediaId = uploadResponse.data.id;
             }
 
             const format = headerComponent.format?.toUpperCase();

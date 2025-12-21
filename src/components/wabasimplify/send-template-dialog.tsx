@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useMemo, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   Dialog,
@@ -45,30 +45,29 @@ interface SendTemplateDialogProps {
   template: WithId<Template>;
 }
 
+const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+    });
+};
+
+
 export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: SendTemplateDialogProps) {
-  const [state, formAction] = useActionState(handleSendTemplateMessage, initialState);
+  const [state, setState] = useState(initialState);
+  const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [mediaSource, setMediaSource] = useState<'url' | 'file'>('url');
   
-  const hasMediaHeader = useMemo(() => 
-    template.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format)), 
-    [template.components]
-  );
+  const hasMediaHeader = template.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
   
-  const bodyVariables = useMemo(() => {
-    const bodyText = template.components?.find(c => c.type === 'BODY')?.text || template.body || '';
-    const matches = bodyText.match(/{{\s*(\d+)\s*}}/g) || [];
-    const uniqueVars = [...new Set(matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))];
-    return uniqueVars.sort((a, b) => a - b);
-  }, [template.components, template.body]);
-
-  const defaultUrl = useMemo(() => {
-    if (template.headerSampleUrl && !template.headerSampleUrl.includes('graph.facebook.com')) {
-      return template.headerSampleUrl;
-    }
-    return '';
-  }, [template.headerSampleUrl]);
+  const bodyVariables = (template.components?.find(c => c.type === 'BODY')?.text || template.body || '').match(/{{\s*(\d+)\s*}}/g)?.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))) || [];
+  const uniqueBodyVars = [...new Set(bodyVariables)].sort((a, b) => a - b);
+  
+  const defaultUrl = template.headerSampleUrl && !template.headerSampleUrl.includes('graph.facebook.com') ? template.headerSampleUrl : '';
 
   useEffect(() => {
     if (state.message) {
@@ -84,16 +83,49 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
     if (!isOpen) {
       formRef.current?.reset();
       setMediaSource('url');
+      setState(initialState);
     }
   }, [isOpen]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    startTransition(async () => {
+        const formData = new FormData(e.currentTarget);
+        const data: { [key: string]: any } = {
+            contactId: contact._id.toString(),
+            templateId: template._id.toString(),
+        };
+
+        if (hasMediaHeader) {
+            data.mediaSource = formData.get('mediaSource');
+            if (data.mediaSource === 'url') {
+                data.headerMediaUrl = formData.get('headerMediaUrl');
+            } else {
+                const file = formData.get('headerMediaFile') as File;
+                if (file && file.size > 0) {
+                     const base64String = await fileToBase64(file);
+                     data.headerMediaFile = {
+                         content: base64String.split(',')[1],
+                         name: file.name,
+                         type: file.type,
+                     };
+                }
+            }
+        }
+
+        uniqueBodyVars.forEach(varNum => {
+            data[`variable_${varNum}`] = formData.get(`variable_${varNum}`);
+        });
+        
+        const result = await handleSendTemplateMessage(null, data);
+        setState(result);
+    });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <form ref={formRef} action={formAction}>
-          <input type="hidden" name="contactId" value={contact._id.toString()} />
-          <input type="hidden" name="templateId" value={template._id.toString()} />
-          
+        <form ref={formRef} onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Send Template: {template.name}</DialogTitle>
             <DialogDescription>
@@ -131,7 +163,7 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
                 </div>
               )}
 
-              {bodyVariables.length > 0 && bodyVariables.map(varNum => (
+              {uniqueBodyVars.length > 0 && uniqueBodyVars.map(varNum => (
                 <div key={varNum} className="space-y-2">
                   <Label htmlFor={`variable_${varNum}`}>Variable {'{{'}{varNum}{'}}'}</Label>
                   <Input 
@@ -147,7 +179,10 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
           
           <DialogFooter className="mt-4">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <SubmitButton />
+            <Button type="submit" disabled={isPending}>
+                {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                Send Template
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
