@@ -56,11 +56,13 @@ export default function SelectProjectPage() {
     };
     
     const filteredProjects = useMemo(() => {
+        if (!projects || !Array.isArray(projects)) return [];
         if (!query) return projects;
         return projects.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
     }, [projects, query]);
 
     const paginatedProjects = useMemo(() => {
+        if (!filteredProjects) return [];
         const start = (page - 1) * limit;
         const end = start + limit;
         return filteredProjects.slice(start, end);
