@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, Send, UploadCloud, Link as LinkIcon } from 'lucide-react';
-import { handleSendTemplateMessage } from '@/app/actions/whatsapp.actions';
+import { handleSendTemplateMessage } from '@/app/actions/send-template.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Contact, Template } from '@/lib/definitions';
