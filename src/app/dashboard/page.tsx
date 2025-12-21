@@ -62,7 +62,7 @@ export default function SelectProjectPage() {
     }, [projects, query]);
 
     const paginatedProjects = useMemo(() => {
-        if (!filteredProjects) return [];
+        if (!filteredProjects || !Array.isArray(filteredProjects)) return [];
         const start = (page - 1) * limit;
         const end = start + limit;
         return filteredProjects.slice(start, end);
@@ -104,7 +104,7 @@ export default function SelectProjectPage() {
         return { grouped, ungrouped };
     }, [paginatedProjects]);
     
-    const totalPages = Math.ceil(filteredProjects.length / limit);
+    const totalPages = Math.ceil((filteredProjects || []).length / limit);
 
     const handlePageChange = (newPage: number) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -137,7 +137,7 @@ export default function SelectProjectPage() {
             />
             <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Select a Project ({projects?.length || 0})</h1>
+                    <h1 className="text-3xl font-bold font-headline">Select a Project ({(projects || []).length})</h1>
                     <p className="text-muted-foreground">
                         Choose an existing project or connect a new one to get started.
                     </p>
@@ -170,7 +170,7 @@ export default function SelectProjectPage() {
 
             {isLoadingProject ? (
                  <p>Loading projects...</p>
-            ) : projects.length > 0 ? (
+            ) : Array.isArray(projects) && projects.length > 0 ? (
                 <div className="space-y-6">
                     {Object.entries(groupedProjects.grouped).map(([groupName, groupProjects]) => (
                         <Accordion key={groupName} type="single" collapsible defaultValue="item-1">
