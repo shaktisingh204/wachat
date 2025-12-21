@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import Link from 'next/link';

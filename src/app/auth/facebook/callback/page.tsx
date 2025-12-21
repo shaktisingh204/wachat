@@ -1,3 +1,4 @@
+
 // THIS IS THE DEFINITIVE FIX.
 // The page is a Server Component to correctly await `searchParams`.
 // It then renders a Client Component, passing the data as props.
