@@ -24,6 +24,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
+import { useToast } from '@/hooks/use-toast';
 
 
 const CONTACTS_PER_PAGE = 20;
@@ -115,18 +116,27 @@ export default function ContactsPage() {
     const selectedTags = searchParams.get('tags')?.split(',').filter(Boolean) || [];
     
     const [totalPages, setTotalPages] = useState(0);
+    const { toast } = useToast();
     
     const fetchData = useCallback((projectId: string, phoneId: string, page: number, query: string, tags: string[]) => {
         startTransition(async () => {
-            const data = await getContactsPageData(projectId, phoneId, page, query, tags);
-            setContacts(data.contacts);
-            setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
-            
-            if (!phoneId && data.selectedPhoneNumberId) {
-                setSelectedPhoneNumberId(data.selectedPhoneNumberId);
-            }
+             try {
+                const data = await getContactsPageData(projectId, phoneId, page, query, tags);
+                setContacts(data.contacts);
+                setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
+                
+                if (!phoneId && data.selectedPhoneNumberId) {
+                    setSelectedPhoneNumberId(data.selectedPhoneNumberId);
+                }
+             } catch (error) {
+                 toast({
+                    title: "Error",
+                    description: "Failed to load contacts. Please ensure a project is selected.",
+                    variant: "destructive",
+                });
+             }
         });
-    }, []);
+    }, [toast]);
 
      useEffect(() => {
         if (activeProjectId) {
