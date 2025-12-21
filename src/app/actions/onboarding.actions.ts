@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
-import type { Project, BusinessCapabilities } from '@/lib/definitions';
+import type { Project, BusinessCapabilities, Plan } from '@/lib/definitions';
 import {
   handleSubscribeProjectWebhook,
   handleSyncPhoneNumbers,
@@ -25,9 +25,10 @@ export async function handleWabaOnboarding(data: {
       return { success: false, error: 'Authorization code missing.' };
     }
 
-    // ✅ FIX #1: cookies() IS ASYNC IN NEXT.JS 16
+    /**
+     * STEP 0: Read & clear onboarding state cookie
+     */
     const cookieStore = await cookies();
-
     const stateCookie = cookieStore.get('onboarding_state')?.value;
 
     if (!stateCookie) {
@@ -37,27 +38,25 @@ export async function handleWabaOnboarding(data: {
       };
     }
 
-    // Optional but recommended: prevent replay
     cookieStore.delete('onboarding_state');
 
     const { userId, includeCatalog } = JSON.parse(stateCookie);
 
-    console.log(`${LOG_PREFIX} Step 1: Finalizing onboarding for user ${userId}.`);
-
     if (!userId || !ObjectId.isValid(userId)) {
-      const errorMsg = `Invalid user ID provided from cookie: ${userId}`;
-      console.error(`${LOG_PREFIX} ${errorMsg}`);
-      return { success: false, error: errorMsg };
+      return {
+        success: false,
+        error: 'Invalid user session. Please log in again.',
+      };
     }
 
-    const { db } = await connectToDatabase();
+    console.log(`${LOG_PREFIX} Step 1: User ${userId} validated`);
 
     /**
-     * STEP 2: Exchange auth code for system user access token
+     * STEP 1: Exchange auth code for system-user access token
      */
-    console.log(`${LOG_PREFIX} Step 2: Exchanging auth code for access token.`);
+    console.log(`${LOG_PREFIX} Step 2: Exchanging code for access token`);
 
-    const params = new URLSearchParams({
+    const tokenParams = new URLSearchParams({
       client_id: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!,
       client_secret: process.env.META_ONBOARDING_APP_SECRET!,
       code,
@@ -66,7 +65,7 @@ export async function handleWabaOnboarding(data: {
 
     const tokenResponse = await axios.post(
       `https://graph.facebook.com/${API_VERSION}/oauth/access_token`,
-      params
+      tokenParams
     );
 
     const accessToken = tokenResponse.data?.access_token;
@@ -75,10 +74,10 @@ export async function handleWabaOnboarding(data: {
       throw new Error('Meta did not return an access token.');
     }
 
-    console.log(`${LOG_PREFIX} Step 3: Access token received.`);
+    console.log(`${LOG_PREFIX} Step 3: Access token received`);
 
     /**
-     * STEP 3: Find WABA via debug_token
+     * STEP 2: Resolve WABA ID using debug_token
      */
     const debugResponse = await axios.get(
       `https://graph.facebook.com/${API_VERSION}/debug_token`,
@@ -90,7 +89,9 @@ export async function handleWabaOnboarding(data: {
       }
     );
 
-    const granularScopes = debugResponse.data?.data?.granular_scopes || [];
+    const granularScopes =
+      debugResponse.data?.data?.granular_scopes || [];
+
     const wabaId =
       granularScopes.find(
         (s: any) => s.scope === 'whatsapp_business_management'
@@ -98,65 +99,67 @@ export async function handleWabaOnboarding(data: {
 
     if (!wabaId) {
       throw new Error(
-        'Could not find a WhatsApp Business Account associated with this token.'
+        'No WhatsApp Business Account found for this Meta account.'
       );
     }
 
-    console.log(`${LOG_PREFIX} Step 4: Found WABA ID: ${wabaId}`);
+    console.log(`${LOG_PREFIX} Step 4: WABA ID resolved → ${wabaId}`);
 
     /**
-     * STEP 4: Fetch WABA details
+     * STEP 3: Fetch WABA name (business field REMOVED by Meta)
      */
     const { data: wabaData } = await axios.get(
       `https://graph.facebook.com/${API_VERSION}/${wabaId}`,
       {
         params: {
-          fields: 'name,business',
+          fields: 'name',
           access_token: accessToken,
         },
       }
     );
 
     const wabaName = wabaData?.name || `WABA ${wabaId}`;
-    const businessId = wabaData?.business?.id;
-
-    console.log(
-      `${LOG_PREFIX} Step 5: WABA name=${wabaName}, businessId=${businessId}`
-    );
 
     /**
-     * STEP 5.1: Fetch business capabilities (optional)
+     * STEP 4: Resolve Business ID (ONLY if catalog requested)
      */
+    let businessId: string | undefined;
     let businessCaps: BusinessCapabilities | undefined;
 
-    if (businessId && includeCatalog) {
-      try {
-        const { data: capsData } = await axios.get(
-          `https://graph.facebook.com/${API_VERSION}/${businessId}`,
-          {
-            params: {
-              fields: 'business_capabilities',
-              access_token: accessToken,
-            },
-          }
-        );
-        businessCaps = capsData?.business_capabilities;
-        console.log(`${LOG_PREFIX} Step 5.1: Business capabilities fetched.`);
-      } catch (e) {
-        console.warn(
-          `${LOG_PREFIX} Could not fetch business capabilities.`,
-          getErrorMessage(e)
-        );
+    if (includeCatalog) {
+      businessId =
+        granularScopes.find(
+          (s: any) => s.scope === 'whatsapp_business_management'
+        )?.target_ids?.[0];
+
+      if (businessId) {
+        try {
+          const { data: capsData } = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/${businessId}`,
+            {
+              params: {
+                fields: 'business_capabilities',
+                access_token: accessToken,
+              },
+            }
+          );
+          businessCaps = capsData?.business_capabilities;
+        } catch (e) {
+          console.warn(
+            `${LOG_PREFIX} Could not fetch business capabilities`,
+            getErrorMessage(e)
+          );
+        }
       }
     }
 
     /**
-     * STEP 6: Upsert project
+     * STEP 5: Database upsert
      */
-    console.log(`${LOG_PREFIX} Step 6: Upserting project.`);
+    const { db } = await connectToDatabase();
 
     const defaultPlan = await db
-      .collection('plans')
+      .collection<Plan>('plans')
       .findOne({ isDefault: true });
 
     const projectData: Partial<Project> = {
@@ -164,10 +167,10 @@ export async function handleWabaOnboarding(data: {
       name: wabaName,
       wabaId,
       businessId,
-      accessToken,
       appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!,
-      messagesPerSecond: 80,
+      accessToken,
       phoneNumbers: [],
+      messagesPerSecond: 80,
       planId: defaultPlan?._id,
       credits: defaultPlan?.signupCredits || 0,
       businessCapabilities: businessCaps,
@@ -176,32 +179,38 @@ export async function handleWabaOnboarding(data: {
 
     await db.collection<Project>('projects').updateOne(
       { userId: projectData.userId, wabaId: projectData.wabaId },
-      { $set: projectData, $setOnInsert: { createdAt: new Date() } },
+      {
+        $set: projectData,
+        $setOnInsert: { createdAt: new Date() },
+      },
       { upsert: true }
     );
 
     const project = await db
       .collection<Project>('projects')
-      .findOne({ userId: projectData.userId, wabaId: projectData.wabaId });
+      .findOne({ userId: projectData.userId, wabaId });
 
+    /**
+     * STEP 6: Post-creation actions
+     */
     if (project?._id) {
-      console.log(
-        `${LOG_PREFIX} Step 7: Syncing phone numbers & subscribing webhook.`
-      );
+      console.log(`${LOG_PREFIX} Step 6: Syncing phone numbers`);
       await handleSyncPhoneNumbers(project._id.toString());
+
+      console.log(`${LOG_PREFIX} Step 7: Subscribing webhooks`);
       await handleSubscribeProjectWebhook(
-        projectData.wabaId!,
+        wabaId,
         projectData.appId!,
-        projectData.accessToken!
+        accessToken
       );
     }
 
-    console.log(`${LOG_PREFIX} Step 8: Onboarding complete.`);
+    console.log(`${LOG_PREFIX} Step 8: Onboarding complete`);
 
     return { success: true };
-  } catch (e) {
+  } catch (e: any) {
     const errorMsg = getErrorMessage(e);
-    console.error(`${LOG_PREFIX} FATAL ERROR`, errorMsg, e);
+    console.error(`${LOG_PREFIX} FATAL`, errorMsg, e);
     return { success: false, error: errorMsg };
   }
 }
