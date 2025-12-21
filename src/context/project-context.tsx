@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useTransition, useMemo } from 'react';
@@ -15,7 +16,6 @@ interface ProjectContextType {
     isLoadingProject: boolean;
     sessionUser: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null;
     setProjects: React.Dispatch<React.SetStateAction<WithId<Project>[]>>;
-    setActiveProject: React.Dispatch<React.SetStateAction<WithId<Project> | null>>;
     setActiveProjectId: React.Dispatch<React.SetStateAction<string | null>>;
     reloadProject: () => void;
     reloadProjects: () => Promise<void>;
@@ -96,7 +96,7 @@ export function ProjectProvider({
 
 
     return (
-        <ProjectContext.Provider value={{ projects, setProjects, activeProject, activeProjectId, activeProjectName, isLoadingProject, sessionUser: user, setActiveProject: () => {}, setActiveProjectId, reloadProject, reloadProjects }}>
+        <ProjectContext.Provider value={{ projects, setProjects, activeProject, activeProjectId, activeProjectName, isLoadingProject, sessionUser: user, setActiveProjectId, reloadProject, reloadProjects }}>
             {children}
         </ProjectContext.Provider>
     );
