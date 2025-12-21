@@ -12,7 +12,7 @@ import type { Project, BusinessCapabilities } from '@/lib/definitions';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import { getSession } from './user.actions';
 
-const API_VERSION = 'v23.0';
+const API_VERSION = 'v24.0';
 const LOG_PREFIX = '[ONBOARDING]';
 
 

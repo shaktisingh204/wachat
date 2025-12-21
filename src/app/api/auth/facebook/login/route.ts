@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     scopes += ',catalog_management,business_management';
   }
 
-  const facebookLoginUrl = new URL('https://www.facebook.com/v23.0/dialog/oauth');
+  const facebookLoginUrl = new URL('https://www.facebook.com/v24.0/dialog/oauth');
   facebookLoginUrl.searchParams.set('client_id', appId);
   facebookLoginUrl.searchParams.set('redirect_uri', redirectUri);
   facebookLoginUrl.searchParams.set('scope', scopes);
