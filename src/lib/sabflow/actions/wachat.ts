@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import {
@@ -23,16 +22,16 @@ import { ObjectId } from 'mongodb';
 const API_VERSION = 'v23.0';
 
 async function getProjectAndContact(projectId: string, waId: string) {
-    // Pass null as the second argument to bypass user ownership check for system-level actions
-    const project = await getProjectById(projectId, null);
-    if (!project) throw new Error(`Access denied.`);
+    const project = await getProjectById(projectId, null); // Pass null for system-level access
+    if (!project) {
+      throw new Error(`Access denied.`);
+    }
     
     const phoneNumberId = project.phoneNumbers?.[0]?.id;
     if (!phoneNumberId) {
         throw new Error(`Project ${project.name} has no configured phone numbers.`);
     }
     
-    // Pass the fetched project object to avoid re-fetching and permission errors
     const contactResult = await findOrCreateContact(projectId, phoneNumberId, waId, project);
     if (contactResult.error || !contactResult.contact) {
         throw new Error(contactResult.error || 'Could not find or create contact.');
@@ -53,27 +52,32 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
             throw new Error(`No valid phone number found for project ${project.name} to execute action.`);
         }
 
-        const formData = new FormData();
-        // Pass all interpolated inputs to the form data
-        Object.keys(inputs).forEach(key => {
-            if (inputs[key] !== undefined && inputs[key] !== null) {
-                formData.append(key, String(inputs[key]));
-            }
-        });
-        formData.append('contactId', contact._id.toString());
-        formData.append('phoneNumberId', phoneNumberId);
-        formData.append('waId', to);
-
         switch (actionName) {
             case 'sendMessage': {
                 if (!inputs.message) throw new Error("Input 'message' is required.");
+                const formData = new FormData();
+                formData.append('contactId', contact._id.toString());
+                formData.append('projectId', projectId);
+                formData.append('phoneNumberId', phoneNumberId);
+                formData.append('waId', to);
                 formData.append('messageText', inputs.message);
+                
                 const result = await handleSendMessage(null, formData, project);
                 if (result.error) throw new Error(result.error);
                 return { output: result };
             }
             case 'sendTemplate': {
                  if (!inputs.templateId) throw new Error("Input 'templateId' is required.");
+                 const formData = new FormData();
+                 Object.keys(inputs).forEach(key => {
+                    if (inputs[key] !== undefined && inputs[key] !== null) {
+                        formData.append(key, String(inputs[key]));
+                    }
+                 });
+                 formData.append('contactId', contact._id.toString());
+                 formData.append('phoneNumberId', phoneNumberId);
+                 formData.append('waId', to);
+
                  const result = await handleSendTemplateMessage(null, formData, project);
                  if (result.error) throw new Error(result.error);
                  return { output: result };
@@ -205,5 +209,3 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
         return { error: e.message };
     }
 }
-
-    
