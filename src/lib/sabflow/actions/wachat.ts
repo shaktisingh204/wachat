@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import {
@@ -22,7 +23,8 @@ import { ObjectId } from 'mongodb';
 const API_VERSION = 'v23.0';
 
 async function getProjectAndContact(projectId: string, waId: string) {
-    const project = await getProjectById(projectId);
+    // Pass null as the second argument to bypass user ownership check for system-level actions
+    const project = await getProjectById(projectId, null);
     if (!project) throw new Error(`Project not found: ${projectId}`);
     
     // Ensure the project has at least one phone number to proceed

@@ -17,7 +17,7 @@ import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/act
 import axios from 'axios';
 
 
-export async function getProjectById(projectId?: string | null, userId?: string): Promise<WithId<Project> | null> {
+export async function getProjectById(projectId?: string | null, userId?: string | null): Promise<WithId<Project> | null> {
     if (!projectId || !ObjectId.isValid(projectId)) {
         console.error("Invalid Project ID in getProjectById:", projectId);
         return null;
@@ -26,29 +26,34 @@ export async function getProjectById(projectId?: string | null, userId?: string)
     try {
         const { db } = await connectToDatabase();
         const projectObjectId = new ObjectId(projectId);
-
-        let userFilterId: ObjectId | null = null;
-        if (userId) {
-            userFilterId = new ObjectId(userId);
-        } else {
-            const session = await getSession();
-            if (session?.user?._id) {
-                userFilterId = new ObjectId(session.user._id);
-            }
-        }
-
-        if (!userFilterId) {
-            return null; // No authenticated user found
-        }
         
-        const project = await db.collection<WithId<Project>>('projects').findOne({
-             _id: projectObjectId,
-             $or: [
+        const filter: Filter<Project> = { _id: projectObjectId };
+
+        // If userId is provided (and not null), enforce ownership/agent check.
+        // If userId is null, it's a system-level call, bypass ownership check.
+        if (userId !== null) {
+            let userFilterId: ObjectId | null = null;
+            if (userId) {
+                userFilterId = new ObjectId(userId);
+            } else {
+                const session = await getSession();
+                if (session?.user?._id) {
+                    userFilterId = new ObjectId(session.user._id);
+                }
+            }
+
+            if (!userFilterId) {
+                return null; // No authenticated user and not a system call
+            }
+            
+            filter.$or = [
                 { userId: userFilterId },
                 { 'agents.userId': userFilterId }
-            ]
-        });
+            ];
+        }
 
+        const project = await db.collection<WithId<Project>>('projects').findOne(filter);
+        
         if (!project) return null;
         
         let plan: WithId<Plan> | null = null;
