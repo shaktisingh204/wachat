@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useTransition } from 'react';
 import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
@@ -19,30 +18,27 @@ import { Card, CardContent } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { BulkChangeAppIdDialog } from '@/components/wabasimplify/bulk-change-app-id-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useProject } from '@/context/project-context';
 
 export default function SelectProjectPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { projects, reloadProjects, isLoadingProject } = useProject();
+    
     const query = searchParams.get('query') || '';
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 50;
     
-    const [allProjects, setAllProjects] = useState<WithId<Project>[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isClient, setIsClient] = useState(false);
     const [selectionMode, setSelectionMode] = useState(false);
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
     const [isAppIdDialogOpen, setIsAppIdDialogOpen] = useState(false);
     
-    const fetchProjects = useCallback(async () => {
-        setIsLoading(true);
-        const projectsData = await getProjects(query, 'whatsapp');
-        setAllProjects(projectsData || []); // Ensure it's always an array
-        setIsLoading(false);
-    }, [query]);
-
     useEffect(() => {
-        fetchProjects();
-    }, [fetchProjects]);
+        setIsClient(true);
+        // On mount, ensure we have the freshest project list, especially after redirects.
+        reloadProjects();
+    }, [reloadProjects]);
 
     const handleSelectProject = (projectId: string) => {
         setSelectedProjects(prev => 
@@ -58,12 +54,17 @@ export default function SelectProjectPage() {
         }
         setSelectionMode(!selectionMode);
     };
+    
+    const filteredProjects = useMemo(() => {
+        if (!query) return projects;
+        return projects.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
+    }, [projects, query]);
 
     const paginatedProjects = useMemo(() => {
         const start = (page - 1) * limit;
         const end = start + limit;
-        return allProjects.slice(start, end);
-    }, [allProjects, page, limit]);
+        return filteredProjects.slice(start, end);
+    }, [filteredProjects, page, limit]);
     
     const handleSelectAllOnPage = () => {
         const currentPageIds = paginatedProjects.map(p => p._id.toString());
@@ -101,7 +102,7 @@ export default function SelectProjectPage() {
         return { grouped, ungrouped };
     }, [paginatedProjects]);
     
-    const totalPages = Math.ceil(allProjects.length / limit);
+    const totalPages = Math.ceil(filteredProjects.length / limit);
 
     const handlePageChange = (newPage: number) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -116,6 +117,10 @@ export default function SelectProjectPage() {
         router.push(`?${params.toString()}`);
     }
 
+    if (!isClient) {
+        return <div>Loading...</div>; // Or a skeleton loader
+    }
+
 
     return (
         <div className="flex flex-col gap-8">
@@ -124,19 +129,19 @@ export default function SelectProjectPage() {
                 onOpenChange={setIsAppIdDialogOpen}
                 projectIds={selectedProjects}
                 onSuccess={() => {
-                    fetchProjects();
+                    reloadProjects();
                     setSelectedProjects([]);
                 }}
             />
             <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Select a Project ({allProjects.length})</h1>
+                    <h1 className="text-3xl font-bold font-headline">Select a Project ({projects.length})</h1>
                     <p className="text-muted-foreground">
                         Choose an existing project or connect a new one to get started.
                     </p>
                 </div>
                  <div className="flex flex-wrap items-center gap-2">
-                    <SyncProjectsDialog onSuccess={fetchProjects} />
+                    <SyncProjectsDialog onSuccess={reloadProjects} />
                      <Button asChild>
                       <Link href="/dashboard/setup">
                           <PlusCircle className="mr-2 h-4 w-4" />
@@ -161,7 +166,9 @@ export default function SelectProjectPage() {
                 )}
             </div>
 
-            {allProjects.length > 0 ? (
+            {isLoadingProject ? (
+                 <p>Loading projects...</p>
+            ) : projects.length > 0 ? (
                 <div className="space-y-6">
                     {Object.entries(groupedProjects.grouped).map(([groupName, groupProjects]) => (
                         <Accordion key={groupName} type="single" collapsible defaultValue="item-1">

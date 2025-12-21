@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { WithId, Project, User, Plan } from '@/lib/definitions';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById, getProjects } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProjectContextType {
@@ -18,6 +18,7 @@ interface ProjectContextType {
     setActiveProject: React.Dispatch<React.SetStateAction<WithId<Project> | null>>;
     setActiveProjectId: React.Dispatch<React.SetStateAction<string | null>>;
     reloadProject: () => void;
+    reloadProjects: () => Promise<void>;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -40,6 +41,15 @@ export function ProjectProvider({
     const pathname = usePathname();
     const { toast } = useToast();
 
+    const reloadProjects = useCallback(async () => {
+        try {
+            const { projects: freshProjects } = await getProjects() || { projects: [] };
+            setProjects(freshProjects);
+        } catch (error) {
+            console.error("Failed to reload projects:", error);
+        }
+    }, []);
+
     useEffect(() => {
         const storedId = localStorage.getItem('activeProjectId');
         const storedName = localStorage.getItem('activeProjectName');
@@ -50,6 +60,8 @@ export function ProjectProvider({
             setActiveProjectId(null);
             setActiveProjectName(null);
             setActiveProject(null);
+            // After a project is created, the user lands here. This is a good time to refresh the list.
+            reloadProjects();
         } else if (storedId) {
             setActiveProjectId(storedId);
             setActiveProjectName(storedName);
@@ -85,7 +97,7 @@ export function ProjectProvider({
 
 
     return (
-        <ProjectContext.Provider value={{ projects, setProjects, activeProject, activeProjectId, activeProjectName, isLoadingProject, sessionUser: user, setActiveProject, setActiveProjectId, reloadProject }}>
+        <ProjectContext.Provider value={{ projects, setProjects, activeProject, activeProjectId, activeProjectName, isLoadingProject, sessionUser: user, setActiveProject, setActiveProjectId, reloadProject, reloadProjects }}>
             {children}
         </ProjectContext.Provider>
     );
