@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -6,7 +7,7 @@ import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/lib/actions/user.actions';
-import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, Plan, AnyMessage } from '@/lib/definitions';
+import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, AnyMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import FormData from 'form-data';
@@ -825,5 +826,42 @@ export async function handleDeletePaymentConfiguration(
 
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getPaymentConfigurationByName(projectId: string, configurationName: string): Promise<{ configuration?: PaymentConfiguration | null, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration`, {
+            params: {
+                configuration_name: configurationName,
+                access_token: project.accessToken,
+            }
+        });
+        
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        return { configuration: response.data.data?.[0] || null };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getTransactionsForProject(projectId: string): Promise<WithId<Transaction>[]> {
+    if (!projectId || !ObjectId.isValid(projectId)) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const transactions = await db.collection('transactions').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
+        return JSON.parse(JSON.stringify(transactions));
+    } catch (e) {
+        console.error("Failed to fetch transactions:", e);
+        return [];
     }
 }
