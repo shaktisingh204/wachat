@@ -71,7 +71,7 @@ export default function AllFacebookPagesPage() {
 
     const fetchData = () => {
         startLoading(async () => {
-            const projectsData = await getProjects(undefined, 'facebook');
+            const { projects: projectsData } = await getProjects(undefined, 'facebook');
             setProjects(projectsData);
         });
     }
@@ -137,5 +137,3 @@ export default function AllFacebookPagesPage() {
         </div>
     );
 }
-
-    
