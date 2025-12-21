@@ -14,7 +14,6 @@ import { handleRequestWhatsAppPayment } from '@/app/actions/whatsapp.actions';
 import { handlePaymentRequest } from '@/app/actions/integrations.actions';
 import { getProjectById } from '@/lib/actions/user.actions';
 import type { WithId, User, Project, Contact } from '@/lib/definitions';
-import FormData from 'form-data';
 import axios from 'axios';
 import { getErrorMessage } from '@/lib/utils';
 import { ObjectId } from 'mongodb';
@@ -24,7 +23,7 @@ const API_VERSION = 'v23.0';
 async function getProjectAndContact(projectId: string, waId: string) {
     const project = await getProjectById(projectId, null); // Pass null for system-level access
     if (!project) {
-      throw new Error(`Access denied.`);
+      throw new Error(`Project with ID ${projectId} not found or access denied.`);
     }
     
     const phoneNumberId = project.phoneNumbers?.[0]?.id;
@@ -55,30 +54,28 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
         switch (actionName) {
             case 'sendMessage': {
                 if (!inputs.message) throw new Error("Input 'message' is required.");
-                const formData = new FormData();
-                formData.append('contactId', contact._id.toString());
-                formData.append('projectId', projectId);
-                formData.append('phoneNumberId', phoneNumberId);
-                formData.append('waId', to);
-                formData.append('messageText', inputs.message);
+                const data = {
+                    contactId: contact._id.toString(),
+                    projectId: projectId,
+                    phoneNumberId: phoneNumberId,
+                    waId: to,
+                    messageText: inputs.message
+                };
                 
-                const result = await handleSendMessage(null, formData, project);
+                const result = await handleSendMessage(null, data, project);
                 if (result.error) throw new Error(result.error);
                 return { output: result };
             }
             case 'sendTemplate': {
                  if (!inputs.templateId) throw new Error("Input 'templateId' is required.");
-                 const formData = new FormData();
-                 Object.keys(inputs).forEach(key => {
-                    if (inputs[key] !== undefined && inputs[key] !== null) {
-                        formData.append(key, String(inputs[key]));
-                    }
-                 });
-                 formData.append('contactId', contact._id.toString());
-                 formData.append('phoneNumberId', phoneNumberId);
-                 formData.append('waId', to);
+                 const data = {
+                    ...inputs,
+                    contactId: contact._id.toString(),
+                    phoneNumberId: phoneNumberId,
+                    waId: to,
+                 };
 
-                 const result = await handleSendTemplateMessage(null, formData, project);
+                 const result = await handleSendTemplateMessage(null, data, project);
                  if (result.error) throw new Error(result.error);
                  return { output: result };
             }
@@ -94,15 +91,16 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                  const buffer = Buffer.from(mediaResponse.data);
                  const contentType = mediaResponse.headers['content-type'] || 'application/octet-stream';
                  
-                 const mediaFormData = new FormData();
-                 mediaFormData.append('mediaFile', buffer, { contentType, filename: inputs.filename || 'media' });
-                 mediaFormData.append('messageText', inputs.caption || '');
-                 mediaFormData.append('contactId', contact._id.toString());
-                 mediaFormData.append('projectId', projectId);
-                 mediaFormData.append('phoneNumberId', phoneNumberId);
-                 mediaFormData.append('waId', to);
+                 const data = {
+                    mediaFile: new File([buffer], inputs.filename || 'media', { type: contentType }),
+                    messageText: inputs.caption || '',
+                    contactId: contact._id.toString(),
+                    projectId: projectId,
+                    phoneNumberId: phoneNumberId,
+                    waId: to,
+                 };
 
-                 const result = await handleSendMessage(null, mediaFormData, project);
+                 const result = await handleSendMessage(null, data, project);
                  if (result.error) throw new Error(result.error);
                  return { output: result };
             }
@@ -125,12 +123,12 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                  return { output: { success: true } };
             }
             case 'createContact': {
-                const contactFormData = new FormData();
-                contactFormData.append('projectId', projectId);
-                contactFormData.append('phoneNumberId', phoneNumberId);
-                contactFormData.append('name', inputs.name);
-                contactFormData.append('waId', inputs.waId);
-                const result = await handleAddNewContact(null, contactFormData, user);
+                const formData = new FormData();
+                formData.append('projectId', projectId);
+                formData.append('phoneNumberId', phoneNumberId);
+                formData.append('name', inputs.name);
+                formData.append('waId', inputs.waId);
+                const result = await handleAddNewContact(null, formData, user);
                 if (result.error) throw new Error(result.error);
                 return { output: result };
             }
