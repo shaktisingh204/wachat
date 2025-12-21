@@ -72,10 +72,11 @@ function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: string, 
 export default async function FacebookCallbackPage({
   searchParams,
 }: {
+  // 🔥 IMPORTANT: searchParams IS A PROMISE
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   
-  // Await the promise to get the actual search parameters
+  // 🔥 MUST unwrap it
   const params = new URLSearchParams(searchParams as any);
 
   const code = params.get('code') as string | undefined;
