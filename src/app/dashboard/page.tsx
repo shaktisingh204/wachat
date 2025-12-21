@@ -36,9 +36,7 @@ export default function SelectProjectPage() {
     
     useEffect(() => {
         setIsClient(true);
-        // On mount, ensure we have the freshest project list, especially after redirects.
-        reloadProjects();
-    }, [reloadProjects]);
+    }, []);
 
     const handleSelectProject = (projectId: string) => {
         setSelectedProjects(prev => 
@@ -62,7 +60,7 @@ export default function SelectProjectPage() {
     }, [projects, query]);
 
     const paginatedProjects = useMemo(() => {
-        if (!filteredProjects || !Array.isArray(filteredProjects)) return [];
+        if (!Array.isArray(filteredProjects)) return [];
         const start = (page - 1) * limit;
         const end = start + limit;
         return filteredProjects.slice(start, end);
@@ -90,6 +88,8 @@ export default function SelectProjectPage() {
         const grouped: { [key: string]: WithId<Project>[] } = {};
         const ungrouped: WithId<Project>[] = [];
         
+        if (!Array.isArray(paginatedProjects)) return { grouped, ungrouped };
+
         paginatedProjects.forEach(p => {
             if (p.groupId && p.groupName) {
                 if (!grouped[p.groupName]) {
