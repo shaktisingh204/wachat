@@ -2,22 +2,24 @@
 'use client';
 
 import { Suspense, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, ReadonlyURLSearchParams } from 'next/navigation';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
-function FacebookCallback() {
-  const searchParams = useSearchParams();
+// 🔥 IMPORTANT: This is now an async component to handle the searchParams promise
+async function FacebookCallback({ searchParams }: { searchParams: Promise<ReadonlyURLSearchParams>; }) {
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const code = searchParams.get('code');
-    const stateFromUrl = searchParams.get('state');
-    const error = searchParams.get('error_description');
+  // 🔥 MUST unwrap it
+  const params = await searchParams;
+  const code = params.get('code') as string | undefined;
+  const stateFromUrl = params.get('state') as string | undefined;
+  const error = params.get('error_description') as string | undefined;
 
+  useEffect(() => {
     if (error) {
       toast({
         title: 'Onboarding Failed',
@@ -48,7 +50,10 @@ function FacebookCallback() {
         }
       });
     }
-  }, [searchParams, router, toast]);
+  // NOTE: The dependency array is intentionally empty to run this logic only once after the initial render.
+  // The params are resolved before the effect runs.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-muted">
@@ -67,10 +72,34 @@ function FacebookCallback() {
   );
 }
 
+// Wrapper component to use Suspense
+function FacebookCallbackWrapper() {
+    const searchParams = useSearchParams(); // This is the client-side hook
+
+    // Create a Promise that resolves with the searchParams
+    const searchParamsPromise = new Promise<ReadonlyURLSearchParams>((resolve) => {
+        resolve(searchParams);
+    });
+    
+    return <FacebookCallback searchParams={searchParamsPromise} />;
+}
+
+
 export default function FacebookCallbackPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <FacebookCallback />
+        <Suspense fallback={
+            <div className="flex h-screen w-screen items-center justify-center bg-muted">
+                <Card className="max-w-sm text-center">
+                    <CardHeader>
+                        <div className="flex justify-center mb-4">
+                            <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
+                        </div>
+                        <CardTitle>Loading...</CardTitle>
+                    </CardHeader>
+                </Card>
+            </div>
+        }>
+            <FacebookCallbackWrapper />
         </Suspense>
     )
 }
