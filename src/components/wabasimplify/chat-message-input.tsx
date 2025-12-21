@@ -28,21 +28,27 @@ const sendInitialState = {
   error: null,
 };
 
-function SubmitButton({ onClick }: { onClick: () => void }) {
+function SubmitButton({ onClick, disabled }: { onClick: () => void, disabled?: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="button" size="icon" onClick={onClick} disabled={pending}>
+        <Button type="button" size="icon" onClick={onClick} disabled={pending || disabled}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">Send Message</span>
         </Button>
     );
 }
 
+const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+    });
+};
+
 export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) {
-    const [sendState, sendFormAction] = useActionState(handleSendMessage, sendInitialState);
-    const formRef = useRef<HTMLFormElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const mainInputRef = useRef<HTMLInputElement>(null);
+    const [sendState, setSendState] = useState(sendInitialState);
     const { toast } = useToast();
 
     const [inputValue, setInputValue] = useState('');
@@ -63,11 +69,44 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
             toast({ title: 'Error sending message', description: sendState.error, variant: 'destructive' });
         }
         if (sendState.message) {
-            formRef.current?.reset();
             setInputValue('');
         }
     }, [sendState, toast]);
 
+    const handleFormSubmit = async (data?: { [key: string]: any }) => {
+        const result = await handleSendMessage(null, data || {});
+        setSendState(result);
+    };
+
+    const handleTextSend = () => {
+        if (!inputValue.trim()) return;
+        handleFormSubmit({
+            contactId: contact._id.toString(),
+            projectId: contact.projectId.toString(),
+            phoneNumberId: contact.phoneNumberId,
+            waId: contact.waId,
+            messageText: inputValue,
+        });
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const base64String = await fileToBase64(file);
+        handleFormSubmit({
+            contactId: contact._id.toString(),
+            projectId: contact.projectId.toString(),
+            phoneNumberId: contact.phoneNumberId,
+            waId: contact.waId,
+            mediaFile: {
+                content: base64String.split(',')[1],
+                name: file.name,
+                type: file.type,
+            }
+        });
+    };
+    
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setInputValue(val);
@@ -78,7 +117,6 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
         if (message.type === 'text' && message.content.text) {
             setInputValue(message.content.text);
             setCannedPopoverOpen(false);
-            mainInputRef.current?.focus();
         } else {
              toast({
                 title: 'Unsupported',
@@ -86,19 +124,14 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
             });
         }
     };
-
-    const handleFileChange = () => {
-        setTimeout(() => {
-            formRef.current?.requestSubmit();
-        }, 100);
-    };
-
-     const handleMediaClick = (acceptType: string) => {
-        if (fileInputRef.current) {
-            fileInputRef.current.accept = acceptType;
-            fileInputRef.current.click();
+    
+    const handleMediaClick = (acceptType: string) => {
+        const fileInput = document.getElementById('media-file-input') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.accept = acceptType;
+            fileInput.click();
         }
-    }
+    };
     
     const filteredCannedMessages = inputValue.startsWith('/')
         ? cannedMessages
@@ -145,30 +178,19 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
         />
         <div className="flex w-full items-center gap-2">
             <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
-                <form ref={formRef} action={sendFormAction} className="flex-1 relative">
-                    <input type="hidden" name="contactId" value={contact._id.toString()} />
-                    <input type="hidden" name="projectId" value={contact.projectId.toString()} />
-                    <input type="hidden" name="phoneNumberId" value={contact.phoneNumberId} />
-                    <input type="hidden" name="waId" value={contact.waId} />
-                    <PopoverAnchor asChild>
-                        <Input
-                            ref={mainInputRef}
-                            name="messageText"
-                            placeholder="Type a message or / for canned replies"
-                            autoComplete="off"
-                            className="flex-1"
-                            value={inputValue}
-                            onChange={handleInputChange}
-                        />
-                    </PopoverAnchor>
-                    <input
-                        type="file"
-                        name="mediaFile"
-                        ref={fileInputRef}
-                        className="hidden"
-                        onChange={handleFileChange}
+                 <PopoverAnchor asChild>
+                    <Input
+                        name="messageText"
+                        placeholder="Type a message or / for canned replies"
+                        autoComplete="off"
+                        className="flex-1"
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        onKeyDown={(e) => { if(e.key === 'Enter') handleTextSend(); }}
                     />
-                </form>
+                </PopoverAnchor>
+                {/* Hidden file input */}
+                <input type="file" id="media-file-input" className="hidden" onChange={handleFileChange} />
                 <PopoverContent
                     className="w-[--radix-popover-trigger-width] p-0"
                     onOpenAutoFocus={(e) => e.preventDefault()}
@@ -226,7 +248,7 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
                 </Popover>
             </div>
             
-            <SubmitButton onClick={() => formRef.current?.requestSubmit()} />
+            <SubmitButton onClick={handleTextSend} disabled={!inputValue.trim()} />
         </div>
         </>
     );

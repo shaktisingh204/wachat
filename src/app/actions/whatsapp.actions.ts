@@ -338,7 +338,7 @@ export async function handleSendMessage(
 ): Promise<{ message?: string; error?: string }> {
     const { contactId, projectId, phoneNumberId, waId, messageText, mediaFile } = data;
 
-    if (!contactId || !projectId || !waId || !phoneNumberId || (!messageText && (!mediaFile || mediaFile.size === 0))) {
+    if (!contactId || !projectId || !waId || !phoneNumberId || (!messageText && !mediaFile)) {
         return { error: 'Required fields are missing to send message.' };
     }
     
@@ -354,13 +354,11 @@ export async function handleSendMessage(
         };
         let messageType: OutgoingMessage['type'] = 'text';
 
-        const file = mediaFile as File;
-        if (file && file.size > 0) {
+        const fileData = mediaFile as { content: string, name: string, type: string };
+        if (fileData?.content) {
             const form = new FormData();
-            form.append('file', Buffer.from(await file.arrayBuffer()), {
-                filename: file.name,
-                contentType: file.type,
-            });
+            const buffer = Buffer.from(fileData.content, 'base64');
+            form.append('file', buffer, { filename: fileData.name, contentType: fileData.type });
             form.append('messaging_product', 'whatsapp');
 
             const uploadResponse = await axios.post(
@@ -374,7 +372,7 @@ export async function handleSendMessage(
                 return { error: 'Failed to upload media to Meta. No ID returned.' };
             }
 
-            const detectedMediaType = file.type.split('/')[0];
+            const detectedMediaType = fileData.type.split('/')[0];
 
             if (detectedMediaType === 'image') {
                 messageType = 'image';
@@ -389,7 +387,7 @@ export async function handleSendMessage(
             } else {
                 messageType = 'document';
                 messagePayload.type = 'document';
-                messagePayload.document = { id: mediaId, filename: file.name };
+                messagePayload.document = { id: mediaId, filename: fileData.name };
                  if (messageText) messagePayload.document.caption = messageText;
             }
         } else {
@@ -439,6 +437,7 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
                 $setOnInsert: {
                     waId,
                     projectId: new ObjectId(projectId),
+                    userId: hasAccess.userId,
                     name: `User (${waId.slice(-4)})`,
                     createdAt: new Date(),
                     status: 'new',
