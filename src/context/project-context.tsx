@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useTransition } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { WithId, Project, User, Plan } from '@/lib/definitions';
 import { getProjectById, getProjects } from '@/app/actions/index.ts';
@@ -33,13 +33,18 @@ export function ProjectProvider({
     user: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null 
 }) {
     const [projects, setProjects] = useState<WithId<Project>[]>(initialProjects || []);
-    const [activeProject, setActiveProject] = useState<WithId<Project> | null>(null);
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
     const [activeProjectName, setActiveProjectName] = useState<string | null>(null);
     const [isLoadingProject, startProjectLoad] = useTransition();
     const router = useRouter();
     const pathname = usePathname();
     const { toast } = useToast();
+
+    // Memoize the activeProject to prevent it from being re-created on every render
+    const activeProject = useMemo(() => {
+        if (!activeProjectId || !projects) return null;
+        return projects.find(p => p._id.toString() === activeProjectId) || null;
+    }, [activeProjectId, projects]);
 
     const reloadProjects = useCallback(async () => {
         try {
@@ -59,19 +64,11 @@ export function ProjectProvider({
             localStorage.removeItem('activeProjectName');
             setActiveProjectId(null);
             setActiveProjectName(null);
-            setActiveProject(null);
         } else if (storedId) {
             setActiveProjectId(storedId);
             setActiveProjectName(storedName);
-            const project = projects?.find(p => p._id.toString() === storedId);
-            if (project) {
-                setActiveProject(project);
-            } else if (pathname !== '/dashboard/setup' && pathname !== '/dashboard/bulk' && pathname !== '/dashboard/bulk/template') {
-                 reloadProject();
-            }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pathname, projects]);
+    }, [pathname]);
 
     const reloadProject = useCallback(() => {
         const storedId = localStorage.getItem('activeProjectId');
@@ -79,8 +76,13 @@ export function ProjectProvider({
             startProjectLoad(async () => {
                 const projectData = await getProjectById(storedId);
                 if (projectData) {
-                    setActiveProject(projectData);
-                    setActiveProjectName(projectData.name);
+                    setProjects(prevProjects => {
+                        const existing = prevProjects.find(p => p._id.toString() === projectData._id.toString());
+                        if (existing) {
+                            return prevProjects.map(p => p._id.toString() === projectData._id.toString() ? projectData : p);
+                        }
+                        return [...prevProjects, projectData];
+                    });
                 } else {
                     toast({ title: 'Error', description: 'Could not load the selected project.', variant: 'destructive' });
                     localStorage.removeItem('activeProjectId');
@@ -94,7 +96,7 @@ export function ProjectProvider({
 
 
     return (
-        <ProjectContext.Provider value={{ projects, setProjects, activeProject, activeProjectId, activeProjectName, isLoadingProject, sessionUser: user, setActiveProject, setActiveProjectId, reloadProject, reloadProjects }}>
+        <ProjectContext.Provider value={{ projects, setProjects, activeProject, activeProjectId, activeProjectName, isLoadingProject, sessionUser: user, setActiveProject: () => {}, setActiveProjectId, reloadProject, reloadProjects }}>
             {children}
         </ProjectContext.Provider>
     );
