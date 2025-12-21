@@ -1,36 +1,47 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { ObjectId } from 'mongodb';
 import { runSabFlow } from '@/app/actions/sabflow.actions';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function POST(
-    request: NextRequest,
-    { params }: { params: { flowId: string } }
+  request: NextRequest,
+  context: { params: Promise<{ flowId: string }> }
 ) {
-    const { flowId } = params;
+  // ✅ unwrap params
+  const { flowId } = await context.params;
 
-    if (!flowId || !ObjectId.isValid(flowId)) {
-        return NextResponse.json({ error: 'Invalid Flow ID.' }, { status: 400 });
+  if (!flowId || !ObjectId.isValid(flowId)) {
+    return NextResponse.json({ error: 'Invalid Flow ID.' }, { status: 400 });
+  }
+
+  let payload = {};
+  try {
+    const bodyText = await request.text();
+    if (bodyText) {
+      payload = JSON.parse(bodyText);
+    }
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON payload.' }, { status: 400 });
+  }
+
+  try {
+    const result = await runSabFlow(flowId, payload);
+
+    if (result?.error) {
+      return NextResponse.json(
+        { success: false, error: result.error },
+        { status: 500 }
+      );
     }
 
-    let payload = {};
-    try {
-        const bodyText = await request.text();
-        if (bodyText) {
-            payload = JSON.parse(bodyText);
-        }
-    } catch (e) {
-        return NextResponse.json({ error: 'Invalid JSON payload.' }, { status: 400 });
-    }
-
-    try {
-        const result = await runSabFlow(flowId, payload);
-        if (result?.error) {
-            return NextResponse.json({ success: false, error: result.error }, { status: 500 });
-        }
-        return NextResponse.json({ success: true, message: "Flow triggered successfully." });
-    } catch (e) {
-        return NextResponse.json({ success: false, error: getErrorMessage(e) }, { status: 500 });
-    }
+    return NextResponse.json({
+      success: true,
+      message: 'Flow triggered successfully.',
+    });
+  } catch (e) {
+    return NextResponse.json(
+      { success: false, error: getErrorMessage(e) },
+      { status: 500 }
+    );
+  }
 }
