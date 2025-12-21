@@ -1,23 +1,18 @@
 
 'use client';
 
-import { Suspense, useEffect } from 'react';
-import { useSearchParams, useRouter, ReadonlyURLSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useTransition } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { handleWabaOnboarding } from '@/app/actions/onboarding.actions';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
-// 🔥 IMPORTANT: This is now an async component to handle the searchParams promise
-async function FacebookCallback({ searchParams }: { searchParams: Promise<ReadonlyURLSearchParams>; }) {
+// This is now a CLIENT component that receives props
+function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: string, error?: string, stateFromUrl?: string }) {
   const router = useRouter();
   const { toast } = useToast();
-
-  // 🔥 MUST unwrap it
-  const params = await searchParams;
-  const code = params.get('code') as string | undefined;
-  const stateFromUrl = params.get('state') as string | undefined;
-  const error = params.get('error_description') as string | undefined;
+  const [isProcessing, startTransition] = useTransition();
 
   useEffect(() => {
     if (error) {
@@ -31,29 +26,28 @@ async function FacebookCallback({ searchParams }: { searchParams: Promise<Readon
     }
 
     if (code && stateFromUrl) {
-      // The `userId` is now retrieved from the secure cookie on the server-side,
-      // so we only need to pass the code.
-      handleWabaOnboarding({ code, userId: '' }).then((result) => {
+      startTransition(async () => {
+        const result = await handleWabaOnboarding({ code, userId: '' }); // userId is read from cookie on server
         if (result.success) {
           toast({
             title: 'Connection Successful!',
             description: 'Your WhatsApp account has been connected.',
           });
-          router.push('/dashboard');
+          // Use replace to prevent user from going "back" to the loading page
+          router.replace('/dashboard');
         } else {
           toast({
             title: 'Onboarding Failed',
             description: result.error || 'An unknown error occurred.',
             variant: 'destructive',
           });
-          router.push('/dashboard/setup');
+          router.replace('/dashboard/setup');
         }
       });
     }
-  // NOTE: The dependency array is intentionally empty to run this logic only once after the initial render.
-  // The params are resolved before the effect runs.
+  // This effect should only run once when the component mounts with the props.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [code, error, stateFromUrl, router, toast]);
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-muted">
@@ -72,34 +66,32 @@ async function FacebookCallback({ searchParams }: { searchParams: Promise<Readon
   );
 }
 
-// Wrapper component to use Suspense
-function FacebookCallbackWrapper() {
-    const searchParams = useSearchParams(); // This is the client-side hook
 
-    // Create a Promise that resolves with the searchParams
-    const searchParamsPromise = new Promise<ReadonlyURLSearchParams>((resolve) => {
-        resolve(searchParams);
-    });
-    
-    return <FacebookCallback searchParams={searchParamsPromise} />;
+// This is the SERVER component that handles the promise
+async function FacebookCallbackPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  const code = searchParams.code as string | undefined;
+  const state = searchParams.state as string | undefined;
+  const error = searchParams.error_description as string | undefined;
+  
+  return <FacebookCallbackClient code={code} error={error} stateFromUrl={state} />;
 }
 
-
-export default function FacebookCallbackPage() {
-    return (
-        <Suspense fallback={
-            <div className="flex h-screen w-screen items-center justify-center bg-muted">
-                <Card className="max-w-sm text-center">
-                    <CardHeader>
-                        <div className="flex justify-center mb-4">
-                            <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
-                        </div>
-                        <CardTitle>Loading...</CardTitle>
-                    </CardHeader>
-                </Card>
-            </div>
-        }>
-            <FacebookCallbackWrapper />
-        </Suspense>
-    )
+// Wrapper to handle Suspense boundary
+export default function FacebookCallbackPageWrapper({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  return (
+    <Suspense fallback={
+        <div className="flex h-screen w-screen items-center justify-center bg-muted">
+            <Card className="max-w-sm text-center">
+                <CardHeader>
+                    <div className="flex justify-center mb-4">
+                        <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
+                    </div>
+                    <CardTitle>Loading...</CardTitle>
+                </CardHeader>
+            </Card>
+        </div>
+    }>
+        <FacebookCallbackPage searchParams={searchParams} />
+    </Suspense>
+  )
 }
