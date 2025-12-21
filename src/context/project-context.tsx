@@ -60,8 +60,6 @@ export function ProjectProvider({
             setActiveProjectId(null);
             setActiveProjectName(null);
             setActiveProject(null);
-            // After a project is created, the user lands here. This is a good time to refresh the list.
-            reloadProjects();
         } else if (storedId) {
             setActiveProjectId(storedId);
             setActiveProjectName(storedName);
@@ -69,7 +67,6 @@ export function ProjectProvider({
             if (project) {
                 setActiveProject(project);
             } else if (pathname !== '/dashboard/setup' && pathname !== '/dashboard/bulk' && pathname !== '/dashboard/bulk/template') {
-                 // If project is not in the list, it might be an invalid ID
                  reloadProject();
             }
         }

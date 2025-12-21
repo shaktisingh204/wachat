@@ -1,10 +1,9 @@
 
 'use client';
 
-import { useEffect, useState, useMemo, useCallback, useTransition } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import type { Metadata } from "next";
 import Link from 'next/link';
-import { getProjects } from "@/lib/actions/user.actions.ts";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { FileText, PlusCircle, Rows, X, Briefcase, Folder, CheckSquare, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 import type { WithId } from "mongodb";
@@ -120,7 +119,7 @@ export default function SelectProjectPage() {
     }
 
     if (!isClient) {
-        return <div>Loading...</div>; // Or a skeleton loader
+        return <div>Loading...</div>;
     }
 
 
@@ -137,7 +136,7 @@ export default function SelectProjectPage() {
             />
             <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Select a Project ({(projects || []).length})</h1>
+                    <h1 className="text-3xl font-bold font-headline">Select a Project ({projects?.length || 0})</h1>
                     <p className="text-muted-foreground">
                         Choose an existing project or connect a new one to get started.
                     </p>
