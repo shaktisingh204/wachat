@@ -75,38 +75,47 @@ import type {
 } from '@/lib/definitions';
 
 
-export async function getSession(): Promise<{ user: Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, tags?: Tag[] } } | null> {
-    const cookieStore = cookies();
-    const sessionCookie = cookieStore.get('session');
-    const sessionToken = sessionCookie?.value;
-
+export async function getSession(): Promise<{
+    user: Omit<User, 'password' | 'planId'> & {
+      plan?: WithId<Plan> | null;
+      tags?: Tag[];
+    };
+  } | null> {
+  
+    // ✅ MUST await cookies()
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('session')?.value;
+  
     if (!sessionToken) {
-        return null;
+      return null;
     }
-
+  
     const payload = await verifyJwt(sessionToken);
     if (!payload) {
-        return null;
+      return null;
     }
-
+  
     try {
-        const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne(
-            { _id: new ObjectId(payload.userId) },
-            { projection: { password: 0 } }
-        );
-
-        if (!user) {
-            return null;
-        }
-
-        return { user: JSON.parse(JSON.stringify(user)) };
-    } catch (error) {
-        console.error("Error fetching session user from DB:", error);
+      const { db } = await connectToDatabase();
+  
+      const user = await db.collection<User>('users').findOne(
+        { _id: new ObjectId(payload.userId) },
+        { projection: { password: 0 } }
+      );
+  
+      if (!user) {
         return null;
+      }
+  
+      return {
+        user: JSON.parse(JSON.stringify(user)),
+      };
+    } catch (error) {
+      console.error('Error fetching session user from DB:', error);
+      return null;
     }
-}
-
+  }
+  
 export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
     const cookieStore = cookies();
     const sessionCookie = cookieStore.get('admin_session');
