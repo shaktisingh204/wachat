@@ -18,14 +18,21 @@ const LOG_PREFIX = '[ONBOARDING]';
 
 export async function handleWabaOnboarding(data: {
     code: string;
-    userId: string;
 }): Promise<{ success: boolean; error?: string }> {
-    const { code, userId } = data;
+    const { code } = data;
+    const cookieStore = cookies();
+    const stateCookie = cookieStore.get('onboarding_state')?.value;
+
+    if (!stateCookie) {
+        return { success: false, error: 'Onboarding session expired or invalid. Please try again.' };
+    }
+
+    const { userId, includeCatalog } = JSON.parse(stateCookie);
     
     console.log(`${LOG_PREFIX} Step 1: Finalizing onboarding for user ${userId}.`);
     
     if (!userId || !ObjectId.isValid(userId)) {
-        const errorMsg = `Invalid user ID provided: ${userId}`;
+        const errorMsg = `Invalid user ID provided from cookie: ${userId}`;
         console.error(`${LOG_PREFIX} ${errorMsg}`);
         return { success: false, error: errorMsg };
     }
@@ -82,8 +89,6 @@ export async function handleWabaOnboarding(data: {
         console.log(`${LOG_PREFIX} Step 5: Fetched WABA details. Name: ${wabaName}, Business ID: ${businessId}`);
         
         let businessCaps: BusinessCapabilities | undefined;
-        const stateCookie = cookies().get('onboarding_state')?.value;
-        const includeCatalog = stateCookie ? JSON.parse(stateCookie).includeCatalog : false;
         if (businessId && includeCatalog) {
              try {
                  const { data: capsData } = await axios.get(
@@ -133,7 +138,6 @@ export async function handleWabaOnboarding(data: {
         
         console.log(`${LOG_PREFIX} Step 8: Finalization complete.`);
         
-        // This was the missing piece
         return { success: true };
         
     } catch (e: any) {
