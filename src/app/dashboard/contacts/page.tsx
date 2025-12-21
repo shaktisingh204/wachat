@@ -112,7 +112,7 @@ export default function ContactsPage() {
     const [totalPages, setTotalPages] = useState(0);
     const { toast } = useToast();
     
-    useEffect(() => {
+    const fetchData = useCallback(() => {
         if (!activeProjectId) return;
         startTransition(async () => {
              try {
@@ -129,25 +129,9 @@ export default function ContactsPage() {
         });
     }, [activeProjectId, currentPage, searchQuery, selectedTags, toast]);
 
-    const fetchData = useCallback(() => {
-        if (!activeProjectId) return;
-        startTransition(async () => {
-             try {
-                const data = await getContactsPageData(activeProjectId, 1, '', []);
-                setContacts(data.contacts);
-                setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
-                // Reset pagination and filters in URL
-                const params = new URLSearchParams();
-                router.replace(`${pathname}?${params.toString()}`);
-             } catch (error) {
-                 toast({
-                    title: "Error",
-                    description: "Failed to refresh contacts.",
-                    variant: "destructive",
-                });
-             }
-        });
-    }, [activeProjectId, toast, router, pathname]);
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
 
     const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
