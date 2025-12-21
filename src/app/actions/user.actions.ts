@@ -17,7 +17,7 @@ import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/act
 import axios from 'axios';
 
 
-export async function getProjectById(projectId?: string | null, userId?: string): Promise<WithId<Project> | null> {
+export async function getProjectById(projectId?: string | null, userId?: string | null): Promise<WithId<Project> | null> {
     if (!projectId || !ObjectId.isValid(projectId)) {
         console.error("Invalid Project ID in getProjectById:", projectId);
         return null;
@@ -27,28 +27,33 @@ export async function getProjectById(projectId?: string | null, userId?: string)
         const { db } = await connectToDatabase();
         const projectObjectId = new ObjectId(projectId);
 
-        let userFilterId: ObjectId | null = null;
-        if (userId) {
-            userFilterId = new ObjectId(userId);
-        } else {
-            const session = await getSession();
-            if (session?.user?._id) {
-                userFilterId = new ObjectId(session.user._id);
-            }
-        }
+        const filter: Filter<Project> = { _id: projectObjectId };
 
-        if (!userFilterId) {
-            return null; // No authenticated user found
-        }
-        
-        const project = await db.collection<WithId<Project>>('projects').findOne({
-             _id: projectObjectId,
-             $or: [
+        // If userId is provided (and not null), enforce ownership/agent check.
+        // If userId is null, it's a system-level call, bypass ownership check.
+        if (userId !== null) {
+            let userFilterId: ObjectId | null = null;
+            if (userId) {
+                userFilterId = new ObjectId(userId);
+            } else {
+                const session = await getSession();
+                if (session?.user?._id) {
+                    userFilterId = new ObjectId(session.user._id);
+                }
+            }
+
+            if (!userFilterId) {
+                return null; // No authenticated user and not a system call
+            }
+            
+            filter.$or = [
                 { userId: userFilterId },
                 { 'agents.userId': userFilterId }
-            ]
-        });
+            ];
+        }
 
+        const project = await db.collection<WithId<Project>>('projects').findOne(filter);
+        
         if (!project) return null;
         
         let plan: WithId<Plan> | null = null;
@@ -69,15 +74,18 @@ export async function getProjectById(projectId?: string | null, userId?: string)
 }
 
 
-export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<WithId<Project>[]> {
+export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<{ projects: WithId<Project>[] }> {
+    console.log(`[getProjects] Fetching projects. Type: ${type}, Query: ${query}`);
     const session = await getSession();
     if (!session?.user) {
-        return [];
+        console.log('[getProjects] No session user found. Returning empty array.');
+        return { projects: [] };
     }
 
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
+        console.log(`[getProjects] Authenticated user ID: ${userObjectId.toString()}`);
 
         const projectFilter: Filter<Project> = {
             $or: [
@@ -91,20 +99,24 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         }
         
         if (type === 'whatsapp') {
-            projectFilter.wabaId = { $exists: true, $ne: null };
+            projectFilter.wabaId = { $exists: true, $ne: "" };
         } else if (type === 'facebook') {
-            projectFilter.facebookPageId = { $exists: true, $ne: null };
+            projectFilter.facebookPageId = { $exists: true, $ne: "" };
         }
+        
+        console.log('[getProjects] Using filter:', JSON.stringify(projectFilter, null, 2));
 
         const projects = await db.collection<Project>('projects')
             .find(projectFilter)
             .sort({ createdAt: -1 })
             .toArray();
             
-        return JSON.parse(JSON.stringify(projects));
+        console.log(`[getProjects] Found ${projects.length} projects.`);
+            
+        return { projects: JSON.parse(JSON.stringify(projects)) };
     } catch (error) {
-        console.error("Failed to fetch projects:", error);
-        return [];
+        console.error("[getProjects] Failed to fetch projects:", error);
+        return { projects: [] };
     }
 }
 
@@ -334,45 +346,54 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
     // save it to the user's record with an expiration, and send an email.
     return { message: "If an account with this email exists, a password reset link has been sent." };
 }
-
 export async function getSession() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session')?.value;
-  const decoded = await getDecodedSession(sessionCookie);
-
-  if (!decoded) return null;
-
-  try {
-    const { db } = await connectToDatabase();
-    const dbUser = await db.collection('users').findOne({ email: decoded.email }, { projection: { password: 0 } });
-    if (!dbUser) return null;
-
-    let plan: WithId<Plan> | null = null;
-    if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
-        plan = await db.collection<WithId<Plan>>('plans').findOne({ _id: new ObjectId(dbUser.planId) });
-    }
-    if (!plan) {
+    // ✅ cookies() MUST be awaited
+    const cookieStore = await cookies();
+  
+    const sessionCookie = cookieStore.get('session')?.value;
+    if (!sessionCookie) return null;
+  
+    const decoded = await getDecodedSession(sessionCookie);
+    if (!decoded) return null;
+  
+    try {
+      const { db } = await connectToDatabase();
+  
+      const dbUser = await db.collection('users').findOne(
+        { email: decoded.email },
+        { projection: { password: 0 } }
+      );
+  
+      if (!dbUser) return null;
+  
+      let plan: WithId<Plan> | null = null;
+  
+      if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
+        plan = await db.collection<WithId<Plan>>('plans').findOne({
+          _id: new ObjectId(dbUser.planId),
+        });
+      }
+  
+      if (!plan) {
         plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
+      }
+  
+      return {
+        user: {
+          ...dbUser,
+          _id: dbUser._id.toString(),
+          planId: dbUser.planId?.toString(),
+          name: dbUser.name || decoded.name,
+          image: dbUser.image || decoded.picture,
+          plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
+        },
+      };
+    } catch (e) {
+      console.error('[getSession] DB error:', e);
+      return null;
     }
-    
-    // Create a plain object for the client
-    const mergedUser = {
-        ...dbUser,
-        _id: dbUser._id.toString(),
-        planId: dbUser.planId?.toString(),
-        name: dbUser.name || decoded.name,
-        image: dbUser.image || decoded.picture,
-        plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
-    };
-
-    return { user: mergedUser };
-  } catch (e) {
-    console.error("Failed to fetch user from DB in getSession:", e);
-    return null;
   }
-}
-
-
+  
 export async function getUsersForAdmin(
     page: number = 1,
     limit: number = 10,
@@ -510,3 +531,5 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
+    
