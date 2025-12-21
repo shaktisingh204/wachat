@@ -69,10 +69,10 @@ export async function getProjectById(projectId?: string | null, userId?: string)
 }
 
 
-export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<WithId<Project>[]> {
+export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<{ projects: WithId<Project>[] }> {
     const session = await getSession();
     if (!session?.user) {
-        return [];
+        return { projects: [] };
     }
 
     try {
@@ -92,7 +92,9 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         
         if (type === 'whatsapp') {
             projectFilter.wabaId = { $exists: true, $ne: "" };
+            projectFilter.facebookPageId = { $exists: false }; // Only show pure WhatsApp projects
         } else if (type === 'facebook') {
+            // This now correctly fetches projects that might have BOTH, which is what the Meta Suite uses
             projectFilter.facebookPageId = { $exists: true, $ne: "" };
         }
 
@@ -101,10 +103,10 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             .sort({ createdAt: -1 })
             .toArray();
             
-        return JSON.parse(JSON.stringify(projects));
+        return { projects: JSON.parse(JSON.stringify(projects)) };
     } catch (error) {
         console.error("Failed to fetch projects:", error);
-        return [];
+        return { projects: [] };
     }
 }
 
@@ -336,7 +338,7 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const sessionCookie = cookieStore.get('session')?.value;
   const decoded = await getDecodedSession(sessionCookie);
 
@@ -511,3 +513,4 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
     }
 }
 
+    
