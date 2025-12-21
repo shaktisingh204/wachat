@@ -20,8 +20,7 @@ import {
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getSession } from '@/app/actions/index.ts';
-import { getProjects } from "@/lib/actions/user.actions.ts";
+import { getSession, getProjects } from '@/app/actions/index.ts';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
@@ -608,7 +607,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
                 <div className="flex flex-1 overflow-hidden">
                     {appRailPosition === 'left' && <AppRail />}
-                    <Sidebar className={cn("hidden", !(isChatPage || isBuilderPage) && 'md:flex')}>
+                    <Sidebar className={cn("hidden md:flex")}>
                         <SidebarHeader>
                             {/* Can be used for project switcher */}
                         </SidebarHeader>
@@ -701,8 +700,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         )}
                         </SidebarContent>
                     </Sidebar>
-                    <main className={cn(isChatPage || isBuilderPage ? 'flex-1 overflow-hidden' : 'flex-1 overflow-y-auto')}>
-                        {isChatPage || isBuilderPage ? children : mainContent}
+                    <main className="flex-1 overflow-y-auto">
+                        {children}
                     </main>
                 </div>
             </div>
@@ -745,3 +744,5 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </ProjectProvider>
     );
 }
+
+    
