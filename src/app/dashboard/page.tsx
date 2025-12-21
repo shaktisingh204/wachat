@@ -4,7 +4,7 @@
 import { useEffect, useState, useMemo, useCallback, useTransition } from 'react';
 import type { Metadata } from "next";
 import Link from 'next/link';
-import { getProjects } from "@/app/actions";
+import { getProjects } from "@/lib/actions/user.actions.ts";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { FileText, PlusCircle, Rows, X, Briefcase, Folder, CheckSquare, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 import type { WithId } from "mongodb";
