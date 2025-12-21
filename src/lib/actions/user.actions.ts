@@ -70,14 +70,17 @@ export async function getProjectById(projectId?: string | null, userId?: string)
 
 
 export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<{ projects: WithId<Project>[] }> {
+    console.log(`[getProjects] Fetching projects. Type: ${type}, Query: ${query}`);
     const session = await getSession();
     if (!session?.user) {
+        console.log('[getProjects] No session user found. Returning empty array.');
         return { projects: [] };
     }
 
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
+        console.log(`[getProjects] Authenticated user ID: ${userObjectId.toString()}`);
 
         const projectFilter: Filter<Project> = {
             $or: [
@@ -92,20 +95,22 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         
         if (type === 'whatsapp') {
             projectFilter.wabaId = { $exists: true, $ne: "" };
-            projectFilter.facebookPageId = { $exists: false }; // Only show pure WhatsApp projects
         } else if (type === 'facebook') {
-            // This now correctly fetches projects that might have BOTH, which is what the Meta Suite uses
             projectFilter.facebookPageId = { $exists: true, $ne: "" };
         }
+        
+        console.log('[getProjects] Using filter:', JSON.stringify(projectFilter, null, 2));
 
         const projects = await db.collection<Project>('projects')
             .find(projectFilter)
             .sort({ createdAt: -1 })
             .toArray();
             
+        console.log(`[getProjects] Found ${projects.length} projects.`);
+            
         return { projects: JSON.parse(JSON.stringify(projects)) };
     } catch (error) {
-        console.error("Failed to fetch projects:", error);
+        console.error("[getProjects] Failed to fetch projects:", error);
         return { projects: [] };
     }
 }
