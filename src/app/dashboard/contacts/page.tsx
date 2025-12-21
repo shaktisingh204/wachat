@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
@@ -118,14 +117,15 @@ export default function ContactsPage() {
     const [totalPages, setTotalPages] = useState(0);
     const { toast } = useToast();
     
-    const fetchData = useCallback((projectId: string, phoneId: string, page: number, query: string, tags: string[]) => {
+    const fetchData = useCallback(() => {
+        if (!activeProjectId) return;
         startTransition(async () => {
              try {
-                const data = await getContactsPageData(projectId, phoneId, page, query, tags);
+                const data = await getContactsPageData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags);
                 setContacts(data.contacts);
                 setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
                 
-                if (!phoneId && data.selectedPhoneNumberId) {
+                if (!selectedPhoneNumberId && data.selectedPhoneNumberId) {
                     setSelectedPhoneNumberId(data.selectedPhoneNumberId);
                 }
              } catch (error) {
@@ -136,13 +136,11 @@ export default function ContactsPage() {
                 });
              }
         });
-    }, [toast]);
+    }, [activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags, toast]);
 
      useEffect(() => {
-        if (activeProjectId) {
-            fetchData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags);
-        }
-    }, [activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags, fetchData]);
+        fetchData();
+    }, [fetchData]);
 
 
     const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
