@@ -2,85 +2,39 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId, Filter } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
-import type { Project, Catalog, Product, ProductSet } from '@/lib/definitions';
+import type { Catalog, Project, Product, ProductSet } from '@/lib/definitions';
 
 const API_VERSION = 'v24.0';
-const PRODUCTS_API_VERSION = 'v22.0';
 
-export async function syncCatalogs(projectId: string): Promise<{ message?: string; error?: string, count?: number }> {
-    console.log(`[syncCatalogs] Starting sync for project: ${projectId}`);
+async function getToken(projectId: string): Promise<{ accessToken: string, entityId: string | undefined, entityType: 'waba' | 'business' }> {
+    const adminToken = process.env.META_ADMIN_TOKEN;
+    if (adminToken) {
+        const project = await getProjectById(projectId, null);
+        if (!project) throw new Error("Project not found.");
+        return { 
+            accessToken: adminToken, 
+            entityId: project.businessId || project.wabaId,
+            entityType: project.businessId ? 'business' : 'waba'
+        };
+    }
+    
     const project = await getProjectById(projectId);
-    if (!project) {
-        console.error(`[syncCatalogs] Project not found: ${projectId}`);
-        return { error: 'Project not found or you do not have access.' };
+    if (!project) throw new Error("Project not found or access denied.");
+    if (!project.accessToken || (!project.wabaId && !project.businessId)) {
+        throw new Error("Project is not fully configured for Meta API access.");
     }
-
-    const wabaId = project.wabaId;
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-
-    if (!wabaId) {
-        console.error(`[syncCatalogs] WABA ID missing for project: ${projectId}`);
-        return { error: 'Project is not configured with a WhatsApp Business Account ID.' };
-    }
-
-    const endpoint = `https://graph.facebook.com/${API_VERSION}/${wabaId}/product_catalogs`;
-    console.log(`[syncCatalogs] Calling Meta API: ${endpoint}`);
-
-    try {
-        const response = await axios.get(endpoint, {
-            params: { access_token: accessToken }
-        });
-
-        const catalogs = response.data.data;
-        console.log(`[syncCatalogs] Received ${catalogs.length} catalogs from Meta.`);
-        
-        if (catalogs.length === 0) {
-            return { message: "No product catalogs found for this WABA." };
-        }
-
-        const { db } = await connectToDatabase();
-        const bulkOps = catalogs.map((catalog: any) => ({
-            updateOne: {
-                filter: { metaCatalogId: catalog.id, projectId: project._id },
-                update: {
-                    $set: {
-                        name: catalog.name,
-                        metaCatalogId: catalog.id,
-                        projectId: project._id,
-                    },
-                    $setOnInsert: {
-                        createdAt: new Date(),
-                    },
-                },
-                upsert: true,
-            },
-        }));
-
-        const result = await db.collection('catalogs').bulkWrite(bulkOps);
-        const syncedCount = result.upsertedCount + result.modifiedCount;
-        
-        // Update the project with the list of catalogs
-        const projectCatalogs = catalogs.map((c: any) => ({ catalogId: c.id, name: c.name }));
-        await db.collection('projects').updateOne(
-            { _id: project._id },
-            { $set: { catalogs: projectCatalogs } }
-        );
-        console.log(`[syncCatalogs] Updated project ${projectId} with ${projectCatalogs.length} catalog references.`);
-
-        revalidatePath('/dashboard/catalog');
-        
-        return { message: `Successfully synced ${syncedCount} catalog(s).`, count: syncedCount };
-
-    } catch (e: any) {
-        console.error('[syncCatalogs] Error during sync:', getErrorMessage(e));
-        return { error: getErrorMessage(e) };
-    }
+    return {
+        accessToken: project.accessToken,
+        entityId: project.businessId || project.wabaId,
+        entityType: project.businessId ? 'business' : 'waba'
+    };
 }
+
 
 export async function getCatalogs(projectId: string): Promise<WithId<Catalog>[]> {
     if (!projectId || !ObjectId.isValid(projectId)) return [];
@@ -89,301 +43,223 @@ export async function getCatalogs(projectId: string): Promise<WithId<Catalog>[]>
         const catalogs = await db.collection<Catalog>('catalogs').find({ projectId: new ObjectId(projectId) }).toArray();
         return JSON.parse(JSON.stringify(catalogs));
     } catch (e) {
-        console.error("Failed to fetch catalogs:", e);
+        console.error("Failed to get catalogs from DB:", e);
         return [];
+    }
+}
+
+export async function syncCatalogs(projectId: string): Promise<{ message?: string, error?: string }> {
+    try {
+        const { accessToken, entityId, entityType } = await getToken(projectId);
+        if (!entityId) {
+            throw new Error("Project is missing a WABA ID or Business ID.");
+        }
+        
+        const endpoint = entityType === 'business' 
+            ? `${API_VERSION}/${entityId}/owned_product_catalogs`
+            : `${API_VERSION}/${entityId}/product_catalogs`;
+        
+        console.log(`[syncCatalogs] Fetching from endpoint: ${endpoint}`);
+
+        const response = await axios.get(`https://graph.facebook.com/${endpoint}`, {
+            params: { access_token: accessToken }
+        });
+        
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        const catalogsFromMeta = response.data.data;
+        console.log(`[syncCatalogs] Found ${catalogsFromMeta.length} catalogs from Meta.`);
+
+        const { db } = await connectToDatabase();
+        
+        if (catalogsFromMeta.length > 0) {
+            const bulkOps = catalogsFromMeta.map((catalog: any) => ({
+                updateOne: {
+                    filter: { metaCatalogId: catalog.id, projectId: new ObjectId(projectId) },
+                    update: { $set: { name: catalog.name }, $setOnInsert: { createdAt: new Date() } },
+                    upsert: true,
+                },
+            }));
+            await db.collection('catalogs').bulkWrite(bulkOps);
+
+            // Connect the first catalog by default if none is connected
+            const project = await db.collection<Project>('projects').findOne({_id: new ObjectId(projectId)});
+            if (project && !project.connectedCatalogId) {
+                await db.collection('projects').updateOne(
+                    { _id: new ObjectId(projectId) },
+                    { $set: { connectedCatalogId: catalogsFromMeta[0].id } }
+                );
+                console.log(`[syncCatalogs] Auto-connected catalog ${catalogsFromMeta[0].id} to project ${projectId}`);
+            }
+        }
+        
+        revalidatePath('/dashboard/catalog');
+        return { message: `Successfully synced ${catalogsFromMeta.length} catalog(s).` };
+    } catch (e: any) {
+        console.error('Catalog sync failed:', getErrorMessage(e));
+        return { error: getErrorMessage(e) };
     }
 }
 
 export async function getProductsForCatalog(catalogId: string, projectId: string): Promise<any[]> {
-    console.log(`[getProductsForCatalog] Fetching products for catalog: ${catalogId}`);
-    const project = await getProjectById(projectId);
-    if (!project) {
-        console.error(`[getProductsForCatalog] Project not found: ${projectId}`);
-        return [];
-    }
-
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-    const fields = 'id,name,description,category,product_type,image_url,price,currency,retailer_id,availability,condition,inventory,brand,gtin,mpn,sale_price,sale_price_effective_date,item_group_id,additional_image_link,shipping_weight,shipping_length,shipping_width,shipping_height,custom_label_0,custom_label_1,visibility,rich_text_description,start_date,end_date';
-
-    const endpoint = `https://graph.facebook.com/${PRODUCTS_API_VERSION}/${catalogId}/products`;
-    console.log(`[getProductsForCatalog] Calling Meta API: ${endpoint}`);
-
     try {
-        const response = await axios.get(endpoint, {
-            params: { access_token: accessToken, fields }
+        const { accessToken } = await getToken(projectId);
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${catalogId}/products`, {
+            params: {
+                fields: 'id,name,description,category,product_type,image_url,price,retailer_id,inventory,availability,condition,brand,gtin,mpn,currency,variants',
+                access_token: accessToken
+            }
         });
-        console.log(`[getProductsForCatalog] Received ${response.data.data.length} products from Meta.`);
-        return response.data.data || [];
-    } catch (e: any) {
-        console.error('[getProductsForCatalog] Error fetching products:', getErrorMessage(e));
-        return [];
-    }
-}
-
-export async function addProductToCatalog(prevState: any, formData: FormData) {
-    const projectId = formData.get('projectId') as string;
-    const catalogId = formData.get('catalogId') as string;
-    
-    console.log(`[addProductToCatalog] Attempting to add product to catalog: ${catalogId}`);
-
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Project not found or access denied." };
-
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-
-    try {
-        const payload: any = {
-            retailer_id: formData.get('retailer_id'),
-            name: formData.get('title'),
-            description: formData.get('description'),
-            availability: formData.get('availability'),
-            condition: formData.get('condition'),
-            price: formData.get('price'),
-            link: formData.get('link'),
-            image_url: formData.get('image_link'),
-            brand: formData.get('brand') || undefined,
-            google_product_category: formData.get('google_product_category') || undefined,
-            product_type: formData.get('product_type') || undefined,
-            sale_price: formData.get('sale_price') || undefined,
-            sale_price_effective_date: formData.get('sale_price_effective_date') || undefined,
-            item_group_id: formData.get('item_group_id') || undefined,
-            additional_image_link: (formData.get('additional_image_link') as string)?.split('\n').filter(Boolean) || undefined,
-            inventory: formData.get('inventory') ? Number(formData.get('inventory')) : undefined,
-            tax: formData.get('tax') ? Number(formData.get('tax')) : undefined,
-            visibility: formData.get('visibility') || undefined,
-        };
-
-        Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
-
-        const endpoint = `https://graph.facebook.com/${PRODUCTS_API_VERSION}/${catalogId}/products`;
-        console.log(`[addProductToCatalog] Calling Meta API: POST ${endpoint}`, { payload });
-        
-        await axios.post(endpoint, payload, {
-            params: { access_token: accessToken }
-        });
-        
-        revalidatePath(`/dashboard/catalog/${catalogId}`);
-        return { message: 'Product added successfully!' };
-    } catch(e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error('[addProductToCatalog] Error:', errorMessage);
-        return { error: errorMessage };
-    }
-}
-
-export async function updateProductInCatalog(prevState: any, formData: FormData) {
-    const projectId = formData.get('projectId') as string;
-    const productId = formData.get('productId') as string;
-    
-    console.log(`[updateProductInCatalog] Attempting to update product: ${productId}`);
-
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Project not found or access denied." };
-
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-
-    try {
-        const payload: any = {
-            name: formData.get('title'),
-            description: formData.get('description'),
-            availability: formData.get('availability'),
-            condition: formData.get('condition'),
-            price: formData.get('price'),
-            link: formData.get('link'),
-            image_url: formData.get('image_link'),
-            brand: formData.get('brand') || undefined,
-            google_product_category: formData.get('google_product_category') || undefined,
-            product_type: formData.get('product_type') || undefined,
-            sale_price: formData.get('sale_price') || undefined,
-            sale_price_effective_date: formData.get('sale_price_effective_date') || undefined,
-            item_group_id: formData.get('item_group_id') || undefined,
-            additional_image_link: (formData.get('additional_image_link') as string)?.split('\n').filter(Boolean) || undefined,
-            inventory: formData.get('inventory') ? Number(formData.get('inventory')) : undefined,
-            tax: formData.get('tax') ? Number(formData.get('tax')) : undefined,
-            visibility: formData.get('visibility') || undefined,
-        };
-        
-        Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
-        
-        const endpoint = `https://graph.facebook.com/${PRODUCTS_API_VERSION}/${productId}`;
-        console.log(`[updateProductInCatalog] Calling Meta API: POST ${endpoint}`, { payload });
-
-        await axios.post(endpoint, payload, {
-            params: { access_token: accessToken }
-        });
-
-        return { message: 'Product updated successfully.' };
-    } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error('[updateProductInCatalog] Error:', errorMessage);
-        return { error: errorMessage };
-    }
-}
-
-export async function deleteProductFromCatalog(productId: string, projectId: string): Promise<{ success: boolean, error?: string }> {
-    console.log(`[deleteProductFromCatalog] Attempting to delete product: ${productId}`);
-    const project = await getProjectById(projectId);
-    if (!project) return { success: false, error: "Project not found or access denied." };
-
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-
-    try {
-        const endpoint = `https://graph.facebook.com/${PRODUCTS_API_VERSION}/${productId}`;
-        console.log(`[deleteProductFromCatalog] Calling Meta API: DELETE ${endpoint}`);
-        
-        await axios.delete(endpoint, {
-            params: { access_token: accessToken }
-        });
-        
-        return { success: true };
-    } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error('[deleteProductFromCatalog] Error:', errorMessage);
-        return { success: false, error: errorMessage };
-    }
-}
-
-export async function connectCatalogToWaba(projectId: string, catalogId: string) {
-    console.log(`[connectCatalogToWaba] Connecting catalog ${catalogId} to project ${projectId}`);
-    const project = await getProjectById(projectId);
-    if (!project?.wabaId) return { error: 'Project has no WABA to connect to.' };
-    
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-
-    try {
-        const endpoint = `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/whatsapp_business_product_catalogs`;
-        const payload = { product_catalog_id: catalogId };
-        console.log(`[connectCatalogToWaba] Calling Meta API: POST ${endpoint}`, { payload });
-
-        await axios.post(endpoint, payload, {
-            params: { access_token: accessToken }
-        });
-
-        const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne({ _id: project._id }, { $set: { connectedCatalogId: catalogId } });
-
-        revalidatePath('/dashboard/catalog');
-        return { success: true, message: "Catalog connected to WABA successfully." };
-    } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error('[connectCatalogToWaba] Error:', errorMessage);
-        return { error: errorMessage };
-    }
-}
-
-export async function disconnectCatalogFromWaba(projectId: string, catalogId: string) {
-    console.log(`[disconnectCatalogFromWaba] Disconnecting catalog ${catalogId} from project ${projectId}`);
-    const project = await getProjectById(projectId);
-    if (!project?.wabaId) return { error: 'Project has no WABA to disconnect from.' };
-    
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-
-    try {
-        const endpoint = `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/whatsapp_business_product_catalogs`;
-        const payload = { product_catalog_id: catalogId };
-        console.log(`[disconnectCatalogFromWaba] Calling Meta API: DELETE ${endpoint}`, { payload });
-
-        await axios.delete(endpoint, {
-            params: { access_token: accessToken },
-            data: payload
-        });
-        
-        const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne({ _id: project._id, connectedCatalogId: catalogId }, { $unset: { connectedCatalogId: "" } });
-        
-        revalidatePath('/dashboard/catalog');
-        return { success: true, message: "Catalog disconnected." };
-    } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error('[disconnectCatalogFromWaba] Error:', errorMessage);
-        return { error: errorMessage };
-    }
-}
-
-export async function listProductSets(catalogId: string, projectId: string): Promise<ProductSet[]> {
-    console.log(`[listProductSets] Listing sets for catalog: ${catalogId}`);
-    const project = await getProjectById(projectId);
-    if (!project) return [];
-
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-    const endpoint = `https://graph.facebook.com/${PRODUCTS_API_VERSION}/${catalogId}/product_sets`;
-    console.log(`[listProductSets] Calling Meta API: GET ${endpoint}`);
-
-    try {
-        const response = await axios.get(endpoint, {
-            params: { access_token: accessToken, fields: 'id,name,product_count' }
-        });
-        console.log(`[listProductSets] Found ${response.data.data.length} product sets.`);
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
         return response.data.data || [];
     } catch (e) {
-        console.error(`[listProductSets] Error listing product sets:`, getErrorMessage(e));
+        console.error(`Failed to get products for catalog ${catalogId}:`, getErrorMessage(e));
         return [];
     }
 }
 
-export async function createProductSet(prevState: any, formData: FormData) {
-    const projectId = formData.get('projectId') as string;
+const buildProductPayload = (formData: FormData) => {
+    const payload: any = {};
+    const requiredFields = ['title', 'description', 'availability', 'condition', 'price', 'link', 'image_link', 'retailer_id'];
+    
+    requiredFields.forEach(field => {
+        const value = formData.get(field) as string;
+        if (value) payload[field] = value;
+    });
+
+    const priceValue = formData.get('price') as string;
+    if (priceValue) {
+        const [amount, currency] = priceValue.split(' ');
+        payload.price = parseInt(amount, 10) * 100;
+        payload.currency = currency || 'USD';
+    }
+
+    // Handle optional fields
+    ['brand', 'google_product_category', 'product_type', 'sale_price', 'item_group_id', 'inventory', 'gtin', 'mpn', 'shipping_weight', 'shipping_length', 'shipping_width', 'shipping_height', 'color', 'size', 'material', 'pattern', 'gender', 'age_group'].forEach(field => {
+        const value = formData.get(field) as string;
+        if (value) payload[field] = value;
+    });
+
+    const additionalImageLinks = (formData.get('additional_image_link') as string)?.split('\n').filter(Boolean);
+    if (additionalImageLinks && additionalImageLinks.length > 0) {
+        payload.additional_image_link = additionalImageLinks;
+    }
+
+    return payload;
+};
+
+export async function addProductToCatalog(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const catalogId = formData.get('catalogId') as string;
-    const name = formData.get('name') as string;
-    console.log(`[createProductSet] Creating set "${name}" in catalog ${catalogId}`);
-
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Project not found or access denied." };
-
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-    const endpoint = `https://graph.facebook.com/${PRODUCTS_API_VERSION}/${catalogId}/product_sets`;
-    console.log(`[createProductSet] Calling Meta API: POST ${endpoint}`);
+    const projectId = formData.get('projectId') as string;
 
     try {
-        await axios.post(endpoint, { name }, {
+        const payload = buildProductPayload(formData);
+        const { accessToken } = await getToken(projectId);
+
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${catalogId}/products`, {
+            ...payload,
+            access_token: accessToken,
+        });
+
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        revalidatePath(`/dashboard/catalog/${catalogId}`);
+        return { message: `Product "${payload.title}" added successfully.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function updateProductInCatalog(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+     const productId = formData.get('productId') as string;
+    const projectId = formData.get('projectId') as string;
+
+    try {
+        const payload = buildProductPayload(formData);
+        const { accessToken } = await getToken(projectId);
+
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${productId}`, {
+            ...payload,
+            access_token: accessToken,
+        });
+        
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        revalidatePath(`/dashboard/catalog/[catalogId]`);
+        revalidatePath(`/dashboard/catalog/[catalogId]/${productId}/edit`);
+        return { message: `Product "${payload.title}" updated successfully.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+export async function deleteProductFromCatalog(productId: string, projectId: string): Promise<{ success: boolean, error?: string }> {
+    try {
+        const { accessToken } = await getToken(projectId);
+        await axios.delete(`https://graph.facebook.com/${API_VERSION}/${productId}`, {
             params: { access_token: accessToken }
         });
-        revalidatePath(`/dashboard/catalog/${catalogId}`);
-        return { message: 'Collection created successfully.' };
-    } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error('[createProductSet] Error:', errorMessage);
-        return { error: errorMessage };
-    }
-}
-
-export async function deleteProductSet(setId: string, projectId: string): Promise<{ success: boolean, error?: string }> {
-    console.log(`[deleteProductSet] Deleting set: ${setId}`);
-    const project = await getProjectById(projectId);
-    if (!project) return { success: false, error: 'Project not found.' };
-
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-    const endpoint = `https://graph.facebook.com/${PRODUCTS_API_VERSION}/${setId}`;
-    console.log(`[deleteProductSet] Calling Meta API: DELETE ${endpoint}`);
-    
-    try {
-        await axios.delete(endpoint, { params: { access_token: accessToken } });
         return { success: true };
-    } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error('[deleteProductSet] Error:', errorMessage);
-        return { success: false, error: errorMessage };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
-export async function getTaggedMediaForProduct(productId: string, projectId: string) {
-    console.log(`[getTaggedMediaForProduct] Fetching media for product: ${productId}`);
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Project not found." };
-    
-    const accessToken = process.env.META_ADMIN_TOKEN || project.accessToken;
-    const endpoint = `https://graph.facebook.com/${PRODUCTS_API_VERSION}/${productId}/tagged_media`;
-    console.log(`[getTaggedMediaForProduct] Calling Meta API: GET ${endpoint}`);
-    
+// --- Product Set (Collection) Functions ---
+
+export async function listProductSets(catalogId: string, projectId: string): Promise<ProductSet[]> {
     try {
-        const response = await axios.get(endpoint, {
-            params: { access_token: accessToken, fields: 'id,media_type,media_url,thumbnail_url,caption,permalink' }
+        const { accessToken } = await getToken(projectId);
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${catalogId}/product_sets`, {
+            params: { fields: 'id,name,product_count', access_token: accessToken }
         });
-        console.log(`[getTaggedMediaForProduct] Found ${response.data.data.length} media items.`);
-        return { media: response.data.data || [] };
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return response.data.data || [];
+    } catch (e) {
+        console.error(`Failed to list product sets for catalog ${catalogId}:`, getErrorMessage(e));
+        return [];
+    }
+}
+
+export async function createProductSet(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const catalogId = formData.get('catalogId') as string;
+    const projectId = formData.get('projectId') as string;
+    const name = formData.get('name') as string;
+    try {
+        const { accessToken } = await getToken(projectId);
+        await axios.post(`https://graph.facebook.com/${API_VERSION}/${catalogId}/product_sets`, {
+            name: name,
+            access_token: accessToken,
+        });
+        revalidatePath(`/dashboard/catalog/${catalogId}`);
+        return { message: `Collection "${name}" created successfully.` };
     } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error(`[getTaggedMediaForProduct] Error fetching media:`, errorMessage);
-        return { error: errorMessage };
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteProductSet(setId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const { accessToken } = await getToken(projectId);
+        await axios.delete(`https://graph.facebook.com/${API_VERSION}/${setId}`, {
+            params: { access_token: accessToken }
+        });
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getTaggedMediaForProduct(productId: string, projectId: string): Promise<{media: any[], error?: string}> {
+     try {
+        const { accessToken } = await getToken(projectId);
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${productId}/tagged_media`, {
+            params: { access_token: accessToken }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { media: response.data.data || [] };
+    } catch (e) {
+        return { media: [], error: getErrorMessage(e) };
     }
 }
