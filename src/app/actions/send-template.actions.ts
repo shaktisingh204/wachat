@@ -11,6 +11,8 @@ import { getProjectById } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { Contact, Template, OutgoingMessage, Project } from '@/lib/definitions';
 
+const API_VERSION = 'v23.0';
+
 export async function handleSendTemplateMessage(
     prevState: any, 
     data: { [key: string]: any }, 
@@ -37,7 +39,7 @@ export async function handleSendTemplateMessage(
     ]);
     
     if (!contact) return { error: 'Contact not found.' };
-    const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString(), contact.userId.toString());
+    const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString());
     if (!hasAccess) return { error: 'Access Denied.' };
     if (!template) return { error: 'Template not found.' };
     if (template.status !== 'APPROVED') return { error: 'Cannot send a template that is not approved.' };
