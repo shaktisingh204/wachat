@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -1079,12 +1080,13 @@ export type Project = {
     adAccountId?: string;
     facebookPageId?: string;
     facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
-    facebookWelcomeMessageSettings?: FacebookWelcomeMessageSettings;
+    facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
     widgetSettings?: WhatsAppWidgetSettings;
     tags?: Tag[];
     planId?: ObjectId;
     credits?: number;
+    catalogs?: { catalogId: string; name: string; }[];
     connectedCatalogId?: string;
     hasCatalogManagement?: boolean;
     kanbanStatuses?: string[];
@@ -1848,20 +1850,68 @@ export type Catalog = {
 };
 
 export type Product = {
-    _id: ObjectId;
-    catalogId: ObjectId;
-    projectId: ObjectId;
-    metaProductId: string;
-    retailerId: string;
-    name: string;
-    description: string;
-    price: string;
-    currency: string;
-    imageUrl?: string;
-    availability: string;
-    condition: string;
-    createdAt: Date;
+  _id: ObjectId;
+  catalogId: ObjectId;
+  projectId: ObjectId;
+  metaProductId: string;
+  // --- Required ---
+  retailer_id: string; // SKU
+  name: string; // title
+  description: string;
+  availability: 'in stock' | 'out of stock' | 'preorder';
+  condition: 'new' | 'used' | 'refurbished';
+  price: number; // Stored as cents
+  currency: string;
+  link: string; // Product landing page
+  image_url: string;
+  // --- Recommended ---
+  brand?: string;
+  google_product_category?: string;
+  product_type?: string;
+  sale_price?: number;
+  sale_price_effective_date?: string;
+  item_group_id?: string;
+  additional_image_link?: string[];
+  inventory?: number; // quantity_to_sell_on_facebook
+  // --- Variant ---
+  color?: string;
+  size?: string;
+  material?: string;
+  pattern?: string;
+  gender?: 'male' | 'female' | 'unisex';
+  age_group?: 'adult' | 'kids';
+  gtin?: string;
+  mpn?: string;
+  // --- Shipping ---
+  shipping_weight?: string;
+  shipping_length?: string;
+  shipping_width?: string;
+  shipping_height?: string;
+  // --- WhatsApp Specific ---
+  tax?: number;
+  visibility?: 'published' | 'hidden';
+  // --- Advanced ---
+  custom_label_0?: string;
+  custom_label_1?: string;
+  custom_label_2?: string;
+  custom_label_3?: string;
+  custom_label_4?: string;
+  rich_text_description?: string;
+  expiration_date?: string;
+  return_policy_info?: any;
+  shipping?: any;
+  minimum_advertised_price?: string;
+  energy_efficiency_class?: string;
+  mobile_link?: string;
+  // --- Service/Digital ---
+  is_service?: boolean;
+  service_duration?: string;
+  booking_link?: string;
+  // --- Internal ---
+  createdAt: Date;
+  updatedAt?: Date;
 };
+
 
 export type ProductSet = {
     id: string;
