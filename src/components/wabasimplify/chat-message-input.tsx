@@ -180,7 +180,7 @@ export function ChatMessageInput({ project, contact, templates }: ChatMessageInp
             onOpenChange={setIsWhatsAppPaymentOpen}
             contact={contact}
         />
-        {project?.connectedCatalogId && (
+        {project?.catalogs && project.catalogs.length > 0 && (
             <SendCatalogDialog
                 isOpen={isCatalogOpen}
                 onOpenChange={setIsCatalogOpen}
@@ -241,7 +241,7 @@ export function ChatMessageInput({ project, contact, templates }: ChatMessageInp
                  <Button variant="ghost" size="icon" onClick={() => handleMediaClick('application/pdf')}><FileIcon className="h-4 w-4" /><span className="sr-only">Send Document</span></Button>
                  <Button variant="ghost" size="icon" onClick={() => setIsRazorpayOpen(true)}><IndianRupee className="h-4 w-4" /><span className="sr-only">Request Payment</span></Button>
                  <Button variant="ghost" size="icon" onClick={() => setIsWhatsAppPaymentOpen(true)}><WaPayIcon className="h-4 w-4" /><span className="sr-only">Request WhatsApp Payment</span></Button>
-                 {project?.connectedCatalogId && <Button variant="ghost" size="icon" onClick={() => setIsCatalogOpen(true)}><ShoppingBag className="h-4 w-4" /><span className="sr-only">Send Catalog</span></Button>}
+                 {project?.catalogs && project.catalogs.length > 0 && <Button variant="ghost" size="icon" onClick={() => setIsCatalogOpen(true)}><ShoppingBag className="h-4 w-4" /><span className="sr-only">Send Catalog</span></Button>}
                 <Popover><PopoverTrigger asChild><Button variant="ghost" size="icon"><ClipboardList className="h-4 w-4" /><span className="sr-only">Send Template</span></Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
             </div>
             
@@ -255,7 +255,7 @@ export function ChatMessageInput({ project, contact, templates }: ChatMessageInp
                              <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('application/pdf'); setAttachmentPopoverOpen(false); }}><FileIcon className="mr-2 h-4 w-4" /> Document</Button>
                              <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsRazorpayOpen(true); setAttachmentPopoverOpen(false); }}><IndianRupee className="mr-2 h-4 w-4" /> Razorpay Payment</Button>
                              <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsWhatsAppPaymentOpen(true); setAttachmentPopoverOpen(false); }}><WaPayIcon className="mr-2 h-4 w-4" /> WhatsApp Pay</Button>
-                             {project?.connectedCatalogId && <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsCatalogOpen(true); setAttachmentPopoverOpen(false); }}><ShoppingBag className="mr-2 h-4 w-4" /> Send Catalog</Button>}
+                             {project?.catalogs && project.catalogs.length > 0 && <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsCatalogOpen(true); setAttachmentPopoverOpen(false); }}><ShoppingBag className="mr-2 h-4 w-4" /> Send Catalog</Button>}
                              <Popover><PopoverTrigger asChild><Button variant="ghost" className="w-full justify-start"><ClipboardList className="mr-2 h-4 w-4" /> Template</Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
                         </div>
                     </PopoverContent>
