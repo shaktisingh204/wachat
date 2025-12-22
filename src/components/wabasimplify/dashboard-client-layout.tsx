@@ -20,7 +20,7 @@ import {
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getProjects } from '@/lib/actions/user.actions'
+import { getProjects } from "@/lib/actions/user.actions"
 import { getSession } from '@/app/actions/index.ts';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import type { Plan, WithId, Project, User } from '@/lib/definitions';
@@ -48,7 +48,7 @@ const wachatMenuItems = [
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
   { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'] },
   { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'] },
-  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
+  { href: '/dashboard/catalog', label: 'Ecomm + Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
   { href: '/dashboard/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'] },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
   { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'] },
@@ -600,6 +600,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
                                 <DropdownMenuSeparator/>
+                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout"><LogOut className="mr-2 h-4 w-4"/>Admin Logout</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -701,8 +702,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         )}
                         </SidebarContent>
                     </Sidebar>
-                    <main className="margin-by-shakti flex-1 overflow-y-auto">
-                        {children}
+                    <main className="flex-1 overflow-y-auto">
+                        {isChatPage || isBuilderPage ? children : mainContent}
                     </main>
                 </div>
             </div>
@@ -745,5 +746,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </ProjectProvider>
     );
 }
-
-    
