@@ -1587,6 +1587,26 @@ export type Contact = {
     tagIds?: string[];
 }
 
+export type InteractiveMessageContent = {
+    type: 'button' | 'list' | 'product' | 'product_list' | 'button_reply' | 'list_reply' | 'nfm_reply';
+    header?: { type: 'text' | 'video' | 'image' | 'document'; text?: string; [key: string]: any };
+    body: { text: string };
+    footer?: { text: string };
+    action: {
+        button?: string;
+        buttons?: { type: 'reply'; reply: { id: string; title: string } }[];
+        sections?: {
+            title?: string;
+            rows: { id: string; title: string; description?: string }[];
+        }[];
+        catalog_id?: string;
+        product_retailer_id?: string;
+    };
+    button_reply?: { id: string; title: string };
+    list_reply?: { id: string; title: string; description?: string };
+    nfm_reply?: { response_json: string; body: string; name: string };
+};
+
 export type OutgoingMessage = {
     _id: ObjectId;
     direction: 'out';
