@@ -1,3 +1,4 @@
+
 'use server';
 
 import axios from 'axios';
@@ -197,7 +198,38 @@ export async function handleWabaOnboarding(data: {
       console.log(`${LOG_PREFIX} Step 6: Syncing phone numbers`);
       await handleSyncPhoneNumbers(project._id.toString());
 
-      console.log(`${LOG_PREFIX} Step 7: Subscribing webhooks`);
+      // After syncing, get the updated project to register numbers
+      const updatedProject = await db
+        .collection<Project>('projects')
+        .findOne({ _id: project._id });
+
+      if (updatedProject?.phoneNumbers?.length > 0) {
+        console.log(`${LOG_PREFIX} Step 7: Registering verified phone numbers`);
+        for (const phone of updatedProject.phoneNumbers) {
+          if (phone.code_verification_status === 'VERIFIED') {
+            try {
+              await axios.post(
+                `https://graph.facebook.com/${API_VERSION}/${phone.id}/register`,
+                {
+                  messaging_product: 'whatsapp',
+                },
+                {
+                  headers: { Authorization: `Bearer ${accessToken}` },
+                }
+              );
+              console.log(`${LOG_PREFIX} Registered phone number ${phone.id}`);
+            } catch (regError: any) {
+              // Non-fatal error, log and continue
+              console.warn(
+                `${LOG_PREFIX} Could not register phone number ${phone.id}. It may already be registered.`,
+                getErrorMessage(regError)
+              );
+            }
+          }
+        }
+      }
+
+      console.log(`${LOG_PREFIX} Step 8: Subscribing webhooks`);
       await handleSubscribeProjectWebhook(
         wabaId,
         projectData.appId!,
@@ -205,7 +237,7 @@ export async function handleWabaOnboarding(data: {
       );
     }
 
-    console.log(`${LOG_PREFIX} Step 8: Onboarding complete`);
+    console.log(`${LOG_PREFIX} Step 9: Onboarding complete`);
 
     return { success: true };
   } catch (e: any) {
