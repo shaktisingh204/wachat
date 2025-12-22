@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat, ExternalLink } from 'lucide-react';
+import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat, ExternalLink, GitBranch } from 'lucide-react';
 import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -152,19 +152,30 @@ export default function CatalogPage() {
                     {catalogs.map(catalog => <WACatalogCard key={catalog._id.toString()} catalog={catalog} project={activeProject} onConnect={handleConnectCatalog} />)}
                 </div>
             ) : (
-                <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-                    <ServerCog className="mx-auto h-12 w-12" />
-                    <h3 className="mt-4 text-lg font-semibold">No Catalogs Found</h3>
-                    <p className="mt-1 text-sm max-w-md mx-auto">
-                        To get started, you need to create a product catalog in your Meta Commerce Manager. Once created, return here and sync to see it listed.
-                    </p>
-                    <Button asChild className="mt-4">
-                        <a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer">
-                            Go to Commerce Manager
-                            <ExternalLink className="ml-2 h-4 w-4" />
-                        </a>
-                    </Button>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><GitBranch className="h-5 w-5"/>Get Started with Catalogs</CardTitle>
+                        <CardDescription>To begin, create a catalog in Meta Commerce Manager and then sync it here.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <h3 className="font-semibold">Step 1: Create a Catalog in Meta Commerce Manager</h3>
+                        <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4">
+                            <li>Open the <a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meta Commerce Manager</a>.</li>
+                            <li>Make sure you have selected the correct Business Manager account in the top-left dropdown.</li>
+                            <li>Click "Add Catalog" or find the "Create a Catalog" option.</li>
+                            <li>Select "E-commerce" as the catalog type.</li>
+                            <li>Follow the prompts to configure your catalog. For the catalog name, we recommend using your project's name for easy identification.</li>
+                            <li>Complete the creation process.</li>
+                        </ol>
+                    </CardContent>
+                    <CardFooter className="flex-col items-start gap-4">
+                        <div>
+                            <h3 className="font-semibold">Step 2: Sync Your Catalogs</h3>
+                            <p className="text-sm text-muted-foreground">Once your catalog is created on Meta, return here and click the sync button.</p>
+                        </div>
+                        <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
+                    </CardFooter>
+                </Card>
             )}
         </div>
     );
