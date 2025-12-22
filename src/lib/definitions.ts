@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -307,6 +306,7 @@ export type CrmAccount = {
     industry?: string;
     website?: string;
     phone?: string;
+    address?: string;
     notes?: {
         content: string;
         createdAt: Date;
@@ -830,6 +830,7 @@ export type PhoneNumber = {
         level: string;
     };
     profile?: PhoneNumberProfile;
+    userId?: string; // Corrected: This should be here, not on the contact
 };
 
 export type GeneralReplyRule = {
@@ -1564,6 +1565,7 @@ export type NotificationWithProject = Notification & { projectName?: string };
 
 export type Contact = {
     projectId: ObjectId;
+    userId?: ObjectId;
     waId: string; 
     phoneNumberId: string; 
     name: string;
@@ -1592,7 +1594,7 @@ export type OutgoingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template' | 'payment_request';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template' | 'payment_request' | 'order' | 'product';
     content: any;
     status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
     statusTimestamps: {
@@ -1611,7 +1613,7 @@ export type IncomingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product';
     content: any;
     isRead: boolean;
     createdAt: Date;
