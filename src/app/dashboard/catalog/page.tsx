@@ -12,11 +12,13 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat, ExternalLink, GitBranch } from 'lucide-react';
+import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat, ExternalLink, GitBranch, LoaderCircle } from 'lucide-react';
 import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { useProject } from '@/context/project-context';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
 function WACatalogCard({ catalog, project, onConnect }: { catalog: WithId<Catalog>, project: WithId<Project> | null, onConnect: (catalogId: string) => void }) {
@@ -98,6 +100,9 @@ export default function CatalogPage() {
     const hasCatalogAccess = activeProject?.hasCatalogManagement === true;
     const isWhatsAppProject = !!activeProject?.wabaId;
 
+    const catalogStep1Image = PlaceHolderImages.find(img => img.id === 'catalog-step-1');
+    const catalogStep2Image = PlaceHolderImages.find(img => img.id === 'catalog-step-2');
+
     if (isLoadingProject) {
          return <Skeleton className="h-full w-full" />;
     }
@@ -157,25 +162,35 @@ export default function CatalogPage() {
                         <CardTitle className="flex items-center gap-2"><GitBranch className="h-5 w-5"/>Get Started with Catalogs</CardTitle>
                         <CardDescription>To begin, create a catalog in Meta Commerce Manager and then sync it here.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div>
-                            <h3 className="font-semibold">Step 1: Create a Catalog in Meta Commerce Manager</h3>
-                            <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
-                                <li>Open the <a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meta Commerce Manager</a>.</li>
-                                <li>Make sure you have selected the correct Business Manager account in the top-left dropdown.</li>
-                                <li>Click "Add Catalog" or find the "Create a Catalog" option.</li>
-                                <li>Select "E-commerce" as the catalog type and click "Next".</li>
-                                <li>Confirm ownership and give your catalog a name (we recommend using your project's name for easy identification). Save the changes.</li>
-                            </ol>
+                    <CardContent className="space-y-8">
+                        <div className="grid md:grid-cols-2 gap-6 items-center">
+                            {catalogStep1Image && (
+                                <Image src={catalogStep1Image.imageUrl} alt={catalogStep1Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep1Image.imageHint} />
+                            )}
+                            <div>
+                                <h3 className="font-semibold text-lg">Step 1: Create a Catalog in Meta Commerce Manager</h3>
+                                <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
+                                    <li>Open the <a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meta Commerce Manager</a>.</li>
+                                    <li>Make sure you have selected the correct Business Manager account in the top-left dropdown.</li>
+                                    <li>Click "Add Catalog" or find the "Create a Catalog" option.</li>
+                                    <li>Select "E-commerce" as the catalog type and click "Next".</li>
+                                    <li>Confirm ownership and give your catalog a name (we recommend using your project's name for easy identification). Save the changes.</li>
+                                </ol>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="font-semibold">Step 2: Add Your First Product (Mandatory Activation)</h3>
-                            <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
-                                <li>In your new catalog, go to the "Items" tab and click "Add Items".</li>
-                                <li>Choose the "Manual" option to add products one by one.</li>
-                                <li>Fill in all the required details for at least one product: an image, name, description, price, currency, and availability.</li>
-                                <li>This first product is essential to properly activate your catalog for use with the WhatsApp API.</li>
-                            </ol>
+                         <div className="grid md:grid-cols-2 gap-6 items-center">
+                              {catalogStep2Image && (
+                                <Image src={catalogStep2Image.imageUrl} alt={catalogStep2Image.description} width={600} height={400} className="rounded-lg shadow-md md:order-last" data-ai-hint={catalogStep2Image.imageHint} />
+                            )}
+                            <div>
+                                <h3 className="font-semibold text-lg">Step 2: Add Your First Product (Mandatory Activation)</h3>
+                                <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
+                                    <li>In your new catalog, go to the "Items" tab and click "Add Items".</li>
+                                    <li>Choose the "Manual" option to add products one by one.</li>
+                                    <li>Fill in all the required details for at least one product: an image, name, description, price, currency, and availability.</li>
+                                    <li>This first product is essential to properly activate your catalog for use with the WhatsApp API.</li>
+                                </ol>
+                            </div>
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col items-start gap-4">

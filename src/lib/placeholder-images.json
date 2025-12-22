@@ -17,6 +17,18 @@
       "description": "Sample post image",
       "imageUrl": "https://images.unsplash.com/photo-1708379583032-8dd13b3779a8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMHRleHR1cmV8ZW58MHx8fHwxNzU4NzE5NjczfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract texture"
+    },
+    {
+      "id": "catalog-step-1",
+      "description": "Instructional image for creating a catalog in Meta Commerce Manager.",
+      "imageUrl": "https://images.unsplash.com/photo-1634743556192-d19f0c69ff3a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxkYXNoYm9hcmQlMjBzY3JlZW5zaG90fGVufDB8fHx8MTc2NjM5MDc3Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dashboard screenshot"
+    },
+    {
+      "id": "catalog-step-2",
+      "description": "Instructional image for adding a product to a catalog.",
+      "imageUrl": "https://images.unsplash.com/photo-1708746903461-9438ce6da009?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cHJvZHVjdCUyMGZvcm18ZW58MHx8fHwxNzY2MzkwNzc2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "product form"
     }
   ]
 }
