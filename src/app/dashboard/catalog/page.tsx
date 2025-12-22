@@ -157,21 +157,31 @@ export default function CatalogPage() {
                         <CardTitle className="flex items-center gap-2"><GitBranch className="h-5 w-5"/>Get Started with Catalogs</CardTitle>
                         <CardDescription>To begin, create a catalog in Meta Commerce Manager and then sync it here.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <h3 className="font-semibold">Step 1: Create a Catalog in Meta Commerce Manager</h3>
-                        <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4">
-                            <li>Open the <a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meta Commerce Manager</a>.</li>
-                            <li>Make sure you have selected the correct Business Manager account in the top-left dropdown.</li>
-                            <li>Click "Add Catalog" or find the "Create a Catalog" option.</li>
-                            <li>Select "E-commerce" as the catalog type.</li>
-                            <li>Follow the prompts to configure your catalog. For the catalog name, we recommend using your project's name for easy identification.</li>
-                            <li>Complete the creation process.</li>
-                        </ol>
+                    <CardContent className="space-y-6">
+                        <div>
+                            <h3 className="font-semibold">Step 1: Create a Catalog in Meta Commerce Manager</h3>
+                            <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
+                                <li>Open the <a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meta Commerce Manager</a>.</li>
+                                <li>Make sure you have selected the correct Business Manager account in the top-left dropdown.</li>
+                                <li>Click "Add Catalog" or find the "Create a Catalog" option.</li>
+                                <li>Select "E-commerce" as the catalog type and click "Next".</li>
+                                <li>Confirm ownership and give your catalog a name (we recommend using your project's name for easy identification). Save the changes.</li>
+                            </ol>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold">Step 2: Add Your First Product (Mandatory Activation)</h3>
+                            <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
+                                <li>In your new catalog, go to the "Items" tab and click "Add Items".</li>
+                                <li>Choose the "Manual" option to add products one by one.</li>
+                                <li>Fill in all the required details for at least one product: an image, name, description, price, currency, and availability.</li>
+                                <li>This first product is essential to properly activate your catalog for use with the WhatsApp API.</li>
+                            </ol>
+                        </div>
                     </CardContent>
                     <CardFooter className="flex-col items-start gap-4">
                         <div>
-                            <h3 className="font-semibold">Step 2: Sync Your Catalogs</h3>
-                            <p className="text-sm text-muted-foreground">Once your catalog is created on Meta, return here and click the sync button.</p>
+                            <h3 className="font-semibold">Step 3: Sync Your Catalogs</h3>
+                            <p className="text-sm text-muted-foreground">Once your catalog is created and has at least one product, return here and click the sync button.</p>
                         </div>
                         <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
                     </CardFooter>
