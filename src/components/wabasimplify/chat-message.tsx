@@ -3,9 +3,9 @@
 
 import React, { useState } from 'react';
 import { handleTranslateMessage } from '@/app/actions/ai-actions';
-import type { AnyMessage, OutgoingMessage } from '@/lib/definitions';
+import type { AnyMessage, OutgoingMessage, InteractiveMessageContent } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle, RefreshCw, ShoppingBag, Video, PlayCircle, Music } from 'lucide-react';
+import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle, RefreshCw, ShoppingBag, Video, PlayCircle, Music, List, Bot } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -147,6 +147,42 @@ const PaymentRequestContent = ({ message }: { message: OutgoingMessage }) => {
     return null;
 };
 
+const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageContent }) => {
+    const { header, body, footer, action } = content;
+
+    const renderAction = () => {
+        if (action.buttons) {
+            return (
+                <div className="mt-2 space-y-1">
+                    {action.buttons.map(button => (
+                        <div key={button.id} className="text-center text-primary font-medium bg-white/80 dark:bg-muted/50 py-1.5 rounded-md text-sm border">
+                            {button.reply.title}
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        if (action.button) {
+            return (
+                 <div className="mt-2 text-center text-primary font-medium bg-white/80 dark:bg-muted/50 py-2.5 rounded-md text-sm border font-semibold">
+                    <List className="inline-block h-4 w-4 mr-2" />
+                    {action.button}
+                </div>
+            );
+        }
+        return null;
+    }
+
+    return (
+        <div className="space-y-2 w-64">
+            {header && <p className="font-bold text-lg">{header.text}</p>}
+            {body && <p className="whitespace-pre-wrap">{body.text}</p>}
+            {footer && <p className="text-xs text-muted-foreground pt-1">{footer.text}</p>}
+            {action && renderAction()}
+        </div>
+    )
+}
+
 
 const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing: boolean }) => {
     const { toast } = useToast();
@@ -156,27 +192,9 @@ const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing:
         return <TemplateMessageContent content={message.content.template} />;
     }
 
-    // Incoming interactive reply
-    if (!isOutgoing && message.type === 'interactive') {
-        const interactive = message.content.interactive;
-        switch (interactive.type) {
-            case 'button_reply':
-                return <p className="whitespace-pre-wrap">{interactive.button_reply.title}</p>;
-            case 'list_reply':
-                 return <p className="whitespace-pre-wrap">{interactive.list_reply.title}</p>;
-            case 'nfm_reply': // From a Meta Flow
-                try {
-                    const response = JSON.parse(interactive.nfm_reply.response_json);
-                    return (
-                        <div className="space-y-1">
-                            <p className="font-semibold text-xs text-muted-foreground">Flow Response</p>
-                            <pre className="text-xs bg-black/5 p-2 rounded-md whitespace-pre-wrap">{JSON.stringify(response, null, 2)}</pre>
-                        </div>
-                    )
-                } catch {
-                    return <p className="whitespace-pre-wrap">{interactive.nfm_reply.body}</p>;
-                }
-        }
+    // Incoming or Outgoing Interactive Message
+    if (message.type === 'interactive') {
+        return <InteractiveMessageDisplay content={message.content.interactive} />;
     }
     
     // Incoming Order message

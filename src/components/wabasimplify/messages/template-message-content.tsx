@@ -1,7 +1,7 @@
 
 'use client';
 
-import { FileText } from "lucide-react";
+import { FileText, Link as LinkIcon, Phone } from "lucide-react";
 import React from "react";
 
 export function TemplateMessageContent({ content }: { content: any }) {
@@ -10,7 +10,9 @@ export function TemplateMessageContent({ content }: { content: any }) {
     const header = components?.find((c: any) => c.type === 'HEADER');
     const body = components?.find((c: any) => c.type === 'BODY');
     const footer = components?.find((c: any) => c.type === 'FOOTER');
-    const buttons = components?.filter((c: any) => c.type === 'BUTTON');
+    // For sent templates, CTA buttons are part of the 'BUTTONS' component array
+    const buttonsComp = components?.find((c: any) => c.type === 'BUTTONS');
+    const buttons = buttonsComp?.buttons || [];
 
     const renderTextWithVariables = (text?: string, params?: { type: string, text: string }[]) => {
         if (!text) return null;
@@ -18,7 +20,6 @@ export function TemplateMessageContent({ content }: { content: any }) {
 
         let replacedText = text;
         params.forEach((param, index) => {
-            // WhatsApp variables are 1-indexed in the template string
             const placeholder = `{{${index + 1}}}`;
             if (param.type === 'text') {
                 replacedText = replacedText.replace(placeholder, param.text);
@@ -30,7 +31,7 @@ export function TemplateMessageContent({ content }: { content: any }) {
     const bodyTextWithParams = body ? renderTextWithVariables(body.text, body.parameters) : '';
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-2 w-64">
             <div className="flex items-center gap-2 text-xs text-muted-foreground italic">
                 <FileText className="h-4 w-4" />
                 <span>Template: {name}</span>
@@ -50,11 +51,16 @@ export function TemplateMessageContent({ content }: { content: any }) {
             )}
             {buttons && buttons.length > 0 && (
                  <div className="mt-2 pt-2 border-t border-black/10 space-y-1">
-                    {buttons.map((btn, index) => {
-                        const originalButton = content.template?.components.find((c:any) => c.type === 'BUTTONS')?.buttons?.[btn.index];
+                    {buttons.map((button: any, index: number) => {
+                        const getButtonIcon = () => {
+                            if (button.type === 'URL') return <LinkIcon className="h-4 w-4 mr-2" />;
+                            if (button.type === 'PHONE_NUMBER') return <Phone className="h-4 w-4 mr-2" />;
+                            return null;
+                        }
                         return (
-                             <div key={index} className="text-center bg-white/50 rounded-md py-1.5 text-sm font-medium text-blue-500">
-                                {originalButton?.text || `Button ${btn.index}`}
+                             <div key={index} className="text-center bg-white/80 dark:bg-muted/50 rounded-md py-1.5 text-sm font-medium text-blue-500 border flex items-center justify-center">
+                                {getButtonIcon()}
+                                {button.text}
                             </div>
                         )
                     })}
