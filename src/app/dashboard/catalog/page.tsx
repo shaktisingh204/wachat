@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { getCatalogs, connectCatalogToWaba } from '@/app/actions/catalog.actions';
+import { getCatalogs, connectCatalogToWaba, syncCatalogs } from '@/app/actions/catalog.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 import type { Catalog, Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -47,21 +48,11 @@ function WACatalogCard({ catalog, project, onConnect }: { catalog: WithId<Catalo
                 <p className="text-xs text-muted-foreground">Created: {new Date(catalog.createdAt).toLocaleDateString()}</p>
              </CardContent>
              <CardFooter className="flex justify-end gap-2">
-                <Button variant="outline" size="sm" asChild>
-                    <a href={`https://business.facebook.com/commerce/${catalog.metaCatalogId}/items`} target="_blank" rel="noopener noreferrer">
-                        <Link2 className="mr-2 h-4 w-4"/>
-                        Manage in Meta
-                    </a>
-                </Button>
-                 <Button asChild size="sm">
+                 <Button asChild size="sm" className="w-full">
                     <Link href={`/dashboard/catalog/${catalog.metaCatalogId}`}>
                         <ShoppingBag className="mr-2 h-4 w-4"/>
                         View Products
                     </Link>
-                </Button>
-                <Button size="sm" onClick={handleConnect} disabled={isConnected || isConnecting}>
-                    {isConnecting ? <LoaderCircle className="h-4 w-4 animate-spin"/> : null}
-                    {isConnected ? 'Connected' : 'Connect to WABA'}
                 </Button>
              </CardFooter>
         </Card>
@@ -76,6 +67,7 @@ export default function CatalogPage() {
 
     const fetchData = useCallback(() => {
         if (!activeProjectId) return;
+        console.log(`[CatalogPage] Fetching data for project: ${activeProjectId}`);
         getProjectById(activeProjectId).then(() => {
             getCatalogs(activeProjectId).then(setCatalogs);
         });
@@ -179,16 +171,16 @@ export default function CatalogPage() {
                                 </ol>
                             </div>
                         </div>
-                        <div className="grid md:grid-cols-2 gap-6 items-center">
-                            {catalogStep2Image && (
-                                <Image src={catalogStep2Image.imageUrl} alt={catalogStep2Image.description} width={600} height={400} className="rounded-lg shadow-md md:order-last" data-ai-hint={catalogStep2Image.imageHint} />
+                         <div className="grid md:grid-cols-2 gap-6 items-center">
+                              {catalogStep2Image && (
+                                <Image src={catalogStep2Image.imageUrl} alt={catalogStep2Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep2Image.imageHint} />
                             )}
                             <div>
                                 <h3 className="font-semibold text-lg">Step 2: Assign Partner</h3>
                                 <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
-                                    <li>In Business Settings, go to **Data Sources &rarr; Catalogs**.</li>
+                                    <li>In Business Settings, go to <strong>Data Sources &rarr; Catalogs</strong>.</li>
                                     <li>Select your newly created catalog.</li>
-                                    <li>Click on **Assign Partners**.</li>
+                                    <li>Click on <strong>Assign Partners</strong>.</li>
                                     <li>Assign "Turo" as a partner with "Full Access" permissions.</li>
                                 </ol>
                             </div>
@@ -231,7 +223,7 @@ export default function CatalogPage() {
                                 <Image src={catalogStep6Image.imageUrl} alt={catalogStep6Image.description} width={600} height={400} className="rounded-lg shadow-md md:order-last" data-ai-hint={catalogStep6Image.imageHint} />
                             )}
                             <div>
-                                <h3 className="font-semibold text-lg">Step 6: Send Catalog Messages</h3>
+                                <h3 className="font-semibold text-lg">Step 6: Send WhatsApp Catalog Messages</h3>
                                  <p className="text-sm text-muted-foreground mt-2">After a successful sync, you can reference your products in interactive messages like Multi-Product and Single Product Messages. Use the "Product Catalog" template type to start.</p>
                             </div>
                         </div>
