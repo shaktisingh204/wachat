@@ -14,7 +14,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat } from 'lucide-react';
 import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
-import { CreateCatalogDialog } from '@/components/wabasimplify/create-catalog-dialog';
 import { cn } from '@/lib/utils';
 
 function CatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
@@ -84,7 +83,7 @@ export default function ProductsPage() {
 
     if (!projectId) {
          return (
-            <div className="flex flex-col gap-8">
+             <div className="flex flex-col gap-8">
                  <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Products & Catalogs</h1><p className="text-muted-foreground">Manage your product catalogs for your Facebook Shop.</p></div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
@@ -101,7 +100,7 @@ export default function ProductsPage() {
     
     if (!isFacebookProject) {
          return (
-            <div className="flex flex-col gap-8">
+             <div className="flex flex-col gap-8">
                 <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Products & Catalogs</h1><p className="text-muted-foreground">Manage your product catalogs for your Facebook Shop.</p></div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
@@ -122,7 +121,6 @@ export default function ProductsPage() {
                  {hasCatalogAccess && (
                     <div className="flex items-center gap-2">
                         <SyncCatalogsButton projectId={projectId} onSyncComplete={fetchData}/>
-                        <CreateCatalogDialog projectId={projectId} onCatalogCreated={fetchData}/>
                     </div>
                 )}
             </div>
@@ -140,7 +138,7 @@ export default function ProductsPage() {
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
                     <ServerCog className="mx-auto h-12 w-12" />
                     <h3 className="mt-4 text-lg font-semibold">No Catalogs Found</h3>
-                    <p className="mt-1 text-sm">Click "Sync with Meta" to fetch your existing catalogs, or create a new one.</p>
+                    <p className="mt-1 text-sm">Create a catalog in Meta Commerce Manager, then click "Sync with Meta".</p>
                 </div>
             )}
         </div>
