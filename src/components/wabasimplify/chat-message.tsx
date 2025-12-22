@@ -20,6 +20,7 @@ import { OrderMessageContent } from './messages/order-message-content';
 
 interface ChatMessageProps {
     message: AnyMessage;
+    conversation: AnyMessage[];
 }
 
 function StatusTicks({ message }: { message: OutgoingMessage }) {
@@ -215,7 +216,32 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
     )
 }
 
-const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing: boolean }) => {
+const QuotedMessage = ({ message }: { message: AnyMessage }) => {
+    if (!message) return null;
+
+    const isOutgoing = message.direction === 'out';
+    const senderName = isOutgoing ? "You" : message.content?.profile?.name || 'User';
+
+    let contentPreview = 'Message';
+    if (message.type === 'text' && message.content.text?.body) {
+        contentPreview = message.content.text.body;
+    } else if (message.type === 'image') {
+        contentPreview = 'Photo';
+    } else if (message.type === 'video') {
+        contentPreview = 'Video';
+    } else if (message.type === 'sticker') {
+        contentPreview = 'Sticker';
+    }
+    
+    return (
+        <div className="bg-black/5 dark:bg-white/5 p-2 rounded-md border-l-2 border-primary mb-2">
+            <p className="font-semibold text-sm text-primary">{senderName}</p>
+            <p className="text-xs text-muted-foreground truncate">{contentPreview}</p>
+        </div>
+    )
+}
+
+const MessageBody = ({ message, isOutgoing, conversation }: ChatMessageProps) => {
     // Reaction messages are handled separately as they are not message bubbles.
     if (message.type === 'reaction') {
         return null; 
@@ -255,7 +281,7 @@ const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing:
 };
 
 
-export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMessageProps) {
+export const ChatMessage = React.memo(function ChatMessage({ message, conversation }: ChatMessageProps) {
     const isOutgoing = message.direction === 'out';
     const timestamp = message.messageTimestamp || message.createdAt;
     
@@ -267,6 +293,9 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
     if (message.type === 'reaction') {
         return null;
     }
+
+    const repliedToId = message.content?.context?.message_id;
+    const quotedMessage = repliedToId ? conversation.find(m => m.wamid === repliedToId) : null;
 
     const onTranslate = async () => {
         let originalText = message.content.text?.body;
@@ -302,7 +331,9 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
                         : "bg-white dark:bg-muted rounded-bl-none"
                 )}
             >
-                <MessageBody message={message} isOutgoing={isOutgoing} />
+                {quotedMessage && <QuotedMessage message={quotedMessage} />}
+                
+                <MessageBody message={message} isOutgoing={isOutgoing} conversation={conversation} />
 
                 {translatedText && (
                     <>
@@ -332,3 +363,4 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
         </div>
     );
 });
+
