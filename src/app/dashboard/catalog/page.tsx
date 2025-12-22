@@ -14,12 +14,12 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat, LoaderCircle } from 'lucide-react';
 import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
-import { CreateCatalogDialog } from '@/components/wabasimplify/create-catalog-dialog';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { useProject } from '@/context/project-context';
 
 
-function WhatsAppCatalogCard({ catalog, project, onConnect }: { catalog: WithId<Catalog>, project: WithId<Project> | null, onConnect: (catalogId: string) => void }) {
+function WACatalogCard({ catalog, project, onConnect }: { catalog: WithId<Catalog>, project: WithId<Project> | null, onConnect: (catalogId: string) => void }) {
     const isConnected = project?.connectedCatalogId === catalog.metaCatalogId;
     const [isConnecting, startConnecting] = useTransition();
 
@@ -45,10 +45,10 @@ function WhatsAppCatalogCard({ catalog, project, onConnect }: { catalog: WithId<
              </CardContent>
              <CardFooter className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" asChild>
-                    <Link href={`https://business.facebook.com/commerce/${catalog.metaCatalogId}/items`} target="_blank">
+                    <a href={`https://business.facebook.com/commerce/${catalog.metaCatalogId}/items`} target="_blank" rel="noopener noreferrer">
                         <Link2 className="mr-2 h-4 w-4"/>
                         Manage in Meta
-                    </Link>
+                    </a>
                 </Button>
                 <Button size="sm" onClick={handleConnect} disabled={isConnected || isConnecting}>
                     {isConnecting ? <LoaderCircle className="h-4 w-4 animate-spin"/> : null}
@@ -62,37 +62,25 @@ function WhatsAppCatalogCard({ catalog, project, onConnect }: { catalog: WithId<
 
 export default function CatalogPage() {
     const [catalogs, setCatalogs] = useState<WithId<Catalog>[]>([]);
-    const [project, setProject] = useState<WithId<Project> | null>(null);
-    const [isLoading, startLoadingTransition] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
+    const { activeProject, activeProjectId, isLoadingProject } = useProject();
     const { toast } = useToast();
 
     const fetchData = useCallback(() => {
-        if (!projectId) return;
-        startLoadingTransition(async () => {
-            const [catalogsData, projectData] = await Promise.all([
-                getCatalogs(projectId),
-                getProjectById(projectId),
-            ]);
-            setCatalogs(catalogsData);
-            setProject(projectData);
+        if (!activeProjectId) return;
+        getProjectById(activeProjectId).then(() => {
+            getCatalogs(activeProjectId).then(setCatalogs);
         });
-    }, [projectId]);
+    }, [activeProjectId]);
 
     useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
-
-    useEffect(() => {
-        if (projectId) {
+        if(activeProjectId) {
             fetchData();
         }
-    }, [projectId, fetchData]);
+    }, [activeProjectId, fetchData]);
     
     const handleConnectCatalog = async (catalogId: string) => {
-        if (!projectId) return;
-        const result = await connectCatalogToWaba(projectId, catalogId);
+        if (!activeProjectId) return;
+        const result = await connectCatalogToWaba(activeProjectId, catalogId);
         if (result.error) {
             toast({ title: 'Error', description: result.error, variant: 'destructive' });
         } else {
@@ -101,13 +89,17 @@ export default function CatalogPage() {
         }
     }
     
-    const hasCatalogAccess = project?.hasCatalogManagement === true;
-    const isWhatsAppProject = !!project?.wabaId;
+    const hasCatalogAccess = activeProject?.hasCatalogManagement === true;
+    const isWhatsAppProject = !!activeProject?.wabaId;
 
-    if (!projectId) {
+    if (isLoadingProject) {
+         return <Skeleton className="h-full w-full" />;
+    }
+    
+    if (!activeProjectId) {
          return (
              <div className="flex flex-col gap-8">
-                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Product Catalog</h1><p className="text-muted-foreground">Manage your product catalogs for WhatsApp interactive messages.</p></div>
+                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Ecomm + Catalog</h1><p className="text-muted-foreground">Manage your product catalogs for WhatsApp interactive messages.</p></div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
@@ -117,18 +109,14 @@ export default function CatalogPage() {
         );
     }
     
-    if (isLoading) {
-         return <Skeleton className="h-full w-full" />;
-    }
-    
     if (!isWhatsAppProject) {
          return (
              <div className="flex flex-col gap-8">
-                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Product Catalog</h1><p className="text-muted-foreground">Manage your product catalogs for WhatsApp interactive messages.</p></div>
+                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Ecomm + Catalog</h1><p className="text-muted-foreground">Manage your product catalogs for WhatsApp interactive messages.</p></div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Invalid Project Type</AlertTitle>
-                    <AlertDescription>This section is for WhatsApp projects. Please select a WhatsApp project from the dashboard.</AlertDescription>
+                    <AlertDescription>This section is for WhatsApp projects. The selected project is not configured for WhatsApp.</AlertDescription>
                 </Alert>
             </div>
         );
@@ -138,13 +126,12 @@ export default function CatalogPage() {
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Product Catalog</h1>
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Ecomm + Catalog</h1>
                     <p className="text-muted-foreground">Manage your product catalogs to use in interactive messages.</p>
                 </div>
                  {hasCatalogAccess && (
                     <div className="flex items-center gap-2">
-                        <SyncCatalogsButton projectId={projectId} onSyncComplete={fetchData}/>
-                        <CreateCatalogDialog projectId={projectId} onCatalogCreated={fetchData}/>
+                        <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData}/>
                     </div>
                 )}
             </div>
@@ -156,13 +143,13 @@ export default function CatalogPage() {
                 </Card>
             ) : catalogs.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {catalogs.map(catalog => <WhatsAppCatalogCard key={catalog._id.toString()} catalog={catalog} project={project} onConnect={handleConnectCatalog} />)}
+                    {catalogs.map(catalog => <WACatalogCard key={catalog._id.toString()} catalog={catalog} project={activeProject} onConnect={handleConnectCatalog} />)}
                 </div>
             ) : (
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
                     <ServerCog className="mx-auto h-12 w-12" />
                     <h3 className="mt-4 text-lg font-semibold">No Catalogs Found</h3>
-                    <p className="mt-1 text-sm">Click "Sync with Meta" to fetch your existing catalogs, or create a new one.</p>
+                    <p className="mt-1 text-sm">Create a catalog in Meta Commerce Manager, then click "Sync with Meta".</p>
                 </div>
             )}
         </div>
