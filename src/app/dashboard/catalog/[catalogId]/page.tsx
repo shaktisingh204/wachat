@@ -25,10 +25,11 @@ import { CreateCollectionDialog } from '@/components/wabasimplify/create-collect
 
 const ProductsTable = ({ products, catalogId, onAction }: { products: any[], catalogId: string, onAction: () => void }) => {
     const { toast } = useToast();
-    const router = useRouter();
+    const { activeProjectId } = useProject();
 
-    const handleDeleteProduct = async (productId: string, projectId: string) => {
-        const result = await deleteProductFromCatalog(productId, projectId);
+    const handleDeleteProduct = async (productId: string) => {
+        if (!activeProjectId) return;
+        const result = await deleteProductFromCatalog(productId, activeProjectId);
         if (result.success) {
             toast({ title: 'Success', description: 'Product deleted successfully.' });
             onAction();
@@ -82,7 +83,7 @@ const ProductsTable = ({ products, catalogId, onAction }: { products: any[], cat
                                             <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete the product "{product.name}".</AlertDialogDescription></AlertDialogHeader>
                                             <AlertDialogFooter>
                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDeleteProduct(product.id, product.project_id)}>Delete</AlertDialogAction>
+                                                <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Delete</AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
@@ -194,7 +195,7 @@ export default function CatalogProductsPage() {
                                     <CardDescription>A list of products in this catalog.</CardDescription>
                                 </div>
                                 <Button asChild>
-                                    <Link href={`/dashboard/catalog/${catalogId}/new`}>
+                                    <Link href={`/dashboard/catalog/new?catalogId=${catalogId}`}>
                                         <PlusCircle className="mr-2 h-4 w-4"/>Add Product
                                     </Link>
                                 </Button>
