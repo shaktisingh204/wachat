@@ -56,9 +56,11 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
     const [salePriceEffectiveDate, setSalePriceEffectiveDate] = useState<Date | undefined>();
 
     useEffect(() => {
-        setVariants(product?.variants || []);
-        setSalePriceEffectiveDate(product?.sale_price_effective_date ? new Date(product.sale_price_effective_date) : undefined);
-    }, [product]);
+        if (isOpen) {
+            setVariants(product?.variants || []);
+            setSalePriceEffectiveDate(product?.sale_price_effective_date ? new Date(product.sale_price_effective_date) : undefined);
+        }
+    }, [isOpen, product]);
 
     useEffect(() => {
         if (state.message) {
@@ -76,7 +78,11 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
     const handleVariantChange = (id: string, field: 'name' | 'options', value: string) => setVariants(prev => prev.map(v => v.id === id ? { ...v, [field]: value } : v));
     
     const onDialogChange = (open: boolean) => {
-        if (!open) formRef.current?.reset();
+        if (!open) {
+          formRef.current?.reset();
+          setVariants([]);
+          setSalePriceEffectiveDate(undefined);
+        }
         onOpenChange(open);
     }
 
@@ -86,7 +92,6 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="shopId" value={shop._id.toString()} />
                     {isEditing && <input type="hidden" name="productId" value={product._id.toString()} />}
-                    {isEditing && <input type="hidden" name="imageUrl" value={product.imageUrl || ''} />}
                     <input type="hidden" name="variants" value={JSON.stringify(variants)} />
                     <input type="hidden" name="sale_price_effective_date" value={salePriceEffectiveDate?.toISOString()} />
                     
@@ -132,7 +137,7 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                     <AccordionTrigger>Pricing & Availability</AccordionTrigger>
                                     <AccordionContent className="pt-4 space-y-4">
                                          <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2"><Label htmlFor="price">Price *</Label><Input id="price" name="price" placeholder="e.g. 999 INR" defaultValue={`${product?.price || ''} ${shop.currency}`} required /></div>
+                                            <div className="space-y-2"><Label htmlFor="price">Price *</Label><Input id="price" name="price" placeholder={`e.g. 999 ${shop.currency}`} defaultValue={`${product?.price || ''} ${shop.currency}`} required /></div>
                                             <div className="space-y-2"><Label htmlFor="availability">Availability *</Label><Select name="availability" defaultValue={product?.availability || 'in stock'}><SelectTrigger id="availability"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="in stock">In Stock</SelectItem><SelectItem value="out of stock">Out of Stock</SelectItem><SelectItem value="preorder">Preorder</SelectItem></SelectContent></Select></div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
@@ -157,30 +162,41 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                             <div className="space-y-2"><Label htmlFor="google_product_category">Google Product Category</Label><Input id="google_product_category" name="google_product_category" defaultValue={product?.google_product_category}/></div>
                                             <div className="space-y-2"><Label htmlFor="product_type">Your Product Type</Label><Input id="product_type" name="product_type" defaultValue={product?.product_type}/></div>
                                         </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2"><Label htmlFor="mpn">MPN</Label><Input id="mpn" name="mpn" defaultValue={product?.mpn}/></div>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                                
+                                <AccordionItem value="variants">
+                                    <AccordionTrigger>Variants (e.g. Size, Color)</AccordionTrigger>
+                                    <AccordionContent className="pt-4 space-y-4">
+                                        <div className="space-y-2"><Label htmlFor="item_group_id">Item Group ID</Label><Input id="item_group_id" name="item_group_id" defaultValue={product?.item_group_id} /><p className="text-xs text-muted-foreground">All variants of the same product must have the same group ID.</p></div>
+                                        <Separator />
+                                        <div className="space-y-2"><Label>Variant Attributes</Label>
+                                            <div className="space-y-3">
+                                                {variants.map(variant => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></div>))}
+                                            </div>
+                                            <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant Attribute</Button>
+                                        </div>
+                                         <Separator />
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2"><Label htmlFor="gender">Gender</Label><Select name="gender" defaultValue={product?.gender}><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem><SelectItem value="unisex">Unisex</SelectItem></SelectContent></Select></div>
+                                            <div className="space-y-2"><Label htmlFor="age_group">Age Group</Label><Select name="age_group" defaultValue={product?.age_group}><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="adult">Adult</SelectItem><SelectItem value="kids">Kids</SelectItem></SelectContent></Select></div>
+                                        </div>
                                     </AccordionContent>
                                 </AccordionItem>
 
                                 <AccordionItem value="stock">
                                     <AccordionTrigger>Stock & Shipping</AccordionTrigger>
                                     <AccordionContent className="pt-4 space-y-4">
-                                        <div className="space-y-2"><Label htmlFor="inventory">Stock Quantity</Label><Input id="inventory" name="inventory" type="number" defaultValue={product?.inventory}/></div>
+                                        <div className="space-y-2"><Label htmlFor="inventory">Stock Quantity (quantity_to_sell_on_facebook)</Label><Input id="inventory" name="inventory" type="number" defaultValue={product?.inventory}/></div>
                                         <div className="space-y-2"><Label htmlFor="shipping_weight">Shipping Weight (e.g. 2.5 kg)</Label><Input id="shipping_weight" name="shipping_weight" defaultValue={product?.shipping_weight}/></div>
                                         <div className="grid grid-cols-3 gap-4">
-                                            <div className="space-y-2"><Label>Length</Label><Input name="shipping_length" placeholder="cm"/></div>
-                                            <div className="space-y-2"><Label>Width</Label><Input name="shipping_width" placeholder="cm"/></div>
-                                            <div className="space-y-2"><Label>Height</Label><Input name="shipping_height" placeholder="cm"/></div>
+                                            <div className="space-y-2"><Label>Length (cm)</Label><Input name="shipping_length" type="number" step="0.01" defaultValue={product?.dimensions?.length} /></div>
+                                            <div className="space-y-2"><Label>Width (cm)</Label><Input name="shipping_width" type="number" step="0.01" defaultValue={product?.dimensions?.width} /></div>
+                                            <div className="space-y-2"><Label>Height (cm)</Label><Input name="shipping_height" type="number" step="0.01" defaultValue={product?.dimensions?.height} /></div>
                                         </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-
-                                <AccordionItem value="variants">
-                                    <AccordionTrigger>Variants</AccordionTrigger>
-                                    <AccordionContent className="pt-4 space-y-4">
-                                        <div className="space-y-2"><Label htmlFor="item_group_id">Item Group ID</Label><Input id="item_group_id" name="item_group_id" defaultValue={product?.item_group_id} /><p className="text-xs text-muted-foreground">All variants of the same product must have the same group ID.</p></div>
-                                        <div className="space-y-3">
-                                            {variants.map(variant => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></div>))}
-                                        </div>
-                                        <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant Attribute</Button>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -195,5 +211,3 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
         </Dialog>
     );
 }
-
-    
