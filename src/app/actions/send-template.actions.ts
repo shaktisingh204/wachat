@@ -39,7 +39,7 @@ export async function handleSendTemplateMessage(
     ]);
     
     if (!contact) return { error: 'Contact not found.' };
-    const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString(), contact.userId?.toString());
+    const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString(), projectFromAction?.userId.toString() || contact.userId?.toString());
     if (!hasAccess) return { error: 'Access Denied.' };
     if (!template) return { error: 'Template not found.' };
     if (template.status !== 'APPROVED') return { error: 'Cannot send a template that is not approved.' };
@@ -109,7 +109,7 @@ export async function handleSendTemplateMessage(
 
         const buttonsComponent = templateComponents.find(c => c.type === 'BUTTONS');
         if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
-            const buttonParams = buttonsComponent.buttons.map((button, index) => {
+            const buttonParams = buttonsComponent.buttons.map((button: any, index: number) => {
                 if (button.type === 'URL' && button.url && button.url.includes('{{1}}')) {
                     return {
                         type: 'button',
@@ -122,7 +122,16 @@ export async function handleSendTemplateMessage(
             }).filter(Boolean);
 
             if (buttonParams.length > 0) {
-                payloadComponents.push(...buttonParams);
+                // If there are multiple button components (which is unusual but possible),
+                // we merge them into the main payloadComponents array.
+                buttonParams.forEach(bp => {
+                    const existingIndex = payloadComponents.findIndex(p => p.type === 'button' && p.index === bp.index);
+                    if (existingIndex > -1) {
+                        payloadComponents[existingIndex] = bp;
+                    } else {
+                        payloadComponents.push(bp);
+                    }
+                });
             }
         }
 
@@ -159,3 +168,5 @@ export async function handleSendTemplateMessage(
         return { error: getErrorMessage(e) || 'An unexpected error occurred while sending the template.' };
     }
 }
+
+    

@@ -42,16 +42,26 @@ export function TemplateMessageContent({ content }: { content: any }) {
              return <h3 className="font-bold text-lg mb-2">{renderTextWithVariables(header.text, header.parameters)}</h3>;
         }
         if (header.format === 'IMAGE') {
-            return <div className="aspect-video bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-400"><ImageIcon className="h-10 w-10"/></div>;
+             const imageUrl = header.parameters?.[0]?.image?.link;
+            return imageUrl ? (
+                <div className="relative aspect-video w-full bg-muted rounded-t-lg overflow-hidden">
+                    <Image src={imageUrl} alt="Template Header" layout="fill" objectFit="cover" />
+                </div>
+            ) : (<div className="aspect-video bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-400"><ImageIcon className="h-10 w-10"/></div>);
         }
         if (header.format === 'VIDEO') {
-            return <div className="aspect-video bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-400"><Video className="h-10 w-10"/></div>;
+            const videoUrl = header.parameters?.[0]?.video?.link;
+            return videoUrl ? (
+                <video src={videoUrl} controls className="w-full rounded-t-lg" />
+            ) : (<div className="aspect-video bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-400"><Video className="h-10 w-10"/></div>);
         }
         if (header.format === 'DOCUMENT') {
             return <div className="p-4 bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-400"><File className="h-10 w-10"/></div>;
         }
         return null;
     }
+
+    const isMarketingCarousel = carouselComp;
 
     if (isMarketingCarousel) {
         return (
@@ -125,3 +135,5 @@ export function TemplateMessageContent({ content }: { content: any }) {
         </div>
     );
 }
+
+    

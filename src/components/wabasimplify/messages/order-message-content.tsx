@@ -4,6 +4,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { IndianRupee } from 'lucide-react';
 import Image from 'next/image';
+import { Separator } from '@/components/ui/separator';
 
 interface OrderMessageContentProps {
   order: {
@@ -37,17 +38,21 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
         <CardContent className="p-2 space-y-2 text-xs">
           {order.product_items.map(item => (
             <div key={item.product_retailer_id} className="flex justify-between items-center">
-              <span>{item.product_retailer_id} x{item.quantity}</span>
-              <span>{item.currency} {item.item_price}</span>
+              <div>
+                <p className="font-medium">{item.product_retailer_id}</p>
+                <p className="text-muted-foreground">Qty: {item.quantity}</p>
+              </div>
+              <span className="font-mono">{item.currency} {(parseFloat(item.item_price) * parseInt(item.quantity)).toFixed(2)}</span>
             </div>
           ))}
-          <div className="flex justify-between items-center font-bold pt-2 border-t">
+          <Separator className="my-2"/>
+          <div className="flex justify-between items-center font-bold pt-1">
               <span>Total</span>
               <span>{order.product_items[0]?.currency} {totalAmount.toFixed(2)}</span>
           </div>
         </CardContent>
          {order.text && (
-             <CardFooter className="p-2 text-xs text-muted-foreground">
+             <CardFooter className="p-2 text-xs text-muted-foreground border-t mt-2 pt-2">
                 <p>{order.text}</p>
              </CardFooter>
          )}
@@ -55,3 +60,5 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
     </div>
   );
 }
+
+    
