@@ -170,13 +170,11 @@ export default function CatalogPage() {
                                 <Image src={catalogStep1Image.imageUrl} alt={catalogStep1Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep1Image.imageHint} />
                             )}
                             <div>
-                                <h3 className="font-semibold text-lg">Step 1: Create a Catalog in Meta Commerce Manager</h3>
+                                <h3 className="font-semibold text-lg">Step 1: Create a Catalog</h3>
                                 <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
-                                    <li>Open the <a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meta Commerce Manager</a>.</li>
-                                    <li>Make sure you have selected the correct Business Manager account in the top-left dropdown.</li>
-                                    <li>Click "Add Catalog" or find the "Create a Catalog" option.</li>
-                                    <li>Select "E-commerce" as the catalog type and click "Next".</li>
-                                    <li>Confirm ownership and give your catalog a name (we recommend using your project's name for easy identification). Save the changes.</li>
+                                    <li>Open the <Button variant="link" asChild className="p-0 h-auto"><a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer">Meta Commerce Manager</a></Button>.</li>
+                                    <li>Make sure you have selected the correct Business Manager account.</li>
+                                    <li>Click "Add Catalog", choose "E-commerce" as the type, and follow the prompts.</li>
                                 </ol>
                             </div>
                         </div>
@@ -185,12 +183,12 @@ export default function CatalogPage() {
                                 <Image src={catalogStep2Image.imageUrl} alt={catalogStep2Image.description} width={600} height={400} className="rounded-lg shadow-md md:order-last" data-ai-hint={catalogStep2Image.imageHint} />
                             )}
                             <div>
-                                <h3 className="font-semibold text-lg">Step 2: Add Your First Product (Mandatory Activation)</h3>
+                                <h3 className="font-semibold text-lg">Step 2: Add Your First Product</h3>
                                 <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
                                     <li>In your new catalog, go to the "Items" tab and click "Add Items".</li>
-                                    <li>Choose the "Manual" option to add products one by one.</li>
-                                    <li>Fill in all the required details for at least one product: an image, name, description, price, currency, and availability.</li>
-                                    <li>This first product is essential to properly activate your catalog for use with the WhatsApp API.</li>
+                                    <li>Choose the "Manual" option.</li>
+                                    <li>Fill in all required details for at least one product (image, price, name, etc.).</li>
+                                    <li className="font-semibold">This step is mandatory to activate the catalog for WhatsApp.</li>
                                 </ol>
                             </div>
                         </div>
@@ -199,23 +197,21 @@ export default function CatalogPage() {
                                 <Image src={catalogStep3Image.imageUrl} alt={catalogStep3Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep3Image.imageHint} />
                             )}
                             <div>
-                                <h3 className="font-semibold text-lg">Step 3: Assign Catalog to WhatsApp Business Account</h3>
-                                <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
-                                    <li>Navigate to **WhatsApp Manager** from your Business Suite's "All tools" menu.</li>
-                                    <li>In the left sidebar, go to **Account tools** &rarr; **Catalog**.</li>
-                                    <li>Click **Choose a catalog**.</li>
-                                    <li>Select the catalog you just created from the dropdown menu and click **Connect catalog**.</li>
+                                <h3 className="font-semibold text-lg">Step 3: Assign to WABA</h3>
+                                 <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
+                                    <li>Navigate to <strong>WhatsApp Manager</strong> from your Business Suite's "All tools" menu.</li>
+                                    <li>Go to <strong>Account tools</strong> &rarr; <strong>Catalog</strong>.</li>
+                                    <li>Click <strong>Choose a catalog</strong>.</li>
+                                    <li>Select the catalog you just created and click <strong>Connect catalog</strong>.</li>
                                 </ol>
                             </div>
                         </div>
-                    </CardContent>
-                    <CardFooter className="flex-col items-start gap-4">
-                        <div>
-                            <h3 className="font-semibold">Final Step: Sync Your Catalogs</h3>
-                            <p className="text-sm text-muted-foreground">Once your catalog is created, has a product, and is connected to your WABA, return here and click the sync button.</p>
+                         <div className="text-center space-y-4 pt-8 border-t">
+                            <h3 className="font-semibold text-lg">Step 4: Sync Your Catalog</h3>
+                            <p className="text-muted-foreground max-w-xl mx-auto">Once your catalog is created, has a product, and is connected to your WABA, return here and click the sync button to see it in your SabNode dashboard.</p>
+                            <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
                         </div>
-                        <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
-                    </CardFooter>
+                    </CardContent>
                 </Card>
             )}
         </div>
