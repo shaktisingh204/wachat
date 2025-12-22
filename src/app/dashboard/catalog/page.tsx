@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat, LoaderCircle } from 'lucide-react';
+import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat, ExternalLink } from 'lucide-react';
 import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -155,7 +155,15 @@ export default function CatalogPage() {
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
                     <ServerCog className="mx-auto h-12 w-12" />
                     <h3 className="mt-4 text-lg font-semibold">No Catalogs Found</h3>
-                    <p className="mt-1 text-sm">Create a catalog in Meta Commerce Manager, then click "Sync with Meta".</p>
+                    <p className="mt-1 text-sm max-w-md mx-auto">
+                        To get started, you need to create a product catalog in your Meta Commerce Manager. Once created, return here and sync to see it listed.
+                    </p>
+                    <Button asChild className="mt-4">
+                        <a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer">
+                            Go to Commerce Manager
+                            <ExternalLink className="ml-2 h-4 w-4" />
+                        </a>
+                    </Button>
                 </div>
             )}
         </div>
