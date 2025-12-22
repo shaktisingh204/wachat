@@ -852,7 +852,7 @@ export async function getPaymentConfigurationByName(projectId: string, configura
         return { error: getErrorMessage(e) };
     }
 }
-
+    
 export async function getTransactionsForProject(projectId: string): Promise<WithId<Transaction>[]> {
     if (!projectId || !ObjectId.isValid(projectId)) return [];
 
@@ -863,5 +863,65 @@ export async function getTransactionsForProject(projectId: string): Promise<With
     } catch (e) {
         console.error("Failed to fetch transactions:", e);
         return [];
+    }
+}
+
+export async function handleSendCatalogMessage(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const contactId = formData.get('contactId') as string;
+    const projectId = formData.get('projectId') as string;
+    const headerText = formData.get('headerText') as string;
+    const bodyText = formData.get('bodyText') as string;
+    const footerText = formData.get('footerText') as string;
+    const productRetailerIds = (formData.get('productRetailerIds') as string).split(',');
+
+    if (!contactId || !projectId || !bodyText || productRetailerIds.length === 0) {
+        return { error: 'Missing required fields for catalog message.' };
+    }
+
+    const { db } = await connectToDatabase();
+    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
+    if (!contact) return { error: 'Contact not found.' };
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.connectedCatalogId) {
+        return { error: 'Project not found or no catalog is connected.' };
+    }
+
+    try {
+        const phoneNumberId = contact.phoneNumberId;
+        const waId = contact.waId;
+
+        const payload = {
+            messaging_product: 'whatsapp',
+            to: waId,
+            type: 'interactive',
+            interactive: {
+                type: 'product_list',
+                ...(headerText && { header: { type: 'text', text: headerText } }),
+                body: { text: bodyText },
+                ...(footerText && { footer: { text: footerText } }),
+                action: {
+                    catalog_id: project.connectedCatalogId,
+                    sections: [
+                        {
+                            title: 'Our Products',
+                            product_items: productRetailerIds.map(id => ({ product_retailer_id: id })),
+                        },
+                    ],
+                },
+            },
+        };
+
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, {
+            headers: { Authorization: `Bearer ${project.accessToken}` },
+        });
+
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        
+        revalidatePath('/dashboard/chat');
+        return { message: 'Catalog message sent successfully.' };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
     }
 }
