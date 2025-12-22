@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LoaderCircle, Save } from 'lucide-react';
 import { updateProductInCatalog } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '../ui/textarea';
 
 const initialState = { message: null, error: null };
 
@@ -69,6 +70,10 @@ export function EditProductDialog({ isOpen, onOpenChange, product, projectId, on
                         <div className="space-y-2">
                             <Label htmlFor="name">Product Name</Label>
                             <Input id="name" name="name" defaultValue={product.name} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea id="description" name="description" defaultValue={product.description} />
                         </div>
                          <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">

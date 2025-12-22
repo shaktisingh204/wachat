@@ -54,7 +54,7 @@ function AddProductDialog({ catalogId, projectId, onProductAdded }: { catalogId:
             onProductAdded();
         }
         if (state.error) {
-            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+            toast({ title: 'Error Creating Product', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, onProductAdded]);
     
@@ -74,7 +74,7 @@ function AddProductDialog({ catalogId, projectId, onProductAdded }: { catalogId:
                         <div className="space-y-2"><Label htmlFor="retailer_id">SKU / Retailer ID</Label><Input id="retailer_id" name="retailer_id" required /></div>
                         <div className="grid grid-cols-2 gap-4">
                              <div className="space-y-2"><Label htmlFor="price">Price</Label><Input id="price" name="price" type="number" step="0.01" required /></div>
-                             <div className="space-y-2"><Label htmlFor="currency">Currency</Label><Select name="currency" defaultValue="USD"><SelectTrigger id="currency"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="USD">USD</SelectItem><SelectItem value="EUR">EUR</SelectItem><SelectItem value="INR">INR</SelectItem></SelectContent></Select></div>
+                             <div className="space-y-2"><Label htmlFor="currency">Currency</Label><Select name="currency" defaultValue="USD" required><SelectTrigger id="currency"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="USD">USD</SelectItem><SelectItem value="EUR">EUR</SelectItem><SelectItem value="INR">INR</SelectItem></SelectContent></Select></div>
                         </div>
                         <div className="space-y-2"><Label htmlFor="description">Description</Label><Textarea id="description" name="description" /></div>
                         <div className="space-y-2"><Label htmlFor="image_url">Image URL</Label><Input id="image_url" name="image_url" type="url" required /></div>
