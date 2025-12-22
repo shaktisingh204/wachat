@@ -11,7 +11,6 @@ import { LoaderCircle, Save, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, EcommProductVariant } from '@/lib/definitions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
@@ -80,7 +79,7 @@ export function ProductForm({ product }: ProductFormProps) {
             <input type="hidden" name="catalogId" value={catalogId || ''} />
             {isEditing && <input type="hidden" name="productId" value={product.id} />}
             <input type="hidden" name="variants" value={JSON.stringify(variants)} />
-            <input type="hidden" name="sale_price_effective_date" value={salePriceEffectiveDate?.toISOString()} />
+            <input type="hidden" name="sale_price_effective_date" value={salePriceEffectiveDate?.toISOString() || ''} />
 
             <Accordion type="multiple" defaultValue={['basic', 'pricing', 'identifiers']} className="w-full">
                 <AccordionItem value="basic">
@@ -101,12 +100,12 @@ export function ProductForm({ product }: ProductFormProps) {
                 <AccordionItem value="pricing">
                     <AccordionTrigger>Pricing & Availability</AccordionTrigger>
                     <AccordionContent className="pt-4 space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label htmlFor="price">Price *</Label><Input id="price" name="price" defaultValue={`${product?.price ? product.price / 100 : ''} ${product?.currency || ''}`} placeholder="e.g. 999 INR" required /></div>
+                         <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2"><Label htmlFor="price">Price *</Label><Input id="price" name="price" defaultValue={`${product?.price ? product.price / 100 : ''} ${product?.currency || 'INR'}`} placeholder="e.g. 999 INR" required /></div>
                             <div className="space-y-2"><Label htmlFor="availability">Availability *</Label><Select name="availability" defaultValue={product?.availability || 'in stock'} required><SelectTrigger id="availability"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="in stock">In Stock</SelectItem><SelectItem value="out of stock">Out of Stock</SelectItem><SelectItem value="preorder">Preorder</SelectItem></SelectContent></Select></div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label htmlFor="sale_price">Sale Price</Label><Input id="sale_price" name="sale_price" defaultValue={product?.sale_price}/></div>
+                            <div className="space-y-2"><Label htmlFor="sale_price">Sale Price</Label><Input id="sale_price" name="sale_price" defaultValue={product?.sale_price ? `${product.sale_price / 100} ${product.currency}` : ''} placeholder="e.g. 799 INR"/></div>
                             <div className="space-y-2"><Label>Sale Dates</Label><DatePicker date={salePriceEffectiveDate} setDate={setSalePriceEffectiveDate} /></div>
                         </div>
                             <div className="space-y-2"><Label htmlFor="tax">Tax %</Label><Input id="tax" name="tax" type="number" step="0.01" defaultValue={product?.tax} /></div>
@@ -153,7 +152,7 @@ export function ProductForm({ product }: ProductFormProps) {
                  <AccordionItem value="stock">
                     <AccordionTrigger>Stock & Shipping</AccordionTrigger>
                     <AccordionContent className="pt-4 space-y-4">
-                        <div className="space-y-2"><Label htmlFor="inventory">Stock Quantity</Label><Input id="inventory" name="inventory" type="number" defaultValue={product?.inventory} /></div>
+                        <div className="space-y-2"><Label htmlFor="inventory">Stock Quantity</Label><Input id="inventory" name="inventory" type="number" defaultValue={product?.inventory}/></div>
                         <div className="space-y-2"><Label htmlFor="shipping_weight">Shipping Weight (e.g. 2.5 kg)</Label><Input id="shipping_weight" name="shipping_weight" defaultValue={product?.shipping_weight}/></div>
                         <div className="grid grid-cols-3 gap-4">
                             <div className="space-y-2"><Label>Length (cm)</Label><Input name="shipping_length" type="number" step="0.01" defaultValue={product?.dimensions?.length}/></div>
@@ -179,3 +178,5 @@ export function ProductForm({ product }: ProductFormProps) {
         </form>
     );
 }
+
+    
