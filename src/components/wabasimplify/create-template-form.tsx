@@ -316,6 +316,19 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
     newButtons[index].example = [value];
     setButtons(newButtons);
   };
+  
+  const extractVariables = (text: string) => {
+    const regex = /{{\s*(\d+)\s*}}/g;
+    const matches = text.match(regex);
+    if (!matches) return [];
+    const varNumbers = matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, '')));
+    return [...new Set(varNumbers)].sort((a,b) => a - b);
+  };
+
+  const headerVars = headerFormat === 'TEXT' ? extractVariables(headerText) : [];
+  const bodyVars = extractVariables(body);
+  const urlVar = buttons.find(b => b.type === 'URL' && b.url?.includes('{{1}}'));
+  
 
   // Carousel Card Handlers
   const handleAddCarouselCard = () => {
@@ -472,6 +485,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                           <div className="space-y-2">
                               <Label htmlFor="headerText">Header Text</Label>
                               <Input name="headerText" id="headerText" placeholder="Your header text..." maxLength={60} value={headerText} onChange={(e) => setHeaderText(e.target.value)} />
+                               {headerVars.length > 0 && <Input name="headerExample" placeholder="Example Header Value" required />}
                           </div>
                       )}
 
@@ -510,6 +524,14 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                           <Label htmlFor="body">Body</Label>
                           <Textarea id="body" name="body" placeholder="Hi {{1}}, this is a reminder..." className="min-h-[150px]" value={body} onChange={(e) => setBody(e.target.value)} required/>
                       </div>
+                      {bodyVars.length > 0 && (
+                        <div className="space-y-2 p-3 border rounded-md">
+                            <Label>Body Example Variables</Label>
+                            {bodyVars.map(varNum => (
+                                <Input key={varNum} name={`body_example_${varNum}`} placeholder={`Example for {{${varNum}}}`} required />
+                            ))}
+                        </div>
+                      )}
 
                       <div className="space-y-2">
                           <Label htmlFor="footer">Footer (Optional)</Label>
