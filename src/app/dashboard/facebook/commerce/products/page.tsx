@@ -4,7 +4,7 @@
 import { useEffect, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { getCatalogs } from '@/app/actions/catalog.actions';
+import { getCatalogs, syncCatalogs } from '@/app/actions/catalog.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 import type { Catalog, Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -15,10 +15,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat } from 'lucide-react';
 import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { useProject } from '@/context/project-context';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Separator } from '@/components/ui/separator';
 
-function CatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
+
+function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
     return (
-        <Card className={cn("flex flex-col transition-all")}>
+        <Card className={cn("flex flex-col transition-all card-gradient card-gradient-green hover:shadow-lg")}>
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-base">{catalog.name}</CardTitle>
@@ -31,17 +37,11 @@ function CatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
                 <p className="text-xs text-muted-foreground">Created: {new Date(catalog.createdAt).toLocaleDateString()}</p>
              </CardContent>
              <CardFooter className="flex justify-end gap-2">
-                <Button variant="outline" size="sm" asChild>
+                <Button asChild size="sm" className="w-full">
                     <Link href={`/dashboard/facebook/commerce/products/${catalog.metaCatalogId}`}>
                         <ShoppingBag className="mr-2 h-4 w-4"/>
                         View Products
                     </Link>
-                </Button>
-                <Button variant="ghost" size="sm" asChild>
-                    <a href={`https://business.facebook.com/commerce/${catalog.metaCatalogId}/items`} target="_blank" rel="noopener noreferrer">
-                        <Link2 className="mr-2 h-4 w-4"/>
-                        Manage in Meta
-                    </a>
                 </Button>
              </CardFooter>
         </Card>
@@ -51,40 +51,39 @@ function CatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
 
 export default function ProductsPage() {
     const [catalogs, setCatalogs] = useState<WithId<Catalog>[]>([]);
-    const [project, setProject] = useState<WithId<Project> | null>(null);
-    const [isLoading, startLoadingTransition] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
+    const { activeProject, activeProjectId, isLoadingProject } = useProject();
+    const { toast } = useToast();
 
     const fetchData = useCallback(() => {
-        if (!projectId) return;
-        startLoadingTransition(async () => {
-            const [catalogsData, projectData] = await Promise.all([
-                getCatalogs(projectId),
-                getProjectById(projectId),
-            ]);
-            setCatalogs(catalogsData);
-            setProject(projectData);
+        if (!activeProjectId) return;
+        console.log(`[CatalogPage] Fetching data for project: ${activeProjectId}`);
+        getProjectById(activeProjectId).then(() => {
+            getCatalogs(activeProjectId).then(setCatalogs);
         });
-    }, [projectId]);
+    }, [activeProjectId]);
 
     useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
-
-    useEffect(() => {
-        if (projectId) {
+        if(activeProjectId) {
             fetchData();
         }
-    }, [projectId, fetchData]);
+    }, [activeProjectId, fetchData]);
     
-    const hasCatalogAccess = project?.hasCatalogManagement === true;
-    const isFacebookProject = !!project?.facebookPageId && !project.wabaId;
+    const hasCatalogAccess = activeProject?.hasCatalogManagement === true;
+    const isFacebookProject = !!activeProject?.facebookPageId && !activeProject.wabaId;
 
-    if (!projectId) {
+    const catalogStep1Image = PlaceHolderImages.find(img => img.id === 'catalog-step-1');
+    const catalogStep2Image = PlaceHolderImages.find(img => img.id === 'catalog-step-2');
+    const catalogStep3Image = PlaceHolderImages.find(img => img.id === 'catalog-step-3');
+    const catalogStep6Image = PlaceHolderImages.find(img => img.id === 'catalog-step-6');
+
+    if (isLoadingProject) {
+         return <Skeleton className="h-full w-full" />;
+    }
+    
+    if (!activeProjectId) {
          return (
              <div className="flex flex-col gap-8">
-                 <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Products & Catalogs</h1><p className="text-muted-foreground">Manage your product catalogs for your Facebook Shop.</p></div>
+                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Products & Catalogs</h1><p className="text-muted-foreground">Manage your product catalogs for your Facebook Shop.</p></div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
@@ -92,10 +91,6 @@ export default function ProductsPage() {
                 </Alert>
             </div>
         );
-    }
-    
-    if (isLoading) {
-        return <Skeleton className="h-full w-full" />;
     }
     
     if (!isFacebookProject) {
@@ -120,7 +115,7 @@ export default function ProductsPage() {
                 </div>
                  {hasCatalogAccess && (
                     <div className="flex items-center gap-2">
-                        <SyncCatalogsButton projectId={projectId} onSyncComplete={fetchData}/>
+                        <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData}/>
                     </div>
                 )}
             </div>
@@ -132,7 +127,7 @@ export default function ProductsPage() {
                 </Card>
             ) : catalogs.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {catalogs.map(catalog => <CatalogCard key={catalog._id.toString()} catalog={catalog} />)}
+                    {catalogs.map(catalog => <WACatalogCard key={catalog._id.toString()} catalog={catalog} />)}
                 </div>
             ) : (
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">

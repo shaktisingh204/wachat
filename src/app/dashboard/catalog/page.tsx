@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { getCatalogs, connectCatalogToWaba, syncCatalogs } from '@/app/actions/catalog.actions';
+import { getCatalogs, syncCatalogs } from '@/app/actions/catalog.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 import type { Catalog, Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -22,23 +21,12 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Separator } from '@/components/ui/separator';
 
-
-function WACatalogCard({ catalog, project, onConnect }: { catalog: WithId<Catalog>, project: WithId<Project> | null, onConnect: (catalogId: string) => void }) {
-    const isConnected = project?.connectedCatalogId === catalog.metaCatalogId;
-    const [isConnecting, startConnecting] = useTransition();
-
-    const handleConnect = () => {
-        startConnecting(() => {
-            onConnect(catalog.metaCatalogId);
-        });
-    }
-
+function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
     return (
-        <Card className={cn("flex flex-col transition-all", isConnected && "border-2 border-primary")}>
+        <Card className={cn("flex flex-col transition-all card-gradient card-gradient-green hover:shadow-lg")}>
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-base">{catalog.name}</CardTitle>
-                    {isConnected && <Badge>Connected</Badge>}
                 </div>
                 <CardDescription className="font-mono text-xs break-all pt-2">
                     ID: {catalog.metaCatalogId}
@@ -59,7 +47,6 @@ function WACatalogCard({ catalog, project, onConnect }: { catalog: WithId<Catalo
     );
 }
 
-
 export default function CatalogPage() {
     const [catalogs, setCatalogs] = useState<WithId<Catalog>[]>([]);
     const { activeProject, activeProjectId, isLoadingProject } = useProject();
@@ -78,17 +65,6 @@ export default function CatalogPage() {
             fetchData();
         }
     }, [activeProjectId, fetchData]);
-    
-    const handleConnectCatalog = async (catalogId: string) => {
-        if (!activeProjectId) return;
-        const result = await connectCatalogToWaba(activeProjectId, catalogId);
-        if (result.error) {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        } else {
-            toast({ title: 'Success', description: result.message });
-            fetchData();
-        }
-    }
     
     const hasCatalogAccess = activeProject?.hasCatalogManagement === true;
     const isWhatsAppProject = !!activeProject?.wabaId;
@@ -149,7 +125,7 @@ export default function CatalogPage() {
                 </Card>
             ) : catalogs.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {catalogs.map(catalog => <WACatalogCard key={catalog._id.toString()} catalog={catalog} project={activeProject} onConnect={handleConnectCatalog} />)}
+                    {catalogs.map(catalog => <WACatalogCard key={catalog._id.toString()} catalog={catalog} />)}
                 </div>
             ) : (
                 <Card>
