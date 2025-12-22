@@ -35,6 +35,12 @@
       "description": "Instructional image for assigning a catalog to a WABA.",
       "imageUrl": "https://storage.googleapis.com/project-sparkle-sandbox-images/1719602492198_6.png",
       "imageHint": "dashboard screenshot"
+    },
+    {
+      "id": "catalog-step-6",
+      "description": "Image showing how WhatsApp Catalog Messages work.",
+      "imageUrl": "https://storage.googleapis.com/project-sparkle-sandbox-images/1719602492211_7.png",
+      "imageHint": "whatsapp chat"
     }
   ]
 }
