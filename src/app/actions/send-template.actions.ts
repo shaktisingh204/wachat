@@ -39,7 +39,7 @@ export async function handleSendTemplateMessage(
     ]);
     
     if (!contact) return { error: 'Contact not found.' };
-    const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString());
+    const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString(), contact.userId?.toString());
     if (!hasAccess) return { error: 'Access Denied.' };
     if (!template) return { error: 'Template not found.' };
     if (template.status !== 'APPROVED') return { error: 'Cannot send a template that is not approved.' };
@@ -59,8 +59,9 @@ export async function handleSendTemplateMessage(
         };
 
         const payloadComponents: any[] = [];
+        const templateComponents = template.components || [];
         
-        const headerComponent = template.components?.find(c => c.type === 'HEADER');
+        const headerComponent = templateComponents.find(c => c.type === 'HEADER');
         if (headerComponent) {
             let mediaId: string | null = null;
             const fileData = headerMediaFile as { content: string, name: string, type: string };
@@ -84,6 +85,8 @@ export async function handleSendTemplateMessage(
                 if (format === 'IMAGE') parameter = { type: 'image', image: { link: headerMediaUrl } };
                 else if (format === 'VIDEO') parameter = { type: 'video', video: { link: headerMediaUrl } };
                 else if (format === 'DOCUMENT') parameter = { type: 'document', document: { link: headerMediaUrl } };
+            } else if (format === 'TEXT' && variables['variable_header_1']) {
+                parameter = { type: 'text', text: variables['variable_header_1'] };
             }
             
             if (parameter) {
@@ -91,16 +94,35 @@ export async function handleSendTemplateMessage(
             }
         }
         
-        const bodyComponent = template.components?.find(c => c.type === 'BODY');
+        const bodyComponent = templateComponents.find(c => c.type === 'BODY');
         const bodyText = bodyComponent?.text || template.body;
         if (bodyText) {
             const bodyVars = getVars(bodyText);
             if (bodyVars.length > 0) {
                 const parameters = bodyVars.sort((a,b) => a-b).map(varNum => {
-                    const varValue = variables[`variable_${varNum}`] as string || '';
+                    const varValue = variables[`variable_body_${varNum}`] as string || '';
                     return { type: 'text', text: varValue };
                 });
                 payloadComponents.push({ type: 'body', parameters });
+            }
+        }
+
+        const buttonsComponent = templateComponents.find(c => c.type === 'BUTTONS');
+        if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
+            const buttonParams = buttonsComponent.buttons.map((button, index) => {
+                if (button.type === 'URL' && button.url && button.url.includes('{{1}}')) {
+                    return {
+                        type: 'button',
+                        sub_type: 'url',
+                        index: index.toString(),
+                        parameters: [{ type: 'text', text: variables['variable_button_1'] || '' }]
+                    };
+                }
+                return null;
+            }).filter(Boolean);
+
+            if (buttonParams.length > 0) {
+                payloadComponents.push(...buttonParams);
             }
         }
 
@@ -125,7 +147,7 @@ export async function handleSendTemplateMessage(
         const now = new Date();
         await db.collection('outgoing_messages').insertOne({
             direction: 'out', contactId: contact._id, projectId: hasAccess._id, wamid, messageTimestamp: now, type: 'template',
-            content: payload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+            content: { template: payload.template }, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         } as OutgoingMessage);
         
         const lastMessage = `[Template]: ${template.name}`;
