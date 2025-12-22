@@ -199,6 +199,24 @@ export function ChatClient() {
         ));
     };
 
+    const processedConversation = useMemo(() => {
+        const reactionsMap = new Map<string, AnyMessage['reaction']>();
+        const messagesWithoutReactions: AnyMessage[] = [];
+
+        for (const message of conversation) {
+            if (message.type === 'reaction' && message.content.reaction?.message_id) {
+                reactionsMap.set(message.content.reaction.message_id, message.content.reaction);
+            } else {
+                messagesWithoutReactions.push(message);
+            }
+        }
+        
+        return messagesWithoutReactions.map(message => {
+            const reaction = reactionsMap.get(message.wamid);
+            return reaction ? { ...message, reaction } : message;
+        });
+    }, [conversation]);
+
     if (isLoading && !activeProject) {
         return <ChatPageSkeleton />;
     }
@@ -248,7 +266,7 @@ export function ChatClient() {
                                 key={selectedContact._id.toString()}
                                 project={activeProject}
                                 contact={selectedContact}
-                                conversation={conversation}
+                                conversation={processedConversation}
                                 templates={templates}
                                 isLoading={loadingConversation}
                                 onBack={() => setSelectedContact(null)}
