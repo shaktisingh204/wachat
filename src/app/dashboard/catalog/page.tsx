@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { useProject } from '@/context/project-context';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Separator } from '@/components/ui/separator';
 
 
 function WACatalogCard({ catalog, project, onConnect }: { catalog: WithId<Catalog>, project: WithId<Project> | null, onConnect: (catalogId: string) => void }) {
@@ -102,6 +103,7 @@ export default function CatalogPage() {
 
     const catalogStep1Image = PlaceHolderImages.find(img => img.id === 'catalog-step-1');
     const catalogStep2Image = PlaceHolderImages.find(img => img.id === 'catalog-step-2');
+    const catalogStep3Image = PlaceHolderImages.find(img => img.id === 'catalog-step-3');
 
     if (isLoadingProject) {
          return <Skeleton className="h-full w-full" />;
@@ -162,7 +164,7 @@ export default function CatalogPage() {
                         <CardTitle className="flex items-center gap-2"><GitBranch className="h-5 w-5"/>Get Started with Catalogs</CardTitle>
                         <CardDescription>To begin, create a catalog in Meta Commerce Manager and then sync it here.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-8">
+                    <CardContent className="space-y-12">
                         <div className="grid md:grid-cols-2 gap-6 items-center">
                             {catalogStep1Image && (
                                 <Image src={catalogStep1Image.imageUrl} alt={catalogStep1Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep1Image.imageHint} />
@@ -192,11 +194,25 @@ export default function CatalogPage() {
                                 </ol>
                             </div>
                         </div>
+                         <div className="grid md:grid-cols-2 gap-6 items-center">
+                            {catalogStep3Image && (
+                                <Image src={catalogStep3Image.imageUrl} alt={catalogStep3Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep3Image.imageHint} />
+                            )}
+                            <div>
+                                <h3 className="font-semibold text-lg">Step 3: Assign Catalog to WhatsApp Business Account</h3>
+                                <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
+                                    <li>Navigate to **WhatsApp Manager** from your Business Suite's "All tools" menu.</li>
+                                    <li>In the left sidebar, go to **Account tools** &rarr; **Catalog**.</li>
+                                    <li>Click **Choose a catalog**.</li>
+                                    <li>Select the catalog you just created from the dropdown menu and click **Connect catalog**.</li>
+                                </ol>
+                            </div>
+                        </div>
                     </CardContent>
                     <CardFooter className="flex-col items-start gap-4">
                         <div>
-                            <h3 className="font-semibold">Step 3: Sync Your Catalogs</h3>
-                            <p className="text-sm text-muted-foreground">Once your catalog is created and has at least one product, return here and click the sync button.</p>
+                            <h3 className="font-semibold">Final Step: Sync Your Catalogs</h3>
+                            <p className="text-sm text-muted-foreground">Once your catalog is created, has a product, and is connected to your WABA, return here and click the sync button.</p>
                         </div>
                         <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
                     </CardFooter>
