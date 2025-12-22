@@ -50,9 +50,15 @@ function WACatalogCard({ catalog, project, onConnect }: { catalog: WithId<Catalo
                         Manage in Meta
                     </a>
                 </Button>
+                 <Button asChild size="sm">
+                    <Link href={`/dashboard/catalog/${catalog.metaCatalogId}`}>
+                        <ShoppingBag className="mr-2 h-4 w-4"/>
+                        View Products
+                    </Link>
+                </Button>
                 <Button size="sm" onClick={handleConnect} disabled={isConnected || isConnecting}>
                     {isConnecting ? <LoaderCircle className="h-4 w-4 animate-spin"/> : null}
-                    Connect to WABA
+                    {isConnected ? 'Connected' : 'Connect to WABA'}
                 </Button>
              </CardFooter>
         </Card>
@@ -116,7 +122,7 @@ export default function CatalogPage() {
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Invalid Project Type</AlertTitle>
-                    <AlertDescription>This section is for WhatsApp projects. The selected project is not configured for WhatsApp.</AlertDescription>
+                    <AlertDescription>This section is for WhatsApp projects. The selected project is not a WhatsApp project.</AlertDescription>
                 </Alert>
             </div>
         );
