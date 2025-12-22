@@ -5,11 +5,11 @@ import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { getCannedMessages } from '@/app/actions/project.actions';
 import { handleSendMessage } from '@/app/actions/whatsapp.actions';
-import type { CannedMessage, Template, Contact } from '@/lib/definitions';
+import type { CannedMessage, Template, Contact, Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Paperclip, Send, LoaderCircle, Star, ClipboardList, File as FileIcon, Image as ImageIcon, IndianRupee } from 'lucide-react';
+import { Paperclip, Send, LoaderCircle, Star, ClipboardList, File as FileIcon, Image as ImageIcon, IndianRupee, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -17,8 +17,10 @@ import { SendTemplateDialog } from './send-template-dialog';
 import { RequestPaymentDialog } from './request-payment-dialog';
 import { RequestWhatsAppPaymentDialog } from './request-whatsapp-payment-dialog';
 import { WaPayIcon } from './custom-sidebar-components';
+import { SendCatalogDialog } from './send-catalog-dialog';
 
 interface ChatMessageInputProps {
+    project: WithId<Project>;
     contact: WithId<Contact>;
     templates: WithId<Template>[];
 }
@@ -47,7 +49,7 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) {
+export function ChatMessageInput({ project, contact, templates }: ChatMessageInputProps) {
     const [sendState, setSendState] = useState(sendInitialState);
     const { toast } = useToast();
 
@@ -59,6 +61,7 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
     const [templateToSend, setTemplateToSend] = useState<WithId<Template> | null>(null);
     const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
     const [isWhatsAppPaymentOpen, setIsWhatsAppPaymentOpen] = useState(false);
+    const [isCatalogOpen, setIsCatalogOpen] = useState(false);
 
     useEffect(() => {
         getCannedMessages(contact.projectId.toString()).then(setCannedMessages);
@@ -176,6 +179,14 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
             onOpenChange={setIsWhatsAppPaymentOpen}
             contact={contact}
         />
+        {project.connectedCatalogId && (
+            <SendCatalogDialog
+                isOpen={isCatalogOpen}
+                onOpenChange={setIsCatalogOpen}
+                contact={contact}
+                project={project}
+            />
+        )}
         <div className="flex w-full items-center gap-2">
             <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
                  <PopoverAnchor asChild>
@@ -229,6 +240,7 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
                  <Button variant="ghost" size="icon" onClick={() => handleMediaClick('application/pdf')}><FileIcon className="h-4 w-4" /><span className="sr-only">Send Document</span></Button>
                  <Button variant="ghost" size="icon" onClick={() => setIsRazorpayOpen(true)}><IndianRupee className="h-4 w-4" /><span className="sr-only">Request Payment</span></Button>
                  <Button variant="ghost" size="icon" onClick={() => setIsWhatsAppPaymentOpen(true)}><WaPayIcon className="h-4 w-4" /><span className="sr-only">Request WhatsApp Payment</span></Button>
+                 {project.connectedCatalogId && <Button variant="ghost" size="icon" onClick={() => setIsCatalogOpen(true)}><ShoppingBag className="h-4 w-4" /><span className="sr-only">Send Catalog</span></Button>}
                 <Popover><PopoverTrigger asChild><Button variant="ghost" size="icon"><ClipboardList className="h-4 w-4" /><span className="sr-only">Send Template</span></Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
             </div>
             
@@ -241,7 +253,8 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
                             <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('image/*,video/*'); setAttachmentPopoverOpen(false); }}><ImageIcon className="mr-2 h-4 w-4" /> Media (Image/Video)</Button>
                              <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('application/pdf'); setAttachmentPopoverOpen(false); }}><FileIcon className="mr-2 h-4 w-4" /> Document</Button>
                              <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsRazorpayOpen(true); setAttachmentPopoverOpen(false); }}><IndianRupee className="mr-2 h-4 w-4" /> Razorpay Payment</Button>
-                              <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsWhatsAppPaymentOpen(true); setAttachmentPopoverOpen(false); }}><WaPayIcon className="mr-2 h-4 w-4" /> WhatsApp Pay</Button>
+                             <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsWhatsAppPaymentOpen(true); setAttachmentPopoverOpen(false); }}><WaPayIcon className="mr-2 h-4 w-4" /> WhatsApp Pay</Button>
+                             {project.connectedCatalogId && <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsCatalogOpen(true); setAttachmentPopoverOpen(false); }}><ShoppingBag className="mr-2 h-4 w-4" /> Send Catalog</Button>}
                              <Popover><PopoverTrigger asChild><Button variant="ghost" className="w-full justify-start"><ClipboardList className="mr-2 h-4 w-4" /> Template</Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
                         </div>
                     </PopoverContent>
