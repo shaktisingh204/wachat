@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -1103,16 +1104,18 @@ export type Project = {
 };
 
 export type Template = {
-  name: string;
-  category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION' | 'INTERACTIVE';
-  body: string;
-  language: string;
-  status: string;
-  components: any[];
-  metaId: string;
-  headerSampleUrl?: string;
-  qualityScore?: string;
-  type?: 'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL';
+    _id: ObjectId;
+    name: string;
+    category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION' | 'INTERACTIVE';
+    body: string;
+    language: string;
+    status: string;
+    components: any[];
+    metaId: string;
+    headerSampleUrl?: string;
+    qualityScore?: string;
+    type?: 'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL' | 'LIMITED_TIME_OFFER';
+    headerMediaDataUri?: string;
 };
 
 export type FlowNode = {
@@ -1736,7 +1739,7 @@ export type MetaPhoneNumbersResponse = {
 };
 
 export type MetaTemplateComponent = {
-    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS' | 'CAROUSEL';
+    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS' | 'CAROUSEL' | 'LIMITED_TIME_OFFER';
     text?: string;
     format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
     buttons?: any[];
@@ -1746,6 +1749,10 @@ export type MetaTemplateComponent = {
         header_text?: string[];
         body_text?: string[][];
         carousel_card_components?: any[];
+    };
+    coupon_code?: string;
+    expiration?: {
+      timestamp: number;
     }
 };
 

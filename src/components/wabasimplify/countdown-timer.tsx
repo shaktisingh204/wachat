@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,10 +9,10 @@ interface CountdownTimerProps {
 
 const TimeCard = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center">
-        <div className="text-4xl md:text-6xl font-bold text-yellow-300 bg-black/20 p-4 rounded-lg w-20 md:w-28 text-center">
+        <div className="text-xl font-bold text-white">
             {String(value).padStart(2, '0')}
         </div>
-        <div className="mt-2 text-sm md:text-base text-gray-300 uppercase tracking-widest">{label}</div>
+        <div className="mt-1 text-xs text-white/70 uppercase tracking-widest">{label}</div>
     </div>
 );
 
@@ -38,7 +39,6 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
 
   useEffect(() => {
     setIsClient(true);
-    // Set initial time on client mount to avoid hydration mismatch
     setTimeLeft(calculateTimeLeft());
 
     const timer = setInterval(() => {
@@ -46,15 +46,16 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
     }, 1000);
 
     return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetDate]);
 
   if (!isClient) {
       return (
-        <div className="grid grid-cols-4 gap-2 md:gap-8 max-w-2xl mx-auto mt-12 animate-pulse">
+        <div className="grid grid-cols-4 gap-2 md:gap-4 max-w-xs mx-auto py-2">
             {[...Array(4)].map((_, i) => (
                 <div key={i} className="flex flex-col items-center">
-                    <div className="w-20 md:w-28 h-20 md:h-28 bg-black/20 rounded-lg"></div>
-                    <div className="mt-2 h-4 w-12 bg-black/20 rounded-md"></div>
+                    <div className="w-12 h-8 bg-black/20 rounded-md"></div>
+                    <div className="mt-2 h-3 w-8 bg-black/20 rounded-md"></div>
                 </div>
             ))}
         </div>
@@ -64,19 +65,17 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
   const timerComponents: JSX.Element[] = [];
   Object.keys(timeLeft).forEach((interval) => {
     // @ts-ignore
-    if (!timeLeft[interval] && timeLeft[interval] !== 0) {
-      return;
+    if (timeLeft[interval] !== undefined) {
+        timerComponents.push(
+            // @ts-ignore
+            <TimeCard key={interval} value={timeLeft[interval]} label={interval} />
+        );
     }
-
-    timerComponents.push(
-        // @ts-ignore
-      <TimeCard key={interval} value={timeLeft[interval]} label={interval} />
-    );
   });
 
   return (
-    <div className="grid grid-cols-4 gap-2 md:gap-8 max-w-2xl mx-auto mt-12">
-      {timerComponents.length ? timerComponents : <span>Time's up!</span>}
+    <div className="grid grid-cols-4 gap-2 md:gap-4 max-w-xs mx-auto py-2">
+      {timerComponents.length ? timerComponents : <span className="col-span-4 text-center font-bold">Offer Expired!</span>}
     </div>
   );
 };
