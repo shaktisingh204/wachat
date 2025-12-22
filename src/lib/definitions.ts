@@ -1639,6 +1639,9 @@ export type IncomingMessage = {
     content: any;
     isRead: boolean;
     createdAt: Date;
+    context?: {
+      message_id: string;
+    }
 }
 
 export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>) & { reaction?: { emoji: string, message_id: string } };
