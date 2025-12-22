@@ -215,10 +215,12 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
     )
 }
 
-
 const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing: boolean }) => {
-    const { toast } = useToast();
-
+    // Reaction messages are handled separately as they are not message bubbles.
+    if (message.type === 'reaction') {
+        return null; 
+    }
+    
     // Outgoing template message
     if (isOutgoing && message.type === 'template') {
         return <TemplateMessageContent content={message.content.template} />;
@@ -239,7 +241,6 @@ const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing:
         return <ProductMessageContent catalogId={message.content.catalog_id} productRetailerId={message.content.product_retailer_id} />;
     }
     
-
     // Standard text message
     if (message.type === 'text' && message.content.text?.body) {
         return <p className="whitespace-pre-wrap">{message.content.text.body}</p>;
@@ -262,6 +263,11 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
     const [isTranslating, setIsTranslating] = useState(false);
     const { toast } = useToast();
 
+    // Do not render reaction messages as main bubbles.
+    if (message.type === 'reaction') {
+        return null;
+    }
+
     const onTranslate = async () => {
         let originalText = message.content.text?.body;
         if (!originalText && message.type === 'interactive') {
@@ -282,7 +288,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
     };
     
     return (
-        <div className={cn("flex items-end gap-2 group/message", isOutgoing ? "justify-end" : "justify-start")}>
+        <div className={cn("flex items-end gap-2 group/message relative", isOutgoing ? "justify-end" : "justify-start")}>
             {!isOutgoing && (
                 <Avatar className="h-8 w-8 self-end">
                     <AvatarFallback>{message.content?.profile?.name?.charAt(0) || 'U'}</AvatarFallback>
@@ -305,7 +311,6 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
                     </>
                 )}
 
-
                 {isOutgoing && message.status === 'failed' && (
                     <p className="text-xs mt-1 pt-1 border-t border-black/10 text-red-600 dark:text-red-400">
                         Failed: {message.error}
@@ -319,8 +324,11 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
                     {isOutgoing && <StatusTicks message={message as OutgoingMessage} />}
                 </div>
             </div>
+            {message.reaction && (
+                <div className="absolute -bottom-3 right-0 bg-background border rounded-full text-lg px-1.5 py-0.5 shadow-sm">
+                    {message.reaction.emoji}
+                </div>
+            )}
         </div>
     );
 });
-
-    

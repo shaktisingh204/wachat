@@ -1,3 +1,4 @@
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -1634,13 +1635,13 @@ export type IncomingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product' | 'reaction';
     content: any;
     isRead: boolean;
     createdAt: Date;
 }
 
-export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
+export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>) & { reaction?: { emoji: string, message_id: string } };
 
 export type LibraryTemplate = Omit<Template, 'metaId' | 'status' | 'qualityScore'> & {
     _id?: ObjectId;
@@ -1723,45 +1724,6 @@ export type MetaPhoneNumber = {
         level: string;
     };
     whatsapp_business_profile?: PhoneNumberProfile;
-};
-
-export type MetaPhoneNumbersResponse = {
-    data: MetaPhoneNumber[];
-    paging?: {
-        cursors: {
-            before: string;
-            after: string;
-        },
-        next?: string;
-    }
-};
-
-export type MetaTemplateComponent = {
-    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS' | 'CAROUSEL' | 'LIMITED_TIME_OFFER';
-    text?: string;
-    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
-    buttons?: any[];
-    cards?: any[];
-    example?: {
-        header_handle?: string[];
-        header_text?: string[];
-        body_text?: string[][];
-        carousel_card_components?: any[];
-    };
-    coupon_code?: string;
-    expiration?: {
-      timestamp: number;
-    }
-};
-
-export type MetaTemplate = {
-    id:string;
-    name: string;
-    language: string;
-    status: string;
-    category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
-    components: MetaTemplateComponent[];
-    quality_score?: { score: string };
 };
 
 export type MetaTemplatesResponse = {
