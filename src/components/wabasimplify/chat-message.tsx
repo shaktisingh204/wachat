@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { handleTranslateMessage } from '@/app/actions/ai-actions';
 import type { AnyMessage, OutgoingMessage } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle, RefreshCw, ShoppingBag } from 'lucide-react';
+import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle, RefreshCw, ShoppingBag, Video, PlayCircle, Music } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -88,9 +88,28 @@ function MediaContent({ message }: { message: AnyMessage }) {
         }
         return <div className="text-sm text-muted-foreground italic">[Image received - preview unavailable]</div>;
     }
+    
+    if (type === 'sticker') {
+         if (url) {
+            return (
+                <div className="relative w-32 h-32">
+                    <Image src={url} alt="Sticker" layout="fill" objectFit="contain" />
+                </div>
+            )
+         }
+         return <div className="text-sm text-muted-foreground italic">[Sticker received]</div>;
+    }
 
     if (type === 'video') {
-         return <div className="text-sm text-muted-foreground italic">[Video received]</div>;
+         if (url) {
+            return (
+                <div className="space-y-2">
+                    <video src={url} controls className="rounded-lg w-64 aspect-video bg-black" />
+                    {caption && <p className="text-sm">{caption}</p>}
+                </div>
+            );
+        }
+        return <div className="text-sm text-muted-foreground italic">[Video received]</div>;
     }
 
     if (type === 'document') {
@@ -110,11 +129,14 @@ function MediaContent({ message }: { message: AnyMessage }) {
     }
 
     if (type === 'audio') {
+         if (url) {
+            return (
+                <div className="w-64">
+                    <audio src={url} controls className="w-full" />
+                </div>
+            )
+         }
         return <div className="text-sm text-muted-foreground italic">[Audio message]</div>;
-    }
-
-    if (type === 'sticker') {
-        return <div className="text-sm text-muted-foreground italic">[Sticker]</div>;
     }
     
     return <div className="text-sm text-muted-foreground italic">[{type} message]</div>;
