@@ -143,8 +143,37 @@ function MediaContent({ message }: { message: AnyMessage }) {
 };
 
 const PaymentRequestContent = ({ message }: { message: OutgoingMessage }) => {
-    // ... same as before
-    return null;
+    const { toast } = useToast();
+    const [isChecking, startTransition] = useTransition();
+    const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+
+    const checkStatus = async () => {
+        startTransition(async () => {
+            const result = await getPaymentRequestStatus(message.projectId.toString(), message.content.payment_request.id);
+            if (result.error) {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            } else if (result.status) {
+                setPaymentStatus(result.status);
+            }
+        });
+    };
+
+    const statusToText = (status: string | null) => {
+        if (!status) return 'Check Status';
+        return status.replace(/_/g, ' ').toLowerCase();
+    };
+
+    return (
+        <div className="space-y-2 w-64">
+            <p className="font-semibold">Payment Request</p>
+            <p className="text-sm">Amount: ₹{message.content.payment_request.amount}</p>
+            <p className="text-xs text-muted-foreground">{message.content.payment_request.description}</p>
+            <Button size="sm" className="w-full mt-2" onClick={checkStatus} disabled={isChecking}>
+                {isChecking ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <RefreshCw className="h-4 w-4" />}
+                <span className="ml-2 capitalize">{statusToText(paymentStatus)}</span>
+            </Button>
+        </div>
+    );
 };
 
 const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageContent }) => {
@@ -155,7 +184,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
             return (
                 <div className="mt-2 space-y-1">
                     {action.buttons.map(button => (
-                        <div key={button.id} className="text-center text-primary font-medium bg-white/80 dark:bg-muted/50 py-1.5 rounded-md text-sm border">
+                        <div key={button.reply.id} className="text-center text-primary font-medium bg-white/80 dark:bg-muted/50 py-1.5 rounded-md text-sm border">
                             {button.reply.title}
                         </div>
                     ))}
@@ -169,6 +198,9 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
                     {action.button}
                 </div>
             );
+        }
+        if(action.catalog_id && action.product_retailer_id) {
+            return <ProductMessageContent catalogId={action.catalog_id} productRetailerId={action.product_retailer_id} isReply={true} />
         }
         return null;
     }
@@ -290,3 +322,5 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
         </div>
     );
 });
+
+    

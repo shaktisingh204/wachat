@@ -1,5 +1,3 @@
-
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
