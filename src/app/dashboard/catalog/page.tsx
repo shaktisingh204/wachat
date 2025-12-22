@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
@@ -180,12 +179,26 @@ export default function CatalogPage() {
                                 </ol>
                             </div>
                         </div>
-                         <div className="grid md:grid-cols-2 gap-6 items-center">
-                              {catalogStep2Image && (
+                        <div className="grid md:grid-cols-2 gap-6 items-center">
+                            {catalogStep2Image && (
                                 <Image src={catalogStep2Image.imageUrl} alt={catalogStep2Image.description} width={600} height={400} className="rounded-lg shadow-md md:order-last" data-ai-hint={catalogStep2Image.imageHint} />
                             )}
                             <div>
-                                <h3 className="font-semibold text-lg">Step 2: Add Your First Product (Mandatory Activation)</h3>
+                                <h3 className="font-semibold text-lg">Step 2: Assign Partner</h3>
+                                <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
+                                    <li>In Business Settings, go to **Data Sources &rarr; Catalogs**.</li>
+                                    <li>Select your newly created catalog.</li>
+                                    <li>Click on **Assign Partners**.</li>
+                                    <li>Assign "Turo" as a partner with "Full Access" permissions.</li>
+                                </ol>
+                            </div>
+                        </div>
+                         <div className="grid md:grid-cols-2 gap-6 items-center">
+                              {catalogStep2Image && (
+                                <Image src={catalogStep2Image.imageUrl} alt={catalogStep2Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep2Image.imageHint} />
+                            )}
+                            <div>
+                                <h3 className="font-semibold text-lg">Step 3: Add Your First Product (Mandatory Activation)</h3>
                                 <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
                                     <li>In your new catalog, go to the "Items" tab and click "Add Items".</li>
                                     <li>Choose the "Manual" option.</li>
@@ -199,7 +212,7 @@ export default function CatalogPage() {
                                 <Image src={catalogStep3Image.imageUrl} alt={catalogStep3Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep3Image.imageHint} />
                             )}
                             <div>
-                                <h3 className="font-semibold text-lg">Step 3: Assign to WABA</h3>
+                                <h3 className="font-semibold text-lg">Step 4: Assign to WABA</h3>
                                  <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
                                     <li>Navigate to <strong>WhatsApp Manager</strong> from your <Button variant="link" asChild className="p-0 h-auto"><a href="https://business.facebook.com/latest/home" target="_blank" rel="noopener noreferrer">Business Suite's "All tools" menu <ExternalLink className="inline-block ml-1 h-3 w-3"/></a></Button>.</li>
                                     <li>Go to <strong>Account tools</strong> &rarr; <strong>Catalog</strong>.</li>
@@ -209,7 +222,7 @@ export default function CatalogPage() {
                             </div>
                         </div>
                          <div className="text-center space-y-4 pt-8 border-t">
-                            <h3 className="font-semibold text-lg">Step 4: Sync Your Catalog</h3>
+                            <h3 className="font-semibold text-lg">Step 5: Sync Your Catalog</h3>
                             <p className="text-muted-foreground max-w-xl mx-auto">Once your catalog is created, has a product, and is connected to your WABA, return here and click the sync button to see it in your SabNode dashboard.</p>
                             <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
                         </div>
@@ -218,7 +231,7 @@ export default function CatalogPage() {
                                 <Image src={catalogStep6Image.imageUrl} alt={catalogStep6Image.description} width={600} height={400} className="rounded-lg shadow-md md:order-last" data-ai-hint={catalogStep6Image.imageHint} />
                             )}
                             <div>
-                                <h3 className="font-semibold text-lg">Step 5: Send Catalog Messages</h3>
+                                <h3 className="font-semibold text-lg">Step 6: Send Catalog Messages</h3>
                                  <p className="text-sm text-muted-foreground mt-2">After a successful sync, you can reference your products in interactive messages like Multi-Product and Single Product Messages. Use the "Product Catalog" template type to start.</p>
                             </div>
                         </div>
