@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import type { Contact, AnyMessage, Project, Template } from '@/lib/definitions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,9 +9,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';
 import { ChatMessageInput } from './chat-message-input';
 import { Button } from '../ui/button';
-import { ArrowLeft, Info, LoaderCircle, Check, Phone, Video } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { handleUpdateContactStatus } from '@/app/actions/index.ts';
+import { ArrowLeft, Info, LoaderCircle, Phone, Video } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useProject } from '@/context/project-context';
 
 interface ChatWindowProps {
     project: WithId<Project>;
@@ -37,25 +37,30 @@ export function ChatWindow({
     isInfoPanelOpen
 }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const { toast } = useToast();
-    const [isUpdatingStatus, startStatusUpdateTransition] = useTransition();
+    const { sessionUser } = useProject();
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
     }, [conversation]);
-    
-    const handleMarkResolved = () => {
-        startStatusUpdateTransition(async () => {
-            const result = await handleUpdateContactStatus(contact._id.toString(), 'resolved', contact.assignedAgentId || '');
-            if (result.success) {
-                toast({ title: 'Success', description: 'Conversation marked as resolved.' });
-                onContactUpdate({ ...contact, status: 'resolved' });
-            } else {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            }
-        });
-    };
 
+    const processedConversation = useMemo(() => {
+        const reactionsMap = new Map<string, AnyMessage['reaction']>();
+        const messagesWithoutReactions: AnyMessage[] = [];
+
+        for (const message of conversation) {
+            if (message.type === 'reaction' && message.content.reaction?.message_id) {
+                reactionsMap.set(message.content.reaction.message_id, message.content.reaction);
+            } else {
+                messagesWithoutReactions.push(message);
+            }
+        }
+        
+        return messagesWithoutReactions.map(message => {
+            const reaction = reactionsMap.get(message.wamid);
+            return reaction ? { ...message, reaction } : message;
+        });
+    }, [conversation]);
+    
     return (
         <div className="flex flex-col h-full bg-transparent">
             <div className="flex items-center justify-between gap-3 p-3 border-b bg-background h-[73px] flex-shrink-0">
@@ -88,7 +93,7 @@ export function ChatWindow({
                     </div>
                 ) : (
                     <div className="p-4 space-y-4">
-                        {conversation.map((msg) => (
+                        {processedConversation.map((msg) => (
                             <ChatMessage key={msg._id.toString()} message={msg} conversation={conversation} />
                         ))}
                         <div ref={messagesEndRef} />

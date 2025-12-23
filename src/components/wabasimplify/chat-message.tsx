@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import { handleTranslateMessage } from '@/app/actions/ai-actions';
 import type { AnyMessage, OutgoingMessage, InteractiveMessageContent } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
@@ -247,6 +246,8 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
         contentPreview = 'Video';
     } else if (message.type === 'sticker') {
         contentPreview = 'Sticker';
+    } else if (message.type === 'interactive' && message.content.interactive.button_reply) {
+        contentPreview = message.content.interactive.button_reply.title;
     }
     
     return (

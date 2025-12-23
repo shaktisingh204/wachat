@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -1155,7 +1154,6 @@ export type SabFlowEdge = {
   source: string;
   target: string;
   sourceHandle?: string;
-  targetHandle?: string;
 };
 
 export type SabFlow = {
@@ -1627,6 +1625,9 @@ export type OutgoingMessage = {
     };
     error?: string;
     createdAt: Date;
+    context?: {
+      message_id: string;
+    };
 }
 
 export type IncomingMessage = {
