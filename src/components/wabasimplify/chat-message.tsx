@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState } from 'react';
@@ -16,6 +17,7 @@ import { getPaymentRequestStatus } from '@/app/actions/whatsapp.actions';
 import { TemplateMessageContent } from './messages/template-message-content';
 import { ProductMessageContent } from './messages/product-message-content';
 import { OrderMessageContent } from './messages/order-message-content';
+import { ContactMessageContent } from './messages/contact-message-content';
 
 
 interface ChatMessageProps {
@@ -288,6 +290,11 @@ const MessageBody = ({ message, isOutgoing, conversation }: ChatMessageProps) =>
     if (!isOutgoing && message.type === 'product') {
         return <ProductMessageContent catalogId={message.content.catalog_id} productRetailerId={message.content.product_retailer_id} />;
     }
+
+    // Contact card message
+    if (message.type === 'contacts') {
+        return <ContactMessageContent contacts={message.content.contacts} />;
+    }
     
     // Standard text message
     if (message.type === 'text' && message.content.text?.body) {
@@ -324,7 +331,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
 
         if (message.type === 'text' && message.content.text?.body) {
             originalText = message.content.text.body;
-        } else if (message.type === 'interactive' && message.content.interactive?.button_reply) {
+        } else if (message.type === 'interactive' && message.content.interactive.button_reply) {
             originalText = message.content.interactive.button_reply.title;
         }
 
@@ -404,5 +411,3 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         </div>
     );
 });
-
-    
