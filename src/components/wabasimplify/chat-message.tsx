@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { handleTranslateMessage } from '@/app/actions/ai-actions';
 import type { AnyMessage, OutgoingMessage, InteractiveMessageContent } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle, RefreshCw, ShoppingBag, Video, PlayCircle, Music, List, Bot } from 'lucide-react';
+import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle, RefreshCw, ShoppingBag, Video, PlayCircle, Music, List, Bot, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -139,6 +139,20 @@ function MediaContent({ message }: { message: AnyMessage }) {
          }
         return <div className="text-sm text-muted-foreground italic">[Audio message]</div>;
     }
+
+    if (type === 'location') {
+        const { latitude, longitude, name, address } = media;
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+        return (
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background transition-colors max-w-xs">
+                <MapPin className="h-8 w-8 text-destructive flex-shrink-0" />
+                <div className="flex-1 overflow-hidden">
+                    <p className="font-semibold truncate">{name || 'Location'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{address || `${latitude}, ${longitude}`}</p>
+                </div>
+            </a>
+        );
+    }
     
     return <div className="text-sm text-muted-foreground italic">[{type} message]</div>;
 };
@@ -254,6 +268,14 @@ const MessageBody = ({ message, isOutgoing, conversation }: ChatMessageProps) =>
 
     // Incoming or Outgoing Interactive Message
     if (message.type === 'interactive') {
+        // This is a user's reply to an interactive message
+        if (message.content.interactive.button_reply) {
+            return <p className="whitespace-pre-wrap">{message.content.interactive.button_reply.title}</p>;
+        }
+        if (message.content.interactive.list_reply) {
+            return <p className="whitespace-pre-wrap">{message.content.interactive.list_reply.title}</p>;
+        }
+        // This is the interactive message itself
         return <InteractiveMessageDisplay content={message.content.interactive} />;
     }
     
@@ -298,9 +320,12 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
     const quotedMessage = repliedToId ? conversation.find(m => m.wamid === repliedToId) : null;
 
     const onTranslate = async () => {
-        let originalText = message.content.text?.body;
-        if (!originalText && message.type === 'interactive') {
-            originalText = message.content.interactive?.button_reply?.title;
+        let originalText: string | undefined;
+
+        if (message.type === 'text' && message.content.text?.body) {
+            originalText = message.content.text.body;
+        } else if (message.type === 'interactive' && message.content.interactive?.button_reply) {
+            originalText = message.content.interactive.button_reply.title;
         }
 
         if (!originalText) return;
@@ -316,6 +341,8 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         }
     };
     
+    const isTextBased = message.type === 'text' || (message.type === 'interactive' && message.content.interactive.button_reply);
+    
     return (
         <div className={cn("flex items-end gap-2 group/message relative", isOutgoing ? "justify-end" : "justify-start")}>
             {!isOutgoing && (
@@ -323,6 +350,17 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                     <AvatarFallback>{message.content?.profile?.name?.charAt(0) || 'U'}</AvatarFallback>
                 </Avatar>
             )}
+             <div className="absolute top-0 opacity-0 group-hover/message:opacity-100 transition-opacity"
+                 style={isOutgoing ? { right: '100%', marginRight: '0.5rem'} : { left: '100%', marginLeft: '0.5rem' }}
+             >
+                <div className="flex items-center bg-background border rounded-full shadow-sm p-0.5">
+                    {isTextBased && (
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onTranslate} disabled={isTranslating}>
+                            {isTranslating ? <LoaderCircle className="h-3 w-3 animate-spin"/> : <Languages className="h-3 w-3" />}
+                        </Button>
+                    )}
+                </div>
+            </div>
             <div
                 className={cn(
                     "max-w-[70%] rounded-lg p-2 px-3 text-sm flex flex-col shadow-sm",
@@ -366,3 +404,5 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         </div>
     );
 });
+
+    
