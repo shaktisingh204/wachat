@@ -71,8 +71,8 @@ Ignore all action files by default
 /src/app/actions/crm-hr.actions.ts
 /src/components/wabasimplify/meta-flow-editor/
 /src/components/wabasimplify/website-builder/
-!/src/app/actions/sabflow.actions.ts
-
+/src/app/actions/sabflow.actions.ts
+/src/lib/sabflow
 
 #for now only
 /src/lib/cron-scheduler.js
