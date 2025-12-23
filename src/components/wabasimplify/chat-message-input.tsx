@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -24,6 +23,7 @@ interface ChatMessageInputProps {
     project: WithId<Project>;
     contact: WithId<Contact>;
     templates: WithId<Template>[];
+    replyToMessageId?: string;
 }
 
 const sendInitialState = {
@@ -50,7 +50,7 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-export function ChatMessageInput({ project, contact, templates }: ChatMessageInputProps) {
+export function ChatMessageInput({ project, contact, templates, replyToMessageId }: ChatMessageInputProps) {
     const [sendState, setSendState] = useState(sendInitialState);
     const { toast } = useToast();
 
@@ -84,14 +84,19 @@ export function ChatMessageInput({ project, contact, templates }: ChatMessageInp
 
     const handleTextSend = () => {
         if (!inputValue.trim()) return;
-        handleFormSubmit({
+        const data: { [key: string]: any } = {
             contactId: contact._id.toString(),
             projectId: contact.projectId.toString(),
             phoneNumberId: contact.phoneNumberId,
             waId: contact.waId,
             messageText: inputValue,
-        });
+        };
+        if (replyToMessageId) {
+            data.replyToWamid = replyToMessageId;
+        }
+        handleFormSubmit(data);
     };
+
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];

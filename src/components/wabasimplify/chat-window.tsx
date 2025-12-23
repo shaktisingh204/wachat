@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';
 import { ChatMessageInput } from './chat-message-input';
 import { Button } from '../ui/button';
-import { ArrowLeft, Info, LoaderCircle, Phone, Video } from 'lucide-react';
+import { ArrowLeft, Info, LoaderCircle, Phone, Video, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 
@@ -38,6 +38,7 @@ export function ChatWindow({
 }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const { sessionUser } = useProject();
+    const [replyToMessage, setReplyToMessage] = useState<AnyMessage | null>(null);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
@@ -47,7 +48,6 @@ export function ChatWindow({
         const reactionsMap = new Map<string, AnyMessage['reaction']>();
         const messagesWithoutReactions: AnyMessage[] = [];
 
-        // First pass: map all reactions by the ID of the message they are reacting to
         for (const message of conversation) {
             if (message.type === 'reaction' && message.content.reaction?.message_id) {
                 reactionsMap.set(message.content.reaction.message_id, message.content.reaction);
@@ -56,14 +56,19 @@ export function ChatWindow({
             }
         }
         
-        // Second pass: attach reactions to their parent messages
         return messagesWithoutReactions.map(message => {
             const reaction = reactionsMap.get(message.wamid);
-            // Return a new object with the reaction attached if it exists
             return reaction ? { ...message, reaction } : message;
         });
     }, [conversation]);
     
+    const handleReply = (messageId: string) => {
+        const messageToReply = conversation.find(m => m.wamid === messageId);
+        if (messageToReply) {
+            setReplyToMessage(messageToReply);
+        }
+    };
+
     return (
         <div className="flex flex-col h-full bg-transparent">
             <div className="flex items-center justify-between gap-3 p-3 border-b bg-background h-[73px] flex-shrink-0">
@@ -97,16 +102,30 @@ export function ChatWindow({
                 ) : (
                     <div className="p-4 space-y-4">
                         {processedConversation.map((msg) => (
-                            <ChatMessage key={msg._id.toString()} message={msg} conversation={conversation} />
+                            <ChatMessage key={msg._id.toString()} message={msg} conversation={conversation} onReply={handleReply}/>
                         ))}
                         <div ref={messagesEndRef} />
                     </div>
                 )}
             </ScrollArea>
             
-            <div className="flex items-center p-3 border-t bg-background flex-shrink-0">
-                <ChatMessageInput project={project} contact={contact} templates={templates} />
-            </div>
-        </div>
-    );
-}
+            <div className="p-3 border-t bg-background flex-shrink-0">
+                 {replyToMessage && (
+                    <div className="p-2 mb-2 bg-muted rounded-md text-sm relative">
+                        <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => setReplyToMessage(null)}>
+                            <X className="h-4 w-4"/>
+                        </Button>
+                        <p className="font-semibold text-primary">
+                            Replying to {replyToMessage.direction === 'out' ? 'You' : replyToMessage.content.profile?.name || 'User'}
+                        </p>
+                        <p className="text-muted-foreground truncate">
+                            {replyToMessage.content.text?.body || 'Media or interactive message'}
+                        </p>
+                    </div>
+                )}
+                <ChatMessageInput 
+                    project={project} 
+                    contact={contact} 
+                    templates={templates} 
+                    replyToMessageId={replyToMessage?.wamid}
+                />
