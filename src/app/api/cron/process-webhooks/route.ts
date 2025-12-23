@@ -1,6 +1,4 @@
 
-'use server';
-
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId } from 'mongodb';
@@ -93,7 +91,13 @@ async function processWebhooks() {
         
         const promises = [];
         if (groups.statuses.length > 0) promises.push(processStatusUpdateBatch(db, groups.statuses));
-        if (groups.messages.length > 0) promises.push(processIncomingMessageBatch(db, project, groups.messages));
+        if (groups.messages.length > 0) {
+             for (const msgData of groups.messages) {
+                if (msgData.message && msgData.phoneNumberId) {
+                    promises.push(handleSingleMessageEvent(db, project, msgData.message, msgData.contactProfile, msgData.phoneNumberId));
+                }
+            }
+        }
         if (groups.comments.length > 0) promises.push(...groups.comments.map(c => processCommentWebhook(db, project, c)));
         if (groups.messengerEvents.length > 0) promises.push(...groups.messengerEvents.map(e => processMessengerWebhook(db, project, e)));
         if (groups.others.length > 0) promises.push(...groups.others.map(o => processSingleWebhook(db, project, o)));
@@ -107,6 +111,16 @@ async function processWebhooks() {
     await db.collection('webhook_logs').updateMany({ _id: { $in: processedIds } }, { $set: { processed: true, error: null } });
 
     return { message: `Successfully processed ${pendingWebhooks.length} webhook event(s).` };
+}
+
+async function processIncomingMessageBatch(db: Db, project: WithId<Project>, messages: any[]) {
+    const messagePromises = messages.map(msgData => {
+        if (msgData.message && msgData.phoneNumberId) {
+            return handleSingleMessageEvent(db, project, msgData.message, msgData.contactProfile, msgData.phoneNumberId);
+        }
+        return Promise.resolve();
+    });
+    return Promise.allSettled(messagePromises);
 }
 
 export async function GET(request: NextRequest) {
