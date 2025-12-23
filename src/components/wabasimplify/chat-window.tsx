@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useRef, useState, useMemo } from 'react';
@@ -129,3 +128,7 @@ export function ChatWindow({
                     templates={templates} 
                     replyToMessageId={replyToMessage?.wamid}
                 />
+            </div>
+        </div>
+    );
+}
