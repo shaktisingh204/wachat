@@ -47,6 +47,7 @@ export function ChatWindow({
         const reactionsMap = new Map<string, AnyMessage['reaction']>();
         const messagesWithoutReactions: AnyMessage[] = [];
 
+        // First pass: map all reactions by the ID of the message they are reacting to
         for (const message of conversation) {
             if (message.type === 'reaction' && message.content.reaction?.message_id) {
                 reactionsMap.set(message.content.reaction.message_id, message.content.reaction);
@@ -55,8 +56,10 @@ export function ChatWindow({
             }
         }
         
+        // Second pass: attach reactions to their parent messages
         return messagesWithoutReactions.map(message => {
             const reaction = reactionsMap.get(message.wamid);
+            // Return a new object with the reaction attached if it exists
             return reaction ? { ...message, reaction } : message;
         });
     }, [conversation]);
@@ -102,7 +105,7 @@ export function ChatWindow({
             </ScrollArea>
             
             <div className="flex items-center p-3 border-t bg-background flex-shrink-0">
-                <ChatMessageInput contact={contact} templates={templates} />
+                <ChatMessageInput project={project} contact={contact} templates={templates} />
             </div>
         </div>
     );
