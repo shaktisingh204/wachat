@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
             payload,
             searchableText,
             projectId,
-            processed: true, // Assume processed unless an error occurs below
+            processed: false, // Assume processed unless an error occurs below
             createdAt: new Date(),
         }).catch(err => console.error(`${LOG_PREFIX} Failed to insert webhook log:`, err));
     });
