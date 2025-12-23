@@ -61,6 +61,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'lookaside.fbsbx.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'static5.lenskart.com',
         port: '',
         pathname: '/**',
