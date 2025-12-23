@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { FileText, Link as LinkIcon, Phone, Video, Image as ImageIcon, File, Ticket, Calendar, Gift, ShoppingCart, View } from "lucide-react";
@@ -10,7 +11,8 @@ import CountdownTimer from "../countdown-timer";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function TemplateMessageContent({ content }: { content: any }) {
-    const { name, components = [] } = content || {};
+    const { name, original_components, sent_components } = content || {};
+    const components = original_components || content.components || [];
 
     const header = components.find((c: any) => c.type === 'HEADER');
     const body = components.find((c: any) => c.type === 'BODY');
@@ -19,6 +21,11 @@ export function TemplateMessageContent({ content }: { content: any }) {
     const buttons = buttonsComp?.buttons || [];
     const carouselComp = components.find((c: any) => c.type === 'CAROUSEL');
     const ltoComp = components.find((c: any) => c.type === 'LIMITED_TIME_OFFER');
+    
+    // Find the parameters that were actually sent from the payload
+    const sentHeader = sent_components?.find((c:any) => c.type === 'header');
+    const sentBody = sent_components?.find((c:any) => c.type === 'body');
+    const sentButtons = sent_components?.filter((c:any) => c.type === 'button') || [];
 
     const renderTextWithVariables = (text?: string, params?: { type: string, text: string }[]) => {
         if (!text) return null;
@@ -34,29 +41,36 @@ export function TemplateMessageContent({ content }: { content: any }) {
         return replacedText;
     };
     
-    const bodyTextWithParams = body ? renderTextWithVariables(body.text, body.parameters) : '';
+    const bodyTextWithParams = body ? renderTextWithVariables(body.text, sentBody?.parameters) : '';
 
     const renderHeader = () => {
         if (!header) return null;
         if (header.format === 'TEXT') {
-             return <h3 className="font-bold text-lg mb-2">{renderTextWithVariables(header.text, header.parameters)}</h3>;
+             return <h3 className="font-bold text-lg mb-2">{renderTextWithVariables(header.text, sentHeader?.parameters)}</h3>;
         }
-        if (header.format === 'IMAGE') {
-             const imageUrl = header.parameters?.[0]?.image?.link;
-            return imageUrl ? (
+        
+        const mediaParam = sentHeader?.parameters?.[0];
+        let mediaUrl = '';
+        if (mediaParam?.image?.link) mediaUrl = mediaParam.image.link;
+        else if (mediaParam?.video?.link) mediaUrl = mediaParam.video.link;
+        else if (mediaParam?.document?.link) mediaUrl = mediaParam.document.link;
+        
+        if (header.format === 'IMAGE' && mediaUrl) {
+            return (
                 <div className="relative aspect-video w-full bg-muted rounded-t-lg overflow-hidden">
-                    <Image src={imageUrl} alt="Template Header" layout="fill" objectFit="cover" />
+                    <Image src={mediaUrl} alt="Template Header" layout="fill" objectFit="cover" />
                 </div>
-            ) : (<div className="aspect-video bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-400"><ImageIcon className="h-10 w-10"/></div>);
+            );
         }
-        if (header.format === 'VIDEO') {
-            const videoUrl = header.parameters?.[0]?.video?.link;
-            return videoUrl ? (
-                <video src={videoUrl} controls className="w-full rounded-t-lg" />
-            ) : (<div className="aspect-video bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-400"><Video className="h-10 w-10"/></div>);
+        if (header.format === 'VIDEO' && mediaUrl) {
+            return <video src={mediaUrl} controls className="w-full rounded-t-lg" />;
         }
-        if (header.format === 'DOCUMENT') {
-            return <div className="p-4 bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-400"><File className="h-10 w-10"/></div>;
+        if (header.format === 'DOCUMENT' && mediaUrl) {
+            return (
+                <a href={mediaUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-500">
+                    <File className="h-10 w-10"/>
+                </a>
+            );
         }
         return null;
     }
@@ -123,6 +137,15 @@ export function TemplateMessageContent({ content }: { content: any }) {
                             if (button.type === 'PHONE_NUMBER') return <Phone className="h-4 w-4 mr-2" />;
                             return null;
                         }
+                        
+                        let finalUrl = button.url;
+                        if (button.type === 'URL' && sentButtons.length > 0) {
+                            const sentButton = sentButtons.find(b => b.index === index.toString());
+                            if (sentButton?.parameters?.[0]?.text) {
+                                finalUrl = button.url.replace('{{1}}', sentButton.parameters[0].text);
+                            }
+                        }
+
                         return (
                              <div key={index} className="text-center bg-white/80 dark:bg-muted/50 rounded-md py-1.5 text-sm font-medium text-blue-500 border flex items-center justify-center">
                                 {getButtonIcon()}
@@ -135,5 +158,3 @@ export function TemplateMessageContent({ content }: { content: any }) {
         </div>
     );
 }
-
-    
