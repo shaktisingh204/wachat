@@ -21,7 +21,7 @@ async function processWebhooks() {
     console.log(`${LOG_PREFIX} Starting webhook processing cron.`);
     
     const pendingWebhooks = await db.collection<WithId<WebhookLog>>('webhook_logs').find({
-        processed: { $ne: true }
+        processed: { $ne: false }
     }).limit(BATCH_SIZE).toArray();
 
     if (pendingWebhooks.length === 0) {
