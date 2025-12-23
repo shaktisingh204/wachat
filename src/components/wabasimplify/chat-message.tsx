@@ -259,11 +259,6 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
 }
 
 const MessageBody = ({ message, isOutgoing, conversation }: ChatMessageProps) => {
-    // Reaction messages are handled separately as they are not message bubbles.
-    if (message.type === 'reaction') {
-        return null; 
-    }
-    
     // Outgoing template message
     if (isOutgoing && message.type === 'template') {
         return <TemplateMessageContent content={message.content.template} />;

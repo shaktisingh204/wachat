@@ -1,5 +1,4 @@
 
-
 /** @type {import('next').NextConfig} */
 const webpack = require('webpack');
 
@@ -63,6 +62,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'lookaside.fbsbx.com',
+        port: '',
+        pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'lookaside.whatsapp.com',
         port: '',
         pathname: '/**',
       },
