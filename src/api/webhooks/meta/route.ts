@@ -3,8 +3,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { Db, Filter, ObjectId } from 'mongodb';
-import type { Project } from '@/lib/definitions';
+import type { Db, Filter, ObjectId, InsertOneResult } from 'mongodb';
+import type { Project, WebhookLog } from '@/lib/definitions';
 import { 
     processSingleWebhook, 
     handleSingleMessageEvent,
@@ -125,6 +125,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   const { db } = await connectToDatabase();
+  let logResult: InsertOneResult<Document> | null = null;
 
   try {
     const payloadText = await request.text();
@@ -133,22 +134,22 @@ export async function POST(request: NextRequest) {
     }
     const payload = JSON.parse(payloadText);
     
-    // Asynchronously log the webhook without waiting for it to complete
-    findProjectIdFromWebhook(db, payload).then(projectId => {
-        const searchableText = getSearchableText(payload);
-        db.collection('webhook_logs').insertOne({
-            payload,
-            searchableText,
-            projectId,
-            processed: true, // Assume processed unless an error occurs below
-            createdAt: new Date(),
-        }).catch(err => console.error(`${LOG_PREFIX} Failed to insert webhook log:`, err));
+    // Log the event as UNPROCESSED first. This is the crucial change.
+    const projectId = await findProjectIdFromWebhook(db, payload);
+    const searchableText = getSearchableText(payload);
+    
+    logResult = await db.collection<WebhookLog>('webhook_logs').insertOne({
+        payload,
+        searchableText,
+        projectId,
+        processed: false, // <-- THIS IS THE FIX: Default to false
+        createdAt: new Date(),
     });
 
     // Main processing logic
     if (payload.object === 'whatsapp_business_account' && payload.entry) {
         for (const entry of payload.entry) {
-            const projectId = await findProjectIdFromWebhook(db, { entry: [entry] });
+            // Project should already be found from logging step, but re-verify
             if (!projectId) continue;
             
             const project = await db.collection<Project>('projects').findOne({ _id: projectId });
@@ -180,7 +181,6 @@ export async function POST(request: NextRequest) {
         }
     } else if (payload.object === 'page' && payload.entry) {
         for (const entry of payload.entry) {
-             const projectId = await findProjectIdFromWebhook(db, { entry: [entry] });
              if (!projectId) continue;
 
              const project = await db.collection<Project>('projects').findOne({ _id: projectId });
@@ -201,6 +201,14 @@ export async function POST(request: NextRequest) {
         }
     }
     
+    // If we've reached here without errors, mark the log as processed.
+    if (logResult?.insertedId) {
+        await db.collection('webhook_logs').updateOne(
+            { _id: logResult.insertedId },
+            { $set: { processed: true } }
+        );
+    }
+
     // Immediately return a success response to Meta.
     return NextResponse.json({ status: 'received' }, { status: 200 });
 
@@ -210,6 +218,7 @@ export async function POST(request: NextRequest) {
     }
     console.error(`${LOG_PREFIX} Fatal error in webhook ingestion:`, error);
     // Don't throw an error back to Meta, just log it.
-    return NextResponse.json({ status: 'error' }, { status: 200 });
+    // The log entry will remain `processed: false` and be picked up by the cron job.
+    return NextResponse.json({ status: 'error_processing' }, { status: 200 });
   }
 }

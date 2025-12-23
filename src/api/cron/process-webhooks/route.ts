@@ -20,8 +20,8 @@ async function processWebhooks() {
     const { db } = await connectToDatabase();
     console.log(`${LOG_PREFIX} Starting webhook processing cron.`);
     
-    const pendingWebhooks = await db.collection('webhook_logs').find({
-        processed: { $ne: true }
+    const pendingWebhooks = await db.collection<WithId<WebhookLog>>('webhook_logs').find({
+        processed: { $ne: true } // Now correctly looks for unprocessed logs
     }).limit(BATCH_SIZE).toArray();
 
     if (pendingWebhooks.length === 0) {
