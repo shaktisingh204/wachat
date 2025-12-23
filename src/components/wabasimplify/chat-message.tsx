@@ -248,6 +248,8 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
         contentPreview = 'Sticker';
     } else if (message.type === 'interactive' && message.content.interactive.button_reply) {
         contentPreview = message.content.interactive.button_reply.title;
+    } else if (message.type === 'button' && message.content.button?.text) {
+        contentPreview = message.content.button.text;
     }
     
     return (
@@ -296,6 +298,11 @@ const MessageBody = ({ message, isOutgoing, conversation }: ChatMessageProps) =>
     if (message.type === 'text' && message.content.text?.body) {
         return <p className="whitespace-pre-wrap">{message.content.text.body}</p>;
     }
+    
+    // Legacy button click message
+    if (message.type === 'button' && message.content.button?.text) {
+        return <p className="whitespace-pre-wrap">{message.content.button.text}</p>;
+    }
 
     if (message.type === 'payment_request') {
         return <PaymentRequestContent message={message as OutgoingMessage} />;
@@ -319,7 +326,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         return null;
     }
 
-    const repliedToId = message.content?.context?.message_id;
+    const repliedToId = message.content?.context?.id;
     const quotedMessage = repliedToId ? conversation.find(m => m.wamid === repliedToId) : null;
 
     const onTranslate = async () => {
@@ -329,6 +336,8 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
             originalText = message.content.text.body;
         } else if (message.type === 'interactive' && message.content.interactive.button_reply) {
             originalText = message.content.interactive.button_reply.title;
+        } else if (message.type === 'button' && message.content.button?.text) {
+            originalText = message.content.button.text;
         }
 
         if (!originalText) return;
@@ -344,7 +353,9 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         }
     };
     
-    const isTextBased = message.type === 'text' || (message.type === 'interactive' && message.content.interactive.button_reply);
+    const isTextBased = message.type === 'text' || 
+                        (message.type === 'interactive' && message.content.interactive.button_reply) ||
+                        (message.type === 'button' && message.content.button?.text);
     
     return (
         <div className={cn("flex items-end gap-2 group/message relative", isOutgoing ? "justify-end" : "justify-start")}>
@@ -407,3 +418,5 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         </div>
     );
 });
+
+    
