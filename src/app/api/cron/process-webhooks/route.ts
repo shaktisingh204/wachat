@@ -1,11 +1,13 @@
 
+'use server';
+
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId } from 'mongodb';
 import type { Project, WithId, WebhookLog } from '@/lib/definitions';
 import { 
     processSingleWebhook, 
-    processIncomingMessageBatch,
+    handleSingleMessageEvent,
     processStatusUpdateBatch,
     processCommentWebhook,
     processMessengerWebhook
@@ -18,45 +20,34 @@ export const dynamic = 'force-dynamic';
 async function processWebhooks() {
     const { db } = await connectToDatabase();
     
-    const pendingWebhookIds = await db.collection('webhook_queue').find({
-        status: 'PENDING'
-    }).project({ _id: 1 }).limit(BATCH_SIZE).toArray();
+    const pendingWebhooks = await db.collection<WithId<WebhookLog>>('webhook_logs').find({
+        processed: false
+    }).limit(BATCH_SIZE).toArray();
 
-    if (pendingWebhookIds.length === 0) {
+    if (pendingWebhooks.length === 0) {
         return { message: 'No pending webhooks to process.' };
     }
     
-    const idsToProcess = pendingWebhookIds.map(w => w._id);
-
-    // Atomically mark them as processing to prevent other workers from picking them up
-    const updateResult = await db.collection('webhook_queue').updateMany(
-        { _id: { $in: idsToProcess }, status: 'PENDING' },
-        { $set: { status: 'PROCESSING' } }
-    );
-
-    const pendingWebhooks = await db.collection('webhook_queue').find({
-        _id: { $in: idsToProcess }
-    }).toArray();
-
     // Group webhooks by project and then by type
-    const groupedByProject: { [projectId: string]: { statuses: any[], messages: any[], comments: any[], messengerEvents: any[], others: any[] } } = {};
+    const groupedByProject: { [projectId: string]: { logs: WithId<WebhookLog>[], statuses: any[], messages: any[], comments: any[], messengerEvents: any[], others: any[] } } = {};
 
-    for (const webhook of pendingWebhooks) {
-        const projectId = webhook.projectId?.toString();
+    for (const log of pendingWebhooks) {
+        const projectId = log.projectId?.toString();
         if (!projectId) {
-            // Handle webhooks with no project ID (e.g., log and mark as failed)
-             await db.collection('webhook_queue').updateOne({ _id: webhook._id }, { $set: { status: 'FAILED', error: 'No project ID associated' } });
+            await db.collection('webhook_logs').updateOne({ _id: log._id }, { $set: { processed: true, error: 'No project ID associated' } });
             continue;
         }
 
         if (!groupedByProject[projectId]) {
-            groupedByProject[projectId] = { statuses: [], messages: [], comments: [], messengerEvents: [], others: [] };
+            groupedByProject[projectId] = { logs: [], statuses: [], messages: [], comments: [], messengerEvents: [], others: [] };
         }
         
-        const entry = webhook.payload.entry?.[0];
+        groupedByProject[projectId].logs.push(log);
+        const payload = log.payload;
+        const entry = payload.entry?.[0];
         if (!entry) continue;
 
-        if (webhook.payload.object === 'whatsapp_business_account' && entry.changes) {
+        if (payload.object === 'whatsapp_business_account' && entry.changes) {
             for (const change of entry.changes) {
                 const value = change.value;
                 if (!value) continue;
@@ -71,10 +62,10 @@ async function processWebhooks() {
                         });
                     }
                 } else {
-                    groupedByProject[projectId].others.push(webhook.payload);
+                    groupedByProject[projectId].others.push(payload);
                 }
             }
-        } else if (webhook.payload.object === 'page') {
+        } else if (payload.object === 'page') {
              if (entry.messaging) {
                 groupedByProject[projectId].messengerEvents.push(...entry.messaging);
             }
@@ -94,7 +85,11 @@ async function processWebhooks() {
 
     const processingPromises = Object.entries(groupedByProject).map(async ([projectId, groups]) => {
         const project = projectsMap.get(projectId);
-        if (!project) return;
+        if (!project) {
+            const logIdsToFail = groups.logs.map(log => log._id);
+            await db.collection('webhook_logs').updateMany({ _id: { $in: logIdsToFail } }, { $set: { processed: true, error: 'Project not found.' }});
+            return;
+        };
         
         const promises = [];
         if (groups.statuses.length > 0) promises.push(processStatusUpdateBatch(db, groups.statuses));
@@ -108,14 +103,11 @@ async function processWebhooks() {
     
     await Promise.allSettled(processingPromises);
     
-    // Mark processed webhooks
     const processedIds = pendingWebhooks.map(w => w._id);
-    await db.collection('webhook_queue').updateMany({ _id: { $in: processedIds } }, { $set: { status: 'PROCESSED', processedAt: new Date() } });
     await db.collection('webhook_logs').updateMany({ _id: { $in: processedIds } }, { $set: { processed: true, error: null } });
 
     return { message: `Successfully processed ${pendingWebhooks.length} webhook event(s).` };
 }
-
 
 export async function GET(request: NextRequest) {
     try {

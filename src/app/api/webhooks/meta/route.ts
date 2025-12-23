@@ -3,15 +3,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { Db, Filter, ObjectId } from 'mongodb';
+import type { Db, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
-import { 
-    processSingleWebhook, 
-    handleSingleMessageEvent,
-    processStatusUpdateBatch,
-    processCommentWebhook,
-    processMessengerWebhook
-} from '@/lib/webhook-processor';
 
 const LOG_PREFIX = '[META WEBHOOK]';
 
@@ -20,11 +13,11 @@ const getSearchableText = (payload: any): string => {
     try {
         if (payload.object === 'whatsapp_business_account' && payload.entry) {
             for (const entry of payload.entry) {
-                text += ` ${entry.id}`; // WABA ID or 0
+                text += ` ${entry.id}`;
                 if (entry.changes) {
                     for (const change of entry.changes) {
                         const field = change.field;
-                        text += ` ${field}`; // The type of change
+                        text += ` ${field}`;
                         const value = change.value;
                         if (!value) continue;
 
@@ -70,14 +63,11 @@ async function findProjectIdFromWebhook(db: Db, payload: any): Promise<ObjectId 
         if (!entry) return null;
 
         if (payload.object === 'whatsapp_business_account') {
-            // Find by phone number ID first, it's the most specific
             const phoneId = entry.changes?.[0]?.value?.metadata?.phone_number_id;
             if (phoneId) {
                 const project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': phoneId }, { projection: { _id: 1 } });
                 if (project) return project._id;
             }
-            
-            // Fallback to WABA ID
             const wabaId = entry.id;
             if (wabaId && wabaId !== '0') {
                 const project = await db.collection<Project>('projects').findOne({ wabaId: wabaId }, { projection: { _id: 1 } });
@@ -99,30 +89,21 @@ async function findProjectIdFromWebhook(db: Db, payload: any): Promise<ObjectId 
     }
 }
 
-
-/**
- * Handles webhook verification requests from Meta.
- */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const mode = searchParams.get('hub.mode');
   const token = searchParams.get('hub.verify_token');
   const challenge = searchParams.get('hub.challenge');
 
-  // Verify the token from environment variables
   if (mode === 'subscribe' && token === process.env.META_VERIFY_TOKEN) {
     console.log(`${LOG_PREFIX} Webhook verified successfully!`);
     return new NextResponse(challenge, { status: 200 });
   } else {
-    console.error(`${LOG_PREFIX} Webhook verification failed. Provided token: ${token} | Expected token: ${process.env.META_VERIFY_TOKEN}`);
+    console.error(`${LOG_PREFIX} Webhook verification failed.`);
     return new NextResponse('Forbidden', { status: 403 });
   }
 }
 
-/**
- * Handles incoming webhook event notifications from Meta.
- * It now processes events directly for lower latency.
- */
 export async function POST(request: NextRequest) {
   const { db } = await connectToDatabase();
 
@@ -140,68 +121,11 @@ export async function POST(request: NextRequest) {
             payload,
             searchableText,
             projectId,
-            processed: false, // Assume processed unless an error occurs below
+            processed: false,
             createdAt: new Date(),
         }).catch(err => console.error(`${LOG_PREFIX} Failed to insert webhook log:`, err));
     });
-
-    // Main processing logic
-    if (payload.object === 'whatsapp_business_account' && payload.entry) {
-        for (const entry of payload.entry) {
-            const projectId = await findProjectIdFromWebhook(db, { entry: [entry] });
-            if (!projectId) continue;
-            
-            const project = await db.collection<Project>('projects').findOne({ _id: projectId });
-            if (!project) continue;
-
-            const change = entry.changes?.[0];
-            if (!change) continue;
-            
-            const value = change.value;
-            const field = change.field;
-
-            if (field === 'messages' && value) {
-                if(value.statuses) {
-                    await processStatusUpdateBatch(db, value.statuses);
-                }
-                if(value.messages) {
-                    // Although it's an array, we process one by one for flow logic
-                    for (const message of value.messages) {
-                        const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
-                        const phoneNumberId = value.metadata?.phone_number_id;
-                        if (phoneNumberId) {
-                           await handleSingleMessageEvent(db, project, message, contactProfile, phoneNumberId);
-                        }
-                    }
-                }
-            } else {
-                await processSingleWebhook(db, project, { entry: [entry] });
-            }
-        }
-    } else if (payload.object === 'page' && payload.entry) {
-        for (const entry of payload.entry) {
-             const projectId = await findProjectIdFromWebhook(db, { entry: [entry] });
-             if (!projectId) continue;
-
-             const project = await db.collection<Project>('projects').findOne({ _id: projectId });
-             if (!project) continue;
-            
-            if (entry.messaging) {
-                for (const event of entry.messaging) {
-                    await processMessengerWebhook(db, project, event);
-                }
-            }
-            if (entry.changes) {
-                for (const change of entry.changes) {
-                    if (change.field === 'feed' && change.value.item === 'comment') {
-                        await processCommentWebhook(db, project, change.value);
-                    }
-                }
-            }
-        }
-    }
     
-    // Immediately return a success response to Meta.
     return NextResponse.json({ status: 'received' }, { status: 200 });
 
   } catch (error: any) {
@@ -209,7 +133,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "ignored_invalid_json" }, { status: 200 });
     }
     console.error(`${LOG_PREFIX} Fatal error in webhook ingestion:`, error);
-    // Don't throw an error back to Meta, just log it.
     return NextResponse.json({ status: 'error' }, { status: 200 });
   }
 }
