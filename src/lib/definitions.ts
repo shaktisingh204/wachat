@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -1616,7 +1617,7 @@ export type OutgoingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template' | 'payment_request' | 'order' | 'product';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template' | 'payment_request' | 'order' | 'product' | 'contacts' | 'location';
     content: any;
     status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
     statusTimestamps: {
@@ -1635,7 +1636,7 @@ export type IncomingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product' | 'reaction';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product' | 'reaction' | 'contacts' | 'location';
     content: any;
     isRead: boolean;
     createdAt: Date;
