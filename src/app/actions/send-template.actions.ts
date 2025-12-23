@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -154,9 +155,19 @@ export async function handleSendTemplateMessage(
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
         const now = new Date();
+        
+        // Correctly include the original template components and the resolved payload components
+        const finalTemplatePayloadForDb = {
+            ...payload.template,
+            // Store the original components structure for reference
+            original_components: template.components,
+            // Store the components with resolved variables that were actually sent
+            sent_components: payload.template.components
+        };
+        
         await db.collection('outgoing_messages').insertOne({
             direction: 'out', contactId: contact._id, projectId: hasAccess._id, wamid, messageTimestamp: now, type: 'template',
-            content: { template: payload.template }, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+            content: { template: finalTemplatePayloadForDb }, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         } as OutgoingMessage);
         
         const lastMessage = `[Template]: ${template.name}`;
@@ -168,5 +179,3 @@ export async function handleSendTemplateMessage(
         return { error: getErrorMessage(e) || 'An unexpected error occurred while sending the template.' };
     }
 }
-
-    
