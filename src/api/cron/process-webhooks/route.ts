@@ -2,10 +2,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId } from 'mongodb';
-import type { Project, WithId } from '@/lib/definitions';
+import type { Project, WithId, WebhookLog } from '@/lib/definitions';
 import { 
     processSingleWebhook, 
-    handleSingleMessageEvent,
+    processIncomingMessageBatch,
     processStatusUpdateBatch,
     processCommentWebhook,
     processMessengerWebhook

@@ -1615,7 +1615,7 @@ export type OutgoingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template' | 'payment_request' | 'order' | 'product' | 'contacts' | 'location';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template' | 'payment_request' | 'order' | 'product' | 'contacts' | 'location' | 'sticker';
     content: any;
     status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
     statusTimestamps: {
@@ -1637,12 +1637,13 @@ export type IncomingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product' | 'reaction' | 'contacts' | 'location';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product' | 'reaction' | 'contacts' | 'location' | 'button';
     content: any;
     isRead: boolean;
     createdAt: Date;
     context?: {
-      message_id: string;
+      from: string;
+      id: string;
     }
 }
 
