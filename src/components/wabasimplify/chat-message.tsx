@@ -356,11 +356,13 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                 </div>
             </div>
             {message.reaction && (
-                <div className="absolute -bottom-3 right-0 bg-background border rounded-full text-lg px-1.5 py-0.5 shadow-sm">
+                <div className={cn(
+                    "absolute -bottom-3 bg-background border rounded-full text-lg px-1.5 py-0.5 shadow-sm",
+                    isOutgoing ? 'right-0' : 'left-8'
+                )}>
                     {message.reaction.emoji}
                 </div>
             )}
         </div>
     );
 });
-
