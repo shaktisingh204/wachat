@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import {
   Dialog,
   DialogContent,
@@ -15,18 +16,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, Link, Settings } from 'lucide-react';
+import { handleUpdateDataEndpoint } from '@/app/actions/whatsapp-pay.actions';
 import { useToast } from '@/hooks/use-toast';
-import { handleUpdateDataEndpoint } from '@/app/actions/whatsapp.actions';
 import type { WithId, Project, PaymentConfiguration } from '@/lib/definitions';
+import { ScrollArea } from '../ui/scroll-area';
 
 const initialState = { message: null, error: undefined };
 
 function SubmitButton() {
-  const [isPending, startTransition] = useTransition();
-
+  const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={isPending}>
-      {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Link className="mr-2 h-4 w-4" />}
+    <Button type="submit" disabled={pending}>
+      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Link className="mr-2 h-4 w-4" />}
       Update Endpoint
     </Button>
   );
@@ -40,17 +41,9 @@ interface UpdateDataEndpointDialogProps {
 
 export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateDataEndpointDialogProps) {
   const [open, setOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const [state, setState] = useState<any>(initialState);
+  const [state, formAction] = useActionState(handleUpdateDataEndpoint, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-
-  const action = (formData: FormData) => {
-    startTransition(async () => {
-        const result = await handleUpdateDataEndpoint(null, formData);
-        setState(result);
-    });
-  };
 
   useEffect(() => {
     if (state.message) {
@@ -61,7 +54,7 @@ export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateD
     if (state.error) {
       toast({ title: 'Error Updating Endpoint', description: state.error, variant: 'destructive' });
     }
-  }, [state, toast, onSuccess]);
+  }, [state, toast, onSuccess, setOpen]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -72,7 +65,7 @@ export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateD
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <form action={action} ref={formRef}>
+        <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input type="hidden" name="configurationName" value={config.configuration_name} />
           <DialogHeader>
@@ -89,10 +82,7 @@ export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateD
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={isPending}>
-                {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Link className="mr-2 h-4 w-4" />}
-                Update Endpoint
-            </Button>
+            <SubmitButton />
           </DialogFooter>
         </form>
       </DialogContent>

@@ -103,3 +103,42 @@ export async function handleCreatePaymentConfiguration(prevState: any, formData:
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function handleUpdateDataEndpoint(prevState: any, formData: FormData) {
+    const projectId = formData.get('projectId') as string;
+    const configName = formData.get('configurationName') as string;
+    const dataEndpointUrl = formData.get('dataEndpointUrl') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project) return { error: "Project not found or access denied." };
+
+    const { wabaId, accessToken } = project;
+    if (!wabaId || !accessToken) return { error: "Project is not fully configured for Meta API access." };
+
+    if (!dataEndpointUrl) {
+        return { error: 'Data Endpoint URL is required.' };
+    }
+
+    try {
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${wabaId}/payment_configuration/${configName}`, 
+        {
+            data_endpoint_url: dataEndpointUrl,
+        },
+        {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response: { data: response.data } }));
+        }
+
+        revalidatePath('/dashboard/whatsapp-pay/settings');
+        return { message: "Data endpoint updated successfully." };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
