@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -80,58 +79,57 @@ export default function CallLogsPage() {
     }
 
     return (
-        <div className="flex flex-col gap-8">
-             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold font-headline">Call Logs</h1>
-                <Button variant="outline" onClick={() => fetchData()} disabled={isLoading}>
-                    {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                    Refresh
-                </Button>
-            </div>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Recent Calls</CardTitle>
-                    <CardDescription>A log of all inbound and outbound calls.</CardDescription>
-                </CardHeader>
-                 <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead></TableHead>
-                                    <TableHead>From</TableHead>
-                                    <TableHead>To</TableHead>
-                                    <TableHead>Duration</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Time</TableHead>
-                                    <TableHead>Call SID</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {logs.length > 0 ? (
-                                    logs.map(log => (
-                                        <TableRow key={log._id}>
-                                            <TableCell><DirectionIcon direction={log.direction}/></TableCell>
-                                            <TableCell className="font-mono text-xs">{log.from}</TableCell>
-                                            <TableCell className="font-mono text-xs">{log.to}</TableCell>
-                                            <TableCell>{log.duration}s</TableCell>
-                                            <TableCell><StatusBadge status={log.status} /></TableCell>
-                                            <TableCell>{formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}</TableCell>
-                                            <TableCell className="font-mono text-xs">{log.callSid}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={7} className="text-center h-24">
-                                            No call logs found for this project.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+        <Card>
+            <CardHeader>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Recent Calls</CardTitle>
+                        <CardDescription>A log of all inbound and outbound calls.</CardDescription>
                     </div>
-                </CardContent>
-            </Card>
-        </div>
+                    <Button variant="outline" onClick={() => fetchData()} disabled={isLoading}>
+                        {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                        Refresh
+                    </Button>
+                </div>
+            </CardHeader>
+             <CardContent>
+                <div className="border rounded-md">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead></TableHead>
+                                <TableHead>From</TableHead>
+                                <TableHead>To</TableHead>
+                                <TableHead>Duration</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Time</TableHead>
+                                <TableHead>Call SID</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {logs.length > 0 ? (
+                                logs.map(log => (
+                                    <TableRow key={log._id}>
+                                        <TableCell><DirectionIcon direction={log.direction}/></TableCell>
+                                        <TableCell className="font-mono text-xs">{log.from}</TableCell>
+                                        <TableCell className="font-mono text-xs">{log.to}</TableCell>
+                                        <TableCell>{log.duration}s</TableCell>
+                                        <TableCell><StatusBadge status={log.status} /></TableCell>
+                                        <TableCell>{formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}</TableCell>
+                                        <TableCell className="font-mono text-xs">{log.callSid}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={7} className="text-center h-24">
+                                        No call logs found for this project.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+        </Card>
     );
 }

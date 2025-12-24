@@ -4,7 +4,7 @@
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import type { WithId } from 'mongodb';
 import { getProjectById } from '@/app/actions/index.ts';
-import { getApiLogsForProject } from '@/app/actions/calling.actions';
+import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
 import type { Project, PhoneNumber } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -83,12 +83,12 @@ export default function CallingSettingsPage() {
 
     const fetchData = useCallback((pid: string) => {
         startLoadingTransition(async () => {
-            const [projectData, logsData] = await Promise.all([
+            const [projectData] = await Promise.all([
                 getProjectById(pid),
-                getApiLogsForProject(pid)
+                // getApiLogsForProject(pid) // This action does not exist, so it's commented out
             ]);
             setProject(projectData);
-            setApiLogs(logsData);
+            // setApiLogs(logsData);
             if (projectData?.phoneNumbers && projectData.phoneNumbers.length > 0 && !selectedPhone) {
                 setSelectedPhone(projectData.phoneNumbers[0]);
             }
