@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Db, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
+import { handleCallWebhook } from '@/lib/call-webhook-processor';
 
 const LOG_PREFIX = '[META WEBHOOK]';
 
@@ -115,15 +116,33 @@ export async function POST(request: NextRequest) {
     const payload = JSON.parse(payloadText);
     
     // Asynchronously log the webhook without waiting for it to complete
-    findProjectIdFromWebhook(db, payload).then(projectId => {
-        const searchableText = getSearchableText(payload);
-        db.collection('webhook_logs').insertOne({
-            payload,
-            searchableText,
-            projectId,
-            processed: false,
-            createdAt: new Date(),
-        }).catch(err => console.error(`${LOG_PREFIX} Failed to insert webhook log:`, err));
+    findProjectIdFromWebhook(db, payload).then(async (projectId) => {
+        if (!projectId) {
+            console.warn(`${LOG_PREFIX} Could not find project for webhook payload.`);
+            return;
+        }
+
+        const project = await db.collection('projects').findOne({ _id: projectId });
+        if (!project) {
+            console.warn(`${LOG_PREFIX} Project ${projectId} not found for webhook processing.`);
+            return;
+        }
+
+        const change = payload.entry?.[0]?.changes?.[0];
+        if (change?.field === 'calls') {
+            // Route to the dedicated call processor
+            await handleCallWebhook(db, project, change.value);
+        } else {
+            // Existing logic to queue other webhooks
+            const searchableText = getSearchableText(payload);
+            db.collection('webhook_logs').insertOne({
+                payload,
+                searchableText,
+                projectId,
+                processed: false,
+                createdAt: new Date(),
+            }).catch(err => console.error(`${LOG_PREFIX} Failed to insert webhook log:`, err));
+        }
     });
     
     return NextResponse.json({ status: 'received' }, { status: 200 });
@@ -136,3 +155,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: 'error' }, { status: 200 });
   }
 }
+
+    
