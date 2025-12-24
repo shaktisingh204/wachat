@@ -6,7 +6,7 @@ import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, PlusCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components";
@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { PaymentConfiguration, Project } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
 
 function PageSkeleton() {
     return (
@@ -39,6 +40,7 @@ export default function WhatsAppPaySetupPage() {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, startLoading] = useTransition();
     const { toast } = useToast();
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
 
     const fetchData = (showToast = false) => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -92,6 +94,8 @@ export default function WhatsAppPaySetupPage() {
     }
     
     return (
+        <>
+        <CreatePaymentConfigDialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} onSuccess={fetchData} />
         <div className="space-y-6">
             <Card>
                 <CardHeader>
@@ -122,10 +126,16 @@ export default function WhatsAppPaySetupPage() {
                         <CardTitle>Your Payment Configurations</CardTitle>
                         <CardDescription>A list of payment providers linked to your WABA.</CardDescription>
                     </div>
-                    <Button onClick={() => fetchData(true)} variant="outline" size="sm" disabled={isLoading}>
-                        {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <RefreshCw className="mr-2 h-4 w-4"/>}
-                        Refresh
-                    </Button>
+                     <div className="flex items-center gap-2">
+                        <Button onClick={() => fetchData(true)} variant="outline" size="sm" disabled={isLoading}>
+                            {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <RefreshCw className="mr-2 h-4 w-4"/>}
+                            Refresh
+                        </Button>
+                        <Button onClick={() => setIsCreateOpen(true)} size="sm">
+                            <PlusCircle className="mr-2 h-4 w-4"/>
+                            Create Configuration
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {error ? (
@@ -158,5 +168,6 @@ export default function WhatsAppPaySetupPage() {
                 </CardContent>
             </Card>
         </div>
+        </>
     );
 }

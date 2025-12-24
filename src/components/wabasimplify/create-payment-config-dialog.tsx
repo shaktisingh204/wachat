@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LoaderCircle, FileUp } from 'lucide-react';
-import { handleCreatePaymentConfiguration } from '@/app/actions/whatsapp.actions';
+import { handleCreatePaymentConfiguration } from '@/app/actions/whatsapp-pay.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import Link from 'next/link';
@@ -47,12 +47,10 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
   const [providerType, setProviderType] = useState('gateway');
 
   useEffect(() => {
-    if (state.message) {
+    if (state.message && !state.oauth_url) {
       toast({ title: 'Success!', description: state.message });
-      if (!state.oauth_url) {
-        onSuccess();
-        onOpenChange(false);
-      }
+      onSuccess();
+      onOpenChange(false);
     }
     if (state.error) {
       toast({ title: 'Error Creating Configuration', description: state.error, variant: 'destructive' });
@@ -63,7 +61,6 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
       if(!open) {
           formRef.current?.reset();
           setProviderType('gateway');
-          // Reset the action state if needed.
       }
       onOpenChange(open);
   }
@@ -98,7 +95,7 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-            <input type="hidden" name="projectId" value={localStorage.getItem('activeProjectId') || ''} />
+            <input type="hidden" name="projectId" value={typeof window !== 'undefined' ? localStorage.getItem('activeProjectId') || '' : ''} />
           <DialogHeader>
             <DialogTitle>Create Payment Configuration</DialogTitle>
             <DialogDescription>
@@ -112,21 +109,19 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
                 <Input id="configuration_name" name="configuration_name" placeholder="e.g., my-razorpay-setup" required />
               </div>
                <div className="space-y-2">
-                <Label htmlFor="provider_type">Provider Type</Label>
-                <Select onValueChange={setProviderType} defaultValue="gateway">
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Label htmlFor="provider_name">Provider</Label>
+                <Select name="provider_name" onValueChange={setProviderType} defaultValue="gateway" required>
+                  <SelectTrigger><SelectValue placeholder="Select provider type..."/></SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="gateway">Payment Gateway</SelectItem>
+                      <SelectItem value="razorpay">Razorpay</SelectItem>
+                      <SelectItem value="payu">PayU</SelectItem>
+                      <SelectItem value="zaakpay">Zaakpay</SelectItem>
                       <SelectItem value="upi_vpa">UPI VPA</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              {providerType === 'gateway' ? (
+              {providerType !== 'upi_vpa' ? (
                   <>
-                      <div className="space-y-2">
-                        <Label htmlFor="provider_name">Provider Name</Label>
-                        <Input id="provider_name" name="provider_name" placeholder="razorpay" required />
-                      </div>
                       <div className="space-y-2">
                           <Label htmlFor="redirect_url">Redirect URL</Label>
                           <Input id="redirect_url" name="redirect_url" type="url" placeholder="https://your-site.com/payment/callback" required />
@@ -134,7 +129,6 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
                   </>
               ) : (
                   <>
-                       <input type="hidden" name="provider_name" value="upi_vpa" />
                        <div className="space-y-2">
                           <Label htmlFor="merchant_vpa">Merchant VPA</Label>
                           <Input id="merchant_vpa" name="merchant_vpa" placeholder="your-business@okhdfcbank" required />
