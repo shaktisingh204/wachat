@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
 import { RegenerateOauthDialog } from '@/components/wabasimplify/regenerate-oauth-dialog';
 import { UpdateDataEndpointDialog } from '@/components/wabasimplify/update-data-endpoint-dialog';
+import { DeletePaymentConfigButton } from '@/components/wabasimplify/delete-payment-config-button';
 
 
 function PageSkeleton() {
@@ -160,11 +161,12 @@ export default function WhatsAppPaySetupPage() {
                                         <InfoRow label="Status" value={<Badge variant={getStatusVariant(config.status)}>{config.status}</Badge>} />
                                         <InfoRow label="Provider MID" value={<span className="font-mono text-xs">{config.provider_mid}</span>} />
                                     </CardContent>
-                                    <CardFooter className="flex justify-end gap-2">
+                                    <CardFooter className="flex-wrap justify-end gap-2">
                                         <UpdateDataEndpointDialog project={project} config={config} onSuccess={fetchData} />
                                         {config.status === 'Needs_Connecting' && (
                                             <RegenerateOauthDialog project={project} config={config} onSuccess={fetchData} />
                                         )}
+                                         <DeletePaymentConfigButton projectId={project._id.toString()} configName={config.configuration_name} onSuccess={fetchData} />
                                     </CardFooter>
                                 </Card>
                             ))}
