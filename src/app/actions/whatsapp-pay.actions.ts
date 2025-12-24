@@ -5,7 +5,9 @@ import { getProjectById } from '@/app/actions/project.actions';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
 import { revalidatePath } from 'next/cache';
-import type { PaymentConfiguration } from '@/lib/definitions';
+import type { PaymentConfiguration, Project } from '@/lib/definitions';
+import { connectToDatabase } from '@/lib/mongodb';
+import type { WithId } from 'mongodb';
 
 const API_VERSION = 'v24.0';
 
@@ -218,4 +220,27 @@ export async function handleDeletePaymentConfiguration(projectId: string, config
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
   }
+}
+
+export async function handlePaymentConfigurationUpdate(project: WithId<Project>, updateValue: any) {
+    const { db } = await connectToDatabase();
+    
+    // Find the specific configuration in the array and update it, or add it if it doesn't exist.
+    const currentConfigs = project.paymentConfiguration || [];
+    const configIndex = currentConfigs.findIndex(c => c.configuration_name === updateValue.configuration_name);
+
+    if (configIndex > -1) {
+        // Update existing config
+        currentConfigs[configIndex] = updateValue;
+    } else {
+        // Add new config
+        currentConfigs.push(updateValue);
+    }
+    
+    await db.collection('projects').updateOne(
+        { _id: project._id },
+        { $set: { paymentConfiguration: currentConfigs, updatedAt: new Date() } }
+    );
+    
+    revalidatePath('/dashboard/whatsapp-pay/settings');
 }
