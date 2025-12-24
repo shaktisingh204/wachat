@@ -6,7 +6,7 @@ import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, PlusCircle, Settings } from 'lucide-react';
+import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, PlusCircle, Settings, Link as LinkIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components";
@@ -67,7 +67,7 @@ export default function WhatsAppPaySetupPage() {
     
     useEffect(() => {
         fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const commerceManagerUrl = `https://business.facebook.com/commerce/`;

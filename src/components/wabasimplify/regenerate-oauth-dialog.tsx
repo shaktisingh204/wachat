@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, Link as LinkIcon } from 'lucide-react';
-import { handleRegenerateOauthLink } from '@/app/actions/whatsapp.actions';
+import { handleRegenerateOauthLink } from '@/app/actions/whatsapp-pay.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, Project, PaymentConfiguration } from '@/lib/definitions';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
@@ -36,9 +36,10 @@ function SubmitButton() {
 interface RegenerateOauthDialogProps {
   project: WithId<Project>;
   config: PaymentConfiguration;
+  onSuccess: () => void;
 }
 
-export function RegenerateOauthDialog({ project, config }: RegenerateOauthDialogProps) {
+export function RegenerateOauthDialog({ project, config, onSuccess }: RegenerateOauthDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(handleRegenerateOauthLink, initialState);
   const { toast } = useToast();
@@ -47,16 +48,21 @@ export function RegenerateOauthDialog({ project, config }: RegenerateOauthDialog
   useEffect(() => {
     if (state.message && !state.oauth_url) {
       toast({ title: 'Success!', description: state.message });
+      onSuccess();
       setOpen(false);
     }
     if (state.error) {
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
-  }, [state, toast]);
+  }, [state, toast, onSuccess, setOpen]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       formRef.current?.reset();
+      // Reset state if dialog is closed without completing the flow
+      if (state.oauth_url) {
+          window.location.reload(); // Force a refresh to show correct state
+      }
     }
     setOpen(isOpen);
   };
