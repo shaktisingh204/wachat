@@ -8,5 +8,5 @@
 console.log("cron-scheduler.ts is loaded, but is deprecated.");
 
 export async function processBroadcastJob() {
-    return { message: "This function is deprecated." };
+    return { message: "This function is deprecated. ok" };
 }
