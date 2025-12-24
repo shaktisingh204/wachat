@@ -749,14 +749,14 @@ export type BusinessCapabilities = {
 
 export type PaymentConfiguration = {
     configuration_name: string;
-    provider_name: string;
-    status: string;
+    merchant_category_code: { code: string, description: string };
+    purpose_code: { code: string, description: string };
+    status: 'Active' | 'Needs_Connecting' | 'Needs_Testing';
+    provider_mid?: string;
+    provider_name?: 'razorpay' | 'payu' | 'zaakpay' | 'upi_vpa';
+    merchant_vpa?: string;
     created_timestamp: number;
     updated_timestamp: number;
-    provider_mid?: string;
-    merchant_vpa?: string;
-    merchant_category_code?: { code: string; description: string; };
-    purpose_code?: { code: string; description: string; };
 };
 
 export type PhoneNumberProfile = {

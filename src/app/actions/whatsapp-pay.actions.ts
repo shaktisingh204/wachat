@@ -54,3 +54,52 @@ export async function getPaymentConfigurationByName(projectId: string, configNam
         return { error: getErrorMessage(e) };
     }
 }
+
+
+export async function handleCreatePaymentConfiguration(prevState: any, formData: FormData) {
+    const projectId = formData.get('projectId') as string;
+    const project = await getProjectById(projectId);
+    if (!project) return { error: "Project not found or access denied." };
+
+    const { wabaId, accessToken } = project;
+    if (!wabaId || !accessToken) return { error: "Project is not fully configured for Meta API access." };
+
+    const providerName = formData.get('provider_name') as string;
+    
+    const payload: any = {
+        configuration_name: formData.get('configuration_name'),
+        purpose_code: formData.get('purpose_code'),
+        merchant_category_code: formData.get('merchant_category_code'),
+        provider_name: providerName,
+    };
+    
+    if(providerName === 'upi_vpa') {
+        payload.merchant_vpa = formData.get('merchant_vpa');
+    } else {
+        payload.redirect_url = formData.get('redirect_url');
+    }
+
+    try {
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${wabaId}/payment_configurations`, payload, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response: { data: response.data } }));
+        }
+
+        revalidatePath('/dashboard/whatsapp-pay/settings');
+        
+        if(response.data.oauth_url) {
+            return { message: "Configuration created. Please complete the provider onboarding.", oauth_url: response.data.oauth_url };
+        }
+
+        return { message: "UPI VPA configuration created successfully.", oauth_url: null };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
