@@ -6,15 +6,18 @@ import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, PlusCircle } from 'lucide-react';
+import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, PlusCircle, Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components";
 import { useToast } from '@/hooks/use-toast';
-import type { PaymentConfiguration, Project } from '@/lib/definitions';
+import type { PaymentConfiguration, Project, WithId } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
+import { RegenerateOauthDialog } from '@/components/wabasimplify/regenerate-oauth-dialog';
+import { UpdateDataEndpointDialog } from '@/components/wabasimplify/update-data-endpoint-dialog';
+
 
 function PageSkeleton() {
     return (
@@ -86,9 +89,7 @@ export default function WhatsAppPaySetupPage() {
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>
-                    Please select a project to manage its payment settings.
-                </AlertDescription>
+                <AlertDescription>Please select a project to manage its payment settings.</AlertDescription>
             </Alert>
         );
     }
@@ -155,10 +156,16 @@ export default function WhatsAppPaySetupPage() {
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <InfoRow label="Provider" value={config.provider_name} />
+                                        <InfoRow label="Provider" value={<span className="capitalize">{config.provider_name}</span>} />
                                         <InfoRow label="Status" value={<Badge variant={getStatusVariant(config.status)}>{config.status}</Badge>} />
                                         <InfoRow label="Provider MID" value={<span className="font-mono text-xs">{config.provider_mid}</span>} />
                                     </CardContent>
+                                    <CardFooter className="flex justify-end gap-2">
+                                        <UpdateDataEndpointDialog project={project} config={config} onSuccess={fetchData} />
+                                        {config.status === 'Needs_Connecting' && (
+                                            <RegenerateOauthDialog project={project} config={config} onSuccess={fetchData} />
+                                        )}
+                                    </CardFooter>
                                 </Card>
                             ))}
                         </div>
