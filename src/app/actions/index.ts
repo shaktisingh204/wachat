@@ -5,13 +5,11 @@
 // This file can be used for global actions if needed in the future.
 
 // For backwards compatibility, re-exporting from the new locations
-export * from '../../lib/actions/user.actions.ts'
 export * from './user.actions';
 export * from './project.actions';
 export * from './whatsapp.actions';
 export * from './broadcast.actions';
 export * from './webhook.actions';
-export * from './billing.actions';
 export * from './contact.actions';
 export * from './api-keys.actions';
 export * from './url-shortener.actions';
