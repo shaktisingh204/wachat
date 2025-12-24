@@ -2,169 +2,146 @@
 
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { type WithId, ObjectId } from 'mongodb';
+import type { WithId, Project, PhoneNumber, CallingSettings, WeeklyOperatingHours, HolidaySchedule } from '@/lib/definitions';
+import { getProjectById } from '.';
 import axios from 'axios';
-import { getProjectById } from '@/app/actions/user.actions';
-import type { Project, PhoneNumber, CallingSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-import { connectToDatabase } from '@/lib/mongodb';
+import { revalidatePath } from 'next/cache';
+import { ObjectId } from 'mongodb';
 
-const API_VERSION = 'v23.0';
 
-export async function getApiLogsForProject(projectId: string): Promise<any[]> {
-    if (!projectId) return [];
-
+export async function getPhoneNumberCallingSettings(projectId: string, phoneNumberId: string): Promise<{ settings?: CallingSettings, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { error: 'Project not found or access denied.' };
+    }
+    
     try {
-        const { db } = await connectToDatabase();
-        const logs = await db.collection('api_logs')
-            .find({ projectId: new ObjectId(projectId), endpoint: { $regex: /settings/ } })
-            .sort({ createdAt: -1 })
-            .limit(10)
-            .toArray();
-        return JSON.parse(JSON.stringify(logs));
-    } catch (e) {
-        console.error("Failed to fetch API logs:", e);
-        return [];
-    }
-}
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${phoneNumberId}`, {
+            params: {
+                fields: 'calling_settings',
+                access_token: project.accessToken
+            }
+        });
 
-
-export async function getPhoneNumberCallingSettings(
-  projectId: string,
-  phoneNumberId: string
-): Promise<{ settings?: CallingSettings; error?: string }> {
-  const project = await getProjectById(projectId);
-  if (!project || !project.accessToken) {
-    return { error: 'Project not found or access token missing.' };
-  }
-
-  try {
-    const response = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}?fields=calling_settings`,
-      {
-        params: {
-          access_token: project.accessToken,
-        },
-      }
-    );
-
-    const data = response.data;
-    if (data.error) {
-       // This error means the field has never been set, which is not a failure case.
-       if (data.error.code === 100 && data.error.error_subcode === 33) {
-        return { settings: undefined };
-      }
-      throw new Error(getErrorMessage({ response }));
-    }
-    
-    // The settings are nested under a 'calling_settings' key
-    return { settings: data.calling_settings };
-
-  } catch (e: any) {
-    const errorMessage = getErrorMessage(e);
-     if (errorMessage.includes('(#100) Tried accessing nonexisting field (calling_settings)')) {
-        return { settings: undefined };
-    }
-    console.error("Failed to get call settings:", errorMessage);
-    return { error: errorMessage };
-  }
-}
-
-export async function savePhoneNumberCallingSettings(
-  prevState: any,
-  formData: FormData
-): Promise<{ success: boolean; error?: string }> {
-  const projectId = formData.get('projectId') as string;
-  const phoneNumberId = formData.get('phoneNumberId') as string;
-  
-  if (!projectId || !phoneNumberId) {
-    return { success: false, error: 'Project and Phone Number IDs are required.' };
-  }
-
-  const project = await getProjectById(projectId);
-  if (!project) {
-    return { success: false, error: 'Project not found or access denied.' };
-  }
-  
-  let settingsPayload: any = { calling: {} };
-  let db;
-
-  try {
-    const { db: connectedDb } = await connectToDatabase();
-    db = connectedDb;
-
-    settingsPayload.calling.status = formData.get('status');
-    settingsPayload.calling.call_icon_visibility = formData.get('call_icon_visibility');
-    settingsPayload.calling.callback_permission_status = formData.get('callback_permission_status');
-    
-    const callHoursStatus = formData.get('call_hours_status') as 'ENABLED' | 'DISABLED';
-    
-    settingsPayload.calling.call_hours = {
-        status: callHoursStatus,
-        timezone_id: formData.get('timezone_id') as string || 'UTC', // Ensure timezone is always present
-        weekly_operating_hours: callHoursStatus === 'ENABLED' ? JSON.parse(formData.get('weekly_operating_hours') as string || '[]') : [],
-        holiday_schedule: callHoursStatus === 'ENABLED' ? JSON.parse(formData.get('holiday_schedule') as string || '[]') : [],
-    };
-    
-    if(formData.get('sip_status') === 'ENABLED' && formData.get('sip_hostname')) {
-        const sipParamsString = formData.get('sip_params') as string;
-        let sipParams = {};
-        try {
-            if(sipParamsString) sipParams = JSON.parse(sipParamsString);
-        } catch(e) {
-            return { success: false, error: 'SIP URI Params is not valid JSON.' };
+        if (response.data.error) {
+            return { error: response.data.error.message };
         }
 
-        settingsPayload.calling.sip = {
-            status: 'ENABLED',
-            servers: [{
-                hostname: formData.get('sip_hostname'),
-                port: Number(formData.get('sip_port')),
-                request_uri_user_params: sipParams
-            }]
-        };
-    } else {
-        settingsPayload.calling.sip = { status: 'DISABLED', servers: [] };
-    }
+        return { settings: response.data.calling_settings };
 
-
-    const response = await axios.post(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
-      settingsPayload,
-      { headers: { Authorization: `Bearer ${project.accessToken}` } }
-    );
-    
-    if (response.data.error) throw new Error(getErrorMessage({ response }));
-    
-    await db.collection('api_logs').insertOne({
-        projectId: new ObjectId(projectId),
-        endpoint: `/v23.0/${phoneNumberId}/settings`,
-        method: 'POST',
-        payload: settingsPayload,
-        response: response.data,
-        status: 'SUCCESS',
-        createdAt: new Date()
-    });
-    
-    revalidatePath(`/dashboard/calls/settings`);
-    return { success: true };
-    
-  } catch (e: any) {
-    const errorMessage = getErrorMessage(e);
-    console.error('Failed to update calling settings:', errorMessage);
-     if (db) {
-        await db.collection('api_logs').insertOne({
-            projectId: new ObjectId(projectId),
-            endpoint: `/v23.0/${phoneNumberId}/settings`,
-            method: 'POST',
-            payload: settingsPayload,
-            status: 'FAILURE',
-            errorMessage: errorMessage,
-            createdAt: new Date()
-        });
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
     }
-    revalidatePath('/dashboard/calls/settings');
-    return { success: false, error: errorMessage };
-  }
 }
+
+
+export async function savePhoneNumberCallingSettings(prevState: any, formData: FormData) {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { success: false, error: 'Project not found.' };
+    }
+
+    try {
+        const weeklyHours = JSON.parse(formData.get('weekly_operating_hours') as string || '[]');
+        const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
+
+        const payload = {
+            messaging_product: 'whatsapp',
+            calling_settings: {
+                status: formData.get('status'),
+                call_icon_visibility: formData.get('call_icon_visibility'),
+                callback_permission_status: formData.get('callback_permission_status'),
+                call_hours: {
+                    status: formData.get('call_hours_status'),
+                    timezone_id: formData.get('timezone_id'),
+                    weekly_operating_hours: weeklyHours,
+                    holiday_schedule: holidaySchedule,
+                },
+                sip: {
+                    status: formData.get('sip_status'),
+                    servers: [
+                        {
+                            hostname: formData.get('sip_hostname'),
+                            port: formData.get('sip_port') ? Number(formData.get('sip_port')) : undefined,
+                            request_uri_user_params: formData.get('sip_params') ? JSON.parse(formData.get('sip_params') as string) : undefined
+                        }
+                    ]
+                }
+            }
+        };
+
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}`, payload, {
+            headers: {
+                'Authorization': `Bearer ${project.accessToken}`
+            }
+        });
+
+        if (response.data.error) {
+            throw new Error(response.data.error.message);
+        }
+
+        revalidatePath('/dashboard/calls/settings');
+        return { success: true };
+
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+export async function getCallLogs(projectId: string): Promise<any[]> {
+    // In a real application, you would fetch this from your database.
+    // For now, we return mock data.
+    console.log(`[Mock] Fetching call logs for project: ${projectId}`);
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+
+    const mockLogs = [
+        {
+            _id: new ObjectId(),
+            callSid: 'CA1234567890abcdef1234567890ab',
+            direction: 'inbound',
+            from: '+15551234567',
+            to: '+15557654321',
+            duration: 125,
+            status: 'completed',
+            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+        },
+        {
+            _id: new ObjectId(),
+            callSid: 'CAfedcba0987654321fedcba098765',
+            direction: 'outbound-api',
+            from: '+15557654321',
+            to: '+15559876543',
+            duration: 0,
+            status: 'no-answer',
+            timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+        },
+        {
+            _id: new ObjectId(),
+            callSid: 'CAab12cd34ef56ab78cd90ef12ab34',
+            direction: 'outbound-dial',
+            from: '+15557654321',
+            to: '+15551112222',
+            duration: 340,
+            status: 'completed',
+            timestamp: new Date(Date.now() - 26 * 60 * 60 * 1000), // 26 hours ago
+        },
+        {
+            _id: new ObjectId(),
+            callSid: 'CAfe12dc34ba56fe78ba90dc12fe34',
+            direction: 'inbound',
+            from: '+15553334444',
+            to: '+15557654321',
+            duration: 0,
+            status: 'failed',
+            timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000), // 2 days ago
+        },
+    ];
+
+    return JSON.parse(JSON.stringify(mockLogs));
+}
+
