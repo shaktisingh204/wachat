@@ -2,6 +2,22 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type CrmCallLog = {
+    _id: ObjectId;
+    callId: string;
+    projectId: ObjectId;
+    phoneNumberId: string;
+    from: string;
+    to: string;
+    direction: 'USER_INITIATED' | 'OUTBOUND_API';
+    status: 'CONNECT' | 'DISCONNECT' | 'MISSED' | 'COMPLETED' | 'FAILED';
+    duration?: number; // in seconds
+    startedAt: Date;
+    endedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 export type SabChatFaqItem = {
     _id: ObjectId;
     question: string;
@@ -802,9 +818,12 @@ export type SIPSettings = {
 export type CallingSettings = {
     status: 'ENABLED' | 'DISABLED';
     call_icon_visibility: 'DEFAULT' | 'HIDDEN' | 'SHOW';
-    call_hours: CallHours;
+    call_icons?: {
+        restrict_to_user_countries?: string[];
+    };
+    call_hours?: CallHours;
     callback_permission_status: 'ENABLED' | 'DISABLED';
-    sip: SIPSettings;
+    sip?: SIPSettings;
 };
 
 export type PhoneNumber = {
@@ -818,6 +837,7 @@ export type PhoneNumber = {
         level: string;
     };
     profile?: PhoneNumberProfile;
+    callingSettings?: CallingSettings;
     userId?: string; // Corrected: This should be here, not on the contact
 };
 
@@ -2302,3 +2322,5 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
+
+    

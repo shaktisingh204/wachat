@@ -9,26 +9,25 @@ import { PhoneCall, PhoneForwarded, PhoneOutgoing, ArrowDown, ArrowUp, X, Check,
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { getCallLogs } from "@/app/actions/calling.actions";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { useProject } from "@/context/project-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
 
-const DirectionIcon = ({ direction }: { direction: string }) => {
-    if (direction.includes('inbound')) return <ArrowDown className="h-4 w-4 text-green-500"/>;
+const DirectionIcon = ({ direction }: { direction?: string }) => {
+    if (direction?.includes('USER_INITIATED')) return <ArrowDown className="h-4 w-4 text-green-500"/>;
     return <ArrowUp className="h-4 w-4 text-blue-500"/>;
 }
 
-const StatusBadge = ({ status }: { status: string }) => {
+const StatusBadge = ({ status }: { status?: string }) => {
+    if (!status) return <Badge variant="outline"><Clock className="mr-2 h-3 w-3"/>Unknown</Badge>;
     let variant: "default" | "secondary" | "destructive" | "outline" = "outline";
     let Icon = Clock;
-    switch(status) {
-        case 'completed': variant = 'default'; Icon = Check; break;
-        case 'no-answer': variant = 'secondary'; Icon = X; break;
-        case 'failed':
-        case 'canceled':
-             variant = 'destructive'; Icon = X; break;
-    }
+    const lowerStatus = status.toLowerCase();
+
+    if (lowerStatus === 'completed') { variant = 'default'; Icon = Check; }
+    else if (lowerStatus === 'no-answer' || lowerStatus === 'missed') { variant = 'secondary'; Icon = X; }
+    else if (lowerStatus === 'failed' || lowerStatus === 'canceled') { variant = 'destructive'; Icon = X; }
 
     return <Badge variant={variant} className="capitalize"><Icon className="mr-2 h-3 w-3"/>{status}</Badge>
 }
@@ -115,8 +114,8 @@ export default function CallLogsPage() {
                                         <TableCell className="font-mono text-xs">{log.to}</TableCell>
                                         <TableCell>{log.duration}s</TableCell>
                                         <TableCell><StatusBadge status={log.status} /></TableCell>
-                                        <TableCell>{formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}</TableCell>
-                                        <TableCell className="font-mono text-xs">{log.callSid}</TableCell>
+                                        <TableCell>{formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}</TableCell>
+                                        <TableCell className="font-mono text-xs">{log.callId}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
@@ -133,3 +132,5 @@ export default function CallLogsPage() {
         </Card>
     );
 }
+
+    
