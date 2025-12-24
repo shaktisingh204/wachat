@@ -181,3 +181,41 @@ export async function handleRegenerateOauthLink(prevState: any, formData: FormDa
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function handleDeletePaymentConfiguration(projectId: string, configName: string) {
+  const project = await getProjectById(projectId);
+  if (!project) return { success: false, error: 'Project not found.' };
+
+  const { wabaId, accessToken } = project;
+  if (!wabaId || !accessToken) {
+    return { success: false, error: 'Project not fully configured.' };
+  }
+
+  try {
+    const response = await axios.delete(
+      `https://graph.facebook.com/${API_VERSION}/${wabaId}/payment_configuration`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        data: {
+          configuration_name: configName,
+        },
+      }
+    );
+
+    if (response.data.error) {
+      throw new Error(getErrorMessage({ response: { data: response.data } }));
+    }
+
+    if (response.data.success) {
+      revalidatePath('/dashboard/whatsapp-pay/settings');
+      return { success: true };
+    } else {
+      return { success: false, error: 'Meta API indicated failure.' };
+    }
+  } catch (e) {
+    return { success: false, error: getErrorMessage(e) };
+  }
+}
