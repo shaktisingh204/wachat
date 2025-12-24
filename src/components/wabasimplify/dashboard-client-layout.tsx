@@ -526,7 +526,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             <SidebarContent>
                 <SidebarMenu>
                     {appIcons.map(app => (
-                        <SidebarMenuItem key={app.id}>
+                        <SidebarMenuItem key={app.id} className={cn("relative", activeApp === app.id && 'active-app-border')}>
                             <SidebarMenuButton asChild isActive={activeApp === app.id} tooltip={app.label}>
                                 <Link href={app.href} className="h-12"><app.icon /></Link>
                             </SidebarMenuButton>

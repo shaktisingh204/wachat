@@ -123,6 +123,14 @@
     .dnd-placeholder {
         @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
     }
+    .active-app-border {
+      @apply relative;
+    }
+    .active-app-border::before {
+      content: '';
+      @apply absolute -inset-0.5 rounded-xl z-0;
+      background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)));
+    }
 }
 
 
@@ -145,11 +153,6 @@
   right: 0px;
   margin-top: 10px;
   margin-right: 10px;
-}
-
-.margin-by-shakti
-{
-  margin: 15px;
 }
 
 @layer utilities {
