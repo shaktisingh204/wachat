@@ -98,10 +98,15 @@ export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettin
                                     <Select name="call_icon_visibility" defaultValue={settings.call_icon_visibility || 'DEFAULT'}>
                                         <SelectTrigger><SelectValue/></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="DEFAULT">Default</SelectItem>
-                                            <SelectItem value="DISABLE_ALL">Disable All</SelectItem>
+                                            <SelectItem value="DEFAULT">Default (Visible to all)</SelectItem>
+                                            <SelectItem value="DISABLE_ALL">Disable All (Hidden for all)</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="restrict_to_user_countries">Restrict to Countries (Optional)</Label>
+                                    <Input id="restrict_to_user_countries" name="restrict_to_user_countries" defaultValue={settings.call_icons?.restrict_to_user_countries?.join(', ')} placeholder="e.g. US, BR, IN" />
+                                    <p className="text-xs text-muted-foreground">Comma-separated list of ISO 3166-1 alpha-2 country codes where the call icon should appear.</p>
                                 </div>
                                 <div className="space-y-2"><Label>Callback Permission</Label><Select name="callback_permission_status" defaultValue={settings.callback_permission_status || 'DISABLED'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="ENABLED">Enabled</SelectItem><SelectItem value="DISABLED">Disabled</SelectItem></SelectContent></Select></div>
                             </CardContent>
