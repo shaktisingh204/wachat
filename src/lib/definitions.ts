@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type SabChatFaqItem = {
@@ -746,29 +747,16 @@ export type BusinessCapabilities = {
     max_phone_numbers_per_business: number;
 };
 
-export type FacebookPaymentRequest = {
-  id: string;
-  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELED';
-  amount: {
-    currency: string;
-    value: string;
-  };
-  receiver: {
-    wa_id: string;
-  };
-  description: string;
-  external_reference?: string;
-  completed_timestamp?: number;
-  created_timestamp?: number;
-};
-
 export type PaymentConfiguration = {
     configuration_name: string;
     provider_name: string;
     status: string;
     created_timestamp: number;
     updated_timestamp: number;
-    provider_mid: string;
+    provider_mid?: string;
+    merchant_vpa?: string;
+    merchant_category_code?: { code: string; description: string; };
+    purpose_code?: { code: string; description: string; };
 };
 
 export type PhoneNumberProfile = {

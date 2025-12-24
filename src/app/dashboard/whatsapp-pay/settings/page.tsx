@@ -1,39 +1,19 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getPaymentConfigurations, getPaymentConfigurationByName, handleDeletePaymentConfiguration } from '@/app/actions/whatsapp.actions';
+import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, Eye, PlusCircle, Settings, Link as LinkIcon, Trash2 } from 'lucide-react';
+import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components";
 import { useToast } from '@/hooks/use-toast';
 import type { PaymentConfiguration, Project } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription
-} from '@/components/ui/alert-dialog';
-import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
-import { UpdateDataEndpointDialog } from '@/components/wabasimplify/update-data-endpoint-dialog';
-import { RegenerateOauthDialog } from '@/components/wabasimplify/regenerate-oauth-dialog';
+import { cn } from '@/lib/utils';
 
 function PageSkeleton() {
     return (
@@ -46,13 +26,12 @@ function PageSkeleton() {
 
 function InfoRow({ label, value }: { label: string, value: React.ReactNode }) {
     return (
-        <div className="flex justify-between items-start text-sm py-2 border-b">
+        <div className="flex justify-between items-center text-sm py-2 border-b">
             <span className="text-muted-foreground">{label}</span>
             <span className="font-semibold text-right">{value}</span>
         </div>
     );
 }
-
 
 export default function WhatsAppPaySetupPage() {
     const [project, setProject] = useState<Project | null>(null);
@@ -60,20 +39,20 @@ export default function WhatsAppPaySetupPage() {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, startLoading] = useTransition();
     const { toast } = useToast();
-    const [selectedConfig, setSelectedConfig] = useState<PaymentConfiguration | null>(null);
-    const [isDetailsLoading, startDetailsLoading] = useTransition();
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-    const fetchData = () => {
+    const fetchData = (showToast = false) => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
             startLoading(async () => {
                 const projectData = await getProjectById(storedProjectId);
                 setProject(projectData);
                 if (projectData) {
-                    const { configurations, error: fetchError } = await getPaymentConfigurations(projectData._id.toString());
+                    const { configurations, error: fetchError } = await getPaymentConfigurations(storedProjectId);
                     if (fetchError) setError(fetchError);
                     else setConfigs(configurations);
+                }
+                if (showToast) {
+                    toast({ title: "Refreshed", description: "Payment configurations have been updated from Meta." });
                 }
             });
         } else {
@@ -86,43 +65,33 @@ export default function WhatsAppPaySetupPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const viewDetails = (config: PaymentConfiguration) => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (!storedProjectId) return;
-        
-        startDetailsLoading(async () => {
-            const result = await getPaymentConfigurationByName(storedProjectId, config.configuration_name);
-            if(result.error) {
-                 toast({ title: 'Error', description: `Could not fetch details: ${result.error}`, variant: 'destructive' });
-            } else {
-                setSelectedConfig(result.configuration || null);
-            }
-        });
-    }
-
-    const handleDelete = async (configName: string) => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (!storedProjectId) return;
-        
-        const result = await handleDeletePaymentConfiguration(storedProjectId, configName);
-        if (result.success) {
-            toast({ title: "Success", description: "Payment configuration deleted." });
-            fetchData();
-        } else {
-            toast({ title: "Error", description: result.error, variant: 'destructive' });
-        }
+    const commerceManagerUrl = `https://business.facebook.com/commerce/`;
+    
+    const getStatusVariant = (status: string) => {
+        if (!status) return 'outline';
+        const lowerStatus = status.toLowerCase();
+        if (lowerStatus === 'active') return 'default';
+        if (lowerStatus.includes('needs')) return 'secondary';
+        return 'destructive';
     };
 
-
-    const commerceManagerUrl = `https://business.facebook.com/commerce/`;
-
-    if (isLoading) {
+    if (isLoading && !project) {
         return <PageSkeleton />;
     }
 
+    if (!project) {
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertDescription>
+                    Please select a project to manage its payment settings.
+                </AlertDescription>
+            </Alert>
+        );
+    }
+    
     return (
-        <>
-        {project && <CreatePaymentConfigDialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} onSuccess={fetchData}/>}
         <div className="space-y-6">
             <Card>
                 <CardHeader>
@@ -153,16 +122,10 @@ export default function WhatsAppPaySetupPage() {
                         <CardTitle>Your Payment Configurations</CardTitle>
                         <CardDescription>A list of payment providers linked to your WABA.</CardDescription>
                     </div>
-                    <div className="flex gap-2">
-                        <Button onClick={() => fetchData()} variant="outline" size="sm" disabled={isLoading}>
-                            {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <RefreshCw className="mr-2 h-4 w-4"/>}
-                            Refresh
-                        </Button>
-                         <Button onClick={() => setIsCreateOpen(true)} size="sm">
-                            <PlusCircle className="mr-2 h-4 w-4"/>
-                            Create
-                        </Button>
-                    </div>
+                    <Button onClick={() => fetchData(true)} variant="outline" size="sm" disabled={isLoading}>
+                        {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <RefreshCw className="mr-2 h-4 w-4"/>}
+                        Refresh
+                    </Button>
                 </CardHeader>
                 <CardContent>
                     {error ? (
@@ -176,39 +139,16 @@ export default function WhatsAppPaySetupPage() {
                             {configs.map(config => (
                                 <Card key={config.configuration_name}>
                                     <CardHeader>
-                                        <CardTitle className="flex items-center justify-between text-base">
-                                            <div className="flex items-center gap-2">
-                                                <WaPayIcon className="h-5 w-5"/>
-                                                {config.configuration_name}
-                                            </div>
-                                             <AlertDialog>
-                                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive"/></Button></AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Delete Configuration?</AlertDialogTitle>
-                                                        <AlertDialogDescription>Are you sure you want to delete the "{config.configuration_name}" configuration?</AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDelete(config.configuration_name)}>Delete</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
+                                        <CardTitle className="flex items-center gap-2 text-base">
+                                            <WaPayIcon className="h-5 w-5"/>
+                                            {config.configuration_name}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <InfoRow label="Provider" value={config.provider_name} />
-                                        <InfoRow label="Status" value={<Badge variant={config.status === 'Active' ? 'default' : 'secondary'}>{config.status}</Badge>} />
+                                        <InfoRow label="Status" value={<Badge variant={getStatusVariant(config.status)}>{config.status}</Badge>} />
                                         <InfoRow label="Provider MID" value={<span className="font-mono text-xs">{config.provider_mid}</span>} />
                                     </CardContent>
-                                    <CardFooter className="flex justify-end gap-2">
-                                        {project && config.provider_name !== 'upi_vpa' && <RegenerateOauthDialog project={project} config={config} />}
-                                        {project && <UpdateDataEndpointDialog project={project} config={config} onSuccess={fetchData} />}
-                                        <Button variant="outline" size="sm" onClick={() => viewDetails(config)}>
-                                            <Eye className="mr-2 h-4 w-4"/>
-                                            View Details
-                                        </Button>
-                                    </CardFooter>
                                 </Card>
                             ))}
                         </div>
@@ -218,28 +158,5 @@ export default function WhatsAppPaySetupPage() {
                 </CardContent>
             </Card>
         </div>
-        
-        <Dialog open={!!selectedConfig} onOpenChange={(open) => !open && setSelectedConfig(null)}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{selectedConfig?.configuration_name}</DialogTitle>
-                    <DialogDescription>Full details for this payment configuration.</DialogDescription>
-                </DialogHeader>
-                {isDetailsLoading ? <LoaderCircle className="mx-auto h-8 w-8 animate-spin my-8"/> : selectedConfig ? (
-                    <div className="space-y-2 text-sm">
-                        <InfoRow label="Provider" value={selectedConfig.provider_name} />
-                        <InfoRow label="Status" value={<Badge variant={selectedConfig.status === 'Active' ? 'default' : 'secondary'}>{selectedConfig.status}</Badge>} />
-                        <InfoRow label="Provider MID" value={selectedConfig.provider_mid} />
-                        <InfoRow label="MCC Code" value={`${selectedConfig.merchant_category_code?.code} (${selectedConfig.merchant_category_code?.description})`} />
-                        <InfoRow label="Purpose Code" value={`${selectedConfig.purpose_code?.code} (${selectedConfig.purpose_code?.description})`} />
-                        <InfoRow label="Created" value={new Date(selectedConfig.created_timestamp * 1000).toLocaleString()} />
-                        <InfoRow label="Last Updated" value={new Date(selectedConfig.updated_timestamp * 1000).toLocaleString()} />
-                    </div>
-                ) : null}
-            </DialogContent>
-        </Dialog>
-        </>
     );
 }
-
-    
