@@ -67,6 +67,6 @@ export * from './crm-leads-api.actions';
 export * from './meta-suite.actions';
 export * from './onboarding.actions';
 export * from './whatsapp-pay.actions';
-export * from '../lib/call-webhook-processor';
+export * from '@/lib/call-webhook-processor';
 
     
