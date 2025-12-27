@@ -1,6 +1,5 @@
 
 
-import { getTransactionsForUser } from '@/app/actions/index.ts';
 import type { Transaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,20 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ChevronLeft, Receipt } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export const dynamic = 'force-dynamic';
 
-const getStatusVariant = (status: Transaction['status']) => {
-    switch (status) {
-        case 'SUCCESS': return 'default';
-        case 'FAILED': return 'destructive';
-        case 'PENDING': return 'secondary';
-        default: return 'outline';
-    }
-};
-
 export default async function BillingHistoryPage() {
-    const transactions = await getTransactionsForUser();
+    const transactions: WithId<Transaction>[] = [];
 
     return (
         <div className="flex flex-col gap-8">
@@ -39,7 +30,13 @@ export default async function BillingHistoryPage() {
                     <CardTitle>Your Transactions</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="border rounded-md">
+                    <Alert>
+                        <AlertTitle>Feature Under Development</AlertTitle>
+                        <AlertDescription>
+                            Transaction history is currently unavailable.
+                        </AlertDescription>
+                    </Alert>
+                    <div className="border rounded-md mt-4">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -51,26 +48,14 @@ export default async function BillingHistoryPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {transactions.length > 0 ? (
-                                    transactions.map((t) => (
-                                        <TableRow key={t._id.toString()}>
-                                            <TableCell>{new Date(t.createdAt).toLocaleString()}</TableCell>
-                                            <TableCell className="font-medium">{t.description}</TableCell>
-                                            <TableCell>₹{(t.amount / 100).toFixed(2)}</TableCell>
-                                            <TableCell><Badge variant={getStatusVariant(t.status)}>{t.status}</Badge></TableCell>
-                                            <TableCell className="font-mono text-xs">{t._id.toString()}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-48 text-center">
-                                            <div className="flex flex-col items-center gap-4">
-                                                <Receipt className="h-12 w-12 text-muted-foreground" />
-                                                <p className="text-muted-foreground">You don't have any transactions yet.</p>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-48 text-center">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <Receipt className="h-12 w-12 text-muted-foreground" />
+                                            <p className="text-muted-foreground">You don't have any transactions yet.</p>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
                             </TableBody>
                         </Table>
                     </div>
@@ -79,5 +64,3 @@ export default async function BillingHistoryPage() {
         </div>
     );
 }
-
-    
