@@ -5,8 +5,6 @@ import { SubscribeAllButton } from "@/components/wabasimplify/subscribe-all-butt
 import { ShieldCheck } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { RunCronJobsButton } from "@/components/wabasimplify/run-cron-jobs-button";
-import { PhonePeSettingsForm } from "@/components/wabasimplify/phonepe-settings-form";
-import { getPaymentGatewaySettings } from "@/app/actions";
 import { SyncLocalTemplatesButton } from "@/components/wabasimplify/sync-local-templates-button";
 import { WebhookProcessingToggle } from "@/components/wabasimplify/webhook-processing-toggle";
 import { DiwaliThemeToggle } from "@/components/wabasimplify/diwali-theme-toggle";
@@ -14,7 +12,6 @@ import { AppLogoForm } from "@/components/wabasimplify/admin-logo-form";
 export const dynamic = 'force-dynamic';
 
 export default async function SystemHealthPage() {
-    const phonePeSettings = await getPaymentGatewaySettings();
 
     return (
         <div className="flex flex-col gap-4">
@@ -50,10 +47,6 @@ export default async function SystemHealthPage() {
             <Separator />
             
             <AppLogoForm />
-
-            <Separator />
-
-            <PhonePeSettingsForm settings={phonePeSettings} />
 
             <Separator />
 
