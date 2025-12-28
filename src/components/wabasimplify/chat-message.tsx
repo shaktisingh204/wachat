@@ -156,6 +156,10 @@ function MediaContent({ message }: { message: AnyMessage }) {
         );
     }
     
+    if (type === 'unsupported') {
+        return <p className="whitespace-pre-wrap italic text-muted-foreground">This message type is not supported by the Cloud API.</p>;
+    }
+    
     return <div className="text-sm text-muted-foreground italic">[{type} message]</div>;
 };
 
@@ -242,14 +246,14 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
         <div className="bg-black/5 dark:bg-white/5 p-2 rounded-md border-l-2 border-primary mb-2 text-xs">
             <p className="font-semibold text-primary">{senderName}</p>
             <div className="text-muted-foreground line-clamp-2">
-                <MessageBody message={message} isOutgoing={isOutgoing} conversation={[]} />
+                <MessageBody message={message} isOutgoing={isOutgoing} conversation={[]} onReply={() => {}} />
             </div>
         </div>
     );
 };
 
 
-const MessageBody = ({ message, isOutgoing, conversation }: ChatMessageProps) => {
+const MessageBody = ({ message, isOutgoing, conversation, onReply }: ChatMessageProps) => {
     // Outgoing template message
     if (isOutgoing && message.type === 'template') {
         return <TemplateMessageContent content={message.content.template} />;
@@ -410,3 +414,6 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         </div>
     );
 });
+```
+
+This should correctly handle the unsupported message type now. Is there anything else?
