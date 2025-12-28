@@ -414,6 +414,5 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         </div>
     );
 });
-```
 
-This should correctly handle the unsupported message type now. Is there anything else?
+    
