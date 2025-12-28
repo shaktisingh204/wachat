@@ -72,7 +72,11 @@ function MediaContent({ message }: { message: AnyMessage }) {
     const type = message.type;
     const media = message.content[type as keyof typeof message.content] as any;
 
-    if (!media && type !== 'unsupported') return <div className="text-sm text-muted-foreground italic">[Unsupported message content]</div>;
+    if (type === 'unsupported') {
+        return <p className="whitespace-pre-wrap italic text-muted-foreground">This message type is not supported by the Cloud API.</p>;
+    }
+    
+    if (!media) return <div className="text-sm text-muted-foreground italic">[Unsupported message content]</div>;
     
     const url = media.url || media.link;
     const caption = media.caption || '';
@@ -154,10 +158,6 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             </a>
         );
-    }
-    
-    if (type === 'unsupported') {
-        return <p className="whitespace-pre-wrap italic text-muted-foreground">This message type is not supported by the Cloud API.</p>;
     }
     
     return <div className="text-sm text-muted-foreground italic">[{type} message]</div>;
@@ -414,5 +414,3 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         </div>
     );
 });
-
-    
