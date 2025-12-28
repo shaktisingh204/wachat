@@ -24,6 +24,7 @@ interface ChatMessageInputProps {
     contact: WithId<Contact>;
     templates: WithId<Template>[];
     replyToMessageId?: string;
+    disabled?: boolean;
 }
 
 const sendInitialState = {
@@ -50,7 +51,7 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-export function ChatMessageInput({ project, contact, templates, replyToMessageId }: ChatMessageInputProps) {
+export function ChatMessageInput({ project, contact, templates, replyToMessageId, disabled = false }: ChatMessageInputProps) {
     const [sendState, setSendState] = useState(sendInitialState);
     const { toast } = useToast();
 
@@ -204,6 +205,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                         value={inputValue}
                         onChange={handleInputChange}
                         onKeyDown={(e) => { if(e.key === 'Enter') handleTextSend(); }}
+                        disabled={disabled}
                     />
                 </PopoverAnchor>
                 {/* Hidden file input */}
@@ -242,18 +244,18 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
 
             {/* Desktop Buttons */}
             <div className="hidden md:flex items-center gap-1">
-                 <Button variant="ghost" size="icon" onClick={() => handleMediaClick('image/*,video/*')}><ImageIcon className="h-4 w-4" /><span className="sr-only">Send Image or Video</span></Button>
-                 <Button variant="ghost" size="icon" onClick={() => handleMediaClick('application/pdf')}><FileIcon className="h-4 w-4" /><span className="sr-only">Send Document</span></Button>
-                 <Button variant="ghost" size="icon" onClick={() => setIsRazorpayOpen(true)}><IndianRupee className="h-4 w-4" /><span className="sr-only">Request Payment</span></Button>
-                 <Button variant="ghost" size="icon" onClick={() => setIsWhatsAppPaymentOpen(true)}><WaPayIcon className="h-4 w-4" /><span className="sr-only">Request WhatsApp Payment</span></Button>
-                 {project && project.catalogs && project.catalogs.length > 0 && <Button variant="ghost" size="icon" onClick={() => setIsCatalogOpen(true)}><ShoppingBag className="h-4 w-4" /><span className="sr-only">Send Catalog</span></Button>}
+                 <Button variant="ghost" size="icon" onClick={() => handleMediaClick('image/*,video/*')} disabled={disabled}><ImageIcon className="h-4 w-4" /><span className="sr-only">Send Image or Video</span></Button>
+                 <Button variant="ghost" size="icon" onClick={() => handleMediaClick('application/pdf')} disabled={disabled}><FileIcon className="h-4 w-4" /><span className="sr-only">Send Document</span></Button>
+                 <Button variant="ghost" size="icon" onClick={() => setIsRazorpayOpen(true)} disabled={disabled}><IndianRupee className="h-4 w-4" /><span className="sr-only">Request Payment</span></Button>
+                 <Button variant="ghost" size="icon" onClick={() => setIsWhatsAppPaymentOpen(true)} disabled={disabled}><WaPayIcon className="h-4 w-4" /><span className="sr-only">Request WhatsApp Payment</span></Button>
+                 {project && project.catalogs && project.catalogs.length > 0 && <Button variant="ghost" size="icon" onClick={() => setIsCatalogOpen(true)} disabled={disabled}><ShoppingBag className="h-4 w-4" /><span className="sr-only">Send Catalog</span></Button>}
                 <Popover><PopoverTrigger asChild><Button variant="ghost" size="icon"><ClipboardList className="h-4 w-4" /><span className="sr-only">Send Template</span></Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
             </div>
             
             {/* Mobile Popover */}
             <div className="md:hidden">
                 <Popover open={attachmentPopoverOpen} onOpenChange={setAttachmentPopoverOpen}>
-                    <PopoverTrigger asChild><Button variant="ghost" size="icon"><Paperclip className="h-4 w-4" /></Button></PopoverTrigger>
+                    <PopoverTrigger asChild><Button variant="ghost" size="icon" disabled={disabled}><Paperclip className="h-4 w-4" /></Button></PopoverTrigger>
                     <PopoverContent align="end" className="w-56 p-1">
                         <div className="grid gap-1">
                             <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('image/*,video/*'); setAttachmentPopoverOpen(false); }}><ImageIcon className="mr-2 h-4 w-4" /> Media (Image/Video)</Button>
@@ -267,7 +269,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                 </Popover>
             </div>
             
-            <SubmitButton onClick={handleTextSend} disabled={!inputValue.trim()} />
+            <SubmitButton onClick={handleTextSend} disabled={!inputValue.trim() || disabled} />
         </div>
         </>
     );
