@@ -7,8 +7,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig = {
-  turbopack: {}, // <-- REQUIRED to silence error
-
+  
   typescript: {
     ignoreBuildErrors: true,
   },
