@@ -1,4 +1,3 @@
-
 /** @type {import('next').NextConfig} */
 const webpack = require('webpack');
 
@@ -7,7 +6,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig = {
-  turbopack: {}, // <-- REQUIRED to silence error
+  
+  output: 'standalone',
+  turbopack: {},
 
   typescript: {
     ignoreBuildErrors: true,

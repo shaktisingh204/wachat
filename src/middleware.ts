@@ -1,8 +1,7 @@
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAdminJwtEdge, verifyJwtEdge } from './lib/auth.edge';
-import { JWTExpired } from 'jose/errors';
+import type { JWTExpired } from 'jose/errors';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -27,7 +26,7 @@ export async function middleware(request: NextRequest) {
     try {
       sessionValid = !!await verifyJwtEdge(sessionToken);
     } catch (error: any) {
-      if (error.code === 'ERR_JWT_EXPIRED') {
+      if (error.code === 'ERR_JWT_EXPIRED' || error.code === 'auth/id-token-expired') {
         sessionExpired = true;
       }
     }
