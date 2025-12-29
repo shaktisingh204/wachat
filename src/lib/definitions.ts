@@ -137,12 +137,6 @@ export type CrmPermissions = {
     [key: string]: CrmRolePermissions; // For custom roles
 };
 
-export type CrmCustomRole = {
-    id: string;
-    name: string;
-};
-
-
 export type CrmForm = {
     _id: ObjectId;
     userId: ObjectId;
@@ -997,7 +991,7 @@ export type FormField = {
 
 export type WebsiteBlock = {
     id: string;
-    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater' | 'section' | 'columns' | 'column' | 'productImage' | 'productTitle' | 'productPrice' | 'productDescription' | 'productAddToCart' | 'productBreadcrumbs' | 'cart' | 'accountDashboard' | 'accountOrders' | 'accountProfileForm' | 'accountAddressBook' | 'accountWishlist' | 'accountReturns' | 'accountDownloads' | 'accountCompare' | 'accountLoginForm' | 'accountRegisterForm' | 'crmAutomation';
+    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater' | 'section' | 'columns' | 'column' | 'productImage' | 'productTitle' | 'productPrice' | 'productDescription' | 'productAddToCart' | 'cart' | 'accountDashboard' | 'accountOrders' | 'accountProfileForm' | 'accountAddressBook' | 'accountWishlist' | 'accountReturns' | 'accountDownloads' | 'accountCompare' | 'accountLoginForm' | 'accountRegisterForm' | 'crmAutomation';
     settings: any;
     children?: WebsiteBlock[];
 };
@@ -1450,6 +1444,9 @@ export type PlanFeaturePermissions = {
     instagramMessages: boolean;
     chatbot: boolean;
     email: boolean;
+    sms: boolean;
+    seo: boolean;
+    websiteBuilder: boolean;
 };
 
 export type PlanMessageCosts = {
@@ -1540,8 +1537,7 @@ export type Invitation = {
     createdAt: Date;
 };
 
-export type Transaction = {
-    _id: ObjectId;
+export type Transaction = WithId<{
     userId: ObjectId;
     type: 'PLAN' | 'CREDITS';
     description: string;
@@ -1554,7 +1550,7 @@ export type Transaction = {
     providerOrderId?: string;
     createdAt: Date;
     updatedAt: Date;
-};
+}>;
 
 export type BroadcastAttempt = {
     _id: string;
@@ -2338,3 +2334,89 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
+
+```
+- src/app/actions/billing.actions.ts</file>
+    <content><![CDATA[
+
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { ObjectId, type Filter, WithId } from 'mongodb';
+import { getSession } from '.';
+import { connectToDatabase } from '@/lib/mongodb';
+import type { Plan, Transaction, User, WalletTransaction } from '@/lib/definitions';
+import Razorpay from 'razorpay';
+import { getErrorMessage } from '@/lib/utils';
+import crypto from 'crypto';
+
+
+export async function getPublicPlans(): Promise<WithId<Plan>[]> {
+    try {
+        const { db } = await connectToDatabase();
+        const plans = await db.collection('plans').find({ isPublic: true }).sort({ price: 1 }).toArray();
+        return JSON.parse(JSON.stringify(plans));
+    } catch (error) {
+        console.error("Failed to fetch plans:", error);
+        return [];
+    }
+}
+
+export async function handleCreateRazorpayOrder(amount: number, currency: string) {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'Authentication required' };
+    }
+    
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+        return { error: 'Razorpay is not configured on the server.' };
+    }
+    
+    if (amount < 100) {
+        return { error: 'Minimum amount is ₹100.' };
+    }
+
+    try {
+        const instance = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+
+        const options = {
+            amount: amount * 100, // amount in the smallest currency unit
+            currency: currency,
+            receipt: `receipt_order_${new ObjectId().toString()}`,
+        };
+
+        const order = await instance.orders.create(options);
+        
+        const { db } = await connectToDatabase();
+        
+        const newTransaction: Omit<Transaction, '_id'> = {
+            userId: new ObjectId(session.user._id),
+            type: 'CREDITS',
+            description: `Wallet top-up of ${amount} ${currency}`,
+            credits: amount,
+            amount: amount * 100,
+            status: 'PENDING',
+            provider: 'razorpay',
+            providerOrderId: order.id,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        await db.collection('transactions').insertOne(newTransaction as any);
+
+        return {
+            success: true,
+            apiKey: process.env.RAZORPAY_KEY_ID,
+            orderId: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            user: { name: session.user.name, email: session.user.email },
+        };
+
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
