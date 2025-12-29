@@ -1,4 +1,3 @@
-
 'use strict';
 
 require('dotenv').config(); // Load environment variables at the very top
@@ -12,8 +11,8 @@ const hostname = '0.0.0.0';
 const port = parseInt(process.env.PORT, 10) || 3002;
 
 // When running in production (especially with 'standalone' output),
-// the directory context changes. This points Next.js back to the project root.
-const app = next({ dev, dir: path.join(__dirname, '..') });
+// the directory context must be correct. We point to the project root.
+const app = next({ dev, dir: path.join(__dirname, dev ? '' : '../') });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
@@ -26,7 +25,7 @@ app.prepare().then(() => {
       res.statusCode = 500;
       res.end('Internal Server Error');
     }
-  }).listen(port, () => {
+  }).listen(port, hostname, () => {
     console.log(`> Next.js server ready on http://localhost:${port}`);
   });
 });

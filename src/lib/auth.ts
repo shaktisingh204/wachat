@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import bcrypt from 'bcryptjs';
@@ -71,10 +69,10 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
 export async function verifyJwt(token: string): Promise<any | null> {
     try {
         const firebaseAdmin = initializeFirebaseAdmin();
-        const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+        const decodedToken = await firebaseAdmin.auth().verifyIdToken(token, true); // Set checkRevoked to true
         return decodedToken;
-    } catch (error) {
-        console.error('Error verifying Firebase ID token in server component:', error);
+    } catch (error: any) {
+        console.error('Error verifying Firebase ID token in server component:', error.code, error.message);
         return null;
     }
 }
@@ -95,7 +93,8 @@ export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload
         
         return payload as AdminSessionPayload;
     } catch (error) {
-        console.error("Admin JWT verification failed:", error);
+        // This will catch expired tokens and other verification errors from jose
+        console.error("Admin JWT verification failed on server:", error);
         return null;
     }
 }
@@ -126,10 +125,12 @@ export async function getDecodedSession(sessionCookie?: string) {
 
   try {
     const firebaseAdmin = initializeFirebaseAdmin();
-    const decodedToken = await firebaseAdmin.auth().verifyIdToken(sessionCookie);
+    // Setting checkRevoked to true here as well
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(sessionCookie, true);
     return decodedToken;
-  } catch (e) {
-    console.error('Failed to decode session:', e);
+  } catch (e: any) {
+    console.error('Failed to decode session:', e.code, e.message);
     return null;
   }
 }
+
