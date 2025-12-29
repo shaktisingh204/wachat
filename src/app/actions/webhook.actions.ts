@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { connectToDatabase } from "@/lib/mongodb";
@@ -86,11 +87,13 @@ export async function getWebhookLogs(
                 filter.searchableText = queryRegex;
             }
         }
-
-        const skip = (page - 1) * limit;
+        
+        const safeLimit = Number.isInteger(limit) && limit > 0 ? limit : 20;
+        const safePage = Number.isInteger(page) && page > 0 ? page : 1;
+        const skip = (safePage - 1) * safeLimit;
 
         const [fullLogs, total] = await Promise.all([
-            db.collection<WithId<WebhookLog>>('webhook_logs').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection<WithId<WebhookLog>>('webhook_logs').find(filter).sort({ createdAt: -1 }).skip(skip).limit(safeLimit).toArray(),
             db.collection('webhook_logs').countDocuments(filter)
         ]);
 
