@@ -8,6 +8,8 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 const nextConfig = {
   
+  turbopack: {},
+
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -61,6 +63,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'lookaside.fbsbx.com',
+        port: '',
+        pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'lookaside.whatsapp.com',
         port: '',
         pathname: '/**',
       },
