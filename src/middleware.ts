@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAdminJwtEdge, verifyJwtEdge } from './lib/auth.edge';
+import { JWTExpired } from 'jose/errors';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -17,6 +18,9 @@ export async function middleware(request: NextRequest) {
   let adminSessionValid = false;
   let sessionExpired = false;
   let adminSessionExpired = false;
+
+  // Use the environment variable for the base URL, falling back to the request URL
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
 
   // Use lightweight 'jose' for verification on the Edge
   if (sessionToken) {
@@ -41,7 +45,7 @@ export async function middleware(request: NextRequest) {
 
   // If on admin dashboard and session is not valid (or expired), redirect to admin login
   if (isAdminDashboard && !adminSessionValid) {
-    const response = NextResponse.redirect(new URL('/admin-login', request.url));
+    const response = NextResponse.redirect(new URL('/admin-login', appUrl));
     if (adminSessionExpired || adminSessionToken) {
       response.cookies.delete('admin_session');
     }
@@ -50,7 +54,7 @@ export async function middleware(request: NextRequest) {
 
   // If on user dashboard and session is not valid (or expired), redirect to user login
   if (isDashboard && !sessionValid) {
-    const response = NextResponse.redirect(new URL('/login', request.url));
+    const response = NextResponse.redirect(new URL('/login', appUrl));
     if (sessionExpired || sessionToken) {
       response.cookies.delete('session');
     }
@@ -59,10 +63,10 @@ export async function middleware(request: NextRequest) {
 
   // If trying to access a login page while already logged in
   if (isAuthPage && sessionValid) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL('/dashboard', appUrl));
   }
   if (isAdminAuthPage && adminSessionValid) {
-    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+    return NextResponse.redirect(new URL('/admin/dashboard', appUrl));
   }
 
   return NextResponse.next();
