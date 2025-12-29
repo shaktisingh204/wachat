@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import type { Transaction } from '@/lib/definitions';
+import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -11,18 +10,23 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ChevronLeft, Receipt } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { getTransactions } from '@/app/actions';
+import { getSession } from '@/app/actions';
 import { useEffect, useState, useTransition } from 'react';
 import { format } from 'date-fns';
+import { LoaderCircle } from 'lucide-react';
 
 export default function BillingHistoryPage() {
-    const [transactions, setTransactions] = useState<WithId<Transaction>[]>([]);
+    const [transactions, setTransactions] = useState<WithId<WalletTransaction>[]>([]);
     const [isLoading, startTransition] = useTransition();
 
     useEffect(() => {
         startTransition(async () => {
-            const data = await getTransactions();
-            setTransactions(data);
+            const session = await getSession();
+            // Transactions are now part of the user's wallet object
+            const walletTransactions = session?.user?.wallet?.transactions || [];
+            // Sort by most recent first
+            const sortedTransactions = walletTransactions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            setTransactions(sortedTransactions);
         });
     }, []);
 
@@ -54,23 +58,31 @@ export default function BillingHistoryPage() {
                                     <TableHead>Date</TableHead>
                                     <TableHead>Description</TableHead>
                                     <TableHead>Amount</TableHead>
+                                    <TableHead>Type</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Transaction ID</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-48 text-center">Loading history...</TableCell>
+                                        <TableCell colSpan={5} className="h-48 text-center">
+                                            <div className="flex justify-center items-center">
+                                                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
                                 ) : transactions.length > 0 ? (
                                     transactions.map(t => (
                                         <TableRow key={t._id.toString()}>
                                             <TableCell>{format(new Date(t.createdAt), 'PPpp')}</TableCell>
-                                            <TableCell>{t.description || `Added ${t.amount/100} credits`}</TableCell>
+                                            <TableCell>{t.reason}</TableCell>
                                             <TableCell>₹{(t.amount / 100).toFixed(2)}</TableCell>
+                                            <TableCell>
+                                                <Badge variant={t.type === 'CREDIT' ? 'default' : 'secondary'}>
+                                                    {t.type}
+                                                </Badge>
+                                            </TableCell>
                                             <TableCell><Badge variant={getStatusVariant(t.status)}>{t.status}</Badge></TableCell>
-                                            <TableCell className="font-mono text-xs">{t.providerPaymentId || t.providerOrderId}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
