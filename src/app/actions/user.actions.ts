@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -347,12 +348,22 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
+  console.log('[getSession] Attempting to get session...');
   const cookieStore = cookies();
   const sessionCookie = cookieStore.get('session')?.value;
-  if (!sessionCookie) return null;
+  
+  if (!sessionCookie) {
+    console.log('[getSession] No session cookie found.');
+    return null;
+  }
+  console.log('[getSession] Session cookie found.');
 
   const decoded = await getDecodedSession(sessionCookie);
-  if (!decoded) return null;
+  if (!decoded) {
+    console.log('[getSession] Failed to decode session cookie.');
+    return null;
+  }
+  console.log(`[getSession] Session decoded for user: ${decoded.email}`);
 
   try {
     const { db } = await connectToDatabase();
@@ -362,7 +373,11 @@ export async function getSession() {
       { projection: { password: 0 } }
     );
 
-    if (!dbUser) return null;
+    if (!dbUser) {
+      console.log(`[getSession] User not found in DB: ${decoded.email}`);
+      return null;
+    }
+    console.log(`[getSession] User found in DB: ${dbUser.email}`);
 
     let plan: WithId<Plan> | null = null;
     if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
@@ -373,8 +388,9 @@ export async function getSession() {
     if (!plan) {
       plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
     }
+    console.log(`[getSession] User plan resolved: ${plan?.name || 'Default'}`);
 
-    return {
+    const sessionData = {
       user: {
         ...dbUser,
         _id: dbUser._id.toString(),
@@ -384,6 +400,8 @@ export async function getSession() {
         plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
       },
     };
+    console.log('[getSession] Session object created successfully.');
+    return sessionData;
   } catch (e) {
     console.error('[getSession] DB error:', e);
     return null;
@@ -527,3 +545,5 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
+    

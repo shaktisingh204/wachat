@@ -33,40 +33,69 @@ export function LoginForm() {
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    console.log('[LOGIN_FORM] handleLogin triggered.');
+
     const formData = new FormData(event.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
     startTransition(async () => {
         try {
+            console.log(`[LOGIN_FORM] Attempting Firebase sign in for: ${email}`);
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const idToken = await userCredential.user.getIdToken();
+            console.log('[LOGIN_FORM] Firebase sign-in successful. User:', userCredential.user.uid);
             
-            await fetch('/api/auth/session', {
+            const idToken = await userCredential.user.getIdToken();
+            console.log('[LOGIN_FORM] ID Token obtained. Calling /api/auth/session...');
+
+            const response = await fetch('/api/auth/session', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${idToken}` }
             });
-            
+            console.log(`[LOGIN_FORM] /api/auth/session response status: ${response.status}`);
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`Session creation failed: ${errorBody}`);
+            }
+
+            console.log('[LOGIN_FORM] Session creation successful. Redirecting to /dashboard...');
             router.push('/dashboard');
         } catch (err: any) {
+            console.error('[LOGIN_FORM] Login error:', err);
             setError(err.message || 'An unknown error occurred.');
         }
     });
   };
-
-  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+  
+   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
       const authProvider = provider === 'google' ? new GoogleAuthProvider() : new FacebookAuthProvider();
+      console.log(`[LOGIN_FORM] handleSocialLogin triggered for ${provider}.`);
       startTransition(async () => {
           try {
+              console.log(`[LOGIN_FORM] Opening social login popup for ${provider}...`);
               const result = await signInWithPopup(auth, authProvider);
+              console.log(`[LOGIN_FORM] Social login successful for user:`, result.user.uid);
+
               const idToken = await result.user.getIdToken();
-              await fetch('/api/auth/session', {
+              console.log('[LOGIN_FORM] Social login ID Token obtained. Calling /api/auth/session...');
+              
+              const response = await fetch('/api/auth/session', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${idToken}` }
               });
+              console.log(`[LOGIN_FORM] /api/auth/session response status (social): ${response.status}`);
+
+              if (!response.ok) {
+                 const errorBody = await response.text();
+                 throw new Error(`Session creation failed (social): ${errorBody}`);
+              }
+              
+              console.log('[LOGIN_FORM] Social login session creation successful. Redirecting to /dashboard...');
               router.push('/dashboard');
           } catch(err: any) {
-              setError(err.message || 'An unknown error occurred.');
+              console.error(`[LOGIN_FORM] Social login error for ${provider}:`, err);
+              setError(err.message || 'An unknown error occurred during social login.');
           }
       });
   }

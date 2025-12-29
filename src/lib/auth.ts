@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import bcrypt from 'bcryptjs';
@@ -24,6 +25,7 @@ function initializeFirebaseAdmin() {
   if (admin.apps.length > 0) {
     return admin.app();
   }
+  console.log('[AUTH_LIB] Initializing Firebase Admin SDK...');
 
   // Handle potential JSON parsing errors
   let parsedServiceAccount;
@@ -34,7 +36,7 @@ function initializeFirebaseAdmin() {
           parsedServiceAccount = serviceAccount;
       }
   } catch (e) {
-      console.error("FATAL: Could not parse Firebase service account JSON.");
+      console.error("[AUTH_LIB] FATAL: Could not parse Firebase service account JSON.");
       throw new Error("Invalid Firebase service account configuration.");
   }
 
@@ -68,12 +70,14 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
 }
 
 export async function verifyJwt(token: string): Promise<any | null> {
+    console.log('[AUTH_LIB] Verifying Firebase ID token on server...');
     try {
         const firebaseAdmin = initializeFirebaseAdmin();
         const decodedToken = await firebaseAdmin.auth().verifyIdToken(token, true); // Set checkRevoked to true
+        console.log('[AUTH_LIB] Firebase ID token verified successfully.');
         return decodedToken;
     } catch (error: any) {
-        console.error('Error verifying Firebase ID token:', error.code, error.message);
+        console.error('[AUTH_LIB] Error verifying Firebase ID token:', error.code, error.message);
         return null;
     }
 }
@@ -121,16 +125,22 @@ export async function createAdminSessionToken(): Promise<string> {
 }
 
 // This function is for server components/actions ONLY
-export async function getDecodedSession(sessionCookie?: string) {
-  if (!sessionCookie) return null;
+export async function getDecodedSession(sessionCookie: string) {
+  console.log('[AUTH_LIB] getDecodedSession called.');
+  if (!sessionCookie) {
+    console.log('[AUTH_LIB] No session cookie provided to getDecodedSession.');
+    return null;
+  };
 
   try {
+    console.log('[AUTH_LIB] Attempting to verify token with Firebase Admin SDK...');
     const firebaseAdmin = initializeFirebaseAdmin();
     // Setting checkRevoked to true here as well
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(sessionCookie, true);
+    console.log(`[AUTH_LIB] Token successfully decoded for UID: ${decodedToken.uid}`);
     return decodedToken;
   } catch (e: any) {
-    console.error('Failed to decode session:', e.code, e.message);
+    console.error('[AUTH_LIB] Failed to decode session:', e.code, e.message);
     return null;
   }
 }

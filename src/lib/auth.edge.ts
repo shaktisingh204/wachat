@@ -1,8 +1,8 @@
+
 'use server';
 
 import 'server-only'
 import { jwtVerify } from 'jose';
-import type { JWTExpired } from 'jose/errors';
 
 function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
@@ -13,36 +13,18 @@ function getJwtSecretKey(): Uint8Array {
 }
 
 
-// This function performs a lightweight check on the Edge without full verification.
-// It decodes the token and checks the expiration time. The full, secure verification
-// happens on the server with the Firebase Admin SDK.
+// This function is a lightweight check for the edge, using jose.
+// It's not using Firebase Admin SDK because that's too heavy for edge functions.
 export async function verifyJwtEdge(token: string): Promise<any | null> {
+    console.log('[AUTH_EDGE] Verifying user JWT on edge.');
     try {
-        const firebaseAdmin = (await import('firebase-admin')).default;
-        // This is a superficial check on the edge. The real verification is in `getDecodedSession`.
-        // We can't use the full Admin SDK on the Edge, so we just decode.
-        const payload = firebaseAdmin.auth().decodeJwt(token);
-
-        // Check if token has an expiration time
-        if (!payload.exp) {
-            return null;
-        }
-
-        // Check if token is expired. `exp` is in seconds, Date.now() is in milliseconds.
-        const isExpired = Date.now() >= payload.exp * 1000;
-
-        if (isExpired) {
-            // Throw an error that the middleware will catch
-            const error = new Error('Firebase ID token has expired.');
-            (error as any).code = 'ERR_JWT_EXPIRED';
-            throw error;
-        }
-
-        // If not expired, return the payload so the check passes
+        const { payload } = await jwtVerify(token, getJwtSecretKey());
+        console.log('[AUTH_EDGE] User JWT verified successfully.');
         return payload;
     } catch (error: any) {
-        // Re-throw JWTExpired so the middleware can catch it, return null for other parsing issues.
-        if (error.code === 'auth/id-token-expired' || error.code === 'ERR_JWT_EXPIRED') {
+        console.error('[AUTH_EDGE] User JWT verification failed on edge:', error.code, error.message);
+        // Re-throw JWTExpired so middleware can handle it
+        if (error.code === 'ERR_JWT_EXPIRED') {
             throw error;
         }
         return null;
@@ -51,21 +33,22 @@ export async function verifyJwtEdge(token: string): Promise<any | null> {
 
 
 export async function verifyAdminJwtEdge(token: string): Promise<any | null> {
+    console.log('[AUTH_EDGE] Verifying admin JWT on edge.');
     try {
-        const secretKey = getJwtSecretKey();
-        const { payload } = await jwtVerify(token, secretKey);
+        const { payload } = await jwtVerify(token, getJwtSecretKey());
         
         if (payload.role === 'admin') {
+            console.log('[AUTH_EDGE] Admin JWT verified successfully.');
             return payload;
         }
+        console.warn('[AUTH_EDGE] JWT verified but role is not admin.');
         return null;
     } catch(e: any) {
+        console.error("[AUTH_EDGE] Admin JWT verification failed on edge:", e.code, e.message);
         // Re-throw JWTExpired so middleware can handle it
         if (e.code === 'ERR_JWT_EXPIRED') {
             throw e;
         }
-        console.error("Admin JWT Edge Verification Error:", e.code, e.message);
         return null;
     }
 }
-
