@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -349,7 +348,7 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 
 export async function getSession() {
   console.log('[getSession] Attempting to get session...');
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('session')?.value;
   
   if (!sessionCookie) {
@@ -545,5 +544,3 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
-
-    
