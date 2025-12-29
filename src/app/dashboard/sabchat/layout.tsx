@@ -16,6 +16,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { AlertTriangle } from 'lucide-react';
+import { useProject } from '@/context/project-context';
+import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
 
 const navItems = [
     { href: "/dashboard/sabchat/inbox", label: "Inbox", icon: Inbox },
@@ -55,46 +57,51 @@ export default function SabChatLayout({ children }: { children: React.ReactNode 
     const pathname = usePathname();
     const router = useRouter();
     const [showWarning, setShowWarning] = useState(true);
+    const { sessionUser } = useProject();
+    const isAllowed = sessionUser?.plan?.features?.chatbot ?? false;
 
     const handleExit = () => {
         setShowWarning(false);
         router.push('/dashboard');
     };
-
+    
     return (
-        <div className="w-full">
+        <div className="w-full relative">
              <DevelopmentWarningDialog 
                 open={showWarning}
                 onOk={() => setShowWarning(false)}
                 onExit={handleExit}
             />
-             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <SabChatIcon className="h-8 w-8 text-primary"/>
-                        sabChat
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Your live chat and customer support suite.
-                    </p>
+            <FeatureLockOverlay isAllowed={isAllowed} featureName="sabChat" />
+            <FeatureLock isAllowed={isAllowed}>
+                 <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+                            <SabChatIcon className="h-8 w-8 text-primary"/>
+                            sabChat
+                        </h1>
+                        <p className="text-muted-foreground mt-2">
+                            Your live chat and customer support suite.
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <div className="flex justify-start items-center gap-1 border-b">
-                {navItems.map(item => {
-                    const isActive = pathname === item.href;
-                    return (
-                        <Button key={item.href} asChild variant={isActive ? "secondary" : "ghost"} className="rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary">
-                            <Link href={item.href}>
-                                <item.icon className="mr-2 h-4 w-4" />
-                                {item.label}
-                            </Link>
-                        </Button>
-                    )
-                })}
-            </div>
-            <div className="mt-6">
-                 {children}
-            </div>
+                <div className="flex justify-start items-center gap-1 border-b">
+                    {navItems.map(item => {
+                        const isActive = pathname === item.href;
+                        return (
+                            <Button key={item.href} asChild variant={isActive ? "secondary" : "ghost"} className="rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary">
+                                <Link href={item.href}>
+                                    <item.icon className="mr-2 h-4 w-4" />
+                                    {item.label}
+                                </Link>
+                            </Button>
+                        )
+                    })}
+                </div>
+                <div className="mt-6">
+                     {children}
+                </div>
+            </FeatureLock>
         </div>
     );
 }

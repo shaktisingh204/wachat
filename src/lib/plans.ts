@@ -4,9 +4,9 @@ import type { PlanFeaturePermissions } from '@/lib/definitions';
 import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, FileText, Phone, Webhook,
     Briefcase, CreditCard, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart,
-    Newspaper, Clapperboard, Video, Bot, ShieldCheck, Mail, Database
+    Newspaper, Clapperboard, Video, Bot, ShieldCheck, Mail, Database, Brush, TrendingUp
 } from 'lucide-react';
-import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, icon: React.ElementType }[] = [
     { id: 'overview', name: 'Project Overview', icon: LayoutDashboard },
@@ -40,6 +40,9 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, i
     { id: 'instagramMessages', name: 'Instagram Messages', icon: MessageSquare },
     { id: 'chatbot', name: 'AI Chatbot Builder', icon: Bot },
     { id: 'email', name: 'Email Suite', icon: Mail },
+    { id: 'sms', name: 'SMS Suite', icon: MessageSquare },
+    { id: 'seo', name: 'SEO Suite', icon: TrendingUp },
+    { id: 'websiteBuilder', name: 'Website Builder', icon: Brush },
 ];
 
 export const planFeaturesDefaults: PlanFeaturePermissions = {
@@ -72,6 +75,9 @@ export const planFeaturesDefaults: PlanFeaturePermissions = {
     instagramStories: true,
     instagramReels: true,
     instagramMessages: true,
-    chatbot: false,
-    email: false,
+    chatbot: true,
+    email: true,
+    sms: true,
+    seo: true,
+    websiteBuilder: true,
 };
