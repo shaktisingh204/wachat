@@ -1,3 +1,4 @@
+
 'use server';
 
 import bcrypt from 'bcryptjs';
@@ -72,7 +73,7 @@ export async function verifyJwt(token: string): Promise<any | null> {
         const decodedToken = await firebaseAdmin.auth().verifyIdToken(token, true); // Set checkRevoked to true
         return decodedToken;
     } catch (error: any) {
-        console.error('Error verifying Firebase ID token in server component:', error.code, error.message);
+        console.error('Error verifying Firebase ID token:', error.code, error.message);
         return null;
     }
 }
@@ -133,4 +134,3 @@ export async function getDecodedSession(sessionCookie?: string) {
     return null;
   }
 }
-
