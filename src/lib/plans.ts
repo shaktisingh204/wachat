@@ -4,7 +4,7 @@ import type { PlanFeaturePermissions } from '@/lib/definitions';
 import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, FileText, Phone, Webhook,
     Briefcase, CreditCard, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart,
-    Newspaper, Clapperboard, Video, Bot, ShieldCheck, Mail, Database, Brush, TrendingUp, Handshake, Building, zap
+    Newspaper, Clapperboard, Video, Bot, ShieldCheck, Mail, Database, Brush, TrendingUp, Handshake, Building, Zap
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
