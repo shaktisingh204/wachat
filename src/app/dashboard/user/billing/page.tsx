@@ -1,15 +1,14 @@
 
+
 'use client';
 
-import { Check, X, History, Lock } from 'lucide-react';
+import { Check, X, History, Lock, IndianRupee } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { getSession, handleInitiatePayment } from '@/app/actions/index.ts';
 import { getPlans } from '@/app/actions/plan.actions';
 import { planFeatureMap } from '@/lib/plans';
 import { Separator } from '@/components/ui/separator';
 import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
-import { CreditPurchaseButton } from '@/components/wabasimplify/credit-purchase-button';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState, useMemo } from 'react';
@@ -17,6 +16,7 @@ import type { Plan, WithId, User } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { WalletCard } from '@/components/wabasimplify/wallet-card';
 
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
@@ -25,12 +25,6 @@ const PlanFeature = ({ children, included }: { children: React.ReactNode, includ
         <span className={cn("text-sm", !included && "text-muted-foreground line-through")}>{children}</span>
     </li>
 );
-
-const creditPacks = [
-    { credits: 5000, amount: 500, description: 'Starter Pack' },
-    { credits: 12000, amount: 1000, description: 'Growth Pack' },
-    { credits: 30000, amount: 2500, description: 'Business Pack' },
-];
 
 const PlanCard = ({ plan, currentPlanId, projectId }: { plan: WithId<Plan>, currentPlanId?: string, projectId?: string | null }) => {
     return (
@@ -170,31 +164,15 @@ export default function BillingPage() {
                     </Link>
                 </Button>
             </div>
-            
-            <PlanFeaturesGrid />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Buy Credits</CardTitle>
-                    <CardDescription>Top up your account balance to send messages. Unused credits never expire.</CardDescription>
-                </CardHeader>
-                <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {creditPacks.map(pack => (
-                        <Card key={pack.credits} className="flex flex-col text-center">
-                            <CardHeader>
-                                <CardTitle>{pack.credits.toLocaleString()} Credits</CardTitle>
-                                <CardDescription>{pack.description}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex-grow">
-                                <p className="text-3xl font-bold">₹{pack.amount}</p>
-                            </CardContent>
-                            <CardFooter>
-                                <CreditPurchaseButton credits={pack.credits} amount={pack.amount} />
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <div className="lg:col-span-2">
+                    <PlanFeaturesGrid />
+                </div>
+                <div className="lg:col-span-1">
+                    <WalletCard user={sessionUser} />
+                </div>
+            </div>
 
             <Separator />
             
