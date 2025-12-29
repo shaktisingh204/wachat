@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { useFormStatus, useActionState } from 'react-dom';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,11 +20,10 @@ const initialState = {
   token: undefined,
 };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
-    <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+    <Button type="submit" className="w-full" disabled={isPending}>
+      {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
       Sign In to Admin Panel
     </Button>
   );
@@ -42,10 +40,18 @@ function setCookie(name: string, value: string, days: number) {
 }
 
 export default function AdminLoginPage() {
-  const [state, formAction] = useActionState(handleAdminLogin, initialState);
+  const [state, setState] = useState(initialState);
+  const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+
+  const formAction = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await handleAdminLogin(initialState, formData);
+        setState(result);
+    });
+  };
 
   useEffect(() => {
     if (state.success && state.token) {
@@ -90,7 +96,7 @@ export default function AdminLoginPage() {
                             {showPassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
                         </button>
                     </div>
-                    <SubmitButton />
+                    <SubmitButton isPending={isPending} />
                 </CardContent>
             </form>
         </Card>
