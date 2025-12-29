@@ -1,32 +1,22 @@
 
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield, FileText, Zap, ShieldCheck } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
-import { getProjects, getSession } from '@/app/actions/index.ts';
-import { getEmailSettings } from '@/app/actions/email.actions';
-import { saveCrmProviders } from '@/app/actions/crm.actions';
-import { saveCrmPermissions } from '@/app/actions/crm.actions';
-import { useEffect, useState, useTransition, useActionState, useRef, Suspense } from 'react';
-import type { CrmEmailSettings, Project, WithId, User } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
+import { EmailTemplatesManager } from "@/components/wabasimplify/crm-email-templates-manager";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertCircle, Mail, FileText, Settings, ShieldCheck, Zap } from 'lucide-react';
+import { getEmailSettings } from '@/app/actions/email.actions';
+import { getSession } from '@/app/actions/index.ts';
+import type { CrmEmailSettings, User, WithId } from '@/lib/definitions';
 import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
-import { useFormStatus } from "react-dom";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useSearchParams } from "next/navigation";
-import { CrmEmailTemplatesManager } from "@/components/wabasimplify/crm-email-templates-manager";
-
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 function PageSkeleton() {
     return (
@@ -43,19 +33,21 @@ function CrmSettingsPageContent() {
     const searchParams = useSearchParams();
     const initialTab = searchParams.get('tab') || 'email';
     const [user, setUser] = useState<WithId<User> | null>(null);
-    const [settings, setSettings] = useState<CrmEmailSettings | null>(null);
-    const [isLoading, startLoading] = useTransition();
+    const [settings, setSettings] = useState<WithId<CrmEmailSettings> | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        startLoading(async () => {
-            // Since CRM is at the user level, we fetch settings based on the logged-in user.
+        setIsLoading(true);
+        const fetchData = async () => {
             const session = await getSession();
             if (session?.user) {
                 setUser(session.user as any);
                 const fetchedSettings = await getEmailSettings();
-                setSettings(fetchedSettings[0]);
+                setSettings(fetchedSettings[0] || null);
             }
-        });
+            setIsLoading(false);
+        };
+        fetchData();
     }, []);
 
     if (isLoading) {
@@ -110,7 +102,7 @@ function CrmSettingsPageContent() {
                     <CrmSmtpForm settings={settings} />
                 </TabsContent>
                 <TabsContent value="templates" className="mt-6">
-                    <CrmEmailTemplatesManager />
+                    <EmailTemplatesManager />
                 </TabsContent>
             </Tabs>
         </div>
