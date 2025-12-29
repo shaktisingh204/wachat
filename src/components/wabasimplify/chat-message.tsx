@@ -70,11 +70,12 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
 
 function MediaContent({ message }: { message: AnyMessage }) {
     const type = message.type;
-    const media = message.content[type as keyof typeof message.content] as any;
 
     if (type === 'unsupported') {
         return <p className="whitespace-pre-wrap italic text-muted-foreground">This message type is not supported by the Cloud API.</p>;
     }
+    
+    const media = message.content[type as keyof typeof message.content] as any;
     
     if (!media) return <div className="text-sm text-muted-foreground italic">[Unsupported message content]</div>;
     
