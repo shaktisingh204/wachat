@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle} from 'lucide-react';
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle} from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -52,7 +52,7 @@ const wachatMenuItems = [
   { href: '/dashboard/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'] },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
   { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'] },
-  { href: '/dashboard/integrations', label: 'Integrations', icon: Zap, roles: ['owner', 'admin'] },
+  { href: '/dashboard/integrations', label: 'Integrations', icon: Bolt, roles: ['owner', 'admin'] },
   { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'] },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
@@ -220,7 +220,7 @@ const crmMenuItems = [
             { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report" },
         ]
     },
-    { href: "/dashboard/crm/integrations", label: "Integrations", icon: Zap },
+    { href: "/dashboard/crm/integrations", label: "Integrations", icon: Bolt },
     { href: "/dashboard/crm/settings", label: "CRM Settings", icon: Settings },
 ];
 
@@ -359,7 +359,7 @@ const smsMenuItems = [
         ]
     },
     { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
-    { href: '/dashboard/sms/integrations', label: 'Integrations', icon: Zap },
+    { href: '/dashboard/sms/integrations', label: 'Integrations', icon: Bolt },
     { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
 ];
 
