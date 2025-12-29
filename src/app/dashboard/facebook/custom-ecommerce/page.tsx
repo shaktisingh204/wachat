@@ -14,6 +14,8 @@ import { CreateEcommShopDialog } from '@/components/wabasimplify/create-shop-dia
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { useProject } from '@/context/project-context';
+import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
 
 function PageSkeleton() {
     return (
@@ -68,6 +70,9 @@ export default function CustomEcommerceDashboard() {
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [isClient, setIsClient] = useState(false);
+    const { sessionUser } = useProject();
+
+    const isAllowed = sessionUser?.plan?.features?.ecommerce ?? false;
 
     useEffect(() => {
       setIsClient(true);
@@ -75,8 +80,8 @@ export default function CustomEcommerceDashboard() {
 
     const fetchProjects = useCallback(() => {
         startLoading(async () => {
-            const facebookProjects = await getProjects(undefined, 'facebook');
-            setProjects(facebookProjects);
+            const { projects: projectsData } = await getProjects(undefined, 'facebook');
+            setProjects(projectsData);
         });
     }, []);
 
@@ -91,34 +96,37 @@ export default function CustomEcommerceDashboard() {
     }
     
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <ShoppingBag className="h-8 w-8" />
-                        Custom Shops
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Select a Facebook Page to manage its e-commerce storefront and automation.
-                    </p>
+        <div className="flex flex-col gap-8 relative">
+            <FeatureLockOverlay isAllowed={isAllowed} featureName="Custom E-commerce" />
+            <FeatureLock isAllowed={isAllowed}>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+                            <ShoppingBag className="h-8 w-8" />
+                            Custom Shops
+                        </h1>
+                        <p className="text-muted-foreground mt-2">
+                            Select a Facebook Page to manage its e-commerce storefront and automation.
+                        </p>
+                    </div>
                 </div>
-            </div>
 
-            {projects.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {projects.map(project => (
-                        <ShopCard key={project._id.toString()} project={project} />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-                    <Store className="mx-auto h-12 w-12" />
-                    <h3 className="mt-4 text-lg font-semibold">No Facebook Pages Connected</h3>
-                    <p className="mt-1 text-sm max-w-md mx-auto">
-                        Please go to the <Link href="/dashboard/facebook/all-projects" className="text-primary hover:underline">Meta Suite Connections</Link> page to connect your Facebook account and pages first.
-                    </p>
-                </div>
-            )}
+                {projects.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {projects.map(project => (
+                            <ShopCard key={project._id.toString()} project={project} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
+                        <Store className="mx-auto h-12 w-12" />
+                        <h3 className="mt-4 text-lg font-semibold">No Facebook Pages Connected</h3>
+                        <p className="mt-1 text-sm max-w-md mx-auto">
+                            Please go to the <Link href="/dashboard/facebook/all-projects" className="text-primary hover:underline">Meta Suite Connections</Link> page to connect your Facebook account and pages first.
+                        </p>
+                    </div>
+                )}
+            </FeatureLock>
         </div>
     );
 }
