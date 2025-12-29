@@ -902,7 +902,7 @@ export type Agent = {
     userId: ObjectId;
     email: string;
     name: string;
-    role: 'admin' | 'agent';
+    role: string;
 };
 
 export type ApiKey = {
