@@ -12,7 +12,12 @@ import { AdminDeletePlanButton } from '@/components/wabasimplify/admin-delete-pl
 export const dynamic = 'force-dynamic';
 
 export default async function PlansManagementPage() {
-    const plans = await getPlans();
+    let plans = [];
+    try {
+        plans = await getPlans();
+    } catch(e) {
+        console.error("Failed to load plans:", e);
+    }
 
     return (
         <div className="flex flex-col gap-4">
