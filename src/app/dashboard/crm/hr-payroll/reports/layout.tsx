@@ -3,7 +3,8 @@
 
 import React from 'react';
 
-// This secondary layout is no longer needed as navigation is handled by the main CRM layout.
+// This is a sub-layout and inherits permissions from its parent.
+// No additional lock needed here.
 export default function HrReportsLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="w-full">
