@@ -28,13 +28,14 @@ const USERS_PER_PAGE = 10;
 export default async function AdminUsersPage({
     searchParams,
 }: {
-    searchParams?: {
+    searchParams: Promise<{
         query?: string;
         page?: string;
-    };
+    }>;
 }) {
-  const query = searchParams?.query || '';
-  const currentPage = Number(searchParams?.page) || 1;
+  const params = await searchParams;
+  const query = params?.query || '';
+  const currentPage = Number(params?.page) || 1;
   
   let users: Omit<WithId<User>, "password">[] = [];
   let total = 0;
