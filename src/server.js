@@ -5,12 +5,15 @@ require('dotenv').config(); // Load environment variables at the very top
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
+const path = require('path');
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = '0.0.0.0';
 const port = parseInt(process.env.PORT, 10) || 3002;
 
-const app = next({ dev, hostname, port, dir: __dirname });
+// When running in production (especially with 'standalone' output),
+// the directory context changes. This points Next.js back to the project root.
+const app = next({ dev, dir: path.join(__dirname, '..') });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
