@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState, useTransition, useEffect } from 'react';
+import { useFormStatus, useActionState } from 'react-dom';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +12,13 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { handleAdminLogin } from '@/app/actions/admin.actions';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 const initialState = {
+  success: false,
   error: undefined,
+  token: undefined,
 };
 
 function SubmitButton() {
@@ -27,17 +31,31 @@ function SubmitButton() {
   );
 }
 
+function setCookie(name: string, value: string, days: number) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+
 export default function AdminLoginPage() {
-  const [state, setState] = useState<any>(initialState);
-  const [isPending, startTransition] = useTransition();
+  const [state, formAction] = useActionState(handleAdminLogin, initialState);
   const [showPassword, setShowPassword] = useState(false);
-  
-  const formAction = (formData: FormData) => {
-    startTransition(async () => {
-        const result = await handleAdminLogin(null, formData);
-        setState(result);
-    });
-  };
+  const router = useRouter();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (state.success && state.token) {
+        setCookie('admin_session', state.token, 1);
+        toast({ title: 'Login Successful!' });
+        router.push('/admin/dashboard');
+    } else if (state.error) {
+        toast({ title: 'Login Failed', description: state.error, variant: 'destructive' });
+    }
+  }, [state, router, toast]);
 
   return (
      <div className="flex flex-col items-center justify-center min-h-screen bg-auth-texture p-4 sm:p-6 lg:p-8">
