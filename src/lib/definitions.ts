@@ -1447,6 +1447,19 @@ export type PlanFeaturePermissions = {
     sms: boolean;
     seo: boolean;
     websiteBuilder: boolean;
+
+    // CRM Features
+    crmDashboard: boolean;
+    crmSales: boolean;
+    crmPurchases: boolean;
+    crmInventory: boolean;
+    crmAccounting: boolean;
+    crmSalesCrm: boolean;
+    crmBanking: boolean;
+    crmHrPayroll: boolean;
+    crmGstReports: boolean;
+    crmIntegrations: boolean;
+    crmSettings: boolean;
 };
 
 export type PlanMessageCosts = {
