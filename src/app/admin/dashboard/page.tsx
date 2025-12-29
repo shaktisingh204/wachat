@@ -63,10 +63,28 @@ export default async function AdminDashboardPage({
   const query = sp?.query || '';
   const currentPage = Number(sp?.page) || 1;
   
-  const { projects, total: totalProjects } = await getProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query);
-  const { broadcasts: recentBroadcasts } = await getAllBroadcasts(1, 5);
-  const allPlans = await getPlans();
-  const { totalUsers, totalWabas, totalMessages, totalCampaigns, totalFlows } = await getAdminDashboardStats();
+  let projects: WithId<Project>[] = [];
+  let totalProjects = 0;
+  let recentBroadcasts: WithId<any>[] = [];
+  let allPlans: WithId<any>[] = [];
+  let stats = { totalUsers: 0, totalWabas: 0, totalMessages: 0, totalCampaigns: 0, totalFlows: 0 };
+  
+  try {
+    const projectData = await getProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query);
+    projects = projectData.projects;
+    totalProjects = projectData.total;
+
+    const broadcastData = await getAllBroadcasts(1, 5);
+    recentBroadcasts = broadcastData.broadcasts;
+
+    allPlans = await getPlans();
+    stats = await getAdminDashboardStats();
+  } catch (error) {
+    console.error("Failed to load admin dashboard data:", error);
+    // You can render an error message or fallback UI here
+  }
+
+  const { totalUsers, totalWabas, totalMessages, totalCampaigns, totalFlows } = stats;
   
   const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
 

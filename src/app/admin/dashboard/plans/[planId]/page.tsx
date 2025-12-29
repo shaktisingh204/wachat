@@ -57,14 +57,20 @@ export default function PlanEditorPage() {
 
     useEffect(() => {
         if (!isNew) {
-            getPlanById(planId).then(data => {
-                setPlan(data);
+            try {
+                getPlanById(planId).then(data => {
+                    setPlan(data);
+                    setLoading(false);
+                });
+            } catch (error) {
+                console.error("Failed to load plan data:", error);
+                toast({ title: "Error", description: "Could not load plan details.", variant: "destructive" });
                 setLoading(false);
-            });
+            }
         } else {
             setLoading(false);
         }
-    }, [planId, isNew]);
+    }, [planId, isNew, toast]);
 
     useEffect(() => {
         if (state.message) {

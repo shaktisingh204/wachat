@@ -36,7 +36,16 @@ export default async function AdminUsersPage({
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
   
-  const { users, total } = await getUsersForAdmin(currentPage, USERS_PER_PAGE, query);
+  let users: Omit<WithId<User>, "password">[] = [];
+  let total = 0;
+
+  try {
+      const data = await getUsersForAdmin(currentPage, USERS_PER_PAGE, query);
+      users = data.users;
+      total = data.total;
+  } catch (error) {
+      console.error("Failed to fetch admin users:", error);
+  }
 
   const totalPages = Math.ceil(total / USERS_PER_PAGE);
 
