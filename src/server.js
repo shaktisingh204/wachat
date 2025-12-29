@@ -1,4 +1,6 @@
 
+'use strict';
+
 require('dotenv').config(); // Load environment variables at the very top
 const { createServer } = require('http');
 const { parse } = require('url');
