@@ -21,12 +21,12 @@ export function FeatureLockOverlay({ isAllowed, featureName }: { isAllowed: bool
     if (isAllowed) return null;
 
     return (
-        <div className="absolute inset-0 bg-background/80 z-10 flex flex-col items-center justify-center gap-4 p-4 text-center rounded-lg">
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-4 p-4 text-center rounded-lg">
             <Lock className="h-12 w-12 text-muted-foreground"/>
             <h3 className="text-xl font-bold">'{featureName}' is a Premium Feature</h3>
             <p className="text-muted-foreground">This feature is not included in your current plan.</p>
             <Button asChild>
-                <Link href="/dashboard/billing">Upgrade Plan</Link>
+                <Link href="/dashboard/user/billing#upgrade">Upgrade Plan</Link>
             </Button>
         </div>
     )

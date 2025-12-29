@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateRandomizerPostDialog } from '@/components/wabasimplify/create-randomizer-post-dialog';
 import Image from 'next/image';
+import { useProject } from '@/context/project-context';
+import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
 
 function PageSkeleton() {
     return (
@@ -53,49 +55,44 @@ function RandomizerPostCard({ post, onDelete }: { post: WithId<RandomizerPost>, 
 }
 
 export default function PostRandomizerPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const { activeProject, isLoadingProject, sessionUser } = useProject();
     const [posts, setPosts] = useState<WithId<RandomizerPost>[]>([]);
     const [settings, setSettings] = useState<PostRandomizerSettings>({ enabled: false, frequencyHours: 24 });
     const [isLoading, startLoading] = useTransition();
     const [isSaving, startSaving] = useTransition();
     const [isDeleting, startDeleting] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { toast } = useToast();
 
+    const isAllowed = sessionUser?.plan?.features?.settingsMarketing ?? false; // Using as proxy
+
     const fetchData = useCallback(() => {
-        if (!projectId) return;
+        if (!activeProject) return;
         startLoading(async () => {
             const [projectData, postsData] = await Promise.all([
-                getProjectById(projectId),
-                getRandomizerPosts(projectId)
+                getProjectById(activeProject._id.toString()),
+                getRandomizerPosts(activeProject._id.toString())
             ]);
-            setProject(projectData);
-            setPosts(postsData);
             if (projectData?.postRandomizer) {
                 setSettings(projectData.postRandomizer);
             }
+            setPosts(postsData);
         });
-    }, [projectId]);
+    }, [activeProject]);
 
     useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
-
-    useEffect(() => {
-        if (projectId) fetchData();
-    }, [projectId, fetchData]);
+        if (activeProject) fetchData();
+    }, [activeProject, fetchData]);
 
     const handleSettingsChange = (field: keyof PostRandomizerSettings, value: any) => {
         setSettings(prev => ({ ...prev, [field]: value }));
     };
 
     const handleSaveSettings = () => {
-        if (!projectId) return;
+        if (!activeProject) return;
         
         const formData = new FormData();
-        formData.append('projectId', projectId);
+        formData.append('projectId', activeProject._id.toString());
         formData.append('enabled', settings.enabled ? 'on' : 'off');
         formData.append('frequencyHours', String(settings.frequencyHours));
 
@@ -111,9 +108,9 @@ export default function PostRandomizerPage() {
     };
     
     const handleDeletePost = (postId: string) => {
-        if (!projectId) return;
+        if (!activeProject) return;
         startDeleting(async () => {
-            const result = await deleteRandomizerPost(postId, projectId);
+            const result = await deleteRandomizerPost(postId, activeProject._id.toString());
             if (result.success) {
                 toast({ title: 'Success', description: 'Post removed from pool.' });
                 fetchData();
@@ -123,29 +120,34 @@ export default function PostRandomizerPage() {
         });
     }
 
-    if (isLoading && !project) return <PageSkeleton />;
+    if (isLoadingProject) return <PageSkeleton />;
+    
+    if (!activeProject) {
+        return (
+             <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertDescription>Please select a project to manage its Post Randomizer.</AlertDescription>
+            </Alert>
+        );
+    }
     
     return (
         <>
-            {project && <CreateRandomizerPostDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} project={project} onPostAdded={fetchData} />}
-            <div className="space-y-8">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Repeat className="h-8 w-8" />
-                        Post Randomizer
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Automatically publish a random post from your content pool at a set interval.
-                    </p>
-                </div>
+            {activeProject && <CreateRandomizerPostDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} project={activeProject} onPostAdded={fetchData} />}
+            <div className="space-y-8 relative">
+                <FeatureLockOverlay isAllowed={isAllowed} featureName="Post Randomizer" />
+                <FeatureLock isAllowed={isAllowed}>
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+                            <Repeat className="h-8 w-8" />
+                            Post Randomizer
+                        </h1>
+                        <p className="text-muted-foreground mt-2">
+                            Automatically publish a random post from your content pool at a set interval.
+                        </p>
+                    </div>
 
-                {!projectId ? (
-                    <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>No Project Selected</AlertTitle>
-                        <AlertDescription>Please select a project to manage its Post Randomizer.</AlertDescription>
-                    </Alert>
-                ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                         <Card className="lg:col-span-1">
                             <CardHeader>
@@ -153,7 +155,7 @@ export default function PostRandomizerPage() {
                                 <CardDescription>Configure the randomizer schedule.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="flex items-center justify-between rounded-lg border p-4">
+                                <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
                                     <Label htmlFor="enabled-switch" className="flex flex-col space-y-1">
                                         <span>Enable Randomizer</span>
                                         <span className="font-normal leading-snug text-muted-foreground text-sm">Turn on automatic posting.</span>
@@ -199,7 +201,7 @@ export default function PostRandomizerPage() {
                             </CardContent>
                         </Card>
                     </div>
-                )}
+                </FeatureLock>
             </div>
         </>
     );

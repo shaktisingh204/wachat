@@ -20,6 +20,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
+import { useProject } from '@/context/project-context';
+import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
 
 const initialState = { success: false, error: undefined };
 
@@ -190,22 +192,12 @@ function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>,
 
 
 export default function FacebookAutomationPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
-    const [isLoading, startLoading] = useTransition();
+    const { activeProject, isLoadingProject, sessionUser } = useProject();
+    const isAllowed = sessionUser?.plan?.features?.chatbot ?? false;
+
+    if(isLoadingProject) return <PageSkeleton />;
     
-    useEffect(() => {
-        startLoading(async () => {
-            const projectId = localStorage.getItem('activeProjectId');
-            if (projectId) {
-                const data = await getProjectById(projectId);
-                setProject(data);
-            }
-        });
-    }, []);
-    
-    if(isLoading) return <PageSkeleton />;
-    
-    if(!project) {
+    if(!activeProject) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -216,29 +208,32 @@ export default function FacebookAutomationPage() {
     }
     
     return (
-        <div className="space-y-6">
-             <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <Bot className="h-8 w-8"/>
-                    Facebook Automation
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Manage automations for your Facebook Page comments and Messenger conversations.
-                </p>
-            </div>
-            
-            <Tabs defaultValue="comments" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="comments"><MessageSquareReply className="mr-2 h-4 w-4"/>Comment Automation</TabsTrigger>
-                    <TabsTrigger value="messenger"><MessageSquareHeart className="mr-2 h-4 w-4"/>Messenger Automation</TabsTrigger>
-                </TabsList>
-                <TabsContent value="comments" className="mt-6">
-                    <CommentAutomationForm project={project} settings={project.facebookCommentAutoReply} />
-                </TabsContent>
-                <TabsContent value="messenger" className="mt-6">
-                    <MessengerWelcomeForm project={project} settings={project.facebookWelcomeMessage} />
-                </TabsContent>
-            </Tabs>
+        <div className="space-y-6 relative">
+            <FeatureLockOverlay isAllowed={isAllowed} featureName="Facebook Automation" />
+            <FeatureLock isAllowed={isAllowed}>
+                <div>
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+                        <Bot className="h-8 w-8"/>
+                        Facebook Automation
+                    </h1>
+                    <p className="text-muted-foreground mt-2">
+                        Manage automations for your Facebook Page comments and Messenger conversations.
+                    </p>
+                </div>
+                
+                <Tabs defaultValue="comments" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="comments"><MessageSquareReply className="mr-2 h-4 w-4"/>Comment Automation</TabsTrigger>
+                        <TabsTrigger value="messenger"><MessageSquareHeart className="mr-2 h-4 w-4"/>Messenger Automation</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="comments" className="mt-6">
+                        <CommentAutomationForm project={activeProject} settings={activeProject.facebookCommentAutoReply} />
+                    </TabsContent>
+                    <TabsContent value="messenger" className="mt-6">
+                        <MessengerWelcomeForm project={activeProject} settings={activeProject.facebookWelcomeMessage} />
+                    </TabsContent>
+                </Tabs>
+            </FeatureLock>
         </div>
     );
 }
