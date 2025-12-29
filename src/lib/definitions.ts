@@ -2,6 +2,17 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type WalletTransaction = {
+    _id: ObjectId;
+    type: 'CREDIT' | 'DEBIT';
+    amount: number; // in smallest currency unit
+    reason: string; // e.g., 'Added funds', 'Broadcast cost'
+    razorpayOrderId?: string;
+    razorpayPaymentId?: string;
+    status: 'PENDING' | 'SUCCESS' | 'FAILED';
+    createdAt: Date;
+};
+
 export type CrmCallLog = {
     _id: ObjectId;
     callId: string;
@@ -1511,6 +1522,11 @@ export type User = {
     }[];
     planId?: ObjectId;
     credits?: number;
+    wallet?: {
+        balance: number; // in smallest currency unit (e.g., paisa)
+        currency: string;
+        transactions: WalletTransaction[];
+    };
 };
 
 export type Invitation = {
@@ -1527,15 +1543,15 @@ export type Invitation = {
 export type Transaction = {
     _id: ObjectId;
     userId: ObjectId;
-    projectId?: ObjectId;
     type: 'PLAN' | 'CREDITS';
     description: string;
     planId?: ObjectId;
     credits?: number;
     amount: number; 
     status: 'PENDING' | 'SUCCESS' | 'FAILED';
-    provider: 'phonepe';
+    provider: 'razorpay' | 'phonepe';
     providerTransactionId?: string;
+    providerOrderId?: string;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -1645,7 +1661,7 @@ export type IncomingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product' | 'reaction' | 'contacts' | 'location' | 'button';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product' | 'reaction' | 'contacts' | 'location' | 'button' | 'unsupported';
     content: any;
     isRead: boolean;
     createdAt: Date;
