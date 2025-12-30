@@ -5,7 +5,7 @@ import { useState, useEffect, useTransition, useCallback } from 'react';
 import type { WithId } from 'mongodb';
 import { getProjectById } from '@/app/actions/index.ts';
 import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
-import type { Project, PhoneNumber } from '@/lib/definitions';
+import type { Project, PhoneNumber, CallingSettings } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Phone, FileText, ChevronUp, ChevronDown, Check, X } from 'lucide-react';
@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { useProject } from '@/context/project-context';
 
 function SettingsPageSkeleton() {
     return (
@@ -75,37 +76,28 @@ const ApiLogRow = ({ log }: { log: any }) => {
 
 
 export default function CallingSettingsPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const { activeProject, activeProjectId } = useProject();
     const [isLoading, startLoadingTransition] = useTransition();
     const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
-    const [projectId, setProjectId] = useState<string | null>(null);
     const [apiLogs, setApiLogs] = useState<any[]>([]);
 
-    const fetchData = useCallback((pid: string) => {
+    const fetchData = useCallback(() => {
+        if (!activeProjectId) return;
         startLoadingTransition(async () => {
-            const [projectData] = await Promise.all([
-                getProjectById(pid),
-                // getApiLogsForProject(pid) // This action does not exist, so it's commented out
-            ]);
-            setProject(projectData);
-            // setApiLogs(logsData);
-            if (projectData?.phoneNumbers && projectData.phoneNumbers.length > 0 && !selectedPhone) {
-                setSelectedPhone(projectData.phoneNumbers[0]);
-            }
+            // Re-fetch project to ensure phone numbers are up to date
+            await getProjectById(activeProjectId);
         });
-    }, [selectedPhone]);
+    }, [activeProjectId]);
 
     useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-        if (storedProjectId) {
-            fetchData(storedProjectId);
+        if (activeProject?.phoneNumbers && activeProject.phoneNumbers.length > 0 && !selectedPhone) {
+            setSelectedPhone(activeProject.phoneNumbers[0]);
         }
-    }, [fetchData]);
+    }, [activeProject, selectedPhone]);
     
-    if (isLoading && !project) return <SettingsPageSkeleton />;
+    if (isLoading && !activeProject) return <SettingsPageSkeleton />;
 
-    if (!project) {
+    if (!activeProject) {
         return (
              <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -130,11 +122,11 @@ export default function CallingSettingsPage() {
                 <div className="max-w-md">
                     <Select 
                         value={selectedPhone?.id} 
-                        onValueChange={(id) => setSelectedPhone(project.phoneNumbers.find(p => p.id === id) || null)}
+                        onValueChange={(id) => setSelectedPhone(activeProject.phoneNumbers.find(p => p.id === id) || null)}
                     >
                         <SelectTrigger><SelectValue placeholder="Select a phone number..." /></SelectTrigger>
                         <SelectContent>
-                            {project.phoneNumbers.map(phone => (
+                            {activeProject.phoneNumbers.map(phone => (
                                 <SelectItem key={phone.id} value={phone.id}>
                                     {phone.display_phone_number} ({phone.verified_name})
                                 </SelectItem>
@@ -146,9 +138,9 @@ export default function CallingSettingsPage() {
                 {selectedPhone ? (
                     <CallingSettingsForm 
                         key={selectedPhone.id} 
-                        project={project} 
+                        project={activeProject} 
                         phone={selectedPhone}
-                        onSuccess={() => fetchData(projectId!)}
+                        onSuccess={fetchData}
                     />
                 ) : (
                     <Alert>
@@ -168,7 +160,7 @@ export default function CallingSettingsPage() {
                                 <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5"/> API Call Log</CardTitle>
                                 <CardDescription>A log of recent API calls made from this page.</CardDescription>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={() => fetchData(projectId!)} disabled={isLoading}><RefreshCw className="h-4 w-4"/></Button>
+                            <Button variant="ghost" size="icon" onClick={() => fetchData()} disabled={isLoading}><RefreshCw className="h-4 w-4"/></Button>
                         </div>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -185,3 +177,4 @@ export default function CallingSettingsPage() {
         </div>
     );
 }
+
