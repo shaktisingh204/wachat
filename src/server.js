@@ -1,10 +1,14 @@
+
 'use strict';
 
-require('dotenv').config(); // Load environment variables at the very top
+const path = require('path');
+// Ensure dotenv is configured to find the .env file in the project root
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
-const path = require('path');
+
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = '0.0.0.0';
@@ -12,7 +16,7 @@ const port = parseInt(process.env.PORT, 10) || 3002;
 
 // When running in production (especially with 'standalone' output),
 // the directory context must be correct. We point to the project root.
-const app = next({ dev, dir: path.join(__dirname, dev ? '' : '../') });
+const app = next({ dev, dir: __dirname });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
