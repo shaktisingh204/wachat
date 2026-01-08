@@ -8,8 +8,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { History, Settings, Phone } from 'lucide-react';
 
 const navItems = [
-    { href: "/dashboard/calls/settings", label: "Call Setup", icon: Settings },
     { href: "/dashboard/calls/logs", label: "Call Logs", icon: History },
+    { href: "/dashboard/calls/settings", label: "Call Setup", icon: Settings },
 ];
 
 export default function CallsLayout({ children }: { children: React.ReactNode }) {
@@ -45,4 +45,3 @@ export default function CallsLayout({ children }: { children: React.ReactNode })
     );
 }
 
-    
