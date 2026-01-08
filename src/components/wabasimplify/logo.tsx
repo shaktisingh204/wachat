@@ -41,7 +41,6 @@ export const SabNodeLogo = ({ className }: { className?: string }) => {
 
   if (logoUrl) {
     return (
-      <Link href="/" className="flex items-center">
         <Image
           src={logoUrl}
           alt="SabNode Logo"
@@ -51,7 +50,6 @@ export const SabNodeLogo = ({ className }: { className?: string }) => {
           priority
           style={{objectFit: 'contain'}}
         />
-      </Link>
     );
   }
 
@@ -66,7 +64,7 @@ export const SabNodeLogo = ({ className }: { className?: string }) => {
         fontFamily="'PT Sans', sans-serif"
         fontSize="30"
         fontWeight="bold"
-        fill="hsl(var(--primary))"
+        fill="currentColor"
       >
         SabNode
       </text>
