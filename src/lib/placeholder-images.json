@@ -20,27 +20,21 @@
     },
     {
       "id": "catalog-step-1",
-      "description": "Instructional image for creating a catalog in Meta Commerce Manager.",
-      "imageUrl": "https://pub-76bc986b137b4ea49e6d08aad5b37200.r2.dev/en-create-a-catalog.png",
+      "description": "Instructional image for connecting accounts.",
+      "imageUrl": "https://images.unsplash.com/photo-1627827963179-a8bb14121eb4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxkYXNoYm9hcmQlMjBzY3JlZW5zaG90fGVufDB8fHx8MTc2Nzg4OTE0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "dashboard screenshot"
-    },
-    {
-      "id": "catalog-step-2",
-      "description": "Instructional image for adding a product to a catalog.",
-      "imageUrl": "https://pub-76bc986b137b4ea49e6d08aad5b37200.r2.dev/Add-Items-to-Catalog.png",
-      "imageHint": "product form"
     },
     {
       "id": "catalog-step-3",
-      "description": "Instructional image for assigning a catalog to a WABA.",
-      "imageUrl": "https://pub-76bc986b137b4ea49e6d08aad5b37200.r2.dev/6465ff1f4a540e853cd6587d_2%20(4)-min.png",
-      "imageHint": "dashboard screenshot"
+      "description": "Instructional image for syncing assets.",
+      "imageUrl": "https://images.unsplash.com/photo-1762278804997-9502efa1369f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkYXRhJTIwc3luY3xlbnwwfHx8fDE3Njc4ODkxNDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "data sync"
     },
     {
       "id": "catalog-step-6",
-      "description": "Image showing how WhatsApp Catalog Messages work.",
-      "imageUrl": "https://pub-76bc986b137b4ea49e6d08aad5b37200.r2.dev/E-commerce.webp",
-      "imageHint": "whatsapp chat"
+      "description": "Image showing flow builder and engagement.",
+      "imageUrl": "https://images.unsplash.com/photo-1587400563263-e77a5590bfe7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhdXRvbWF0aW9uJTIwY2hhcnR8ZW58MHx8fHwxNzY3ODg5MTQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "automation chart"
     }
   ]
 }
