@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -22,8 +23,11 @@ import { useProject } from '@/context/project-context';
 export default function SelectProjectPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { projects, reloadProjects, isLoadingProject } = useProject();
+    const { projects: allProjects, reloadProjects, isLoadingProject } = useProject();
     
+    // This page should ONLY show WhatsApp projects.
+    const projects = useMemo(() => allProjects.filter(p => !!p.wabaId), [allProjects]);
+
     const query = searchParams.get('query') || '';
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 50;
@@ -136,7 +140,7 @@ export default function SelectProjectPage() {
             />
             <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Select a Project ({projects?.length || 0})</h1>
+                    <h1 className="text-3xl font-bold font-headline">Select a WhatsApp Project ({projects?.length || 0})</h1>
                     <p className="text-muted-foreground">
                         Choose an existing project or connect a new one to get started.
                     </p>

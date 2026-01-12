@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
@@ -70,13 +71,9 @@ export default function AllFacebookPagesPage() {
 
     const fetchData = () => {
         startLoading(async () => {
-            // Fetch both types to show everything on one page
-            const { projects: waProjects } = await getProjects(undefined, 'whatsapp');
+            // Fetch only facebook projects for this page
             const { projects: fbProjects } = await getProjects(undefined, 'facebook');
-            
-            const combined = [...waProjects, ...fbProjects];
-            const unique = Array.from(new Map(combined.map(p => [p._id.toString(), p])).values());
-            setProjects(unique);
+            setProjects(fbProjects);
         });
     }
 
@@ -90,10 +87,6 @@ export default function AllFacebookPagesPage() {
         return <PageSkeleton />;
     }
     
-    const connectedFacebookProjects = projects.filter(p => !!p.facebookPageId && !p.wabaId);
-    const connectedWhatsAppProjects = projects.filter(p => !!p.wabaId);
-
-
     return (
         <div className="flex flex-col gap-8">
             <div>
@@ -101,7 +94,7 @@ export default function AllFacebookPagesPage() {
                     Meta Suite Connections
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                    Connect and manage your Facebook Pages and WhatsApp accounts.
+                    Connect and manage your Facebook Pages.
                 </p>
             </div>
 
@@ -131,47 +124,18 @@ export default function AllFacebookPagesPage() {
             
             <h2 className="text-2xl font-semibold">Connected Pages</h2>
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {connectedFacebookProjects.length > 0 ? (
-                    connectedFacebookProjects.map(project => (
+                {projects.length > 0 ? (
+                    projects.map(project => (
                         <ConnectedPageCard key={project._id.toString()} project={project} />
                     ))
                 ) : (
                     <Card className="text-center py-12 md:col-span-2 xl:col-span-3">
                          <CardContent>
-                            <p className="text-muted-foreground">No standalone Facebook Pages have been connected yet.</p>
+                            <p className="text-muted-foreground">No Facebook Pages have been connected yet.</p>
                          </CardContent>
                     </Card>
                 )}
             </div>
-            <Separator />
-
-             <h2 className="text-2xl font-semibold">WhatsApp Projects</h2>
-              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {connectedWhatsAppProjects.length > 0 ? (
-                    connectedWhatsAppProjects.map(project => (
-                         <Card key={project._id.toString()}>
-                            <CardHeader>
-                                <CardTitle>{project.name}</CardTitle>
-                                <CardDescription>WABA ID: {project.wabaId}</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                {project.adAccountId && project.facebookPageId ? (
-                                    <Badge><CheckCircle className="mr-2 h-4 w-4"/>Ad Account Connected</Badge>
-                                ) : (
-                                     <p className="text-sm text-muted-foreground">Ad account not linked.</p>
-                                )}
-                            </CardContent>
-                        </Card>
-                    ))
-                ) : (
-                    <Card className="text-center py-12 md:col-span-2 xl:col-span-3">
-                         <CardContent>
-                            <p className="text-muted-foreground">No WhatsApp projects found. <Link href="/dashboard/setup" className="text-primary hover:underline">Connect one now.</Link></p>
-                         </CardContent>
-                    </Card>
-                )}
-            </div>
-
         </div>
     );
 }
