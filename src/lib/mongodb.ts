@@ -1,8 +1,8 @@
+
 import { MongoClient, Db } from 'mongodb';
 
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config({ path: require('path').resolve(process.cwd(), '.env') });
-}
+// dotenv is now loaded in server.js, which is the main entrypoint.
+// No need to call it here anymore.
 
 if (!process.env.MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');

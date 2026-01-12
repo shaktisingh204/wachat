@@ -1,14 +1,14 @@
 
 'use strict';
 
-const path = require('path');
-// Ensure environment variables are loaded
-require('./lib/mongodb');
-
+require('dotenv').config();
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
+const path = require('path');
 
+// Ensure the mongodb connection logic is available, which also initializes any other necessary libs.
+require('./lib/mongodb');
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = '0.0.0.0';
