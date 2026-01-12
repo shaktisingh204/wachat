@@ -49,12 +49,7 @@ export async function POST(request: NextRequest) {
             setOnInsertData.credits = defaultPlan.signupCredits || 0;
         }
         
-        if(location) {
-            setOnInsertData.location = location;
-        }
-
-        // On every login/session creation, we update the lastLogin time.
-        // If location is provided, we also update it, unless it's the very first insert.
+        // On every login/session creation, we update the lastLogin time and location.
         const setData: any = {
             lastLogin: now,
         };
