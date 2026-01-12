@@ -25,7 +25,7 @@ export async function getProjectById(projectId?: string | null, userId?: string 
     try {
         const { db } = await connectToDatabase();
         const projectObjectId = new ObjectId(projectId);
-
+        
         const filter: Filter<Project> = { _id: projectObjectId };
 
         // If userId is provided (and not null), enforce ownership/agent check.
@@ -346,10 +346,10 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
     return { message: "If an account with this email exists, a password reset link has been sent." };
 }
 
-export async function getSession() {
+export async function getSession(token?: string) {
   console.log('[getSession] Attempting to get session...');
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session')?.value;
+  const sessionCookie = token || cookieStore.get('session')?.value;
   
   if (!sessionCookie) {
     console.log('[getSession] No session cookie found.');
