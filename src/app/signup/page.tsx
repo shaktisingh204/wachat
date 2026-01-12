@@ -31,12 +31,22 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const [locationPermission, setLocationPermission] = useState<'pending' | 'granted' | 'denied'>('pending');
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
    useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        () => setLocationPermission('granted'),
-        () => setLocationPermission('denied')
+        (position) => {
+            setLocation({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+            });
+            setLocationPermission('granted');
+        },
+        () => {
+            setLocationPermission('denied');
+            setError("Location access is required to sign up. Please enable it in your browser settings and refresh the page.");
+        }
       );
     } else {
       setLocationPermission('denied');
@@ -48,7 +58,7 @@ export default function SignupPage() {
       event.preventDefault();
       setError(null);
       
-      if (locationPermission !== 'granted') {
+      if (locationPermission !== 'granted' || !location) {
           setError("Location access is required to sign up. Please enable it in your browser settings and refresh the page.");
           return;
       }
@@ -71,7 +81,13 @@ export default function SignupPage() {
               await fetch('/api/auth/session', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${idToken}` },
-                body: JSON.stringify({ name: name })
+                body: JSON.stringify({ 
+                    name: name,
+                    location: {
+                        type: 'Point',
+                        coordinates: [location.longitude, location.latitude]
+                    }
+                })
               });
 
               router.push('/dashboard');
@@ -82,7 +98,7 @@ export default function SignupPage() {
   }
   
    const handleSocialLogin = async (provider: 'google' | 'facebook') => {
-      if (locationPermission !== 'granted') {
+      if (locationPermission !== 'granted' || !location) {
           setError("Location access is required to sign up. Please enable it in your browser settings and refresh the page.");
           return;
       }
@@ -92,11 +108,19 @@ export default function SignupPage() {
               const result = await signInWithPopup(auth, authProvider);
               const idToken = await result.user.getIdToken();
               const name = result.user.displayName;
+
               await fetch('/api/auth/session', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${idToken}` },
-                body: JSON.stringify({ name: name })
+                body: JSON.stringify({ 
+                    name: name,
+                    location: {
+                        type: 'Point',
+                        coordinates: [location.longitude, location.latitude]
+                    }
+                })
               });
+
               router.push('/dashboard');
           } catch(err: any) {
               setError(err.message || 'An unknown error occurred.');

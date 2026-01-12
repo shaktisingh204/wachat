@@ -30,12 +30,22 @@ export function LoginForm() {
   const [isPending, startTransition] = React.useTransition();
   const router = useRouter();
   const [locationPermission, setLocationPermission] = React.useState<'pending' | 'granted' | 'denied'>('pending');
+  const [location, setLocation] = React.useState<{ latitude: number; longitude: number } | null>(null);
 
   React.useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        () => setLocationPermission('granted'),
-        () => setLocationPermission('denied')
+        (position) => {
+            setLocation({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+            });
+            setLocationPermission('granted');
+        },
+        () => {
+            setLocationPermission('denied');
+            setError("Location access is required to sign in. Please enable it in your browser settings and refresh the page.");
+        }
       );
     } else {
       setLocationPermission('denied');
@@ -47,7 +57,7 @@ export function LoginForm() {
     event.preventDefault();
     setError(null);
     
-    if (locationPermission !== 'granted') {
+    if (locationPermission !== 'granted' || !location) {
         setError("Location access is required to sign in. Please enable it in your browser settings and refresh the page.");
         return;
     }
@@ -63,7 +73,13 @@ export function LoginForm() {
 
             const response = await fetch('/api/auth/session', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${idToken}` }
+                headers: { 'Authorization': `Bearer ${idToken}` },
+                 body: JSON.stringify({ 
+                    location: {
+                        type: 'Point',
+                        coordinates: [location.longitude, location.latitude]
+                    }
+                })
             });
 
             if (!response.ok) {
@@ -79,7 +95,7 @@ export function LoginForm() {
   };
   
    const handleSocialLogin = async (provider: 'google' | 'facebook') => {
-      if (locationPermission !== 'granted') {
+      if (locationPermission !== 'granted' || !location) {
           setError("Location access is required to sign in. Please enable it in your browser settings and refresh the page.");
           return;
       }
@@ -93,7 +109,13 @@ export function LoginForm() {
               const response = await fetch('/api/auth/session', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${idToken}` },
-                 body: JSON.stringify({ name: name })
+                 body: JSON.stringify({ 
+                    name: name,
+                    location: {
+                        type: 'Point',
+                        coordinates: [location.longitude, location.latitude]
+                    }
+                 })
               });
 
               if (!response.ok) {
