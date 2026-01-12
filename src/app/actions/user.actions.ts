@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -98,9 +99,10 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         }
         
         if (type === 'whatsapp') {
-            projectFilter.wabaId = { $exists: true, $ne: "" };
+            projectFilter.wabaId = { $exists: true, $ne: "", $ne: null };
         } else if (type === 'facebook') {
-            projectFilter.facebookPageId = { $exists: true, $ne: "" };
+            projectFilter.facebookPageId = { $exists: true, $ne: "", $ne: null };
+            projectFilter.wabaId = { $exists: false };
         }
         
         console.log('[getProjects] Using filter:', JSON.stringify(projectFilter, null, 2));
@@ -346,23 +348,18 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
     return { message: "If an account with this email exists, a password reset link has been sent." };
 }
 
-export async function getSession(token?: string) {
-  console.log('[getSession] Attempting to get session...');
-  const cookieStore = await cookies();
-  const sessionCookie = token || cookieStore.get('session')?.value;
+export async function getSession() {
+  const cookieStore = cookies();
+  const sessionCookie = cookieStore.get('session')?.value;
   
   if (!sessionCookie) {
-    console.log('[getSession] No session cookie found.');
     return null;
   }
-  console.log('[getSession] Session cookie found.');
 
   const decoded = await getDecodedSession(sessionCookie);
   if (!decoded) {
-    console.log('[getSession] Failed to decode session cookie.');
     return null;
   }
-  console.log(`[getSession] Session decoded for user: ${decoded.email}`);
 
   try {
     const { db } = await connectToDatabase();
@@ -373,10 +370,8 @@ export async function getSession(token?: string) {
     );
 
     if (!dbUser) {
-      console.log(`[getSession] User not found in DB: ${decoded.email}`);
       return null;
     }
-    console.log(`[getSession] User found in DB: ${dbUser.email}`);
 
     let plan: WithId<Plan> | null = null;
     if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
@@ -387,7 +382,6 @@ export async function getSession(token?: string) {
     if (!plan) {
       plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
     }
-    console.log(`[getSession] User plan resolved: ${plan?.name || 'Default'}`);
 
     const sessionData = {
       user: {
@@ -399,7 +393,6 @@ export async function getSession(token?: string) {
         plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
       },
     };
-    console.log('[getSession] Session object created successfully.');
     return sessionData;
   } catch (e) {
     console.error('[getSession] DB error:', e);
@@ -544,3 +537,5 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
+    
