@@ -63,7 +63,7 @@ export default function InstagramConnectionsPage() {
 
     useEffect(() => {
         startLoading(async () => {
-            const facebookProjects = await getProjects(undefined, 'facebook');
+            const { projects: facebookProjects } = await getProjects(undefined, 'facebook');
             const projectsWithIg = await Promise.all(
                 facebookProjects.map(async (p) => {
                     const { instagramAccount } = await getInstagramAccountForPage(p._id.toString());
@@ -76,7 +76,7 @@ export default function InstagramConnectionsPage() {
 
     const handleSelectProject = (project: WithId<Project>) => {
         localStorage.setItem('activeProjectId', project._id.toString());
-        localStorage.setItem('activeProjectName', project.instagramProfile?.username || project.name);
+        localStorage.setItem('activeProjectName', (project as any).instagramProfile?.username || project.name);
         router.push('/dashboard/instagram');
     }
 
