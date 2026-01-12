@@ -349,33 +349,41 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
-  // ✅ cookies() MUST be awaited
-  const cookieStore = await cookies();
-
-  const sessionCookie = cookieStore.get('session')?.value;
-  if (!sessionCookie) return null;
-
-  const decoded = await getDecodedSession(sessionCookie);
-  if (!decoded) return null;
-
+  // This function is now designed to be robust against being called
+  // in different server-side contexts.
   try {
+    const cookieStore = cookies();
+    const sessionCookie = cookieStore.get('session')?.value;
+
+    if (!sessionCookie) {
+      console.log('[getSession] No session cookie found.');
+      return null;
+    }
+
+    const decoded = await getDecodedSession(sessionCookie);
+    if (!decoded) {
+      console.log('[getSession] Failed to decode session cookie.');
+      return null;
+    }
+
     const { db } = await connectToDatabase();
 
-    const dbUser = await db.collection('users').findOne(
+    const dbUser = await db.collection<User>('users').findOne(
       { email: decoded.email },
       { projection: { password: 0 } }
     );
 
-    if (!dbUser) return null;
+    if (!dbUser) {
+      console.log(`[getSession] User not found in DB for email: ${decoded.email}`);
+      return null;
+    }
 
     let plan: WithId<Plan> | null = null;
-
     if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
       plan = await db.collection<WithId<Plan>>('plans').findOne({
         _id: new ObjectId(dbUser.planId),
       });
     }
-
     if (!plan) {
       plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
     }
@@ -390,8 +398,9 @@ export async function getSession() {
         plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
       },
     };
-  } catch (e) {
-    console.error('[getSession] DB error:', e);
+  } catch (error) {
+    // This catches errors if cookies() is called outside of a request context.
+    console.error('[getSession] Error accessing cookies or session:', error);
     return null;
   }
 }
