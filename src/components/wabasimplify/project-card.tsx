@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -14,6 +13,7 @@ import { DeleteProjectButton } from './delete-project-button';
 import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle, AlertCircle } from 'lucide-react';
+import { FacebookIcon } from './custom-sidebar-components';
 
 
 interface ProjectCardProps {
@@ -28,12 +28,14 @@ export const ProjectCard = React.memo(function ProjectCard({ project, selectionM
     const [createdDate, setCreatedDate] = useState<string | null>(null);
     const [webhookStatus, setWebhookStatus] = useState<{ isActive: boolean; error?: string } | null>(null);
 
+    const isWhatsAppProject = !!project.wabaId;
+
     useEffect(() => {
         setCreatedDate(new Date(project.createdAt).toLocaleDateString());
-        if (project.wabaId && project.accessToken) {
+        if (isWhatsAppProject && project.wabaId && project.accessToken) {
             getWebhookSubscriptionStatus(project.wabaId, project.accessToken).then(setWebhookStatus);
         }
-    }, [project.createdAt, project.wabaId, project.accessToken]);
+    }, [project.createdAt, project.wabaId, project.accessToken, isWhatsAppProject]);
 
     const handleCardClick = () => {
         if (selectionMode && onSelect) {
@@ -43,7 +45,9 @@ export const ProjectCard = React.memo(function ProjectCard({ project, selectionM
                 localStorage.setItem('activeProjectId', project._id.toString());
                 localStorage.setItem('activeProjectName', project.name);
             }
-            router.push('/dashboard/overview');
+            // Redirect based on project type
+            const dashboardPath = isWhatsAppProject ? '/dashboard/overview' : '/dashboard/facebook';
+            router.push(dashboardPath);
         }
     };
     
@@ -93,7 +97,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project, selectionM
         <Card 
             className={cn(
                 "flex flex-col hover:shadow-lg transition-all card-gradient relative",
-                project.facebookPageId ? 'card-gradient-blue' : 'card-gradient-green',
+                isWhatsAppProject ? 'card-gradient-green' : 'card-gradient-blue',
                 selectionMode && 'cursor-pointer',
                 isSelected && 'ring-2 ring-primary'
             )}
@@ -131,41 +135,45 @@ export const ProjectCard = React.memo(function ProjectCard({ project, selectionM
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground space-y-2 flex-grow">
                  <div className="flex items-center gap-2 pt-1">
-                    <ClipboardList className="h-4 w-4" />
+                    {isWhatsAppProject ? <ClipboardList className="h-4 w-4" /> : <FacebookIcon className="h-4 w-4" />}
                     <span>App ID: <span className="font-mono">{project.appId || 'Not set'}</span></span>
                 </div>
-                 <div className="flex items-center gap-2 pt-1">
-                    <Phone className="h-4 w-4" />
-                    <span>{project.phoneNumbers?.length || 0} Phone Number(s)</span>
-                </div>
-                 <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    {createdDate ? (
-                        <span>Created: {createdDate}</span>
-                    ) : (
-                        <span className="h-4 w-24 bg-muted rounded animate-pulse" />
-                    )}
-                </div>
-                 <div className="flex items-center gap-2">
-                    <BarChart2 className="h-4 w-4" />
-                     <span>Messaging Tier:</span>
-                    {throughputLevel ? (
-                         <Badge variant={getThroughputVariant(throughputLevel)} className="capitalize">
-                            {formatThroughput(throughputLevel)}
-                        </Badge>
-                    ): (<span>N/A</span>)}
-                </div>
-                <div className="flex items-center gap-2">
-                    <Webhook className="h-4 w-4" />
-                    <span>Webhook:</span>
-                    {webhookStatus ? (
-                        <Badge variant={webhookStatus.isActive ? 'default' : 'destructive'}>
-                            {webhookStatus.isActive ? 'Active' : 'Inactive'}
-                        </Badge>
-                    ) : (
-                        <Badge variant="secondary">Checking...</Badge>
-                    )}
-                </div>
+                 {isWhatsAppProject && (
+                    <>
+                        <div className="flex items-center gap-2 pt-1">
+                            <Phone className="h-4 w-4" />
+                            <span>{project.phoneNumbers?.length || 0} Phone Number(s)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            {createdDate ? (
+                                <span>Created: {createdDate}</span>
+                            ) : (
+                                <span className="h-4 w-24 bg-muted rounded animate-pulse" />
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <BarChart2 className="h-4 w-4" />
+                            <span>Messaging Tier:</span>
+                            {throughputLevel ? (
+                                <Badge variant={getThroughputVariant(throughputLevel)} className="capitalize">
+                                    {formatThroughput(throughputLevel)}
+                                </Badge>
+                            ): (<span>N/A</span>)}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Webhook className="h-4 w-4" />
+                            <span>Webhook:</span>
+                            {webhookStatus ? (
+                                <Badge variant={webhookStatus.isActive ? 'default' : 'destructive'}>
+                                    {webhookStatus.isActive ? 'Active' : 'Inactive'}
+                                </Badge>
+                            ) : (
+                                <Badge variant="secondary">Checking...</Badge>
+                            )}
+                        </div>
+                    </>
+                 )}
             </CardContent>
             <CardFooter className="pt-4">
                 <Button className="w-full flex-grow" size="sm" disabled={selectionMode}>
