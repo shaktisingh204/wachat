@@ -30,9 +30,17 @@ export async function POST(request: NextRequest) {
         const now = new Date();
         const requestBody = await request.json().catch(() => ({}));
         const name = requestBody.name || decodedToken.name || decodedToken.email;
+        const location = requestBody.location; // GeoJSON object
         console.log(`[API_SESSION] Upserting user: ${decodedToken.email}`);
         
         const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
+
+        const updateData: any = {
+            lastLogin: now,
+        };
+        if (location) {
+            updateData.location = location;
+        }
 
         // Upsert user in our database
         const updateResult = await db.collection('users').findOneAndUpdate(
@@ -44,10 +52,9 @@ export async function POST(request: NextRequest) {
                     authProvider: decodedToken.firebase.sign_in_provider,
                     createdAt: now,
                     ...(defaultPlan && { planId: defaultPlan._id, credits: defaultPlan?.signupCredits || 0 }),
+                    ...(location && { location }), // Add location on insert
                 },
-                $set: {
-                    lastLogin: now,
-                }
+                $set: updateData, // Set location and lastLogin on update
             },
             { upsert: true, returnDocument: 'after' }
         );
