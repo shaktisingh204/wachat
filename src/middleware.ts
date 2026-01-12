@@ -1,4 +1,5 @@
 
+'use server';
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
@@ -39,37 +40,31 @@ export async function middleware(request: NextRequest) {
       return response;
     }
   }
-
+  
   // User session logic
   if (isDashboard || isPendingPage) {
-    if (!sessionToken) {
-      const response = NextResponse.redirect(new URL('/login', appUrl));
-      response.cookies.delete('session');
-      return response;
+    let sessionValid = false;
+    let sessionExpired = false;
+    if (sessionToken) {
+        try {
+            sessionValid = await verifyJwtEdge(sessionToken);
+        } catch(e: any) {
+            if (e.code === 'ERR_JWT_EXPIRED') sessionExpired = true;
+        }
     }
-    // We pass the token to the server to get the full user object
-    const session = await getSession(sessionToken);
 
-    if (!session?.user) {
+    if (!sessionValid) {
         const response = NextResponse.redirect(new URL('/login', appUrl));
-        response.cookies.delete('session');
+        if (sessionExpired || sessionToken) {
+            response.cookies.delete('session');
+        }
         return response;
-    }
-    
-    // REDIRECTION LOGIC FOR APPROVAL
-    if (!session.user.isApproved && !isPendingPage) {
-        return NextResponse.redirect(new URL('/pending-approval', appUrl));
-    }
-
-    if (session.user.isApproved && isPendingPage) {
-        return NextResponse.redirect(new URL('/dashboard', appUrl));
     }
   }
 
   // Logged-in user trying to access auth pages
   if (isAuthPage && sessionToken) {
-    const session = await getSession(sessionToken);
-    if(session?.user) {
+    if(await verifyJwtEdge(sessionToken)) {
         return NextResponse.redirect(new URL('/dashboard', appUrl));
     }
   }

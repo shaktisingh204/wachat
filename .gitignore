@@ -128,8 +128,6 @@ src/config/site.ts
 /src/components/wabasimplify/broadcasts/page.tsx
 /src/app/dashboard/broadcasts/page.tsx
 /src/components/wabasimplify/project.actions.ts
-/src/app/actions/user.actions.ts
-/src/lib/actions/user.actions.ts
 /src/app/actions/email.actions.ts
 /src/app/actions/project.actions.ts
 /src/app/dashboard/flow-builder/page.tsx
