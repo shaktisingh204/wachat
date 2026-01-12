@@ -16,6 +16,8 @@ import { Button } from '@/components/ui/button';
 import { AdminUserSearch } from '@/components/wabasimplify/admin-user-search';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { WithId, User } from '@/lib/definitions';
+import { ApproveUserButton } from '@/components/wabasimplify/approve-user-button';
+import { Badge } from '@/components/ui/badge';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,16 +30,15 @@ const USERS_PER_PAGE = 10;
 export default async function AdminUsersPage({
     searchParams,
 }: {
-    searchParams: Promise<{
+    searchParams: {
         query?: string;
         page?: string;
-    }>;
+    };
 }) {
-  const params = await searchParams;
-  const query = params?.query || '';
-  const currentPage = Number(params?.page) || 1;
+  const query = searchParams?.query || '';
+  const currentPage = Number(searchParams?.page) || 1;
   
-  let users: Omit<WithId<User>, "password">[] = [];
+  let users: (Omit<WithId<User>, "password"> & { isApproved?: boolean })[] = [];
   let total = 0;
 
   try {
@@ -50,14 +51,14 @@ export default async function AdminUsersPage({
 
   const totalPages = Math.ceil(total / USERS_PER_PAGE);
 
-  const plainUsers = JSON.parse(JSON.stringify(users)) as WithId<User>[];
+  const plainUsers = JSON.parse(JSON.stringify(users)) as (WithId<User> & { isApproved?: boolean })[];
 
 
   return (
     <div className="flex flex-col gap-4">
       <div>
         <h1 className="text-3xl font-bold font-headline">User Management</h1>
-        <p className="text-muted-foreground">View all users on the platform. Plans and credits are managed per-project on the main admin dashboard.</p>
+        <p className="text-muted-foreground">View and approve all users on the platform.</p>
       </div>
 
       <Card>
@@ -75,6 +76,8 @@ export default async function AdminUsersPage({
                 <TableRow>
                     <TableHead>User</TableHead>
                     <TableHead>Joined</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -91,11 +94,23 @@ export default async function AdminUsersPage({
                             </div>
                         </TableCell>
                         <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                            {user.isApproved ? (
+                                <Badge>Approved</Badge>
+                            ) : (
+                                <Badge variant="secondary">Pending</Badge>
+                            )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                            {!user.isApproved && (
+                                <ApproveUserButton userId={user._id.toString()} />
+                            )}
+                        </TableCell>
                     </TableRow>
                     ))
                 ) : (
                     <TableRow>
-                    <TableCell colSpan={2} className="h-24 text-center">
+                    <TableCell colSpan={4} className="h-24 text-center">
                         No users found.
                     </TableCell>
                     </TableRow>

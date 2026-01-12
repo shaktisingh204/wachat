@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
                     email: decodedToken.email,
                     authProvider: decodedToken.firebase.sign_in_provider,
                     createdAt: now,
+                    isApproved: false, // <-- Set approval status to false for new users
                     ...(defaultPlan && { planId: defaultPlan._id, credits: defaultPlan?.signupCredits || 0 }),
                     ...(location && { location }), // Add location on insert
                 },
