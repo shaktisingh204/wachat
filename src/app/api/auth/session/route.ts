@@ -1,4 +1,5 @@
 
+
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { verifyJwt } from '@/lib/auth';
@@ -35,27 +36,37 @@ export async function POST(request: NextRequest) {
         
         const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
 
-        const updateData: any = {
-            lastLogin: now,
+        const setOnInsertData: any = {
+            name,
+            email: decodedToken.email,
+            authProvider: decodedToken.firebase.sign_in_provider,
+            createdAt: now,
+            isApproved: false, 
         };
-        if (location) {
-            updateData.location = location;
+        
+        if (defaultPlan) {
+            setOnInsertData.planId = defaultPlan._id;
+            setOnInsertData.credits = defaultPlan.signupCredits || 0;
+        }
+        
+        if(location) {
+            setOnInsertData.location = location;
         }
 
-        // Upsert user in our database
+        // On every login/session creation, we update the lastLogin time.
+        // If location is provided, we also update it, unless it's the very first insert.
+        const setData: any = {
+            lastLogin: now,
+        };
+        if(location) {
+            setData.location = location;
+        }
+
         const updateResult = await db.collection('users').findOneAndUpdate(
             { email: decodedToken.email },
             { 
-                $setOnInsert: {
-                    name,
-                    email: decodedToken.email,
-                    authProvider: decodedToken.firebase.sign_in_provider,
-                    createdAt: now,
-                    isApproved: false, // <-- Set approval status to false for new users
-                    ...(defaultPlan && { planId: defaultPlan._id, credits: defaultPlan?.signupCredits || 0 }),
-                    ...(location && { location }), // Add location on insert
-                },
-                $set: updateData, // Set location and lastLogin on update
+                $setOnInsert: setOnInsertData,
+                $set: setData,
             },
             { upsert: true, returnDocument: 'after' }
         );
