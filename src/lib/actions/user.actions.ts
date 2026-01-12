@@ -101,8 +101,8 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         if (type === 'whatsapp') {
             projectFilter.wabaId = { $exists: true, $ne: "" };
         } else if (type === 'facebook') {
-            projectFilter.wabaId = { $exists: false };
             projectFilter.facebookPageId = { $exists: true, $ne: "" };
+            projectFilter.wabaId = { $exists: false };
         }
         
         console.log('[getProjects] Using filter:', JSON.stringify(projectFilter, null, 2));
@@ -349,19 +349,23 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
-  const cookieStore = cookies();
-  const sessionCookie = cookieStore.get('session')?.value;
-  
-  if (!sessionCookie) {
-    return null;
-  }
-
-  const decoded = await getDecodedSession(sessionCookie);
-  if (!decoded) {
-    return null;
-  }
-
+  // This function is now designed to be robust against being called
+  // in different server-side contexts.
   try {
+    const cookieStore = cookies();
+    const sessionCookie = cookieStore.get('session')?.value;
+
+    if (!sessionCookie) {
+      console.log('[getSession] No session cookie found.');
+      return null;
+    }
+
+    const decoded = await getDecodedSession(sessionCookie);
+    if (!decoded) {
+      console.log('[getSession] Failed to decode session cookie.');
+      return null;
+    }
+
     const { db } = await connectToDatabase();
 
     const dbUser = await db.collection<User>('users').findOne(
@@ -370,6 +374,7 @@ export async function getSession() {
     );
 
     if (!dbUser) {
+      console.log(`[getSession] User not found in DB for email: ${decoded.email}`);
       return null;
     }
 
@@ -383,7 +388,7 @@ export async function getSession() {
       plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
     }
 
-    const sessionData = {
+    return {
       user: {
         ...dbUser,
         _id: dbUser._id.toString(),
@@ -393,9 +398,9 @@ export async function getSession() {
         plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
       },
     };
-    return sessionData;
-  } catch (e) {
-    console.error('[getSession] DB error:', e);
+  } catch (error) {
+    // This catches errors if cookies() is called outside of a request context.
+    console.error('[getSession] Error accessing cookies or session:', error);
     return null;
   }
 }
@@ -537,3 +542,5 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
+    
