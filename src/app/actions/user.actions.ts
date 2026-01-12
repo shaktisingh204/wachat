@@ -352,8 +352,9 @@ export async function getSession() {
   // This function is now designed to be robust against being called
   // in different server-side contexts.
   try {
-    const cookieStore = cookies();
-    const sessionCookie = cookieStore.get('session')?.value;
+  
+const cookieStore = await cookies();
+const sessionCookie = cookieStore.get("session")?.value;
 
     if (!sessionCookie) {
       console.log('[getSession] No session cookie found.');
