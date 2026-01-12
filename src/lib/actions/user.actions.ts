@@ -101,6 +101,7 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         if (type === 'whatsapp') {
             projectFilter.wabaId = { $exists: true, $ne: "" };
         } else if (type === 'facebook') {
+            projectFilter.wabaId = { $exists: false };
             projectFilter.facebookPageId = { $exists: true, $ne: "" };
         }
         
@@ -346,53 +347,58 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
     // save it to the user's record with an expiration, and send an email.
     return { message: "If an account with this email exists, a password reset link has been sent." };
 }
+
 export async function getSession() {
-    // ✅ cookies() MUST be awaited
-    const cookieStore = await cookies();
+  const cookieStore = cookies();
+  const sessionCookie = cookieStore.get('session')?.value;
   
-    const sessionCookie = cookieStore.get('session')?.value;
-    if (!sessionCookie) return null;
-  
-    const decoded = await getDecodedSession(sessionCookie);
-    if (!decoded) return null;
-  
-    try {
-      const { db } = await connectToDatabase();
-  
-      const dbUser = await db.collection('users').findOne(
-        { email: decoded.email },
-        { projection: { password: 0 } }
-      );
-  
-      if (!dbUser) return null;
-  
-      let plan: WithId<Plan> | null = null;
-  
-      if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
-        plan = await db.collection<WithId<Plan>>('plans').findOne({
-          _id: new ObjectId(dbUser.planId),
-        });
-      }
-  
-      if (!plan) {
-        plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
-      }
-  
-      return {
-        user: {
-          ...dbUser,
-          _id: dbUser._id.toString(),
-          planId: dbUser.planId?.toString(),
-          name: dbUser.name || decoded.name,
-          image: dbUser.image || decoded.picture,
-          plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
-        },
-      };
-    } catch (e) {
-      console.error('[getSession] DB error:', e);
+  if (!sessionCookie) {
+    return null;
+  }
+
+  const decoded = await getDecodedSession(sessionCookie);
+  if (!decoded) {
+    return null;
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+
+    const dbUser = await db.collection<User>('users').findOne(
+      { email: decoded.email },
+      { projection: { password: 0 } }
+    );
+
+    if (!dbUser) {
       return null;
     }
+
+    let plan: WithId<Plan> | null = null;
+    if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
+      plan = await db.collection<WithId<Plan>>('plans').findOne({
+        _id: new ObjectId(dbUser.planId),
+      });
+    }
+    if (!plan) {
+      plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
+    }
+
+    const sessionData = {
+      user: {
+        ...dbUser,
+        _id: dbUser._id.toString(),
+        planId: dbUser.planId?.toString(),
+        name: dbUser.name || decoded.name,
+        image: dbUser.image || decoded.picture,
+        plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
+      },
+    };
+    return sessionData;
+  } catch (e) {
+    console.error('[getSession] DB error:', e);
+    return null;
   }
+}
   
 export async function getUsersForAdmin(
     page: number = 1,
@@ -531,5 +537,3 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
-
-    

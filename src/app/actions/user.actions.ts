@@ -99,10 +99,10 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         }
         
         if (type === 'whatsapp') {
-            projectFilter.wabaId = { $exists: true, $ne: "", $ne: null };
+            projectFilter.wabaId = { $exists: true, $ne: "" };
         } else if (type === 'facebook') {
-            projectFilter.facebookPageId = { $exists: true, $ne: "", $ne: null };
             projectFilter.wabaId = { $exists: false };
+            projectFilter.facebookPageId = { $exists: true, $ne: "" };
         }
         
         console.log('[getProjects] Using filter:', JSON.stringify(projectFilter, null, 2));
@@ -349,41 +349,38 @@ export async function handleForgotPassword(prevState: any, formData: FormData): 
 }
 
 export async function getSession() {
-  const cookieStore = cookies();
+  // ✅ cookies() MUST be awaited
+  const cookieStore = await cookies();
+
   const sessionCookie = cookieStore.get('session')?.value;
-  
-  if (!sessionCookie) {
-    return null;
-  }
+  if (!sessionCookie) return null;
 
   const decoded = await getDecodedSession(sessionCookie);
-  if (!decoded) {
-    return null;
-  }
+  if (!decoded) return null;
 
   try {
     const { db } = await connectToDatabase();
 
-    const dbUser = await db.collection<User>('users').findOne(
+    const dbUser = await db.collection('users').findOne(
       { email: decoded.email },
       { projection: { password: 0 } }
     );
 
-    if (!dbUser) {
-      return null;
-    }
+    if (!dbUser) return null;
 
     let plan: WithId<Plan> | null = null;
+
     if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
       plan = await db.collection<WithId<Plan>>('plans').findOne({
         _id: new ObjectId(dbUser.planId),
       });
     }
+
     if (!plan) {
       plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
     }
 
-    const sessionData = {
+    return {
       user: {
         ...dbUser,
         _id: dbUser._id.toString(),
@@ -393,7 +390,6 @@ export async function getSession() {
         plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
       },
     };
-    return sessionData;
   } catch (e) {
     console.error('[getSession] DB error:', e);
     return null;
