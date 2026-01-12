@@ -254,7 +254,10 @@ export default function ManageRolesPage() {
                      })}
                  </Accordion>
                  <div className="flex justify-end mt-6">
-                    <SubmitButton />
+                     <Button type="submit">
+                        <Save className="mr-2 h-4 w-4" />
+                        Save Permissions
+                    </Button>
                  </div>
             </form>
         </div>
