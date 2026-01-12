@@ -14,7 +14,8 @@ import {
 } from '@/app/actions/whatsapp.actions';
 
 const API_VERSION = 'v24.0';
-const LOG_PREFIX = '[ONBOARDING]';
+const LOG_PREFIX_WABA = '[WABA ONBOARDING]';
+const LOG_PREFIX_META = '[META SUITE ONBOARDING]';
 
 export async function handleWabaOnboarding(data: {
   code: string;
@@ -26,9 +27,6 @@ export async function handleWabaOnboarding(data: {
       return { success: false, error: 'Authorization code missing.' };
     }
 
-    /**
-     * STEP 0: Read & clear onboarding state cookie
-     */
     const cookieStore = await cookies();
     const stateCookie = cookieStore.get('onboarding_state')?.value;
 
@@ -50,12 +48,7 @@ export async function handleWabaOnboarding(data: {
       };
     }
 
-    console.log(`${LOG_PREFIX} Step 1: User ${userId} validated`);
-
-    /**
-     * STEP 1: Exchange auth code for system-user access token
-     */
-    console.log(`${LOG_PREFIX} Step 2: Exchanging code for access token`);
+    console.log(`${LOG_PREFIX_WABA} Step 1: User ${userId} validated`);
 
     const tokenParams = new URLSearchParams({
       client_id: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!,
@@ -75,11 +68,8 @@ export async function handleWabaOnboarding(data: {
       throw new Error('Meta did not return an access token.');
     }
 
-    console.log(`${LOG_PREFIX} Step 3: Access token received`);
+    console.log(`${LOG_PREFIX_WABA} Step 3: Access token received`);
 
-    /**
-     * STEP 2: Resolve WABA ID using debug_token
-     */
     const debugResponse = await axios.get(
       `https://graph.facebook.com/${API_VERSION}/debug_token`,
       {
@@ -104,11 +94,8 @@ export async function handleWabaOnboarding(data: {
       );
     }
 
-    console.log(`${LOG_PREFIX} Step 4: WABA ID resolved → ${wabaId}`);
+    console.log(`${LOG_PREFIX_WABA} Step 4: WABA ID resolved → ${wabaId}`);
 
-    /**
-     * STEP 3: Fetch WABA name (business field REMOVED by Meta)
-     */
     const { data: wabaData } = await axios.get(
       `https://graph.facebook.com/${API_VERSION}/${wabaId}`,
       {
@@ -121,9 +108,6 @@ export async function handleWabaOnboarding(data: {
 
     const wabaName = wabaData?.name || `WABA ${wabaId}`;
 
-    /**
-     * STEP 4: Resolve Business ID (ONLY if catalog requested)
-     */
     let businessId: string | undefined;
     let businessCaps: BusinessCapabilities | undefined;
 
@@ -147,21 +131,15 @@ export async function handleWabaOnboarding(data: {
           businessCaps = capsData?.business_capabilities;
         } catch (e) {
           console.warn(
-            `${LOG_PREFIX} Could not fetch business capabilities`,
+            `${LOG_PREFIX_WABA} Could not fetch business capabilities`,
             getErrorMessage(e)
           );
         }
       }
     }
 
-    /**
-     * STEP 5: Database upsert
-     */
     const { db } = await connectToDatabase();
-
-    const defaultPlan = await db
-      .collection<Plan>('plans')
-      .findOne({ isDefault: true });
+    const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
 
     const projectData: Partial<Project> = {
       userId: new ObjectId(userId),
@@ -187,49 +165,33 @@ export async function handleWabaOnboarding(data: {
       { upsert: true }
     );
 
-    const project = await db
-      .collection<Project>('projects')
-      .findOne({ userId: projectData.userId, wabaId });
+    const project = await db.collection<Project>('projects').findOne({ userId: projectData.userId, wabaId });
 
-    /**
-     * STEP 6: Post-creation actions
-     */
     if (project?._id) {
-      console.log(`${LOG_PREFIX} Step 6: Syncing phone numbers`);
+      console.log(`${LOG_PREFIX_WABA} Step 6: Syncing phone numbers`);
       await handleSyncPhoneNumbers(project._id.toString());
 
-      // After syncing, get the updated project to register numbers
-      const updatedProject = await db
-        .collection<Project>('projects')
-        .findOne({ _id: project._id });
+      const updatedProject = await db.collection<Project>('projects').findOne({ _id: project._id });
 
       if (updatedProject?.phoneNumbers?.length > 0) {
-        console.log(`${LOG_PREFIX} Step 7: Registering verified phone numbers`);
+        console.log(`${LOG_PREFIX_WABA} Step 7: Registering verified phone numbers`);
         for (const phone of updatedProject.phoneNumbers) {
           if (phone.code_verification_status === 'VERIFIED') {
             try {
               await axios.post(
                 `https://graph.facebook.com/${API_VERSION}/${phone.id}/register`,
-                {
-                  messaging_product: 'whatsapp',
-                },
-                {
-                  headers: { Authorization: `Bearer ${accessToken}` },
-                }
+                { messaging_product: 'whatsapp' },
+                { headers: { Authorization: `Bearer ${accessToken}` } }
               );
-              console.log(`${LOG_PREFIX} Registered phone number ${phone.id}`);
+              console.log(`${LOG_PREFIX_WABA} Registered phone number ${phone.id}`);
             } catch (regError: any) {
-              // Non-fatal error, log and continue
-              console.warn(
-                `${LOG_PREFIX} Could not register phone number ${phone.id}. It may already be registered.`,
-                getErrorMessage(regError)
-              );
+              console.warn(`${LOG_PREFIX_WABA} Could not register phone number ${phone.id}. It may already be registered.`, getErrorMessage(regError));
             }
           }
         }
       }
 
-      console.log(`${LOG_PREFIX} Step 8: Subscribing webhooks`);
+      console.log(`${LOG_PREFIX_WABA} Step 8: Subscribing webhooks`);
       await handleSubscribeProjectWebhook(
         wabaId,
         projectData.appId!,
@@ -237,12 +199,96 @@ export async function handleWabaOnboarding(data: {
       );
     }
 
-    console.log(`${LOG_PREFIX} Step 9: Onboarding complete`);
+    console.log(`${LOG_PREFIX_WABA} Step 9: Onboarding complete`);
+    return { success: true };
+  } catch (e: any) {
+    const errorMsg = getErrorMessage(e);
+    console.error(`${LOG_PREFIX_WABA} FATAL`, errorMsg, e);
+    return { success: false, error: errorMsg };
+  }
+}
+
+export async function handleMetaSuiteOnboarding(data: {
+  code: string;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { code } = data;
+
+    if (!code) return { success: false, error: 'Authorization code missing.' };
+
+    const cookieStore = await cookies();
+    const stateCookie = cookieStore.get('onboarding_state')?.value;
+    if (!stateCookie) return { success: false, error: 'Onboarding session expired.' };
+    cookieStore.delete('onboarding_state');
+
+    const { userId } = JSON.parse(stateCookie);
+    if (!userId || !ObjectId.isValid(userId)) return { success: false, error: 'Invalid user session.' };
+
+    console.log(`${LOG_PREFIX_META} Step 1: Exchanging code for access token`);
+    const tokenParams = new URLSearchParams({
+      client_id: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!,
+      client_secret: process.env.FACEBOOK_APP_SECRET!,
+      code,
+      redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`,
+    });
+    const tokenResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, tokenParams);
+    const userAccessToken = tokenResponse.data?.access_token;
+    if (!userAccessToken) throw new Error('Meta did not return an access token.');
+    
+    console.log(`${LOG_PREFIX_META} Step 2: Getting user accounts (pages)`);
+    const accountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/accounts`, {
+        params: {
+            fields: 'id,name,access_token,tasks',
+            access_token: userAccessToken
+        }
+    });
+    const pages = accountsResponse.data.data;
+    if (!pages || pages.length === 0) throw new Error('No Facebook pages found for this user.');
+
+    console.log(`${LOG_PREFIX_META} Step 3: Getting Ad Accounts`);
+    const adAccountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/adaccounts`, {
+        params: {
+            fields: 'id,name,account_id',
+            access_token: userAccessToken
+        }
+    });
+    const adAccount = adAccountsResponse.data?.data?.[0]; // Use the first ad account found
+
+    const { db } = await connectToDatabase();
+    
+    const bulkOps = pages.map((page: any) => {
+      // Create a separate project for each Facebook Page
+      const projectData = {
+          name: page.name,
+          userId: new ObjectId(userId),
+          facebookPageId: page.id,
+          accessToken: page.access_token,
+          adAccountId: adAccount?.account_id,
+          appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!,
+      };
+      
+      return {
+          updateOne: {
+              filter: { userId: projectData.userId, facebookPageId: projectData.facebookPageId },
+              update: {
+                  $set: projectData,
+                  $setOnInsert: { createdAt: new Date() }
+              },
+              upsert: true
+          }
+      };
+    });
+
+    if (bulkOps.length > 0) {
+        await db.collection('projects').bulkWrite(bulkOps);
+    }
+    
+    console.log(`${LOG_PREFIX_META} Step 4: Finished upserting ${pages.length} page(s) as projects.`);
 
     return { success: true };
   } catch (e: any) {
     const errorMsg = getErrorMessage(e);
-    console.error(`${LOG_PREFIX} FATAL`, errorMsg, e);
+    console.error(`${LOG_PREFIX_META} FATAL`, errorMsg, e);
     return { success: false, error: errorMsg };
   }
 }
