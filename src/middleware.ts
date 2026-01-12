@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAdminJwtEdge, verifyJwtEdge } from './lib/auth.edge';
 import { JWTExpired } from 'jose/errors';
+import { getSession } from './app/actions';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,80 +12,78 @@ export async function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get('session')?.value;
   const adminSessionToken = request.cookies.get('admin_session')?.value;
 
-  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup');
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/forgot-password');
   const isAdminAuthPage = pathname.startsWith('/admin-login');
   const isDashboard = pathname.startsWith('/dashboard');
   const isAdminDashboard = pathname.startsWith('/admin/dashboard');
+  const isPendingPage = pathname.startsWith('/pending-approval');
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
 
-  // --- Admin Session Logic (Unchanged) ---
+  // Admin session logic
   if (isAdminDashboard) {
     let adminSessionValid = false;
     let adminSessionExpired = false;
     if (adminSessionToken) {
       try {
-        console.log('[MIDDLEWARE] Found admin session token, verifying...');
         adminSessionValid = !!await verifyAdminJwtEdge(adminSessionToken);
-        console.log(`[MIDDLEWARE] Admin session validation result: ${adminSessionValid}`);
       } catch (error: any) {
-        if (error.code === 'ERR_JWT_EXPIRED') {
-          console.log('[MIDDLEWARE] Admin session token expired.');
-          adminSessionExpired = true;
-        } else {
-          console.error('[MIDDLEWARE] Admin session verification error:', error.message);
-        }
+        if (error.code === 'ERR_JWT_EXPIRED') adminSessionExpired = true;
       }
     }
 
     if (!adminSessionValid) {
-      console.log('[MIDDLEWARE] Admin dashboard access denied. Redirecting to /admin-login.');
       const response = NextResponse.redirect(new URL('/admin-login', appUrl));
-      if (adminSessionExpired || adminSessionToken) {
-        console.log('[MIDDLEWARE] Deleting expired/invalid admin cookie.');
-        response.cookies.delete('admin_session');
-      }
+      if (adminSessionExpired || adminSessionToken) response.cookies.delete('admin_session');
       return response;
     }
   }
 
-  // --- User Session Logic (Corrected) ---
-  if (isDashboard) {
+  // User session logic
+  if (isDashboard || isPendingPage) {
     if (!sessionToken) {
-      console.log('[MIDDLEWARE] User dashboard access denied, no session token. Redirecting to /login.');
       const response = NextResponse.redirect(new URL('/login', appUrl));
       response.cookies.delete('session');
       return response;
     }
-    // If a token exists, we let it pass. The actual verification happens
-    // server-side in the layout/page via getSession(). This avoids the edge runtime error.
-    console.log('[MIDDLEWARE] User session token found. Allowing request to proceed for server-side validation.');
+    // We pass the token to the server to get the full user object
+    const session = await getSession(sessionToken);
+
+    if (!session?.user) {
+        const response = NextResponse.redirect(new URL('/login', appUrl));
+        response.cookies.delete('session');
+        return response;
+    }
+    
+    // REDIRECTION LOGIC FOR APPROVAL
+    if (!session.user.isApproved && !isPendingPage) {
+        return NextResponse.redirect(new URL('/pending-approval', appUrl));
+    }
+
+    if (session.user.isApproved && isPendingPage) {
+        return NextResponse.redirect(new URL('/dashboard', appUrl));
+    }
   }
 
-  // --- Logged-in user trying to access auth pages ---
+  // Logged-in user trying to access auth pages
   if (isAuthPage && sessionToken) {
-    // A quick check is sufficient here. If they have a token, just send them to the dashboard.
-    // If the token is invalid, the dashboard's own checks will handle the redirect back to login.
-    console.log('[MIDDLEWARE] User already logged in. Redirecting from auth page to /dashboard.');
-    return NextResponse.redirect(new URL('/dashboard', appUrl));
-  }
-  
-  if (isAdminAuthPage && adminSessionToken) {
-    // Quick check for admin is fine here too.
-     try {
-      if (await verifyAdminJwtEdge(adminSessionToken)) {
-        console.log('[MIDDLEWARE] Admin already logged in. Redirecting from admin login page to /admin/dashboard.');
-        return NextResponse.redirect(new URL('/admin/dashboard', appUrl));
-      }
-    } catch (e) {
-      // Token might be expired, just continue to the login page
+    const session = await getSession(sessionToken);
+    if(session?.user) {
+        return NextResponse.redirect(new URL('/dashboard', appUrl));
     }
   }
   
-  console.log('[MIDDLEWARE] All middleware checks passed. Allowing request.');
+  if (isAdminAuthPage && adminSessionToken) {
+     try {
+      if (await verifyAdminJwtEdge(adminSessionToken)) {
+        return NextResponse.redirect(new URL('/admin/dashboard', appUrl));
+      }
+    } catch (e) {}
+  }
+  
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/dashboard/:path*', '/login', '/signup', '/admin-login'],
+  matcher: ['/dashboard/:path*', '/admin/dashboard/:path*', '/login', '/signup', '/forgot-password', '/admin-login', '/pending-approval'],
 };
