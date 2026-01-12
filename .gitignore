@@ -28,7 +28,6 @@
 /src/app/actions/crm-***.actions.ts
 /src/app/actions/calling.actions.ts
 /src/app/actions/custom-ecommerce.actions.ts
-/src/app/actions/admin.actions.ts
 /src/app/actions/catalog.actions.ts
 /src/app/actions/billing.actions.ts
 /src/app/actions/qr-code.actions.ts
