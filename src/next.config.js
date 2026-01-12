@@ -1,5 +1,7 @@
+
 /** @type {import('next').NextConfig} */
 const webpack = require('webpack');
+require('dotenv').config();
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
