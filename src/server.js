@@ -2,8 +2,8 @@
 'use strict';
 
 const path = require('path');
-// Ensure dotenv is configured to find the .env file in the project root
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+// Ensure environment variables are loaded
+require('./lib/mongodb');
 
 const { createServer } = require('http');
 const { parse } = require('url');
