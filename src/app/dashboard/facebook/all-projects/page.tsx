@@ -14,9 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
 import { CheckCircle, Wrench } from 'lucide-react';
-
+import { Separator } from '@/components/ui/separator';
 
 function PageSkeleton() {
     return (
@@ -71,8 +70,13 @@ export default function AllFacebookPagesPage() {
 
     const fetchData = () => {
         startLoading(async () => {
-            const { projects: projectsData } = await getProjects(undefined, 'facebook');
-            setProjects(projectsData);
+            // Fetch both types to show everything on one page
+            const { projects: waProjects } = await getProjects(undefined, 'whatsapp');
+            const { projects: fbProjects } = await getProjects(undefined, 'facebook');
+            
+            const combined = [...waProjects, ...fbProjects];
+            const unique = Array.from(new Map(combined.map(p => [p._id.toString(), p])).values());
+            setProjects(unique);
         });
     }
 
@@ -85,42 +89,47 @@ export default function AllFacebookPagesPage() {
     if (isLoading) {
         return <PageSkeleton />;
     }
+    
+    const connectedFacebookProjects = projects.filter(p => !!p.facebookPageId && !p.wabaId);
+    const connectedWhatsAppProjects = projects.filter(p => !!p.wabaId);
 
-    const connectedFacebookProjects = projects.filter(p => !!p.facebookPageId);
 
     return (
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    Facebook Page Connections
+                    Meta Suite Connections
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                    Connect and manage your Facebook Pages. Each connected page is treated as a separate project.
+                    Connect and manage your Facebook Pages and WhatsApp accounts.
                 </p>
             </div>
 
             <Card className="card-gradient card-gradient-green">
                 <CardHeader>
-                    <CardTitle>Connect a New Page</CardTitle>
+                    <CardTitle>Connect a New Facebook Page</CardTitle>
                     <CardDescription>
-                        Use the secure pop-up for the fastest setup. If it fails, or if you need to use a System User token, use the Manual Setup.
+                        Use the secure pop-up to connect your Facebook account and select the pages you want to manage.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-4 items-center justify-center">
                     {appId ? (
-                        <FacebookEmbeddedSignup appId={appId} state="facebook" />
+                        <Link href="/api/auth/meta-suite/login" className="w-full sm:w-auto">
+                            <Button size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
+                                <FacebookIcon className="mr-2 h-5 w-5" />
+                                Connect with Facebook
+                            </Button>
+                        </Link>
                     ) : (
                          <p className="text-sm text-destructive">Admin has not configured the Facebook App ID.</p>
                     )}
                     <ManualFacebookSetupDialog onSuccess={fetchData} />
                 </CardContent>
-                <CardFooter>
-                     <p className="text-xs text-muted-foreground">
-                        Note: The standard connection requires whitelisting your domain as a valid OAuth Redirect URI in your Facebook App settings. Manual setup avoids this requirement.
-                    </p>
-                </CardFooter>
             </Card>
+
+            <Separator />
             
+            <h2 className="text-2xl font-semibold">Connected Pages</h2>
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {connectedFacebookProjects.length > 0 ? (
                     connectedFacebookProjects.map(project => (
@@ -129,11 +138,40 @@ export default function AllFacebookPagesPage() {
                 ) : (
                     <Card className="text-center py-12 md:col-span-2 xl:col-span-3">
                          <CardContent>
-                            <p className="text-muted-foreground">No Facebook Pages have been connected yet.</p>
+                            <p className="text-muted-foreground">No standalone Facebook Pages have been connected yet.</p>
                          </CardContent>
                     </Card>
                 )}
             </div>
+            <Separator />
+
+             <h2 className="text-2xl font-semibold">WhatsApp Projects</h2>
+              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {connectedWhatsAppProjects.length > 0 ? (
+                    connectedWhatsAppProjects.map(project => (
+                         <Card key={project._id.toString()}>
+                            <CardHeader>
+                                <CardTitle>{project.name}</CardTitle>
+                                <CardDescription>WABA ID: {project.wabaId}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {project.adAccountId && project.facebookPageId ? (
+                                    <Badge><CheckCircle className="mr-2 h-4 w-4"/>Ad Account Connected</Badge>
+                                ) : (
+                                     <p className="text-sm text-muted-foreground">Ad account not linked.</p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    ))
+                ) : (
+                    <Card className="text-center py-12 md:col-span-2 xl:col-span-3">
+                         <CardContent>
+                            <p className="text-muted-foreground">No WhatsApp projects found. <Link href="/dashboard/setup" className="text-primary hover:underline">Connect one now.</Link></p>
+                         </CardContent>
+                    </Card>
+                )}
+            </div>
+
         </div>
     );
 }

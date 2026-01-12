@@ -1,8 +1,9 @@
+
 'use client'
 
 import { useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { handleWabaOnboarding } from '@/app/actions/onboarding.actions'
+import { handleWabaOnboarding, handleMetaSuiteOnboarding } from '@/app/actions/onboarding.actions'
 import { LoaderCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import {
@@ -34,19 +35,27 @@ export default function FacebookCallbackClient({
         description: error,
         variant: 'destructive',
       })
-      router.replace('/dashboard/setup')
+      router.replace('/dashboard')
       return
     }
 
     if (!code || !stateFromUrl) return
 
     startTransition(async () => {
-      const result = await handleWabaOnboarding({ code })
+      let result;
+      // Use the 'state' to determine which flow to execute
+      if (stateFromUrl === 'whatsapp') {
+        result = await handleWabaOnboarding({ code });
+      } else if (stateFromUrl === 'facebook') {
+        result = await handleMetaSuiteOnboarding({ code });
+      } else {
+        result = { success: false, error: 'Invalid onboarding state.' };
+      }
 
       if (result.success) {
         toast({
           title: 'Connection Successful!',
-          description: 'Your WhatsApp account has been connected.',
+          description: 'Your account has been connected.',
         })
         router.replace('/dashboard')
       } else {
