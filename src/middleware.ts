@@ -1,9 +1,10 @@
 
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAdminJwtEdge, verifyJwtEdge } from './lib/auth.edge';
 import { JWTExpired } from 'jose/errors';
-import { getSession } from './app/actions';
+import { getSession } from './app/actions/user.actions';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
