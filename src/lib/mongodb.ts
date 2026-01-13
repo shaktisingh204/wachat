@@ -30,3 +30,5 @@ export async function connectToDatabase() {
 
   return { client, db };
 }
+
+    
