@@ -62,8 +62,8 @@ export async function handleAdminLogin(prevState: any, formData: FormData) {
     const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     
     console.log(`[ADMIN_LOGIN] ADMIN_EMAIL from .env: ${adminEmail}`);
-    console.log(`[ADMIN_LOGIN] ADMIN_PASSWORD_HASH from .env: ${adminPasswordHash ? '********' : 'NOT FOUND'}`);
-    console.log(`[ADMIN_LOGIN] JWT_SECRET from .env: ${process.env.JWT_SECRET ? '********' : 'NOT FOUND'}`);
+    console.log(`[ADMIN_LOGIN] ADMIN_PASSWORD_HASH from .env: ${adminPasswordHash || 'NOT FOUND'}`);
+    console.log(`[ADMIN_LOGIN] JWT_SECRET from .env: ${process.env.JWT_SECRET || 'NOT FOUND'}`);
 
     if (!adminEmail || !adminPasswordHash) {
         const errorMessage = "Server misconfiguration: Admin credentials are not set in the environment variables.";
@@ -367,3 +367,5 @@ export async function getDiwaliThemeStatus(): Promise<{ enabled: boolean }> {
         return { enabled: false };
     }
 }
+
+    
