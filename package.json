@@ -13,7 +13,8 @@
     "stop:pm2": "pm2 stop all && pm2 delete all",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:assign-plan": "tsx scripts/assign-default-plan.ts"
+    "db:assign-plan": "tsx scripts/assign-default-plan.ts",
+    "hash:admin-password": "tsx scripts/hash-admin-password.ts"
   },
   "dependencies": {
     "@azure/msal-node": "^2.10.0",
