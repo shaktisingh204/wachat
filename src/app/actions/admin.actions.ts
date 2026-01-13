@@ -56,7 +56,7 @@ export async function handleAdminLogin(prevState: any, formData: FormData) {
     const password = formData.get('password') as string;
 
     console.log(`[ADMIN_LOGIN] Email from form: ${email}`);
-    console.log(`[ADMIN_LOGIN] Password from form: ${password ? '********' : 'N/A'}`);
+    console.log(`[ADMIN_LOGIN] Password from form: ${password}`);
 
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
