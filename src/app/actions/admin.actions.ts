@@ -50,46 +50,30 @@ export async function getWebhookProcessingStatus(): Promise<{ enabled: boolean }
 }
 
 export async function handleAdminLogin(prevState: any, formData: FormData) {
-    console.log('[ADMIN_LOGIN] Starting admin login process...');
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    console.log('[ADMIN_LOGIN] Email from form:', email);
-    console.log('[ADMIN_LOGIN] Password from form:', password);
 
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     const jwtSecret = process.env.JWT_SECRET;
-    
-    console.log('[ADMIN_LOGIN] ADMIN_EMAIL from .env:', adminEmail);
-    console.log('[ADMIN_LOGIN] ADMIN_PASSWORD_HASH from .env:', adminPasswordHash);
-    console.log('[ADMIN_LOGIN] JWT_SECRET from .env:', jwtSecret ? 'SET' : 'NOT SET');
-
 
     if (!adminEmail || !adminPasswordHash || !jwtSecret) {
         const errorMessage = "Server misconfiguration: Admin credentials are not set in the environment variables.";
-        console.error(`[ADMIN_LOGIN] ERROR: ${errorMessage}`);
         return { success: false, error: errorMessage };
     }
 
     if (email !== adminEmail) {
-        console.error('[ADMIN_LOGIN] Email does not match.');
         return { success: false, error: "Invalid credentials." };
     }
-    console.log('[ADMIN_LOGIN] Email match successful. Proceeding to password check...');
 
     try {
-        console.log('[ADMIN_LOGIN] Comparing password with hash...');
         const isMatch = await comparePassword(password, adminPasswordHash);
-        console.log('[ADMIN_LOGIN] Password match result:', isMatch);
 
         if (!isMatch) {
-            console.error('[ADMIN_LOGIN] Password does not match.');
             return { success: false, error: "Invalid credentials." };
         }
         
-        console.log('[ADMIN_LOGIN] Password match successful. Creating session token...');
         const token = await createAdminSessionToken();
-        console.log('[ADMIN_LOGIN] Session token created successfully.');
         
         return { success: true, token };
     } catch (e: any) {
@@ -365,5 +349,7 @@ export async function getDiwaliThemeStatus(): Promise<{ enabled: boolean }> {
         return { enabled: false };
     }
 }
+
+    
 
     
