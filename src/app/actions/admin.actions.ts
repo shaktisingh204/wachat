@@ -50,52 +50,33 @@ export async function getWebhookProcessingStatus(): Promise<{ enabled: boolean }
 }
 
 export async function handleAdminLogin(prevState: any, formData: FormData) {
-    console.log('[ADMIN_LOGIN] Starting admin login process...');
-    
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    console.log(`[ADMIN_LOGIN] Email from form: ${email}`);
-    console.log(`[ADMIN_LOGIN] Password from form: ${password}`);
-
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
-    
-    console.log(`[ADMIN_LOGIN] ADMIN_EMAIL from .env: ${adminEmail}`);
-    console.log(`[ADMIN_LOGIN] ADMIN_PASSWORD_HASH from .env: ${adminPasswordHash || 'NOT FOUND'}`);
-    console.log(`[ADMIN_LOGIN] JWT_SECRET from .env: ${process.env.JWT_SECRET || 'NOT FOUND'}`);
 
     if (!adminEmail || !adminPasswordHash) {
         const errorMessage = "Server misconfiguration: Admin credentials are not set in the environment variables.";
-        console.error(`[ADMIN_LOGIN] ERROR: ${errorMessage}`);
         return { success: false, error: errorMessage };
     }
 
     if (email !== adminEmail) {
-        console.warn('[ADMIN_LOGIN] Email does not match admin email.');
         return { success: false, error: "Invalid credentials." };
     }
-    
-    console.log('[ADMIN_LOGIN] Email match successful. Proceeding to password check...');
 
     try {
-        console.log('[ADMIN_LOGIN] Comparing password with hash...');
         const isMatch = await comparePassword(password, adminPasswordHash);
-        console.log(`[ADMIN_LOGIN] Password match result: ${isMatch}`);
 
         if (!isMatch) {
-            console.warn('[ADMIN_LOGIN] Password does not match.');
             return { success: false, error: "Invalid credentials." };
         }
         
-        console.log('[ADMIN_LOGIN] Password match successful. Creating session token...');
         const token = await createAdminSessionToken();
-        console.log('[ADMIN_LOGIN] Session token created successfully.');
         
         return { success: true, token };
     } catch (e: any) {
-        console.error('[ADMIN_LOGIN] FATAL: An unexpected error occurred in the try block.');
-        console.error(e);
+        console.error('[ADMIN_LOGIN] FATAL:', e);
         return { success: false, error: 'An unexpected server error occurred.' };
     }
 }
@@ -367,5 +348,3 @@ export async function getDiwaliThemeStatus(): Promise<{ enabled: boolean }> {
         return { enabled: false };
     }
 }
-
-    
