@@ -17,8 +17,8 @@ const DIWALI_THEME_KEY = 'diwali_theme_enabled';
 let isDiwaliThemeEnabled: boolean | null = null;
 
 export async function getAdminSession() {
-    const cookieStore = cookies();
-    const token = cookieStore.get('admin_session')?.value;
+    const cookieStore = await cookies(); // ✅ MUST await in Next 16
+    const token = cookieStore.get("admin_session")?.value;
     if (!token) return { isAdmin: false };
 
     const payload = await verifyAdminJwt(token);
