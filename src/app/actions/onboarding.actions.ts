@@ -19,27 +19,34 @@ const LOG_PREFIX_META = '[META SUITE ONBOARDING]';
 
 export async function handleWabaOnboarding(data: {
   code: string;
+  state: string;
 }): Promise<{ success: boolean; error?: string }> {
   try {
-    const { code } = data;
+    const { code, state } = data;
 
     if (!code) {
       return { success: false, error: 'Authorization code missing.' };
     }
 
     const cookieStore = await cookies();
-    const stateCookie = cookieStore.get('onboarding_state')?.value;
+    const stateCookieJSON = cookieStore.get('onboarding_state')?.value;
 
-    if (!stateCookie) {
+    if (!stateCookieJSON) {
       return {
         success: false,
         error: 'Onboarding session expired or invalid. Please try again.',
       };
     }
+    
+    const stateCookie = JSON.parse(stateCookieJSON);
+
+    if (state !== stateCookie.state) {
+        return { success: false, error: 'Invalid onboarding state. CSRF check failed.' };
+    }
 
     cookieStore.delete('onboarding_state');
 
-    const { userId, includeCatalog } = JSON.parse(stateCookie);
+    const { userId, includeCatalog } = stateCookie;
 
     if (!userId || !ObjectId.isValid(userId)) {
       return {
@@ -210,18 +217,25 @@ export async function handleWabaOnboarding(data: {
 
 export async function handleMetaSuiteOnboarding(data: {
   code: string;
+  state: string;
 }): Promise<{ success: boolean; error?: string }> {
   try {
-    const { code } = data;
+    const { code, state } = data;
 
     if (!code) return { success: false, error: 'Authorization code missing.' };
 
     const cookieStore = await cookies();
-    const stateCookie = cookieStore.get('onboarding_state')?.value;
-    if (!stateCookie) return { success: false, error: 'Onboarding session expired.' };
+    const stateCookieJSON = cookieStore.get('onboarding_state')?.value;
+    if (!stateCookieJSON) return { success: false, error: 'Onboarding session expired.' };
+    
+    const stateCookie = JSON.parse(stateCookieJSON);
+    if (state !== stateCookie.state) {
+        return { success: false, error: 'Invalid onboarding state. CSRF check failed.' };
+    }
+
     cookieStore.delete('onboarding_state');
 
-    const { userId } = JSON.parse(stateCookie);
+    const { userId } = stateCookie;
     if (!userId || !ObjectId.isValid(userId)) return { success: false, error: 'Invalid user session.' };
 
     console.log(`${LOG_PREFIX_META} Step 1: Exchanging code for access token`);

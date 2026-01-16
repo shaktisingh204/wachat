@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
   
   const searchParams = request.nextUrl.searchParams;
   const includeCatalog = searchParams.get('includeCatalog') === 'true';
+  const stateFromClient = searchParams.get('state');
 
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
   const configId = process.env.NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID;
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     throw new Error('Facebook integration is not configured on the server.');
   }
 
-  const state = nanoid();
+  const state = stateFromClient || nanoid();
   const redirectUri = `${appUrl}/auth/facebook/callback`;
 
   // Base scopes
