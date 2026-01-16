@@ -1,10 +1,8 @@
 
-
 'use client';
 
 import { useState, useMemo, useActionState, useEffect } from 'react';
-import type { WithId } from 'mongodb';
-import type { Project } from '@/lib/definitions';
+import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -132,7 +130,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                 <CardContent className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2"><Label>Position</Label><Select value={settings.position} onValueChange={(v) => handleSettingChange('position', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="bottom-right">Bottom Right</SelectItem><SelectItem value="bottom-left">Bottom Left</SelectItem></SelectContent></Select></div>
-                                        <div className="space-y-2"><Label>Widget Color</Label><Input type="color" value={settings.buttonColor} onChange={e => handleSettingChange('buttonColor', e.target.value)} /></div>
+                                        <div className="space-y-2"><Label htmlFor="widget-color">Widget Color</Label><Input id="widget-color" type="color" value={settings.buttonColor} onChange={e => handleSettingChange('buttonColor', e.target.value)} /></div>
                                     </div>
                                     <div className="space-y-2"><Label>Header Title</Label><Input value={settings.headerTitle} onChange={e => handleSettingChange('headerTitle', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>Header Subtitle</Label><Input value={settings.headerSubtitle} onChange={e => handleSettingChange('headerSubtitle', e.target.value)} /></div>
@@ -146,8 +144,8 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     <div className="space-y-2"><Label>Border Radius ({settings.borderRadius}px)</Label><Slider value={[settings.borderRadius]} onValueChange={v => handleSettingChange('borderRadius', v[0])} min={0} max={50}/></div>
                                     <div className="space-y-2"><Label>Padding ({settings.padding}px)</Label><Slider value={[settings.padding]} onValueChange={v => handleSettingChange('padding', v[0])} min={8} max={32}/></div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.textColor} onChange={e => handleSettingChange('textColor', e.target.value)} /></div>
-                                        <div className="space-y-2"><Label>Button Text Color</Label><Input type="color" value={settings.buttonTextColor} onChange={e => handleSettingChange('buttonTextColor', e.target.value)} /></div>
+                                        <div className="space-y-2"><Label htmlFor="text-color">Text Color</Label><Input id="text-color" type="color" value={settings.textColor} onChange={e => handleSettingChange('textColor', e.target.value)} /></div>
+                                        <div className="space-y-2"><Label htmlFor="button-text-color">Button Text Color</Label><Input id="button-text-color" type="color" value={settings.buttonTextColor} onChange={e => handleSettingChange('buttonTextColor', e.target.value)} /></div>
                                     </div>
                                 </CardContent>
                             </Card>
