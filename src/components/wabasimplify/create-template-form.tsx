@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useRef, useTransition } from 'react';
@@ -10,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { LoaderCircle, FileUp, Plus, Trash2, Copy } from 'lucide-react';
+import { LoaderCircle, FileUp, Plus, Trash2, Copy, Save } from 'lucide-react';
 import { handleCreateTemplate, saveLibraryTemplate, handleBulkCreateTemplate } from '@/app/actions/template.actions';
 import { getTemplateCategories } from '@/app/actions/plan.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -195,7 +196,6 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
   const [lastPayload, setLastPayload] = useState('');
   const [lastDebugInfo, setLastDebugInfo] = useState('');
   
-  // NEW: Extract example values from the initial template for cloning
   const bodyCompForExamples = initialTemplate?.components?.find(c => c.type === 'BODY');
   const bodyExampleValues = bodyCompForExamples?.example?.body_text?.[0] || [];
 
@@ -484,7 +484,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                           <Label>Header (Optional)</Label>
                           <input type="hidden" name="headerFormat" value={headerFormat} />
                           <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                              {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(format => (
+                              {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].map(format => (
                                   <div key={format}><RadioGroupItem value={format} id={format} className="sr-only" /><Label htmlFor={format} className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground ${headerFormat === format ? 'border-primary' : ''} cursor-pointer`}><span className="text-sm font-medium">{format}</span></Label></div>
                               ))}
                           </RadioGroup>
