@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -25,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const initialState = {
   message: null,
   error: null,
+  contactId: undefined,
 };
 
 function SubmitButton() {
@@ -55,26 +55,39 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState(project.phoneNumbers?.[0]?.id || '');
-
+  const hasRunEffectRef = useRef(false);
 
   useEffect(() => {
-    if (state.message) {
-      toast({ title: 'Success!', description: state.message });
-      formRef.current?.reset();
-      onAdded();
-      setOpen(false);
-    }
-    if (state.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    // Only run if there's a new state from the action, and it hasn't been processed yet.
+    if ((state.message || state.error) && !hasRunEffectRef.current) {
+        if (state.message) {
+          toast({ title: 'Success!', description: state.message });
+          formRef.current?.reset();
+          onAdded();
+          setOpen(false);
+        }
+        if (state.error) {
+          toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+        hasRunEffectRef.current = true;
     }
   }, [state, toast, onAdded]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
         formRef.current?.reset();
+        // Reset the flag when closing, so the effect can run on the next submission.
+        hasRunEffectRef.current = false;
     }
     setOpen(isOpen);
   };
+  
+  const wrappedFormAction = (formData: FormData) => {
+      // Reset the flag before dispatching the action.
+      hasRunEffectRef.current = false;
+      formAction(formData);
+  };
+
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -85,7 +98,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
+        <form action={wrappedFormAction} ref={formRef}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <DialogHeader>
                 <DialogTitle>Add New Contact</DialogTitle>
@@ -119,7 +132,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
                 </div>
             </div>
             <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
                 <SubmitButton />
             </DialogFooter>
         </form>
