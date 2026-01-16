@@ -194,6 +194,14 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
   const [lastPayload, setLastPayload] = useState('');
   const [lastDebugInfo, setLastDebugInfo] = useState('');
+  
+  // NEW: Extract example values from the initial template for cloning
+  const bodyCompForExamples = initialTemplate?.components?.find(c => c.type === 'BODY');
+  const bodyExampleValues = bodyCompForExamples?.example?.body_text?.[0] || [];
+
+  const headerCompForExamples = initialTemplate?.components?.find(c => c.type === 'HEADER');
+  const headerExampleValue = headerCompForExamples?.example?.header_text?.[0] || '';
+
 
   useEffect(() => {
     if (isAdminForm) {
@@ -251,7 +259,9 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
           setHeaderText(cleanText(headerComp.text));
           setHeaderSampleUrl('');
         } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(format)) {
-          setHeaderSampleUrl(initialTemplate.headerSampleUrl || '');
+          // When cloning, don't auto-fill the sample URL if it's a temporary Meta link
+          const sampleUrl = initialTemplate.headerSampleUrl || '';
+          setHeaderSampleUrl(sampleUrl.includes('graph.facebook.com') ? '' : sampleUrl);
           setHeaderText('');
         } else {
           setHeaderText('');
@@ -474,7 +484,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                           <Label>Header (Optional)</Label>
                           <input type="hidden" name="headerFormat" value={headerFormat} />
                           <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                              {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].map(format => (
+                              {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(format => (
                                   <div key={format}><RadioGroupItem value={format} id={format} className="sr-only" /><Label htmlFor={format} className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground ${headerFormat === format ? 'border-primary' : ''} cursor-pointer`}><span className="text-sm font-medium">{format}</span></Label></div>
                               ))}
                           </RadioGroup>
@@ -484,7 +494,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                           <div className="space-y-2">
                               <Label htmlFor="headerText">Header Text</Label>
                               <Input name="headerText" id="headerText" placeholder="Your header text..." maxLength={60} value={headerText} onChange={(e) => setHeaderText(e.target.value)} />
-                               {headerVars.length > 0 && <Input name="headerExample" placeholder="Example Header Value" required />}
+                               {headerVars.length > 0 && <Input name="headerExample" placeholder="Example Header Value" required defaultValue={isCloning ? headerExampleValue : ''} />}
                           </div>
                       )}
 
@@ -526,8 +536,8 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                       {bodyVars.length > 0 && (
                         <div className="space-y-2 p-3 border rounded-md">
                             <Label>Body Example Variables</Label>
-                            {bodyVars.map(varNum => (
-                                <Input key={varNum} name={`body_example_${varNum}`} placeholder={`Example for {{${varNum}}}`} required />
+                            {bodyVars.map((varNum, index) => (
+                                <Input key={varNum} name={`body_example_${varNum}`} placeholder={`Example for {{${varNum}}}`} required defaultValue={isCloning ? bodyExampleValues[index] : ''} />
                             ))}
                         </div>
                       )}
