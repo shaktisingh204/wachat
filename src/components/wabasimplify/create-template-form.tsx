@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useRef, useTransition } from 'react';
@@ -251,7 +250,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
         if (format === 'TEXT') {
           setHeaderText(cleanText(headerComp.text));
           setHeaderSampleUrl('');
-        } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(format)) {
+        } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(format)) {
           setHeaderSampleUrl(initialTemplate.headerSampleUrl || '');
           setHeaderText('');
         } else {
@@ -474,8 +473,8 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                       <div className="space-y-2">
                           <Label>Header (Optional)</Label>
                           <input type="hidden" name="headerFormat" value={headerFormat} />
-                          <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                              {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(format => (
+                          <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                              {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].map(format => (
                                   <div key={format}><RadioGroupItem value={format} id={format} className="sr-only" /><Label htmlFor={format} className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground ${headerFormat === format ? 'border-primary' : ''} cursor-pointer`}><span className="text-sm font-medium">{format}</span></Label></div>
                               ))}
                           </RadioGroup>
@@ -489,7 +488,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                           </div>
                       )}
 
-                      {['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && !isAdminForm && (
+                      {['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat) && !isAdminForm && (
                           <div className="space-y-4">
                               <div>
                                   <Label htmlFor="headerSampleUrl">Header Sample Media URL</Label>
@@ -513,9 +512,9 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                                       name="headerSampleFile"
                                       id="headerSampleFile"
                                       type="file"
-                                      accept="image/jpeg,image/png,video/mp4,application/pdf"
+                                      accept="image/jpeg,image/png,video/mp4,application/pdf,audio/*"
                                   />
-                                  <p className="text-xs text-muted-foreground mt-2">Upload a file from your device. Max 5MB for images, 16MB for video/docs.</p>
+                                  <p className="text-xs text-muted-foreground mt-2">Upload a file from your device. Max 5MB for images, 16MB for video/docs/audio.</p>
                               </div>
                           </div>
                       )}
