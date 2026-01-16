@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback, useTransition, useMemo } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { getContactsPageData } from '@/app/actions/contact.actions';
+import { getContactsPageData, deleteContact } from '@/app/actions/contact.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, Tag } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Users, MessageSquare, Search, LoaderCircle, Check, ChevronsUpDown } from 'lucide-react';
+import { AlertCircle, Users, MessageSquare, Search, LoaderCircle, Check, ChevronsUpDown, Trash2 } from 'lucide-react';
 import { AddContactDialog } from '@/components/wabasimplify/add-contact-dialog';
 import { ImportContactsDialog } from '@/components/wabasimplify/import-contacts-dialog';
 import { useDebouncedCallback } from 'use-debounce';
@@ -22,6 +22,18 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -95,6 +107,43 @@ function TagsFilter({ tags, selectedTags, onSelectionChange }: { tags: Tag[], se
             </PopoverContent>
         </Popover>
     )
+}
+
+function DeleteContactButton({ contact, onDeleted }: { contact: WithId<Contact>, onDeleted: () => void }) {
+    const { toast } = useToast();
+    const [isPending, startTransition] = useTransition();
+
+    const handleDelete = () => {
+        startTransition(async () => {
+            const result = await deleteContact(contact._id.toString());
+            if (result.success) {
+                toast({ title: 'Success', description: 'Contact deleted.' });
+                onDeleted();
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    }
+
+    return (
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Contact?</AlertDialogTitle>
+                    <AlertDialogDescription>Are you sure you want to delete {contact.name}? This action cannot be undone.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Delete
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    );
 }
 
 export default function ContactsPage() {
@@ -253,6 +302,7 @@ export default function ContactsPage() {
                                                     <MessageSquare className="mr-2 h-4 w-4" />
                                                     Message
                                                 </Button>
+                                                <DeleteContactButton contact={contact} onDeleted={fetchData} />
                                             </TableCell>
                                         </TableRow>
                                         ))
