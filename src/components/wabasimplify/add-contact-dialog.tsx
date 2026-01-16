@@ -22,6 +22,8 @@ import type { WithId } from 'mongodb';
 import type { Project, Tag } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MultiSelectCombobox } from './multi-select-combobox';
+import { countryCodes } from '@/lib/country-codes';
+import { ScrollArea } from '../ui/scroll-area';
 
 const initialState = {
   message: null,
@@ -129,12 +131,27 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
                     </Select>
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="name" className="text-right">Name</Label>
+                    <Label htmlFor="name">Name</Label>
                     <Input id="name" name="name" required />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="waId" className="text-right">WhatsApp ID</Label>
-                    <Input id="waId" name="waId" placeholder="e.g. 15551234567" required />
+                <div className="grid grid-cols-3 items-end gap-2">
+                    <div className="space-y-2 col-span-1">
+                        <Label htmlFor="countryCode">Code</Label>
+                        <Select name="countryCode" defaultValue="91">
+                            <SelectTrigger id="countryCode">
+                                <SelectValue placeholder="Code" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <ScrollArea className="h-64">
+                                {countryCodes.map(c => <SelectItem key={c.code} value={c.code}>+{c.code} ({c.name})</SelectItem>)}
+                              </ScrollArea>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2 col-span-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input id="phone" name="phone" placeholder="e.g. 9876543210" required />
+                    </div>
                 </div>
                  <div className="space-y-2">
                     <Label>Tags</Label>
