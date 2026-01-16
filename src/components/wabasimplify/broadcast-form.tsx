@@ -11,7 +11,7 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { LoaderCircle, Send, AlertCircle, UploadCloud, Link as LinkIcon, Check, ChevronsUpDown } from 'lucide-react';
+import { LoaderCircle, Send, AlertCircle, UploadCloud, Link as LinkIcon, Check, ChevronsUpDown, Download } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import type { Project, Template, Tag, MetaFlow } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
@@ -66,6 +66,22 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [headerMediaSource, setHeaderMediaSource] = useState<'url' | 'file'>('url');
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+
+  const handleDownloadSample = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+        + "phone,name,variable1,variable2\n"
+        + "919876543210,John Doe,your order,today\n"
+        + "919876543211,Jane Smith,our latest offer,tomorrow";
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "sample_contacts.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: "Sample file downloading..." });
+  };
 
 
   useEffect(() => {
@@ -182,7 +198,13 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
                 </div>
                 {audienceType === 'file' ? (
                     <div className="space-y-2">
-                        <Label htmlFor="csvFile">Upload Contacts</Label>
+                        <div className="flex justify-between items-center">
+                            <Label htmlFor="csvFile">Upload Contacts</Label>
+                            <Button type="button" variant="link" size="sm" onClick={handleDownloadSample} className="p-0 h-auto">
+                                <Download className="mr-1 h-3 w-3" />
+                                Download Sample
+                            </Button>
+                        </div>
                         <Input
                         key={fileInputKey}
                         id="csvFile"
