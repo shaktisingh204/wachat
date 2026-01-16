@@ -318,10 +318,10 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
   };
   
   const extractVariables = (text: string) => {
-    const regex = /{{\\s*(\\d+)\\s*}}/g;
+    const regex = /{{\s*(\d+)\s*}}/g;
     const matches = text.match(regex);
     if (!matches) return [];
-    const varNumbers = matches.map(v => parseInt(v.replace(/{{\\s*|\\s*}}/g, '')));
+    const varNumbers = matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, '')));
     return [...new Set(varNumbers)].sort((a,b) => a - b);
   };
 
@@ -681,8 +681,8 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                 <CardContent className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-4">
                          <div className="space-y-2">
-                            <Label htmlFor="templateName">Template Name</Label>
-                            <Input name="templateName" placeholder="e.g., summer_collection_carousel" required />
+                            <Label htmlFor="carouselTemplateName">Template Name</Label>
+                            <Input name="templateName" id="carouselTemplateName" placeholder="e.g., summer_collection_carousel" required />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="catalogId">Meta Catalog ID</Label>
