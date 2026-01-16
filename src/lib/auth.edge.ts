@@ -1,8 +1,9 @@
 
+
 'use server';
 
 import 'server-only'
-import { jwtVerify, type JWTPayload } from 'jose';
+import { jwtVerify, decodeJwt, JWTExpired, type JWTPayload } from 'jose';
 
 function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
@@ -12,17 +13,29 @@ function getJwtSecretKey(): Uint8Array {
     return new TextEncoder().encode(secret);
 }
 
-// This function is a lightweight check for the edge.
-// For user tokens (Firebase), it just checks for existence, as real verification needs the Admin SDK.
+// This function now checks for token expiration for Firebase tokens.
 export async function verifyJwtEdge(token: string): Promise<boolean> {
-    console.log('[AUTH_EDGE] Checking for presence of user JWT on edge.');
-    // We will not perform cryptographic verification here for Firebase tokens
-    // as it requires a heavier setup not suitable for the edge.
-    // The presence of the token is enough for the middleware to let it pass to the server,
-    // where `getSession` will perform the actual secure verification with Firebase Admin SDK.
-    const isValid = !!token;
-    console.log(`[AUTH_EDGE] User JWT presence check result: ${isValid}`);
-    return isValid;
+    console.log('[AUTH_EDGE] Verifying user JWT on edge.');
+    try {
+        const payload = decodeJwt(token);
+        if (!payload.exp) {
+            console.error('[AUTH_EDGE] User JWT has no expiration time.');
+            return false;
+        }
+        const isExpired = payload.exp * 1000 < Date.now();
+
+        if (isExpired) {
+            console.warn('[AUTH_EDGE] User JWT has expired.');
+            throw new JWTExpired('Token expired');
+        }
+
+        console.log('[AUTH_EDGE] User JWT is not expired (signature not checked on edge).');
+        return true;
+    } catch (e: any) {
+        console.error("[AUTH_EDGE] User JWT verification failed on edge:", e.code, e.message);
+        // Re-throw so middleware can catch it.
+        throw e;
+    }
 }
 
 
