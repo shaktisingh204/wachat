@@ -118,10 +118,9 @@ src/config/site.ts
 /src/components/wabasimplify/whatsapp.actions.ts
 /src/app/dashboard/sabflow/flow-builder/[flowId]/page.tsx
 /src/app/actions/broadcast.actions.ts
-/src/components/wabasimplify/create-template-form.tsx
 /src/components/wabasimplify/dashboard-client-layout.tsx
 /src/components/wabasimplify/crm-tab-layout.tsx
-/src/app/actions/template.actions.ts
+# /src/app/actions/template.actions.ts
 /src/app/actions/crm-reports.actions.ts
 /src/app/actions/sms.actions.ts
 /src/components/wabasimplify/broadcasts/page.tsx

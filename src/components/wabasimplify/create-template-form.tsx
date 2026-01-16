@@ -173,7 +173,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
   const cleanText = (text: string | null | undefined): string => {
     if (!text) return '';
-    return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    return text.replace(/\\r\\n/g, '\\n').replace(/\\r/g, '\\n').trim();
   };
 
   // State for standard templates
@@ -318,10 +318,10 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
   };
   
   const extractVariables = (text: string) => {
-    const regex = /{{\s*(\d+)\s*}}/g;
+    const regex = /{{\\s*(\\d+)\\s*}}/g;
     const matches = text.match(regex);
     if (!matches) return [];
-    const varNumbers = matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, '')));
+    const varNumbers = matches.map(v => parseInt(v.replace(/{{\\s*|\\s*}}/g, '')));
     return [...new Set(varNumbers)].sort((a,b) => a - b);
   };
 
@@ -596,7 +596,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                 <CardContent className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="templateName">Template Name</Label>
-                        <Input name="templateName" placeholder="e.g., weekly_promo_carousel" required />
+                        <Input name="name" placeholder="e.g., weekly_promo_carousel" value={templateName} onChange={(e) => setTemplateName(e.target.value)} required />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="language">Language</Label>
