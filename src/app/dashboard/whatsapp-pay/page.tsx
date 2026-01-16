@@ -1,10 +1,10 @@
-
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition, useCallback } from 'react';
 import type { WithId } from 'mongodb';
 import { getProjectById } from '@/app/actions/index.ts';
 import { getPaymentRequests, getTransactionsForProject } from '@/app/actions/whatsapp.actions';
+import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -62,31 +62,40 @@ export default function WhatsAppPayPage() {
     const [isLoading, startLoading] = useTransition();
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
     const { toast } = useToast();
+    const [paymentRequestError, setPaymentRequestError] = useState<string | null>(null);
 
-    const fetchData = async (showToast = false) => {
+    const fetchData = useCallback(async (showToast = false) => {
         if (!activeProjectId) return;
         
         startLoading(async () => {
-            const [projectData, transactionsData] = await Promise.all([
+            setPaymentRequestError(null);
+            const [projectData, transactionsData, configsData] = await Promise.all([
                 getProjectById(activeProjectId),
-                getTransactionsForProject(activeProjectId)
+                getTransactionsForProject(activeProjectId),
+                getPaymentConfigurations(activeProjectId)
             ]);
             setProject(projectData);
             setTransactions(transactionsData);
 
-            if (projectData?.phoneNumbers?.[0]?.id) {
+            if (configsData.error) {
+                setPaymentRequestError(configsData.error);
+            } else if (configsData.configurations.length === 0) {
+                setPaymentRequestError("No payment configurations found for this project. Please add one in the 'Setup' tab.");
+                setPaymentRequests([]);
+            } else if (projectData?.phoneNumbers?.[0]?.id) {
                 const requestsData = await getPaymentRequests(activeProjectId, projectData.phoneNumbers[0].id);
                 if (requestsData.error) {
-                    toast({ title: 'Could not fetch payment requests', description: requestsData.error, variant: 'destructive'});
+                    setPaymentRequestError(requestsData.error);
                 } else {
                     setPaymentRequests(requestsData.requests || []);
                 }
             }
-             if (showToast) {
+
+            if (showToast) {
                 toast({ title: "Refreshed", description: "Payment data updated." });
             }
         });
-    }
+    }, [activeProjectId, toast]);
 
     useEffect(() => {
         const storedId = localStorage.getItem('activeProjectId');
@@ -149,38 +158,46 @@ export default function WhatsAppPayPage() {
                     <CardDescription>A log of the latest payment requests sent via WhatsApp Pay.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                             <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    <TableHead>To</TableHead>
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Request ID</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {paymentRequests.length > 0 ? (
-                                    paymentRequests.map((req) => (
-                                        <TableRow key={req.id}>
-                                            <TableCell>{req.created_timestamp ? format(new Date(req.created_timestamp * 1000), 'PPp') : 'N/A'}</TableCell>
-                                            <TableCell className="font-medium">{req.description}</TableCell>
-                                            <TableCell>{req.receiver.wa_id}</TableCell>
-                                            <TableCell>₹{req.amount.value}</TableCell>
-                                            <TableCell><Badge variant={getStatusVariant(req.status)} className="capitalize">{req.status?.toLowerCase()}</Badge></TableCell>
-                                            <TableCell className="font-mono text-xs">{req.id}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
+                    {paymentRequestError ? (
+                         <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>Could Not Load Requests</AlertTitle>
+                            <AlertDescription>{paymentRequestError}</AlertDescription>
+                        </Alert>
+                    ) : (
+                        <div className="border rounded-md">
+                            <Table>
+                                 <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center">No recent payment requests found via API.</TableCell>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Description</TableHead>
+                                        <TableHead>To</TableHead>
+                                        <TableHead>Amount</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Request ID</TableHead>
                                     </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
+                                </TableHeader>
+                                <TableBody>
+                                    {paymentRequests.length > 0 ? (
+                                        paymentRequests.map((req) => (
+                                            <TableRow key={req.id}>
+                                                <TableCell>{req.created_timestamp ? format(new Date(req.created_timestamp * 1000), 'PPp') : 'N/A'}</TableCell>
+                                                <TableCell className="font-medium">{req.description}</TableCell>
+                                                <TableCell>{req.receiver.wa_id}</TableCell>
+                                                <TableCell>₹{req.amount.value}</TableCell>
+                                                <TableCell><Badge variant={getStatusVariant(req.status)} className="capitalize">{req.status?.toLowerCase()}</Badge></TableCell>
+                                                <TableCell className="font-mono text-xs">{req.id}</TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="h-24 text-center">No recent payment requests found via API.</TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 
