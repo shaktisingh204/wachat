@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -18,8 +19,9 @@ import { LoaderCircle, UserPlus } from 'lucide-react';
 import { handleAddNewContact } from '@/app/actions/contact.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
-import type { Project } from '@/lib/definitions';
+import type { Project, Tag } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MultiSelectCombobox } from './multi-select-combobox';
 
 const initialState = {
   message: null,
@@ -55,6 +57,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState(project.phoneNumbers?.[0]?.id || '');
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const hasRunEffectRef = useRef(false);
 
   useEffect(() => {
@@ -76,6 +79,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
         formRef.current?.reset();
+        setSelectedTagIds([]);
         // Reset the flag when closing, so the effect can run on the next submission.
         hasRunEffectRef.current = false;
     }
@@ -87,7 +91,8 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
       hasRunEffectRef.current = false;
       formAction(formData);
   };
-
+  
+  const tagOptions = (project.tags || []).map((tag: Tag) => ({ value: tag._id.toString(), label: tag.name, color: tag.color }));
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -100,6 +105,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
       <DialogContent className="sm:max-w-md">
         <form action={wrappedFormAction} ref={formRef}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
+            <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
             <DialogHeader>
                 <DialogTitle>Add New Contact</DialogTitle>
                 <DialogDescription>
@@ -129,6 +135,15 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
                 <div className="space-y-2">
                     <Label htmlFor="waId" className="text-right">WhatsApp ID</Label>
                     <Input id="waId" name="waId" placeholder="e.g. 15551234567" required />
+                </div>
+                 <div className="space-y-2">
+                    <Label>Tags</Label>
+                    <MultiSelectCombobox 
+                        options={tagOptions}
+                        selected={selectedTagIds}
+                        onSelectionChange={setSelectedTagIds}
+                        placeholder="Assign tags..."
+                    />
                 </div>
             </div>
             <DialogFooter>
