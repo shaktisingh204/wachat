@@ -1,9 +1,9 @@
 
-
 'use server';
 
 import 'server-only'
-import { jwtVerify, decodeJwt, JWTExpired, type JWTPayload } from 'jose';
+// The fix is to remove JWTExpired as it is not available in the edge runtime.
+import { jwtVerify, decodeJwt, type JWTPayload } from 'jose';
 
 function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
@@ -26,7 +26,11 @@ export async function verifyJwtEdge(token: string): Promise<boolean> {
 
         if (isExpired) {
             console.warn('[AUTH_EDGE] User JWT has expired.');
-            throw new JWTExpired('Token expired');
+            // Instead of throwing JWTExpired, create a custom error
+            // with the code the middleware expects.
+            const error = new Error('Token expired');
+            (error as any).code = 'ERR_JWT_EXPIRED';
+            throw error;
         }
 
         console.log('[AUTH_EDGE] User JWT is not expired (signature not checked on edge).');
@@ -44,12 +48,12 @@ export async function verifyAdminJwtEdge(token: string): Promise<JWTPayload | nu
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
         
-        if (payload.role === 'admin') {
-            console.log('[AUTH_EDGE] Admin JWT verified successfully.');
-            return payload;
+        if (payload.role !== 'admin') {
+            console.warn('[AUTH_EDGE] JWT verified but role is not admin.');
+            return null;
         }
-        console.warn('[AUTH_EDGE] JWT verified but role is not admin.');
-        return null;
+
+        return payload;
     } catch(e: any) {
         console.error("[AUTH_EDGE] Admin JWT verification failed on edge:", e.code, e.message);
         // Re-throw JWTExpired so middleware can handle it
