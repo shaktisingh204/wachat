@@ -45,9 +45,9 @@ export default function FacebookCallbackClient({
       let result;
       // Use the 'state' to determine which flow to execute
       if (stateFromUrl === 'whatsapp') {
-        result = await handleWabaOnboarding({ code });
+        result = await handleWabaOnboarding({ code, state: stateFromUrl });
       } else if (stateFromUrl === 'facebook') {
-        result = await handleMetaSuiteOnboarding({ code });
+        result = await handleMetaSuiteOnboarding({ code, state: stateFromUrl });
       } else {
         result = { success: false, error: 'Invalid onboarding state.' };
       }
