@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat, ExternalLink, GitBranch, LoaderCircle } from 'lucide-react';
+import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat } from 'lucide-react';
 import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,7 @@ import { useProject } from '@/context/project-context';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Separator } from '@/components/ui/separator';
+import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
 
 function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
     return (
@@ -74,6 +75,9 @@ export default function CatalogPage() {
     const catalogStep3Image = PlaceHolderImages.find(img => img.id === 'catalog-step-3');
     const catalogStep6Image = PlaceHolderImages.find(img => img.id === 'catalog-step-6');
 
+    const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
+    const configId = process.env.NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID;
+
     if (isLoadingProject) {
          return <Skeleton className="h-full w-full" />;
     }
@@ -121,7 +125,19 @@ export default function CatalogPage() {
                 <Card className="text-center">
                     <CardHeader><div className="mx-auto bg-destructive text-destructive-foreground rounded-full h-16 w-16 flex items-center justify-center mb-4"><Lock className="h-8 w-8" /></div><CardTitle>Catalog Management Locked</CardTitle><CardDescription>This project was set up without catalog management permissions.</CardDescription></CardHeader>
                     <CardContent><p className="text-sm text-muted-foreground max-w-md mx-auto">To use product catalogs, you need to re-authorize the application and grant the 'catalog_management' and 'business_management' permissions.</p></CardContent>
-                    <CardFooter className="justify-center"><Button asChild><Link href="/dashboard/setup"><Repeat className="mr-2 h-4 w-4" /> Go to Setup to Re-authorize</Link></Button></CardFooter>
+                    <CardFooter className="justify-center">
+                        {appId && configId ? (
+                            <EmbeddedSignup
+                                appId={appId}
+                                configId={configId}
+                                includeCatalog={true}
+                                state="whatsapp"
+                                reauthorize={true}
+                            />
+                        ) : (
+                            <p className="text-sm text-destructive">Admin has not configured the Facebook App ID.</p>
+                        )}
+                    </CardFooter>
                 </Card>
             ) : catalogs.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
   
   const searchParams = request.nextUrl.searchParams;
   const includeCatalog = searchParams.get('includeCatalog') === 'true';
+  const reauthorize = searchParams.get('reauthorize') === 'true';
   const stateFromClient = searchParams.get('state');
 
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
@@ -41,6 +42,10 @@ export async function GET(request: NextRequest) {
   // For Embedded Signup, we pass the config_id
   facebookLoginUrl.searchParams.set('config_id', configId);
   facebookLoginUrl.searchParams.set('override_default_response_type', 'true');
+
+  if (reauthorize) {
+    facebookLoginUrl.searchParams.set('auth_type', 'reauthorize');
+  }
 
   const response = NextResponse.redirect(facebookLoginUrl.toString());
 
