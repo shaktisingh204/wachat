@@ -315,7 +315,11 @@ export async function handleCreateTemplate(
                 if (headerFormat === 'TEXT') {
                     if (!headerText) return { error: 'Header text is required for TEXT header format.' };
                     headerComponent.text = headerText;
-                    if (headerText.match(/{{\s*(\d+)\s*}}/g)) headerComponent.example = { header_text: ['example_header_var'] };
+                     if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
+                        const headerExample = formData.get('headerExample') as string;
+                        if (!headerExample) return { error: 'Example for header variable is required.' };
+                        headerComponent.example = { header_text: [headerExample] };
+                    }
                 } else {
                     const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, headerSampleUrl, accessToken, appId);
                     if(error) return { error };
@@ -325,7 +329,19 @@ export async function handleCreateTemplate(
             }
             
             const bodyComponent: any = { type: 'BODY', text: bodyText };
-            if (bodyText.match(/{{\s*(\d+)\s*}}/g)) bodyComponent.example = { body_text: [['example_body_var']] };
+            const bodyVarMatches = bodyText.match(/{{\s*(\d+)\s*}}/g);
+            if (bodyVarMatches) {
+                const bodyVarNumbers = [...new Set(bodyVarMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a,b) => a - b);
+                const bodyExamples = [];
+                for (const varNum of bodyVarNumbers) {
+                    const exampleValue = formData.get(`body_example_${varNum}`) as string;
+                    if (!exampleValue) {
+                        return { error: `An example value for body variable {{${varNum}}} is required.` };
+                    }
+                    bodyExamples.push(exampleValue);
+                }
+                bodyComponent.example = { body_text: [bodyExamples] };
+            }
             payload.components.push(bodyComponent);
 
             if (footerText) payload.components.push({ type: 'FOOTER', text: footerText });
@@ -674,5 +690,3 @@ export async function handleApplyTemplateToProjects(sourceTemplateId: string, ta
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
-    
