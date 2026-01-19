@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -15,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LoaderCircle, FileUp } from 'lucide-react';
+import { LoaderCircle, FileUp, Download } from 'lucide-react';
 import { handleImportContacts } from '@/app/actions/contact.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
@@ -68,6 +67,22 @@ export function ImportContactsDialog({ project, onImported }: ImportContactsDial
     }
   }, [state, toast, onImported]);
 
+  const handleDownloadSample = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+        + "phone,name\n"
+        + "919876543210,John Doe\n"
+        + "919876543211,Jane Smith";
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "sample_contacts.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: "Sample file downloading..." });
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -102,7 +117,13 @@ export function ImportContactsDialog({ project, onImported }: ImportContactsDial
                     </Select>
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="contactFile">Contact File</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="contactFile">Contact File</Label>
+                        <Button type="button" variant="link" size="sm" onClick={handleDownloadSample} className="p-0 h-auto">
+                            <Download className="mr-1 h-3 w-3" />
+                            Download Sample
+                        </Button>
+                    </div>
                     <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
                 </div>
             </div>
