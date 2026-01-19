@@ -91,7 +91,7 @@ export default function HomePage() {
           <div className="mr-4 flex"><Link href="/" className="mr-6 flex items-center space-x-2"><SabNodeLogo className="h-8 w-auto" /></Link></div>
           <div className="flex flex-1 items-center justify-end space-x-2">
             {loading ? <div className="h-10 w-24 bg-muted rounded-md animate-pulse"></div> : (
-              session ? (
+              session?.user ? (
                 <Button asChild><Link href="/dashboard">Dashboard</Link></Button>
               ) : (
                 <>
