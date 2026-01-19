@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import {
-  Send, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Clapperboard, Handshake, Brush, Mail, GitFork, Linkedin, Briefcase, Users2, Rocket, TrendingUp, Factory, Building, Boxes, HeartPulse, BookOpen, Truck, Landmark, UtensilsCrossed, FlaskConical, PenTool, BedDouble
+  Send, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Clapperboard, Handshake, Brush, Mail, GitFork, Linkedin, Briefcase, Users2, Rocket, Factory, Building, Boxes, HeartPulse, BookOpen, Truck, Landmark, UtensilsCrossed, FlaskConical, PenTool, BedDouble, TrendingUp
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -152,14 +152,27 @@ manual work is limited.</p>
             <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
                 <div className="space-y-6">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">What Is Sabnode?</h2>
-                    <p className="text-lg text-muted-foreground">Sabnode is an AI-powered, no-code automation platform built to simplify how modern
-businesses communicate, market, and operate—without adding technical complexity.</p>
-                    <p className="text-muted-foreground">Sabnode integrates everything into one intelligent automation system. This allows businesses to
-reduce complicated tasks by using the smart automation workflows that the system runs
-frequently in the background.</p>
-                     <p className="text-muted-foreground">Sabnode does not simply add Artificial intelligence to a business. It combines all tools,
-conversations, and business processes into a single, clearly defined system. The system is
-designed for speed and is capable of sustaining scalable growth.</p>
+                    <p className="text-lg text-muted-foreground">Sabnode is an AI-powered, no-code automation platform built to simplify how modern businesses communicate, market, and operate—without adding technical complexity.</p>
+                    <div className="space-y-4 pt-4">
+                        <Card className="bg-background/50">
+                            <CardContent className="p-4 flex items-start gap-4">
+                                <GitFork className="h-8 w-8 text-primary flex-shrink-0 mt-1"/>
+                                <div>
+                                    <h4 className="font-semibold">Integrated Automation</h4>
+                                    <p className="text-sm text-muted-foreground">Sabnode integrates everything into one intelligent automation system. This allows businesses to reduce complicated tasks by using smart workflows.</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-background/50">
+                            <CardContent className="p-4 flex items-start gap-4">
+                                <Rocket className="h-8 w-8 text-primary flex-shrink-0 mt-1"/>
+                                <div>
+                                    <h4 className="font-semibold">Designed for Growth</h4>
+                                    <p className="text-sm text-muted-foreground">It combines all tools, conversations, and business processes into a single, clearly defined system designed for speed and scalable growth.</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
                 <div className="space-y-4">
                     {whatIsSabnodeFeatures.map((feature, index) => (
@@ -184,7 +197,7 @@ designed for speed and is capable of sustaining scalable growth.</p>
                     <FeatureCard icon={Bot} title="No-Code AI Chatbots" description="Design intelligent conversational flows with a simple drag-and-drop interface."/>
                     <FeatureCard icon={Zap} title="Smart Workflows & Integrations" description="Connect your CRM, Google Sheets, forms, and payment gateways."/>
                     <FeatureCard icon={ShoppingBag} title="E-commerce & Product Catalog Automation" description="Manage product catalogs on WhatsApp and automate order inquiries."/>
-                    <FeatureCard icon={Rocket} title="Proof &gt; Promise (Our Philosophy)" description="We build reliable systems that replace manual work, no hype."/>
+                    <FeatureCard icon={Rocket} title="Proof > Promise (Our Philosophy)" description="We build reliable systems that replace manual work, no hype."/>
                 </div>
             </div>
         </section>
@@ -221,7 +234,8 @@ tested with real businesses to ensure it works—no hype, no empty claims.</p>
                     <p className="text-muted-foreground">With Sabnode, you don’t have to wonder if automation will work—you experience it in action.</p>
                     <ul className="space-y-2 pt-2">
                         <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Systems that replace hours of manual work, freeing your team for strategic tasks.</li>
-                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Automations that continue to run even when you’re offline, so nothing slips through the cracks.</li>
+                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Automations that continue to run even when you’re offline, so nothing slips through the
+cracks.</li>
                         <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Tested in real-world business scenarios, proving effectiveness, not just theory.</li>
                         <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>No hype. Only execution. Our focus is on building workflows that actually deliver results.</li>
                     </ul>
