@@ -19,6 +19,7 @@ import Image from 'next/image';
 import { EditPhoneNumberDialog } from '@/components/wabasimplify/edit-phone-number-dialog';
 import { cn } from '@/lib/utils';
 import { CallingToggleSwitch } from '@/components/wabasimplify/calling-toggle-switch';
+import { RegisterPhoneButton } from '@/components/wabasimplify/register-phone-button';
 
 function NumbersPageSkeleton() {
     return (
@@ -62,7 +63,7 @@ export default function NumbersPage() {
           });
         }
     });
-  }, [toast]);
+  }, [toast, startLoadingTransition]);
   
   useEffect(() => {
     setIsClient(true);
@@ -192,11 +193,14 @@ export default function NumbersPage() {
                                   <p className="truncate w-40 text-right">{phone.profile?.about || 'Not set'}</p>
                               </div>
                           </CardContent>
-                          <CardFooter className="mt-auto">
+                          <CardFooter className="mt-auto flex-col items-stretch gap-2">
                               <Button variant="secondary" className="w-full" onClick={() => setEditingPhone(phone)}>
                                   <Edit className="mr-2 h-4 w-4"/>
                                   Edit Profile & Settings
                               </Button>
+                                {phone.code_verification_status === 'VERIFIED' && (
+                                    <RegisterPhoneButton projectId={project._id.toString()} phoneNumberId={phone.id} />
+                                )}
                           </CardFooter>
                       </Card>
                   ))
