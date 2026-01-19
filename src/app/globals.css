@@ -215,7 +215,7 @@
     }
     .glossy-background {
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     .glossy-background::before {
@@ -225,9 +225,9 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: radial-gradient(circle at 15% 20%, hsla(120, 70%, 50%, 0.2), transparent 40%),
-                  radial-gradient(circle at 85% 30%, hsla(0, 70%, 50%, 0.2), transparent 40%),
-                  radial-gradient(circle at 50% 80%, hsla(240, 70%, 60%, 0.2), transparent 40%);
+      background: radial-gradient(circle at 15% 20%, hsla(120, 70%, 50%, 0.15), transparent 40%),
+                  radial-gradient(circle at 85% 30%, hsla(0, 70%, 50%, 0.15), transparent 40%),
+                  radial-gradient(circle at 50% 80%, hsla(240, 70%, 60%, 0.15), transparent 40%);
       filter: blur(120px);
       z-index: 0;
       transform: translateZ(0); /* Promotes to a new layer */
@@ -304,3 +304,5 @@
       }
     }
 }
+
+    
