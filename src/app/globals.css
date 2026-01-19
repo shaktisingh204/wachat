@@ -215,22 +215,22 @@
     }
     .glossy-background {
       position: relative;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     .glossy-background::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
       background: radial-gradient(circle at 15% 20%, hsla(120, 70%, 50%, 0.15), transparent 40%),
                   radial-gradient(circle at 85% 30%, hsla(0, 70%, 50%, 0.15), transparent 40%),
                   radial-gradient(circle at 50% 80%, hsla(240, 70%, 60%, 0.15), transparent 40%);
       filter: blur(120px);
       z-index: 0;
-      transform: translateZ(0); /* Promotes to a new layer */
+      animation: slow-pan 30s linear infinite alternate;
     }
 
     /* Ensure children are above the pseudo-element */
@@ -303,6 +303,12 @@
         stroke-dashoffset: 0;
       }
     }
+    @keyframes slow-pan {
+      0% {
+        transform: translate(0%, 0%);
+      }
+      100% {
+        transform: translate(25%, 25%);
+      }
+    }
 }
-
-    
