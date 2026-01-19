@@ -13,7 +13,6 @@ import { getErrorMessage } from '@/lib/utils';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
-import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import axios from 'axios';
 
 
@@ -101,8 +100,8 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         if (type === 'whatsapp') {
             projectFilter.wabaId = { $exists: true, $ne: "" };
         } else if (type === 'facebook') {
-            projectFilter.wabaId = { $exists: false };
             projectFilter.facebookPageId = { $exists: true, $ne: "" };
+            projectFilter.wabaId = { $exists: false };
         }
         
         console.log('[getProjects] Using filter:', JSON.stringify(projectFilter, null, 2));
@@ -274,6 +273,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     
     try {
         const { db } = await connectToDatabase();
+        const { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } = await import('@/app/actions/whatsapp.actions');
 
         let groupId: ObjectId | undefined;
         if(groupName) {
