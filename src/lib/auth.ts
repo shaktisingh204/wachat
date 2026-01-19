@@ -11,6 +11,7 @@ import { serviceAccount } from './firebase/service-account';
 import { cookies } from 'next/headers';
 
 const SALT_ROUNDS = 10;
+const FIREBASE_APP_NAME = 'sabnode-admin-app'; // Named app
 
 function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
@@ -21,10 +22,12 @@ function getJwtSecretKey(): Uint8Array {
 }
 
 function initializeFirebaseAdmin() {
-  if (admin.apps.length > 0) {
-    return admin.app();
+  // Check if app with this name already exists
+  if (admin.apps.some(app => app?.name === FIREBASE_APP_NAME)) {
+    return admin.app(FIREBASE_APP_NAME);
   }
-  console.log('[AUTH_LIB] Initializing Firebase Admin SDK...');
+
+  console.log(`[AUTH_LIB] Initializing Firebase Admin SDK with name: ${FIREBASE_APP_NAME}`);
 
   // Handle potential JSON parsing errors
   let parsedServiceAccount;
@@ -46,8 +49,9 @@ function initializeFirebaseAdmin() {
 
   return admin.initializeApp({
     credential: admin.credential.cert(parsedServiceAccount),
-  });
+  }, FIREBASE_APP_NAME);
 }
+
 
 export async function hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, SALT_ROUNDS);
