@@ -1,10 +1,54 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
+import * as admin from 'firebase-admin';
+import { serviceAccount } from '@/lib/firebase/service-account';
+
+// Helper to initialize Firebase Admin idempotently
+function initializeFirebaseAdmin() {
+  if (admin.apps.length > 0) {
+    return admin.app();
+  }
+  
+  let parsedServiceAccount;
+  try {
+      if (typeof serviceAccount === 'string') {
+          parsedServiceAccount = JSON.parse(serviceAccount);
+      } else {
+          parsedServiceAccount = serviceAccount;
+      }
+  } catch (e) {
+      console.error("FATAL: Could not parse Firebase service account JSON in logout route.");
+      throw new Error("Invalid Firebase service account configuration.");
+  }
+  
+  // Ensure the private key is correctly formatted
+  if (parsedServiceAccount.private_key && !parsedServiceAccount.private_key.includes('-----BEGIN PRIVATE KEY-----')) {
+       parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
+  }
+
+  return admin.initializeApp({
+    credential: admin.credential.cert(parsedServiceAccount),
+  });
+}
 
 export async function GET(request: NextRequest) {
+    const sessionToken = request.cookies.get('session')?.value;
+    
+    if (sessionToken) {
+        try {
+            initializeFirebaseAdmin();
+            const decodedToken = await admin.auth().verifyIdToken(sessionToken);
+            await admin.auth().revokeRefreshTokens(decodedToken.uid);
+            console.log(`[LOGOUT] Revoked tokens for UID: ${decodedToken.uid}`);
+        } catch (error: any) {
+            // Log error but proceed with logout. Token might be invalid/expired anyway.
+            console.error('[LOGOUT] Error revoking tokens:', error.code, error.message);
+        }
+    }
+
     const response = NextResponse.redirect(new URL('/login', request.url));
     
-    // Clear the session cookie by setting its expiration to a past date
+    // Clear the session cookie
     response.cookies.set({
         name: 'session',
         value: '',
