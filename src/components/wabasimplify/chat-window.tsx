@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState, useMemo, useTransition } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import type { Contact, AnyMessage, Project, Template } from '@/lib/definitions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,10 +9,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';
 import { ChatMessageInput } from './chat-message-input';
 import { Button } from '../ui/button';
-import { ArrowLeft, Info, LoaderCircle, Phone, Video, X, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Info, LoaderCircle, Phone, Video, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface ChatWindowProps {
     project: WithId<Project>;
@@ -65,7 +66,7 @@ export function ChatWindow({
     onInfoToggle,
     isInfoPanelOpen
 }: ChatWindowProps) {
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const viewportRef = useRef<HTMLDivElement>(null);
     const { sessionUser } = useProject();
     const [replyToMessage, setReplyToMessage] = useState<AnyMessage | null>(null);
     const [isWindowExpired, setIsWindowExpired] = useState(false);
@@ -92,7 +93,15 @@ export function ChatWindow({
     }, [sessionExpiryTime, conversation]);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+        const viewport = viewportRef.current;
+        if (viewport) {
+            const isScrolledToBottom = viewport.scrollHeight - viewport.clientHeight <= viewport.scrollTop + 100; // 100px threshold
+            if (isScrolledToBottom) {
+                setTimeout(() => {
+                    viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+                }, 100);
+            }
+        }
     }, [conversation]);
 
     const processedConversation = useMemo(() => {
@@ -152,7 +161,7 @@ export function ChatWindow({
                 </div>
             </div>
             
-            <ScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
+            <ScrollArea viewportRef={viewportRef} className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                  {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                          <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -162,7 +171,6 @@ export function ChatWindow({
                         {processedConversation.map((msg) => (
                             <ChatMessage key={msg._id.toString()} message={msg} conversation={conversation} onReply={handleReply}/>
                         ))}
-                        <div ref={messagesEndRef} />
                     </div>
                 )}
             </ScrollArea>
