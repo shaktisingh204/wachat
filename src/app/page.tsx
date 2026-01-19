@@ -98,7 +98,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div className="flex flex-col min-h-screen bg-background text-foreground glossy-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 flex h-16 items-center">
           <div className="mr-4 flex"><Link href="/" className="mr-6 flex items-center space-x-2"><SabNodeLogo className="h-8 w-auto" /></Link></div>
@@ -124,7 +124,7 @@ export default function HomePage() {
       </header>
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-20 md:py-32 bg-muted/30">
+        <section className="py-20 md:py-32">
             <div className="container mx-auto px-4 text-center">
                 <Badge variant="outline" className="mb-4 text-sm py-1 px-3 border-primary/50 text-primary">Sabnode—AI Automation Platform for Modern Businesses</Badge>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">AI Automation That Runs Your Business on Autopilot</h1>
@@ -164,18 +164,18 @@ manual work is limited.</p>
         </section>
 
         {/* What Is Sabnode Section */}
-        <section className="py-24 md:py-32 bg-muted/30">
+        <section className="py-24 md:py-32 bg-background/30 backdrop-blur-sm">
             <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
                 <div className="space-y-6">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">What Is Sabnode?</h2>
                     <div className="space-y-4 text-lg text-muted-foreground">
-                        <Card className="bg-background/50"><CardContent className="p-4 flex items-start gap-4"><Rocket className="h-8 w-8 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold text-foreground">AI Automation Platform</h4><p className="text-sm">Sabnode is a powerful, no-code platform built to simplify how modern businesses communicate, market, and operate—without adding technical complexity.</p></div></CardContent></Card>
-                        <Card className="bg-background/50"><CardContent className="p-4 flex items-start gap-4"><GitFork className="h-8 w-8 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold text-foreground">Integrated System</h4><p className="text-sm">It combines all tools, conversations, and business processes into a single, intelligent system designed for speed and is capable of sustaining scalable growth.</p></div></CardContent></Card>
+                        <Card className="bg-card/50 backdrop-blur-sm"><CardContent className="p-4 flex items-start gap-4"><Rocket className="h-8 w-8 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold text-foreground">AI Automation Platform</h4><p className="text-sm">Sabnode is a powerful, no-code platform built to simplify how modern businesses communicate, market, and operate—without adding technical complexity.</p></div></CardContent></Card>
+                        <Card className="bg-card/50 backdrop-blur-sm"><CardContent className="p-4 flex items-start gap-4"><GitFork className="h-8 w-8 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold text-foreground">Integrated System</h4><p className="text-sm">It combines all tools, conversations, and business processes into a single, intelligent system designed for speed and is capable of sustaining scalable growth.</p></div></CardContent></Card>
                     </div>
                 </div>
                 <div className="space-y-4">
                     {whatIsSabnodeFeatures.map((feature, index) => (
-                        <Card key={index} className="bg-background/50 hover:shadow-md transition-shadow">
+                        <Card key={index} className="bg-card/50 backdrop-blur-sm hover:shadow-md transition-shadow">
                             <CardContent className="p-4 flex items-start gap-4">
                                 <feature.icon className="h-6 w-6 text-primary flex-shrink-0 mt-1"/>
                                 <p>{feature.text}</p>
@@ -196,13 +196,13 @@ manual work is limited.</p>
                     <FeatureCard icon={Bot} title="No-Code AI Chatbots" description="Design intelligent conversational flows with a simple drag-and-drop interface."/>
                     <FeatureCard icon={Zap} title="Smart Workflows & Integrations" description="Connect your CRM, Google Sheets, forms, and payment gateways."/>
                     <FeatureCard icon={ShoppingBag} title="E-commerce & Product Catalog Automation" description="Manage product catalogs on WhatsApp and automate order inquiries."/>
-                    <FeatureCard icon={Rocket} title="Proof > Promise (Our Philosophy)" description="We build reliable systems that replace manual work, no hype."/>
+                    <FeatureCard icon={Rocket} title="Proof &gt; Promise (Our Philosophy)" description="We build reliable systems that replace manual work, no hype."/>
                 </div>
             </div>
         </section>
 
         {/* Use Cases Section */}
-        <section id="use-cases" className="py-20 md:py-28 bg-muted/30">
+        <section id="use-cases" className="py-20 md:py-28 bg-background/30 backdrop-blur-sm">
              <div className="container mx-auto px-4">
                 <div className="text-center space-y-4 mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Built for Real Business Challenges</h2>
@@ -225,8 +225,7 @@ manual work is limited.</p>
                 </div>
                  <div className="space-y-4">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Proof &gt; Promise (Our Philosophy)</h2>
-                    <p className="text-lg text-muted-foreground">At Sabnode, we believe in action over ideas. Many platforms talk about what’s possible, but few actually deliver systems that work in the real world. Our philosophy is simple: don’t just promise
-automation—show results.</p>
+                    <p className="text-lg text-muted-foreground">At Sabnode, we believe in action over ideas. Many platforms talk about what’s possible, but few actually deliver systems that work in the real world.</p>
                     <p className="text-muted-foreground">We build automation systems that are reliable, practical, and designed to replace hours of repetitive work, so your business can run smoothly, even when you’re offline. Every workflow is tested with real businesses to ensure it works—no hype, no empty claims.</p>
                     <ul className="space-y-2 pt-2">
                         <li className="flex items-start gap-3"><Check className="h-5 w-5 text-primary flex-shrink-0 mt-1"/>Systems that replace hours of manual work, freeing your team for strategic tasks.</li>
@@ -240,7 +239,7 @@ cracks.</li>
         </section>
         
         {/* Who is it for Section */}
-        <section className="py-20 md:py-28 bg-muted/30">
+        <section className="py-20 md:py-28 bg-background/30 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <div className="text-center space-y-4 mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Who Needs to Use Sabnode?</h2>
