@@ -1,9 +1,8 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,9 +32,9 @@ import {
     ImageIcon,
     Clock,
     ShoppingCart,
-    View,
     PackageCheck,
-    ArrowRightLeft
+    ArrowRightLeft,
+    Send as SendIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -44,62 +43,46 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import {
-  getEcommFlows,
-  getEcommFlowById,
-  saveEcommFlow,
-  deleteEcommFlow,
-} from '@/app/actions/custom-ecommerce.actions';
-import { getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
-import type { EcommFlow, EcommFlowNode, EcommFlowEdge, EcommShop } from '@/lib/definitions';
+  getFlowsForProject,
+  getFlowById,
+  saveFlow,
+  deleteFlow,
+} from '@/app/actions/flow.actions';
+import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { PropertiesPanel } from '@/components/wabasimplify/properties-panel';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useProject } from '@/context/project-context';
+import { PropertiesPanel } from '@/components/wabasimplify/properties-panel';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel' | 'addToCart' | 'orderConfirmation' | 'api';
+
+type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel' | 'addToCart' | 'orderConfirmation' | 'api' | 'sendSms' | 'sendEmail' | 'createCrmLead' | 'generateShortLink' | 'generateQrCode' | 'sendTemplate' | 'triggerMetaFlow';
 
 type ButtonConfig = {
     id: string;
     text: string;
 };
 
-type CarouselElementButton = {
-  type: 'web_url' | 'postback';
-  title: string;
-  url?: string;
-  payload?: string;
-  webview_height_ratio?: 'compact' | 'tall' | 'full';
-  messenger_extensions?: boolean;
-};
-
-
-type CarouselElement = {
-    id: string;
-    title: string;
-    subtitle?: string;
-    image_url?: string;
-    buttons?: CarouselElementButton[];
-};
-
-
 const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
-    { type: 'buttons', label: 'Add Quick Replies', icon: ToggleRight },
-    { type: 'carousel', label: 'Product Carousel', icon: View },
+    { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
     { type: 'api', label: 'Call API', icon: ArrowRightLeft },
-    { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
-    { type: 'orderConfirmation', label: 'Order Confirmation', icon: PackageCheck },
+    { type: 'sendSms', label: 'Send SMS', icon: MessageSquare },
+    { type: 'sendEmail', label: 'Send Email', icon: SendIcon },
+    { type: 'createCrmLead', label: 'Create CRM Lead', icon: Plus },
+    { type: 'generateShortLink', label: 'Generate Short Link', icon: Link },
+    { type: 'generateQrCode', label: 'Generate QR Code', icon: QrCode },
+    { type: 'sendTemplate', label: 'Send Template', icon: FileIcon },
+    { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: GitFork }
 ];
 
-const NodePreview = ({ node }: { node: EcommFlowNode }) => {
+
+const NodePreview = ({ node }: { node: FlowNode }) => {
     const renderTextWithVariables = (text?: string) => {
         if (!text) return <span className="italic opacity-50">Enter message...</span>;
         const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
@@ -118,7 +101,6 @@ const NodePreview = ({ node }: { node: EcommFlowNode }) => {
         switch (node.type) {
             case 'text':
             case 'input':
-            case 'orderConfirmation':
                 return <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>;
             case 'image':
                 return (
@@ -142,11 +124,6 @@ const NodePreview = ({ node }: { node: EcommFlowNode }) => {
                         </div>
                     </div>
                 );
-            case 'carousel':
-                 const elementCount = node.data.elements?.length || 0;
-                return <p className="text-xs text-muted-foreground italic">Sends a carousel with {elementCount} card(s).</p>;
-            case 'addToCart':
-                return <p className="text-xs text-muted-foreground italic">Adds "{node.data.productName || 'product'}" to cart.</p>;
             default:
                 return null;
         }
@@ -171,7 +148,7 @@ const NodeComponent = ({
     onNodeMouseDown,
     onHandleClick 
 }: { 
-    node: EcommFlowNode; 
+    node: FlowNode; 
     onSelectNode: (id: string) => void; 
     isSelected: boolean;
     onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void;
@@ -230,7 +207,7 @@ const NodeComponent = ({
                     return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition, transform: 'translateY(-50%)' }} />;
                 })
             ) : (
-                 node.type !== 'addToCart' && <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
+                 <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
             )}
         </div>
     );
@@ -246,8 +223,8 @@ const FlowsAndBlocksPanel = ({
     addNode,
 } : {
     isLoading: boolean;
-    flows: WithId<EcommFlow>[];
-    currentFlow: WithId<EcommFlow> | null;
+    flows: WithId<Flow>[];
+    currentFlow: WithId<Flow> | null;
     handleSelectFlow: (id: string) => void;
     handleDeleteFlow: (id: string) => void;
     handleCreateNewFlow: () => void;
@@ -297,9 +274,6 @@ const FlowsAndBlocksPanel = ({
     </>
 );
 
-const NODE_WIDTH = 256;
-const NODE_HEIGHT = 100;
-
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     if (!sourcePos || !targetPos) return '';
     const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
@@ -307,9 +281,10 @@ const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number
     return path;
 };
 
-const getNodeHandlePosition = (node: EcommFlowNode, handleId: string) => {
+const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     if (!node || !handleId) return null;
 
+    const NODE_WIDTH = 256;
     const x = node.position.x;
     const y = node.position.y;
     
@@ -342,7 +317,6 @@ const getNodeHandlePosition = (node: EcommFlowNode, handleId: string) => {
         return { x: x + NODE_WIDTH, y: y + topPosition };
     }
     
-    // Fallback for generic output handles from older data structures
     if (handleId.includes('output')) {
         return { x: x + NODE_WIDTH, y: y + 30 };
     }
@@ -350,23 +324,20 @@ const getNodeHandlePosition = (node: EcommFlowNode, handleId: string) => {
     return null;
 }
 
-export default function EcommFlowBuilderPage() {
+export default function FlowBuilderPage() {
     const { toast } = useToast();
+    const router = useRouter();
+    const { activeProjectId } = useProject(); 
+
     const [isClient, setIsClient] = useState(false);
-    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
-    const [flows, setFlows] = useState<WithId<EcommFlow>[]>([]);
-    const [currentFlow, setCurrentFlow] = useState<WithId<EcommFlow> | null>(null);
-    const [nodes, setNodes] = useState<EcommFlowNode[]>([]);
-    const [edges, setEdges] = useState<EcommFlowEdge[]>([]);
+    const [flows, setFlows] = useState<WithId<Flow>[]>([]);
+    const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
+    const [nodes, setNodes] = useState<FlowNode[]>([]);
+    const [edges, setEdges] = useState<FlowEdge[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoading, startLoadingTransition] = useTransition();
     
-    // AI Generation State
-    const [prompt, setPrompt] = useState('');
-    const [isGenerating, startGeneration] = useTransition();
-
-
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
 
@@ -380,17 +351,14 @@ export default function EcommFlowBuilderPage() {
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [isFullScreen, setIsFullScreen] = useState(false);
 
-    const params = useParams();
-    const shopId = params.shopId as string;
-
     useEffect(() => {
         setIsClient(true);
     }, []);
     
-    const fetchFlows = useCallback((projectId: string) => {
-        if(projectId) {
+    const fetchFlows = useCallback(() => {
+        if(activeProjectId) {
             startLoadingTransition(async () => {
-                const flowsData = await getEcommFlows(projectId);
+                const flowsData = await getFlowsForProject(activeProjectId);
                 setFlows(flowsData);
                 if (flowsData.length > 0 && !currentFlow) {
                     handleSelectFlow(flowsData[0]._id.toString());
@@ -399,22 +367,16 @@ export default function EcommFlowBuilderPage() {
                 }
             });
         }
-    }, [currentFlow]);
+    }, [activeProjectId, currentFlow]);
 
     useEffect(() => {
-        if(isClient && shopId) {
-            startLoadingTransition(async () => {
-                const shopData = await getEcommShopById(shopId);
-                setShop(shopData);
-                if (shopData) {
-                    fetchFlows(shopData.projectId.toString());
-                }
-            });
+        if(isClient && activeProjectId) {
+            fetchFlows();
         }
-    }, [isClient, shopId, fetchFlows]);
+    }, [isClient, activeProjectId, fetchFlows]);
     
     const handleSelectFlow = async (flowId: string) => {
-        const flow = await getEcommFlowById(flowId);
+        const flow = await getFlowById(flowId);
         setCurrentFlow(flow);
         setNodes(flow?.nodes || []);
         setEdges(flow?.edges || []);
@@ -433,7 +395,7 @@ export default function EcommFlowBuilderPage() {
         const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 300;
         const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
 
-        const newNode: EcommFlowNode = {
+        const newNode: FlowNode = {
             id: `${type}-${Date.now()}`,
             type,
             data: { 
@@ -461,22 +423,20 @@ export default function EcommFlowBuilderPage() {
     };
 
     const handleSaveFlow = async () => {
-        if (!shop) return;
+        if (!activeProjectId) return;
         const flowName = (document.getElementById('flow-name-input') as HTMLInputElement)?.value;
         if (!flowName) return;
         const startNode = nodes.find(n => n.type === 'start');
         const triggerKeywords = startNode?.data.triggerKeywords?.split(',').map((k:string) => k.trim()).filter(Boolean) || [];
-        const isWelcomeFlow = startNode?.data.isWelcomeFlow || false;
 
         startSaveTransition(async () => {
-             const result = await saveEcommFlow({
+             const result = await saveFlow({
                 flowId: currentFlow?._id.toString(),
-                projectId: shop.projectId.toString(),
+                projectId: activeProjectId,
                 name: flowName,
                 nodes,
                 edges,
                 triggerKeywords,
-                isWelcomeFlow,
             });
             if(result.error) toast({title: "Error", description: result.error, variant: 'destructive'});
             else {
@@ -484,32 +444,32 @@ export default function EcommFlowBuilderPage() {
                 if(result.flowId) {
                     await handleSelectFlow(result.flowId);
                 }
-                fetchFlows(shop.projectId.toString());
+                fetchFlows();
             }
         });
     }
 
     const handleDeleteFlow = async (flowId: string) => {
-        if (!shop) return;
-        const result = await deleteEcommFlow(flowId);
+        const result = await deleteFlow(flowId);
         if(result.error) toast({title: "Error", description: result.error, variant: 'destructive'});
         else {
             toast({title: "Success", description: result.message});
-            fetchFlows(shop.projectId.toString());
+            fetchFlows();
             if(currentFlow?._id.toString() === flowId) {
                 handleCreateNewFlow();
             }
         }
     }
     
-    // ... all the other handlers ...
     const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
+        if (e.button !== 0) return;
         e.preventDefault();
         e.stopPropagation();
         setDraggingNode(nodeId);
     };
     
     const handleCanvasMouseDown = (e: React.MouseEvent) => {
+        if (e.button !== 0) return;
         if (e.target === e.currentTarget) {
             e.preventDefault();
             setIsPanning(true);
@@ -572,7 +532,7 @@ export default function EcommFlowBuilderPage() {
                 return;
             }
 
-            const newEdge: EcommFlowEdge = {
+            const newEdge: FlowEdge = {
                 id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`,
                 source: connecting.sourceNodeId,
                 target: nodeId,
@@ -654,14 +614,14 @@ export default function EcommFlowBuilderPage() {
     if (!isClient) {
         return <Skeleton className="h-full w-full"/>
     }
-    
-    if (!shopId || !shop) {
+
+    if (!activeProjectId) {
          return (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 p-4">
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Shop Found</AlertTitle>
-                    <AlertDescription>Please select a valid shop to use the Chat Bot builder.</AlertDescription>
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>Please select a project from the main dashboard to use the Flow Builder.</AlertDescription>
                 </Alert>
             </div>
         )
@@ -686,7 +646,7 @@ export default function EcommFlowBuilderPage() {
                         {selectedNode && <Button variant="outline" onClick={() => setIsPropsSheetOpen(true)} disabled={!selectedNode}><Settings2 className="mr-2 h-4 w-4"/>Properties</Button>}
                     </div>
                      <Button asChild variant="outline">
-                        <Link href={`/dashboard/facebook/custom-ecommerce/manage/${shopId}/flow-builder/docs`}>
+                        <Link href="/dashboard/flow-builder/docs">
                             <BookOpen className="mr-2 h-4 w-4" />
                             <span className="hidden sm:inline">View Docs</span>
                         </Link>
