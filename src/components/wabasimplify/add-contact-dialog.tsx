@@ -143,7 +143,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
                             </SelectTrigger>
                             <SelectContent>
                               <ScrollArea className="h-64">
-                                {countryCodes.map(c => <SelectItem key={c.code} value={c.code}>+{c.code} ({c.name})</SelectItem>)}
+                                {countryCodes.map(c => <SelectItem key={c.name} value={c.code}>+{c.code} ({c.name})</SelectItem>)}
                               </ScrollArea>
                             </SelectContent>
                         </Select>
