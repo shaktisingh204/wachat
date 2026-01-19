@@ -21,14 +21,14 @@ import { MetaSuiteShowcase } from '@/components/wabasimplify/meta-suite-showcase
 import { getSession } from '@/app/actions';
 
 const FeatureCard = ({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) => (
-    <Card className="text-center p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-        <CardHeader className="items-center">
+    <Card className="text-center p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-background/30">
+        <CardHeader className="items-center p-0">
             <div className="flex-shrink-0 mb-4 bg-primary/10 p-4 rounded-full">
                 <Icon className="h-8 w-8 text-primary" />
             </div>
             <CardTitle className="text-xl">{title}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 mt-2">
             <p className="text-muted-foreground">{description}</p>
         </CardContent>
     </Card>
@@ -49,19 +49,26 @@ const UseCaseCard = ({ icon: Icon, title, description }: { icon: React.ElementTy
 );
 
 const WhoIsItForCard = ({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) => (
-    <Card className="p-4 hover:bg-accent transition-colors">
-        <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 mt-1 bg-primary/10 p-3 rounded-lg">
-                <Icon className="h-6 w-6 text-primary" />
+    <Card className="p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-transform duration-300">
+        <div className="flex flex-col items-center gap-4">
+             <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full">
+                <Icon className="h-8 w-8 text-primary" />
             </div>
             <div>
-                <h4 className="font-semibold">{title}</h4>
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <h4 className="font-semibold text-lg">{title}</h4>
+                <p className="text-sm text-muted-foreground mt-1">{description}</p>
             </div>
         </div>
     </Card>
 );
 
+const whatIsSabnodeFeatures = [
+    "Automating WhatsApp interactions with smart responses and follow-up messages.",
+    "Organizing and managing all customer communication through a single unified dashboard.",
+    "Building AI chatbots without writing a line of code, using visual flow diagrams.",
+    "Creating automation workflows that operate without human assistance 24/7.",
+    "Seamless integration of CRMs, Business Forms, Payment systems, and other business software."
+];
 
 export default function HomePage() {
   const [session, setSession] = React.useState<any>(null);
@@ -133,16 +140,17 @@ manual work is limited.</p>
                 </div>
                 <div className="mt-20 text-center">
                     <blockquote className="text-2xl md:text-3xl font-semibold max-w-3xl mx-auto">
-                        Modern businesses don’t fail because they lack ideas. They fail because manual execution cannot keep up with growth.
+                        Modern businesses don’t fail because they lack ideas.
+                        They fail because manual execution cannot keep up with growth.
                     </blockquote>
                 </div>
             </div>
         </section>
 
         {/* What Is Sabnode Section */}
-        <section className="py-20 md:py-28 bg-muted/30">
+        <section className="py-24 md:py-32 bg-muted/30">
             <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">What Is Sabnode?</h2>
                     <p className="text-lg text-muted-foreground">Sabnode is an AI-powered, no-code automation platform built to simplify how modern
 businesses communicate, market, and operate—without adding technical complexity.</p>
@@ -154,13 +162,14 @@ conversations, and business processes into a single, clearly defined system. The
 designed for speed and is capable of sustaining scalable growth.</p>
                 </div>
                 <div className="space-y-4">
-                    <div className="flex items-start gap-4"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><p>Automating WhatsApp interactions with smart responses and follow-up messages.</p></div>
-                    <div className="flex items-start gap-4"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><p>Organizing and managing all customer communication through a single unified
-dashboard.</p></div>
-                    <div className="flex items-start gap-4"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><p>Building AI chatbots without writing a line of code, using visual flow diagrams.</p></div>
-                    <div className="flex items-start gap-4"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><p>Creating automation workflows that operate without human assistance 24/7.</p></div>
-                    <div className="flex items-start gap-4"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><p>Seamless integration of CRMs, Business Forms, Payment systems, and other business
-software.</p></div>
+                    {whatIsSabnodeFeatures.map((feature, index) => (
+                        <Card key={index} className="bg-background/50 hover:shadow-md transition-shadow">
+                            <CardContent className="p-4 flex items-start gap-4">
+                                <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/>
+                                <p>{feature}</p>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
             </div>
         </section>
@@ -175,7 +184,7 @@ software.</p></div>
                     <FeatureCard icon={Bot} title="No-Code AI Chatbots" description="Design intelligent conversational flows with a simple drag-and-drop interface."/>
                     <FeatureCard icon={Zap} title="Smart Workflows & Integrations" description="Connect your CRM, Google Sheets, forms, and payment gateways."/>
                     <FeatureCard icon={ShoppingBag} title="E-commerce & Product Catalog Automation" description="Manage product catalogs on WhatsApp and automate order inquiries."/>
-                    <FeatureCard icon={Rocket} title="Proof > Promise (Our Philosophy)" description="We build reliable systems that replace manual work, no hype."/>
+                    <FeatureCard icon={Rocket} title="Proof &gt; Promise (Our Philosophy)" description="We build reliable systems that replace manual work, no hype."/>
                 </div>
             </div>
         </section>
@@ -211,10 +220,10 @@ repetitive work, so your business can run smoothly, even when you’re offline. 
 tested with real businesses to ensure it works—no hype, no empty claims.</p>
                     <p className="text-muted-foreground">With Sabnode, you don’t have to wonder if automation will work—you experience it in action.</p>
                     <ul className="space-y-2 pt-2">
-                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Systems that replace hours of manual work.</li>
-                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Automations that run even when you’re offline.</li>
-                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Tested in real-world business scenarios.</li>
-                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>No hype. Only execution.</li>
+                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Systems that replace hours of manual work, freeing your team for strategic tasks.</li>
+                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Automations that continue to run even when you’re offline, so nothing slips through the cracks.</li>
+                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>Tested in real-world business scenarios, proving effectiveness, not just theory.</li>
+                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-primary"/>No hype. Only execution. Our focus is on building workflows that actually deliver results.</li>
                     </ul>
                 </div>
             </div>
@@ -233,7 +242,8 @@ operations, Sabnode makes it simple, reliable, and effective.</p>
                     <WhoIsItForCard icon={Building} title="Small & Medium Businesses" description="Streamline operations, save time, and scale efficiently."/>
                     <WhoIsItForCard icon={Megaphone} title="Digital Marketing Agencies" description="Manage multiple client campaigns and leads from one platform."/>
                     <WhoIsItForCard icon={ShoppingBag} title="Online Brands & E-commerce" description="Automate customer support, orders, and product catalogs."/>
-                    <WhoIsItForCard icon={Star} title="Coaches, Consultants & Creators" description="Engage clients and followers with intelligent workflows."/>
+                    <WhoIsItForCard icon={Star} title="Coaches, Consultants & Creators" description="Engage clients and followers with intelligent
+workflows."/>
                     <WhoIsItForCard icon={Users2} title="Teams & Collaborators" description="Work together in a unified dashboard to manage customer interactions."/>
                     <WhoIsItForCard icon={Pencil} title="Automation & AI learners" description="Build practical AI systems without coding."/>
                 </div>
@@ -253,10 +263,10 @@ your business run smoothly, whether it’s handling customer messages, marketing
 internal workflows.</p>
                 </div>
                 <div className="space-y-4">
-                    <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold">Practical automation</h4><p className="text-sm text-muted-foreground">Solutions you can implement today, not just ideas.</p></div></div>
-                    <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold">Real business systems</h4><p className="text-sm text-muted-foreground">Workflows designed for actual business operations.</p></div></div>
-                    <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold">No-code simplicity</h4><p className="text-sm text-muted-foreground">Build AI systems without technical knowledge.</p></div></div>
-                    <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold">Scalable execution</h4><p className="text-sm text-muted-foreground">Automations that grow with your business.</p></div></div>
+                    <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold">Practical automation</h4><p className="text-sm text-muted-foreground">solutions you can implement today, not just ideas.</p></div></div>
+                    <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold">Real business systems</h4><p className="text-sm text-muted-foreground">workflows designed for actual business operations.</p></div></div>
+                    <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold">No-code simplicity</h4><p className="text-sm text-muted-foreground">build AI systems without technical knowledge.</p></div></div>
+                    <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg"><Check className="h-6 w-6 text-primary flex-shrink-0 mt-1"/><div><h4 className="font-semibold">Scalable execution</h4><p className="text-sm text-muted-foreground">automations that grow with your business.</p></div></div>
                 </div>
             </div>
         </section>
@@ -264,7 +274,7 @@ internal workflows.</p>
          {/* Final CTA Section */}
         <section className="py-20 md:py-32 bg-primary text-primary-foreground">
             <div className="container mx-auto px-4 text-center">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-headline">Stop Using AI Like a Tool. <br/>Start Using It Like a System.</h2>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-headline">Stop Using AI Like a Tool. <br/>Start Using AI Like a System.</h2>
                 <p className="max-w-2xl mx-auto mt-6 text-lg text-primary-foreground/80">Build automation workflows that save time, reduce cost, and scale your business.</p>
                 <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                     <Button size="lg" variant="secondary" asChild><Link href="/signup">Join Sabnode Beta Today</Link></Button>
