@@ -1,4 +1,6 @@
 
+'use server';
+
 import { NextResponse, type NextRequest } from 'next/server';
 import * as admin from 'firebase-admin';
 import { serviceAccount } from '@/lib/firebase/service-account';
@@ -21,8 +23,8 @@ function initializeFirebaseAdmin() {
       throw new Error("Invalid Firebase service account configuration.");
   }
   
-  // Ensure the private key is correctly formatted
-  if (parsedServiceAccount.private_key && !parsedServiceAccount.private_key.includes('-----BEGIN PRIVATE KEY-----')) {
+  // Ensure the private key is correctly formatted by replacing escaped newlines.
+  if (parsedServiceAccount.private_key) {
        parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
   }
 

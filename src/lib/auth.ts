@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import bcrypt from 'bcryptjs';
@@ -40,8 +39,8 @@ function initializeFirebaseAdmin() {
       throw new Error("Invalid Firebase service account configuration.");
   }
 
-  // Ensure the private key is correctly formatted
-  if (parsedServiceAccount.private_key && !parsedServiceAccount.private_key.includes('-----BEGIN PRIVATE KEY-----')) {
+  // Ensure the private key is correctly formatted by replacing escaped newlines.
+  if (parsedServiceAccount.private_key) {
        parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
   }
 
