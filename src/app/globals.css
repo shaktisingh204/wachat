@@ -92,9 +92,6 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
 }
 
 @layer components {
@@ -215,6 +212,31 @@
     .animate-kanban-drag {
         animation: kanban-drag 7s ease-in-out infinite;
         animation-delay: 2.5s;
+    }
+    .glossy-background {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glossy-background::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 15% 20%, hsla(120, 70%, 50%, 0.2), transparent 40%),
+                  radial-gradient(circle at 85% 30%, hsla(0, 70%, 50%, 0.2), transparent 40%),
+                  radial-gradient(circle at 50% 80%, hsla(240, 70%, 60%, 0.2), transparent 40%);
+      filter: blur(120px);
+      z-index: 0;
+      transform: translateZ(0); /* Promotes to a new layer */
+    }
+
+    /* Ensure children are above the pseudo-element */
+    .glossy-background > * {
+      position: relative;
+      z-index: 1;
     }
     
     @keyframes fade-in {
