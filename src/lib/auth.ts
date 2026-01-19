@@ -13,43 +13,32 @@ import { cookies } from 'next/headers';
 const SALT_ROUNDS = 10;
 const FIREBASE_APP_NAME = 'sabnode-admin-app'; // Named app
 
-function getJwtSecretKey(): Uint8Array {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-        throw new Error('JWT_SECRET is not defined in the environment variables.');
-    }
-    return new TextEncoder().encode(secret);
-}
-
 function initializeFirebaseAdmin() {
-  // Check if app with this name already exists
-  if (admin.apps.some(app => app?.name === FIREBASE_APP_NAME)) {
-    return admin.app(FIREBASE_APP_NAME);
-  }
-
-  console.log(`[AUTH_LIB] Initializing Firebase Admin SDK with name: ${FIREBASE_APP_NAME}`);
-
-  // Handle potential JSON parsing errors
-  let parsedServiceAccount;
   try {
-      if (typeof serviceAccount === 'string') {
-          parsedServiceAccount = JSON.parse(serviceAccount);
-      } else {
-          parsedServiceAccount = serviceAccount;
-      }
-  } catch (e) {
-      console.error("[AUTH_LIB] FATAL: Could not parse Firebase service account JSON.");
-      throw new Error("Invalid Firebase service account configuration.");
-  }
+    return admin.app(FIREBASE_APP_NAME);
+  } catch (err) {
+    console.log(`[AUTH_LIB] Initializing Firebase Admin SDK with name: ${FIREBASE_APP_NAME}`);
+    
+    let parsedServiceAccount;
+    try {
+        if (typeof serviceAccount === 'string') {
+            parsedServiceAccount = JSON.parse(serviceAccount);
+        } else {
+            parsedServiceAccount = serviceAccount;
+        }
+    } catch (e) {
+        console.error("[AUTH_LIB] FATAL: Could not parse Firebase service account JSON.");
+        throw new Error("Invalid Firebase service account configuration.");
+    }
 
-  // Ensure the private key is correctly formatted by replacing escaped newlines.
-  if (parsedServiceAccount.private_key) {
-       parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
-  }
+    if (parsedServiceAccount.private_key) {
+        parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
+    }
 
-  return admin.initializeApp({
-    credential: admin.credential.cert(parsedServiceAccount),
-  }, FIREBASE_APP_NAME);
+    return admin.initializeApp({
+      credential: admin.credential.cert(parsedServiceAccount),
+    }, FIREBASE_APP_NAME);
+  }
 }
 
 

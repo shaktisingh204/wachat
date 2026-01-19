@@ -9,33 +9,32 @@ const FIREBASE_APP_NAME = 'sabnode-admin-app'; // Use the same name
 
 // Helper to initialize Firebase Admin idempotently
 function initializeFirebaseAdmin() {
-  // Check if app with this name already exists
-  if (admin.apps.some(app => app?.name === FIREBASE_APP_NAME)) {
-    return admin.app(FIREBASE_APP_NAME);
-  }
-  
-  console.log(`[LOGOUT] Initializing Firebase Admin SDK with name: ${FIREBASE_APP_NAME}`);
-  
-  let parsedServiceAccount;
   try {
-      if (typeof serviceAccount === 'string') {
-          parsedServiceAccount = JSON.parse(serviceAccount);
-      } else {
-          parsedServiceAccount = serviceAccount;
-      }
-  } catch (e) {
-      console.error("FATAL: Could not parse Firebase service account JSON in logout route.");
-      throw new Error("Invalid Firebase service account configuration.");
-  }
-  
-  // Ensure the private key is correctly formatted by replacing escaped newlines.
-  if (parsedServiceAccount.private_key) {
-       parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
-  }
+    return admin.app(FIREBASE_APP_NAME);
+  } catch (error) {
+    console.log(`[LOGOUT] Initializing Firebase Admin SDK with name: ${FIREBASE_APP_NAME}`);
+    
+    let parsedServiceAccount;
+    try {
+        if (typeof serviceAccount === 'string') {
+            parsedServiceAccount = JSON.parse(serviceAccount);
+        } else {
+            parsedServiceAccount = serviceAccount;
+        }
+    } catch (e) {
+        console.error("FATAL: Could not parse Firebase service account JSON in logout route.");
+        throw new Error("Invalid Firebase service account configuration.");
+    }
+    
+    // Ensure the private key is correctly formatted by replacing escaped newlines.
+    if (parsedServiceAccount.private_key) {
+         parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
+    }
 
-  return admin.initializeApp({
-    credential: admin.credential.cert(parsedServiceAccount),
-  }, FIREBASE_APP_NAME);
+    return admin.initializeApp({
+      credential: admin.credential.cert(parsedServiceAccount),
+    }, FIREBASE_APP_NAME);
+  }
 }
 
 export async function GET(request: NextRequest) {
