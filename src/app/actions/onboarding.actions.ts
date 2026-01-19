@@ -190,7 +190,7 @@ export async function handleWabaOnboarding(data: {
                 { messaging_product: 'whatsapp' },
                 { headers: { Authorization: `Bearer ${accessToken}` } }
               );
-              console.log(`${LOG_PREFIX_WABA} Registered phone number ${phone.id}`);
+              console.log(`${LOG_PREFIX_WABA} Successfully sent registration request for ${phone.display_phone_number} (${phone.id}).`);
             } catch (regError: any) {
               console.warn(`${LOG_PREFIX_WABA} Could not register phone number ${phone.id}. It may already be registered.`, getErrorMessage(regError));
             }
@@ -306,3 +306,5 @@ export async function handleMetaSuiteOnboarding(data: {
     return { success: false, error: errorMsg };
   }
 }
+
+    
