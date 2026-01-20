@@ -2,7 +2,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { Inter } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import SessionProvider from '@/components/wabasimplify/session-provider';
 
@@ -19,10 +19,11 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-const inter = Inter({
+const poppins = Poppins({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-sans',
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 export default function RootLayout({
@@ -31,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
+    <html lang="en" suppressHydrationWarning className={poppins.variable}>
       <body className="antialiased font-sans">
         <SessionProvider>
             <TooltipProvider>
