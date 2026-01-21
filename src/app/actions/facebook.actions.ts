@@ -344,30 +344,29 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
 
-    const { adAccountId, facebookPageId, accessToken } = hasAccess;
-    if (!adAccountId || !facebookPageId || !accessToken) {
-        return { error: 'Project is missing Ad Account ID, Facebook Page ID, or Access Token. Please configure these in Project Connections.' };
+    const { adAccountId, facebookPageId, accessToken, wabaId } = hasAccess;
+    if (!adAccountId || !facebookPageId || !accessToken || !wabaId) {
+        return { error: 'Project is missing Ad Account ID, Facebook Page ID, WABA ID, or Access Token. This feature is for Click-to-WhatsApp ads and requires a WhatsApp-enabled project.' };
     }
 
     const campaignName = formData.get('campaignName') as string;
-    const dailyBudget = Number(formData.get('dailyBudget')) * 100; 
+    const dailyBudget = Number(formData.get('dailyBudget')) * 100;
     const adMessage = formData.get('adMessage') as string;
-    const destinationUrl = formData.get('destinationUrl') as string;
 
-    if (!campaignName || isNaN(dailyBudget) || !adMessage || !destinationUrl) {
-        return { error: 'All fields are required to create an ad.' };
+    if (!campaignName || isNaN(dailyBudget) || !adMessage) {
+        return { error: 'Campaign Name, Daily Budget, and Ad Message are required.' };
     }
 
     const { db } = await connectToDatabase();
 
     try {
-        const apiVersion = 'v23.0';
+        const apiVersion = 'v22.0';
 
         const campaignResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/campaigns`,
             {
                 name: campaignName,
-                objective: 'OUTCOME_LEADS',
+                objective: 'OUTCOME_MESSAGES',
                 status: 'PAUSED',
                 special_ad_categories: [],
                 access_token: accessToken,
@@ -383,9 +382,11 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
                 campaign_id: campaignId,
                 daily_budget: dailyBudget,
                 billing_event: 'IMPRESSIONS',
-                optimization_goal: 'LINK_CLICKS',
+                optimization_goal: 'CONVERSATIONS',
+                destination_type: 'WHATSAPP',
                 promoted_object: {
                     page_id: facebookPageId,
+                    whatsapp_business_account_id: wabaId,
                 },
                 targeting: {
                     geo_locations: { countries: ['IN'] },
@@ -397,6 +398,8 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         );
         const adSetId = adSetResponse.data.id;
         if (!adSetId) throw new Error('Failed to create ad set, no ID returned.');
+        
+        const placeholderImageUrl = 'https://placehold.co/1200x628.png';
 
         const creativeResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/adcreatives`,
@@ -406,8 +409,8 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
                     page_id: facebookPageId,
                     link_data: {
                         message: adMessage,
-                        link: destinationUrl,
-                        call_to_action: { type: 'LEARN_MORE' },
+                        image_url: placeholderImageUrl,
+                        call_to_action: { type: 'WHATSAPP_MESSAGE' },
                     },
                 },
                 access_token: accessToken,
@@ -1734,5 +1737,7 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+    
 
     
