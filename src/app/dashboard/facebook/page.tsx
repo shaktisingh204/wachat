@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
@@ -10,7 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getProjectById } from '@/app/actions/index.ts';
 import { getPageDetails, getPageInsights, getFacebookPosts, getInstagramAccountForPage } from '@/app/actions/facebook.actions';
 import type { FacebookPageDetails, PageInsights, FacebookPost, FacebookComment, Project, WithId } from '@/lib/definitions';
-import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake, Star, Calendar, Search, SlidersHorizontal, Plus, MoreHorizontal, Share2 } from 'lucide-react';
+import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake, Star, Calendar, Search, SlidersHorizontal, Plus, MoreHorizontal, Share2, ArrowRight } from 'lucide-react';
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts"
 import { ChartContainer } from "@/components/ui/chart"
 import Image from 'next/image';
@@ -30,6 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
 
 const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <Card className="card-gradient card-gradient-blue">
@@ -226,11 +226,43 @@ export default function FacebookDashboardPage() {
 
     if (!pageDetails) {
         return (
-            <div className="flex flex-col items-center justify-center h-full">
-                <PermissionErrorDialog isOpen={!!permissionError} onOpenChange={() => setPermissionError(null)} error={permissionError} project={project} onSuccess={onSuccessfulReconnect} />
-                 <p className="text-muted-foreground">No page details available. This may be due to missing permissions.</p>
-            </div>
-        )
+             <div className="flex items-center justify-center h-full p-4">
+                <Card className="max-w-xl text-center">
+                    <CardHeader>
+                         <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit mb-2">
+                            <AlertCircle className="h-8 w-8 text-destructive" />
+                        </div>
+                        <CardTitle>Connection Issue</CardTitle>
+                        <CardDescription>
+                            We couldn't fetch details for this page. This is usually because the necessary permissions were not granted during the initial connection.
+                        </CardDescription>
+                    </CardHeader>
+                    {(permissionError || error) && (
+                        <CardContent>
+                            <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Error from Meta</AlertTitle>
+                                <AlertDescription>
+                                    {permissionError || error}
+                                </AlertDescription>
+                            </Alert>
+                        </CardContent>
+                    )}
+                    <CardFooter className="flex flex-col gap-4">
+                        <p className="text-sm text-center text-muted-foreground">
+                            To resolve this, please re-authorize the connection and make sure to approve all requested permissions.
+                        </p>
+                        {project && (
+                            <FacebookEmbeddedSignup
+                                appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!}
+                                state="facebook_reauth"
+                                reauthorize={true}
+                            />
+                        )}
+                    </CardFooter>
+                </Card>
+             </div>
+        );
     }
     
     return (
