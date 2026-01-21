@@ -1,4 +1,3 @@
-
 'use server';
 
 import axios from 'axios';
@@ -241,7 +240,7 @@ export async function handleMetaSuiteOnboarding(data: {
 
     cookieStore.delete('onboarding_state');
 
-    const { userId } = stateCookie;
+    const { userId, includeAds } = stateCookie;
     if (!userId || !ObjectId.isValid(userId)) return { success: false, error: 'Invalid user session.' };
 
     console.log(`${LOG_PREFIX_META} Step 1: Exchanging code for access token`);
@@ -265,14 +264,17 @@ export async function handleMetaSuiteOnboarding(data: {
     const pages = accountsResponse.data.data;
     if (!pages || pages.length === 0) throw new Error('No Facebook pages found for this user.');
 
-    console.log(`${LOG_PREFIX_META} Step 3: Getting Ad Accounts`);
-    const adAccountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/adaccounts`, {
-        params: {
-            fields: 'id,name,account_id',
-            access_token: userAccessToken
-        }
-    });
-    const adAccount = adAccountsResponse.data?.data?.[0]; // Use the first ad account found
+    let adAccount: any = null;
+    if (includeAds) {
+        console.log(`${LOG_PREFIX_META} Step 3: Getting Ad Accounts`);
+        const adAccountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/adaccounts`, {
+            params: {
+                fields: 'id,name,account_id',
+                access_token: userAccessToken
+            }
+        });
+        adAccount = adAccountsResponse.data?.data?.[0]; // Use the first ad account found
+    }
 
     const { db } = await connectToDatabase();
     
