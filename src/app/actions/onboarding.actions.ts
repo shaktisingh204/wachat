@@ -69,9 +69,9 @@ export async function handleWabaOnboarding(data: {
       tokenParams
     );
 
-    const accessToken = tokenResponse.data?.access_token;
+    const userAccessToken = tokenResponse.data?.access_token;
 
-    if (!accessToken) {
+    if (!userAccessToken) {
       throw new Error('Meta did not return an access token.');
     }
 
@@ -81,7 +81,7 @@ export async function handleWabaOnboarding(data: {
       `https://graph.facebook.com/${API_VERSION}/debug_token`,
       {
         params: {
-          input_token: accessToken,
+          input_token: userAccessToken,
           access_token: `${process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID}|${process.env.META_ONBOARDING_APP_SECRET}`,
         },
       }
@@ -108,7 +108,7 @@ export async function handleWabaOnboarding(data: {
       {
         params: {
           fields: 'name',
-          access_token: accessToken,
+          access_token: userAccessToken,
         },
       }
     );
@@ -131,7 +131,7 @@ export async function handleWabaOnboarding(data: {
             {
               params: {
                 fields: 'business_capabilities',
-                access_token: accessToken,
+                access_token: userAccessToken,
               },
             }
           );
@@ -154,7 +154,7 @@ export async function handleWabaOnboarding(data: {
       wabaId,
       businessId,
       appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID!,
-      accessToken,
+      accessToken: process.env.META_ADMIN_TOKEN!,
       phoneNumbers: [],
       messagesPerSecond: 80,
       planId: defaultPlan?._id,
@@ -188,7 +188,7 @@ export async function handleWabaOnboarding(data: {
               await axios.post(
                 `https://graph.facebook.com/${API_VERSION}/${phone.id}/register`,
                 { messaging_product: 'whatsapp' },
-                { headers: { Authorization: `Bearer ${accessToken}` } }
+                { headers: { Authorization: `Bearer ${userAccessToken}` } }
               );
               console.log(`${LOG_PREFIX_WABA} Successfully sent registration request for ${phone.display_phone_number} (${phone.id}).`);
             } catch (regError: any) {
@@ -202,7 +202,7 @@ export async function handleWabaOnboarding(data: {
       await handleSubscribeProjectWebhook(
         wabaId,
         projectData.appId!,
-        accessToken
+        userAccessToken
       );
     }
 
@@ -276,7 +276,7 @@ export async function handleMetaSuiteOnboarding(data: {
           name: page.name,
           userId: new ObjectId(userId),
           facebookPageId: page.id,
-          accessToken: page.access_token,
+          accessToken: process.env.META_ADMIN_TOKEN!,
           adAccountId: adAccount?.account_id,
           appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!,
       };
