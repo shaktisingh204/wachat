@@ -211,7 +211,9 @@ export default function FacebookDashboardPage() {
         return { topPosts: calculatedTopPosts, recentComments: allComments };
     }, [posts]);
 
-    if (isLoading && !pageDetails && !error && !permissionError) return <DashboardSkeleton />;
+    if (isLoading && !pageDetails) {
+        return <DashboardSkeleton />;
+    }
 
     if (!projectId) {
          return (
@@ -222,7 +224,7 @@ export default function FacebookDashboardPage() {
          )
     }
 
-    if (!pageDetails && !isLoading) {
+    if (!pageDetails) {
         return (
             <div className="flex flex-col items-center justify-center h-full">
                 <PermissionErrorDialog isOpen={!!permissionError} onOpenChange={() => setPermissionError(null)} error={permissionError} project={project} onSuccess={onSuccessfulReconnect} />
