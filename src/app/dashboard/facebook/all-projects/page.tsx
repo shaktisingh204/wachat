@@ -1,8 +1,6 @@
-
-
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getProjects } from "@/lib/actions/user.actions.ts";
 import type { WithId, Project } from '@/lib/definitions';
@@ -15,8 +13,11 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { CheckCircle, Wrench } from 'lucide-react';
+import { CheckCircle, Wrench, ArrowRight } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+
 
 function PageSkeleton() {
     return (
@@ -68,6 +69,7 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
 export default function AllFacebookPagesPage() {
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [isLoading, startLoading] = useTransition();
+    const [includeAds, setIncludeAds] = useState(false); // Add state for checkbox
 
     const fetchData = () => {
         startLoading(async () => {
@@ -105,9 +107,9 @@ export default function AllFacebookPagesPage() {
                         Use the secure pop-up to connect your Facebook account and select the pages you want to manage.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                <CardContent className="flex flex-col gap-4 items-center justify-center">
                     {appId ? (
-                        <Link href="/api/auth/meta-suite/login" className="w-full sm:w-auto">
+                        <Link href={`/api/auth/meta-suite/login?includeAds=${includeAds}`} className="w-full sm:w-auto">
                             <Button size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
                                 <FacebookIcon className="mr-2 h-5 w-5" />
                                 Connect with Facebook
@@ -116,8 +118,20 @@ export default function AllFacebookPagesPage() {
                     ) : (
                          <p className="text-sm text-destructive">Admin has not configured the Facebook App ID.</p>
                     )}
-                    <ManualFacebookSetupDialog onSuccess={fetchData} />
+                     <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id="include-ads"
+                            checked={includeAds}
+                            onCheckedChange={(checked) => setIncludeAds(Boolean(checked))}
+                        />
+                        <Label htmlFor="include-ads" className="text-sm font-normal">
+                            Include permissions for Ad Account Management
+                        </Label>
+                    </div>
                 </CardContent>
+                <CardFooter className="justify-center">
+                    <ManualFacebookSetupDialog onSuccess={fetchData} />
+                </CardFooter>
             </Card>
 
             <Separator />
