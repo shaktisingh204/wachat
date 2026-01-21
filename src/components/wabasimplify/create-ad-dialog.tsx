@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -14,10 +15,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle } from 'lucide-react';
-import { handleCreateWhatsAppAd } from '@/app/actions/facebook.actions';
+import { handleCreateAdCampaign } from '@/app/actions/facebook.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
@@ -52,7 +52,7 @@ interface CreateAdDialogProps {
 }
 
 export function CreateAdDialog({ isOpen, onOpenChange, project, onAdCreated }: CreateAdDialogProps) {
-  const [state, formAction] = useActionState(handleCreateWhatsAppAd, initialState);
+  const [state, formAction] = useActionState(handleCreateAdCampaign, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -90,16 +90,12 @@ export function CreateAdDialog({ isOpen, onOpenChange, project, onAdCreated }: C
                 <Input id="dailyBudget" name="dailyBudget" type="number" placeholder="10.00" required step="0.01" />
             </div>
              <div className="space-y-2">
-                <Label htmlFor="adText">Ad Primary Text</Label>
-                <Textarea id="adText" name="adText" placeholder="Check out our amazing new product!" required />
+                <Label htmlFor="adMessage">Ad Primary Text</Label>
+                <Textarea id="adMessage" name="adMessage" placeholder="Check out our amazing new product!" required />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="adHeadline">Ad Headline</Label>
-                <Input id="adHeadline" name="adHeadline" placeholder="Summer Sale - 50% Off!" required />
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="adImageUrl">Image/Video URL</Label>
-                <Input id="adImageUrl" name="adImageUrl" type="url" placeholder="https://example.com/ad-image.jpg" required />
+                <Label htmlFor="destinationUrl">Destination URL</Label>
+                <Input id="destinationUrl" name="destinationUrl" type="url" placeholder="https://your-website.com/product" required />
             </div>
           </div>
           <DialogFooter>
