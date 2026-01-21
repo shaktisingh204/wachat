@@ -9,7 +9,6 @@ import { JWTExpired } from 'jose/errors';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  console.log(`[MIDDLEWARE] Checking path: ${pathname}`);
 
   const sessionToken = request.cookies.get('session')?.value;
   const adminSessionToken = request.cookies.get('admin_session')?.value;

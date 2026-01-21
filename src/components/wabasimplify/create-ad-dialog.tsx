@@ -74,9 +74,9 @@ export function CreateAdDialog({ isOpen, onOpenChange, project, onAdCreated }: C
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <DialogHeader>
-            <DialogTitle>Create New WhatsApp Ad</DialogTitle>
+            <DialogTitle>Create New Ad Campaign</DialogTitle>
             <DialogDescription>
-              Fill out the details below to launch a new "Click to WhatsApp" campaign.
+              Fill out the details below to launch a new ad campaign.
             </DialogDescription>
           </DialogHeader>
 
@@ -85,29 +85,21 @@ export function CreateAdDialog({ isOpen, onOpenChange, project, onAdCreated }: C
               <Label htmlFor="campaignName">Campaign Name</Label>
               <Input id="campaignName" name="campaignName" placeholder="e.g., Summer Sale Promotion" required />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="dailyBudget">Daily Budget (in Ad Account Currency)</Label>
-                    <Input id="dailyBudget" name="dailyBudget" type="number" placeholder="10.00" required step="0.01" />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="adPhoneNumber">WhatsApp Number</Label>
-                     <Select name="adPhoneNumber" required>
-                        <SelectTrigger id="adPhoneNumber">
-                            <SelectValue placeholder="Select a number..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {project.phoneNumbers.map(phone => (
-                                <SelectItem key={phone.id} value={phone.id}>{phone.display_phone_number}</SelectItem>
-                            ))}
-                        </SelectContent>
-                     </Select>
-                </div>
+            <div className="space-y-2">
+                <Label htmlFor="dailyBudget">Daily Budget (in Ad Account Currency)</Label>
+                <Input id="dailyBudget" name="dailyBudget" type="number" placeholder="10.00" required step="0.01" />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="adText">Ad Primary Text</Label>
+                <Textarea id="adText" name="adText" placeholder="Check out our amazing new product!" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="adMessage">Ad Message</Label>
-              <Textarea id="adMessage" name="adMessage" placeholder="Hi! I'm interested in your summer sale. Can you tell me more?" required />
-              <p className="text-xs text-muted-foreground">This is the pre-filled message when a user clicks your ad.</p>
+                <Label htmlFor="adHeadline">Ad Headline</Label>
+                <Input id="adHeadline" name="adHeadline" placeholder="Summer Sale - 50% Off!" required />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="adImageUrl">Image/Video URL</Label>
+                <Input id="adImageUrl" name="adImageUrl" type="url" placeholder="https://example.com/ad-image.jpg" required />
             </div>
           </div>
           <DialogFooter>
