@@ -165,6 +165,8 @@ export default function CreateAdPage() {
         }
     }
 
+    const StepIcon = steps[currentStep - 1].icon;
+
     return (
         <div className="max-w-2xl mx-auto">
             <Button variant="ghost" asChild className="mb-4 -ml-4">
@@ -190,7 +192,10 @@ export default function CreateAdPage() {
               <input type="hidden" name="adMessage" value={formData.adMessage} />
               <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">{steps[currentStep-1].icon && <steps[currentStep-1].icon className="h-6 w-6"/>}Step {currentStep}: {steps[currentStep-1].name}</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                        {StepIcon && <StepIcon className="h-6 w-6"/>}
+                        Step {currentStep}: {steps[currentStep-1].name}
+                    </CardTitle>
                     <CardDescription>
                         {steps[currentStep-1].description}
                     </CardDescription>
