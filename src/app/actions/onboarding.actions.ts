@@ -1,4 +1,3 @@
-
 'use server';
 
 import axios from 'axios';
@@ -119,10 +118,11 @@ export async function handleWabaOnboarding(data: {
     let businessCaps: BusinessCapabilities | undefined;
 
     if (includeCatalog) {
-      businessId =
-        granularScopes.find(
-          (s: any) => s.scope === 'whatsapp_business_management'
-        )?.target_ids?.[0];
+      // FIX: Find the Business ID from the 'business_management' scope, not the WABA scope.
+      const businessManagementScope = granularScopes.find(
+        (s: any) => s.scope === 'business_management'
+      );
+      businessId = businessManagementScope?.target_ids?.[0];
 
       if (businessId) {
         try {
@@ -192,7 +192,12 @@ export async function handleWabaOnboarding(data: {
               );
               console.log(`${LOG_PREFIX_WABA} Successfully sent registration request for ${phone.display_phone_number} (${phone.id}).`);
             } catch (regError: any) {
-              console.warn(`${LOG_PREFIX_WABA} Could not register phone number ${phone.id}. It may already be registered.`, getErrorMessage(regError));
+              const errorMessage = getErrorMessage(regError);
+              if (errorMessage.includes("parameter pin is required")) {
+                console.warn(`${LOG_PREFIX_WABA} Registration for ${phone.display_phone_number} requires a PIN. Please register it manually from the Meta Business Suite or ensure 2FA is disabled if not needed.`);
+              } else {
+                console.warn(`${LOG_PREFIX_WABA} Could not register phone number ${phone.display_phone_number} (${phone.id}). It may already be registered.`, errorMessage);
+              }
             }
           }
         }
