@@ -1,3 +1,4 @@
+
 'use server';
 
 import axios from 'axios';
@@ -187,7 +188,7 @@ export async function handleWabaOnboarding(data: {
             try {
               await axios.post(
                 `https://graph.facebook.com/${API_VERSION}/${phone.id}/register`,
-                { messaging_product: 'whatsapp' },
+                { messaging_product: 'whatsapp', pin: '123456' },
                 { headers: { Authorization: `Bearer ${userAccessToken}` } }
               );
               console.log(`${LOG_PREFIX_WABA} Successfully sent registration request for ${phone.display_phone_number} (${phone.id}).`);
@@ -311,5 +312,4 @@ export async function handleMetaSuiteOnboarding(data: {
     return { success: false, error: errorMsg };
   }
 }
-
     
