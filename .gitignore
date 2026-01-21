@@ -61,7 +61,6 @@
 Ignore all action files by default
 
 # But keep social platform related files
-/src/app/actions/facebook.actions.ts
 /src/app/actions/facebook-flow.actions.ts
 /src/app/actions/instagram.actions.ts
 /src/app/actions/whatsapp.actions.ts
@@ -111,7 +110,6 @@ src/config/site.ts
 /src/app/actions.ts
 /src/lib/definitions.ts
 /src/lib/webhook-processor.ts
-/src/app/actions/facebook.actions.ts
 /src/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder/page.tsx
 /src/app/actions/custom-ecommerce.actions.ts
 /src/app/actions/whatsapp.actions.ts
