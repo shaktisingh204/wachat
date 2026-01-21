@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
@@ -13,8 +12,6 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, PlusCircle, Megaphone, Wrench } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { CreateAdDialog } from '@/components/wabasimplify/create-ad-dialog';
 import Link from 'next/link';
 import { useProject } from '@/context/project-context';
 import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
@@ -43,7 +40,6 @@ export default function AdsManagerPage() {
     const { activeProject, isLoadingProject, sessionUser } = useProject();
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
-    const [isCreateAdOpen, setIsCreateAdOpen] = useState(false);
 
     const isAllowed = sessionUser?.plan?.features?.whatsappAds ?? false;
 
@@ -95,14 +91,6 @@ export default function AdsManagerPage() {
 
     return (
         <>
-            {activeProject && (
-                <CreateAdDialog 
-                    isOpen={isCreateAdOpen} 
-                    onOpenChange={setIsCreateAdOpen}
-                    project={activeProject}
-                    onAdCreated={fetchData}
-                />
-            )}
              <div className="flex flex-col gap-8">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -110,9 +98,11 @@ export default function AdsManagerPage() {
                         <p className="text-muted-foreground">Create and manage your "Click to WhatsApp" ad campaigns.</p>
                     </div>
                     <FeatureLock isAllowed={isAllowed}>
-                        <Button onClick={() => setIsCreateAdOpen(true)} disabled={!hasMarketingSetup}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Create New Ad
+                        <Button asChild disabled={!hasMarketingSetup}>
+                            <Link href="/dashboard/facebook/ads/create">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Create New Ad
+                            </Link>
                         </Button>
                     </FeatureLock>
                 </div>
