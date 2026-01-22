@@ -145,20 +145,18 @@ export default function AllFacebookPagesPage() {
                 </CardHeader>
                 <CardContent>
                      {user?.metaAdAccounts && user.metaAdAccounts.length > 0 ? (
-                        <div className="space-y-2">
-                            <Label>Active Ad Account</Label>
-                             <Select>
-                                <SelectTrigger className="w-full md:w-[380px]">
-                                    <SelectValue placeholder="Select a connected ad account" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {user.metaAdAccounts.map((acc: any) => (
-                                    <SelectItem key={acc.id} value={acc.id}>
-                                        {acc.name} ({acc.account_id})
-                                    </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {user.metaAdAccounts.map((acc: any) => (
+                                <Card key={acc.id}>
+                                    <CardHeader>
+                                        <CardTitle className="text-base">{acc.name}</CardTitle>
+                                        <CardDescription>ID: {acc.account_id}</CardDescription>
+                                    </CardHeader>
+                                    <CardFooter>
+                                        <Badge variant="secondary"><CheckCircle className="mr-1 h-3 w-3" /> Connected</Badge>
+                                    </CardFooter>
+                                </Card>
+                            ))}
                         </div>
                      ) : (
                         <p className="text-sm text-muted-foreground">No Ad Accounts connected yet.</p>
