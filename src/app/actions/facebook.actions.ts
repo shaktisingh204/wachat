@@ -276,10 +276,10 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
 }
 
 
-export async function getAdCampaigns(projectId: string): Promise<WithId<AdCampaign>[]> {
-    if (!ObjectId.isValid(projectId)) return [];
+export async function getAdCampaigns(projectId: string): Promise<{ campaigns?: WithId<AdCampaign>[], error?: string }> {
+    if (!ObjectId.isValid(projectId)) return { campaigns: [] };
     const project = await getProjectById(projectId);
-    if (!project || !project.adAccountId || !project.accessToken) return [];
+    if (!project || !project.adAccountId || !project.accessToken) return { campaigns: [] };
 
     try {
         const { db } = await connectToDatabase();
@@ -289,7 +289,7 @@ export async function getAdCampaigns(projectId: string): Promise<WithId<AdCampai
             .toArray();
             
         if (localCampaigns.length === 0) {
-            return [];
+            return { campaigns: [] };
         }
 
         const adIds = localCampaigns.map(c => c.metaAdId);
@@ -320,7 +320,7 @@ export async function getAdCampaigns(projectId: string): Promise<WithId<AdCampai
             return campaign; // Return local data if API fails for a specific ad
         });
 
-        return JSON.parse(JSON.stringify(combinedData));
+        return { campaigns: JSON.parse(JSON.stringify(combinedData)) };
     } catch (e) {
         console.error("Failed to fetch ad campaigns with insights:", getErrorMessage(e));
         // Fallback to local data on any API error to prevent the page from breaking
@@ -330,10 +330,10 @@ export async function getAdCampaigns(projectId: string): Promise<WithId<AdCampai
                 .find({ projectId: new ObjectId(projectId) })
                 .sort({ createdAt: -1 })
                 .toArray();
-            return JSON.parse(JSON.stringify(localCampaigns));
+            return { campaigns: JSON.parse(JSON.stringify(localCampaigns)) };
         } catch (dbError) {
             console.error("Fallback to local DB failed during ad campaign fetch:", dbError);
-            return [];
+            return { campaigns: [] };
         }
     }
 }
@@ -344,17 +344,18 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
 
-    const { adAccountId, facebookPageId, accessToken, wabaId } = hasAccess;
-    if (!adAccountId || !facebookPageId || !accessToken || !wabaId) {
-        return { error: 'Project is missing Ad Account ID, Facebook Page ID, WABA ID, or Access Token. This feature is for Click-to-WhatsApp ads and requires a WhatsApp-enabled project.' };
+    const { adAccountId, facebookPageId, accessToken } = hasAccess;
+    if (!adAccountId || !facebookPageId || !accessToken) {
+        return { error: 'Project is missing Ad Account ID, Facebook Page ID, or Access Token. Please configure this in Project Connections.' };
     }
 
     const campaignName = formData.get('campaignName') as string;
     const dailyBudget = Number(formData.get('dailyBudget')) * 100;
     const adMessage = formData.get('adMessage') as string;
+    const destinationUrl = formData.get('destinationUrl') as string;
 
-    if (!campaignName || isNaN(dailyBudget) || !adMessage) {
-        return { error: 'Campaign Name, Daily Budget, and Ad Message are required.' };
+    if (!campaignName || isNaN(dailyBudget) || !adMessage || !destinationUrl) {
+        return { error: 'Campaign Name, Daily Budget, Ad Message, and Destination URL are required.' };
     }
 
     const { db } = await connectToDatabase();
@@ -362,11 +363,12 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
     try {
         const apiVersion = 'v22.0';
 
+        // Step 1: Create Campaign
         const campaignResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/campaigns`,
             {
                 name: campaignName,
-                objective: 'OUTCOME_MESSAGES',
+                objective: 'LINK_CLICKS',
                 status: 'PAUSED',
                 special_ad_categories: [],
                 access_token: accessToken,
@@ -375,6 +377,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         const campaignId = campaignResponse.data.id;
         if (!campaignId) throw new Error('Failed to create campaign, no ID returned.');
 
+        // Step 2: Create Ad Set
         const adSetResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/adsets`,
             {
@@ -382,12 +385,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
                 campaign_id: campaignId,
                 daily_budget: dailyBudget,
                 billing_event: 'IMPRESSIONS',
-                optimization_goal: 'CONVERSATIONS',
-                destination_type: 'WHATSAPP',
-                promoted_object: {
-                    page_id: facebookPageId,
-                    whatsapp_business_account_id: wabaId,
-                },
+                optimization_goal: 'LINK_CLICKS',
                 targeting: {
                     geo_locations: { countries: ['IN'] },
                     age_min: 18,
@@ -399,6 +397,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         const adSetId = adSetResponse.data.id;
         if (!adSetId) throw new Error('Failed to create ad set, no ID returned.');
         
+        // Step 3: Create Ad Creative
         const placeholderImageUrl = 'https://placehold.co/1200x628.png';
 
         const creativeResponse = await axios.post(
@@ -409,8 +408,9 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
                     page_id: facebookPageId,
                     link_data: {
                         message: adMessage,
+                        link: destinationUrl,
                         image_url: placeholderImageUrl,
-                        call_to_action: { type: 'WHATSAPP_MESSAGE' },
+                        call_to_action: { type: 'LEARN_MORE' },
                     },
                 },
                 access_token: accessToken,
@@ -419,6 +419,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         const creativeId = creativeResponse.data.id;
         if (!creativeId) throw new Error('Failed to create ad creative, no ID returned.');
 
+        // Step 4: Create Ad
         const adResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/ads`,
             {

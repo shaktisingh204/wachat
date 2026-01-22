@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
@@ -66,6 +67,7 @@ export default function CreateAdPage() {
         campaignName: 'New Campaign',
         dailyBudget: '10',
         adMessage: '',
+        destinationUrl: '',
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -113,8 +115,8 @@ export default function CreateAdPage() {
                         </div>
                         <div className="space-y-2">
                             <Label>Campaign Objective</Label>
-                            <Input value="Messages" disabled />
-                            <p className="text-xs text-muted-foreground">For "Click to WhatsApp" ads, the objective is always set to Messages.</p>
+                            <Input value="Traffic (Link Clicks)" disabled />
+                            <p className="text-xs text-muted-foreground">This tool creates campaigns optimized for driving traffic to your website.</p>
                         </div>
                     </CardContent>
                 );
@@ -137,7 +139,12 @@ export default function CreateAdPage() {
                      <CardContent className="space-y-6">
                         <div className="space-y-2">
                             <Label htmlFor="adMessage">Ad Primary Text</Label>
-                            <Textarea id="adMessage" name="adMessage" value={formData.adMessage} onChange={handleInputChange} placeholder="Check out our amazing new product!" required className="min-h-40"/>
+                            <Textarea id="adMessage" name="adMessage" value={formData.adMessage} onChange={handleInputChange} placeholder="Check out our amazing new product!" required className="min-h-28"/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="destinationUrl">Destination URL</Label>
+                            <Input id="destinationUrl" name="destinationUrl" type="url" value={formData.destinationUrl} onChange={handleInputChange} placeholder="https://yourwebsite.com/product" required />
+                            <p className="text-xs text-muted-foreground">The website users will be sent to when they click your ad.</p>
                         </div>
                         <div className="space-y-2">
                             <Label>Media</Label>
@@ -154,6 +161,7 @@ export default function CreateAdPage() {
                         <div className="p-4 border rounded-lg space-y-3">
                              <div className="flex justify-between"><span className="text-muted-foreground">Campaign Name:</span><strong>{formData.campaignName}</strong></div>
                              <div className="flex justify-between"><span className="text-muted-foreground">Daily Budget:</span><strong>{formData.dailyBudget}</strong></div>
+                             <div className="flex justify-between items-start"><span className="text-muted-foreground">Destination URL:</span><strong className="text-right">{formData.destinationUrl}</strong></div>
                              <div className="flex justify-between items-start"><span className="text-muted-foreground">Ad Message:</span><p className="w-1/2 text-right">"{formData.adMessage}"</p></div>
                         </div>
                     </CardContent>
@@ -183,33 +191,36 @@ export default function CreateAdPage() {
                 </ol>
             </div>
             
-            <form action={formAction}>
-              <input type="hidden" name="projectId" value={activeProject?._id.toString() || ''} />
-              <input type="hidden" name="campaignName" value={formData.campaignName} />
-              <input type="hidden" name="dailyBudget" value={formData.dailyBudget} />
-              <input type="hidden" name="adMessage" value={formData.adMessage} />
-              <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><StepIcon className="h-6 w-6"/>Step {currentStep}: {steps[currentStep-1].name}</CardTitle>
-                    <CardDescription>
-                        {steps[currentStep-1].description}
-                    </CardDescription>
-                </CardHeader>
-                 
-                 <div>
+            <Card>
+                <form action={formAction}>
+                  <input type="hidden" name="projectId" value={activeProject?._id.toString() || ''} />
+                  <input type="hidden" name="campaignName" value={formData.campaignName} />
+                  <input type="hidden" name="dailyBudget" value={formData.dailyBudget} />
+                  <input type="hidden" name="adMessage" value={formData.adMessage} />
+                  <input type="hidden" name="destinationUrl" value={formData.destinationUrl} />
+                  
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <StepIcon className="h-6 w-6"/>
+                            Step {currentStep}: {steps[currentStep-1].name}
+                        </CardTitle>
+                        <CardDescription>
+                            {steps[currentStep-1].description}
+                        </CardDescription>
+                    </CardHeader>
+                    
                     {renderStepContent()}
-                 </div>
 
-                <CardFooter className="flex justify-between">
-                    <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>Previous</Button>
-                    {currentStep < 4 ? (
-                        <Button type="button" onClick={nextStep}>Next<ArrowRight className="ml-2 h-4 w-4" /></Button>
-                    ) : (
-                        <SubmitButton disabled={false} />
-                    )}
-                </CardFooter>
-              </Card>
-            </form>
+                    <CardFooter className="flex justify-between">
+                        <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>Previous</Button>
+                        {currentStep < 4 ? (
+                            <Button type="button" onClick={nextStep}>Next<ArrowRight className="ml-2 h-4 w-4" /></Button>
+                        ) : (
+                            <SubmitButton disabled={false} />
+                        )}
+                    </CardFooter>
+                </form>
+            </Card>
         </div>
     );
 }
