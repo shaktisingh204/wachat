@@ -192,10 +192,7 @@ export default function CreateAdPage() {
               <input type="hidden" name="adMessage" value={formData.adMessage} />
               <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        {StepIcon && <StepIcon className="h-6 w-6"/>}
-                        Step {currentStep}: {steps[currentStep-1].name}
-                    </CardTitle>
+                    <CardTitle className="flex items-center gap-2"><StepIcon className="h-6 w-6"/>Step {currentStep}: {steps[currentStep-1].name}</CardTitle>
                     <CardDescription>
                         {steps[currentStep-1].description}
                     </CardDescription>
@@ -224,8 +221,9 @@ export default function CreateAdPage() {
                         <SubmitButton disabled={!hasClickToWhatsAppSetup} />
                     )}
                 </CardFooter>
-              </form>
-            </Card>
+              </Card>
+            </form>
         </div>
     );
 }
+
