@@ -102,7 +102,6 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             projectFilter.wabaId = { $exists: true, $ne: "" };
         } else if (type === 'facebook') {
             projectFilter.facebookPageId = { $exists: true, $ne: "" };
-            projectFilter.wabaId = { $exists: false };
         }
         
         console.log('[getProjects] Using filter:', JSON.stringify(projectFilter, null, 2));
@@ -352,10 +351,10 @@ export async function getSession() {
   // This function is now designed to be robust against being called
   // in different server-side contexts.
   try {
+  
+const cookieStore = await cookies();
+const sessionCookie = cookieStore.get("session")?.value;
 
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("session")?.value;
-    
     if (!sessionCookie) {
       console.log('[getSession] No session cookie found.');
       return null;
@@ -543,5 +542,7 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
+    
 
     
