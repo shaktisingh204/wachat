@@ -8,7 +8,7 @@ import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
+import { Button } from '@/components/ui/button';
 import { CheckCircle, Wrench, ArrowRight, Megaphone } from 'lucide-react';
 import { ManualFacebookSetupDialog } from '@/components/wabasimplify/manual-facebook-setup-dialog';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+
 
 function PageSkeleton() {
     return (
@@ -123,7 +124,7 @@ export default function AllFacebookPagesPage() {
                 <CardFooter className="justify-between items-center gap-4">
                      {appId ? (
                         <Link href={`/api/auth/meta-suite/login`}>
-                            <Button size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90">
+                            <Button size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
                                 <FacebookIcon className="mr-2 h-5 w-5" />
                                 Connect New Page
                             </Button>
