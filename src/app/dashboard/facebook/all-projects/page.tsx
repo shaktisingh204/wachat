@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getProjects } from "@/lib/actions/user.actions.ts";
+import { getProjects, getSession } from "@/app/actions/index.ts";
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,7 +18,7 @@ import { CheckCircle, Wrench, ArrowRight } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 function PageSkeleton() {
     return (
@@ -68,20 +69,25 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
 
 export default function AllFacebookPagesPage() {
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
+    const [user, setUser] = useState<any>(null);
     const [isLoading, startLoading] = useTransition();
     const [includeAds, setIncludeAds] = useState(false); // Add state for checkbox
 
-    const fetchData = () => {
+    const fetchData = useCallback(() => {
         startLoading(async () => {
-            // Fetch only facebook projects for this page
-            const { projects: fbProjects } = await getProjects(undefined, 'facebook');
+            // Fetch both projects and session data
+            const [{ projects: fbProjects }, session] = await Promise.all([
+                getProjects(undefined, 'facebook'),
+                getSession()
+            ]);
             setProjects(fbProjects);
+            setUser(session?.user);
         });
-    }
+    }, []);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [fetchData]);
 
     const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
 
@@ -150,6 +156,34 @@ export default function AllFacebookPagesPage() {
                     </Card>
                 )}
             </div>
+
+            {user?.metaAdAccounts && user.metaAdAccounts.length > 0 && (
+                <>
+                    <Separator />
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Connected Ad Accounts</CardTitle>
+                            <CardDescription>
+                            These ad accounts were found during connection. You can assign them to projects in the project settings.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Select>
+                            <SelectTrigger className="w-[380px]">
+                                <SelectValue placeholder="Select a connected ad account" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {user.metaAdAccounts.map((acc: any) => (
+                                <SelectItem key={acc.id} value={acc.id}>
+                                    {acc.name} ({acc.account_id})
+                                </SelectItem>
+                                ))}
+                            </SelectContent>
+                            </Select>
+                        </CardContent>
+                    </Card>
+                </>
+            )}
         </div>
     );
 }

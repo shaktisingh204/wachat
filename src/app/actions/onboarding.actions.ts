@@ -1,3 +1,4 @@
+
 'use server';
 
 import axios from 'axios';
@@ -264,7 +265,8 @@ export async function handleMetaSuiteOnboarding(data: {
     const pages = accountsResponse.data.data;
     if (!pages || pages.length === 0) throw new Error('No Facebook pages found for this user.');
 
-    let adAccount: any = null;
+    const { db } = await connectToDatabase();
+    
     if (includeAds) {
         console.log(`${LOG_PREFIX_META} Step 3: Getting Ad Accounts`);
         const adAccountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/adaccounts`, {
@@ -273,10 +275,14 @@ export async function handleMetaSuiteOnboarding(data: {
                 access_token: userAccessToken
             }
         });
-        adAccount = adAccountsResponse.data?.data?.[0]; // Use the first ad account found
+        const adAccounts = adAccountsResponse.data?.data || [];
+        if (adAccounts.length > 0) {
+            await db.collection('users').updateOne(
+                { _id: new ObjectId(userId) },
+                { $set: { metaAdAccounts: adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id })) } }
+            );
+        }
     }
-
-    const { db } = await connectToDatabase();
     
     const bulkOps = pages.map((page: any) => {
       // Create a separate project for each Facebook Page
@@ -285,7 +291,6 @@ export async function handleMetaSuiteOnboarding(data: {
           userId: new ObjectId(userId),
           facebookPageId: page.id,
           accessToken: process.env.META_ADMIN_TOKEN!,
-          adAccountId: adAccount?.account_id,
           appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!,
       };
       
