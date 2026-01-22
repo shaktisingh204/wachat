@@ -1,3 +1,4 @@
+
 // This file is a central re-exporter for all server actions.
 
 export * from './user.actions';
@@ -69,5 +70,6 @@ export * from './meta-suite.actions';
 export * from './onboarding.actions';
 export * from './whatsapp-pay.actions';
 export * from './dashboard.actions';
+export * from './ad-manager.actions';
 // This was causing a build issue, as it's not a standard server action file.
 // export * from '@/lib/calling-webhook-processor';

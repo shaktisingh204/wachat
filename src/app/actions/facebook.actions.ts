@@ -11,7 +11,7 @@ import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions/index.ts';
 import { getEcommShopById } from './custom-ecommerce.actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse } from '@/lib/definitions';
+import type { Project, FacebookPage, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
 import { _createProjectFromWaba } from './whatsapp.actions';
 
@@ -45,24 +45,23 @@ async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToke
 
 export async function handleFacebookPageSetup(data: {
     projectId: string;
-    adAccountId: string;
     facebookPageId: string;
     accessToken: string;
 }): Promise<{ success?: boolean; error?: string }> {
-    const { projectId, adAccountId, facebookPageId, accessToken } = data;
+    const { projectId, facebookPageId, accessToken } = data;
 
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
 
-    if (!adAccountId || !facebookPageId || !accessToken) {
-        return { error: 'Required information (Ad Account, Page ID, Token) was not received from Facebook.' };
+    if (!facebookPageId || !accessToken) {
+        return { error: 'Required information (Page ID, Token) was not received from Facebook.' };
     }
 
     try {
         const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
-            { $set: { adAccountId, facebookPageId, accessToken } } // Also update the token to be the latest one
+            { $set: { facebookPageId, accessToken } }
         );
         revalidatePath('/dashboard/facebook');
         revalidatePath('/dashboard/facebook/settings');
@@ -189,14 +188,21 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                 })
             )).filter(Boolean);
 
-             const adAccountsResponse = await axios.get('https://graph.facebook.com/v23.0/me/adaccounts', { params: { access_token: longLivedToken }});
-             const adAccountId = adAccountsResponse.data?.data?.[0]?.id;
+             // Also sync ad accounts
+             const adAccountsResponse = await axios.get(`https://graph.facebook.com/v23.0/me/adaccounts`, { params: { access_token: longLivedToken, fields: 'id,name,account_id' }});
+             const adAccounts = adAccountsResponse.data?.data || [];
+             if (adAccounts.length > 0) {
+                 await db.collection('users').updateOne(
+                    { _id: new ObjectId(session.user._id) },
+                    { $set: { metaAdAccounts: adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id })) } }
+                );
+             }
 
             const bulkOps = pagesWithTokens.map((page: any) => ({
                 updateOne: {
                     filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
                     update: {
-                        $set: { name: page.name, accessToken: page.access_token, adAccountId: adAccountId },
+                        $set: { name: page.name, accessToken: page.access_token },
                         $setOnInsert: { userId: new ObjectId(session.user._id), facebookPageId: page.id, createdAt: new Date() }
                     },
                     upsert: true,
@@ -212,6 +218,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
             let redirectPath = state === 'instagram' ? '/dashboard/instagram/connections' : '/dashboard/facebook/all-projects';
             revalidatePath('/dashboard/facebook/all-projects');
             revalidatePath('/dashboard/instagram/connections');
+            revalidatePath('/dashboard/ad-manager/ad-accounts');
             return { success: true, redirectPath };
         }
         
@@ -230,10 +237,9 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
 
     const projectName = formData.get('projectName') as string;
     const facebookPageId = formData.get('facebookPageId') as string;
-    const adAccountId = formData.get('adAccountId') as string;
     const accessToken = formData.get('accessToken') as string;
 
-    if (!projectName || !facebookPageId || !adAccountId || !accessToken) {
+    if (!projectName || !facebookPageId || !accessToken) {
         return { error: 'All fields are required for manual setup.' };
     }
 
@@ -249,11 +255,10 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
             return { error: 'You have already connected this Facebook Page.' };
         }
 
-        const newProject: Omit<Project, '_id'> = {
+        const newProject: Omit<Project, '_id' | 'adAccountId'> = {
             userId: new ObjectId(session.user._id),
             name: projectName,
             facebookPageId: facebookPageId,
-            adAccountId: adAccountId,
             accessToken: accessToken,
             phoneNumbers: [],
             createdAt: new Date(),
@@ -262,7 +267,6 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
 
         const result = await db.collection('projects').insertOne(newProject as any);
         
-        // Subscribe to webhooks after creation
         if (result.insertedId) {
             await handleSubscribeFacebookPageWebhook(facebookPageId, accessToken);
         }
@@ -275,185 +279,6 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
     }
 }
 
-
-export async function getAdCampaigns(projectId: string): Promise<{ campaigns?: WithId<AdCampaign>[], error?: string }> {
-    if (!ObjectId.isValid(projectId)) return { campaigns: [] };
-    const project = await getProjectById(projectId);
-    if (!project || !project.adAccountId || !project.accessToken) return { campaigns: [] };
-
-    try {
-        const { db } = await connectToDatabase();
-        const localCampaigns = await db.collection<AdCampaign>('ad_campaigns')
-            .find({ projectId: new ObjectId(projectId) })
-            .sort({ createdAt: -1 })
-            .toArray();
-            
-        if (localCampaigns.length === 0) {
-            return { campaigns: [] };
-        }
-
-        const adIds = localCampaigns.map(c => c.metaAdId);
-        
-        // Use a batch request to fetch data for all ads at once
-        const response = await axios.get(`https://graph.facebook.com/v23.0`, {
-            params: {
-                ids: adIds.join(','),
-                fields: 'status,insights{impressions, clicks, spend, ctr}',
-                access_token: project.accessToken
-            }
-        });
-        
-        if (response.data.error) throw new Error(getErrorMessage({ response }));
-        
-        const metaData = response.data;
-
-        // Combine local data with fresh data from Meta
-        const combinedData = localCampaigns.map(campaign => {
-            const metaAd = metaData[campaign.metaAdId];
-            if (metaAd) {
-                return {
-                    ...campaign,
-                    status: metaAd.status || campaign.status,
-                    insights: metaAd.insights?.data?.[0] || {} // Insights come in a data array
-                };
-            }
-            return campaign; // Return local data if API fails for a specific ad
-        });
-
-        return { campaigns: JSON.parse(JSON.stringify(combinedData)) };
-    } catch (e) {
-        console.error("Failed to fetch ad campaigns with insights:", getErrorMessage(e));
-        // Fallback to local data on any API error to prevent the page from breaking
-        try {
-            const { db } = await connectToDatabase();
-            const localCampaigns = await db.collection<AdCampaign>('ad_campaigns')
-                .find({ projectId: new ObjectId(projectId) })
-                .sort({ createdAt: -1 })
-                .toArray();
-            return { campaigns: JSON.parse(JSON.stringify(localCampaigns)) };
-        } catch (dbError) {
-            console.error("Fallback to local DB failed during ad campaign fetch:", dbError);
-            return { campaigns: [] };
-        }
-    }
-}
-
-export async function handleCreateAdCampaign(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: "Access denied." };
-
-    const { adAccountId, facebookPageId, accessToken } = hasAccess;
-    if (!adAccountId || !facebookPageId || !accessToken) {
-        return { error: 'Project is missing Ad Account ID, Facebook Page ID, or Access Token. Please configure this in Project Connections.' };
-    }
-
-    const campaignName = formData.get('campaignName') as string;
-    const dailyBudget = Number(formData.get('dailyBudget')) * 100;
-    const adMessage = formData.get('adMessage') as string;
-    const destinationUrl = formData.get('destinationUrl') as string;
-
-    if (!campaignName || isNaN(dailyBudget) || !adMessage || !destinationUrl) {
-        return { error: 'Campaign Name, Daily Budget, Ad Message, and Destination URL are required.' };
-    }
-
-    const { db } = await connectToDatabase();
-
-    try {
-        const apiVersion = 'v22.0';
-
-        // Step 1: Create Campaign
-        const campaignResponse = await axios.post(
-            `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/campaigns`,
-            {
-                name: campaignName,
-                objective: 'LINK_CLICKS',
-                status: 'PAUSED',
-                special_ad_categories: [],
-                access_token: accessToken,
-            }
-        );
-        const campaignId = campaignResponse.data.id;
-        if (!campaignId) throw new Error('Failed to create campaign, no ID returned.');
-
-        // Step 2: Create Ad Set
-        const adSetResponse = await axios.post(
-            `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/adsets`,
-            {
-                name: `${campaignName} Ad Set`,
-                campaign_id: campaignId,
-                daily_budget: dailyBudget,
-                billing_event: 'IMPRESSIONS',
-                optimization_goal: 'LINK_CLICKS',
-                targeting: {
-                    geo_locations: { countries: ['IN'] },
-                    age_min: 18,
-                },
-                status: 'PAUSED',
-                access_token: accessToken,
-            }
-        );
-        const adSetId = adSetResponse.data.id;
-        if (!adSetId) throw new Error('Failed to create ad set, no ID returned.');
-        
-        // Step 3: Create Ad Creative
-        const placeholderImageUrl = 'https://placehold.co/1200x628.png';
-
-        const creativeResponse = await axios.post(
-            `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/adcreatives`,
-            {
-                name: `${campaignName} Ad Creative`,
-                object_story_spec: {
-                    page_id: facebookPageId,
-                    link_data: {
-                        message: adMessage,
-                        link: destinationUrl,
-                        image_url: placeholderImageUrl,
-                        call_to_action: { type: 'LEARN_MORE' },
-                    },
-                },
-                access_token: accessToken,
-            }
-        );
-        const creativeId = creativeResponse.data.id;
-        if (!creativeId) throw new Error('Failed to create ad creative, no ID returned.');
-
-        // Step 4: Create Ad
-        const adResponse = await axios.post(
-            `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/ads`,
-            {
-                name: `${campaignName} Ad`,
-                adset_id: adSetId,
-                creative: { creative_id: creativeId },
-                status: 'PAUSED',
-                access_token: accessToken,
-            }
-        );
-        const adId = adResponse.data.id;
-        if (!adId) throw new Error('Failed to create ad, no ID returned.');
-
-        const newAdCampaign: Omit<AdCampaign, '_id'> = {
-            projectId: new ObjectId(projectId),
-            name: campaignName,
-            status: 'PAUSED',
-            dailyBudget: dailyBudget / 100, 
-            metaCampaignId: campaignId,
-            metaAdSetId: adSetId,
-            metaAdCreativeId: creativeId,
-            metaAdId: adId,
-            createdAt: new Date(),
-        };
-        await db.collection('ad_campaigns').insertOne(newAdCampaign as any);
-
-        revalidatePath('/dashboard/facebook/ads');
-        return { message: `Ad campaign "${campaignName}" created successfully! It is currently paused.` };
-
-    } catch (e: any) {
-        console.error('Failed to create Ad:', getErrorMessage(e));
-        return { error: getErrorMessage(e) || 'An unexpected error occurred during ad creation.' };
-    }
-}
 
 export async function getFacebookPages(): Promise<{ pages?: FacebookPage[], error?: string }> {
     const session = await getSession();
@@ -509,32 +334,6 @@ export async function getPageDetails(projectId: string): Promise<{ page?: Facebo
         }
         
         return { page: response.data };
-
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
-}
-
-
-export async function getCustomAudiences(projectId: string): Promise<{ audiences?: CustomAudience[], error?: string }> {
-     const project = await getProjectById(projectId);
-    if (!project || !project.accessToken || !project.adAccountId) {
-        return { error: 'Project not found or is missing Ad Account ID or access token.' };
-    }
-    
-    try {
-        const response = await axios.get(`https://graph.facebook.com/v23.0/act_${project.adAccountId}/customaudiences`, {
-             params: {
-                fields: 'id,name,description,approximate_count_lower_bound,delivery_status,operation_status,time_updated',
-                access_token: project.accessToken,
-            }
-        });
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-        
-        return { audiences: response.data.data || [] };
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };

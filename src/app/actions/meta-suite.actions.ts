@@ -14,24 +14,6 @@ import {
 
 const API_VERSION = 'v23.0';
 
-export async function getAdCampaigns(projectId: string): Promise<{ campaigns?: any[], error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Project not found or access denied." };
-    if (!project.adAccountId || !project.accessToken) return { error: "Ad account not configured for this project." };
-
-    try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.adAccountId}/campaigns`, {
-            params: {
-                fields: 'id,name,status,objective,daily_budget',
-                access_token: project.accessToken
-            }
-        });
-        return { campaigns: response.data.data };
-    } catch (e) {
-        return { error: getErrorMessage(e) };
-    }
-}
-
 // Wrapper functions to correctly re-export from a 'use server' file.
 export async function getCatalogs(projectId: string) {
     return await getCatalogsFromAction(projectId);
