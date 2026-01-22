@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
@@ -27,7 +28,7 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
     const [isLiking, startLikingTransition] = useTransition();
     const { toast } = useToast();
 
-    const isVideo = !!post.object_id;
+    const isVideo = post.permalink_url.includes('/videos/');
     
     const reactionCount = post.reactions?.summary?.total_count || 0;
     const commentCount = post.comments?.summary?.total_count || 0;
@@ -65,12 +66,12 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                     onActionComplete={onActionComplete}
                 />
             )}
-            {isVideo && post.object_id && (
+            {isVideo && (
                 <>
                 <AddThumbnailDialog
                     isOpen={isThumbnailOpen}
                     onOpenChange={setIsThumbnailOpen}
-                    videoId={post.object_id}
+                    videoId={post.id}
                     projectId={projectId}
                     onSuccess={onActionComplete}
                 />
