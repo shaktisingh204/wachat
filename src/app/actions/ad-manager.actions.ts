@@ -102,14 +102,14 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
 
     try {
         // Step 1: Create Campaign
-        const campaignResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/act_${adAccountId}/campaigns`, {
+        const campaignResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/campaigns`, {
             name: campaignName, objective: 'LINK_CLICKS', status: 'PAUSED', special_ad_categories: [], access_token: session.user.facebookUserAccessToken,
         });
         const campaignId = campaignResponse.data.id;
         if (!campaignId) throw new Error('Failed to create campaign.');
 
         // Step 2: Create Ad Set
-        const adSetResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/act_${adAccountId}/adsets`, {
+        const adSetResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/adsets`, {
             name: `${campaignName} Ad Set`, campaign_id: campaignId, daily_budget: dailyBudget, billing_event: 'IMPRESSIONS', optimization_goal: 'LINK_CLICKS',
             targeting: { geo_locations: { countries: ['IN'] }, age_min: 18 }, status: 'PAUSED', access_token: session.user.facebookUserAccessToken,
         });
@@ -117,7 +117,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         if (!adSetId) throw new Error('Failed to create ad set.');
         
         // Step 3: Create Ad Creative
-        const creativeResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/act_${adAccountId}/adcreatives`, {
+        const creativeResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/adcreatives`, {
             name: `${campaignName} Ad Creative`,
             object_story_spec: {
                 page_id: facebookPageId,
@@ -129,7 +129,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         if (!creativeId) throw new Error('Failed to create ad creative.');
 
         // Step 4: Create Ad
-        const adResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/act_${adAccountId}/ads`, {
+        const adResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/ads`, {
             name: `${campaignName} Ad`, adset_id: adSetId, creative: { creative_id: creativeId }, status: 'PAUSED', access_token: session.user.facebookUserAccessToken,
         });
         const adId = adResponse.data.id;
@@ -164,7 +164,7 @@ export async function getCustomAudiences(adAccountId: string): Promise<{ audienc
     if (!adAccountId) return { audiences: [] };
     
     try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/act_${adAccountId}/customaudiences`, {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/customaudiences`, {
              params: {
                 fields: 'id,name,description,approximate_count_lower_bound,delivery_status,operation_status,time_updated',
                 access_token: session.user.facebookUserAccessToken,
