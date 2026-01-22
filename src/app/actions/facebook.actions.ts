@@ -118,12 +118,12 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         if (!longLivedToken) return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
 
         const { db } = await connectToDatabase();
-        await db.collection('users').updateOne(
-            { _id: new ObjectId(session.user._id) },
-            { $set: { facebookUserAccessToken: longLivedToken } }
-        );
 
         if (state === 'whatsapp') {
+            await db.collection('users').updateOne(
+                { _id: new ObjectId(session.user._id) },
+                { $set: { facebookUserAccessToken: longLivedToken } }
+            );
             const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
                 params: { access_token: longLivedToken }
             });
@@ -188,15 +188,23 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                 })
             )).filter(Boolean);
 
+             // Prepare a single update object for the user document
+             const userUpdateData: any = {
+                facebookUserAccessToken: longLivedToken,
+             };
+             
              // Also sync ad accounts
              const adAccountsResponse = await axios.get(`https://graph.facebook.com/v23.0/me/adaccounts`, { params: { access_token: longLivedToken, fields: 'id,name,account_id' }});
              const adAccounts = adAccountsResponse.data?.data || [];
              if (adAccounts.length > 0) {
-                 await db.collection('users').updateOne(
-                    { _id: new ObjectId(session.user._id) },
-                    { $set: { metaAdAccounts: adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id })) } }
-                );
+                 userUpdateData.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
              }
+
+             // Update user with token and ad accounts in one go
+             await db.collection('users').updateOne(
+                { _id: new ObjectId(session.user._id) },
+                { $set: userUpdateData }
+            );
 
             const bulkOps = pagesWithTokens.map((page: any) => ({
                 updateOne: {
