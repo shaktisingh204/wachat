@@ -221,7 +221,7 @@ export async function handleWabaOnboarding(data: {
   }
 }
 
-export async function handleMetaSuiteOnboarding(data: {
+export async function handleMetaConnection(data: {
   code: string;
   state: string;
 }): Promise<{ success: boolean; error?: string }> {
@@ -267,22 +267,32 @@ export async function handleMetaSuiteOnboarding(data: {
 
     const { db } = await connectToDatabase();
     
+    const userUpdateData: any = {
+        facebookUserAccessToken: userAccessToken
+    };
+    
     if (includeAds) {
         console.log(`${LOG_PREFIX_META} Step 3: Getting Ad Accounts`);
-        const adAccountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/adaccounts`, {
-            params: {
-                fields: 'id,name,account_id',
-                access_token: userAccessToken
+        try {
+            const adAccountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/adaccounts`, {
+                params: {
+                    fields: 'id,name,account_id',
+                    access_token: userAccessToken
+                }
+            });
+            const adAccounts = adAccountsResponse.data?.data || [];
+            if (adAccounts.length > 0) {
+                userUpdateData.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
             }
-        });
-        const adAccounts = adAccountsResponse.data?.data || [];
-        if (adAccounts.length > 0) {
-            await db.collection('users').updateOne(
-                { _id: new ObjectId(userId) },
-                { $set: { metaAdAccounts: adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id })) } }
-            );
+        } catch(adError) {
+             console.warn(`${LOG_PREFIX_META} Could not fetch ad accounts. User may not have granted 'ads_management' permission.`);
         }
     }
+    
+    await db.collection('users').updateOne(
+        { _id: new ObjectId(userId) },
+        { $set: userUpdateData }
+    );
     
     const bulkOps = pages.map((page: any) => {
       // Create a separate project for each Facebook Page

@@ -3,7 +3,7 @@
 
 import { useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { handleWabaOnboarding, handleMetaSuiteOnboarding } from '@/app/actions/onboarding.actions'
+import { handleWabaOnboarding, handleMetaConnection } from '@/app/actions/onboarding.actions'
 import { LoaderCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import {
@@ -44,10 +44,8 @@ export default function FacebookCallbackClient({
     startTransition(async () => {
       let result;
       // Use the 'state' to determine which flow to execute.
-      // The Meta Suite flow uses a hardcoded 'facebook' state,
-      // while the WABA flow uses a random string for CSRF.
-      if (stateFromUrl === 'facebook') {
-        result = await handleMetaSuiteOnboarding({ code, state: stateFromUrl });
+      if (stateFromUrl === 'facebook' || stateFromUrl === 'instagram') {
+        result = await handleMetaConnection({ code, state: stateFromUrl });
       } else {
         result = await handleWabaOnboarding({ code, state: stateFromUrl });
       }

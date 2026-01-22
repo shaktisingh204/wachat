@@ -35,6 +35,7 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarProvider,
+  useSidebar
 } from '@/components/ui/sidebar';
 import { Drawer, DrawerTrigger } from '../ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
@@ -274,7 +275,6 @@ const facebookMenuGroups = [
     title: 'Custom Shops',
     items: [
       { href: '/dashboard/facebook/custom-ecommerce', label: 'Shops Dashboard', icon: LayoutDashboard },
-      { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder', label: 'Website Builder', icon: Brush },
     ],
   },
   {
@@ -283,13 +283,6 @@ const facebookMenuGroups = [
         { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag },
         { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutDashboard },
         { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package },
-    ]
-  },
-  {
-    title: 'Growth Tools',
-    items: [
-        { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send },
-        { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users },
     ]
   }
 ];
@@ -469,7 +462,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/dashboard' },
         { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
-        { id: 'ad-manager', href: '/dashboard/ad-manager', icon: Megaphone, label: 'Ad Manager' },
+        { id: 'ad-manager', href: '/dashboard/ad-manager/ad-accounts', icon: Megaphone, label: 'Ad Manager' },
         { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
         { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM' },
         { id: 'sabflow', icon: GitFork, label: 'SabFlow', href: '/dashboard/sabflow' },
@@ -628,7 +621,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         <SidebarContent>
                         {activeApp === 'whatsapp' && (
                             <SidebarMenu>
-                                {wachatMenuItems.filter(item => item.roles.includes(currentUserRole) && !item.href.includes('[')).map((item) => (
+                                {wachatMenuItems.filter(item => item.roles.includes(currentUserRole)).map((item) => (
                                     <SidebarItem key={item.href} item={item} />
                                 ))}
                             </SidebarMenu>
@@ -653,7 +646,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                             {facebookMenuGroups.map(group => (
                                 <React.Fragment key={group.title}>
                                 <p className="px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mt-4 mb-1">{group.title}</p>
-                                {group.items.filter(item => !item.href.includes('[')).map(item => (
+                                {group.items.map(item => (
                                     <SidebarItem key={item.href} item={item} />
                                 ))}
                                 </React.Fragment>
@@ -662,7 +655,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         )}
                         {activeApp === 'instagram' && (
                             <SidebarMenu>
-                                {instagramMenuGroups.flatMap(g => g.items).filter(item => !item.href.includes('[')).map(item => (
+                                {instagramMenuGroups.flatMap(g => g.items).map(item => (
                                     <SidebarItem key={item.href} item={item} />
                                 ))}
                             </SidebarMenu>
