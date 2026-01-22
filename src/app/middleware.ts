@@ -1,82 +1,76 @@
 
-'use server';
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAdminJwtEdge, verifyJwtEdge } from './lib/auth.edge';
-import { JWTExpired } from 'jose/errors';
-import { getSession } from './app/actions/user.actions';
+
+const AUTH_PAGES = ['/login', '/signup', '/forgot-password'];
+const ADMIN_AUTH_PAGE = '/admin-login';
+const DASHBOARD_PREFIX = '/dashboard';
+const ADMIN_DASHBOARD_PREFIX = '/admin/dashboard';
+const PENDING_APPROVAL_PAGE = '/pending-approval';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  console.log(`[MIDDLEWARE] Checking path: ${pathname}`);
-
   const sessionToken = request.cookies.get('session')?.value;
   const adminSessionToken = request.cookies.get('admin_session')?.value;
-
-  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/forgot-password');
-  const isAdminAuthPage = pathname.startsWith('/admin-login');
-  const isDashboard = pathname.startsWith('/dashboard');
-  const isAdminDashboard = pathname.startsWith('/admin/dashboard');
-  const isPendingPage = pathname.startsWith('/pending-approval');
-
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
 
+  let isUserSessionValid = false;
+  let isUserSessionExpired = false;
+  if (sessionToken) {
+    try {
+      isUserSessionValid = await verifyJwtEdge(sessionToken);
+    } catch (error: any) {
+      if (error.code === 'ERR_JWT_EXPIRED') {
+        isUserSessionExpired = true;
+      }
+    }
+  }
+
+  let isAdminSessionValid = false;
+  let isAdminSessionExpired = false;
+  if (adminSessionToken) {
+    try {
+      isAdminSessionValid = !!await verifyAdminJwtEdge(adminSessionToken);
+    } catch (error: any)      {
+      if (error.code === 'ERR_JWT_EXPIRED') {
+        isAdminSessionExpired = true;
+      }
+    }
+  }
+
+  const isAuthPage = AUTH_PAGES.some(page => pathname.startsWith(page));
+  const isAdminAuthPage = pathname.startsWith(ADMIN_AUTH_PAGE);
+  const isDashboard = pathname.startsWith(DASHBOARD_PREFIX);
+  const isAdminDashboard = pathname.startsWith(ADMIN_DASHBOARD_PREFIX);
+  const isPendingPage = pathname.startsWith(PENDING_APPROVAL_PAGE);
+
   // Admin session logic
-  if (isAdminDashboard) {
-    let adminSessionValid = false;
-    let adminSessionExpired = false;
-    if (adminSessionToken) {
-      try {
-        adminSessionValid = !!await verifyAdminJwtEdge(adminSessionToken);
-      } catch (error: any) {
-        if (error.code === 'ERR_JWT_EXPIRED') adminSessionExpired = true;
-      }
+  if (isAdminDashboard && !isAdminSessionValid) {
+    const response = NextResponse.redirect(new URL(ADMIN_AUTH_PAGE, appUrl));
+    if (isAdminSessionExpired || adminSessionToken) {
+      response.cookies.delete('admin_session');
     }
-
-    if (!adminSessionValid) {
-      const response = NextResponse.redirect(new URL('/admin-login', appUrl));
-      if (adminSessionExpired || adminSessionToken) response.cookies.delete('admin_session');
-      return response;
-    }
+    return response;
   }
-  
+
+  if (isAdminAuthPage && isAdminSessionValid) {
+    return NextResponse.redirect(new URL(ADMIN_DASHBOARD_PREFIX, appUrl));
+  }
+
   // User session logic
-  if (isDashboard || isPendingPage) {
-    let sessionValid = false;
-    let sessionExpired = false;
-    if (sessionToken) {
-        try {
-            sessionValid = await verifyJwtEdge(sessionToken);
-        } catch(e: any) {
-            if (e.code === 'ERR_JWT_EXPIRED') sessionExpired = true;
-        }
+  if ((isDashboard || isPendingPage) && !isUserSessionValid) {
+    const response = NextResponse.redirect(new URL('/login', appUrl));
+    if (isUserSessionExpired || sessionToken) {
+        response.cookies.delete('session');
     }
-
-    if (!sessionValid) {
-        const response = NextResponse.redirect(new URL('/login', appUrl));
-        if (sessionExpired || sessionToken) {
-            response.cookies.delete('session');
-        }
-        return response;
-    }
-  }
-
-  // Logged-in user trying to access auth pages
-  if (isAuthPage && sessionToken) {
-    if(await verifyJwtEdge(sessionToken)) {
-        return NextResponse.redirect(new URL('/dashboard', appUrl));
-    }
+    return response;
   }
   
-  if (isAdminAuthPage && adminSessionToken) {
-     try {
-      if (await verifyAdminJwtEdge(adminSessionToken)) {
-        return NextResponse.redirect(new URL('/admin/dashboard', appUrl));
-      }
-    } catch (e) {}
+  if (isAuthPage && isUserSessionValid) {
+    return NextResponse.redirect(new URL(DASHBOARD_PREFIX, appUrl));
   }
-  
+
   return NextResponse.next();
 }
 

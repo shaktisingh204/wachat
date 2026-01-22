@@ -2,8 +2,7 @@
 'use server';
 
 import 'server-only'
-// The fix is to remove JWTExpired as it is not available in the edge runtime.
-import { jwtVerify, decodeJwt, type JWTPayload } from 'jose';
+import { jwtVerify, type JWTPayload } from 'jose';
 
 function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
@@ -13,26 +12,13 @@ function getJwtSecretKey(): Uint8Array {
     return new TextEncoder().encode(secret);
 }
 
-// This function now checks for token expiration for Firebase tokens.
+// This function now correctly verifies the token's signature and expiration on the Edge.
 export async function verifyJwtEdge(token: string): Promise<boolean> {
     try {
-        const payload = decodeJwt(token);
-        if (!payload.exp) {
-            return false;
-        }
-        const isExpired = payload.exp * 1000 < Date.now();
-
-        if (isExpired) {
-            // Instead of throwing JWTExpired, create a custom error
-            // with the code the middleware expects.
-            const error = new Error('Token expired');
-            (error as any).code = 'ERR_JWT_EXPIRED';
-            throw error;
-        }
-
-        return true;
+        const { payload } = await jwtVerify(token, getJwtSecretKey());
+        return !!payload; // If verification succeeds, return true.
     } catch (e: any) {
-        // Re-throw so middleware can catch it.
+        // Re-throw the error so the middleware can catch it and handle cookie deletion.
         throw e;
     }
 }
@@ -48,10 +34,7 @@ export async function verifyAdminJwtEdge(token: string): Promise<JWTPayload | nu
 
         return payload;
     } catch(e: any) {
-        // Re-throw JWTExpired so middleware can handle it
-        if (e.code === 'ERR_JWT_EXPIRED') {
-            throw e;
-        }
-        return null;
+        // Re-throw the error so the middleware can catch it and handle cookie deletion.
+        throw e;
     }
 }
