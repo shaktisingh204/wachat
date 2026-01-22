@@ -13,6 +13,7 @@ import { getErrorMessage } from '@/lib/utils';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
+import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import axios from 'axios';
 
 
@@ -410,7 +411,7 @@ export async function getUsersForAdmin(
     page: number = 1,
     limit: number = 10,
     query?: string
-): Promise<{ users: Omit<WithId<User>, 'password'>[], total: number }> {
+): Promise<{ users: WithId<User & { plan?: Plan }>[], total: number }> {
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<User> = {};
@@ -423,8 +424,29 @@ export async function getUsersForAdmin(
         
         const skip = (page - 1) * limit;
         
+        const pipeline = [
+            { $match: filter },
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'plans',
+                    localField: 'planId',
+                    foreignField: '_id',
+                    as: 'plan'
+                }
+            },
+            {
+                $unwind: { path: '$plan', preserveNullAndEmptyArrays: true }
+            },
+            {
+                $project: { password: 0 }
+            }
+        ];
+
         const [users, total] = await Promise.all([
-             db.collection<User>('users').find(filter, { projection: { password: 0 } }).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+             db.collection('users').aggregate(pipeline).toArray(),
              db.collection('users').countDocuments(filter)
         ]);
 
@@ -543,3 +565,5 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
+    

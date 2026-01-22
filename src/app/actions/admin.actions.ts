@@ -221,6 +221,27 @@ export async function updateProjectPlanByAdmin(projectId: string, planId: string
     }
 }
 
+export async function updateUserPlanByAdmin(userId: string, planId: string): Promise<{ success: boolean; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { success: false, error: "Permission denied." };
+
+    if (!ObjectId.isValid(userId) || !ObjectId.isValid(planId)) {
+        return { success: false, error: 'Invalid user or plan ID.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { planId: new ObjectId(planId) } }
+        );
+        revalidatePath('/admin/dashboard/users');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 export async function getAdminDashboardStats() {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) {
