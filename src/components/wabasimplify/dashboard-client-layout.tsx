@@ -20,7 +20,7 @@ import {
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getProjects } from "@/lib/actions/user.actions"
+import { getProjects } from "@/app/actions/user.actions"
 import { getSession } from '@/app/actions/index.ts';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import type { Plan, WithId, Project, User } from '@/lib/definitions';
