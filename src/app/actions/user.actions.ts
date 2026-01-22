@@ -98,20 +98,22 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             projectFilter.name = { $regex: query, $options: 'i' };
         }
         
-        let allProjects = await db.collection<Project>('projects')
+        if (type === 'whatsapp') {
+            projectFilter.wabaId = { $exists: true, $ne: "" };
+        } else if (type === 'facebook') {
+            projectFilter.facebookPageId = { $exists: true, $ne: "" };
+        }
+        
+        console.log('[getProjects] Using filter:', JSON.stringify(projectFilter, null, 2));
+
+        const projects = await db.collection<Project>('projects')
             .find(projectFilter)
             .sort({ createdAt: -1 })
             .toArray();
             
-        if (type === 'whatsapp') {
-            allProjects = allProjects.filter(p => p.wabaId && p.wabaId !== "");
-        } else if (type === 'facebook') {
-            allProjects = allProjects.filter(p => !!p.facebookPageId);
-        }
+        console.log(`[getProjects] Found ${projects.length} projects after filtering.`);
             
-        console.log(`[getProjects] Found ${allProjects.length} projects after filtering.`);
-            
-        return { projects: JSON.parse(JSON.stringify(allProjects)) };
+        return { projects: JSON.parse(JSON.stringify(projects)) };
     } catch (error) {
         console.error("[getProjects] Failed to fetch projects:", error);
         return { projects: [] };
@@ -545,3 +547,4 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
 
     
 
+    
