@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Metadata } from 'next';
-import { getUsersForAdmin } from '@/app/actions/index.ts';
+import { getUsersForAdmin, getPlans } from '@/app/actions/index.ts';
 import {
   Table,
   TableBody,
@@ -15,9 +15,10 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AdminUserSearch } from '@/components/wabasimplify/admin-user-search';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { WithId, User } from '@/lib/definitions';
+import { WithId, User, Plan } from '@/lib/definitions';
 import { ApproveUserButton } from '@/components/wabasimplify/approve-user-button';
 import { Badge } from '@/components/ui/badge';
+import { AdminAssignUserPlanDialog } from '@/components/wabasimplify/admin-assign-user-plan-dialog';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,27 +39,32 @@ export default async function AdminUsersPage({
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
   
-  let users: (Omit<WithId<User>, "password"> & { isApproved?: boolean })[] = [];
+  let users: (WithId<User> & { plan?: WithId<Plan> })[] = [];
   let total = 0;
+  let allPlans: WithId<Plan>[] = [];
 
   try {
-      const data = await getUsersForAdmin(currentPage, USERS_PER_PAGE, query);
-      users = data.users;
-      total = data.total;
+      const [userData, plansData] = await Promise.all([
+          getUsersForAdmin(currentPage, USERS_PER_PAGE, query),
+          getPlans()
+      ]);
+      users = userData.users;
+      total = userData.total;
+      allPlans = plansData;
   } catch (error) {
       console.error("Failed to fetch admin users:", error);
   }
 
   const totalPages = Math.ceil(total / USERS_PER_PAGE);
 
-  const plainUsers = JSON.parse(JSON.stringify(users)) as (WithId<User> & { isApproved?: boolean })[];
+  const plainUsers = JSON.parse(JSON.stringify(users)) as (WithId<User> & { plan?: WithId<Plan>, isApproved?: boolean })[];
 
 
   return (
     <div className="flex flex-col gap-4">
       <div>
         <h1 className="text-3xl font-bold font-headline">User Management</h1>
-        <p className="text-muted-foreground">View and approve all users on the platform.</p>
+        <p className="text-muted-foreground">View, approve, and manage all users on the platform.</p>
       </div>
 
       <Card>
@@ -76,6 +82,7 @@ export default async function AdminUsersPage({
                 <TableRow>
                     <TableHead>User</TableHead>
                     <TableHead>Joined</TableHead>
+                    <TableHead>Plan</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -95,6 +102,9 @@ export default async function AdminUsersPage({
                         </TableCell>
                         <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell>
+                            <Badge variant="outline">{user.plan?.name || 'N/A'}</Badge>
+                        </TableCell>
+                        <TableCell>
                             {user.isApproved ? (
                                 <Badge>Approved</Badge>
                             ) : (
@@ -102,15 +112,23 @@ export default async function AdminUsersPage({
                             )}
                         </TableCell>
                         <TableCell className="text-right">
-                            {!user.isApproved && (
-                                <ApproveUserButton userId={user._id.toString()} />
-                            )}
+                           <div className="flex justify-end gap-2">
+                                <AdminAssignUserPlanDialog 
+                                    userId={user._id.toString()}
+                                    userName={user.name}
+                                    currentPlanId={user.planId?.toString()}
+                                    allPlans={allPlans}
+                                />
+                                {!user.isApproved && (
+                                    <ApproveUserButton userId={user._id.toString()} />
+                                )}
+                           </div>
                         </TableCell>
                     </TableRow>
                     ))
                 ) : (
                     <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
+                    <TableCell colSpan={5} className="h-24 text-center">
                         No users found.
                     </TableCell>
                     </TableRow>
