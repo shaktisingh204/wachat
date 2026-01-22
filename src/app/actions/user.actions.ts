@@ -106,7 +106,7 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         if (type === 'whatsapp') {
             allProjects = allProjects.filter(p => p.wabaId && p.wabaId !== "");
         } else if (type === 'facebook') {
-            allProjects = allProjects.filter(p => p.facebookPageId && p.facebookPageId !== "");
+            allProjects = allProjects.filter(p => !!p.facebookPageId);
         }
             
         console.log(`[getProjects] Found ${allProjects.length} projects after filtering.`);
@@ -544,3 +544,4 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
     
 
     
+
