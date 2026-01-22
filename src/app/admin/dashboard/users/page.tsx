@@ -31,14 +31,20 @@ const USERS_PER_PAGE = 10;
 export default async function AdminUsersPage({
     searchParams,
 }: {
-    searchParams: {
-        query?: string;
-        page?: string;
-    };
+  searchParams?: {
+    query?: string;
+    page?: string;
+  };
 }) {
-  const query = searchParams?.query || '';
-  const currentPage = Number(searchParams?.page) || 1;
-  
+  const query =
+    typeof searchParams?.query === 'string'
+      ? searchParams.query
+      : '';
+
+  const currentPage =
+    typeof searchParams?.page === 'string'
+      ? Number(searchParams.page)
+      : 1;
   let users: (WithId<User> & { plan?: WithId<Plan> })[] = [];
   let total = 0;
   let allPlans: WithId<Plan>[] = [];
