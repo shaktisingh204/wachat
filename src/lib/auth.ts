@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import bcrypt from 'bcryptjs';
@@ -69,7 +70,7 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
     }
 }
 
-export async function verifyJwt(token: string): Promise<any | null> {
+export async function verifyFirebaseIdToken(token: string): Promise<any | null> {
     console.log('[AUTH_LIB] Verifying Firebase ID token on server...');
     try {
         const firebaseAdmin = initializeFirebaseAdmin();
@@ -78,6 +79,27 @@ export async function verifyJwt(token: string): Promise<any | null> {
         return decodedToken;
     } catch (error: any) {
         console.error('[AUTH_LIB] Error verifying Firebase ID token:', error.code, error.message);
+        return null;
+    }
+}
+
+export async function verifyJwt(token: string): Promise<SessionPayload | null> {
+    try {
+        const { payload } = await jwtVerify(token, getJwtSecretKey());
+        
+        if (!payload.jti || !payload.userId || !payload.email) {
+            console.error('Custom JWT payload missing required fields');
+            return null;
+        }
+
+        if (await isTokenRevoked(payload.jti)) {
+            console.warn(`Attempted to use a revoked session token: ${payload.jti}`);
+            return null;
+        }
+
+        return payload as SessionPayload;
+    } catch (error) {
+        console.error("Custom JWT verification failed on server:", error);
         return null;
     }
 }
@@ -133,12 +155,10 @@ export async function getDecodedSession(sessionCookie: string) {
   };
 
   try {
-    console.log('[AUTH_LIB] Attempting to verify token with Firebase Admin SDK...');
-    const firebaseAdmin = initializeFirebaseAdmin();
-    // Setting checkRevoked to true here as well
-    const decodedToken = await firebaseAdmin.auth().verifyIdToken(sessionCookie, true);
-    console.log(`[AUTH_LIB] Token successfully decoded for UID: ${decodedToken.uid}`);
-    return decodedToken;
+    console.log('[AUTH_LIB] Attempting to verify custom session token...');
+    const payload = await verifyJwt(sessionCookie);
+    console.log(`[AUTH_LIB] Token successfully decoded for user ID: ${payload?.userId}`);
+    return payload;
   } catch (e: any) {
     console.error('[AUTH_LIB] Failed to decode session:', e.code, e.message);
     return null;

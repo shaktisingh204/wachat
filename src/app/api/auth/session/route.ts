@@ -2,8 +2,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { verifyJwt } from '@/lib/auth';
-import type { User } from '@/lib/definitions';
+import { verifyFirebaseIdToken, createSessionToken } from '@/lib/auth';
+import type { User, WithId, SessionPayload } from '@/lib/definitions';
+import { ObjectId } from 'mongodb';
 
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
@@ -16,15 +17,15 @@ export async function POST(request: NextRequest) {
     }
 
     const idToken = authHeader.split('Bearer ')[1];
-    console.log('[API_SESSION] Received token.');
+    console.log('[API_SESSION] Received Firebase ID token.');
     
     try {
-        const decodedToken = await verifyJwt(idToken);
+        const decodedToken = await verifyFirebaseIdToken(idToken);
         if (!decodedToken) {
-            console.error('[API_SESSION] Token verification failed.');
+            console.error('[API_SESSION] Firebase token verification failed.');
             throw new Error("Invalid or expired token.");
         }
-        console.log(`[API_SESSION] Token verified for UID: ${decodedToken.uid}`);
+        console.log(`[API_SESSION] Firebase token verified for UID: ${decodedToken.uid}`);
 
         const { db } = await connectToDatabase();
         
@@ -49,7 +50,6 @@ export async function POST(request: NextRequest) {
             setOnInsertData.credits = defaultPlan.signupCredits || 0;
         }
         
-        // On every login/session creation, we update the lastLogin time and location.
         const setData: any = {
             lastLogin: now,
         };
@@ -65,12 +65,29 @@ export async function POST(request: NextRequest) {
             },
             { upsert: true, returnDocument: 'after' }
         );
+        
+        if (!updateResult) {
+             throw new Error('Could not find or create user profile after login.');
+        }
+        
+        const user = updateResult as WithId<User>;
+        
         console.log('[API_SESSION] User upserted successfully.');
 
-        const response = NextResponse.json({ success: true, user: updateResult });
+        // Create a custom session token for our app
+        const sessionPayload: Omit<SessionPayload, 'jti' | 'exp'> = {
+            userId: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            isApproved: user.isApproved || false,
+        };
+        const customSessionToken = await createSessionToken(sessionPayload);
+        console.log('[API_SESSION] Custom session token created.');
+
+        const response = NextResponse.json({ success: true, user: user });
 
         console.log('[API_SESSION] Setting session cookie.');
-        response.cookies.set('session', idToken, {
+        response.cookies.set('session', customSessionToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
