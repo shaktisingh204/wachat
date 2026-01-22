@@ -13,6 +13,14 @@ import { cookies } from 'next/headers';
 const SALT_ROUNDS = 10;
 const FIREBASE_APP_NAME = 'sabnode-admin-app'; // Named app
 
+function getJwtSecretKey(): Uint8Array {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        throw new Error('JWT_SECRET is not defined in the environment variables.');
+    }
+    return new TextEncoder().encode(secret);
+}
+
 function initializeFirebaseAdmin() {
   try {
     return admin.app(FIREBASE_APP_NAME);
