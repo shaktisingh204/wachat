@@ -4,17 +4,18 @@
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getProjects, getSession } from "@/app/actions/index.ts";
+import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
+import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
+import { CheckCircle, Wrench, ArrowRight } from 'lucide-react';
 import { ManualFacebookSetupDialog } from '@/components/wabasimplify/manual-facebook-setup-dialog';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { CheckCircle, Wrench, ArrowRight } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -68,7 +69,7 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
 }
 
 export default function AllFacebookPagesPage() {
-    const [projects, setProjects] = useState<WithId<Project>[]>([]);
+    const [projects, setProjects] = useState<(WithId<Project> & { instagramProfile?: any })[]>([]);
     const [user, setUser] = useState<any>(null);
     const [isLoading, startLoading] = useTransition();
     const [includeAds, setIncludeAds] = useState(false); // Add state for checkbox
@@ -76,12 +77,12 @@ export default function AllFacebookPagesPage() {
     const fetchData = useCallback(() => {
         startLoading(async () => {
             // Fetch both projects and session data
-            const [{ projects: fbProjects }, session] = await Promise.all([
+            const [projectsData, sessionData] = await Promise.all([
                 getProjects(undefined, 'facebook'),
                 getSession()
             ]);
-            setProjects(fbProjects);
-            setUser(session?.user);
+            setProjects(projectsData?.projects || []);
+            setUser(sessionData?.user);
         });
     }, []);
 
