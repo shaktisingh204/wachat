@@ -102,8 +102,6 @@ export default function CreateAdPage() {
       )
     }
 
-    const hasClickToWhatsAppSetup = !!(activeProject?.wabaId && activeProject.phoneNumbers && activeProject.phoneNumbers.length > 0);
-
     const renderStepContent = () => {
         switch (currentStep) {
             case 1:
@@ -197,28 +195,17 @@ export default function CreateAdPage() {
                         {steps[currentStep-1].description}
                     </CardDescription>
                 </CardHeader>
-                 {!hasClickToWhatsAppSetup && (
-                    <CardContent>
-                        <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>WhatsApp Project Required</AlertTitle>
-                            <AlertDescription>
-                            This ad creation tool is specifically for "Click-to-WhatsApp" ads and requires a project connected to a WhatsApp Business Account with at least one phone number.
-                            </AlertDescription>
-                        </Alert>
-                    </CardContent>
-                 )}
                  
-                 <div className={!hasClickToWhatsAppSetup ? 'opacity-50 pointer-events-none' : ''}>
+                 <div>
                     {renderStepContent()}
                  </div>
 
                 <CardFooter className="flex justify-between">
                     <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>Previous</Button>
                     {currentStep < 4 ? (
-                        <Button type="button" onClick={nextStep} disabled={!hasClickToWhatsAppSetup}>Next<ArrowRight className="ml-2 h-4 w-4" /></Button>
+                        <Button type="button" onClick={nextStep}>Next<ArrowRight className="ml-2 h-4 w-4" /></Button>
                     ) : (
-                        <SubmitButton disabled={!hasClickToWhatsAppSetup} />
+                        <SubmitButton disabled={false} />
                     )}
                 </CardFooter>
               </Card>
@@ -226,4 +213,3 @@ export default function CreateAdPage() {
         </div>
     );
 }
-
