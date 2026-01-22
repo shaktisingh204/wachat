@@ -9,7 +9,7 @@ import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
-import { CheckCircle, Wrench, ArrowRight } from 'lucide-react';
+import { CheckCircle, Wrench, ArrowRight, Megaphone } from 'lucide-react';
 import { ManualFacebookSetupDialog } from '@/components/wabasimplify/manual-facebook-setup-dialog';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -17,8 +17,6 @@ import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Separator } from '@/components/ui/separator';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 
@@ -73,11 +71,9 @@ export default function AllFacebookPagesPage() {
     const [projects, setProjects] = useState<(WithId<Project> & { instagramProfile?: any })[]>([]);
     const [user, setUser] = useState<any>(null);
     const [isLoading, startLoading] = useTransition();
-    const [includeAds, setIncludeAds] = useState(false); // Add state for checkbox
 
     const fetchData = useCallback(() => {
         startLoading(async () => {
-            // Fetch both projects and session data
             const [projectsData, sessionData] = await Promise.all([
                 getProjects(undefined, 'facebook'),
                 getSession()
@@ -104,88 +100,82 @@ export default function AllFacebookPagesPage() {
                     Meta Suite Connections
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                    Connect and manage your Facebook Pages.
+                    Connect and manage your Facebook Pages and Ad Accounts.
                 </p>
             </div>
 
-            <Card className="card-gradient card-gradient-green">
+            <Card>
                 <CardHeader>
-                    <CardTitle>Connect a New Facebook Page</CardTitle>
-                    <CardDescription>
-                        Use the secure pop-up to connect your Facebook account and select the pages you want to manage.
-                    </CardDescription>
+                    <CardTitle>Connected Pages</CardTitle>
+                    <CardDescription>A list of all your connected Facebook Pages.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-4 items-center justify-center">
-                    {appId ? (
-                        <Link href={`/api/auth/meta-suite/login?includeAds=${includeAds}`} className="w-full sm:w-auto">
-                            <Button size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
+                <CardContent>
+                    {projects.length > 0 ? (
+                        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {projects.map(project => (
+                                <ConnectedPageCard key={project._id.toString()} project={project} />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-sm text-muted-foreground">No Facebook Pages have been connected yet.</p>
+                    )}
+                </CardContent>
+                <CardFooter className="justify-between items-center gap-4">
+                     {appId ? (
+                        <Link href={`/api/auth/meta-suite/login`}>
+                            <Button size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90">
                                 <FacebookIcon className="mr-2 h-5 w-5" />
-                                Connect with Facebook
+                                Connect New Page
                             </Button>
                         </Link>
                     ) : (
                          <p className="text-sm text-destructive">Admin has not configured the Facebook App ID.</p>
                     )}
-                     <div className="flex items-center space-x-2">
-                        <Checkbox
-                            id="include-ads"
-                            checked={includeAds}
-                            onCheckedChange={(checked) => setIncludeAds(Boolean(checked))}
-                        />
-                        <Label htmlFor="include-ads" className="text-sm font-normal">
-                            Include permissions for Ad Account Management
-                        </Label>
-                    </div>
-                </CardContent>
-                <CardFooter className="justify-center">
                     <ManualFacebookSetupDialog onSuccess={fetchData} />
                 </CardFooter>
             </Card>
 
             <Separator />
             
-            <h2 className="text-2xl font-semibold">Connected Pages</h2>
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {projects.length > 0 ? (
-                    projects.map(project => (
-                        <ConnectedPageCard key={project._id.toString()} project={project} />
-                    ))
-                ) : (
-                    <Card className="text-center py-12 md:col-span-2 xl:col-span-3">
-                         <CardContent>
-                            <p className="text-muted-foreground">No Facebook Pages have been connected yet.</p>
-                         </CardContent>
-                    </Card>
-                )}
-            </div>
-
-            {user?.metaAdAccounts && user.metaAdAccounts.length > 0 && (
-                <>
-                    <Separator />
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Connected Ad Accounts</CardTitle>
-                            <CardDescription>
-                            These ad accounts were found during connection. You can assign them to projects in the project settings.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Select>
-                            <SelectTrigger className="w-[380px]">
-                                <SelectValue placeholder="Select a connected ad account" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {user.metaAdAccounts.map((acc: any) => (
-                                <SelectItem key={acc.id} value={acc.id}>
-                                    {acc.name} ({acc.account_id})
-                                </SelectItem>
-                                ))}
-                            </SelectContent>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Ad Account Integration</CardTitle>
+                    <CardDescription>Connect an Ad Account to enable ad creation and management features.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                     {user?.metaAdAccounts && user.metaAdAccounts.length > 0 ? (
+                        <div className="space-y-2">
+                            <Label>Active Ad Account</Label>
+                             <Select>
+                                <SelectTrigger className="w-full md:w-[380px]">
+                                    <SelectValue placeholder="Select a connected ad account" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {user.metaAdAccounts.map((acc: any) => (
+                                    <SelectItem key={acc.id} value={acc.id}>
+                                        {acc.name} ({acc.account_id})
+                                    </SelectItem>
+                                    ))}
+                                </SelectContent>
                             </Select>
-                        </CardContent>
-                    </Card>
-                </>
-            )}
+                        </div>
+                     ) : (
+                        <p className="text-sm text-muted-foreground">No Ad Accounts connected yet.</p>
+                     )}
+                </CardContent>
+                <CardFooter>
+                     {appId ? (
+                        <Link href={`/api/auth/meta-suite/login?includeAds=true`}>
+                            <Button variant="outline">
+                                <Megaphone className="mr-2 h-4 w-4" />
+                                Connect Ad Account
+                            </Button>
+                        </Link>
+                    ) : (
+                         <p className="text-sm text-destructive">Admin has not configured the Facebook App ID.</p>
+                    )}
+                </CardFooter>
+            </Card>
         </div>
     );
 }
