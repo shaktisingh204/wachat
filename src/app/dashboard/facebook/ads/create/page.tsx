@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
@@ -104,6 +103,8 @@ export default function CreateAdPage() {
       )
     }
 
+    const StepIcon = steps[currentStep - 1].icon;
+
     const renderStepContent = () => {
         switch (currentStep) {
             case 1:
@@ -164,6 +165,10 @@ export default function CreateAdPage() {
                              <div className="flex justify-between items-start"><span className="text-muted-foreground">Destination URL:</span><strong className="text-right">{formData.destinationUrl}</strong></div>
                              <div className="flex justify-between items-start"><span className="text-muted-foreground">Ad Message:</span><p className="w-1/2 text-right">"{formData.adMessage}"</p></div>
                         </div>
+                        <input type="hidden" name="campaignName" value={formData.campaignName} />
+                        <input type="hidden" name="dailyBudget" value={formData.dailyBudget} />
+                        <input type="hidden" name="adMessage" value={formData.adMessage} />
+                        <input type="hidden" name="destinationUrl" value={formData.destinationUrl} />
                     </CardContent>
                 );
             default:
@@ -171,7 +176,6 @@ export default function CreateAdPage() {
         }
     }
 
-    const StepIcon = steps[currentStep - 1].icon;
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -194,14 +198,10 @@ export default function CreateAdPage() {
             <Card>
                 <form action={formAction}>
                   <input type="hidden" name="projectId" value={activeProject?._id.toString() || ''} />
-                  <input type="hidden" name="campaignName" value={formData.campaignName} />
-                  <input type="hidden" name="dailyBudget" value={formData.dailyBudget} />
-                  <input type="hidden" name="adMessage" value={formData.adMessage} />
-                  <input type="hidden" name="destinationUrl" value={formData.destinationUrl} />
                   
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <StepIcon className="h-6 w-6"/>
+                            {StepIcon && <StepIcon className="h-6 w-6"/>}
                             Step {currentStep}: {steps[currentStep-1].name}
                         </CardTitle>
                         <CardDescription>
