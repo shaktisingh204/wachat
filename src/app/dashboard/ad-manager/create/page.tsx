@@ -18,12 +18,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Megaphone, ArrowLeft, ArrowRight, AlertCircle, ShoppingBag, Send, Building, Target as TargetIcon } from 'lucide-react';
-import { handleCreateAdCampaign } from '@/app/actions/facebook.actions';
+import { handleCreateAdCampaign, getFacebookPagesForAdCreation } from '@/app/actions/ad-manager.actions';
 import { useToast } from '@/hooks/use-toast';
-import { useProject } from '@/context/project-context';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { FacebookPage } from '@/lib/definitions';
 
 const initialState = {
   message: null,
@@ -56,23 +57,45 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 }
 
 export default function CreateAdPage() {
-    const { activeProject, isLoadingProject } = useProject();
     const [state, formAction] = useActionState(handleCreateAdCampaign, initialState);
     const { toast } = useToast();
     const router = useRouter();
 
     const [currentStep, setCurrentStep] = useState(1);
+    const [adAccountId, setAdAccountId] = useState<string | null>(null);
+    const [pages, setPages] = useState<FacebookPage[]>([]);
+    const [isLoading, startLoading] = useTransition();
+
     const [formData, setFormData] = useState({
+        facebookPageId: '',
         campaignName: 'New Campaign',
         dailyBudget: '10',
         adMessage: '',
         destinationUrl: '',
     });
 
+    useEffect(() => {
+        const storedAdAccountId = localStorage.getItem('activeAdAccountId');
+        setAdAccountId(storedAdAccountId);
+        startLoading(async () => {
+            const result = await getFacebookPagesForAdCreation();
+            if (result.pages) {
+                setPages(result.pages);
+                if (result.pages.length > 0) {
+                    setFormData(prev => ({...prev, facebookPageId: result.pages![0].id}));
+                }
+            }
+        });
+    }, []);
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+    
+    const handleSelectChange = (name: string, value: string) => {
+         setFormData(prev => ({ ...prev, [name]: value }));
+    }
 
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 4));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
@@ -80,24 +103,24 @@ export default function CreateAdPage() {
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
-            router.push('/dashboard/facebook/ads');
+            router.push('/dashboard/ad-manager/campaigns');
         }
         if (state.error) {
             toast({ title: 'Error Creating Ad', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, router]);
   
-    if (isLoadingProject) {
-        return <Skeleton className="h-96 w-full" />
+    if (isLoading) {
+        return <Skeleton className="h-96 w-full max-w-2xl mx-auto" />
     }
 
-    if (!activeProject) {
+    if (!adAccountId) {
       return (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="max-w-xl mx-auto">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>No Project Selected</AlertTitle>
+              <AlertTitle>No Ad Account Selected</AlertTitle>
               <AlertDescription>
-                  Please select a project from the connections page before creating an ad.
+                  Please select an Ad Account from the Ad Accounts page before creating an ad.
               </AlertDescription>
           </Alert>
       )
@@ -139,6 +162,17 @@ export default function CreateAdPage() {
                 return (
                      <CardContent className="space-y-6">
                         <div className="space-y-2">
+                            <Label htmlFor="facebookPageId">Facebook Page</Label>
+                             <Select name="facebookPageId" value={formData.facebookPageId} onValueChange={(val) => handleSelectChange('facebookPageId', val)}>
+                                <SelectTrigger><SelectValue placeholder="Select a page..."/></SelectTrigger>
+                                <SelectContent>
+                                    {pages.map(page => (
+                                        <SelectItem key={page.id} value={page.id}>{page.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
                             <Label htmlFor="adMessage">Ad Primary Text</Label>
                             <Textarea id="adMessage" name="adMessage" value={formData.adMessage} onChange={handleInputChange} placeholder="Check out our amazing new product!" required className="min-h-28"/>
                         </div>
@@ -165,10 +199,6 @@ export default function CreateAdPage() {
                              <div className="flex justify-between items-start"><span className="text-muted-foreground">Destination URL:</span><strong className="text-right">{formData.destinationUrl}</strong></div>
                              <div className="flex justify-between items-start"><span className="text-muted-foreground">Ad Message:</span><p className="w-1/2 text-right">"{formData.adMessage}"</p></div>
                         </div>
-                        <input type="hidden" name="campaignName" value={formData.campaignName} />
-                        <input type="hidden" name="dailyBudget" value={formData.dailyBudget} />
-                        <input type="hidden" name="adMessage" value={formData.adMessage} />
-                        <input type="hidden" name="destinationUrl" value={formData.destinationUrl} />
                     </CardContent>
                 );
             default:
@@ -180,7 +210,7 @@ export default function CreateAdPage() {
     return (
         <div className="max-w-2xl mx-auto">
             <Button variant="ghost" asChild className="mb-4 -ml-4">
-                <Link href="/dashboard/facebook/ads"><ArrowLeft className="mr-2 h-4 w-4" />Back to Ads Manager</Link>
+                <Link href="/dashboard/ad-manager/campaigns"><ArrowLeft className="mr-2 h-4 w-4" />Back to Ads Manager</Link>
             </Button>
             <div className="mb-8">
                  <ol className="flex items-center w-full">
@@ -197,8 +227,13 @@ export default function CreateAdPage() {
             
             <Card>
                 <form action={formAction}>
-                  <input type="hidden" name="projectId" value={activeProject?._id.toString() || ''} />
-                  
+                  <input type="hidden" name="adAccountId" value={adAccountId || ''} />
+                  <input type="hidden" name="facebookPageId" value={formData.facebookPageId} />
+                  <input type="hidden" name="campaignName" value={formData.campaignName} />
+                  <input type="hidden" name="dailyBudget" value={formData.dailyBudget} />
+                  <input type="hidden" name="adMessage" value={formData.adMessage} />
+                  <input type="hidden" name="destinationUrl" value={formData.destinationUrl} />
+
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             {StepIcon && <StepIcon className="h-6 w-6"/>}

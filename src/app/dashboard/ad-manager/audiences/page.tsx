@@ -1,9 +1,8 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getCustomAudiences } from '@/app/actions/facebook.actions';
+import { getCustomAudiences } from '@/app/actions/ad-manager.actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Users } from 'lucide-react';
@@ -11,7 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { CustomAudience } from '@/lib/definitions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 
 function AudiencesPageSkeleton() {
     return (
@@ -32,17 +30,17 @@ export default function AudiencesPage() {
     const [audiences, setAudiences] = useState<CustomAudience[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, startTransition] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
+    const [adAccountId, setAdAccountId] = useState<string | null>(null);
 
     useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
+        const storedAdAccountId = localStorage.getItem('activeAdAccountId');
+        setAdAccountId(storedAdAccountId);
     }, []);
 
     useEffect(() => {
-        if (projectId) {
+        if (adAccountId) {
             startTransition(async () => {
-                const { audiences: fetchedAudiences, error: fetchError } = await getCustomAudiences(projectId);
+                const { audiences: fetchedAudiences, error: fetchError } = await getCustomAudiences(adAccountId);
                 if (fetchError) {
                     setError(fetchError);
                 } else if (fetchedAudiences) {
@@ -50,7 +48,7 @@ export default function AudiencesPage() {
                 }
             });
         }
-    }, [projectId]);
+    }, [adAccountId]);
 
     const getStatusVariant = (code: number) => {
         if (code === 200) return 'default'; // Ready
@@ -74,12 +72,12 @@ export default function AudiencesPage() {
                 </p>
             </div>
 
-            {!projectId ? (
+            {!adAccountId ? (
                  <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertTitle>No Ad Account Selected</AlertTitle>
                     <AlertDescription>
-                        Please select a project from the main dashboard to view its audiences.
+                        Please select an Ad Account from the Ad Accounts page to view its audiences.
                     </AlertDescription>
                 </Alert>
             ) : error ? (
@@ -89,7 +87,7 @@ export default function AudiencesPage() {
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             ) : (
-                <Card className="card-gradient card-gradient-purple">
+                <Card>
                     <CardHeader>
                         <CardTitle>Custom Audiences</CardTitle>
                         <CardDescription>A list of custom audiences in your connected ad account.</CardDescription>

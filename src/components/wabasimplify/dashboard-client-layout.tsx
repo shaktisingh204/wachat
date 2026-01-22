@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle} from 'lucide-react';
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle, UserRound} from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -40,6 +40,8 @@ import { Drawer, DrawerTrigger } from '../ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '../ui/separator';
+import { ProjectSwitcher } from './project-switcher';
+
 
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
@@ -286,7 +288,6 @@ const facebookMenuGroups = [
   {
     title: 'Growth Tools',
     items: [
-        { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone },
         { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send },
         { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users },
     ]
@@ -322,6 +323,12 @@ const instagramMenuGroups = [
         { href: '/dashboard/instagram/hashtag-search', label: 'Hashtag Search', icon: Search },
     ]
   }
+];
+
+const adManagerMenuItems = [
+    { href: '/dashboard/ad-manager/ad-accounts', label: 'Ad Accounts', icon: Wrench },
+    { href: '/dashboard/ad-manager/campaigns', label: 'Campaigns', icon: Megaphone },
+    { href: '/dashboard/ad-manager/audiences', label: 'Audiences', icon: Users },
 ];
 
 const emailMenuItems = [
@@ -412,9 +419,12 @@ const FullPageSkeleton = () => (
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const { 
+        projects,
         activeProject,
+        activeProjectId,
         activeProjectName,
         sessionUser,
+        isLoadingProject
     } = useProject();
     
     const pathname = usePathname();
@@ -427,6 +437,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
         let currentApp = 'whatsapp';
         if (pathname.startsWith('/dashboard/sabflow')) { currentApp = 'sabflow'; }
+        else if (pathname.startsWith('/dashboard/ad-manager')) { currentApp = 'ad-manager'; }
         else if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
         else if (pathname.startsWith('/dashboard/instagram')) { currentApp = 'instagram'; }
         else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
@@ -440,7 +451,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
         else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
         else if (pathname.startsWith('/dashboard/user')) { currentApp = 'user-settings'; }
-        else if (pathname.startsWith('/dashboard/settings')) { currentApp = 'whatsapp'; } // Treat Wachat settings as part of whatsapp
+        else if (pathname.startsWith('/dashboard/settings')) { currentApp = 'whatsapp'; } 
         setActiveApp(currentApp);
     }, [pathname]);
 
@@ -458,6 +469,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/dashboard' },
         { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
+        { id: 'ad-manager', href: '/dashboard/ad-manager', icon: Megaphone, label: 'Ad Manager' },
         { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
         { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM' },
         { id: 'sabflow', icon: GitFork, label: 'SabFlow', href: '/dashboard/sabflow' },
@@ -539,7 +551,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild tooltip="User Settings">
                             <Link href="/dashboard/user/settings">
-                                <Settings className="h-4 w-4" />
+                                <UserIcon className="h-4 w-4" />
                                 <span className="sr-only">Settings</span>
                             </Link>
                         </SidebarMenuButton>
@@ -611,7 +623,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                     {appRailPosition === 'left' && <AppRail />}
                     <Sidebar className={cn("hidden md:flex")}>
                         <SidebarHeader>
-                            {/* Can be used for project switcher */}
+                            <ProjectSwitcher />
                         </SidebarHeader>
                         <SidebarContent>
                         {activeApp === 'whatsapp' && (
@@ -619,6 +631,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 {wachatMenuItems.filter(item => item.roles.includes(currentUserRole) && !item.href.includes('[')).map((item) => (
                                     <SidebarItem key={item.href} item={item} />
                                 ))}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'ad-manager' && (
+                            <SidebarMenu>
+                                {adManagerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'sabchat' && (
