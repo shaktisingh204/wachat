@@ -3,8 +3,7 @@
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getProjects, getSession } from "@/app/actions/index.ts";
-import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
+import { getProjects } from "@/app/actions";
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
