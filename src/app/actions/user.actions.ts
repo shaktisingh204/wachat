@@ -102,7 +102,6 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             projectFilter.wabaId = { $exists: true, $ne: "" };
         } else if (type === 'facebook') {
             projectFilter.facebookPageId = { $exists: true, $ne: "" };
-            projectFilter.wabaId = { $exists: false };
         }
         
         console.log('[getProjects] Using filter:', JSON.stringify(projectFilter, null, 2));
@@ -274,7 +273,6 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     
     try {
         const { db } = await connectToDatabase();
-        const { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } = await import('@/app/actions/whatsapp.actions');
 
         let groupId: ObjectId | undefined;
         if(groupName) {
@@ -411,7 +409,7 @@ export async function getUsersForAdmin(
     page: number = 1,
     limit: number = 10,
     query?: string
-): Promise<{ users: WithId<User & { plan?: Plan }>[], total: number }> {
+): Promise<{ users: Omit<WithId<User>, 'password'>[], total: number }> {
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<User> = {};
@@ -424,29 +422,8 @@ export async function getUsersForAdmin(
         
         const skip = (page - 1) * limit;
         
-        const pipeline = [
-            { $match: filter },
-            { $sort: { createdAt: -1 } },
-            { $skip: skip },
-            { $limit: limit },
-            {
-                $lookup: {
-                    from: 'plans',
-                    localField: 'planId',
-                    foreignField: '_id',
-                    as: 'plan'
-                }
-            },
-            {
-                $unwind: { path: '$plan', preserveNullAndEmptyArrays: true }
-            },
-            {
-                $project: { password: 0 }
-            }
-        ];
-
         const [users, total] = await Promise.all([
-             db.collection('users').aggregate(pipeline).toArray(),
+             db.collection<User>('users').find(filter, { projection: { password: 0 } }).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
              db.collection('users').countDocuments(filter)
         ]);
 
