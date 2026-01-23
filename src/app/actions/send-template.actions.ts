@@ -87,7 +87,9 @@ export async function handleSendTemplateMessage(
                 else if (format === 'VIDEO') parameter = { type: 'video', video: { link: headerMediaUrl } };
                 else if (format === 'DOCUMENT') parameter = { type: 'document', document: { link: headerMediaUrl } };
             } else if (format === 'TEXT' && variables['variable_header_1']) {
-                parameter = { type: 'text', text: variables['variable_header_1'] };
+                const headerVar = (variables['variable_header_1'] as string || '').trim();
+                // Use a zero-width space if the variable is empty after trimming, as Meta API rejects empty strings.
+                parameter = { type: 'text', text: headerVar === '' ? '\u200B' : headerVar };
             }
             
             if (parameter) {
@@ -101,8 +103,9 @@ export async function handleSendTemplateMessage(
             const bodyVars = getVars(bodyText);
             if (bodyVars.length > 0) {
                 const parameters = bodyVars.sort((a,b) => a-b).map(varNum => {
-                    const varValue = variables[`variable_body_${varNum}`] as string || '';
-                    return { type: 'text', text: varValue };
+                    const varValue = (variables[`variable_body_${varNum}`] as string || '').trim();
+                    // Use a zero-width space if the variable is empty after trimming.
+                    return { type: 'text', text: varValue === '' ? '\u200B' : varValue };
                 });
                 payloadComponents.push({ type: 'body', parameters });
             }
@@ -112,11 +115,12 @@ export async function handleSendTemplateMessage(
         if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
             const buttonParams = buttonsComponent.buttons.map((button: any, index: number) => {
                 if (button.type === 'URL' && button.url && button.url.includes('{{1}}')) {
+                    const buttonVar = (variables['variable_button_1'] as string || '').trim();
                     return {
                         type: 'button',
                         sub_type: 'url',
                         index: index.toString(),
-                        parameters: [{ type: 'text', text: variables['variable_button_1'] || '' }]
+                        parameters: [{ type: 'text', text: buttonVar === '' ? '\u200B' : buttonVar }]
                     };
                 }
                 return null;
