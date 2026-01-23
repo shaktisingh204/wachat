@@ -42,6 +42,11 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
         const variants = variantsString ? JSON.parse(variantsString) : [];
         const batches = batchesString ? JSON.parse(batchesString) : [];
 
+        const stockInHand = parseInt(formData.get('stockInHand') as string, 10) || 0;
+        const committedStock = parseInt(formData.get('committedStock') as string, 10) || 0;
+        const reorderPoint = parseInt(formData.get('reorderPoint') as string, 10) || 0;
+        const overstockPoint = parseInt(formData.get('overstockPoint') as string, 10) || 0;
+
         const productData: Partial<Omit<EcommProduct, '_id' | 'createdAt'>> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
@@ -63,10 +68,10 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
             
             // Stock
             manageStock: formData.get('manageStock') === 'on',
-            stockInHand: parseInt(formData.get('stockInHand') as string, 10),
-            committedStock: parseInt(formData.get('committedStock') as string, 10),
-            reorderPoint: parseInt(formData.get('reorderPoint') as string, 10),
-            overstockPoint: parseInt(formData.get('overstockPoint') as string, 10),
+            stockInHand: stockInHand,
+            committedStock: committedStock,
+            reorderPoint: reorderPoint,
+            overstockPoint: overstockPoint,
             
             // Dimensions
             dimensions: {
@@ -111,7 +116,17 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
         } else {
             productData.createdAt = new Date();
             const warehouses = await db.collection('crm_warehouses').find({ userId: new ObjectId(session.user._id) }).toArray();
-            productData.inventory = warehouses.map(w => ({ warehouseId: w._id, stock: 0 }));
+            
+            const initialStock = productData.stockInHand || 0;
+            if (warehouses.length > 0) {
+                const defaultWarehouse = warehouses.find(w => w.isDefault) || warehouses[0];
+                productData.inventory = warehouses.map(w => ({ 
+                    warehouseId: w._id, 
+                    stock: w._id.equals(defaultWarehouse._id) ? initialStock : 0 
+                }));
+            } else {
+                productData.stock = initialStock;
+            }
 
             await db.collection('crm_products').insertOne(productData as EcommProduct);
         }
