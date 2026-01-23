@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -310,6 +311,14 @@ export async function handleCreateTemplate(
 
             if (!bodyText) return { error: 'Body text is required for standard templates.' };
             
+            const trimmedBody = bodyText.trim();
+            const variableAtStartRegex = /^{{\s*\d+\s*}}/;
+            const variableAtEndRegex = /{{\s*\d+\s*}}$/;
+
+            if (variableAtStartRegex.test(trimmedBody) || variableAtEndRegex.test(trimmedBody)) {
+                return { error: "Variables cannot be at the beginning or end of the template body. Please add text before and after any variables." };
+            }
+
             if (headerFormat !== 'NONE') {
                 const headerComponent: any = { type: 'HEADER', format: headerFormat };
                 if (headerFormat === 'TEXT') {
@@ -423,6 +432,13 @@ export async function handleBulkCreateTemplate(
         const headerText = cleanText(formData.get('headerText') as string);
         const headerSampleFile = formData.get('headerSampleFile') as File;
         
+        const trimmedBody = bodyText.trim();
+        const variableAtStartRegex = /^{{\s*\d+\s*}}/;
+        const variableAtEndRegex = /{{\s*\d+\s*}}$/;
+        if (bodyText && (variableAtStartRegex.test(trimmedBody) || variableAtEndRegex.test(trimmedBody))) {
+            return { error: "Variables cannot be at the beginning or end of the template body. Please add text before and after any variables." };
+        }
+
         const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
             ...button, text: cleanText(button.text), url: (button.url || '').trim(),
             phone_number: (button.phone_number || '').trim(),
