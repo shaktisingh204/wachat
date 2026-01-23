@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { getSession } from '@/app/actions/index.ts';
@@ -547,16 +548,33 @@ export async function generatePartyTransactionReport(partyId: string, partyType:
         const partyObjectId = new ObjectId(partyId);
 
         let transactions: any[] = [];
-        const dateFilter = (startDate || endDate) ? { 
-            date: { 
-                ...(startDate && { $gte: startDate }),
-                ...(endDate && { $lte: endDate })
-            }
-        } : {};
+        
+        // Correct date query construction
+        const dateQuery: any = {};
+        if (startDate) {
+            dateQuery.$gte = startDate;
+        }
+        if (endDate) {
+            const endOfDay = new Date(endDate);
+            endOfDay.setHours(23, 59, 59, 999);
+            dateQuery.$lte = endOfDay;
+        }
+        
+        const hasDateFilter = Object.keys(dateQuery).length > 0;
 
         if (partyType === 'customer') {
-            const invoices = await db.collection<CrmInvoice>('crm_invoices').find({ userId, accountId: partyObjectId, ...(dateFilter.date && { invoiceDate: dateFilter.date }) }).toArray();
-            const creditNotes = await db.collection<CrmCreditNote>('crm_credit_notes').find({ userId, accountId: partyObjectId, ...(dateFilter.date && { creditNoteDate: dateFilter.date }) }).toArray();
+            const invoiceFilter: Filter<CrmInvoice> = { userId, accountId: partyObjectId };
+            if (hasDateFilter) {
+                invoiceFilter.invoiceDate = dateQuery;
+            }
+
+            const creditNoteFilter: Filter<CrmCreditNote> = { userId, accountId: partyObjectId };
+            if (hasDateFilter) {
+                creditNoteFilter.creditNoteDate = dateQuery;
+            }
+
+            const invoices = await db.collection<CrmInvoice>('crm_invoices').find(invoiceFilter).toArray();
+            const creditNotes = await db.collection<CrmCreditNote>('crm_credit_notes').find(creditNoteFilter).toArray();
             
             invoices.forEach(inv => {
                 inv.lineItems.forEach(item => {
