@@ -9,11 +9,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Facebook } from 'lucide-react';
 import type { WithId, Project } from '@/lib/definitions';
 import { FacebookIcon } from './custom-sidebar-components';
 import { Button } from '../ui/button';
-import Link from 'next/link';
 
 interface PermissionErrorDialogProps {
   isOpen: boolean;
@@ -53,10 +52,10 @@ export function PermissionErrorDialog({ isOpen, onOpenChange, error, project, on
           </p>
           <div className="flex justify-center">
              <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
-                <Link href={`/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth`}>
+                <a href={`/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth`}>
                     <FacebookIcon className="mr-2 h-5 w-5" />
                     Re-authorize with Facebook
-                </Link>
+                </a>
             </Button>
           </div>
         </div>
