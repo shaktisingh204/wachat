@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -12,7 +10,8 @@ import { getErrorMessage } from '@/lib/utils';
 export async function getCrmAccounts(
     page: number = 1,
     limit: number = 20,
-    query?: string
+    query?: string,
+    status: 'active' | 'archived' | 'all' = 'active'
 ): Promise<{ accounts: WithId<CrmAccount>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { accounts: [], total: 0 };
@@ -21,7 +20,13 @@ export async function getCrmAccounts(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
         
-        const filter: Filter<CrmAccount> = { userId: userObjectId, status: { $ne: 'archived' } };
+        const filter: Filter<CrmAccount> = { userId: userObjectId };
+        if (status === 'active') {
+            filter.status = { $ne: 'archived' };
+        } else if (status === 'archived') {
+            filter.status = 'archived';
+        }
+
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
             filter.$or = [
@@ -157,6 +162,34 @@ export async function archiveCrmAccount(accountId: string): Promise<{ success: b
             return { success: false, error: 'Account not found or access denied.' };
         }
         
+        revalidatePath('/dashboard/crm/accounts');
+        revalidatePath('/dashboard/crm/sales/clients');
+        return { success: true };
+    } catch(e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+export async function unarchiveCrmAccount(accountId: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: "Access denied" };
+
+    if (!accountId || !ObjectId.isValid(accountId)) {
+        return { success: false, error: 'Invalid Account ID.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_accounts').updateOne(
+            { _id: new ObjectId(accountId), userId: new ObjectId(session.user._id) },
+            { $set: { status: 'active', updatedAt: new Date() } }
+        );
+
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'Account not found or access denied.' };
+        }
+
         revalidatePath('/dashboard/crm/accounts');
         revalidatePath('/dashboard/crm/sales/clients');
         return { success: true };
