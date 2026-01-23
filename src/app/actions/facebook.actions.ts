@@ -76,23 +76,18 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied." };
     
-    const appConfig = {
-        instagram: {
-            appId: process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID,
-            appSecret: process.env.INSTAGRAM_APP_SECRET
-        },
-        facebook: {
-            appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
-            appSecret: process.env.FACEBOOK_APP_SECRET
-        },
-        whatsapp: {
-            appId: process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID,
-            appSecret: process.env.META_ONBOARDING_APP_SECRET,
-        }
-    };
+    let appId, appSecret;
+    if (state === 'whatsapp') {
+        appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
+        appSecret = process.env.META_ONBOARDING_APP_SECRET;
+    } else if (state === 'instagram') {
+        appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID;
+        appSecret = process.env.INSTAGRAM_APP_SECRET;
+    } else { // 'facebook' and 'ad_manager'
+        appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+        appSecret = process.env.FACEBOOK_APP_SECRET;
+    }
     
-    const config = appConfig[state as keyof typeof appConfig] || appConfig.facebook;
-    const { appId, appSecret } = config;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!appUrl) {
@@ -122,7 +117,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         if (state === 'whatsapp') {
             await db.collection('users').updateOne(
                 { _id: new ObjectId(session.user._id) },
-                { $set: { facebookUserAccessToken: longLivedToken } }
+                { $set: { metaSuiteAccessToken: longLivedToken } }
             );
             const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
                 params: { access_token: longLivedToken }
@@ -151,7 +146,6 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                 return { success: false, error: "No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions." };
             }
 
-            // Await all project creation promises
             await Promise.all(
                 allWabas.map(async (waba) => {
                     await _createProjectFromWaba({
@@ -188,22 +182,9 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                 })
             )).filter(Boolean);
 
-             // Prepare a single update object for the user document
-             const userUpdateData: any = {
-                facebookUserAccessToken: longLivedToken,
-             };
-             
-             // Also sync ad accounts
-             const adAccountsResponse = await axios.get(`https://graph.facebook.com/v23.0/me/adaccounts`, { params: { access_token: longLivedToken, fields: 'id,name,account_id' }});
-             const adAccounts = adAccountsResponse.data?.data || [];
-             if (adAccounts.length > 0) {
-                 userUpdateData.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
-             }
-
-             // Update user with token and ad accounts in one go
              await db.collection('users').updateOne(
                 { _id: new ObjectId(session.user._id) },
-                { $set: userUpdateData }
+                { $set: { metaSuiteAccessToken: longLivedToken } }
             );
 
             const bulkOps = pagesWithTokens.map((page: any) => ({
@@ -226,8 +207,24 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
             let redirectPath = state === 'instagram' ? '/dashboard/instagram/connections' : '/dashboard/facebook/all-projects';
             revalidatePath('/dashboard/facebook/all-projects');
             revalidatePath('/dashboard/instagram/connections');
-            revalidatePath('/dashboard/ad-manager/ad-accounts');
             return { success: true, redirectPath };
+            
+        } else if (state === 'ad_manager') {
+            const userUpdateData: any = {
+                adManagerAccessToken: longLivedToken,
+            };
+            const adAccountsResponse = await axios.get(`https://graph.facebook.com/v23.0/me/adaccounts`, { params: { access_token: longLivedToken, fields: 'id,name,account_id' }});
+            const adAccounts = adAccountsResponse.data?.data || [];
+            if (adAccounts.length > 0) {
+                userUpdateData.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
+            }
+
+             await db.collection('users').updateOne(
+               { _id: new ObjectId(session.user._id) },
+               { $set: userUpdateData }
+           );
+           revalidatePath('/dashboard/ad-manager/ad-accounts');
+           return { success: true, redirectPath: '/dashboard/ad-manager/ad-accounts' };
         }
         
         return { success: false, error: 'Invalid state received during authentication.' };
@@ -295,7 +292,7 @@ export async function getFacebookPages(): Promise<{ pages?: FacebookPage[], erro
     const { db } = await connectToDatabase();
     const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
 
-    if (!user || !user.facebookUserAccessToken) {
+    if (!user || !user.metaSuiteAccessToken) {
         return { error: 'Facebook account not connected or user access token is missing. Please go to Project Connections and reconnect.' };
     }
 
@@ -303,7 +300,7 @@ export async function getFacebookPages(): Promise<{ pages?: FacebookPage[], erro
         const response = await axios.get(`https://graph.facebook.com/v23.0/me/accounts`, {
             params: {
                 fields: 'id,name,category,tasks',
-                access_token: user.facebookUserAccessToken,
+                access_token: user.metaSuiteAccessToken,
             }
         });
 
@@ -1545,8 +1542,3 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
-    
-
-    
-

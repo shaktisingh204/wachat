@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -30,9 +31,9 @@ export async function getAdAccounts(): Promise<{ accounts: any[], error?: string
 export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?: WithId<AdCampaign>[], error?: string }> {
     console.log(`${LOG_PREFIX} getAdCampaigns called for ad account: ${adAccountId}.`);
     const session = await getSession();
-    if (!session?.user?.facebookUserAccessToken) {
-        console.error(`${LOG_PREFIX} getAdCampaigns: Facebook account not connected.`);
-        return { campaigns: [], error: 'Facebook account not connected.' };
+    if (!session?.user?.adManagerAccessToken) {
+        console.error(`${LOG_PREFIX} getAdCampaigns: Ad Manager account not connected.`);
+        return { campaigns: [], error: 'Ad Manager account not connected.' };
     }
     
     if (!adAccountId) {
@@ -60,7 +61,7 @@ export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?:
             params: {
                 ids: adIds.join(','),
                 fields: 'status,insights{impressions, clicks, spend, ctr}',
-                access_token: session.user.facebookUserAccessToken
+                access_token: session.user.adManagerAccessToken
             }
         });
         
@@ -87,7 +88,7 @@ export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?:
 export async function getFacebookPagesForAdCreation(): Promise<{ pages?: FacebookPage[], error?: string }> {
     console.log(`${LOG_PREFIX} getFacebookPagesForAdCreation called.`);
     const session = await getSession();
-    if (!session?.user?.facebookUserAccessToken) {
+    if (!session?.user?.metaSuiteAccessToken) {
         console.error(`${LOG_PREFIX} getFacebookPagesForAdCreation: Facebook account not connected.`);
         return { error: 'Facebook account not connected.' };
     }
@@ -96,7 +97,7 @@ export async function getFacebookPagesForAdCreation(): Promise<{ pages?: Faceboo
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/accounts`, {
             params: {
                 fields: 'id,name',
-                access_token: session.user.facebookUserAccessToken,
+                access_token: session.user.metaSuiteAccessToken,
             }
         });
         if (response.data.error) {
@@ -115,12 +116,13 @@ export async function getFacebookPagesForAdCreation(): Promise<{ pages?: Faceboo
 export async function handleCreateAdCampaign(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     console.log(`${LOG_PREFIX} handleCreateAdCampaign started.`);
     const session = await getSession();
-    if (!session?.user?.facebookUserAccessToken) {
+    if (!session?.user?.adManagerAccessToken) {
         console.error(`${LOG_PREFIX} handleCreateAdCampaign: Authentication required.`);
-        return { error: 'Authentication required.' };
+        return { error: 'Ad Manager account not connected.' };
     }
 
-    const adAccountId = formData.get('adAccountId') as string;
+    const adAccountIdRaw = formData.get('adAccountId') as string;
+    const adAccountId = adAccountIdRaw.startsWith('act_') ? adAccountIdRaw : `act_${adAccountIdRaw}`;
     const facebookPageId = formData.get('facebookPageId') as string;
     const campaignName = formData.get('campaignName') as string;
     const dailyBudget = Number(formData.get('dailyBudget')) * 100;
@@ -139,7 +141,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         // Step 1: Create Campaign
         console.log(`${LOG_PREFIX} handleCreateAdCampaign: Step 1 - Creating campaign...`);
         const campaignResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/campaigns`, {
-            name: campaignName, objective: 'LINK_CLICKS', status: 'PAUSED', special_ad_categories: [], access_token: session.user.facebookUserAccessToken,
+            name: campaignName, objective: 'LINK_CLICKS', status: 'PAUSED', special_ad_categories: [], access_token: session.user.adManagerAccessToken,
         });
         const campaignId = campaignResponse.data.id;
         if (!campaignId) {
@@ -152,7 +154,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         console.log(`${LOG_PREFIX} handleCreateAdCampaign: Step 2 - Creating ad set...`);
         const adSetResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/adsets`, {
             name: `${campaignName} Ad Set`, campaign_id: campaignId, daily_budget: dailyBudget, billing_event: 'IMPRESSIONS', optimization_goal: 'LINK_CLICKS',
-            targeting: { geo_locations: { countries: ['IN'] }, age_min: 18 }, status: 'PAUSED', access_token: session.user.facebookUserAccessToken,
+            targeting: { geo_locations: { countries: ['IN'] }, age_min: 18 }, status: 'PAUSED', access_token: session.user.adManagerAccessToken,
         });
         const adSetId = adSetResponse.data.id;
         if (!adSetId) {
@@ -169,7 +171,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
                 page_id: facebookPageId,
                 link_data: { message: adMessage, link: destinationUrl, image_url: 'https://placehold.co/1200x628.png', call_to_action: { type: 'LEARN_MORE' } },
             },
-            access_token: session.user.facebookUserAccessToken,
+            access_token: session.user.adManagerAccessToken,
         });
         const creativeId = creativeResponse.data.id;
         if (!creativeId) {
@@ -182,7 +184,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         // Step 4: Create Ad
         console.log(`${LOG_PREFIX} handleCreateAdCampaign: Step 4 - Creating ad...`);
         const adResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/ads`, {
-            name: `${campaignName} Ad`, adset_id: adSetId, creative: { creative_id: creativeId }, status: 'PAUSED', access_token: session.user.facebookUserAccessToken,
+            name: `${campaignName} Ad`, adset_id: adSetId, creative: { creative_id: creativeId }, status: 'PAUSED', access_token: session.user.adManagerAccessToken,
         });
         const adId = adResponse.data.id;
         if (!adId) {
@@ -218,9 +220,9 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
 export async function getCustomAudiences(adAccountId: string): Promise<{ audiences?: CustomAudience[], error?: string }> {
     console.log(`${LOG_PREFIX} getCustomAudiences called for ad account: ${adAccountId}.`);
     const session = await getSession();
-    if (!session?.user?.facebookUserAccessToken) {
-        console.error(`${LOG_PREFIX} getCustomAudiences: Facebook account not connected.`);
-        return { error: 'Facebook account not connected.' };
+    if (!session?.user?.adManagerAccessToken) {
+        console.error(`${LOG_PREFIX} getCustomAudiences: Ad Manager account not connected.`);
+        return { error: 'Ad Manager account not connected.' };
     }
     
     if (!adAccountId) {
@@ -232,7 +234,7 @@ export async function getCustomAudiences(adAccountId: string): Promise<{ audienc
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/customaudiences`, {
              params: {
                 fields: 'id,name,description,approximate_count_lower_bound,delivery_status,operation_status,time_updated',
-                access_token: session.user.facebookUserAccessToken,
+                access_token: session.user.adManagerAccessToken,
             }
         });
 
