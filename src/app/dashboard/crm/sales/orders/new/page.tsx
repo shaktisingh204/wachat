@@ -157,7 +157,7 @@ export default function NewSalesOrderPage() {
                                 </div>
                                 <div>
                                      <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1"><Label htmlFor="orderNumber">Order #</Label><Input id="orderNumber" name="orderNumber" defaultValue="SO-0001" className="h-8" maxLength={50}/></div>
+                                        <div className="space-y-1"><Label htmlFor="orderNumber">Order #</Label><Input id="orderNumber" name="orderNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50}/></div>
                                         <div className="space-y-1"><Label className="text-xs">Order Date *</Label><DatePicker date={orderDate} setDate={setOrderDate} /></div>
                                     </div>
                                     <div className="mt-2 space-y-1"><Label className="text-xs">Expected Delivery Date</Label><DatePicker date={deliveryDate} setDate={setDeliveryDate} /></div>
