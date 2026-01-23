@@ -164,8 +164,8 @@ export default function NewCreditNotePage() {
                             </section>
 
                             <section className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs">Credit Note No.</Label><Input name="creditNoteNumber" defaultValue="CN-00001" className="h-8" maxLength={50} /></div>
-                                <div className="space-y-1"><Label className="text-xs">Credit Note Date</Label><DatePicker date={creditNoteDate} setDate={setCreditNoteDate} className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Credit Note No.</Label><Input name="creditNoteNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
+                                <div className="space-y-1"><Label className="text-xs">Credit Note Date *</Label><DatePicker date={creditNoteDate} setDate={setCreditNoteDate} className="h-8"/></div>
                                  <div className="space-y-1"><Label className="text-xs">Original Invoice No.</Label><Input name="originalInvoiceNumber" className="h-8" maxLength={50} /></div>
                             </section>
                             

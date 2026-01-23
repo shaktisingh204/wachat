@@ -8,6 +8,32 @@ import { getSession } from '@/app/actions/index.ts';
 import type { CrmCreditNote } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
+async function getNextCreditNoteNumber(db: Db, userId: ObjectId): Promise<string> {
+    const lastNote = await db.collection<CrmCreditNote>('crm_credit_notes')
+        .find({ userId })
+        .sort({ createdAt: -1 })
+        .limit(1)
+        .toArray();
+
+    if (lastNote.length === 0) {
+        return 'CN-00001';
+    }
+
+    const lastNumber = lastNote[0].creditNoteNumber;
+    const matches = lastNumber.match(/^(.*?)(\d+)$/);
+
+    if (matches && matches.length === 3) {
+        const prefix = matches[1];
+        const numPart = parseInt(matches[2], 10);
+        const newNum = numPart + 1;
+        const paddedNum = String(newNum).padStart(matches[2].length, '0');
+        return `${prefix}${paddedNum}`;
+    }
+
+    // Fallback for unexpected formats
+    return `CN-${Date.now().toString().slice(-5)}`;
+}
+
 export async function getCreditNotes(
     page: number = 1,
     limit: number = 20,
@@ -49,13 +75,26 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
     if (!session?.user) return { error: 'Access denied' };
 
     try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        
+        let creditNoteNumber = formData.get('creditNoteNumber') as string;
+        if (!creditNoteNumber) {
+            creditNoteNumber = await getNextCreditNoteNumber(db, userObjectId);
+        }
+        
+        const existing = await db.collection('crm_credit_notes').findOne({ userId: userObjectId, creditNoteNumber });
+        if (existing) {
+             creditNoteNumber = await getNextCreditNoteNumber(db, userObjectId);
+        }
+
         const lineItems = JSON.parse(formData.get('lineItems') as string || '[]');
         const total = lineItems.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
 
         const creditNoteData: Omit<CrmCreditNote, '_id' | 'createdAt' | 'updatedAt'> = {
-            userId: new ObjectId(session.user._id),
+            userId: userObjectId,
             accountId: new ObjectId(formData.get('accountId') as string),
-            creditNoteNumber: formData.get('creditNoteNumber') as string,
+            creditNoteNumber: creditNoteNumber,
             creditNoteDate: new Date(formData.get('creditNoteDate') as string),
             originalInvoiceNumber: formData.get('originalInvoiceNumber') as string | undefined,
             lineItems: lineItems,
@@ -68,7 +107,6 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
             return { error: 'Credit note number, client, and at least one item are required.' };
         }
 
-        const { db } = await connectToDatabase();
         await db.collection('crm_credit_notes').insertOne({
             ...creditNoteData,
             createdAt: new Date(),
