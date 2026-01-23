@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
@@ -70,8 +69,18 @@ export default function AllFacebookPagesPage() {
 
     const fetchData = useCallback(() => {
         startLoading(async () => {
-            const result = await getProjects(undefined, 'facebook');
-            setProjects(result?.projects || []);
+            try {
+                const result = await getProjects(undefined, 'facebook');
+                if (result && Array.isArray(result.projects)) {
+                    setProjects(result.projects);
+                } else {
+                    console.warn("[AllFacebookPagesPage] getProjects did not return the expected structure. Got:", result);
+                    setProjects([]);
+                }
+            } catch (error) {
+                console.error("[AllFacebookPagesPage] Failed to fetch projects:", error);
+                setProjects([]);
+            }
         });
     }, []);
 
