@@ -1,10 +1,10 @@
 
-
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getProjects } from "@/app/actions";
+import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -72,7 +72,15 @@ export default function AllFacebookPagesPage() {
     const fetchData = useCallback(() => {
         startLoading(async () => {
             const { projects: facebookProjects } = await getProjects(undefined, 'facebook');
-            setProjects(facebookProjects || []);
+            
+            // Correctly fetch IG info without filtering out projects
+            const projectsWithIg = await Promise.all(
+                facebookProjects.map(async (p) => {
+                    const { instagramAccount } = await getInstagramAccountForPage(p._id.toString());
+                    return { ...p, instagramProfile: instagramAccount || null };
+                })
+            );
+            setProjects(projectsWithIg);
         });
     }, []);
 
