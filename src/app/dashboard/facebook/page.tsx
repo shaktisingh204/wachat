@@ -295,7 +295,7 @@ export default function FacebookDashboardPage() {
 
                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <StatCard title="Followers" value={pageDetails.followers_count || 0} icon={Users} description="+20.1% from last month"/>
-                    <StatCard title="Likes" value={pageDetails.fan_count || 0} icon={ThumbsUp} description="+180.1% from last month"/>
+                    <StatCard title="Post Engagements" value={insights?.postEngagement || 0} icon={ThumbsUp} description="Reactions, comments & shares" />
                     <StatCard title="Posts" value={posts.length} icon={Newspaper} description="Total posts on page"/>
                     <RadialChartCard value={engagementRate} label="Engagement Rate" description="Daily engagement / daily reach"/>
                 </div>
@@ -314,7 +314,7 @@ export default function FacebookDashboardPage() {
                         <Card><CardContent className="p-3 space-y-2">
                            {[
                                 { href: '/dashboard/facebook/posts', title: 'Manage Posts', icon: Newspaper },
-                                { href: '/dashboard/facebook/ads', title: 'Ads Manager', icon: Megaphone },
+                                { href: '/dashboard/ad-manager', title: 'Ads Manager', icon: Megaphone },
                                 { href: '/dashboard/facebook/messages', title: 'Live Chat', icon: MessageSquare },
                                 { href: '/dashboard/facebook/settings', title: 'Settings', icon: Settings }
                            ].map(link => <Button key={link.href} variant="ghost" className="w-full justify-start" asChild><Link href={link.href}><link.icon className="mr-2 h-4 w-4"/>{link.title}</Link></Button>)}
