@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -75,13 +75,13 @@ export default function RecordPaymentPage() {
 
     useEffect(() => {
         if (state.message) {
-            toast({ title: "Success", description: state.message });
+            toast({ title: "Success!", description: state.message });
             router.push('/dashboard/crm/sales/receipts');
         }
         if (state.error) {
             toast({ title: "Error", description: state.error, variant: 'destructive' });
         }
-    }, [state, toast, router]);
+    }, [state, router, toast]);
 
     const fetchInvoices = async (accountId: string) => {
         if (!accountId) return;
@@ -105,17 +105,42 @@ export default function RecordPaymentPage() {
     };
 
     const handleRecordChange = (id: string, field: keyof PaymentRecord, value: any) => {
-        setPaymentRecords(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
+        setPaymentRecords(prev =>
+            prev.map(r => {
+                if (r.id === id) {
+                    let processedValue = value;
+                    if (field === 'amount') {
+                        const amount = parseFloat(value);
+                        processedValue = isNaN(amount) ? 0 : amount;
+                    }
+                    return { ...r, [field]: processedValue };
+                }
+                return r;
+            })
+        );
     };
 
-    const handleSettlementChange = (invoiceId: string, amount: number) => {
+    const handleSettlementChange = (invoiceId: string, value: string) => {
+        const amount = parseFloat(value);
+        const settledAmount = isNaN(amount) ? 0 : amount;
+
         setSettledInvoices(prev => {
-            const existing = prev.find(s => s.invoiceId === invoiceId);
-            if (existing) {
-                return prev.map(s => s.invoiceId === invoiceId ? { ...s, amountSettled: amount } : s);
-            } else {
-                return [...prev, { invoiceId, amountSettled: amount }];
+            const existingIndex = prev.findIndex(item => item.invoiceId === invoiceId);
+            
+            if (settledAmount <= 0) {
+                if (existingIndex > -1) {
+                    return prev.filter((_, index) => index !== existingIndex);
+                }
+                return prev; // Nothing to remove
             }
+            
+            if (existingIndex > -1) {
+                const updated = [...prev];
+                updated[existingIndex].amountSettled = settledAmount;
+                return updated;
+            }
+
+            return [...prev, { invoiceId, amountSettled }];
         });
     };
     
@@ -131,6 +156,7 @@ export default function RecordPaymentPage() {
             <input type="hidden" name="currency" value={currency} />
             <input type="hidden" name="paymentRecords" value={JSON.stringify(paymentRecords)} />
             <input type="hidden" name="settledInvoices" value={JSON.stringify(settledInvoices)} />
+            <input type="hidden" name="notes" value={(document.getElementById('notes') as HTMLTextAreaElement)?.value || ''} />
 
             <div className="max-w-4xl mx-auto space-y-6">
                 <div className="flex justify-between items-center">
@@ -184,7 +210,7 @@ export default function RecordPaymentPage() {
                                     {paymentRecords.map((record, index) => (
                                         <div key={record.id} className="p-3 border rounded-lg space-y-3 relative bg-muted/50">
                                             <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemovePaymentRecord(record.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                                            <div className="grid md:grid-cols-2 gap-4"><div className="space-y-1.5"><Label>Amount *</Label><Input type="number" value={record.amount} onChange={(e) => handleRecordChange(record.id, 'amount', Number(e.target.value))}/></div><div className="space-y-1.5"><Label>Payment Date *</Label><DatePicker date={record.date} setDate={(d) => handleRecordChange(record.id, 'date', d)}/></div></div>
+                                            <div className="grid md:grid-cols-2 gap-4"><div className="space-y-1.5"><Label>Amount *</Label><Input type="number" value={record.amount} onChange={(e) => handleRecordChange(record.id, 'amount', e.target.value)}/></div><div className="space-y-1.5"><Label>Payment Date *</Label><DatePicker date={record.date} setDate={(d) => handleRecordChange(record.id, 'date', d)}/></div></div>
                                             <div className="space-y-1.5"><Label>Mode *</Label><Select value={record.mode} onValueChange={(v) => handleRecordChange(record.id, 'mode', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Bank Transfer">Bank Transfer</SelectItem><SelectItem value="Cash">Cash</SelectItem><SelectItem value="Cheque">Cheque</SelectItem></SelectContent></Select></div>
                                             <div className="space-y-1.5"><Label>Reference # (Optional)</Label><Input value={record.reference || ''} onChange={(e) => handleRecordChange(record.id, 'reference', e.target.value)} maxLength={100} /></div>
                                         </div>
@@ -214,7 +240,7 @@ export default function RecordPaymentPage() {
                                             {unpaidInvoices.map(invoice => (
                                                  <div key={invoice._id.toString()} className="flex items-center gap-2 p-2 border rounded-md">
                                                     <div className="flex-1 space-y-1"><p className="font-medium text-sm">{invoice.invoiceNumber}</p><p className="text-xs text-muted-foreground">Due: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(invoice.total)}</p></div>
-                                                    <Input type="number" placeholder="Settle Amount" className="w-32" max={invoice.total} onChange={(e) => handleSettlementChange(invoice._id.toString(), Number(e.target.value))} />
+                                                    <Input type="number" placeholder="Settle Amount" className="w-32" max={invoice.total} onChange={(e) => handleSettlementChange(invoice._id.toString(), e.target.value)} />
                                                 </div>
                                             ))}
                                         </div>
@@ -226,8 +252,8 @@ export default function RecordPaymentPage() {
                                         </Alert>
                                     )}
                                     <div className="space-y-2">
-                                        <Label>Notes (Optional)</Label>
-                                        <Textarea name="notes" placeholder="e.g. Received via GPay" maxLength={500}/>
+                                        <Label htmlFor="notes">Notes (Optional)</Label>
+                                        <Textarea id="notes" name="notes" placeholder="e.g. Received via GPay" maxLength={500}/>
                                     </div>
                                 </CardContent>
                                 <CardFooter className="justify-between">
