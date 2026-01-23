@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import axios from 'axios';
 import { ObjectId, type WithId } from 'mongodb';
 import FormData from 'form-data';
+import { cookies } from 'next/headers';
 
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -75,6 +76,20 @@ export async function handleFacebookPageSetup(data: {
 export async function handleFacebookOAuthCallback(code: string, state: string): Promise<{ success: boolean; error?: string, redirectPath?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied." };
+    
+    const cookieStore = cookies();
+    const stateCookieJSON = cookieStore.get('onboarding_state')?.value;
+    if (!stateCookieJSON) {
+        return { success: false, error: "Onboarding session expired or cookies are disabled. Please try again." };
+    }
+    
+    const stateCookie = JSON.parse(stateCookieJSON);
+    if (state !== stateCookie.state) {
+        console.error(`[OAuth Callback] State mismatch. URL: ${state}, Cookie: ${stateCookie.state}`);
+        return { success: false, error: 'Invalid state received during authentication.' };
+    }
+    
+    cookieStore.delete('onboarding_state');
     
     let appId, appSecret;
     if (state === 'whatsapp') {
@@ -160,34 +175,21 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
             revalidatePath('/dashboard');
             return { success: true, redirectPath: '/dashboard' };
 
-        } else if (state === 'facebook' || state === 'instagram') {
+        } else if (state === 'facebook' || state === 'instagram' || state === 'facebook_reauth') {
              const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', { 
-                params: { fields: 'id,name,access_token', access_token: longLivedToken }
+                params: { fields: 'id,name,access_token,tasks', access_token: longLivedToken }
             });
-            const userPagesWithShortTokens = pagesResponse.data?.data;
-            if (!userPagesWithShortTokens || userPagesWithShortTokens.length === 0) {
+            const userPagesWithTokens = pagesResponse.data?.data;
+            if (!userPagesWithTokens || userPagesWithTokens.length === 0) {
                  return { success: false, error: 'No manageable Facebook Pages found. Please ensure you granted access to at least one page.' };
             }
-            
-            const pagesWithTokens = (await Promise.all(
-                userPagesWithShortTokens.map(async (page: any) => {
-                    try {
-                        const pageTokenResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
-                            params: { grant_type: 'fb_exchange_token', client_id: appId, client_secret: appSecret, fb_exchange_token: page.access_token }
-                        });
-                        return { ...page, access_token: pageTokenResponse.data.access_token };
-                    } catch (e) {
-                        return null;
-                    }
-                })
-            )).filter(Boolean);
 
-             await db.collection('users').updateOne(
+            await db.collection('users').updateOne(
                 { _id: new ObjectId(session.user._id) },
                 { $set: { metaSuiteAccessToken: longLivedToken } }
             );
 
-            const bulkOps = pagesWithTokens.map((page: any) => ({
+            const bulkOps = userPagesWithTokens.map((page: any) => ({
                 updateOne: {
                     filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
                     update: {
@@ -200,7 +202,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
             if (bulkOps.length > 0) {
                 await db.collection('projects').bulkWrite(bulkOps);
             }
-            for (const page of pagesWithTokens) {
+            for (const page of userPagesWithTokens) {
                 await handleSubscribeFacebookPageWebhook(page.id, page.access_token);
             }
             
@@ -1384,7 +1386,7 @@ export async function saveFacebookKanbanStatuses(projectId: string, statuses: st
     }
 }
 
-export async function getInstagramAccountForPage(projectId: string): Promise<{ instagramId?: string; error?: string }> {
+export async function getInstagramAccountForPage(projectId: string): Promise<{ instagramAccount?: any; error?: string }> {
     const project = await getProjectById(projectId);
     if (!project || !project.facebookPageId || !project.accessToken) {
         return { error: 'Project not found or is not configured for Facebook.' };
@@ -1393,7 +1395,7 @@ export async function getInstagramAccountForPage(projectId: string): Promise<{ i
     try {
         const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}`, {
             params: {
-                fields: 'instagram_business_account',
+                fields: 'instagram_business_account{name,username,profile_picture_url,followers_count,media_count,id}',
                 access_token: project.accessToken,
             }
         });
@@ -1402,8 +1404,8 @@ export async function getInstagramAccountForPage(projectId: string): Promise<{ i
             throw new Error(getErrorMessage({ response }));
         }
 
-        const instagramId = response.data.instagram_business_account?.id;
-        return { instagramId };
+        const instagramAccount = response.data.instagram_business_account;
+        return { instagramAccount };
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };
