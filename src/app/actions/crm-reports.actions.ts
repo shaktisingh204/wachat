@@ -402,12 +402,12 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
         let uniqueProductCount = 0;
 
         for (const product of products) {
-            const buyingPrice = product.buyingPrice || 0;
+            const valuationPrice = product.buyingPrice || product.price || 0;
             let productHasStock = false;
             if (product.inventory && product.inventory.length > 0) {
                 for (const inv of product.inventory) {
                     if (inv.stock > 0) {
-                        const stockValue = inv.stock * buyingPrice;
+                        const stockValue = inv.stock * valuationPrice;
                         reportData.push({
                             productId: product._id.toString(),
                             productName: product.name,
@@ -415,7 +415,7 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
                             warehouseId: inv.warehouseId.toString(),
                             warehouseName: warehouseMap.get(inv.warehouseId.toString()) || 'Unknown',
                             stock: inv.stock,
-                            buyingPrice,
+                            unitCost: valuationPrice,
                             stockValue,
                         });
                         totalValue += stockValue;
@@ -425,14 +425,14 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
                 }
             } else if ((product.stock || 0) > 0) {
                 // Fallback for legacy stock field
-                const stockValue = (product.stock || 0) * buyingPrice;
+                const stockValue = (product.stock || 0) * valuationPrice;
                 reportData.push({
                     productId: product._id.toString(),
                     productName: product.name,
                     sku: product.sku,
                     warehouseName: 'Default',
                     stock: product.stock,
-                    buyingPrice,
+                    unitCost: valuationPrice,
                     stockValue,
                 });
                 totalValue += stockValue;
@@ -555,8 +555,8 @@ export async function generatePartyTransactionReport(partyId: string, partyType:
         } : {};
 
         if (partyType === 'customer') {
-            const invoices = await db.collection<CrmInvoice>('crm_invoices').find({ userId, accountId: partyObjectId, ...dateFilter }).toArray();
-            const creditNotes = await db.collection<CrmCreditNote>('crm_credit_notes').find({ userId, accountId: partyObjectId, ...dateFilter }).toArray();
+            const invoices = await db.collection<CrmInvoice>('crm_invoices').find({ userId, accountId: partyObjectId, ...(dateFilter.date && { invoiceDate: dateFilter.date }) }).toArray();
+            const creditNotes = await db.collection<CrmCreditNote>('crm_credit_notes').find({ userId, accountId: partyObjectId, ...(dateFilter.date && { creditNoteDate: dateFilter.date }) }).toArray();
             
             invoices.forEach(inv => {
                 inv.lineItems.forEach(item => {
@@ -650,4 +650,6 @@ export async function generateAllTransactionsReport(filters: {
         return { data: [], error: 'Failed to generate report.' };
     }
 }
+    
+
     

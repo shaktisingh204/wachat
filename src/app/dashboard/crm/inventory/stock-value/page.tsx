@@ -59,7 +59,7 @@ export default function StockValueReportPage() {
             "SKU": d.sku,
             "Warehouse": d.warehouseName,
             "Stock Quantity": d.stock,
-            "Unit Cost": d.buyingPrice.toFixed(2),
+            "Unit Cost": d.unitCost.toFixed(2),
             "Stock Value": d.stockValue.toFixed(2),
         })));
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -120,7 +120,7 @@ export default function StockValueReportPage() {
                                             </TableCell>
                                             <TableCell>{item.warehouseName}</TableCell>
                                             <TableCell className="text-right font-medium">{item.stock}</TableCell>
-                                            <TableCell className="text-right font-mono">{formatCurrency(item.buyingPrice)}</TableCell>
+                                            <TableCell className="text-right font-mono">{formatCurrency(item.unitCost)}</TableCell>
                                             <TableCell className="text-right font-bold">{formatCurrency(item.stockValue)}</TableCell>
                                         </TableRow>
                                     ))
@@ -132,9 +132,11 @@ export default function StockValueReportPage() {
                     </div>
                 </CardContent>
                  <CardFooter>
-                    <p className="text-xs text-muted-foreground">This report is based on the 'Buying Price' set for each product.</p>
+                    <p className="text-xs text-muted-foreground">This report is based on the 'Buying Price' (cost) set for each product. If cost is not set, it falls back to the 'Selling Price'.</p>
                 </CardFooter>
             </Card>
         </div>
     );
 }
+
+    
