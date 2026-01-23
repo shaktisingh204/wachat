@@ -2,7 +2,7 @@
 'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import { connectToDatabase } from "@/lib/mongodb";
 import type { Db, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
 import { handleCallWebhook } from '@/lib/call-webhook-processor';
@@ -155,5 +155,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: 'error' }, { status: 200 });
   }
 }
-
-    

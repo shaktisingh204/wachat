@@ -94,13 +94,7 @@ async function processWebhooks() {
         
         const promises = [];
         if (groups.statuses.length > 0) promises.push(processStatusUpdateBatch(db, groups.statuses));
-        if (groups.messages.length > 0) {
-             for (const msgData of groups.messages) {
-                if (msgData.message && msgData.phoneNumberId) {
-                    promises.push(handleSingleMessageEvent(db, project, msgData.message, msgData.contactProfile, msgData.phoneNumberId));
-                }
-            }
-        }
+        // Messages are now handled sequentially after this block
         if (groups.comments.length > 0) promises.push(...groups.comments.map(c => processCommentWebhook(db, project, c)));
         if (groups.messengerEvents.length > 0) promises.push(...groups.messengerEvents.map(e => processMessengerWebhook(db, project, e)));
         if (groups.paymentConfigUpdates.length > 0) {
@@ -108,7 +102,21 @@ async function processWebhooks() {
         }
         if (groups.others.length > 0) promises.push(...groups.others.map(o => processSingleWebhook(db, project, o)));
         
+        // Run all non-conflicting promises in parallel first
         await Promise.allSettled(promises);
+        
+        // Now, process incoming messages sequentially for this project to avoid race conditions on contact creation
+        if (groups.messages.length > 0) {
+            for (const msgData of groups.messages) {
+                if (msgData.message && msgData.phoneNumberId) {
+                   try {
+                        await handleSingleMessageEvent(db, project, msgData.message, msgData.contactProfile, msgData.phoneNumberId);
+                   } catch (err: any) {
+                        console.error(`[WEBHOOK-PROCESSOR] Error processing a message for project ${projectId}:`, err.message);
+                   }
+                }
+            }
+        }
     });
     
     await Promise.allSettled(processingPromises);
