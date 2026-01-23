@@ -11,21 +11,34 @@ import { getSession } from '@/app/actions/index.ts';
 import type { AdCampaign, Project, CustomAudience, User, FacebookPage } from '@/lib/definitions';
 
 const API_VERSION = 'v23.0';
+const LOG_PREFIX = '[AD_MANAGER]'; // Define a prefix for logs
 
 export async function getAdAccounts(): Promise<{ accounts: any[], error?: string }> {
+    console.log(`${LOG_PREFIX} getAdAccounts called.`);
     const session = await getSession();
-    if (!session?.user) return { accounts: [], error: 'Authentication required.' };
+    if (!session?.user) {
+        console.error(`${LOG_PREFIX} getAdAccounts: Authentication required.`);
+        return { accounts: [], error: 'Authentication required.' };
+    }
     
-    // Ad accounts are now stored on the user object
-    return { accounts: session.user.metaAdAccounts || [] };
+    const adAccounts = session.user.metaAdAccounts || [];
+    console.log(`${LOG_PREFIX} getAdAccounts: Found ${adAccounts.length} ad accounts for user ${session.user._id}.`);
+    return { accounts: adAccounts };
 }
 
 
 export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?: WithId<AdCampaign>[], error?: string }> {
+    console.log(`${LOG_PREFIX} getAdCampaigns called for ad account: ${adAccountId}.`);
     const session = await getSession();
-    if (!session?.user?.facebookUserAccessToken) return { campaigns: [], error: 'Facebook account not connected.' };
+    if (!session?.user?.facebookUserAccessToken) {
+        console.error(`${LOG_PREFIX} getAdCampaigns: Facebook account not connected.`);
+        return { campaigns: [], error: 'Facebook account not connected.' };
+    }
     
-    if (!adAccountId) return { campaigns: [] };
+    if (!adAccountId) {
+        console.log(`${LOG_PREFIX} getAdCampaigns: No ad account ID provided.`);
+        return { campaigns: [] };
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -33,12 +46,15 @@ export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?:
             .find({ adAccountId: adAccountId, userId: new ObjectId(session.user._id) })
             .sort({ createdAt: -1 })
             .toArray();
+        
+        console.log(`${LOG_PREFIX} getAdCampaigns: Found ${localCampaigns.length} local campaigns.`);
             
         if (localCampaigns.length === 0) {
             return { campaigns: [] };
         }
 
         const adIds = localCampaigns.map(c => c.metaAdId);
+        console.log(`${LOG_PREFIX} getAdCampaigns: Fetching insights for Meta Ad IDs:`, adIds.join(','));
         
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}`, {
             params: {
@@ -48,9 +64,13 @@ export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?:
             }
         });
         
-        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        if (response.data.error) {
+            console.error(`${LOG_PREFIX} getAdCampaigns: Graph API error`, response.data.error);
+            throw new Error(getErrorMessage({ response }));
+        }
         
         const metaData = response.data;
+        console.log(`${LOG_PREFIX} getAdCampaigns: Successfully fetched insights from Meta.`);
 
         const combinedData = localCampaigns.map(campaign => {
             const metaAd = metaData[campaign.metaAdId];
@@ -59,14 +79,18 @@ export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?:
 
         return { campaigns: JSON.parse(JSON.stringify(combinedData)) };
     } catch (e) {
-        console.error("Failed to fetch ad campaigns with insights:", getErrorMessage(e));
+        console.error(`${LOG_PREFIX} Failed to fetch ad campaigns with insights:`, getErrorMessage(e));
         return { error: getErrorMessage(e) };
     }
 }
 
 export async function getFacebookPagesForAdCreation(): Promise<{ pages?: FacebookPage[], error?: string }> {
+    console.log(`${LOG_PREFIX} getFacebookPagesForAdCreation called.`);
     const session = await getSession();
-    if (!session?.user?.facebookUserAccessToken) return { error: 'Facebook account not connected.' };
+    if (!session?.user?.facebookUserAccessToken) {
+        console.error(`${LOG_PREFIX} getFacebookPagesForAdCreation: Facebook account not connected.`);
+        return { error: 'Facebook account not connected.' };
+    }
     
     try {
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/accounts`, {
@@ -75,17 +99,26 @@ export async function getFacebookPagesForAdCreation(): Promise<{ pages?: Faceboo
                 access_token: session.user.facebookUserAccessToken,
             }
         });
-        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        if (response.data.error) {
+            console.error(`${LOG_PREFIX} getFacebookPagesForAdCreation: Graph API error`, response.data.error);
+            throw new Error(getErrorMessage({ response }));
+        }
+        console.log(`${LOG_PREFIX} getFacebookPagesForAdCreation: Found ${response.data.data?.length || 0} pages.`);
         return { pages: response.data.data || [] };
     } catch (e: any) {
+        console.error(`${LOG_PREFIX} Failed to get Facebook pages for ad creation:`, getErrorMessage(e));
         return { error: getErrorMessage(e) };
     }
 }
 
 
 export async function handleCreateAdCampaign(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    console.log(`${LOG_PREFIX} handleCreateAdCampaign started.`);
     const session = await getSession();
-    if (!session?.user?.facebookUserAccessToken) return { error: 'Authentication required.' };
+    if (!session?.user?.facebookUserAccessToken) {
+        console.error(`${LOG_PREFIX} handleCreateAdCampaign: Authentication required.`);
+        return { error: 'Authentication required.' };
+    }
 
     const adAccountId = formData.get('adAccountId') as string;
     const facebookPageId = formData.get('facebookPageId') as string;
@@ -95,28 +128,41 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
     const destinationUrl = formData.get('destinationUrl') as string;
 
     if (!adAccountId || !facebookPageId || !campaignName || isNaN(dailyBudget) || !adMessage || !destinationUrl) {
+        console.error(`${LOG_PREFIX} handleCreateAdCampaign: Missing required fields.`);
         return { error: 'All fields are required.' };
     }
-
+    
+    console.log(`${LOG_PREFIX} handleCreateAdCampaign: Data validated.`, { adAccountId, facebookPageId, campaignName });
     const { db } = await connectToDatabase();
 
     try {
         // Step 1: Create Campaign
+        console.log(`${LOG_PREFIX} handleCreateAdCampaign: Step 1 - Creating campaign...`);
         const campaignResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/campaigns`, {
             name: campaignName, objective: 'LINK_CLICKS', status: 'PAUSED', special_ad_categories: [], access_token: session.user.facebookUserAccessToken,
         });
         const campaignId = campaignResponse.data.id;
-        if (!campaignId) throw new Error('Failed to create campaign.');
+        if (!campaignId) {
+            console.error(`${LOG_PREFIX} handleCreateAdCampaign: Failed to create campaign.`, campaignResponse.data);
+            throw new Error('Failed to create campaign.');
+        }
+        console.log(`${LOG_PREFIX} handleCreateAdCampaign: Campaign created with ID: ${campaignId}`);
 
         // Step 2: Create Ad Set
+        console.log(`${LOG_PREFIX} handleCreateAdCampaign: Step 2 - Creating ad set...`);
         const adSetResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/adsets`, {
             name: `${campaignName} Ad Set`, campaign_id: campaignId, daily_budget: dailyBudget, billing_event: 'IMPRESSIONS', optimization_goal: 'LINK_CLICKS',
             targeting: { geo_locations: { countries: ['IN'] }, age_min: 18 }, status: 'PAUSED', access_token: session.user.facebookUserAccessToken,
         });
         const adSetId = adSetResponse.data.id;
-        if (!adSetId) throw new Error('Failed to create ad set.');
+        if (!adSetId) {
+            console.error(`${LOG_PREFIX} handleCreateAdCampaign: Failed to create ad set.`, adSetResponse.data);
+            throw new Error('Failed to create ad set.');
+        }
+        console.log(`${LOG_PREFIX} handleCreateAdCampaign: Ad set created with ID: ${adSetId}`);
         
         // Step 3: Create Ad Creative
+        console.log(`${LOG_PREFIX} handleCreateAdCampaign: Step 3 - Creating ad creative...`);
         const creativeResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/adcreatives`, {
             name: `${campaignName} Ad Creative`,
             object_story_spec: {
@@ -126,14 +172,24 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
             access_token: session.user.facebookUserAccessToken,
         });
         const creativeId = creativeResponse.data.id;
-        if (!creativeId) throw new Error('Failed to create ad creative.');
+        if (!creativeId) {
+            console.error(`${LOG_PREFIX} handleCreateAdCampaign: Failed to create ad creative.`, creativeResponse.data);
+            throw new Error('Failed to create ad creative.');
+        }
+        console.log(`${LOG_PREFIX} handleCreateAdCampaign: Ad creative created with ID: ${creativeId}`);
+
 
         // Step 4: Create Ad
+        console.log(`${LOG_PREFIX} handleCreateAdCampaign: Step 4 - Creating ad...`);
         const adResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/ads`, {
             name: `${campaignName} Ad`, adset_id: adSetId, creative: { creative_id: creativeId }, status: 'PAUSED', access_token: session.user.facebookUserAccessToken,
         });
         const adId = adResponse.data.id;
-        if (!adId) throw new Error('Failed to create ad.');
+        if (!adId) {
+            console.error(`${LOG_PREFIX} handleCreateAdCampaign: Failed to create ad.`, adResponse.data);
+            throw new Error('Failed to create ad.');
+        }
+        console.log(`${LOG_PREFIX} handleCreateAdCampaign: Ad created with ID: ${adId}`);
 
         const newAdCampaign: Omit<AdCampaign, '_id'> = {
             userId: new ObjectId(session.user._id),
@@ -148,20 +204,29 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
             createdAt: new Date(),
         };
         await db.collection('ad_campaigns').insertOne(newAdCampaign as any);
+        console.log(`${LOG_PREFIX} handleCreateAdCampaign: Saved campaign to local DB.`);
 
         revalidatePath('/dashboard/ad-manager/campaigns');
         return { message: `Ad campaign "${campaignName}" created successfully! It is currently paused.` };
 
     } catch (e: any) {
+        console.error(`${LOG_PREFIX} handleCreateAdCampaign: FATAL error during creation process.`, getErrorMessage(e));
         return { error: getErrorMessage(e) };
     }
 }
 
 export async function getCustomAudiences(adAccountId: string): Promise<{ audiences?: CustomAudience[], error?: string }> {
-     const session = await getSession();
-    if (!session?.user?.facebookUserAccessToken) return { error: 'Facebook account not connected.' };
+    console.log(`${LOG_PREFIX} getCustomAudiences called for ad account: ${adAccountId}.`);
+    const session = await getSession();
+    if (!session?.user?.facebookUserAccessToken) {
+        console.error(`${LOG_PREFIX} getCustomAudiences: Facebook account not connected.`);
+        return { error: 'Facebook account not connected.' };
+    }
     
-    if (!adAccountId) return { audiences: [] };
+    if (!adAccountId) {
+        console.log(`${LOG_PREFIX} getCustomAudiences: No ad account ID provided.`);
+        return { audiences: [] };
+    }
     
     try {
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/customaudiences`, {
@@ -171,11 +236,16 @@ export async function getCustomAudiences(adAccountId: string): Promise<{ audienc
             }
         });
 
-        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        if (response.data.error) {
+            console.error(`${LOG_PREFIX} getCustomAudiences: Graph API error`, response.data.error);
+            throw new Error(getErrorMessage({ response }));
+        }
         
+        console.log(`${LOG_PREFIX} getCustomAudiences: Found ${response.data.data?.length || 0} custom audiences.`);
         return { audiences: response.data.data || [] };
 
     } catch (e: any) {
+        console.error(`${LOG_PREFIX} Failed to fetch custom audiences:`, getErrorMessage(e));
         return { error: getErrorMessage(e) };
     }
 }
