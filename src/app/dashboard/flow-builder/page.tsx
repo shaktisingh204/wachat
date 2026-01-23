@@ -31,10 +31,14 @@ import {
     Minimize,
     ImageIcon,
     Clock,
-    ShoppingCart,
-    PackageCheck,
-    ArrowRightLeft,
-    Send as SendIcon
+    Code,
+    Send,
+    Bot,
+    Mail,
+    Smartphone,
+    UserPlus,
+    QrCode,
+    Link as LinkIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -54,10 +58,12 @@ import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useProject } from '@/context/project-context';
+import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
+import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
 import { PropertiesPanel } from '@/components/wabasimplify/properties-panel';
 
 
-type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel' | 'addToCart' | 'orderConfirmation' | 'api' | 'sendSms' | 'sendEmail' | 'createCrmLead' | 'generateShortLink' | 'generateQrCode' | 'sendTemplate' | 'triggerMetaFlow';
+type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'api' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'sendSms' | 'sendEmail' | 'createCrmLead' | 'generateShortLink' | 'generateQrCode';
 
 type ButtonConfig = {
     id: string;
@@ -70,15 +76,15 @@ const blockTypes = [
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'delay', label: 'Add Delay', icon: Clock },
-    { type: 'condition', label: 'Add Condition', icon: GitFork },
-    { type: 'api', label: 'Call API', icon: ArrowRightLeft },
-    { type: 'sendSms', label: 'Send SMS', icon: MessageSquare },
-    { type: 'sendEmail', label: 'Send Email', icon: SendIcon },
-    { type: 'createCrmLead', label: 'Create CRM Lead', icon: Plus },
-    { type: 'generateShortLink', label: 'Generate Short Link', icon: Link },
+    { type: 'condition', label: 'Condition', icon: GitFork },
+    { type: 'api', label: 'Call API', icon: Code },
+    { type: 'sendTemplate', label: 'Send Template', icon: Send },
+    { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: Bot },
+    { type: 'sendSms', label: 'Send SMS', icon: Smartphone },
+    { type: 'sendEmail', label: 'Send Email', icon: Mail },
+    { type: 'createCrmLead', label: 'Create CRM Lead', icon: UserPlus },
+    { type: 'generateShortLink', label: 'Create Short Link', icon: LinkIcon },
     { type: 'generateQrCode', label: 'Generate QR Code', icon: QrCode },
-    { type: 'sendTemplate', label: 'Send Template', icon: FileIcon },
-    { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: GitFork }
 ];
 
 
@@ -325,10 +331,9 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
 }
 
 export default function FlowBuilderPage() {
+    const { activeProjectId } = useProject(); 
     const { toast } = useToast();
     const router = useRouter();
-    const { activeProjectId } = useProject(); 
-
     const [isClient, setIsClient] = useState(false);
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
@@ -338,8 +343,16 @@ export default function FlowBuilderPage() {
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoading, startLoadingTransition] = useTransition();
     
+    const [isTestDialogOpen, setIsTestDialogOpen] = useState(false);
+    
+    // AI Generation
+    const [prompt, setPrompt] = useState('');
+    const [isGenerating, startGeneration] = useTransition();
+
+
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     // Canvas state
     const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -350,11 +363,11 @@ export default function FlowBuilderPage() {
     const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [isFullScreen, setIsFullScreen] = useState(false);
-
+    
     useEffect(() => {
         setIsClient(true);
     }, []);
-    
+
     const fetchFlows = useCallback(() => {
         if(activeProjectId) {
             startLoadingTransition(async () => {
@@ -394,15 +407,8 @@ export default function FlowBuilderPage() {
     const addNode = (type: NodeType) => {
         const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 300;
         const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
-
         const newNode: FlowNode = {
-            id: `${type}-${Date.now()}`,
-            type,
-            data: { 
-                label: `New ${type}`,
-                apiRequest: { method: 'GET', url: '', headers: '', body: '', responseMappings: [] } 
-            },
-            position: { x: centerOfViewX, y: centerOfViewY },
+            id: `${type}-${Date.now()}`, type, data: { label: `New ${type}`, apiRequest: { method: 'GET', url: '', headers: '', body: '', responseMappings: [] } }, position: { x: centerOfViewX, y: centerOfViewY },
         };
         setNodes(prev => [...prev, newNode]);
         setSelectedNodeId(newNode.id);
@@ -461,99 +467,48 @@ export default function FlowBuilderPage() {
         }
     }
     
-    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
-        if (e.button !== 0) return;
-        e.preventDefault();
-        e.stopPropagation();
-        setDraggingNode(nodeId);
+    const handleFlowGenerated = (newNodes: FlowNode[], newEdges: FlowEdge[]) => {
+        setCurrentFlow(null);
+        setNodes(newNodes);
+        setEdges(newEdges);
+        setSelectedNodeId(null);
+        toast({title: "Flow Generated!", description: "Your new workflow is ready to be configured."});
+    };
+
+    const handleGenerateClick = () => {
+        if (!prompt.trim()) return;
+        startGeneration(async () => {
+            const result = await generateFlowBuilderFlow({ prompt });
+            handleFlowGenerated(result.nodes, result.edges);
+            setPrompt('');
+        });
     };
     
-    const handleCanvasMouseDown = (e: React.MouseEvent) => {
-        if (e.button !== 0) return;
-        if (e.target === e.currentTarget) {
-            e.preventDefault();
-            setIsPanning(true);
-        }
-    };
-
+    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => { if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); setDraggingNode(nodeId); };
+    const handleCanvasMouseDown = (e: React.MouseEvent) => { if (e.button !== 0) return; if (e.target === e.currentTarget) { e.preventDefault(); setIsPanning(true); } };
     const handleCanvasMouseMove = (e: React.MouseEvent) => {
-        if (isPanning) {
-            setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
-        } else if (draggingNode) {
-            setNodes(prev => prev.map(n => 
-                n.id === draggingNode
-                    ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } 
-                    : n
-            ));
-        }
-        
-        if (connecting && viewportRef.current) {
-            const rect = viewportRef.current.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom });
-        }
+        if (isPanning) setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
+        else if (draggingNode) setNodes(prev => prev.map(n => n.id === draggingNode ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } : n));
+        if (connecting && viewportRef.current) { const rect = viewportRef.current.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom }); }
     };
-
-    const handleCanvasMouseUp = () => {
-        setIsPanning(false);
-        setDraggingNode(null);
-    };
-
-    const handleCanvasClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            if (connecting) {
-                setConnecting(null);
-            } else {
-                setSelectedNodeId(null);
-            }
-        }
-    }
+    const handleCanvasMouseUp = () => { setIsPanning(false); setDraggingNode(null); };
+    const handleCanvasClick = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { if (connecting) setConnecting(null); else setSelectedNodeId(null); }};
 
     const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
-
+        e.preventDefault(); e.stopPropagation();
         if (!viewportRef.current) return;
-        
         const isOutputHandle = handleId.includes('output') || handleId.includes('-btn-');
-
-        if (isOutputHandle) {
-            const sourceNode = nodes.find(n => n.id === nodeId);
-            if(sourceNode){
-                const handlePos = getNodeHandlePosition(sourceNode, handleId);
-                if (handlePos) {
-                    setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
-                }
-            }
-        } else if (connecting && !isOutputHandle) {
-            if (connecting.sourceNodeId === nodeId) {
-                setConnecting(null);
-                return;
-            }
-
-            const newEdge: FlowEdge = {
-                id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`,
-                source: connecting.sourceNodeId,
-                target: nodeId,
-                sourceHandle: connecting.sourceHandleId,
-                targetHandle: handleId
-            };
-            
+        if (isOutputHandle) { const sourceNode = nodes.find(n => n.id === nodeId); if(sourceNode){ const handlePos = getNodeHandlePosition(sourceNode, handleId); if (handlePos) setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });}}
+        else if (connecting && !isOutputHandle) {
+            if (connecting.sourceNodeId === nodeId) { setConnecting(null); return; }
+            const newEdge: FlowEdge = { id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`, source: connecting.sourceNodeId, target: nodeId, sourceHandle: connecting.sourceHandleId, targetHandle: handleId };
             const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
-            
             const sourceHasSingleOutput = !connecting.sourceHandleId.includes('btn-') && !connecting.sourceHandleId.includes('output-yes') && !connecting.sourceHandleId.includes('output-no');
-            if (sourceHasSingleOutput) {
-                const edgesWithoutExistingSource = edgesWithoutExistingTarget.filter(e => e.source !== connecting.sourceNodeId);
-                setEdges([...edgesWithoutExistingSource, newEdge]);
-            } else {
-                setEdges([...edgesWithoutExistingTarget, newEdge]);
-            }
-            
+            if (sourceHasSingleOutput) { const edgesWithoutExistingSource = edgesWithoutExistingTarget.filter(e => e.source !== connecting.sourceNodeId); setEdges([...edgesWithoutExistingSource, newEdge]); } else { setEdges([...edgesWithoutExistingTarget, newEdge]); }
             setConnecting(null);
         }
     };
-
+    
     const handleWheel = (e: React.WheelEvent) => {
         e.preventDefault();
         if (!viewportRef.current) return;
@@ -608,7 +563,7 @@ export default function FlowBuilderPage() {
         document.addEventListener('fullscreenchange', handleFullScreenChange);
         return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
     }, []);
-
+    
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
 
     if (!isClient) {
@@ -617,61 +572,53 @@ export default function FlowBuilderPage() {
 
     if (!activeProjectId) {
          return (
-            <div className="flex flex-col gap-8 p-4">
-                <Alert variant="destructive">
+             <div className="h-full flex items-center justify-center p-4">
+                <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>Please select a project from the main dashboard to use the Flow Builder.</AlertDescription>
+                    <AlertDescription>
+                        Please select a project from the main dashboard to use the Flow Builder.
+                    </AlertDescription>
                 </Alert>
             </div>
-        )
+        );
     }
-
+    
     return (
-        <div className="flex h-full w-full flex-col gap-4">
-            <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <Input 
-                        id="flow-name-input"
-                        key={currentFlow?._id.toString() || 'new-flow'}
-                        defaultValue={currentFlow?.name || 'New Flow'} 
-                        className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-3xl font-bold font-headline"
-                        onMouseDown={(e) => e.stopPropagation()}
-                        onClick={(e) => e.stopPropagation()}
-                    />
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="flex md:hidden items-center gap-2">
-                        <Button variant="outline" onClick={() => setIsBlocksSheetOpen(true)}><PanelLeft className="mr-2 h-4 w-4"/>Flows & Blocks</Button>
-                        {selectedNode && <Button variant="outline" onClick={() => setIsPropsSheetOpen(true)} disabled={!selectedNode}><Settings2 className="mr-2 h-4 w-4"/>Properties</Button>}
-                    </div>
-                     <Button asChild variant="outline">
-                        <Link href="/dashboard/flow-builder/docs">
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">View Docs</span>
-                        </Link>
-                    </Button>
-                    <Button onClick={handleSaveFlow} disabled={isSaving}>
-                        {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
-                        <span className="hidden sm:inline">Save Flow</span>
-                    </Button>
-                </div>
+        <div className="flex h-[calc(100vh-theme(spacing.20))] bg-muted/30">
+             <div className={cn("flex-col gap-4 p-2 bg-background border-r transition-all duration-300", isSidebarCollapsed ? 'hidden' : 'hidden md:flex md:w-64')}>
+                <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0">
-                <div className="hidden md:flex md:col-span-3 lg:col-span-2 flex-col gap-4">
-                    <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
-                </div>
-                <Sheet open={isBlocksSheetOpen} onOpenChange={setIsBlocksSheetOpen}>
-                    <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
-                        <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
-                        <SheetDescription className="sr-only">A list of flows and draggable blocks.</SheetDescription>
-                        <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
-                    </SheetContent>
-                </Sheet>
-                <div className="md:col-span-6 lg:col-span-7">
+            <div className="flex-1 flex flex-col relative">
+                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
+                     <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsBlocksSheetOpen(true)}>
+                            <PanelLeft className="h-5 w-5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="hidden md:flex" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
+                            <PanelLeft className="h-5 w-5" />
+                        </Button>
+                        <Input id="flow-name-input" key={currentFlow?._id.toString()} defaultValue={currentFlow?.name || 'New Flow'} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setIsTestDialogOpen(true)} disabled={isLoading}><Play className="mr-2 h-4 w-4"/>Test</Button>
+                        <Button variant="outline" size="sm" asChild><Link href="/dashboard/flow-builder/docs"><BookOpen className="mr-2 h-4 w-4"/>Docs</Link></Button>
+                        <Button onClick={handleSaveFlow} disabled={isSaving}>
+                            {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
+                            Save
+                        </Button>
+                        <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
+                             <SheetTrigger asChild>
+                                <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode}><Settings2 className="h-5 w-5" /></Button>
+                            </SheetTrigger>
+                            <SheetContent side="right" className="p-0 flex flex-col"><SheetTitle className="sr-only">Properties</SheetTitle><SheetDescription className="sr-only">Configure the selected block.</SheetDescription>{selectedNode && <PropertiesPanel selectedNode={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}</SheetContent>
+                        </Sheet>
+                    </div>
+                 </header>
+                 <main className="flex-1 grid grid-cols-12 overflow-hidden">
                     <Card
                         ref={viewportRef}
-                        className="h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing"
+                        className="col-span-12 md:col-span-9 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing rounded-none border-0 border-r"
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -679,32 +626,11 @@ export default function FlowBuilderPage() {
                         onWheel={handleWheel}
                         onClick={handleCanvasClick}
                     >
-                        <div
-                            className="absolute inset-0"
-                            style={{
-                                backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)',
-                                backgroundSize: '20px 20px',
-                                backgroundPosition: `${pan.x}px ${pan.y}px`,
-                            }}
-                        />
-                        <div 
-                            className="relative w-full h-full"
-                            style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
-                        >
-                            {isLoading && !currentFlow ? (
-                                <div className="absolute inset-0 flex items-center justify-center"><LoaderCircle className="h-8 w-8 animate-spin text-primary" /></div>
-                            ) : (
+                        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
+                        <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                            {isLoading && !currentFlow ? (<div className="absolute inset-0 flex items-center justify-center"><LoaderCircle className="h-8 w-8 animate-spin text-primary" /></div>) : (
                                 <>
-                                    {nodes.map(node => (
-                                        <NodeComponent 
-                                            key={node.id} 
-                                            node={node}
-                                            onSelectNode={setSelectedNodeId}
-                                            isSelected={selectedNodeId === node.id}
-                                            onNodeMouseDown={handleNodeMouseDown}
-                                            onHandleClick={handleHandleClick}
-                                        />
-                                    ))}
+                                    {nodes.map(node => (<NodeComponent key={node.id} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick}/>))}
                                     <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
                                         {edges.map(edge => {
                                             const sourceNode = nodes.find(n => n.id === edge.source);
@@ -728,23 +654,38 @@ export default function FlowBuilderPage() {
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
-                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>
-                                {isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-                            </Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
                     </Card>
-                </div>
-                <div className="hidden md:block md:col-span-3">
-                    {selectedNode && <PropertiesPanel selectedNode={selectedNode} updateNodeData={updateNodeData} deleteNode={deleteNode} />}
-                </div>
-                <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
-                    <SheetContent side="right" className="p-0 flex flex-col w-full max-w-md">
-                        <SheetTitle className="sr-only">Block Properties</SheetTitle>
-                        <SheetDescription className="sr-only">Configure the selected block's properties.</SheetDescription>
-                        {selectedNode && <PropertiesPanel selectedNode={selectedNode} updateNodeData={updateNodeData} deleteNode={deleteNode} />}
-                    </SheetContent>
-                </Sheet>
+                    <aside className="hidden md:block col-span-3 bg-background p-4 overflow-y-auto">
+                        {selectedNode && <PropertiesPanel selectedNode={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}
+                    </aside>
+                 </main>
+                  <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">
+                    <CardContent className="p-2">
+                        <div className="flex items-center gap-2">
+                            <Input placeholder="Describe your workflow and let AI build it..." className="border-none shadow-none focus-visible:ring-0" value={prompt} onChange={e => setPrompt(e.target.value)} />
+                            <Button onClick={handleGenerateClick} disabled={isGenerating || !prompt.trim()}>
+                                {isGenerating && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Generate
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
+            <Sheet open={isBlocksSheetOpen} onOpenChange={setIsBlocksSheetOpen}>
+                <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
+                    <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
+                    <SheetDescription className="sr-only">A list of flows and draggable blocks.</SheetDescription>
+                    <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
+                </SheetContent>
+            </Sheet>
+            <TestFlowDialog open={isTestDialogOpen} onOpenChange={setIsTestDialogOpen} nodes={nodes} edges={edges} />
         </div>
     );
+}
+
+export default function FlowBuilderPageWrapper() {
+  return (
+    <FlowBuilder />
+  )
 }
