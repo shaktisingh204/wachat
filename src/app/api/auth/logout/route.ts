@@ -2,39 +2,15 @@
 'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
-import * as admin from 'firebase-admin';
-import { serviceAccount } from '@/lib/firebase/service-account';
+import { jwtVerify } from 'jose';
+import { connectToDatabase } from '@/lib/mongodb';
 
-const FIREBASE_APP_NAME = 'sabnode-admin-app'; // Use the same name
-
-// Helper to initialize Firebase Admin idempotently
-function initializeFirebaseAdmin() {
-  try {
-    return admin.app(FIREBASE_APP_NAME);
-  } catch (error) {
-    console.log(`[LOGOUT] Initializing Firebase Admin SDK with name: ${FIREBASE_APP_NAME}`);
-    
-    let parsedServiceAccount;
-    try {
-        if (typeof serviceAccount === 'string') {
-            parsedServiceAccount = JSON.parse(serviceAccount);
-        } else {
-            parsedServiceAccount = serviceAccount;
-        }
-    } catch (e) {
-        console.error("FATAL: Could not parse Firebase service account JSON in logout route.");
-        throw new Error("Invalid Firebase service account configuration.");
+function getJwtSecretKey(): Uint8Array {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        throw new Error('JWT_SECRET is not defined in the environment variables.');
     }
-    
-    // Ensure the private key is correctly formatted by replacing escaped newlines.
-    if (parsedServiceAccount.private_key) {
-         parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
-    }
-
-    return admin.initializeApp({
-      credential: admin.credential.cert(parsedServiceAccount),
-    }, FIREBASE_APP_NAME);
-  }
+    return new TextEncoder().encode(secret);
 }
 
 export async function GET(request: NextRequest) {
@@ -42,19 +18,27 @@ export async function GET(request: NextRequest) {
     
     if (sessionToken) {
         try {
-            initializeFirebaseAdmin();
-            const decodedToken = await admin.auth().verifyIdToken(sessionToken);
-            await admin.auth().revokeRefreshTokens(decodedToken.uid);
-            console.log(`[LOGOUT] Revoked tokens for UID: ${decodedToken.uid}`);
-        } catch (error: any) {
-            // Log error but proceed with logout. Token might be invalid/expired anyway.
-            console.error('[LOGOUT] Error revoking tokens:', error.code, error.message);
+            const { payload } = await jwtVerify(sessionToken, getJwtSecretKey());
+            // If the token has a "jti" (JWT ID), add it to a denylist.
+            if (payload.jti && payload.exp) {
+                const { db } = await connectToDatabase();
+                await db.collection('revoked_tokens').insertOne({
+                    jti: payload.jti,
+                    expiresAt: new Date(payload.exp * 1000), // exp is in seconds
+                });
+                console.log(`[LOGOUT] Revoked user token JTI: ${payload.jti}`);
+            }
+        } catch (error) {
+            // This catches expired tokens, invalid signatures etc.
+            // We can just proceed with logout.
+            console.warn('[LOGOUT] Error revoking user token (it may be expired/invalid):', error);
         }
     }
 
+    // Redirect to the login page.
     const response = NextResponse.redirect(new URL('/login', request.url));
     
-    // Clear the session cookie
+    // Clear the session cookie regardless of whether token revocation worked.
     response.cookies.set({
         name: 'session',
         value: '',
