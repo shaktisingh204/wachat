@@ -35,6 +35,32 @@ export function FacebookChatClient() {
     
     const [projectId, setProjectId] = useState<string|null>(null);
 
+    const handleSelectConversation = useCallback(async (conversation: FacebookConversation, pid?: string) => {
+        const currentProjectId = pid || projectId;
+        if (!currentProjectId) return;
+
+        setSelectedConversation(conversation);
+        router.push(`/dashboard/facebook/messages?conversationId=${conversation.id}`, { scroll: false });
+
+        // Optimistically update the UI to remove the unread count immediately.
+        if (conversation.unread_count > 0) {
+            setConversations(prev => prev.map(c => c.id === conversation.id ? {...c, unread_count: 0} : c));
+            // Then, make the server call in the background. No need to await it here.
+            markFacebookConversationAsRead(conversation.id, currentProjectId);
+        }
+
+        startConversationLoadTransition(async () => {
+            const { messages: fetchedMessages, error } = await getFacebookConversationMessages(conversation.id, currentProjectId);
+            if (error) {
+                console.error(error);
+                setMessages([]);
+            } else {
+                setMessages(fetchedMessages || []);
+            }
+        });
+        
+    }, [projectId, router]);
+
     const fetchInitialData = useCallback((pid: string) => {
         startLoadingTransition(async () => {
              const [initialData, sessionData] = await Promise.all([
@@ -66,7 +92,7 @@ export function FacebookChatClient() {
                  setMessages([]);
             }
         });
-    }, [conversationIdFromUrl]);
+    }, [conversationIdFromUrl, handleSelectConversation]);
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -84,31 +110,26 @@ export function FacebookChatClient() {
         }
     }, [projectId, fetchInitialData]);
 
-    const handleSelectConversation = useCallback(async (conversation: FacebookConversation, pid?: string) => {
-        const currentProjectId = pid || projectId;
-        if (!currentProjectId) return;
+    // Polling for real-time updates
+    useEffect(() => {
+        // Don't poll if nothing is selected or if initial load is happening
+        if (!selectedConversation || !projectId || isLoading) return;
 
-        setSelectedConversation(conversation);
-        router.push(`/dashboard/facebook/messages?conversationId=${conversation.id}`, { scroll: false });
+        const interval = setInterval(() => {
+            // No transition here to avoid showing loading spinners for background polls
+            getFacebookConversationMessages(selectedConversation.id, projectId).then(({ messages: newMessages }) => {
+                setMessages(prevMessages => {
+                    // Only update state if there are actually new messages
+                    if (newMessages && newMessages.length > (prevMessages?.length || 0)) {
+                        return newMessages || [];
+                    }
+                    return prevMessages || [];
+                });
+            });
+        }, 5000); // Poll every 5 seconds
 
-        // Optimistically update the UI to remove the unread count immediately.
-        if (conversation.unread_count > 0) {
-            setConversations(prev => prev.map(c => c.id === conversation.id ? {...c, unread_count: 0} : c));
-            // Then, make the server call in the background. No need to await it here.
-            markFacebookConversationAsRead(conversation.id, currentProjectId);
-        }
-
-        startConversationLoadTransition(async () => {
-            const { messages: fetchedMessages, error } = await getFacebookConversationMessages(conversation.id, currentProjectId);
-            if (error) {
-                console.error(error);
-                setMessages([]);
-            } else {
-                setMessages(fetchedMessages || []);
-            }
-        });
-        
-    }, [projectId, router]);
+        return () => clearInterval(interval);
+    }, [selectedConversation, projectId, isLoading]);
     
     const onMessageSent = async () => {
         if (selectedConversation && projectId) {
@@ -123,26 +144,6 @@ export function FacebookChatClient() {
             fetchInitialData(projectId);
         }
     }
-
-    // Simplified polling: only refetch messages for the active conversation.
-    // This prevents the expensive list re-fetch that was causing the UI to freeze.
-    useEffect(() => {
-        if (!selectedConversation || !projectId) return;
-
-        const interval = setInterval(() => {
-            getFacebookConversationMessages(selectedConversation.id, projectId).then(({ messages: newMessages }) => {
-                setMessages(prevMessages => {
-                    // A simple length check is usually enough to decide if a re-render is needed.
-                    if (newMessages && newMessages.length > (prevMessages?.length || 0)) {
-                        return newMessages;
-                    }
-                    return prevMessages || [];
-                });
-            });
-        }, 5000); // Poll every 5 seconds
-
-        return () => clearInterval(interval);
-    }, [selectedConversation, projectId]);
 
     if (isLoading && !project) {
         return <Skeleton className="h-full w-full rounded-xl"/>

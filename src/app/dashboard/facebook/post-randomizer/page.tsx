@@ -64,7 +64,7 @@ export default function PostRandomizerPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { toast } = useToast();
 
-    const isAllowed = sessionUser?.plan?.features?.settingsMarketing ?? false; // Using as proxy
+    const isAllowed = sessionUser?.plan?.features?.liveChat ?? false;
 
     const fetchData = useCallback(() => {
         if (!activeProject) return;

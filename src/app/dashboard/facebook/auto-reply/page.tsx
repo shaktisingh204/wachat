@@ -193,7 +193,7 @@ function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>,
 
 export default function FacebookAutomationPage() {
     const { activeProject, isLoadingProject, sessionUser } = useProject();
-    const isAllowed = sessionUser?.plan?.features?.chatbot ?? false;
+    const isAllowed = sessionUser?.plan?.features?.liveChat ?? false;
 
     if(isLoadingProject) return <PageSkeleton />;
     
