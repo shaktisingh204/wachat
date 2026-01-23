@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/index.ts';
-import type { CrmContact } from '@/lib/definitions';
+import type { CrmContact, CrmDeal } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { z } from 'zod';
 
@@ -227,5 +227,45 @@ export async function saveCrmProviders(prevState: any, formData: FormData) {
         return { message: 'Provider settings saved successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+
+export async function getCrmDashboardStats() {
+    const session = await getSession();
+    if (!session?.user) {
+        return {
+            contactCount: 0,
+            dealCount: 0,
+            dealsWon: 0,
+            pipelineValue: 0,
+            currency: 'USD'
+        };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const [contactCount, deals] = await Promise.all([
+            db.collection('crm_contacts').countDocuments({ userId: userObjectId }),
+            db.collection<CrmDeal>('crm_deals').find({ userId: userObjectId }).toArray(),
+        ]);
+
+        const dealCount = deals.length;
+        const dealsWon = deals.filter(d => d.stage === 'Won').length;
+        const pipelineValue = deals.reduce((sum, deal) => sum + (deal.value || 0), 0);
+
+        return {
+            contactCount,
+            dealCount,
+            dealsWon,
+            pipelineValue,
+            currency: session.user.plan?.currency || 'USD'
+        };
+
+    } catch (e) {
+        console.error("Failed to fetch CRM dashboard stats:", e);
+        return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0, currency: 'USD' };
     }
 }

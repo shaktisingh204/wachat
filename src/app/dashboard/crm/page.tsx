@@ -1,26 +1,12 @@
 
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Users, UserPlus, Trophy, DollarSign, Handshake, LoaderCircle } from 'lucide-react';
-import { getSession } from '@/app/actions/index.ts';
+import { getCrmDashboardStats } from '@/app/actions/crm.actions';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-
-async function getCrmStats() {
-    const session = await getSession();
-    if (!session?.user) return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0, currency: 'USD' };
-    
-    // In a real app, you would fetch this data from the server
-    // For this client component, we'll return mock data for now.
-    return {
-        contactCount: 15,
-        dealCount: 5,
-        dealsWon: 2,
-        pipelineValue: 25000,
-        currency: 'USD'
-    };
-}
 
 const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <Card>
@@ -41,7 +27,7 @@ export default function CrmDashboardPage() {
 
     useEffect(() => {
         setIsLoading(true);
-        getCrmStats().then(data => {
+        getCrmDashboardStats().then(data => {
             setStats(data);
             setIsLoading(false);
         });
