@@ -3,13 +3,14 @@
 import { notFound, redirect } from 'next/navigation';
 import { trackClickAndGetUrl } from '@/app/actions/url-shortener.actions';
 
-export default async function ShortUrlRedirectPage({ params }: { params: { shortCode: string } }) {
-    if (!params.shortCode) {
+export default async function ShortUrlRedirectPage({ params }: { params: Promise<{ shortCode: string }> }) {
+    const resolvedParams = await params;
+    if (!resolvedParams.shortCode) {
         notFound();
     }
     
     // Pass `null` for the hostname to signify a default domain lookup
-    const { originalUrl, error } = await trackClickAndGetUrl(params.shortCode, null);
+    const { originalUrl, error } = await trackClickAndGetUrl(resolvedParams.shortCode, null);
     
     if (error || !originalUrl) {
         notFound();
