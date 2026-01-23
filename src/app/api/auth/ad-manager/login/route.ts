@@ -8,18 +8,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
+  // Use the Facebook App ID, as Ad Manager is a Facebook product.
   const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
   if (!appId || !appUrl) {
-    throw new Error('Facebook integration is not configured on the server.');
+    throw new Error('Facebook/Ad Manager integration is not configured on the server.');
   }
 
-  const state = 'facebook'; // Use 'facebook' state for the Meta Suite flow
+  const state = 'ad_manager'; // Unique state for this flow
   const redirectUri = `${appUrl}/auth/facebook/callback`;
 
-  // Permissions for managing pages, posts, messages, and insights. No ad permissions.
-  const scopes = 'pages_show_list,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging,business_management,instagram_basic,instagram_manage_comments,instagram_manage_messages';
+  // Scopes required for managing ads
+  const scopes = 'ads_read,ads_management,business_management';
 
   const facebookLoginUrl = new URL('https://www.facebook.com/v24.0/dialog/oauth');
   facebookLoginUrl.searchParams.set('client_id', appId);
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
 
   const response = NextResponse.redirect(facebookLoginUrl.toString());
 
-  // Set a secure, httpOnly cookie to store state and user ID
+  // Set a cookie to verify the state on callback
   response.cookies.set({
     name: 'onboarding_state',
     value: JSON.stringify({ state, userId: session.user._id }),

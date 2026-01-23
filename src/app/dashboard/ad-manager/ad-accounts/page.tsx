@@ -94,7 +94,7 @@ export default function AdAccountsPage() {
                      )}
                 </CardContent>
                 <CardFooter>
-                     <Link href={`/api/auth/meta-suite/login?includeAds=true`}>
+                     <Link href={`/api/auth/ad-manager/login`}>
                         <Button variant="outline">
                             <Facebook className="mr-2 h-4 w-4" />
                             Connect or Re-sync Ad Accounts
