@@ -52,7 +52,7 @@ export default function FacebookBroadcastsPage() {
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
 
-    const isAllowed = sessionUser?.plan?.features?.whatsappAds ?? false; // Using whatsappAds as a proxy for now
+    const isAllowed = sessionUser?.plan?.features?.liveChat ?? false;
 
     const fetchData = useCallback(() => {
         if (!activeProject) return;
