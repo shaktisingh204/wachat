@@ -412,6 +412,12 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
         if (isNaN(scheduledDateTime.getTime())) {
             return { error: 'Invalid date or time format.' };
         }
+
+        const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
+        if (scheduledDateTime < tenMinutesFromNow) {
+            return { error: 'Scheduled time must be at least 10 minutes in the future.' };
+        }
+
         form.append('scheduled_publish_time', String(Math.floor(scheduledDateTime.getTime() / 1000)));
         form.append('published', 'false');
     }
