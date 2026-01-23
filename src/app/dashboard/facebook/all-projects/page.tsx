@@ -4,7 +4,6 @@
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getProjects } from "@/app/actions";
-import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,7 +15,6 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { Separator } from '@/components/ui/separator';
 
 function PageSkeleton() {
     return (
@@ -25,8 +23,8 @@ function PageSkeleton() {
                 <Skeleton className="h-8 w-64" />
                 <Skeleton className="h-4 w-96 mt-2" />
             </div>
-            <div className="space-y-4">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
             </div>
         </div>
     );
@@ -45,6 +43,7 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
         <Card className={cn("flex flex-col card-gradient card-gradient-blue transition-transform hover:-translate-y-1")}>
             <CardHeader className="flex-row items-center gap-4">
                 <Avatar className="h-12 w-12">
+                     <AvatarImage src={`https://graph.facebook.com/${project.facebookPageId}/picture?type=large`} />
                      <AvatarFallback><FacebookIcon className="h-6 w-6"/></AvatarFallback>
                 </Avatar>
                 <div>
@@ -66,21 +65,13 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
 }
 
 export default function AllFacebookPagesPage() {
-    const [projects, setProjects] = useState<(WithId<Project> & { instagramProfile?: any })[]>([]);
+    const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [isLoading, startLoading] = useTransition();
 
     const fetchData = useCallback(() => {
         startLoading(async () => {
             const { projects: facebookProjects } = await getProjects(undefined, 'facebook');
-            
-            // Correctly fetch IG info without filtering out projects
-            const projectsWithIg = await Promise.all(
-                facebookProjects.map(async (p) => {
-                    const { instagramAccount } = await getInstagramAccountForPage(p._id.toString());
-                    return { ...p, instagramProfile: instagramAccount || null };
-                })
-            );
-            setProjects(projectsWithIg);
+            setProjects(facebookProjects);
         });
     }, []);
 
