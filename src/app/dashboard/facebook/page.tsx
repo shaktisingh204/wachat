@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
@@ -150,6 +151,7 @@ export default function FacebookDashboardPage() {
     const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(null);
     const [insights, setInsights] = useState<PageInsights | null>(null);
     const [posts, setPosts] = useState<FacebookPost[]>([]);
+    const [totalPosts, setTotalPosts] = useState(0);
     const [instagramId, setInstagramId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [permissionError, setPermissionError] = useState<string | null>(null);
@@ -180,8 +182,11 @@ export default function FacebookDashboardPage() {
 
             if (detailsResult.page) setPageDetails(detailsResult.page);
             if (insightsResult.insights) setInsights(insightsResult.insights);
-            if (postsResult.posts) setPosts(postsResult.posts);
-            if (igResult.instagramId) setInstagramId(igResult.instagramId);
+            if (postsResult.posts) {
+                setPosts(postsResult.posts);
+                setTotalPosts(postsResult.totalCount || postsResult.posts.length);
+            }
+            if (igResult.instagramAccount?.id) setInstagramId(igResult.instagramAccount.id);
         });
     }, []);
 
@@ -253,11 +258,12 @@ export default function FacebookDashboardPage() {
                             To resolve this, please re-authorize the connection and make sure to approve all requested permissions.
                         </p>
                         {project && (
-                            <FacebookEmbeddedSignup
-                                appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!}
-                                state="facebook_reauth"
-                                reauthorize={true}
-                            />
+                             <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
+                                <a href={`/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth`}>
+                                    <FacebookIcon className="mr-2 h-5 w-5" />
+                                    Re-authorize Connection
+                                </a>
+                            </Button>
                         )}
                     </CardFooter>
                 </Card>
@@ -295,8 +301,8 @@ export default function FacebookDashboardPage() {
 
                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <StatCard title="Followers" value={pageDetails.followers_count || 0} icon={Users} description="+20.1% from last month"/>
-                    <StatCard title="Post Engagements" value={insights?.postEngagement || 0} icon={ThumbsUp} description="Reactions, comments & shares" />
-                    <StatCard title="Posts" value={posts.length} icon={Newspaper} description="Total posts on page"/>
+                    <StatCard title="Post Engagements" value={insights?.postEngagement || 0} icon={ThumbsUp} description="Last 28 days" />
+                    <StatCard title="Posts" value={totalPosts} icon={Newspaper} description="Total posts on page"/>
                     <RadialChartCard value={engagementRate} label="Engagement Rate" description="Daily engagement / daily reach"/>
                 </div>
 
