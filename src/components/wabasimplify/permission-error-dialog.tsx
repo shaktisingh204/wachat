@@ -53,7 +53,7 @@ export function PermissionErrorDialog({ isOpen, onOpenChange, error, project, on
           </p>
           <div className="flex justify-center">
              <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
-                <Link href={`/api/auth/meta-suite/login?reauthorize=true`}>
+                <Link href={`/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth`}>
                     <FacebookIcon className="mr-2 h-5 w-5" />
                     Re-authorize with Facebook
                 </Link>
