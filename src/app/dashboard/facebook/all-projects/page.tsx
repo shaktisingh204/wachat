@@ -70,8 +70,8 @@ export default function AllFacebookPagesPage() {
 
     const fetchData = useCallback(() => {
         startLoading(async () => {
-            const { projects: facebookProjects } = await getProjects(undefined, 'facebook');
-            setProjects(facebookProjects);
+            const result = await getProjects(undefined, 'facebook');
+            setProjects(result?.projects || []);
         });
     }, []);
 
