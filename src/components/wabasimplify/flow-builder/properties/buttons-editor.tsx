@@ -19,7 +19,7 @@ export function ButtonsEditor({ node, onUpdate }: EditorProps) {
     const handleButtonChange = (index: number, field: 'text', value: string) => {
         const newButtons = [...(node.data.buttons || [])];
         newButtons[index] = { ...newButtons[index], [field]: value };
-        onUpdate({ ...node.data, buttons: newButtons });
+        onUpdate({ buttons: newButtons });
     };
 
     const addFlowButton = () => {
@@ -29,19 +29,19 @@ export function ButtonsEditor({ node, onUpdate }: EditorProps) {
             return;
         }
         const newButtons = [...currentButtons, { id: `btn-${Date.now()}`, text: '', type: 'QUICK_REPLY' }];
-        onUpdate({ ...node.data, buttons: newButtons });
+        onUpdate({ buttons: newButtons });
     };
 
     const removeFlowButton = (index: number) => {
         const newButtons = (node.data.buttons || []).filter((_: any, i: number) => i !== index);
-        onUpdate({ ...node.data, buttons: newButtons });
+        onUpdate({ buttons: newButtons });
     };
     
     return (
         <div className="space-y-4">
             <div className="space-y-2">
                 <Label htmlFor="buttons-text">Message Text</Label>
-                <Textarea id="buttons-text" placeholder="Choose an option:" value={node.data.text || ''} onChange={(e) => onUpdate({ ...node.data, text: e.target.value })} />
+                <Textarea id="buttons-text" placeholder="Choose an option:" value={node.data.text || ''} onChange={(e) => onUpdate({ text: e.target.value })} />
             </div>
             <div className="space-y-2">
                 <Label>Buttons</Label>

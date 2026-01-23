@@ -19,7 +19,7 @@ export function ApiEditor({ node, onUpdate }: EditorProps) {
     const apiRequest = node.data.apiRequest || {};
 
     const handleApiChange = (field: string, value: any) => {
-        onUpdate({ ...node.data, apiRequest: { ...apiRequest, [field]: value }});
+        onUpdate({ apiRequest: { ...apiRequest, [field]: value }});
     };
 
     const handleMappingChange = (index: number, field: 'variable' | 'path', value: string) => {

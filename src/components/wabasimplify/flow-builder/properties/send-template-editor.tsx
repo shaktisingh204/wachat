@@ -27,7 +27,7 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
     return (
         <div className="space-y-2">
             <Label>Template</Label>
-            <Select value={node.data.templateId || ''} onValueChange={(val) => onUpdate({ ...node.data, templateId: val })}>
+            <Select value={node.data.templateId || ''} onValueChange={(val) => onUpdate({ templateId: val })}>
                 <SelectTrigger><SelectValue placeholder="Select a template..."/></SelectTrigger>
                 <SelectContent>{templates.map(t => <SelectItem key={t._id.toString()} value={t._id.toString()}>{t.name}</SelectItem>)}</SelectContent>
             </Select>

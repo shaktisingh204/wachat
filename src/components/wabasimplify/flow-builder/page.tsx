@@ -1,20 +1,42 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import type { WithId } from 'mongodb';
-import { getFlowsForProject, getFlowById, saveFlow, deleteFlow } from '@/app/actions/flow.actions';
-import type { Project, Flow, FlowNode, FlowEdge } from '@/lib/definitions';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  MessageSquare, ToggleRight, GitFork, Play, Trash2, Save, Plus, Type, LoaderCircle, BookOpen, PanelLeft, Settings2, Copy, File as FileIcon, ZoomIn, ZoomOut, Frame, Maximize, Minimize, ImageIcon, Clock, Code, Send, Bot, Mail, Smartphone, UserPlus, QrCode, Link as LinkIcon
+import { 
+    MessageSquare, 
+    ToggleRight, 
+    GitFork, 
+    Play,
+    Trash2,
+    Save,
+    Plus,
+    Type,
+    LoaderCircle,
+    BookOpen,
+    PanelLeft,
+    Settings2,
+    Copy,
+    File as FileIcon,
+    ZoomIn,
+    ZoomOut,
+    Frame,
+    Maximize,
+    Minimize,
+    ImageIcon,
+    Clock,
+    Code,
+    Send,
+    Bot,
+    Mail,
+    Smartphone,
+    UserPlus,
+    QrCode,
+    Link as LinkIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -22,17 +44,26 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { useProject } from '@/context/project-context';
-import { Separator } from '@/components/ui/separator';
+import {
+  getFlowsForProject,
+  getFlowById,
+  saveFlow,
+  deleteFlow,
+} from '@/app/actions/flow.actions';
+import type { Flow, FlowNode, FlowEdge } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { useProject } from '@/context/project-context';
 import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
 import { PropertiesPanel } from '@/components/wabasimplify/properties-panel';
 
 type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'api' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'sendSms' | 'sendEmail' | 'createCrmLead' | 'generateShortLink' | 'generateQrCode';
-type ButtonConfig = { id: string; text: string; };
+
+type ButtonConfig = {
+    id: string;
+    text: string;
+};
 
 const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
@@ -51,33 +82,244 @@ const blockTypes = [
     { type: 'generateQrCode', label: 'Generate QR Code', icon: QrCode },
 ];
 
+
 const NodePreview = ({ node }: { node: FlowNode }) => {
-    // ... implementation for previewing node content ...
-    return null;
+    const renderTextWithVariables = (text?: string) => {
+        if (!text) return <span className="italic opacity-50">Enter message...</span>;
+        const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
+        return parts.map((part, i) =>
+            part.match(/^{{.*}}$/) ? (
+                <span key={i} className="font-semibold text-primary/90 bg-primary/10 rounded-sm px-1">
+                    {part}
+                </span>
+            ) : (
+                part
+            )
+        );
+    };
+
+    const previewContent = () => {
+        switch (node.type) {
+            case 'text':
+            case 'input':
+                return <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>;
+            case 'image':
+                return (
+                     <div className="space-y-1">
+                        <div className="aspect-video bg-background/50 rounded-md flex items-center justify-center">
+                            <ImageIcon className="h-8 w-8 text-foreground/20" />
+                        </div>
+                        {node.data.caption && <p className="whitespace-pre-wrap text-xs">{renderTextWithVariables(node.data.caption)}</p>}
+                    </div>
+                );
+            case 'buttons':
+                return (
+                    <div className="space-y-2">
+                        <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>
+                        <div className="space-y-1 mt-2 border-t border-muted-foreground/20 pt-2">
+                            {(node.data.buttons || []).map((btn: any, index: number) => (
+                                <div key={btn.id || index} className="text-center text-primary font-medium bg-background/50 py-1.5 rounded-md text-xs">
+                                    {btn.text || `Button ${index + 1}`}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    const content = previewContent();
+    if (!content) return null;
+
+    return (
+        <CardContent className="p-2 pt-0">
+            <div className="bg-muted p-2 rounded-lg text-sm text-card-foreground/80">
+                {content}
+            </div>
+        </CardContent>
+    );
 };
 
-const NodeComponent = ({ node, onSelectNode, isSelected, onNodeMouseDown, onHandleClick }: { node: FlowNode; onSelectNode: (id: string) => void; isSelected: boolean; onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void; onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void;}) => {
+const NodeComponent = ({ 
+    node, 
+    onSelectNode, 
+    isSelected,
+    onNodeMouseDown,
+    onHandleClick 
+}: { 
+    node: FlowNode; 
+    onSelectNode: (id: string) => void; 
+    isSelected: boolean;
+    onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void;
+    onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void;
+}) => {
     const BlockIcon = [...blockTypes, {type: 'start', label: 'Start', icon: Play}].find(b => b.type === node.type)?.icon || MessageSquare;
 
     const Handle = ({ position, id, style }: { position: 'left' | 'right' | 'top' | 'bottom', id: string, style?: React.CSSProperties }) => (
-        <div id={id} data-handle-pos={position} style={style} className={cn("absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10", position === 'left' && "-left-2 top-1/2 -translate-y-1/2", position === 'right' && "-right-2")} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id); }} />
+        <div 
+            id={id}
+            data-handle-pos={position}
+            style={style}
+            className={cn(
+                "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10",
+                position === 'left' && "-left-2 top-1/2 -translate-y-1/2",
+                position === 'right' && "-right-2",
+            )} 
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id); }}
+        />
     );
 
     return (
-        <div className="absolute cursor-grab active:cursor-grabbing transition-all" style={{ top: node.position.y, left: node.position.x }} onMouseDown={(e) => onNodeMouseDown(e, node.id)} onClick={(e) => { e.stopPropagation(); onSelectNode(node.id); }}>
+        <div 
+            className="absolute cursor-grab active:cursor-grabbing transition-all"
+            style={{ top: node.position.y, left: node.position.x }}
+            onMouseDown={(e) => onNodeMouseDown(e, node.id)}
+            onClick={(e) => { e.stopPropagation(); onSelectNode(node.id); }}
+        >
             <Card className={cn("w-64 hover:shadow-xl hover:-translate-y-1 bg-card", isSelected && "ring-2 ring-primary shadow-2xl")}>
-                <CardHeader className="flex flex-row items-center gap-3 p-3"><BlockIcon className="h-5 w-5 text-muted-foreground" /><CardTitle className="text-sm font-medium">{node.data.label}</CardTitle></CardHeader>
+                <CardHeader className="flex flex-row items-center gap-3 p-3">
+                    <BlockIcon className="h-5 w-5 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium">{node.data.label}</CardTitle>
+                </CardHeader>
                 <NodePreview node={node} />
                  {node.type === 'condition' && ( <CardContent className="p-3 pt-0 text-xs text-muted-foreground"><div className="flex justify-between items-center"><span>Yes</span></div><Separator className="my-1"/><div className="flex justify-between items-center"><span>No</span></div></CardContent>)}
             </Card>
+
             {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} style={{top: '50%', transform: 'translateY(-50%)'}} />}
-            {node.type === 'condition' ? ( <> <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%', transform: 'translateY(-50%)' }} /> <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%', transform: 'translateY(-50%)' }} /></>) : node.type === 'buttons' ? ((node.data.buttons || []).map((btn: ButtonConfig, index: number) => { const totalButtons = (node.data.buttons || []).length; const topPosition = totalButtons > 1 ? `${(100 / (totalButtons + 1)) * (index + 1)}%` : '50%'; return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition, transform: 'translateY(-50%)' }} />; })) : ( <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />)}
+            
+            {node.type === 'condition' ? (
+                <>
+                    <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%', transform: 'translateY(-50%)' }} />
+                    <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%', transform: 'translateY(-50%)' }} />
+                </>
+            ) : node.type === 'buttons' ? (
+                (node.data.buttons || []).map((btn: ButtonConfig, index: number) => {
+                    const totalButtons = (node.data.buttons || []).length;
+                    const topPosition = totalButtons > 1 ? `${(100 / (totalButtons + 1)) * (index + 1)}%` : '50%';
+                    return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition, transform: 'translateY(-50%)' }} />;
+                })
+            ) : (
+                 <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
+            )}
         </div>
     );
 };
 
+const FlowsAndBlocksPanel = ({ 
+    isLoading,
+    flows,
+    currentFlow,
+    handleSelectFlow,
+    handleDeleteFlow,
+    handleCreateNewFlow,
+    addNode,
+} : {
+    isLoading: boolean;
+    flows: WithId<Flow>[];
+    currentFlow: WithId<Flow> | null;
+    handleSelectFlow: (id: string) => void;
+    handleDeleteFlow: (id: string) => void;
+    handleCreateNewFlow: () => void;
+    addNode: (type: NodeType) => void;
+}) => (
+    <>
+        <Card>
+            <CardHeader className="flex-row items-center justify-between p-3">
+                <CardTitle className="text-base">Flows</CardTitle>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCreateNewFlow}><Plus/></Button>
+            </CardHeader>
+            <CardContent className="p-2 pt-0">
+                <ScrollArea className="h-40">
+                    {isLoading && flows.length === 0 ? <Skeleton className="h-full w-full"/> : 
+                        flows.map(flow => (
+                            <div key={flow._id.toString()} className="flex items-center group">
+                                <Button 
+                                    variant="ghost" 
+                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && 'bg-muted font-semibold')}
+                                    onClick={() => handleSelectFlow(flow._id.toString())}
+                                >
+                                    <FileIcon className="mr-2 h-4 w-4"/>
+                                    {flow.name}
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}>
+                                    <Trash2 className="h-4 w-4"/>
+                                </Button>
+                            </div>
+                        ))
+                    }
+                </ScrollArea>
+            </CardContent>
+        </Card>
+        <Card className="flex-1 flex flex-col">
+            <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
+            <CardContent className="space-y-2 p-2 pt-0 flex-1 min-h-0">
+                <ScrollArea className="h-full">
+                    {blockTypes.map(({ type, label, icon: Icon }) => (
+                        <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => addNode(type as NodeType)}>
+                            <Icon className="mr-2 h-4 w-4" />
+                            {label}
+                        </Button>
+                    ))}
+                </ScrollArea>
+            </CardContent>
+        </Card>
+    </>
+);
+
+const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
+    if (!sourcePos || !targetPos) return '';
+    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return path;
+};
+
+const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
+    if (!node || !handleId) return null;
+
+    const NODE_WIDTH = 256;
+    const x = node.position.x;
+    const y = node.position.y;
+    
+    let nodeHeight = 60; 
+    
+    if (node.type === 'condition') nodeHeight = 80;
+    if (node.type === 'buttons') {
+        const buttonCount = (node.data.buttons || []).length;
+        nodeHeight = 60 + (buttonCount * 20);
+    }
+
+
+    if (handleId.endsWith('-input')) {
+        return { x: x, y: y + 30 };
+    }
+    if (handleId.endsWith('-output-main')) {
+        return { x: x + NODE_WIDTH, y: y + 30 };
+    }
+    if (handleId.endsWith('-output-yes')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight * (1/3) };
+    }
+    if (handleId.endsWith('-output-no')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight * (2/3) };
+    }
+    if (handleId.includes('-btn-')) {
+        const buttonIndex = parseInt(handleId.split('-btn-')[1], 10);
+        const totalButtons = (node.data.buttons || []).length;
+        const topPosition = totalButtons > 1 ? (60 + (nodeHeight - 60) / (totalButtons + 1) * (buttonIndex + 1)) : 60 + (nodeHeight - 60) / 2;
+        return { x: x + NODE_WIDTH, y: y + topPosition };
+    }
+    
+    if (handleId.includes('output')) {
+        return { x: x + NODE_WIDTH, y: y + 30 };
+    }
+    
+    return null;
+}
+
 export function FlowBuilder() {
-    const { activeProjectId } = useProject();
+    const { activeProjectId } = useProject(); 
     const { toast } = useToast();
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
@@ -86,11 +328,12 @@ export function FlowBuilder() {
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoading, startLoadingTransition] = useTransition();
+    
     const [isTestDialogOpen, setIsTestDialogOpen] = useState(false);
     
-    // AI Generation
     const [prompt, setPrompt] = useState('');
     const [isGenerating, startGeneration] = useTransition();
+
 
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
@@ -105,7 +348,7 @@ export function FlowBuilder() {
     const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [isFullScreen, setIsFullScreen] = useState(false);
-
+    
     const fetchFlows = useCallback(() => {
         if(activeProjectId) {
             startLoadingTransition(async () => {
@@ -150,8 +393,8 @@ export function FlowBuilder() {
         setSelectedNodeId(newNode.id);
         setIsBlocksSheetOpen(false);
     };
-
-    const updateNodeData = (id: string, data: Partial<any>) => {
+    
+     const updateNodeData = (id: string, data: Partial<any>) => {
         setNodes(prev => prev.map(node => 
             node.id === id ? { ...node, data: { ...node.data, ...data } } : node
         ));
@@ -302,101 +545,6 @@ export function FlowBuilder() {
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
     
-    const FlowsAndBlocksPanel = ({ 
-        isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode 
-    } : {
-        isLoading: boolean; flows: WithId<Flow>[]; currentFlow: WithId<Flow> | null; handleSelectFlow: (id: string) => void; handleDeleteFlow: (id: string) => void; handleCreateNewFlow: () => void; addNode: (type: NodeType) => void;
-    }) => (
-        <>
-            <Card>
-                <CardHeader className="flex-row items-center justify-between p-3">
-                    <CardTitle className="text-base">Flows</CardTitle>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCreateNewFlow}><Plus/></Button>
-                </CardHeader>
-                <CardContent className="p-2 pt-0">
-                    <ScrollArea className="h-40">
-                        {isLoading && flows.length === 0 ? <Skeleton className="h-full w-full"/> : 
-                            flows.map(flow => (
-                                <div key={flow._id.toString()} className="flex items-center group">
-                                    <Button variant="ghost" className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && 'bg-muted font-semibold')} onClick={() => handleSelectFlow(flow._id.toString())}>
-                                        <File className="mr-2 h-4 w-4"/>
-                                        {flow.name}
-                                    </Button>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}>
-                                        <Trash2 className="h-4 w-4"/>
-                                    </Button>
-                                </div>
-                            ))
-                        }
-                    </ScrollArea>
-                </CardContent>
-            </Card>
-            <Card className="flex-1 flex flex-col">
-                <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
-                <CardContent className="space-y-2 p-2 pt-0 flex-1 min-h-0">
-                    <ScrollArea className="h-full">
-                        {blockTypes.map(({ type, label, icon: Icon }) => (
-                            <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => addNode(type as NodeType)}>
-                                <Icon className="mr-2 h-4 w-4" />
-                                {label}
-                            </Button>
-                        ))}
-                    </ScrollArea>
-                </CardContent>
-            </Card>
-        </>
-    );
-
-    const NODE_WIDTH = 256;
-    const NODE_HEIGHT = 100;
-    
-    const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
-        if (!sourcePos || !targetPos) return '';
-        const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-        const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
-        return path;
-    };
-    
-    const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
-        if (!node || !handleId) return null;
-    
-        const x = node.position.x;
-        const y = node.position.y;
-        
-        let nodeHeight = 60;
-        
-        if (node.type === 'condition') nodeHeight = 80;
-        if (node.type === 'buttons') {
-            const buttonCount = (node.data.buttons || []).length;
-            nodeHeight = 60 + (buttonCount * 20);
-        }
-    
-        if (handleId.endsWith('-input')) {
-            return { x: x, y: y + 30 };
-        }
-        if (handleId.endsWith('-output-main')) {
-            return { x: x + NODE_WIDTH, y: y + 30 };
-        }
-        if (handleId.endsWith('-output-yes')) {
-            return { x: x + NODE_WIDTH, y: y + nodeHeight * (1/3) };
-        }
-        if (handleId.endsWith('-output-no')) {
-            return { x: x + NODE_WIDTH, y: y + nodeHeight * (2/3) };
-        }
-        if (handleId.includes('-btn-')) {
-            const buttonIndex = parseInt(handleId.split('-btn-')[1], 10);
-            const totalButtons = (node.data.buttons || []).length;
-            const topPosition = totalButtons > 1 ? (60 + (nodeHeight - 60) / (totalButtons + 1) * (buttonIndex + 1)) : 60 + (nodeHeight - 60) / 2;
-            return { x: x + NODE_WIDTH, y: y + topPosition };
-        }
-        if (handleId.includes('output')) {
-            return { x: x + NODE_WIDTH, y: y + 30 };
-        }
-        
-        return null;
-    }
-
-
     if (!activeProjectId) {
          return (
              <div className="h-full flex items-center justify-center p-4">
@@ -438,7 +586,7 @@ export function FlowBuilder() {
                              <SheetTrigger asChild>
                                 <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode}><Settings2 className="h-5 w-5" /></Button>
                             </SheetTrigger>
-                            <SheetContent side="right" className="p-0 flex flex-col"><SheetTitle className="sr-only">Properties</SheetTitle><SheetDescription className="sr-only">Configure the selected block.</SheetDescription>{selectedNode && <PropertiesPanel selectedNode={selectedNode} updateNodeData={updateNodeData} deleteNode={deleteNode} />}</SheetContent>
+                            <SheetContent side="right" className="p-0 flex flex-col"><SheetTitle className="sr-only">Properties</SheetTitle><SheetDescription className="sr-only">Configure the selected block.</SheetDescription>{selectedNode && <PropertiesPanel node={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}</SheetContent>
                         </Sheet>
                     </div>
                  </header>
@@ -485,7 +633,7 @@ export function FlowBuilder() {
                         </div>
                     </Card>
                     <aside className="hidden md:block col-span-3 bg-background p-4 overflow-y-auto">
-                        {selectedNode && <PropertiesPanel selectedNode={selectedNode} updateNodeData={updateNodeData} deleteNode={deleteNode} />}
+                        {selectedNode && <PropertiesPanel node={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}
                     </aside>
                  </main>
                   <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">

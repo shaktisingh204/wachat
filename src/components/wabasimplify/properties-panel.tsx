@@ -27,7 +27,7 @@ import { Trash2 } from 'lucide-react';
 
 interface PropertiesPanelProps {
     node: any;
-    onUpdate: (data: any) => void;
+    onUpdate: (id: string, data: Partial<any>) => void;
     deleteNode: (id: string) => void;
 }
 
@@ -36,12 +36,12 @@ export function PropertiesPanel({ node, onUpdate, deleteNode }: PropertiesPanelP
         return <div className="p-4 text-center text-sm text-muted-foreground">Select a block to see its properties.</div>;
     }
 
-    const handleDataChange = (data: any) => {
-        onUpdate({ ...node.data, ...data });
+    const handleDataChange = (data: Partial<any>) => {
+        onUpdate(node.id, data);
     };
     
     const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onUpdate({ ...node.data, label: e.target.value });
+        onUpdate(node.id, { label: e.target.value });
     };
 
     const renderEditorContent = () => {
