@@ -9,6 +9,35 @@ import { getSession } from '@/app/actions/index.ts';
 import type { CrmQuotation } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
+async function getNextQuotationNumber(db: Db, userId: ObjectId): Promise<string> {
+    const lastQuotation = await db.collection<CrmQuotation>('crm_quotations')
+        .find({ userId })
+        .sort({ createdAt: -1 })
+        .limit(1)
+        .toArray();
+
+    if (lastQuotation.length === 0) {
+        return 'QUO-00001';
+    }
+
+    const lastNumber = lastQuotation[0].quotationNumber;
+    // Regex to find a prefix and a number at the end of the string
+    const matches = lastNumber.match(/^(.*?)(\d+)$/);
+
+    if (matches && matches.length === 3) {
+        const prefix = matches[1];
+        const numPart = parseInt(matches[2], 10);
+        const newNum = numPart + 1;
+        // Pad the new number to the same length as the old one
+        const paddedNum = String(newNum).padStart(matches[2].length, '0');
+        return `${prefix}${paddedNum}`;
+    }
+
+    // Fallback for unexpected formats or if no number is found
+    return `QUO-${Date.now().toString().slice(-5)}`;
+}
+
+
 export async function getQuotations(
     page: number = 1,
     limit: number = 20,
@@ -50,13 +79,23 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
     if (!session?.user) return { error: 'Access denied' };
 
     try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        
+        let quotationNumber = formData.get('quotationNumber') as string;
+
+        // If the quotation number is empty, generate a new one.
+        if (!quotationNumber) {
+            quotationNumber = await getNextQuotationNumber(db, userObjectId);
+        }
+
         const lineItems = JSON.parse(formData.get('lineItems') as string || '[]');
         const subtotal = lineItems.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
 
         const quotationData: Omit<CrmQuotation, '_id' | 'createdAt' | 'updatedAt'> = {
-            userId: new ObjectId(session.user._id),
+            userId: userObjectId,
             accountId: new ObjectId(formData.get('accountId') as string),
-            quotationNumber: formData.get('quotationNumber') as string,
+            quotationNumber: quotationNumber,
             quotationDate: new Date(formData.get('quotationDate') as string),
             validTillDate: formData.get('validTillDate') ? new Date(formData.get('validTillDate') as string) : undefined,
             currency: formData.get('currency') as string,
@@ -69,11 +108,16 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
             status: 'Draft',
         };
 
-        if (!quotationData.quotationNumber || !quotationData.accountId) {
-            return { error: 'Quotation number and client are required.' };
+        if (!quotationData.accountId || lineItems.length === 0) {
+            return { error: 'Client and at least one line item are required.' };
+        }
+        
+        // Final check for duplicates before inserting
+        const existing = await db.collection('crm_quotations').findOne({ userId: userObjectId, quotationNumber: quotationData.quotationNumber });
+        if (existing) {
+            quotationData.quotationNumber = await getNextQuotationNumber(db, userObjectId);
         }
 
-        const { db } = await connectToDatabase();
         await db.collection('crm_quotations').insertOne({
             ...quotationData,
             createdAt: new Date(),
