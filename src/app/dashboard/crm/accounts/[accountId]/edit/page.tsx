@@ -50,16 +50,17 @@ export default function EditCrmAccountPage() {
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
+            // Force a full page reload to ensure data is fresh, bypassing client-side router cache.
             if (state.accountId) {
-                router.push(`/dashboard/crm/accounts/${state.accountId}`);
+                window.location.href = `/dashboard/crm/accounts/${state.accountId}`;
             } else {
-                router.push('/dashboard/crm/accounts');
+                window.location.href = '/dashboard/crm/accounts';
             }
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
-    }, [state, toast, router]);
+    }, [state, toast]);
 
     if (isLoading || !account) {
         return <Skeleton className="h-96 w-full" />;
