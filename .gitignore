@@ -24,8 +24,8 @@
 # misc
 .DS_Store
 *.pem
-# **/crm-*.actions.ts
-/src/app/actions/crm-***.actions.ts
+# **/shakticrm-*.actions.ts
+/src/app/actions/shakticrm-***.actions.ts
 /src/app/actions/calling.actions.ts
 /src/app/actions/custom-ecommerce.actions.ts
 /src/app/actions/catalog.actions.ts
@@ -34,30 +34,30 @@
 /src/app/actions/contact.actions.ts
 /src/app/actions/broadcast.actions.ts
 /src/app/actions/email.actions.ts
-/src/app/actions/crm-accounting.actions.ts
- /src/app/actions/crm-accounts.actions.ts
- /src/app/actions/crm-automations.actions.ts
-/src/app/actions/crm-credit-notes.actions.ts
-/src/app/actions/crm-deals.actions.ts
-/src/app/actions/crm-delivery-challans.actions.ts
-/src/app/actions/crm-email.actions.ts
-/src/app/actions/crm-email-templates.actions.ts
-/src/app/actions/crm-forms.actions.ts
-/src/app/actions/crm-inventory.actions.ts
-/src/app/actions/crm-invoices.actions.ts
-/src/app/actions/crm-payment-accounts.actions.ts
-/src/app/actions/crm-payment-receipts.actions.ts
-/src/app/actions/crm-pipelines.actions.ts
-/src/app/actions/crm-products.actions.ts
-/src/app/actions/crm-quotations.actions.ts
-/src/app/actions/crm-reconciliation.actions.ts
-# /src/app/actions/crm-reports.actions.ts
-/src/app/actions/crm-roles.actions.ts
-/src/app/actions/crm-sales-orders.actions.ts
-/src/app/actions/crm-tasks.actions.ts
-/src/app/actions/crm-vendors.actions.ts
-/src/app/actions/crm-vouchers.actions.ts
-/src/app/actions/crm-warehouses.actions.ts
+/src/app/actions/shakticrm-accounting.actions.ts
+ /src/app/actions/shakticrm-accounts.actions.ts
+ /src/app/actions/shakticrm-automations.actions.ts
+/src/app/actions/shakticrm-credit-notes.actions.ts
+/src/app/actions/shakticrm-deals.actions.ts
+/src/app/actions/shakticrm-delivery-challans.actions.ts
+/src/app/actions/shakticrm-email.actions.ts
+/src/app/actions/shakticrm-email-templates.actions.ts
+/src/app/actions/shakticrm-forms.actions.ts
+/src/app/actions/shakticrm-inventory.actions.ts
+/src/app/actions/shakticrm-invoices.actions.ts
+/src/app/actions/shakticrm-payment-accounts.actions.ts
+/src/app/actions/shakticrm-payment-receipts.actions.ts
+/src/app/actions/shakticrm-pipelines.actions.ts
+/src/app/actions/shakticrm-products.actions.ts
+/src/app/actions/shakticrm-quotations.actions.ts
+/src/app/actions/shakticrm-reconciliation.actions.ts
+# /src/app/actions/shakticrm-reports.actions.ts
+/src/app/actions/shakticrm-roles.actions.ts
+/src/app/actions/shakticrm-sales-orders.actions.ts
+/src/app/actions/shakticrm-tasks.actions.ts
+/src/app/actions/shakticrm-vendors.actions.ts
+/src/app/actions/shakticrm-vouchers.actions.ts
+/src/app/actions/shakticrm-warehouses.actions.ts
 Ignore all action files by default
 
 # But keep social platform related files
@@ -66,7 +66,7 @@ Ignore all action files by default
 /src/app/actions/whatsapp.actions.ts
 /src/components/wabasimplify/whatsapp.actions.ts
 !/src/app/actions/index.ts
-/src/app/actions/crm-hr.actions.ts
+/src/app/actions/shakticrm-hr.actions.ts
 /src/components/wabasimplify/meta-flow-editor/
 /src/components/wabasimplify/website-builder/
 /src/app/actions/sabflow.actions.ts
@@ -116,9 +116,9 @@ src/config/site.ts
 /src/components/wabasimplify/whatsapp.actions.ts
 /src/app/dashboard/sabflow/flow-builder/[flowId]/page.tsx
 /src/app/actions/broadcast.actions.ts
-/src/components/wabasimplify/crm-tab-layout.tsx
+/src/components/wabasimplify/shakticrm-tab-layout.tsx
 # /src/app/actions/template.actions.ts
-# /src/app/actions/crm-reports.actions.ts
+# /src/app/actions/shakticrm-reports.actions.ts
 /src/app/actions/sms.actions.ts
 /src/components/wabasimplify/broadcasts/page.tsx
 /src/app/dashboard/broadcasts/page.tsx
@@ -127,21 +127,21 @@ src/config/site.ts
 /src/app/actions/project.actions.ts
 /src/app/dashboard/flow-builder/page.tsx
 /src/components/wabasimplify/flow-builder/page.tsx
-/src/app/actions/crm-accounting.actions.ts
+/src/app/actions/shakticrm-accounting.actions.ts
 /src/components/wabasimplify/sabflow/flow-builder/[flowId]/page.tsx
 /src/lib/timezones.ts
 /src/components/wabasimplify/chat-message.tsx
 /src/app/dashboard/broadcasts/[broadcastId]/page.tsx
 /src/app/dashboard/flows/create/page.tsx
 /src/app/actions/url-shortener.actions.ts
-/src/app/actions/crm-hr.actions.ts
+/src/app/actions/shakticrm-hr.actions.ts
 /src/app/actions/sabchat.actions.ts
 /src/app/dashboard/facebook/commerce/products/[catalogId]/page.tsx
 /src/components/ui/chart.tsx
 /src/components/wabasimplify/sabflow/properties-panel.tsx
 /src/components/wabasimplify/sabflow/api-request-editor.tsx
 /sheetaddons.md
-/src/app/dashboard/crm/automations/page.tsx
+/src/app/dashboard/shakticrm/automations/page.tsx
 /src/lib/sabflow/apps.ts
 /src/app/dashboard/url-shortener/page.tsx
 /src/components/wabasimplify/qr-code-generator.tsx
@@ -149,4 +149,4 @@ src/config/site.ts
 /src/app/actions/meta-flow.actions.ts
 /src/app/actions/catalog.actions.ts
 /src/components/wabasimplify/webhook-logs.tsx
-/src/app/dashboard/crm/hr-payroll/settings/page.tsx
+/src/app/dashboard/shakticrm/hr-payroll/settings/page.tsx
