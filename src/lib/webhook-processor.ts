@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -600,6 +599,10 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
 
     switch (node.type) {
         case 'start':
+            if (node.data.startMessage) {
+                await sendFlowMessage(db, project, contact, contact.phoneNumberId, node.data.startMessage, contact.activeFlow.variables);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
