@@ -4,10 +4,8 @@
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
     MessageSquare, 
@@ -52,11 +50,9 @@ import {
   saveFlow,
   deleteFlow,
 } from '@/app/actions/flow.actions';
-import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/lib/definitions';
+import type { Flow, FlowNode, FlowEdge } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useProject } from '@/context/project-context';
 import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
@@ -294,18 +290,17 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     const x = node.position.x;
     const y = node.position.y;
     
-    // Consistent height for simple nodes
     let nodeHeight = 60; 
     
     if (node.type === 'condition') nodeHeight = 80;
     if (node.type === 'buttons') {
         const buttonCount = (node.data.buttons || []).length;
-        nodeHeight = 60 + (buttonCount * 20); // Base height + height per button
+        nodeHeight = 60 + (buttonCount * 20);
     }
 
 
     if (handleId.endsWith('-input')) {
-        return { x: x, y: y + 30 }; // Consistent input position
+        return { x: x, y: y + 30 };
     }
     if (handleId.endsWith('-output-main')) {
         return { x: x + NODE_WIDTH, y: y + 30 };
@@ -330,7 +325,7 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     return null;
 }
 
-export default function FlowBuilderPage() {
+export function FlowBuilder() {
     const { activeProjectId } = useProject(); 
     const { toast } = useToast();
     const router = useRouter();
@@ -345,7 +340,6 @@ export default function FlowBuilderPage() {
     
     const [isTestDialogOpen, setIsTestDialogOpen] = useState(false);
     
-    // AI Generation
     const [prompt, setPrompt] = useState('');
     const [isGenerating, startGeneration] = useTransition();
 
@@ -611,7 +605,7 @@ export default function FlowBuilderPage() {
                              <SheetTrigger asChild>
                                 <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode}><Settings2 className="h-5 w-5" /></Button>
                             </SheetTrigger>
-                            <SheetContent side="right" className="p-0 flex flex-col"><SheetTitle className="sr-only">Properties</SheetTitle><SheetDescription className="sr-only">Configure the selected block.</SheetDescription>{selectedNode && <PropertiesPanel selectedNode={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}</SheetContent>
+                            <SheetContent side="right" className="p-0 flex flex-col"><SheetTitle className="sr-only">Properties</SheetTitle><SheetDescription className="sr-only">Configure the selected block.</SheetDescription>{selectedNode && <PropertiesPanel node={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}</SheetContent>
                         </Sheet>
                     </div>
                  </header>
@@ -658,7 +652,7 @@ export default function FlowBuilderPage() {
                         </div>
                     </Card>
                     <aside className="hidden md:block col-span-3 bg-background p-4 overflow-y-auto">
-                        {selectedNode && <PropertiesPanel selectedNode={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}
+                        {selectedNode && <PropertiesPanel node={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}
                     </aside>
                  </main>
                   <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">
@@ -689,3 +683,4 @@ export default function FlowBuilderPageWrapper() {
     <FlowBuilder />
   )
 }
+    
