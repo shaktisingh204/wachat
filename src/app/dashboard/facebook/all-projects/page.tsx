@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
@@ -71,8 +72,11 @@ export default function AllFacebookPagesPage() {
         startLoading(async () => {
             try {
                 const result = await getProjects(undefined, 'facebook');
-                if (result && Array.isArray(result.projects)) {
-                    setProjects(result.projects);
+                // Definitive fix: Handle both { projects: [...] } and [...] structures
+                const projectsData = Array.isArray(result) ? result : (result && Array.isArray(result.projects)) ? result.projects : [];
+
+                if (projectsData) {
+                    setProjects(projectsData);
                 } else {
                     console.warn("[AllFacebookPagesPage] getProjects did not return the expected structure. Got:", result);
                     setProjects([]);
