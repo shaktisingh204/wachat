@@ -77,9 +77,9 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied." };
     
-    const cookieStore = cookies();
-    const stateCookieJSON = cookieStore.get('onboarding_state')?.value;
-    if (!stateCookieJSON) {
+    const cookieStore = await cookies();
+const stateCookieJSON = cookieStore.get('onboarding_state')?.value;
+if (!stateCookieJSON) {
         return { success: false, error: "Onboarding session expired or cookies are disabled. Please try again." };
     }
     
