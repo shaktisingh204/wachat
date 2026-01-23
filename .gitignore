@@ -51,7 +51,7 @@
 /src/app/actions/crm-products.actions.ts
 /src/app/actions/crm-quotations.actions.ts
 /src/app/actions/crm-reconciliation.actions.ts
-/src/app/actions/crm-reports.actions.ts
+# /src/app/actions/crm-reports.actions.ts
 /src/app/actions/crm-roles.actions.ts
 /src/app/actions/crm-sales-orders.actions.ts
 /src/app/actions/crm-tasks.actions.ts
@@ -118,7 +118,7 @@ src/config/site.ts
 /src/app/actions/broadcast.actions.ts
 /src/components/wabasimplify/crm-tab-layout.tsx
 # /src/app/actions/template.actions.ts
-/src/app/actions/crm-reports.actions.ts
+# /src/app/actions/crm-reports.actions.ts
 /src/app/actions/sms.actions.ts
 /src/components/wabasimplify/broadcasts/page.tsx
 /src/app/dashboard/broadcasts/page.tsx
