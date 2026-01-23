@@ -78,8 +78,8 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
     if (!session?.user) return { success: false, error: "Access denied." };
     
     const cookieStore = await cookies();
-const stateCookieJSON = cookieStore.get('onboarding_state')?.value;
-if (!stateCookieJSON) {
+    const stateCookieJSON = cookieStore.get('onboarding_state')?.value;
+    if (!stateCookieJSON) {
         return { success: false, error: "Onboarding session expired or cookies are disabled. Please try again." };
     }
     
@@ -92,15 +92,24 @@ if (!stateCookieJSON) {
     cookieStore.delete('onboarding_state');
     
     let appId, appSecret;
+    let tokenTargetField: 'metaSuiteAccessToken' | 'adManagerAccessToken';
+
     if (state === 'whatsapp') {
         appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
         appSecret = process.env.META_ONBOARDING_APP_SECRET;
+        tokenTargetField = 'metaSuiteAccessToken'; 
     } else if (state === 'instagram') {
         appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID;
         appSecret = process.env.INSTAGRAM_APP_SECRET;
-    } else { // 'facebook' and 'ad_manager'
+        tokenTargetField = 'metaSuiteAccessToken';
+    } else if (state === 'ad_manager') {
         appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
         appSecret = process.env.FACEBOOK_APP_SECRET;
+        tokenTargetField = 'adManagerAccessToken';
+    } else { // 'facebook' and 'facebook_reauth'
+        appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+        appSecret = process.env.FACEBOOK_APP_SECRET;
+        tokenTargetField = 'metaSuiteAccessToken';
     }
     
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
@@ -128,12 +137,11 @@ if (!stateCookieJSON) {
         if (!longLivedToken) return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
 
         const { db } = await connectToDatabase();
+        const userUpdate: any = {};
+        userUpdate[tokenTargetField] = longLivedToken;
 
         if (state === 'whatsapp') {
-            await db.collection('users').updateOne(
-                { _id: new ObjectId(session.user._id) },
-                { $set: { metaSuiteAccessToken: longLivedToken } }
-            );
+            await db.collection('users').updateOne({ _id: new ObjectId(session.user._id) }, { $set: userUpdate });
             const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
                 params: { access_token: longLivedToken }
             });
@@ -176,6 +184,7 @@ if (!stateCookieJSON) {
             return { success: true, redirectPath: '/dashboard' };
 
         } else if (state === 'facebook' || state === 'instagram' || state === 'facebook_reauth') {
+             await db.collection('users').updateOne({ _id: new ObjectId(session.user._id) }, { $set: userUpdate });
              const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', { 
                 params: { fields: 'id,name,access_token,tasks', access_token: longLivedToken }
             });
@@ -183,12 +192,7 @@ if (!stateCookieJSON) {
             if (!userPagesWithTokens || userPagesWithTokens.length === 0) {
                  return { success: false, error: 'No manageable Facebook Pages found. Please ensure you granted access to at least one page.' };
             }
-
-            await db.collection('users').updateOne(
-                { _id: new ObjectId(session.user._id) },
-                { $set: { metaSuiteAccessToken: longLivedToken } }
-            );
-
+            
             const bulkOps = userPagesWithTokens.map((page: any) => ({
                 updateOne: {
                     filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
@@ -212,18 +216,14 @@ if (!stateCookieJSON) {
             return { success: true, redirectPath };
             
         } else if (state === 'ad_manager') {
-            const userUpdateData: any = {
-                adManagerAccessToken: longLivedToken,
-            };
             const adAccountsResponse = await axios.get(`https://graph.facebook.com/v23.0/me/adaccounts`, { params: { access_token: longLivedToken, fields: 'id,name,account_id' }});
             const adAccounts = adAccountsResponse.data?.data || [];
             if (adAccounts.length > 0) {
-                userUpdateData.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
+                userUpdate.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
             }
-
              await db.collection('users').updateOne(
                { _id: new ObjectId(session.user._id) },
-               { $set: userUpdateData }
+               { $set: userUpdate }
            );
            revalidatePath('/dashboard/ad-manager/ad-accounts');
            return { success: true, redirectPath: '/dashboard/ad-manager/ad-accounts' };
@@ -347,7 +347,7 @@ export async function getPageDetails(projectId: string): Promise<{ page?: Facebo
     }
 }
 
-export async function getFacebookPosts(projectId: string): Promise<{ posts?: FacebookPost[], error?: string }> {
+export async function getFacebookPosts(projectId: string): Promise<{ posts?: FacebookPost[], totalCount?: number, error?: string }> {
     const project = await getProjectById(projectId);
     if (!project || !project.accessToken || !project.facebookPageId) {
         return { error: 'Project not found or is missing Facebook Page ID or access token.' };
@@ -358,6 +358,7 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
         const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/posts`, {
             params: {
                 fields: fields,
+                summary: 'total_count',
                 access_token: project.accessToken,
                 limit: 25,
             }
@@ -367,10 +368,11 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
             throw new Error(getErrorMessage({ response }));
         }
 
-        return { posts: response.data.data || [] };
+        const totalCount = response.data.summary?.total_count || 0;
+        return { posts: response.data.data || [], totalCount };
 
     } catch (e: any) {
-        return { error: getErrorMessage(e) };
+        return { error: getErrorMessage(e), posts: [], totalCount: 0 };
     }
 }
 
@@ -628,7 +630,7 @@ export async function getPageInsights(projectId: string): Promise<{ insights?: P
         const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/insights`, {
             params: {
                 metric: metrics,
-                period: 'day',
+                period: 'days_28',
                 access_token: project.accessToken,
             }
         });
