@@ -1,8 +1,8 @@
-
-import { redirect, notFound } from 'next/navigation';
+// This page is now redundant as the root-level [shortCode] page handles all redirects.
+// This is kept to prevent 404 errors for any existing /s/ links.
+import { notFound, redirect } from 'next/navigation';
 import { trackClickAndGetUrl } from '@/app/actions/url-shortener.actions';
 
-// This page now only handles default domain redirects, e.g., myapp.com/s/abc
 export default async function ShortUrlRedirectPage({ params }: { params: { shortCode: string } }) {
     if (!params.shortCode) {
         notFound();
