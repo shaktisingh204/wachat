@@ -14,6 +14,8 @@ import { AlertCircle, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PermissionErrorDialog } from './permission-error-dialog';
 import { Card } from '../ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '../ui/button';
 
 export function FacebookChatClient() {
     const router = useRouter();
@@ -29,6 +31,7 @@ export function FacebookChatClient() {
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();
     const [permissionError, setPermissionError] = useState<string | null>(null);
+    const [showInfoDialog, setShowInfoDialog] = useState(false);
     
     const [projectId, setProjectId] = useState<string|null>(null);
 
@@ -161,6 +164,20 @@ export function FacebookChatClient() {
     
     return (
         <>
+             <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Start a Conversation</DialogTitle>
+                        <DialogDescription>
+                            On Facebook Messenger, you can only reply to users who have messaged your page first. Please use the search bar to find an existing conversation.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={() => setShowInfoDialog(false)}>OK</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <PermissionErrorDialog 
                 isOpen={!!permissionError}
                 onOpenChange={() => setPermissionError(null)}
@@ -176,6 +193,7 @@ export function FacebookChatClient() {
                             conversations={conversations}
                             selectedConversationId={selectedConversation?.id}
                             onSelectConversation={handleSelectConversation}
+                            onNewChat={() => setShowInfoDialog(true)}
                             isLoading={isLoading}
                         />
                     </div>
@@ -203,4 +221,3 @@ export function FacebookChatClient() {
         </>
     );
 }
-    
