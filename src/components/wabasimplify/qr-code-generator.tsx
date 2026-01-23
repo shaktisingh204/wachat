@@ -1,209 +1,221 @@
 
 'use client';
 
-import { useState, useMemo, useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { SketchPicker } from 'react-color';
-import QRCode from 'react-qr-code';
-import { QrCode, Link as LinkIcon, Edit, Download, LoaderCircle, Save } from 'lucide-react';
-import type { WithId, User, ShortUrl, QrCode as QrCodeType } from '@/lib/definitions';
-import { getShortUrls, createShortUrl } from '@/app/actions/url-shortener.actions';
-import { saveQrCode } from '@/app/actions/qr-code.actions';
+import { LoaderCircle, QrCode, Link as LinkIcon, Text, Mail, Phone, Wifi } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createQrCode } from '@/app/actions/qr-code.actions';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeDialog } from './qr-code-dialog';
+import type { User, Tag, WithId } from '@/lib/definitions';
+import { MultiSelectCombobox } from './multi-select-combobox';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { Slider } from '../ui/slider';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { SketchPicker } from 'react-color';
 
 const initialState = {
-  message: null,
+  success: false,
+  qrCodeUrl: null,
   error: null,
-};
-
-const ColorPicker = ({ label, color, onChange, isOpen, onOpenChange }: { label: string, color: string, onChange: (color: string) => void, isOpen: boolean, onOpenChange: (open: boolean) => void }) => {
-  return (
-    <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
-        <div className="space-y-2">
-          <Label>{label}</Label>
-          <div className="w-full h-10 rounded-md border border-input flex items-center px-3 cursor-pointer">
-            <div className="w-6 h-6 rounded-sm border" style={{ backgroundColor: `#${color}` }}></div>
-            <span className="ml-2 text-sm">#{color}</span>
-          </div>
-        </div>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <SketchPicker color={`#${color}`} onChangeComplete={(c) => onChange(c.hex.replace('#', ''))} />
-      </PopoverContent>
-    </Popover>
-  );
 };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Save QR Code
+    <Button type="submit" disabled={pending} size="lg">
+      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <QrCode className="mr-2 h-4 w-4" />}
+      Generate QR Code
     </Button>
   );
 }
 
-export function QrCodeGenerator({ user }: { user: WithId<User> }) {
-  const [state, formAction] = useActionState(saveQrCode, initialState);
+const dataTypes = [
+    { value: 'url', label: 'URL', icon: LinkIcon },
+    { value: 'text', label: 'Text', icon: Text },
+    { value: 'email', label: 'Email', icon: Mail },
+    { value: 'phone', label: 'Phone', icon: Phone },
+    { value: 'sms', label: 'SMS', icon: MessageSquare },
+    { value: 'wifi', label: 'WiFi Network', icon: Wifi },
+];
+
+export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id: string, tags?: Tag[] } }) {
+  const [state, formAction] = useActionState(createQrCode, initialState);
   const { toast } = useToast();
-  const [dataType, setDataType] = useState<QrCodeType['dataType']>('url');
-  const [data, setData] = useState<any>({});
-  const [config, setConfig] = useState({
-    color: '000000',
-    bgColor: 'FFFFFF',
-    eccLevel: 'L',
-    size: 256,
-  });
-  const [name, setName] = useState('');
-  const [shortUrlId, setShortUrlId] = useState<string | null>(null);
-  const [logoDataUri, setLogoDataUri] = useState<string | null>(null);
-  const [openPicker, setOpenPicker] = useState<'dot' | 'bg' | null>(null);
-  const [showQrCode, setShowQrCode] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [dataType, setDataType] = useState('url');
+  const [tagIds, setTagIds] = useState<string[]>([]);
+
+  // Config State
+  const [dotColor, setDotColor] = useState('#000000');
+  const [bgColor, setBgColor] = useState('#FFFFFF');
+  const [eccLevel, setEccLevel] = useState('L');
+  const [logoDataUri, setLogoDataUri] = useState<string | undefined>(undefined);
+
+  // Popover State
+  const [dotColorOpen, setDotColorOpen] = useState(false);
+  const [bgColorOpen, setBgColorOpen] = useState(false);
+  
+  const [generatedData, setGeneratedData] = useState<{dataString: string, config: any, logoDataUri?: string} | null>(null);
 
   useEffect(() => {
-    if (state?.message) {
-      toast({ title: 'Success', description: 'QR Code saved.' });
+    if (state.success && state.qrCodeUrl) {
+      toast({ title: 'Success!', description: 'QR Code generated and saved.' });
+      setGeneratedData({ 
+          dataString: state.dataString || '', 
+          config: state.config || {},
+          logoDataUri: state.logoDataUri
+      });
+      formRef.current?.reset();
+      setTagIds([]);
     }
-    if (state?.error) {
+    if (state.error) {
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
-  }, [state, toast]);
+  }, [state]);
 
-  const handleConfigChange = (key: keyof typeof config, value: string | number) => {
-    setConfig(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handleDataChange = (key: string, value: string) => {
-    setData((prev: any) => ({ ...prev, [key]: value }));
-  };
+  const tagOptions = (user.tags || []).map(tag => ({
+    value: tag._id,
+    label: tag.name,
+    color: tag.color,
+  }));
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoDataUri(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setLogoDataUri(reader.result as string);
+        };
+        reader.readAsDataURL(file);
     }
   };
-
-  const dataString = useMemo(() => {
-    switch (dataType) {
-      case 'url': return data.url || '';
-      case 'text': return data.text || '';
-      case 'email': return `mailto:${data.email || ''}?subject=${encodeURIComponent(data.emailSubject || '')}&body=${encodeURIComponent(data.emailBody || '')}`;
-      case 'phone': return `tel:${data.phone || ''}`;
-      case 'sms': return `smsto:${data.sms || ''}:${encodeURIComponent(data.smsMessage || '')}`;
-      case 'wifi': return `WIFI:T:${data.wifiEncryption || 'WPA'};S:${data.wifiSsid || ''};P:${data.wifiPassword || ''};;`;
-      default: return '';
-    }
-  }, [dataType, data]);
-
+  
   const renderDataFields = () => {
-    switch(dataType) {
-        case 'url': return <div className="space-y-2"><Label>URL</Label><Input placeholder="https://example.com" value={data.url || ''} onChange={(e) => handleDataChange('url', e.target.value)} required /></div>;
-        case 'text': return <div className="space-y-2"><Label>Text</Label><Textarea placeholder="Enter your text" value={data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} required /></div>;
-        case 'email': return <div className="space-y-4"><div className="space-y-2"><Label>Email Address</Label><Input type="email" value={data.email || ''} onChange={(e) => handleDataChange('email', e.target.value)} /></div><div className="space-y-2"><Label>Subject</Label><Input value={data.emailSubject || ''} onChange={(e) => handleDataChange('emailSubject', e.target.value)} /></div><div className="space-y-2"><Label>Body</Label><Textarea value={data.emailBody || ''} onChange={(e) => handleDataChange('emailBody', e.target.value)} /></div></div>;
-        case 'phone': return <div className="space-y-2"><Label>Phone Number</Label><Input type="tel" value={data.phone || ''} onChange={(e) => handleDataChange('phone', e.target.value)} /></div>;
-        case 'sms': return <div className="space-y-4"><div className="space-y-2"><Label>Phone Number</Label><Input type="tel" value={data.sms || ''} onChange={(e) => handleDataChange('sms', e.target.value)} /></div><div className="space-y-2"><Label>Message</Label><Textarea value={data.smsMessage || ''} onChange={(e) => handleDataChange('smsMessage', e.target.value)} /></div></div>;
-        case 'wifi': return <div className="space-y-4"><div className="space-y-2"><Label>Network Name (SSID)</Label><Input value={data.wifiSsid || ''} onChange={(e) => handleDataChange('wifiSsid', e.target.value)} /></div><div className="space-y-2"><Label>Password</Label><Input type="password" value={data.wifiPassword || ''} onChange={(e) => handleDataChange('wifiPassword', e.target.value)} /></div><div className="space-y-2"><Label>Encryption</Label><Select defaultValue="WPA" onValueChange={(val) => handleDataChange('wifiEncryption', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="WPA">WPA/WPA2</SelectItem><SelectItem value="WEP">WEP</SelectItem><SelectItem value="nopass">None</SelectItem></SelectContent></Select></div></div>;
-        default: return null;
+    switch (dataType) {
+        case 'text': return <Input name="text" placeholder="Enter text" required />;
+        case 'email': return <><Input name="email" type="email" placeholder="Email address" required className="mb-2"/><Input name="emailSubject" placeholder="Subject (optional)" className="mb-2"/><Input name="emailBody" placeholder="Body (optional)"/></>;
+        case 'phone': return <Input name="phone" type="tel" placeholder="Phone number" required />;
+        case 'sms': return <><Input name="sms" placeholder="Phone number" required className="mb-2"/><Input name="smsMessage" placeholder="Message (optional)"/></>;
+        case 'wifi': return <><Input name="wifiSsid" placeholder="Network Name (SSID)" required className="mb-2"/><Input name="wifiPassword" placeholder="Password" required className="mb-2"/><Select name="wifiEncryption"><SelectTrigger><SelectValue placeholder="Encryption Type"/></SelectTrigger><SelectContent><SelectItem value="WPA">WPA/WPA2</SelectItem><SelectItem value="WEP">WEP</SelectItem><SelectItem value="nopass">None</SelectItem></SelectContent></Select></>;
+        case 'url': default: return <Input name="url" type="url" placeholder="https://example.com" required />;
     }
   }
 
   return (
-    <div className="grid lg:grid-cols-3 gap-8 items-start">
-        <QrCodeDialog open={showQrCode} onOpenChange={setShowQrCode} dataString={dataString} config={config} logoDataUri={logoDataUri}/>
-      <form action={formAction} className="lg:col-span-2 space-y-6">
+    <>
+      <QrCodeDialog
+        open={!!generatedData}
+        onOpenChange={(open) => !open && setGeneratedData(null)}
+        dataString={generatedData?.dataString || null}
+        config={generatedData?.config}
+        logoDataUri={generatedData?.logoDataUri}
+      />
+       <form action={formAction} ref={formRef} className="space-y-6">
         <input type="hidden" name="dataType" value={dataType} />
-        <input type="hidden" name="data" value={JSON.stringify(data)} />
-        <input type="hidden" name="config" value={JSON.stringify(config)} />
-        <input type="hidden" name="shortUrlId" value={shortUrlId || ''} />
+        <input type="hidden" name="tagIds" value={tagIds.join(',')} />
+        <input type="hidden" name="config" value={JSON.stringify({ color: dotColor.replace('#',''), bgColor: bgColor.replace('#',''), eccLevel })} />
         <input type="hidden" name="logoDataUri" value={logoDataUri || ''} />
-        
-        <Card className="card-gradient card-gradient-orange">
-          <CardHeader>
-            <CardTitle>QR Code Generator</CardTitle>
-            <CardDescription>Create a custom QR code for your business.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., My Website Link" required />
-            </div>
-            <div className="space-y-2">
-              <Label>Data Type</Label>
-              <Select value={dataType} onValueChange={(val) => setDataType(val as any)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="url">URL</SelectItem>
-                  <SelectItem value="text">Text</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="phone">Phone Number</SelectItem>
-                  <SelectItem value="sms">SMS</SelectItem>
-                  <SelectItem value="wifi">WiFi Network</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {renderDataFields()}
-          </CardContent>
-          <CardFooter>
-            <SubmitButton />
-          </CardFooter>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>QR Code Generator</CardTitle>
+                <CardDescription>Create a custom QR code for your business.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" name="name" placeholder="e.g., My Website QR Code" required/>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="type">Data Type</Label>
+                    <Select name="type_select" value={dataType} onValueChange={setDataType}>
+                        <SelectTrigger id="type">
+                            <SelectValue placeholder="Select type..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {dataTypes.map(type => (
+                                <SelectItem key={type.value} value={type.value}>
+                                    <span className="flex items-center"><type.icon className="mr-2 h-4 w-4"/> {type.label}</span>
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="space-y-2">
+                    <Label>Data</Label>
+                    {renderDataFields()}
+                </div>
+                <div className="space-y-2">
+                    <Label>Tags (Optional)</Label>
+                     <MultiSelectCombobox options={tagOptions} selected={tagIds} onSelectionChange={setTagIds} placeholder="Select tags..."/>
+                </div>
+                <Accordion type="single" collapsible>
+                    <AccordionItem value="item-1">
+                        <AccordionTrigger>Customization Options</AccordionTrigger>
+                        <AccordionContent className="pt-4 space-y-6">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Dot Color</Label>
+                                    <Popover open={dotColorOpen} onOpenChange={setDotColorOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full justify-start">
+                                                <div className="w-5 h-5 rounded-sm border mr-2" style={{ backgroundColor: dotColor }}/>
+                                                {dotColor}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="p-0 border-0" side="right" align="start">
+                                            <SketchPicker color={dotColor} onChangeComplete={color => setDotColor(color.hex)} />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Background Color</Label>
+                                     <Popover open={bgColorOpen} onOpenChange={setBgColorOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full justify-start">
+                                                <div className="w-5 h-5 rounded-sm border mr-2" style={{ backgroundColor: bgColor }}/>
+                                                {bgColor}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="p-0 border-0" side="right" align="start">
+                                            <SketchPicker color={bgColor} onChangeComplete={color => setBgColor(color.hex)} />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Error Correction Level</Label>
+                                <Select value={eccLevel} onValueChange={setEccLevel}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="L">Low (7%)</SelectItem>
+                                        <SelectItem value="M">Medium (15%)</SelectItem>
+                                        <SelectItem value="Q">Quartile (25%)</SelectItem>
+                                        <SelectItem value="H">High (30%)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="logo">Logo (Optional)</Label>
+                                <Input id="logo" type="file" accept="image/png, image/jpeg, image/svg+xml" onChange={handleLogoUpload} />
+                                <p className="text-xs text-muted-foreground">Best results with a square image. Max 50KB.</p>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </CardContent>
+            <CardFooter>
+                <SubmitButton/>
+            </CardFooter>
         </Card>
       </form>
-      <Card className="lg:col-span-1">
-        <CardHeader>
-          <CardTitle>Customize</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-              <ColorPicker
-                label="Dot Color"
-                color={config.color}
-                onChange={(c) => handleConfigChange('color', c)}
-                isOpen={openPicker === 'dot'}
-                onOpenChange={(open) => setOpenPicker(open ? 'dot' : null)}
-              />
-              <ColorPicker
-                label="Background Color"
-                color={config.bgColor}
-                onChange={(c) => handleConfigChange('bgColor', c)}
-                isOpen={openPicker === 'bg'}
-                onOpenChange={(open) => setOpenPicker(open ? 'bg' : null)}
-              />
-          </div>
-           <div className="space-y-2">
-              <Label>Error Correction</Label>
-              <Select value={config.eccLevel} onValueChange={(val) => handleConfigChange('eccLevel', val)}>
-                  <SelectTrigger><SelectValue/></SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="L">Low (L)</SelectItem>
-                      <SelectItem value="M">Medium (M)</SelectItem>
-                      <SelectItem value="Q">Quartile (Q)</SelectItem>
-                      <SelectItem value="H">High (H)</SelectItem>
-                  </SelectContent>
-              </Select>
-          </div>
-           <div className="space-y-2">
-              <Label htmlFor="logo">Logo</Label>
-              <Input id="logo" name="logo" type="file" accept="image/*" onChange={handleLogoUpload} />
-          </div>
-          <Button onClick={() => setShowQrCode(true)} variant="secondary" className="w-full">Preview & Download</Button>
-        </CardContent>
-      </Card>
-    </div>
+    </>
   );
 }
