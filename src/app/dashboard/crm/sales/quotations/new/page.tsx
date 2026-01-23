@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useActionState, useRef, useTransition } from 'react';
+import { useState, useEffect, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, ArrowLeft, Save, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2, LoaderCircle } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
@@ -247,7 +247,7 @@ export default function NewQuotationPage() {
                             </section>
 
                             <section className="grid grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label htmlFor="quotationNumber" className="text-xs">Quotation No *</Label><Input id="quotationNumber" name="quotationNumber" defaultValue="A00001" className="h-8" maxLength={50} /></div>
+                                <div className="space-y-1"><Label htmlFor="quotationNumber" className="text-xs">Quotation No.</Label><Input id="quotationNumber" name="quotationNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
                                  <div className="space-y-1"><Label className="text-xs">Quotation Date *</Label><DatePicker date={quotationDate} setDate={setQuotationDate} className="h-8"/></div>
                                 <div className="space-y-1"><Label className="text-xs">Valid Till Date</Label><DatePicker date={validTillDate} setDate={setValidTillDate} className="h-8"/></div>
                             </section>
