@@ -30,14 +30,14 @@ export function TriggerMetaFlowEditor({ node, onUpdate }: EditorProps) {
         <div className="space-y-4">
              <div className="space-y-2">
                 <Label>Meta Flow to Trigger</Label>
-                <Select value={node.data.metaFlowId || ''} onValueChange={(val) => onUpdate({ ...node.data, metaFlowId: val })}>
+                <Select value={node.data.metaFlowId || ''} onValueChange={(val) => onUpdate({ metaFlowId: val })}>
                     <SelectTrigger><SelectValue placeholder="Select a Meta Flow..."/></SelectTrigger>
                     <SelectContent>{metaFlows.map(f => <SelectItem key={f._id.toString()} value={f.metaId}>{f.name}</SelectItem>)}</SelectContent>
                 </Select>
             </div>
-             <div className="space-y-2"><Label>Header</Label><Input value={node.data.header || ''} onChange={e => onUpdate({ ...node.data, header: e.target.value })} /></div>
-             <div className="space-y-2"><Label>Body</Label><Textarea value={node.data.body || ''} onChange={e => onUpdate({ ...node.data, body: e.target.value })} /></div>
-             <div className="space-y-2"><Label>Footer</Label><Input value={node.data.footer || ''} onChange={e => onUpdate({ ...node.data, footer: e.target.value })} /></div>
+             <div className="space-y-2"><Label>Header</Label><Input value={node.data.header || ''} onChange={e => onUpdate({ header: e.target.value })} /></div>
+             <div className="space-y-2"><Label>Body</Label><Textarea value={node.data.body || ''} onChange={e => onUpdate({ body: e.target.value })} /></div>
+             <div className="space-y-2"><Label>Footer</Label><Input value={node.data.footer || ''} onChange={e => onUpdate({ footer: e.target.value })} /></div>
         </div>
     );
 }

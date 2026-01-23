@@ -20,7 +20,7 @@ export function ImageEditor({ node, onUpdate }: EditorProps) {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                onUpdate({ ...node.data, imageBase64: reader.result as string, imageUrl: '' });
+                onUpdate({ imageUrl: '', imageBase64: reader.result as string });
             };
             reader.readAsDataURL(file);
         }
@@ -35,7 +35,7 @@ export function ImageEditor({ node, onUpdate }: EditorProps) {
             {mediaSource === 'url' ? (
                 <div className="space-y-2">
                     <Label htmlFor="image-url">Image URL</Label>
-                    <Input id="image-url" placeholder="https://example.com/image.png" value={node.data.imageUrl || ''} onChange={(e) => onUpdate({ ...node.data, imageUrl: e.target.value, imageBase64: null })} />
+                    <Input id="image-url" placeholder="https://example.com/image.png" value={node.data.imageUrl || ''} onChange={(e) => onUpdate({ imageUrl: e.target.value, imageBase64: null })} />
                 </div>
             ) : (
                  <div className="space-y-2">
@@ -45,7 +45,7 @@ export function ImageEditor({ node, onUpdate }: EditorProps) {
             )}
             <div className="space-y-2">
                 <Label htmlFor="image-caption">Caption (Optional)</Label>
-                <Textarea id="image-caption" placeholder="A caption for your image..." value={node.data.caption || ''} onChange={(e) => onUpdate({ ...node.data, caption: e.target.value })} />
+                <Textarea id="image-caption" placeholder="A caption for your image..." value={node.data.caption || ''} onChange={(e) => onUpdate({ caption: e.target.value })} />
             </div>
         </div>
     );
