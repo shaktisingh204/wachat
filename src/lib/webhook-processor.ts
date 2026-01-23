@@ -416,7 +416,7 @@ async function sendFlowCarousel(db: Db, project: WithId<Project>, contact: WithI
     }
 }
 
-async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>, logger: FlowLogger) {
+async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, templateVars: Record<string, any>, logger: FlowLogger) {
     const templateId = node.data.templateId;
     if (!templateId) {
         logger.log(`Error: Template ID is missing from node ${node.id}.`);
@@ -440,7 +440,10 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         if (headerComponent?.format === 'TEXT' && headerComponent.text) {
             const headerVars = getVars(headerComponent.text);
             if (headerVars.length > 0) {
-                const parameters = headerVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: interpolate(variables[`variable${varNum}`] || '', variables) }));
+                const parameters = headerVars.sort((a,b) => a-b).map(varNum => {
+                    const varValue = (templateVars[`variable${varNum}`] || '').trim();
+                    return { type: 'text', text: varValue === '' ? '\u200B' : varValue };
+                });
                 payloadComponents.push({ type: 'header', parameters });
             }
         }
@@ -449,7 +452,10 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         if (bodyComponent?.text) {
             const bodyVars = getVars(bodyComponent.text);
             if (bodyVars.length > 0) {
-                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: interpolate(variables[`variable${varNum}`] || '', variables) }));
+                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => {
+                    const varValue = (templateVars[`variable${varNum}`] || '').trim();
+                    return { type: 'text', text: varValue === '' ? '\u200B' : varValue };
+                });
                 payloadComponents.push({ type: 'body', parameters });
             }
         }
@@ -474,6 +480,7 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         logger.log(`Flow: Failed to send template message to ${contact.waId}.`, { error: e.message });
     }
 }
+
 
 async function sendMetaFlowTrigger(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>, logger: FlowLogger) {
     const metaFlowId = node.data.metaFlowId;
@@ -661,17 +668,16 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             break;
 
         case 'condition': {
-            let valueToCheck: string = userInput || '';
-            if (userInput === undefined) {
-                const conditionType = node.data.conditionType || 'variable';
-                if (conditionType === 'user_response') {
-                    logger.log("Condition node is waiting for user response.");
-                    return 'waiting';
-                }
-                const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
-                if (variableName) {
-                    valueToCheck = contact.activeFlow.variables[variableName] || '';
-                }
+            const conditionType = node.data.conditionType || 'variable';
+            let valueToCheck: string;
+
+            if (userInput !== undefined) {
+                valueToCheck = userInput;
+            } else if (conditionType === 'user_response') {
+                logger.log("Condition node is waiting for user response.");
+                return 'waiting';
+            } else { // variable type
+                valueToCheck = interpolate(node.data.variable, contact.activeFlow.variables);
             }
             
             const rawCheckValue = node.data.value || '';
@@ -778,11 +784,20 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
-        case 'sendTemplate':
-            await sendFlowTemplate(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables, logger);
+        case 'sendTemplate': {
+            const templateVars: Record<string, string> = {};
+            if (node.data.inputs) {
+                for (const key in node.data.inputs) {
+                    if (key.startsWith('variable')) {
+                        templateVars[key] = interpolate(node.data.inputs[key], contact.activeFlow.variables);
+                    }
+                }
+            }
+            await sendFlowTemplate(db, project, contact, contact.phoneNumberId, node, templateVars, logger);
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
+        }
         case 'triggerMetaFlow':
             await sendMetaFlowTrigger(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables, logger);
             edge = flow.edges.find(e => e.source === nodeId);
