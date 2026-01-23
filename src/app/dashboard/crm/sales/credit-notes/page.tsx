@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -98,6 +99,8 @@ export default function CreditNotesPage() {
                                     <TableHead>Credit Note #</TableHead>
                                     <TableHead>Client</TableHead>
                                     <TableHead>Date</TableHead>
+                                    <TableHead>Reason</TableHead>
+                                    <TableHead>Original Invoice #</TableHead>
                                     <TableHead className="text-right">Amount</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -107,6 +110,8 @@ export default function CreditNotesPage() {
                                         <TableCell className="font-medium">{note.creditNoteNumber}</TableCell>
                                         <TableCell>{accountsMap.get(note.accountId.toString()) || 'Unknown'}</TableCell>
                                         <TableCell>{new Date(note.creditNoteDate).toLocaleDateString()}</TableCell>
+                                        <TableCell className="text-xs text-muted-foreground">{note.reason}</TableCell>
+                                        <TableCell className="font-mono text-xs">{note.originalInvoiceNumber || 'N/A'}</TableCell>
                                         <TableCell className="text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: note.currency || 'INR' }).format(note.total)}</TableCell>
                                     </TableRow>
                                 ))}
