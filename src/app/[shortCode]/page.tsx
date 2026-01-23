@@ -3,12 +3,13 @@ import { trackClickAndGetUrl } from '@/app/actions/url-shortener.actions';
 import { headers } from 'next/headers';
 
 type PageProps = {
-    params: { shortCode: string };
+    params: Promise<{ shortCode: string }>;
 };
 
 export default async function ShortUrlRedirectPage({ params }: PageProps) {
+    const resolvedParams = await params;
     const hostHeader = headers().get('host');
-    const { shortCode } = params;
+    const { shortCode } = resolvedParams;
 
     // A list of all top-level paths that are part of the application itself.
     // This prevents the short link handler from trying to resolve them.
