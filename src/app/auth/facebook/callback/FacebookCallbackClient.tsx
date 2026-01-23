@@ -3,7 +3,7 @@
 
 import { useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { handleWabaOnboarding, handleMetaConnection } from '@/app/actions/onboarding.actions'
+import { handleFacebookOAuthCallback } from '@/app/actions/facebook.actions'
 import { LoaderCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import {
@@ -31,40 +31,43 @@ export default function FacebookCallbackClient({
   useEffect(() => {
     if (error) {
       toast({
-        title: 'Onboarding Failed',
+        title: 'Connection Failed',
         description: error,
         variant: 'destructive',
       })
-      router.replace('/dashboard')
+      router.replace('/dashboard/facebook/all-projects')
       return
     }
 
-    if (!code || !stateFromUrl) return
+    if (!code || !stateFromUrl) {
+      toast({
+        title: 'Connection Cancelled',
+        description: 'The connection process was cancelled or no code was provided.',
+        variant: 'default',
+      })
+      router.replace('/dashboard/facebook/all-projects');
+      return;
+    }
 
     startTransition(async () => {
-      let result;
-      // Use the 'state' to determine which flow to execute.
-      if (stateFromUrl === 'facebook' || stateFromUrl === 'instagram') {
-        result = await handleMetaConnection({ code, state: stateFromUrl });
-      } else {
-        result = await handleWabaOnboarding({ code, state: stateFromUrl });
-      }
+      const result = await handleFacebookOAuthCallback(code, stateFromUrl);
 
       if (result.success) {
         toast({
           title: 'Connection Successful!',
           description: 'Your account has been connected.',
         })
-        router.replace('/dashboard')
+        router.replace(result.redirectPath || '/dashboard')
       } else {
         toast({
-          title: 'Onboarding Failed',
+          title: 'Connection Failed',
           description: result.error || 'An unknown error occurred.',
           variant: 'destructive',
         })
-        router.replace('/dashboard/setup')
+        router.replace('/dashboard/facebook/all-projects')
       }
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, error, stateFromUrl, router, toast])
 
   return (
