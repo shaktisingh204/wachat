@@ -69,14 +69,14 @@ Ignore all action files by default
 /src/app/actions/crm-hr.actions.ts
 /src/components/wabasimplify/meta-shaktiflow-editor/
 /src/components/wabasimplify/website-builder/
-/src/app/actions/sabshaktiflow.actions.ts
-/src/lib/sabshaktiflow
+/src/app/actions/sabflow.actions.ts
+/src/lib/sabflow
 
 #for now only
 /src/lib/cron-scheduler.js
 /src/lib/cron-scheduler.ts
 /src/lib/broadcast-worker.js
-/src/lib/webhook-processor.ts
+/src/lib/shaktiwebhook-processor.ts
 /workers/
 # debug
 npm-debug.log*
@@ -109,7 +109,7 @@ src/config/site.ts
 /package-lock.json
 /src/app/actions.ts
 /src/lib/definitions.ts
-/src/lib/webhook-processor.ts
+/src/lib/shaktiwebhook-processor.ts
 /src/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/shaktiflow-builder/page.tsx
 /src/app/actions/custom-ecommerce.actions.ts
 /src/app/actions/whatsapp.actions.ts
@@ -148,5 +148,5 @@ src/config/site.ts
 /src/app/actions/sabshaktiflow.actions.ts
 /src/app/actions/meta-shaktiflow.actions.ts
 /src/app/actions/catalog.actions.ts
-/src/components/wabasimplify/webhook-logs.tsx
+/src/components/wabasimplify/shaktiwebhook-logs.tsx
 /src/app/dashboard/crm/hr-payroll/settings/page.tsx
