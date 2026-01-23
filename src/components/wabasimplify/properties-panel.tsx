@@ -17,7 +17,7 @@ import {
     CrmLeadEditor,
     ShortLinkEditor,
     QrCodeEditor,
-} from './flow-builder-properties';
+} from './flow-builder/properties';
 
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
