@@ -3,8 +3,8 @@
 
 require('dotenv').config();
 const path = require('path');
-const { connectToDatabase } = require(path.resolve(process.cwd(), 'src/lib/mongodb'));
-const { getErrorMessage } = require(path.resolve(process.cwd(), 'src/lib/utils'));
+const { connectToDatabase } = require('../lib/mongodb');
+const { getErrorMessage } = require('../lib/utils');
 const { Kafka } = require('kafkajs');
 const undici = require('undici');
 const { ObjectId } = require('mongodb');
