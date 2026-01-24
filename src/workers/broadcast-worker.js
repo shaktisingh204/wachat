@@ -137,30 +137,19 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
         const broadcastId = new ObjectId(jobDetails._id);
         const projectId = new ObjectId(jobDetails.projectId);
 
-        // ---------------------------------------------
-        // EXACT MPS (no fallback, no default)
-        // ---------------------------------------------
         const mps = Number(jobDetails.messagesPerSecond);
-
-        // ---------------------------------------------
-        // Undici Agent (10,000 connections)
-        // ---------------------------------------------
+        
+        // Use a reasonable number of connections for the agent
         const agent = new undici.Agent({
-          connections: 10000,
+          connections: 200, // Reduced from 10000
           pipelining: 1,
         });
 
-        // ---------------------------------------------
-        // Log batch start
-        // ---------------------------------------------
         await addBroadcastLog(
           db, broadcastId, projectId, "INFO",
-          `Worker ${workerId} batch: ${contacts.length} contacts | EXACT MPS: ${mps}`
+          `Worker ${workerId} processing batch: ${contacts.length} contacts | Concurrency: ${mps} msg/s`
         );
 
-        // ---------------------------------------------
-        // EXACT RATE throttling — interval = 0
-        // ---------------------------------------------
         const throttle = pThrottleLib({
           limit: mps,
           interval: 1000,
@@ -171,20 +160,14 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
           sendWhatsAppMessage(jobDetails, contact, agent)
         );
 
-        // ---------------------------------------------
-        // Send contacts in parallel
-        // ---------------------------------------------
         const results = await Promise.all(
           contacts.map(async (contact) => {
-            try { heartbeat(); } catch {}
+            try { await heartbeat(); } catch (e) { console.warn("Heartbeat failed", e); }
             const r = await throttledSend(contact);
             return { contactId: contact._id, ...r };
           })
         );
 
-        // ---------------------------------------------
-        // Save contact results
-        // ---------------------------------------------
         const bulkOps = [];
         let success = 0;
         let failed = 0;
@@ -230,9 +213,6 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
           `Worker ${workerId} finished batch — sent: ${success} | failed: ${failed}`
         );
 
-        // ----------------------------------------------------
-        // 🔥 ATOMIC UPDATE OF JOB COUNTS (NO RACE CONDITIONS)
-        // ----------------------------------------------------
         await db.collection('broadcasts').updateOne(
           { _id: broadcastId },
           {
@@ -245,9 +225,6 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
 
         const job = await db.collection('broadcasts').findOne({ _id: broadcastId });
 
-        // ----------------------------------------------------
-        // 🔥 CHECK COMPLETION SAFELY
-        // ----------------------------------------------------
         if ((job.successCount + job.errorCount) >= job.contactCount) {
           await db.collection('broadcasts').updateOne(
             { _id: broadcastId },
