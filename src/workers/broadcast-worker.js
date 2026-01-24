@@ -2,8 +2,9 @@
 'use strict';
 
 require('dotenv').config();
-const { connectToDatabase } = require('../lib/mongodb');
-const { getErrorMessage } = require('../lib/utils');
+const path = require('path');
+const { connectToDatabase } = require(path.resolve(process.cwd(), 'src/lib/mongodb'));
+const { getErrorMessage } = require(path.resolve(process.cwd(), 'src/lib/utils'));
 const { Kafka } = require('kafkajs');
 const undici = require('undici');
 const { ObjectId } = require('mongodb');
@@ -139,9 +140,8 @@ async function startBroadcastWorker(workerId, kafkaTopic) {
 
         const mps = Number(jobDetails.messagesPerSecond);
         
-        // Use a reasonable number of connections for the agent
         const agent = new undici.Agent({
-          connections: 200, // Reduced from 10000
+          connections: 200,
           pipelining: 1,
         });
 
