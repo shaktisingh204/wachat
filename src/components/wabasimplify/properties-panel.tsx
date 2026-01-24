@@ -24,14 +24,16 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import type { Variable } from '@/lib/definitions';
 
 interface PropertiesPanelProps {
     node: any;
+    availableVariables: Variable[];
     onUpdate: (id: string, data: Partial<any>) => void;
     deleteNode: (id: string) => void;
 }
 
-export function PropertiesPanel({ node, onUpdate, deleteNode }: PropertiesPanelProps) {
+export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode }: PropertiesPanelProps) {
     if (!node) {
         return <div className="p-4 text-center text-sm text-muted-foreground">Select a block to see its properties.</div>;
     }
@@ -45,7 +47,7 @@ export function PropertiesPanel({ node, onUpdate, deleteNode }: PropertiesPanelP
     };
 
     const renderEditorContent = () => {
-        const editorProps = { node, onUpdate: handleDataChange };
+        const editorProps = { node, onUpdate: handleDataChange, availableVariables };
 
         switch (node.type) {
             case 'start': return <StartEditor {...editorProps} />;
