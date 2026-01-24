@@ -449,7 +449,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     }, [pathname]);
 
     const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban') || pathname.startsWith('/dashboard/sabchat/inbox');
-    const isBuilderPage = pathname.includes('/builder');
+    const isBuilderPage = pathname.includes('builder');
   
     const currentUserRole = React.useMemo(() => {
         if (!sessionUser || !activeProject) return 'owner'; 
