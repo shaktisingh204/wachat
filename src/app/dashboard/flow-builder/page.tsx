@@ -186,13 +186,7 @@ const NodeComponent = ({
                     <CardTitle className="text-sm font-medium">{node.data.label}</CardTitle>
                 </CardHeader>
                 <NodePreview node={node} />
-                 {node.type === 'condition' && (
-                    <CardContent className="p-3 pt-0 text-xs text-muted-foreground">
-                        <div className="flex justify-between items-center"><span>Yes</span></div>
-                        <Separator className="my-1"/>
-                        <div className="flex justify-between items-center"><span>No</span></div>
-                    </CardContent>
-                )}
+                 {node.type === 'condition' && ( <CardContent className="p-3 pt-0 text-xs text-muted-foreground"><div className="flex justify-between items-center"><span>Yes</span></div><Separator className="my-1"/><div className="flex justify-between items-center"><span>No</span></div></CardContent>)}
             </Card>
 
             {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} style={{top: '50%', transform: 'translateY(-50%)'}} />}
@@ -329,7 +323,6 @@ export function FlowBuilder() {
     const { activeProjectId } = useProject(); 
     const { toast } = useToast();
     const router = useRouter();
-    const [isClient, setIsClient] = useState(false);
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
     const [nodes, setNodes] = useState<FlowNode[]>([]);
@@ -347,6 +340,7 @@ export function FlowBuilder() {
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isPropsPanelCollapsed, setIsPropsPanelCollapsed] = useState(true);
 
     // Canvas state
     const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -358,10 +352,6 @@ export function FlowBuilder() {
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [isFullScreen, setIsFullScreen] = useState(false);
     
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-
     const fetchFlows = useCallback(() => {
         if(activeProjectId) {
             startLoadingTransition(async () => {
@@ -377,11 +367,9 @@ export function FlowBuilder() {
     }, [activeProjectId, currentFlow]);
 
     useEffect(() => {
-        if(isClient && activeProjectId) {
-            fetchFlows();
-        }
-    }, [isClient, activeProjectId, fetchFlows]);
-    
+        fetchFlows();
+    }, [fetchFlows]);
+
     const handleSelectFlow = async (flowId: string) => {
         const flow = await getFlowById(flowId);
         setCurrentFlow(flow);
@@ -478,8 +466,8 @@ export function FlowBuilder() {
         });
     };
     
-    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => { if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); setDraggingNode(nodeId); };
-    const handleCanvasMouseDown = (e: React.MouseEvent) => { if (e.button !== 0) return; if (e.target === e.currentTarget) { e.preventDefault(); setIsPanning(true); } };
+    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => { e.preventDefault(); e.stopPropagation(); setDraggingNode(nodeId); };
+    const handleCanvasMouseDown = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { e.preventDefault(); setIsPanning(true); } };
     const handleCanvasMouseMove = (e: React.MouseEvent) => {
         if (isPanning) setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
         else if (draggingNode) setNodes(prev => prev.map(n => n.id === draggingNode ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } : n));
@@ -559,11 +547,7 @@ export function FlowBuilder() {
     }, []);
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
-
-    if (!isClient) {
-        return <Skeleton className="h-full w-full"/>
-    }
-
+    
     if (!activeProjectId) {
          return (
              <div className="h-full flex items-center justify-center p-4">
@@ -579,7 +563,7 @@ export function FlowBuilder() {
     }
     
     return (
-        <div className="flex h-[calc(100vh-theme(spacing.20))] bg-muted/30">
+        <div className="flex h-full flex-col bg-muted/30">
              <div className={cn("flex-col gap-4 p-2 bg-background border-r transition-all duration-300", isSidebarCollapsed ? 'hidden' : 'hidden md:flex md:w-64')}>
                 <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
             </div>
@@ -612,7 +596,7 @@ export function FlowBuilder() {
                  <main className="flex-1 grid grid-cols-12 overflow-hidden">
                     <Card
                         ref={viewportRef}
-                        className="col-span-12 md:col-span-9 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing rounded-none border-0 border-r"
+                        className={cn("col-span-12 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing rounded-none border-0", !isPropsPanelCollapsed && "md:col-span-9 md:border-r")}
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -624,7 +608,7 @@ export function FlowBuilder() {
                         <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
                             {isLoading && !currentFlow ? (<div className="absolute inset-0 flex items-center justify-center"><LoaderCircle className="h-8 w-8 animate-spin text-primary" /></div>) : (
                                 <>
-                                    {nodes.map(node => (<NodeComponent key={node.id} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick}/>))}
+                                    {nodes.map(node => (<NodeComponent key={node.id} node={node} onSelectNode={handleSelectNode} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick}/>))}
                                     <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
                                         {edges.map(edge => {
                                             const sourceNode = nodes.find(n => n.id === edge.source);
@@ -645,13 +629,16 @@ export function FlowBuilder() {
                             )}
                         </div>
                         <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                             <Button variant="outline" size="icon" className="hidden md:flex" onClick={() => setIsPropsPanelCollapsed(prev => !prev)} disabled={!selectedNodeId}>
+                                <Settings2 className="h-4 w-4" />
+                            </Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
                     </Card>
-                    <aside className="hidden md:block col-span-3 bg-background p-4 overflow-y-auto">
+                    <aside className={cn("hidden p-4 overflow-y-auto bg-background", !isPropsPanelCollapsed && "md:block md:col-span-3")}>
                         {selectedNode && <PropertiesPanel node={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}
                     </aside>
                  </main>
@@ -683,4 +670,3 @@ export default function FlowBuilderPageWrapper() {
     <FlowBuilder />
   )
 }
-    
