@@ -1,10 +1,15 @@
 
 'use strict';
 
-require('dotenv').config();
 const path = require('path');
-const { connectToDatabase } = require('../lib/mongodb');
-const { getErrorMessage } = require('../lib/utils');
+// This ensures that .env variables are loaded from the project root
+require('dotenv').config({ path: path.resolve(process.cwd(), '.env') });
+
+// **DEFINITIVE FIX:** Resolve module paths from the project root to ensure they are found
+// regardless of where the worker script is executed from.
+const { connectToDatabase } = require(path.resolve(process.cwd(), 'src/lib/mongodb.js'));
+const { getErrorMessage } = require(path.resolve(process.cwd(), 'src/lib/utils.js'));
+
 const { Kafka } = require('kafkajs');
 const undici = require('undici');
 const { ObjectId } = require('mongodb');
