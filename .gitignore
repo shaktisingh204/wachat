@@ -32,7 +32,7 @@
 /src/app/actions/billing.actions.ts
 /src/app/actions/qr-code.actions.ts
 /src/app/actions/contact.actions.ts
-/src/app/actions/broadcast.actions.ts
+/src/app/actions/shaktibroadcast.actions.ts
 /src/app/actions/email.actions.ts
 /src/app/actions/crm-accounting.actions.ts
  /src/app/actions/crm-accounts.actions.ts
@@ -41,7 +41,7 @@
 /src/app/actions/crm-deals.actions.ts
 /src/app/actions/crm-delivery-challans.actions.ts
 /src/app/actions/crm-email.actions.ts
-/src/app/actions/crm-email-templates.actions.ts
+/src/app/actions/crm-email-shaktitemplates.actions.ts
 /src/app/actions/crm-forms.actions.ts
 /src/app/actions/crm-inventory.actions.ts
 /src/app/actions/crm-invoices.actions.ts
@@ -73,9 +73,9 @@ Ignore all action files by default
 /src/lib/sabflow
 
 #for now only
-/src/lib/cron-scheduler.js
-/src/lib/cron-scheduler.ts
-/src/lib/broadcast-worker.js
+/src/lib/shakticron-scheduler.js
+/src/lib/shakticron-scheduler.ts
+/src/lib/shaktibroadcast-worker.js
 /src/lib/shaktiwebhook-processor.ts
 /workers/
 # debug
@@ -115,13 +115,13 @@ src/config/site.ts
 /src/app/actions/whatsapp.actions.ts
 /src/components/wabasimplify/whatsapp.actions.ts
 /src/app/dashboard/sabshaktiflow/shaktiflow-builder/[shaktiflowId]/page.tsx
-/src/app/actions/broadcast.actions.ts
+/src/app/actions/shaktibroadcast.actions.ts
 /src/components/wabasimplify/crm-tab-layout.tsx
-# /src/app/actions/template.actions.ts
+# /src/app/actions/shaktitemplate.actions.ts
 # /src/app/actions/crm-reports.actions.ts
 /src/app/actions/sms.actions.ts
-/src/components/wabasimplify/broadcasts/page.tsx
-/src/app/dashboard/broadcasts/page.tsx
+/src/components/wabasimplify/shaktibroadcasts/page.tsx
+/src/app/dashboard/shaktibroadcasts/page.tsx
 /src/components/wabasimplify/project.actions.ts
 /src/app/actions/email.actions.ts
 /src/app/actions/project.actions.ts
@@ -131,7 +131,7 @@ src/config/site.ts
 /src/components/wabasimplify/sabshaktiflow/shaktiflow-builder/[shaktiflowId]/page.tsx
 /src/lib/timezones.ts
 /src/components/wabasimplify/chat-message.tsx
-/src/app/dashboard/broadcasts/[broadcastId]/page.tsx
+/src/app/dashboard/shaktibroadcasts/[shaktibroadcastId]/page.tsx
 /src/app/dashboard/shaktiflows/create/page.tsx
 /src/app/actions/url-shortener.actions.ts
 /src/app/actions/crm-hr.actions.ts
