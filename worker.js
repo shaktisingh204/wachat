@@ -33,18 +33,11 @@ function main() {
       ? `pm2-cluster-${process.env.PM2_INSTANCE_ID}`
       : `pid-${process.pid}`;
 
-  const kafkaTopic = process.argv[2];
-  if (!kafkaTopic) {
-    console.error(`${LOG_PREFIX} FATAL: Missing Kafka topic argument! Check ecosystem.config.js.`);
-    process.exit(1);
-  }
-
   console.log(`${LOG_PREFIX} Worker starting...`);
   console.log(`${LOG_PREFIX} ▸ Worker ID: ${workerId}`);
-  console.log(`${LOG_PREFIX} ▸ Kafka Topic: ${kafkaTopic}`);
 
   try {
-    startBroadcastWorker(workerId, kafkaTopic);
+    startBroadcastWorker(workerId);
   } catch (err) {
     console.error(`${LOG_PREFIX} CRITICAL ERROR starting worker process.`, err);
     process.exit(1);
