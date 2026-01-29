@@ -16,6 +16,7 @@ This document provides a comprehensive guide to setting up, running, and using t
 5.  [Broadcasting System](#broadcasting-system)
     - [1. Start the Application](#1-start-the-application)
     - [2. Triggering a WhatsApp Broadcast](#2-triggering-a-whatsapp-broadcast)
+6.  [Database Maintenance](#database-maintenance)
 
 ## Prerequisites
 
@@ -199,6 +200,20 @@ In production, the worker starts automatically with `npm run start:pm2`. In deve
 3.  **Monitor the Output**:
     *   **In Production**: Check the worker logs with `pm2 logs sabnode-worker`. You will see logs from the worker as it picks up and sends the messages.
     *   **In Development**: Check the terminal where you are running `npm run dev`.
+
+## Database Maintenance
+
+Over time, the broadcasting logs can grow very large. A command is provided to clean up old, completed records.
+
+### Clear Old Broadcasts
+
+To remove all broadcast-related data (campaigns, contact attempts, logs) for jobs that were completed or failed more than 30 days ago, run the following command from your project root:
+
+```bash
+npm run db:clear-broadcasts
+```
+
+It is recommended to run this command periodically (e.g., once a month) via a system cron job.
 
 ---
 That's it! Your SabNode application is now fully configured for development and production.

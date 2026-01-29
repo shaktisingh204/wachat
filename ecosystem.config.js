@@ -14,7 +14,7 @@ module.exports = {
       name: 'sabnode-worker',
       script: './worker.js',
       instances: 1,
-      exec_mode: 'cluster',
+      exec_mode: 'fork',
       watch: false,
       restart_delay: 10000,
       max_restarts: 20,
