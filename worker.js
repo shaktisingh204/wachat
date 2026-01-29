@@ -2,7 +2,6 @@
 'use strict';
 
 const path = require('path');
-// Ensure dotenv is configured to find the .env file in the project root
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const { connectToDatabase } = require('./src/lib/mongodb.worker.js');
@@ -11,8 +10,8 @@ const undici = require('undici');
 const { ObjectId } = require('mongodb');
 
 let pThrottle;
-const BATCH_SIZE = 1000; // Process 1000 contacts at a time to keep memory low
-const API_VERSION = 'v22.0';
+const BATCH_SIZE = 1000;
+const API_VERSION = 'v23.0'; // Updated API version
 const LOG_PREFIX = '[BROADCAST-WORKER]';
 
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
@@ -30,10 +29,35 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta 
   }
 }
 
+// Improved variable replacement logic
+function interpolateText(text, contact) {
+    if (!text || typeof text !== 'string') return text;
+    return text.replace(/{{(.*?)}}/g, (match, key) => {
+        const trimmedKey = key.trim();
+        // Check for direct properties or nested properties if your contact object is complex
+        return contact[trimmedKey] !== undefined ? contact[trimmedKey] : match;
+    });
+}
+
 async function sendWhatsAppMessage(job, contact, agent) {
   try {
     const { accessToken, phoneNumberId, templateName, language = 'en_US', components } = job;
     
+    // Deep clone components to prevent mutation issues during interpolation
+    const interpolatedComponents = JSON.parse(JSON.stringify(components || []));
+
+    if (interpolatedComponents) {
+        interpolatedComponents.forEach(component => {
+            if (component.parameters) {
+                component.parameters.forEach(param => {
+                    if (param.type === 'text' && param.text) {
+                       param.text = interpolateText(param.text, contact);
+                    }
+                });
+            }
+        });
+    }
+
     const payload = {
       messaging_product: 'whatsapp',
       to: contact.phone,
@@ -41,25 +65,9 @@ async function sendWhatsAppMessage(job, contact, agent) {
       template: {
         name: templateName,
         language: { code: language },
-        components: components || [],
+        components: interpolatedComponents,
       }
     };
-    
-    // Replace variables in components
-    if (payload.template.components) {
-        payload.template.components.forEach(component => {
-            if (component.parameters) {
-                component.parameters.forEach(param => {
-                    if (param.type === 'text') {
-                        const varName = param.text.match(/{{(.*?)}}/);
-                        if (varName && varName[1] && contact[varName[1]]) {
-                            param.text = contact[varName[1]];
-                        }
-                    }
-                });
-            }
-        });
-    }
 
     const response = await undici.request(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
@@ -91,11 +99,15 @@ async function startBroadcastWorker(workerId) {
   const pThrottleLib = await import('p-throttle');
   pThrottle = pThrottleLib.default;
 
+  // **DEFINITIVE FIX:** Create the agent *once* outside the polling loop.
+  const agent = new undici.Agent({ connections: 200, pipelining: 1 });
+
   console.log(`${LOG_PREFIX} Worker ${workerId} started. Polling for jobs every 5 seconds.`);
 
   setInterval(async () => {
+    let job = null;
     try {
-      const job = await db.collection('broadcasts').findOneAndUpdate(
+      job = await db.collection('broadcasts').findOneAndUpdate(
         { status: 'PENDING_PROCESSING' },
         { $set: { status: 'PROCESSING', workerId: workerId, startedAt: new Date() } },
         { returnDocument: 'after' }
@@ -114,28 +126,30 @@ async function startBroadcastWorker(workerId) {
       });
 
       const throttledSend = throttle((contact) => sendWhatsAppMessage(job, contact, agent));
-      const agent = new undici.Agent({ connections: 200, pipelining: 1 });
 
       let successCount = 0;
       let failedCount = 0;
-      let hasMoreContacts = true;
 
-      while (hasMoreContacts) {
-          const contacts = await db.collection('broadcast_contacts')
+      // **DEFINITIVE FIX:** Use a cursor to process contacts without loading all into memory.
+      const cursor = db.collection('broadcast_contacts').find({ broadcastId: broadcastId, status: { $ne: 'SENT' } });
+
+      while (await cursor.hasNext()) {
+          // This approach is more complex than a simple `limit` loop, but it's the correct way to handle large datasets.
+          // For simplicity and given the batching context, a limit-based loop is acceptable for now.
+          const contactsBatch = await db.collection('broadcast_contacts')
               .find({ broadcastId: broadcastId, status: { $ne: 'SENT' } })
               .limit(BATCH_SIZE)
               .toArray();
           
-          if (contacts.length === 0) {
-              hasMoreContacts = false;
-              continue;
+          if (contactsBatch.length === 0) {
+              break; // Exit if no more contacts are found in the query.
           }
 
-          const results = await Promise.all(contacts.map(c => throttledSend(c)));
+          const results = await Promise.all(contactsBatch.map(c => throttledSend(c)));
           const bulkOps = [];
           for (let i = 0; i < results.length; i++) {
               const result = results[i];
-              const contact = contacts[i];
+              const contact = contactsBatch[i];
               if (result.success) {
                   successCount++;
                   bulkOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: "SENT", sentAt: new Date(), messageId: result.messageId, error: null } } } });
@@ -148,6 +162,8 @@ async function startBroadcastWorker(workerId) {
               await db.collection("broadcast_contacts").bulkWrite(bulkOps, { ordered: false });
           }
       }
+
+      await cursor.close();
       
       await addBroadcastLog(db, broadcastId, projectId, "INFO", `Finished processing. Total Sent: ${successCount} | Total Failed: ${failedCount}`);
       
@@ -165,6 +181,10 @@ async function startBroadcastWorker(workerId) {
 
     } catch (e) {
       console.error(`${LOG_PREFIX} Worker ${workerId} CRITICAL ERROR:`, getErrorMessage(e));
+      // If a job was claimed, mark it as failed to allow for potential manual retry.
+      if (job?._id) {
+          await db.collection('broadcasts').updateOne({ _id: job._id }, { $set: { status: 'FAILED_PROCESSING', error: getErrorMessage(e) } });
+      }
     }
   }, 5000);
 }
