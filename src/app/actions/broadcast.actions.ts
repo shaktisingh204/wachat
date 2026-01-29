@@ -2,821 +2,418 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
-import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
-import { Readable } from 'stream';
-import FormData from 'form-data';
-import axios from 'axios';
-
+import { type Db, ObjectId, type WithId, type Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getSession } from '@/app/actions/index.ts';
-import { getErrorMessage } from '@/lib/utils';
-import { checkRateLimit } from '@/lib/rate-limiter';
-import type { Project, BroadcastJob, BroadcastState, Template, Contact, BroadcastAttempt, BroadcastLog } from '@/lib/definitions';
+import { getProjectById } from '@/app/actions/user.actions';
+import { handleManualWachatSetup } from '@/app/actions/whatsapp.actions';
+import { getErrorMessage, validateFile } from '@/lib/utils';
+import type { Project, Template, Broadcast, Contact } from '@/lib/definitions';
+import Papa from 'papaparse';
+import * as xlsx from 'xlsx';
+import { nanoid } from 'nanoid';
 
-const BATCH_SIZE = 1000;
-
-const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR' | 'WARN', message: string, meta?: Record<string, any>) => {
+export async function getAllBroadcasts(
+    page: number = 1,
+    limit: number = 20
+): Promise<{ broadcasts: WithId<Broadcast>[], total: number }> {
     try {
-        await db.collection('broadcast_logs').insertOne({
-            broadcastId,
-            projectId,
-            level,
-            message,
-            meta,
-            timestamp: new Date(),
-        });
-    } catch (e) {
-        console.error("Failed to write broadcast log:", e);
-    }
-};
-
-const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial<Contact>[], variablesFromColumn: boolean = true) => {
-    if (batch.length === 0) return { insertedCount: 0 };
-    
-    const contactsToInsert = batch.map(row => {
-        let phone;
-        let variables: Record<string, any>;
-
-        if (variablesFromColumn) {
-            const keys = Object.keys(row as any);
-            phone = keys.length > 0 ? (row as any)[keys[0]] : null;
-            variables = { ...row };
-            if (keys.length > 0) delete (variables as any)[keys[0]];
-        } else {
-            phone = row.waId || (row as any).phone;
-            variables = row.variables || {};
-        }
-        
-        if (!phone) return null;
-        
-        const phoneStr = String(phone).trim();
-        const cleanedPhone = phoneStr.startsWith('+') ? `+${phoneStr.replace(/\D/g, '')}` : phoneStr.replace(/\D/g, '');
+        const { db } = await connectToDatabase();
+        const skip = (page - 1) * limit;
+        const [broadcasts, total] = await Promise.all([
+            db.collection('broadcasts').find().sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection('broadcasts').countDocuments()
+        ]);
 
         return {
-            broadcastId,
-            phone: cleanedPhone,
-            variables,
-            status: 'PENDING' as const,
-            createdAt: new Date(),
+            broadcasts: JSON.parse(JSON.stringify(broadcasts)),
+            total
         };
-    }).filter(contact => contact && contact.phone);
 
-    if (contactsToInsert.length === 0) {
-        return { insertedCount: 0 };
+    } catch(e) {
+        console.error("Failed to get all broadcasts:", e);
+        return { broadcasts: [], total: 0 };
     }
-
-    try {
-        // IMPORTANT: Ensure broadcastId is passed as an ObjectId
-        const result = await db.collection('broadcast_contacts').insertMany(contactsToInsert.map(c => ({...c, broadcastId: new ObjectId(broadcastId)})), { ordered: false });
-        return { insertedCount: result.insertedCount };
-    } catch(err: any) {
-        if (err.code === 11000) { 
-            return { insertedCount: err.result?.nInserted || 0 };
-        }
-        console.warn("Bulk insert for broadcast contacts failed with a non-duplicate error.", err.code);
-        return { insertedCount: 0 };
-    }
-};
-
-
-const processStreamedContacts = async (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
-    return new Promise<number>(async (resolve, reject) => {
-        let totalProcessedCount = 0;
-        const allRows: any[] = [];
-        
-        const parser = Papa.parse(inputStream, {
-            header: true,
-            skipEmptyLines: true,
-            dynamicTyping: false,
-            step: (results) => {
-                allRows.push(results.data);
-            },
-            complete: async () => {
-                try {
-                    for (let i = 0; i < allRows.length; i += BATCH_SIZE) {
-                        const batch = allRows.slice(i, i + BATCH_SIZE);
-                        const { insertedCount } = await processContactBatch(db, broadcastId, batch, true);
-                        totalProcessedCount += insertedCount;
-                    }
-                    resolve(totalProcessedCount);
-                } catch(e) {
-                    reject(e);
-                }
-            },
-            error: (error) => reject(error)
-        });
-    });
-};
-
-export async function handleStartApiBroadcast(
-  data: {
-    projectId: string;
-    phoneNumberId: string;
-    templateId: string;
-    contacts: Partial<Contact>[];
-    variableMappings?: any[];
-  }
-): Promise<BroadcastState> {
-  const { db } = await connectToDatabase();
-  const { projectId, phoneNumberId, templateId, contacts, variableMappings } = data;
-  let broadcastId: ObjectId | null = null;
-  
-  try {
-    const project = await getProjectById(projectId);
-    if (!project) {
-      return { error: 'Project not found or you do not have access.' };
-    }
-    const accessToken = project.accessToken;
-
-    if (!templateId || !ObjectId.isValid(templateId)) return { error: 'Invalid Template ID.' };
-    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) });
-    if (!template) return { error: 'Selected template not found for this project.' };
-
-    const broadcastJobData: Omit<WithId<BroadcastJob>, '_id'> = {
-        projectId: new ObjectId(projectId),
-        broadcastType: 'template',
-        templateId: new ObjectId(templateId),
-        templateName: template.name,
-        phoneNumberId,
-        accessToken,
-        status: 'DRAFT',
-        createdAt: new Date(),
-        contactCount: 0,
-        fileName: 'API Request',
-        components: template.components,
-        language: template.language,
-        category: template.category,
-        variableMappings: variableMappings || [],
-        messagesPerSecond: project.messagesPerSecond || 80,
-    };
-    
-    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
-    broadcastId = broadcastResult.insertedId;
-    
-    await addBroadcastLog(db, broadcastId, broadcastJobData.projectId, 'INFO', 'API broadcast job created in DRAFT state.');
-    
-    let contactCount = 0;
-    if (contacts.length > BATCH_SIZE) {
-      for (let i = 0; i < contacts.length; i += BATCH_SIZE) {
-        const batch = contacts.slice(i, i + BATCH_SIZE);
-        const { insertedCount } = await processContactBatch(db, broadcastId, batch, false);
-        contactCount += insertedCount;
-      }
-    } else {
-      const { insertedCount } = await processContactBatch(db, broadcastId, contacts, false);
-      contactCount = insertedCount;
-    }
-
-    if (contactCount === 0) {
-        await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-        await addBroadcastLog(db, broadcastId, broadcastJobData.projectId, 'ERROR', 'Broadcast creation failed: no valid contacts provided.', { finalContactCount: 0 });
-        return { error: 'No valid contacts with phone numbers found to send to.' };
-    }
-    
-    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount, status: 'QUEUED' } });
-    await addBroadcastLog(db, broadcastId, broadcastJobData.projectId, 'INFO', `Broadcast moved to QUEUED state with ${contactCount} contacts ready.`);
-
-
-    revalidatePath('/dashboard/broadcasts');
-    return { message: `Broadcast successfully queued via API for ${contactCount} contacts. Sending will begin shortly.` };
-
-  } catch (e: any) {
-    if (broadcastId) {
-      await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-      await db.collection('broadcast_contacts').deleteMany({ broadcastId });
-      await addBroadcastLog(db, broadcastId, new ObjectId(projectId), 'ERROR', `Broadcast creation failed: ${getErrorMessage(e)}`);
-    }
-    return { error: getErrorMessage(e) };
-  }
 }
 
-
-export async function handleStartBroadcast(
-  prevState: BroadcastState,
-  formData: FormData
-): Promise<BroadcastState> {
-  const session = await getSession();
-  if (!session?.user) {
-    return { error: 'Authentication required to start a broadcast.' };
-  }
-
-  const { success, error } = await checkRateLimit(`broadcast:${session.user._id}`, 2, 60 * 1000); // 2 broadcasts per minute
-  if (!success) {
-    return { error };
-  }
-  
-  let broadcastId: ObjectId | null = null;
-  const { db } = await connectToDatabase();
-
-  try {
-    const projectId = formData.get('projectId') as string;
-    const phoneNumberId = formData.get('phoneNumberId') as string;
-    const mediaSource = formData.get('mediaSource') as 'url' | 'file';
-    const audienceType = formData.get('audienceType') as 'file' | 'tags';
-    const tagIds = formData.getAll('tagIds') as string[];
-
-    if (!projectId) {
-      return { error: 'No project selected. Please go to the dashboard and select a project first.' };
+export async function getBroadcastsForProject(projectId: string): Promise<WithId<Broadcast>[]> {
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return [];
     }
-    
-    const project = await getProjectById(projectId);
-    if (!project) {
-      return { error: 'Project not found or you do not have access.' };
-    }
-    
-    if (!phoneNumberId) {
-      return { error: 'No phone number selected. Please select a number to send the broadcast from.' };
-    }
-
-    const accessToken = project.accessToken;
-
-    let contactFileName = 'From Tags';
-    if(audienceType === 'file') {
-        const contactFile = formData.get('csvFile') as File;
-        if (!contactFile || contactFile.size === 0) return { error: 'Please upload a contact file.' };
-        contactFileName = contactFile.name;
-    } else {
-        if(!tagIds || tagIds.length === 0) return { error: 'Please select at least one contact tag.'};
-    }
-    
-    let broadcastJobData: Omit<WithId<BroadcastJob>, '_id'>;
-    const projectObjectId = new ObjectId(projectId);
-    
-    const templateId = formData.get('templateId') as string;
-    if (!templateId) return { error: 'Please select a message template.' };
-    if (!ObjectId.isValid(templateId)) return { error: 'Invalid Template ID.' };
-
-    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: projectObjectId });
-    if (!template) return { error: 'Selected template not found for this project.' };
-
-    let headerMediaId: string | undefined = undefined;
-    let headerImageUrl: string | undefined = undefined;
-
-    const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
-    
-    if (templateHasMediaHeader) {
-        if (mediaSource === 'file') {
-            const mediaFile = formData.get('headerImageFile') as File;
-            if (!mediaFile || mediaFile.size === 0) return { error: 'Please upload a media file for this template header.' };
-            
-            const form = new FormData();
-            const buffer = Buffer.from(await mediaFile.arrayBuffer());
-            form.append('file', buffer, {
-                filename: mediaFile.name, contentType: mediaFile.type,
-            });
-            form.append('messaging_product', 'whatsapp');
-            
-            const uploadResponse = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
-            const mediaId = uploadResponse.data.id;
-            if (!mediaId) return { error: 'Failed to upload media to Meta. No ID returned.' };
-            headerMediaId = mediaId;
-
-        } else { 
-            const overrideUrl = formData.get('headerImageUrl') as string | null;
-            if (overrideUrl && overrideUrl.trim() !== '') {
-                headerImageUrl = overrideUrl.trim();
-            } else {
-                return { error: 'A public media URL is required for this template.' };
-            }
-        }
-    }
-    
-    const variableMappings = (JSON.parse(formData.get('variableMappings') as string || '[]')) as any[];
-
-    broadcastJobData = {
-        projectId: projectObjectId,
-        broadcastType: 'template',
-        templateId: new ObjectId(templateId),
-        templateName: template.name,
-        phoneNumberId,
-        accessToken,
-        status: 'DRAFT',
-        createdAt: new Date(),
-        contactCount: 0,
-        fileName: contactFileName,
-        components: template.components,
-        language: template.language,
-        headerImageUrl: headerImageUrl,
-        headerMediaId: headerMediaId,
-        category: template.category,
-        variableMappings: variableMappings,
-        messagesPerSecond: project.messagesPerSecond || 80,
-    };
-
-    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
-    broadcastId = broadcastResult.insertedId;
-    await addBroadcastLog(db, broadcastId, projectObjectId, 'INFO', `Broadcast job created in DRAFT state with file ${contactFileName}.`);
-
-
-    let contactCount = 0;
-    
-    if (audienceType === 'tags') {
-        const contactsCursor = db.collection('contacts').find({
-            projectId: projectObjectId,
-            tagIds: { $in: tagIds.map(id => new ObjectId(id)) },
-        });
-
-        let contactBatch: Partial<Contact>[] = [];
-        for await (const contact of contactsCursor) {
-            contactBatch.push(contact);
-            if (contactBatch.length >= BATCH_SIZE) {
-                const { insertedCount } = await processContactBatch(db, broadcastId, contactBatch, false);
-                contactCount += insertedCount;
-                contactBatch = [];
-            }
-        }
-        if (contactBatch.length > 0) {
-             const { insertedCount } = await processContactBatch(db, broadcastId, contactBatch, false);
-            contactCount += insertedCount;
-        }
-
-    } else { // audienceType is 'file'
-        const contactFile = formData.get('csvFile') as File;
-        if (!contactFile || contactFile.size === 0) {
-            await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-            return { error: 'Please upload a contact file.' };
-        }
-
-        if (contactFile.name.endsWith('.csv')) {
-            const nodeStream = Readable.fromWeb(contactFile.stream() as any);
-            contactCount = await processStreamedContacts(nodeStream, db, broadcastId);
-        } else if (contactFile.name.endsWith('.xlsx')) {
-            const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
-            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-            const sheetName = workbook.SheetNames[0];
-            if (!sheetName) {
-                throw new Error('The XLSX file contains no sheets.');
-            }
-            const worksheet = workbook.Sheets[sheetName];
-            // Use `raw: false` for formatted text, and `cellDates: true` if dates are an issue
-            // Set `cellNF: true` and modify the first column to be text format 't'
-            if (worksheet['!cols']?.[0]) {
-                worksheet['!cols'][0].z = '@'; // Set first column format to Text
-            } else {
-                 worksheet['!cols'] = [{ z: '@' }];
-            }
-            const csvData = XLSX.utils.sheet_to_csv(worksheet, { raw: false });
-            contactCount = await processStreamedContacts(csvData, db, broadcastId);
-        } else {
-            await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-            return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
-        }
-    }
-
-    if (contactCount === 0) {
-        await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-        await addBroadcastLog(db, projectObjectId, broadcastId, 'ERROR', 'Broadcast creation failed: no valid contacts found.', { finalContactCount: 0 });
-        return { error: 'No valid contacts with phone numbers found to send to.' };
-    }
-    
-    // Atomically update the status to QUEUED now that contacts are inserted.
-    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount, status: 'QUEUED' } });
-    await addBroadcastLog(db, projectObjectId, broadcastId, 'INFO', `Broadcast moved to QUEUED state with ${contactCount} contacts ready.`);
-
-    revalidatePath('/dashboard/broadcasts');
-    return { message: `Broadcast successfully queued for ${contactCount} contacts. Sending will begin shortly.` };
-
-  } catch (e: any) {
-    console.error('Failed to queue broadcast:', e);
-    if (broadcastId) {
-        await addBroadcastLog(db, new ObjectId(formData.get('projectId') as string), broadcastId, 'ERROR', `Broadcast creation failed: ${getErrorMessage(e)}`);
-        await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-        await db.collection('broadcast_contacts').deleteMany({ broadcastId: broadcastId });
-    }
-    return { error: getErrorMessage(e) || 'An unexpected error occurred while processing the broadcast.' };
-  }
-}
-
-export async function getBroadcasts(
-    projectId: string,
-    page: number = 1,
-    limit: number = 10
-): Promise<{ broadcasts: WithId<any>[], total: number }> {
     const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { broadcasts: [], total: 0 };
-
-    if (!ObjectId.isValid(projectId)) {
-        return { broadcasts: [], total: 0 };
-    }
+    if (!hasAccess) return [];
 
     try {
         const { db } = await connectToDatabase();
-        const projectObjectId = new ObjectId(projectId);
+        const broadcasts = await db.collection('broadcasts')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .limit(50)
+            .toArray();
 
-        const matchCriteria = {
-            projectId: projectObjectId
-        };
-
-        const skip = (page - 1) * limit;
-
-        const pipeline = [
-            { $match: matchCriteria },
-            {
-                $facet: {
-                    paginatedResults: [
-                        { $sort: { createdAt: -1 } },
-                        { $skip: skip },
-                        { $limit: limit },
-                        {
-                            $project: {
-                                templateId: 1,
-                                templateName: 1,
-                                fileName: 1,
-                                contactCount: 1,
-                                successCount: 1,
-                                errorCount: 1,
-                                deliveredCount: 1,
-                                readCount: 1,
-                                status: 1,
-                                createdAt: 1,
-                                startedAt: 1,
-                                completedAt: 1,
-                                messagesPerSecond: 1,
-                                projectMessagesPerSecond: '$messagesPerSecond' // Ensure we get this value
-                            }
-                        }
-                    ],
-                    totalCount: [
-                        { $count: 'count' }
-                    ]
-                }
-            }
-        ];
-
-        const results = await db.collection('broadcasts').aggregate(pipeline).toArray();
-
-        const broadcasts = results[0].paginatedResults || [];
-        const total = results[0].totalCount[0]?.count || 0;
-
-        return { broadcasts: JSON.parse(JSON.stringify(broadcasts)), total };
-    } catch (error) {
-        console.error('Failed to fetch broadcast history:', error);
-        return { broadcasts: [], total: 0 };
-    }
-}
-
-export async function getBroadcastLogs(broadcastId: string): Promise<any[]> {
-    if (!ObjectId.isValid(broadcastId)) return [];
-    try {
-        const { db } = await connectToDatabase();
-        const logs = await db.collection('broadcast_logs').find({ broadcastId: new ObjectId(broadcastId) }).sort({ timestamp: -1 }).limit(100).toArray();
-        return JSON.parse(JSON.stringify(logs));
+        return JSON.parse(JSON.stringify(broadcasts));
     } catch (e) {
-        console.error("Failed to fetch broadcast logs:", e);
+        console.error("Failed to get broadcasts for project:", e);
         return [];
     }
 }
 
+export async function getBroadcastById(broadcastId: string): Promise<WithId<any> | null> {
+    if (!broadcastId || !ObjectId.isValid(broadcastId)) return null;
 
-export async function getAllBroadcasts(
-    page: number = 1,
-    limit: number = 10,
-    query?: string
-): Promise<{ broadcasts: WithId<any>[], total: number }> {
     try {
         const { db } = await connectToDatabase();
-        const filter: Filter<BroadcastJob> = {};
-        if (query) {
-             filter.templateName = { $regex: query, $options: 'i' };
-        }
-        
-        const skip = (page - 1) * limit;
-        
-        const [broadcasts, total] = await Promise.all([
-             db.collection<BroadcastJob>('broadcasts').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
-             db.collection('broadcasts').countDocuments(filter)
-        ]);
+        const broadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
+        if (!broadcast) return null;
 
-        return { broadcasts: JSON.parse(JSON.stringify(broadcasts)), total };
-    } catch(e) {
-        console.error("Failed to get all broadcasts for admin:", e);
-        return { broadcasts: [], total: 0 };
+        const hasAccess = await getProjectById(broadcast.projectId.toString());
+        if (!hasAccess) return null;
+        
+        return JSON.parse(JSON.stringify(broadcast));
+
+    } catch (e) {
+        console.error("Failed to get broadcast by ID:", e);
+        return null;
     }
 }
 
-
 export async function getBroadcastAttempts(
-    broadcastId: string, 
-    page: number = 1, 
-    limit: number = 50, 
-    filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ' = 'ALL'
-): Promise<{ attempts: BroadcastAttempt[], total: number }> {
-    const broadcast = await getBroadcastById(broadcastId);
-    if (!broadcast) return { attempts: [], total: 0 };
-
-    try {
+    broadcastId: string,
+    page: number = 1,
+    limit: number = 50,
+    statusFilter?: string
+): Promise<{ attempts: any[], total: number }> {
+     if (!broadcastId || !ObjectId.isValid(broadcastId)) return { attempts: [], total: 0 };
+     try {
         const { db } = await connectToDatabase();
-        const query: any = { broadcastId: new ObjectId(broadcastId) };
-        if (filter !== 'ALL') {
-            query.status = filter;
+        
+        const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
+        if(statusFilter && statusFilter !== 'ALL') {
+            filter.status = statusFilter;
         }
 
         const skip = (page - 1) * limit;
 
         const [attempts, total] = await Promise.all([
-            db.collection('broadcast_contacts').find(query).sort({createdAt: -1}).skip(skip).limit(limit).toArray(),
-            db.collection('broadcast_contacts').countDocuments(query)
+            db.collection('broadcast_contacts').find(filter).sort({ _id: 1 }).skip(skip).limit(limit).toArray(),
+            db.collection('broadcast_contacts').countDocuments(filter)
         ]);
-        
-        return { attempts: JSON.parse(JSON.stringify(attempts)), total };
-    } catch (error) {
-        console.error('Failed to fetch broadcast attempts:', error);
-        return { attempts: [], total: 0 };
-    }
-}
 
-export async function getBroadcastAttemptsForExport(
-    broadcastId: string,
-    filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ' = 'ALL'
-): Promise<BroadcastAttempt[]> {
-    const broadcast = await getBroadcastById(broadcastId);
-    if (!broadcast) return [];
-
-    try {
-        const { db } = await connectToDatabase();
-        const query: any = { broadcastId: new ObjectId(broadcastId) };
-        if (filter !== 'ALL') {
-            query.status = filter;
-        }
-
-        const attempts = await db.collection('broadcast_contacts').find(query).sort({createdAt: -1}).toArray();
-        
-        return JSON.parse(JSON.stringify(attempts));
-    } catch (error) {
-        console.error('Failed to fetch broadcast attempts for export:', error);
-        return [];
-    }
-}
-
-export async function handleStopBroadcast(broadcastId: string): Promise<{ message?: string; error?: string }> {
-    const broadcast = await getBroadcastById(broadcastId);
-    if (!broadcast) return { error: 'Broadcast not found or you do not have access.' };
-    
-    try {
-        const { db } = await connectToDatabase();
-        const broadcastObjectId = new ObjectId(broadcastId);
-
-        if (broadcast.status !== 'QUEUED' && broadcast.status !== 'PROCESSING') {
-            return { error: 'This broadcast cannot be stopped as it is not currently active.' };
-        }
-        
-        const updateResult = await db.collection('broadcasts').updateOne(
-            { _id: broadcastObjectId },
-            { $set: { status: 'Cancelled', completedAt: new Date() } }
-        );
-        
-        await addBroadcastLog(db, broadcastObjectId, broadcast.projectId, 'WARN', `Broadcast manually stopped by user.`);
-
-
-        if (updateResult.modifiedCount === 0) {
-            const currentBroadcast = await db.collection('broadcasts').findOne({ _id: broadcastObjectId });
-            if (currentBroadcast?.status !== 'QUEUED' && currentBroadcast?.status !== 'PROCESSING') {
-                 return { message: 'Broadcast already completed or stopped.' };
-            }
-            return { error: 'Failed to update broadcast status.' };
-        }
-        
-        const deleteResult = await db.collection('broadcast_contacts').deleteMany({
-            broadcastId: broadcastObjectId,
-            status: 'PENDING'
-        });
-        
-        await addBroadcastLog(db, broadcastObjectId, broadcast.projectId, 'INFO', `${deleteResult.deletedCount} pending messages were cancelled.`);
-
-
-        revalidatePath('/dashboard/broadcasts');
-
-        return { message: `Broadcast has been stopped. ${deleteResult.deletedCount} pending messages were cancelled.` };
-    } catch (e: any) {
-        console.error('Failed to stop broadcast:', e);
-        return { error: e.message || 'An unexpected error occurred while stopping the broadcast.' };
-    }
-}
-
-export async function handleRequeueBroadcast(
-    prevState: { message?: string | null; error?: string | null; },
-    formData: FormData
-): Promise<{ message?: string | null; error?: string | null; }> {
-    const broadcastId = formData.get('broadcastId') as string;
-    const newTemplateId = formData.get('templateId') as string;
-    const requeueScope = formData.get('requeueScope') as 'ALL' | 'FAILED' | null;
-    const newHeaderImageUrl = formData.get('headerImageUrl') as string | null;
-
-    const originalBroadcast = await getBroadcastById(broadcastId);
-    if (!originalBroadcast) {
-        return { error: 'Original broadcast not found or you do not have access.' };
-    }
-    
-    if (!newTemplateId || !ObjectId.isValid(newTemplateId)) {
-        return { error: 'A valid template must be selected.' };
-    }
-    if (!requeueScope) {
-        return { error: 'Please select which contacts to send to (All or Failed).' };
-    }
-
-    const { db } = await connectToDatabase();
-    const originalBroadcastId = new ObjectId(broadcastId);
-
-    try {
-        const newTemplate = await db.collection('templates').findOne({ _id: new ObjectId(newTemplateId), projectId: originalBroadcast.projectId });
-        
-        if (!newTemplate) {
-            return { error: 'Selected template not found.' };
-        }
-
-        const finalHeaderImageUrl = newHeaderImageUrl && newHeaderImageUrl.trim() !== '' ? newHeaderImageUrl.trim() : undefined;
-        
-        const newBroadcastData = {
-            projectId: originalBroadcast.projectId,
-            templateId: newTemplate._id,
-            templateName: newTemplate.name,
-            phoneNumberId: originalBroadcast.phoneNumberId,
-            accessToken: originalBroadcast.accessToken,
-            status: 'DRAFT' as const,
-            createdAt: new Date(),
-            contactCount: 0, 
-            fileName: `Requeue of ${originalBroadcast.fileName}`,
-            components: newTemplate.components,
-            language: newTemplate.language,
-            headerImageUrl: finalHeaderImageUrl,
-            messagesPerSecond: originalBroadcast.messagesPerSecond || 80,
+        return {
+            attempts: JSON.parse(JSON.stringify(attempts)),
+            total
         };
 
-        const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData);
-        const newBroadcastId = newBroadcastResult.insertedId;
-        await addBroadcastLog(db, newBroadcastId, originalBroadcast.projectId, 'INFO', `Requeue job created from original broadcast ${originalBroadcastId}. Scope: ${requeueScope}.`);
-
-        const contactQuery: any = { broadcastId: originalBroadcastId };
-        if (requeueScope === 'FAILED') {
-            contactQuery.status = 'FAILED';
-        }
-
-        const originalContactsCursor = db.collection('broadcast_contacts').find(contactQuery);
-        
-        let newContactsCount = 0;
-        const contactBatchSize = 1000;
-        let contactBatch: any[] = [];
-
-        for await (const contact of originalContactsCursor) {
-            const newContact = {
-                broadcastId: newBroadcastId,
-                phone: contact.phone,
-                variables: contact.variables,
-                status: 'PENDING' as const,
-                createdAt: new Date(),
-            };
-            contactBatch.push(newContact);
-
-            if (contactBatch.length >= contactBatchSize) {
-                const result = await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
-                newContactsCount += result.insertedCount;
-                contactBatch = [];
-            }
-        }
-        
-        if (contactBatch.length > 0) {
-            const result = await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
-            newContactsCount += result.insertedCount;
-        }
-        
-        if (newContactsCount === 0) {
-            await db.collection('broadcasts').deleteOne({ _id: newBroadcastId });
-            const scopeText = requeueScope.toLowerCase();
-            return { error: `No ${scopeText} contacts found to requeue from the original broadcast.` };
-        }
-        
-        await db.collection('broadcasts').updateOne({ _id: newBroadcastId }, { $set: { contactCount: newContactsCount, status: 'QUEUED' } });
-        await addBroadcastLog(db, newBroadcastId, originalBroadcast.projectId, 'INFO', `Requeue job moved to QUEUED with ${newContactsCount} contacts.`);
-        
-        revalidatePath('/dashboard/broadcasts');
-
-        return { message: `Broadcast has been successfully requeued with ${newContactsCount} contacts.` };
-
-    } catch (e: any) {
-        console.error('Failed to requeue broadcast:', e);
-        return { error: 'An unexpected error occurred while requeuing the broadcast.' };
-    }
+     } catch(e) {
+         return { attempts: [], total: 0 };
+     }
 }
 
-export async function handleBulkBroadcast(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectIdsString = formData.get('projectIds') as string;
-    const projectIds = projectIdsString ? projectIdsString.split(',') : [];
-    const templateName = formData.get('templateName') as string;
-    const language = formData.get('language') as string;
-    const contactFile = formData.get('contactFile') as File;
+export async function getBroadcastAttemptsForExport(broadcastId: string, statusFilter?: string): Promise<any[]> {
+    if (!broadcastId || !ObjectId.isValid(broadcastId)) return [];
+     try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
+        if(statusFilter && statusFilter !== 'ALL') {
+            filter.status = statusFilter;
+        }
+        const attempts = await db.collection('broadcast_contacts').find(filter).project({ phone: 1, status: 1, messageId: 1, error: 1, sentAt: 1 }).toArray();
+        return JSON.parse(JSON.stringify(attempts));
+     } catch(e) {
+         return [];
+     }
+}
+
+
+export async function getBroadcastLogs(broadcastId: string): Promise<WithId<any>[]> {
+     if (!broadcastId || !ObjectId.isValid(broadcastId)) return [];
+     try {
+        const { db } = await connectToDatabase();
+        const logs = await db.collection('broadcast_logs').find({ broadcastId: new ObjectId(broadcastId) }).sort({ timestamp: -1 }).limit(100).toArray();
+        return JSON.parse(JSON.stringify(logs));
+     } catch(e) {
+        return [];
+     }
+}
+
+
+const parseContactFile = async (file: File) => {
+    const { isValid, error } = validateFile(file, ['text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
+    if (!isValid) throw new Error(error);
+
+    const buffer = await file.arrayBuffer();
+    const data = new Uint8Array(buffer);
     
-    if (projectIds.length === 0 || !templateName || !language || !contactFile || contactFile.size === 0) {
-        return { error: 'Projects, template name, language, and a contact file are required.' };
+    let rows: any[] = [];
+    if(file.type === 'text/csv') {
+        const text = new TextDecoder("utf-8").decode(data);
+        rows = Papa.parse(text, { header: true, skipEmptyLines: true }).data;
+    } else {
+        const workbook = xlsx.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+        const header = rows[0];
+        rows = rows.slice(1).map(row => {
+            const rowData: any = {};
+            header.forEach((h: any, i: number) => {
+                rowData[h] = row[i];
+            });
+            return rowData;
+        });
     }
+
+    if (!rows[0] || !Object.keys(rows[0]).some(h => h.toLowerCase().includes('phone'))) {
+        throw new Error("Invalid file format. The first column must be named 'phone'.");
+    }
+
+    return rows.map((row) => ({
+        phone: String(row.phone || row.Phone || row.PHONE).trim().replace(/\D/g, ''),
+        name: row.name || row.Name || 'Subscriber',
+        ...row // include other columns as variables
+    }));
+};
+
+async function createBroadcastContacts(db: Db, broadcastId: ObjectId, contacts: any[]) {
+    if (contacts.length === 0) return 0;
+
+    const contactsToInsert = contacts.map(c => ({
+        broadcastId: broadcastId,
+        phone: c.phone,
+        name: c.name,
+        variables: { ...c }, // All columns are available as variables
+        status: 'PENDING',
+    }));
+
+    // Use bulk write for efficient insertion
+    const batchSize = 1000;
+    let totalInserted = 0;
+    for (let i = 0; i < contactsToInsert.length; i += batchSize) {
+        const batch = contactsToInsert.slice(i, i + batchSize);
+        const result = await db.collection('broadcast_contacts').insertMany(batch);
+        totalInserted += result.insertedCount;
+    }
+    return totalInserted;
+}
+
+
+export async function handleStartBroadcast(
+    prevState: any,
+    formData: FormData
+): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const templateId = formData.get('templateId') as string;
+    const audienceType = formData.get('audienceType') as 'file' | 'tags';
+    const tagIds = formData.getAll('tagIds') as string[];
+    
+    // Header variables
+    const headerImageUrl = formData.get('headerImageUrl') as string | null;
+    const headerMediaFile = formData.get('headerImageFile') as File | null;
+    const headerText = formData.get('headerText') as string | null;
+    
+    // Body variables mapping
+    const variableMappingsJSON = formData.get('variableMappings') as string | null;
+    const variableMappings = variableMappingsJSON ? JSON.parse(variableMappingsJSON) : [];
+    
+    const { db } = await connectToDatabase();
+    
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found.' };
+
+    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) });
+    if (!template) return { error: 'Template not found for this project.' };
+
+    let contacts: any[] = [];
+
+    if (audienceType === 'file') {
+        const csvFile = formData.get('csvFile') as File;
+        if (!csvFile || csvFile.size === 0) return { error: 'Contact file is required.' };
+        try {
+            contacts = await parseContactFile(csvFile);
+        } catch (e: any) {
+            return { error: `Failed to parse file: ${e.message}` };
+        }
+    } else if (audienceType === 'tags' && tagIds.length > 0) {
+        const validTagIds = tagIds.map(id => new ObjectId(id));
+        contacts = await db.collection<Contact>('contacts').find({
+            projectId: new ObjectId(projectId),
+            tagIds: { $in: validTagIds }
+        }).toArray();
+    }
+    
+    if (contacts.length === 0) {
+        return { error: 'No contacts found for the selected audience.' };
+    }
+
+    // --- Build Component Payload ---
+    const components: any[] = [];
+    const headerComponentDef = template.components?.find(c => c.type === 'HEADER');
+    
+    if (headerComponentDef) {
+        const format = headerComponentDef.format?.toLowerCase();
+        
+        if ((headerImageUrl || headerMediaFile) && format && ['image', 'video', 'document'].includes(format)) {
+            const parameter: any = { type: format };
+            parameter[format] = { link: headerImageUrl }; // File is handled by worker, just pass url for now
+            components.push({ type: 'header', parameters: [parameter] });
+        } else if (headerText) {
+             components.push({
+                type: 'header',
+                parameters: [{ type: 'text', text: headerText }]
+            });
+        }
+    }
+
+    if (variableMappings.length > 0) {
+        components.push({
+            type: 'body',
+            parameters: variableMappings.map((m: any) => ({
+                type: 'text',
+                text: `{{${m.contactField}}}` // The worker will interpolate this
+            }))
+        });
+    }
+    
+    const broadcastData: Omit<Broadcast, '_id' | 'createdAt'> = {
+        name: `${template.name} - ${new Date().toLocaleString()}`,
+        projectId: new ObjectId(projectId),
+        phoneNumberId,
+        templateName: template.name,
+        templateId: template._id,
+        language: template.language,
+        status: 'QUEUED',
+        contactCount: contacts.length,
+        audienceType: audienceType,
+        tagIds: audienceType === 'tags' ? tagIds.map(id => new ObjectId(id)) : [],
+        accessToken: project.accessToken,
+        components,
+        headerMediaFile: headerMediaFile?.size > 0 ? {
+            buffer: Buffer.from(await headerMediaFile.arrayBuffer()),
+            name: headerMediaFile.name,
+            type: headerMediaFile.type,
+        } : undefined,
+    };
+    
+    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
+    const broadcastId = broadcastResult.insertedId;
+    
+    const contactsInserted = await createBroadcastContacts(db, broadcastId, contacts);
+
+    revalidatePath('/dashboard/broadcasts');
+    
+    return { message: `Broadcast successfully queued for ${contactsInserted} contacts. Sending will begin shortly.` };
+}
+
+export async function handleStartApiBroadcast(data: {
+    projectId: string;
+    phoneNumberId: string;
+    templateId: string;
+    contacts: any[];
+    variableMappings?: any[];
+}): Promise<{ message?: string; error?: string }> {
+    const { projectId, phoneNumberId, templateId, contacts, variableMappings } = data;
+    const { db } = await connectToDatabase();
+    
+    const [project, template] = await Promise.all([
+        getProjectById(projectId),
+        db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) })
+    ]);
+
+    if (!project) return { error: 'Project not found.' };
+    if (!template) return { error: 'Template not found for this project.' };
+
+    const components: any[] = [];
+     if (variableMappings && variableMappings.length > 0) {
+        components.push({
+            type: 'body',
+            parameters: variableMappings.map(m => ({
+                type: 'text',
+                text: `{{${m.contactField}}}`
+            }))
+        });
+    }
+
+    const broadcastData: Omit<Broadcast, '_id' | 'createdAt'> = {
+        name: `API Broadcast - ${template.name} - ${new Date().toLocaleString()}`,
+        projectId: new ObjectId(projectId),
+        phoneNumberId,
+        templateName: template.name,
+        templateId: template._id,
+        language: template.language,
+        status: 'QUEUED',
+        contactCount: contacts.length,
+        audienceType: 'api',
+        accessToken: project.accessToken,
+        components,
+    };
+
+    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
+    const broadcastId = broadcastResult.insertedId;
+    
+    await createBroadcastContacts(db, broadcastId, contacts);
+
+    return { message: `Broadcast successfully queued via API for ${contacts.length} contacts. Sending will begin shortly.` };
+}
+
+
+export async function handleRequeueBroadcast(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const broadcastId = formData.get('broadcastId') as string;
+    const requeueScope = formData.get('requeueScope') as 'ALL' | 'FAILED';
+    const newTemplateId = formData.get('templateId') as string;
+    const headerImageUrl = formData.get('headerImageUrl') as string | null;
+
+    if(!broadcastId) return { error: 'Original broadcast ID is missing.' };
 
     const { db } = await connectToDatabase();
-    let jobsCreated = 0;
+    const originalBroadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
+    if (!originalBroadcast) return { error: 'Original broadcast not found.' };
     
-    try {
-        let allContacts: any[] = [];
-        if (contactFile.name.endsWith('.csv')) {
-            const csvText = await contactFile.text();
-            allContacts = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
-        } else if (contactFile.name.endsWith('.xlsx')) {
-            const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
-            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-            const sheetName = workbook.SheetNames[0];
-            if (!sheetName) throw new Error('The XLSX file contains no sheets.');
-            const worksheet = workbook.Sheets[sheetName];
-            allContacts = XLSX.utils.sheet_to_json(worksheet);
-        } else {
-            return { error: 'Unsupported file type. Please use .csv or .xlsx.' };
-        }
+    const projectId = originalBroadcast.projectId.toString();
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found.' };
 
-        if (allContacts.length === 0) {
-            return { error: 'No contacts found in the uploaded file.' };
-        }
-        
-        const contactsPerProject = Math.ceil(allContacts.length / projectIds.length);
-        
-        for (let i = 0; i < projectIds.length; i++) {
-            const projectId = projectIds[i];
-            const projectObjectId = new ObjectId(projectId);
-            const project = await getProjectById(projectId);
+    const templateId = newTemplateId || originalBroadcast.templateId.toString();
+    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) });
+    if (!template) return { error: 'Template not found.' };
+    
+    const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
+    if (requeueScope === 'FAILED') {
+        filter.status = 'FAILED';
+    }
 
-            // Fetch the specific template for this project
-            const template = await db.collection<Template>('templates').findOne({
-                projectId: projectObjectId,
-                name: templateName,
-                language: language
-            });
+    const contacts = await db.collection('broadcast_contacts').find(filter).toArray();
+    if (contacts.length === 0) {
+        return { error: 'No contacts found to requeue.' };
+    }
 
-            if (!project || !template || !project.phoneNumbers?.[0]?.id) {
-                console.warn(`Skipping bulk broadcast for project ${projectId}: Project, template (${templateName}/${language}), or phone number not found.`);
-                continue;
-            }
-
-            const broadcastJobData: Omit<WithId<BroadcastJob>, '_id'> = {
-                projectId: projectObjectId,
-                broadcastType: 'template',
-                templateId: template._id,
-                templateName: template.name,
-                phoneNumberId: project.phoneNumbers[0].id,
-                accessToken: project.accessToken,
-                status: 'DRAFT',
-                createdAt: new Date(),
-                contactCount: 0,
-                fileName: `Bulk: ${contactFile.name}`,
-                components: template.components,
-                language: template.language,
-                category: template.category,
-                variableMappings: [],
-                messagesPerSecond: project.messagesPerSecond || 80,
-            };
-
-            const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
-            const broadcastId = broadcastResult.insertedId;
-            
-            const contactChunk = allContacts.slice(i * contactsPerProject, (i + 1) * contactsPerProject);
-            
-            if (contactChunk.length > 0) {
-                const { insertedCount } = await processContactBatch(db, broadcastId, contactChunk, true);
-                if (insertedCount > 0) {
-                    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount: insertedCount, status: 'QUEUED' } });
-                    jobsCreated++;
-                } else {
-                    await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-                }
-            } else {
-                 await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+    const components: any[] = [];
+    if(headerImageUrl) {
+         const headerComponentDef = template.components?.find(c => c.type === 'HEADER');
+         if (headerComponentDef?.format) {
+            const format = headerComponentDef.format.toLowerCase();
+            if (['image', 'video', 'document'].includes(format)) {
+                const parameter: any = { type: format };
+                parameter[format] = { link: headerImageUrl };
+                components.push({ type: 'header', parameters: [parameter] });
             }
         }
-        
-        revalidatePath('/dashboard/broadcasts');
-        return { message: `Successfully queued ${jobsCreated} broadcast campaigns, distributing ${allContacts.length} contacts.` };
-    } catch(e) {
-        return { error: getErrorMessage(e) };
     }
+    
+    const newBroadcastData: Omit<Broadcast, '_id' | 'createdAt'> = {
+        ...originalBroadcast,
+        name: `${originalBroadcast.name} (Requeued)`,
+        status: 'QUEUED',
+        contactCount: contacts.length,
+        successCount: 0,
+        errorCount: 0,
+        startedAt: undefined,
+        completedAt: undefined,
+        components: headerImageUrl ? components : originalBroadcast.components,
+    };
+    delete (newBroadcastData as any)._id;
+
+    const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData as any);
+    await createBroadcastContacts(db, newBroadcastResult.insertedId, contacts);
+
+    revalidatePath('/dashboard/broadcasts');
+    return { message: `${contacts.length} contacts have been re-queued for broadcast.` };
 }
-
-export async function getBroadcastById(broadcastId: string): Promise<WithId<BroadcastJob> | null> {
-    if (!ObjectId.isValid(broadcastId)) return null;
-
-    try {
-        const { db } = await connectToDatabase();
-        const broadcast = await db.collection<BroadcastJob>('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
-        if (!broadcast) return null;
-
-        const hasAccess = await getProjectById(broadcast.projectId.toString());
-        if (!hasAccess) return null;
-
-        return JSON.parse(JSON.stringify(broadcast));
-    } catch(e) {
-        console.error("Failed to get broadcast by ID:", e);
-        return null;
-    }
-}
-    
-
-    
-
-    
-
-    
