@@ -1,34 +1,173 @@
-
 'use strict';
 
-require('dotenv').config();
 const path = require('path');
-const fs = require('fs');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
-const LOG_PREFIX = '[WORKER-LOADER]';
-// **DEFINITIVE FIX:** Use path.resolve from the current working directory to get an absolute path.
-// This is robust for both development (run with `npm run`) and production (run with `pm2`).
-const WORKER_FILE_PATH = path.resolve(process.cwd(), 'src', 'workers', 'broadcast-worker.js');
+const { connectToDatabase } = require('./src/lib/mongodb.worker.js');
+const { getErrorMessage } = require('./src/lib/utils.worker.js');
+const undici = require('undici');
+const { ObjectId } = require('mongodb');
 
+let pThrottle;
+const BATCH_SIZE = 1000; // Process 1000 contacts at a time to keep memory low
+const API_VERSION = 'v22.0';
+const LOG_PREFIX = '[BROADCAST-WORKER]';
+
+async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
+  try {
+    await db.collection('broadcast_logs').insertOne({
+      broadcastId,
+      projectId,
+      level,
+      message,
+      meta,
+      timestamp: new Date(),
+    });
+  } catch (e) {
+    console.error(`${LOG_PREFIX} Failed to write log:`, e);
+  }
+}
+
+async function sendWhatsAppMessage(job, contact, agent) {
+  try {
+    const { accessToken, phoneNumberId, templateName, language = 'en_US', components } = job;
+    
+    const payload = {
+      messaging_product: 'whatsapp',
+      to: contact.phone,
+      type: 'template',
+      template: {
+        name: templateName,
+        language: { code: language },
+        components: components || [],
+      }
+    };
+    
+    // Replace variables in components
+    if (payload.template.components) {
+        payload.template.components.forEach(component => {
+            if (component.parameters) {
+                component.parameters.forEach(param => {
+                    if (param.type === 'text') {
+                        const varName = param.text.match(/{{(.*?)}}/);
+                        if (varName && varName[1] && contact[varName[1]]) {
+                            param.text = contact[varName[1]];
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    const response = await undici.request(
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
+      {
+        method: 'POST',
+        dispatcher: agent,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify(payload),
+        throwOnError: false
+      }
+    );
+
+    const json = await response.body.json().catch(() => null);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      const messageId = json?.messages?.[0]?.id || null;
+      return { success: true, messageId };
+    }
+
+    return { success: false, error: JSON.stringify(json?.error || json) };
+
+  } catch (err) {
+    return { success: false, error: getErrorMessage(err) };
+  }
+}
+
+async function startBroadcastWorker(workerId) {
+  const { db } = await connectToDatabase();
+  const pThrottleLib = await import('p-throttle');
+  pThrottle = pThrottleLib.default;
+
+  console.log(`${LOG_PREFIX} Worker ${workerId} started. Polling for jobs every 5 seconds.`);
+
+  setInterval(async () => {
+    try {
+      const job = await db.collection('broadcasts').findOneAndUpdate(
+        { status: 'PENDING_PROCESSING' },
+        { $set: { status: 'PROCESSING', workerId: workerId, startedAt: new Date() } },
+        { returnDocument: 'after' }
+      );
+
+      if (!job) {
+        return; // No job to process
+      }
+      
+      const { _id: broadcastId, projectId, messagesPerSecond } = job;
+      await addBroadcastLog(db, broadcastId, projectId, "INFO", `Worker ${workerId} picked up job.`);
+
+      const throttle = pThrottle({
+        limit: messagesPerSecond || 80,
+        interval: 1000
+      });
+
+      const throttledSend = throttle((contact) => sendWhatsAppMessage(job, contact, agent));
+      const agent = new undici.Agent({ connections: 200, pipelining: 1 });
+
+      let successCount = 0;
+      let failedCount = 0;
+      let hasMoreContacts = true;
+
+      while (hasMoreContacts) {
+          const contacts = await db.collection('broadcast_contacts')
+              .find({ broadcastId: broadcastId, status: { $ne: 'SENT' } })
+              .limit(BATCH_SIZE)
+              .toArray();
+          
+          if (contacts.length === 0) {
+              hasMoreContacts = false;
+              continue;
+          }
+
+          const results = await Promise.all(contacts.map(c => throttledSend(c)));
+          const bulkOps = [];
+          for (let i = 0; i < results.length; i++) {
+              const result = results[i];
+              const contact = contacts[i];
+              if (result.success) {
+                  successCount++;
+                  bulkOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: "SENT", sentAt: new Date(), messageId: result.messageId, error: null } } } });
+              } else {
+                  failedCount++;
+                  bulkOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: "FAILED", error: result.error } } } });
+              }
+          }
+          if (bulkOps.length > 0) {
+              await db.collection("broadcast_contacts").bulkWrite(bulkOps, { ordered: false });
+          }
+      }
+      
+      await addBroadcastLog(db, broadcastId, projectId, "INFO", `Finished processing. Total Sent: ${successCount} | Total Failed: ${failedCount}`);
+      
+      await db.collection('broadcasts').updateOne(
+        { _id: broadcastId },
+        {
+          $set: { 
+            status: 'Completed', 
+            completedAt: new Date(), 
+            successCount: successCount, 
+            errorCount: failedCount 
+          }
+        }
+      );
+
+    } catch (e) {
+      console.error(`${LOG_PREFIX} Worker ${workerId} CRITICAL ERROR:`, getErrorMessage(e));
+    }
+  }, 5000);
+}
 
 function main() {
-  console.log(`${LOG_PREFIX} Booting worker loader...`);
-
-  if (!fs.existsSync(WORKER_FILE_PATH)) {
-    console.error(`${LOG_PREFIX} FATAL: Worker file not found!`);
-    console.error(`${LOG_PREFIX} Expected at: ${WORKER_FILE_PATH}`);
-    process.exit(1);
-  }
-
-  let startBroadcastWorker;
-  try {
-    // We can now safely require the worker using its absolute path.
-    ({ startBroadcastWorker } = require(WORKER_FILE_PATH));
-  } catch (err) {
-    console.error(`${LOG_PREFIX} FATAL: Failed to import the worker module from ${WORKER_FILE_PATH}`, err);
-    process.exit(1);
-  }
-  
   const workerId = process.env.PM2_INSTANCE_ID !== undefined
       ? `pm2-cluster-${process.env.PM2_INSTANCE_ID}`
       : `pid-${process.pid}`;
