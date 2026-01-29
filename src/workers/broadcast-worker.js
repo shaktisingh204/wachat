@@ -5,10 +5,9 @@ const path = require('path');
 // This ensures that .env variables are loaded from the project root
 require('dotenv').config({ path: path.resolve(process.cwd(), '.env') });
 
-// **DEFINITIVE FIX:** Resolve module paths from the project root to ensure they are found
-// regardless of where the worker script is executed from.
-const { connectToDatabase } = require(path.resolve(process.cwd(), 'src/lib/mongodb.js'));
-const { getErrorMessage } = require(path.resolve(process.cwd(), 'src/lib/utils.js'));
+// **DEFINITIVE FIX:** Use worker-specific, runtime-safe JS modules instead of ts-node wrappers.
+const { connectToDatabase } = require(path.resolve(process.cwd(), 'src/lib/mongodb.worker.js'));
+const { getErrorMessage } = require(path.resolve(process.cwd(), 'src/lib/utils.worker.js'));
 
 const { Kafka } = require('kafkajs');
 const undici = require('undici');
@@ -27,7 +26,7 @@ if (!process.env.KAFKA_BROKERS) {
   process.exit(1);
 }
 
-const API_VERSION = 'v23.0';
+const API_VERSION = 'v22.0';
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 const LOG_PREFIX = '[WORKER]';
 
