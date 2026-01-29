@@ -14,6 +14,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:assign-plan": "tsx scripts/assign-default-plan.ts",
+    "db:clear-broadcasts": "node scripts/clear-old-broadcasts.js",
     "hash:admin-password": "tsx scripts/hash-admin-password.ts"
   },
   "dependencies": {
