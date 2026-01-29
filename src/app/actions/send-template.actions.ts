@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -62,33 +61,31 @@ export async function handleSendTemplateMessage(
         const payloadComponents: any[] = [];
         const templateComponents = template.components || [];
         
-        const headerComponent = templateComponents.find(c => c.type === 'HEADER');
-        if (headerComponent) {
-            let mediaId: string | null = null;
+        // --- HEADER ---
+        const headerComponentDef = templateComponents.find(c => c.type === 'HEADER');
+        if (headerComponentDef) {
+            const format = headerComponentDef.format?.toUpperCase();
+            let parameter;
             const fileData = headerMediaFile as { content: string, name: string, type: string };
-            
+
             if (mediaSource === 'file' && fileData?.content) {
                  const form = new FormData();
                  const buffer = Buffer.from(fileData.content, 'base64');
                  form.append('file', buffer, { filename: fileData.name, contentType: fileData.type });
                  form.append('messaging_product', 'whatsapp');
                  const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
-                 mediaId = uploadResponse.data.id;
-            }
-
-            const format = headerComponent.format?.toUpperCase();
-            let parameter;
-            if (mediaId) {
-                if (format === 'IMAGE') parameter = { type: 'image', image: { id: mediaId } };
-                else if (format === 'VIDEO') parameter = { type: 'video', video: { id: mediaId } };
-                else if (format === 'DOCUMENT') parameter = { type: 'document', document: { id: mediaId } };
+                 const mediaId = uploadResponse.data.id;
+                 if(mediaId) {
+                    if (format === 'IMAGE') parameter = { type: 'image', image: { id: mediaId } };
+                    else if (format === 'VIDEO') parameter = { type: 'video', video: { id: mediaId } };
+                    else if (format === 'DOCUMENT') parameter = { type: 'document', document: { id: mediaId } };
+                 }
             } else if (headerMediaUrl) {
                 if (format === 'IMAGE') parameter = { type: 'image', image: { link: headerMediaUrl } };
                 else if (format === 'VIDEO') parameter = { type: 'video', video: { link: headerMediaUrl } };
                 else if (format === 'DOCUMENT') parameter = { type: 'document', document: { link: headerMediaUrl } };
             } else if (format === 'TEXT' && variables['variable_header_1']) {
                 const headerVar = (variables['variable_header_1'] as string || '').trim();
-                // Use a zero-width space if the variable is empty after trimming, as Meta API rejects empty strings.
                 parameter = { type: 'text', text: headerVar === '' ? '\u200B' : headerVar };
             }
             
@@ -97,47 +94,39 @@ export async function handleSendTemplateMessage(
             }
         }
         
-        const bodyComponent = templateComponents.find(c => c.type === 'BODY');
-        const bodyText = bodyComponent?.text || template.body;
+        // --- BODY ---
+        const bodyComponentDef = templateComponents.find(c => c.type === 'BODY');
+        const bodyText = bodyComponentDef?.text || template.body;
         if (bodyText) {
             const bodyVars = getVars(bodyText);
             if (bodyVars.length > 0) {
                 const parameters = bodyVars.sort((a,b) => a-b).map(varNum => {
                     const varValue = (variables[`variable_body_${varNum}`] as string || '').trim();
-                    // Use a zero-width space if the variable is empty after trimming.
                     return { type: 'text', text: varValue === '' ? '\u200B' : varValue };
                 });
-                payloadComponents.push({ type: 'body', parameters });
+                if (parameters.some(p => p.text !== '\u200B')) {
+                    payloadComponents.push({ type: 'body', parameters });
+                }
             }
         }
 
-        const buttonsComponent = templateComponents.find(c => c.type === 'BUTTONS');
-        if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
-            const buttonParams = buttonsComponent.buttons.map((button: any, index: number) => {
+        // --- BUTTONS ---
+        const buttonsComponentDef = templateComponents.find(c => c.type === 'BUTTONS');
+        if (buttonsComponentDef && Array.isArray(buttonsComponentDef.buttons)) {
+            buttonsComponentDef.buttons.forEach((button: any, index: number) => {
                 if (button.type === 'URL' && button.url && button.url.includes('{{1}}')) {
-                    const buttonVar = (variables['variable_button_1'] as string || '').trim();
-                    return {
-                        type: 'button',
-                        sub_type: 'url',
-                        index: index.toString(),
-                        parameters: [{ type: 'text', text: buttonVar === '' ? '\u200B' : buttonVar }]
-                    };
-                }
-                return null;
-            }).filter(Boolean);
-
-            if (buttonParams.length > 0) {
-                // If there are multiple button components (which is unusual but possible),
-                // we merge them into the main payloadComponents array.
-                buttonParams.forEach(bp => {
-                    const existingIndex = payloadComponents.findIndex(p => p.type === 'button' && p.index === bp.index);
-                    if (existingIndex > -1) {
-                        payloadComponents[existingIndex] = bp;
-                    } else {
-                        payloadComponents.push(bp);
+                    const buttonVarKey = `variable_button_${index}`;
+                    const buttonVarValue = (variables[buttonVarKey] as string || '').trim();
+                    if (buttonVarValue) {
+                        payloadComponents.push({
+                            type: 'button',
+                            sub_type: 'url',
+                            index: index.toString(),
+                            parameters: [{ type: 'text', text: buttonVarValue }]
+                        });
                     }
-                });
-            }
+                }
+            });
         }
 
         const payload: any = {
@@ -160,12 +149,9 @@ export async function handleSendTemplateMessage(
 
         const now = new Date();
         
-        // Correctly include the original template components and the resolved payload components
         const finalTemplatePayloadForDb = {
             ...payload.template,
-            // Store the original components structure for reference
             original_components: template.components,
-            // Store the components with resolved variables that were actually sent
             sent_components: payload.template.components
         };
         
