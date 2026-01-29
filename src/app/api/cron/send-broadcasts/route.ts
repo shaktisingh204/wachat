@@ -8,7 +8,8 @@ export async function GET(request: Request) {
   try {
     const { db } = await connectToDatabase();
     
-    // Find one queued broadcast and flag it for processing by the worker
+    // Atomically find one queued broadcast and flag it for processing by the worker.
+    // This is a very fast operation and prevents race conditions.
     const job = await db.collection('broadcasts').findOneAndUpdate(
       { status: 'QUEUED' },
       { $set: { status: 'PENDING_PROCESSING' } }
@@ -26,5 +27,6 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+    // Allow manual triggering via POST as well
     return GET(request);
 }

@@ -1,6 +1,8 @@
+
 'use strict';
 
 const path = require('path');
+// Ensure dotenv is configured to find the .env file in the project root
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const { connectToDatabase } = require('./src/lib/mongodb.worker.js');
