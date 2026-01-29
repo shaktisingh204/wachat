@@ -1,7 +1,7 @@
 
 # SabNode - Business Communication & Growth Platform
 
-This document provides a comprehensive guide to setting up, running, and using the SabNode application, including its high-throughput WhatsApp broadcasting system powered by Redpanda/Kafka.
+This document provides a comprehensive guide to setting up, running, and using the SabNode application, including its broadcasting system.
 
 ## Table of Contents
 
@@ -13,8 +13,8 @@ This document provides a comprehensive guide to setting up, running, and using t
 4.  [Running the Application](#running-the-application)
     - [Development Mode](#development-mode)
     - [Production Mode](#production-mode)
-5.  [High-Throughput Broadcasting System](#high-throughput-broadcasting-system)
-    - [1. Start Redpanda (Kafka)](#1-start-redpanda-kafka)
+5.  [Broadcasting System](#broadcasting-system)
+    - [1. Start the Application](#1-start-the-application)
     - [2. Triggering a WhatsApp Broadcast](#2-triggering-a-whatsapp-broadcast)
 
 ## Prerequisites
@@ -23,7 +23,6 @@ Before you begin, ensure you have the following installed on your system:
 *   **Node.js** (v18.x or later recommended)
 *   **npm** or a compatible package manager
 *   **MongoDB Shell (`mongosh`)** for database setup.
-*   **Docker** (for running Redpanda)
 *   **PM2** (a production process manager for Node.js)
     ```bash
     npm install pm2 -g
@@ -89,10 +88,6 @@ Before you begin, ensure you have the following installed on your system:
     # Admin Login Credentials
     ADMIN_EMAIL=admin@example.com
     ADMIN_PASSWORD=secure_admin_password
-
-    # Kafka/Redpanda Configuration
-    # If running Redpanda via Docker, this is usually correct.
-    KAFKA_BROKERS=127.0.0.1:9092
     ```
 
 ### Firebase Setup
@@ -156,7 +151,7 @@ This method uses `tsx` to run a TypeScript file that performs the same database 
 
 ### Development Mode
 
-This mode is ideal for local development and testing, with hot-reloading enabled.
+This mode is ideal for local development and testing, with hot-reloading enabled. The background worker for broadcasting will also start.
 
 ```bash
 npm run dev
@@ -186,47 +181,24 @@ This mode builds the application for production and starts a clustered server us
     *   **Restart all applications**: `pm2 restart all`
     *   **Delete all applications from PM2's list**: `pm2 delete all`
 
-## High-Throughput Broadcasting System
+## Broadcasting System
 
-The WhatsApp broadcasting feature uses Redpanda (a Kafka-compatible event streaming platform) for high performance. Follow these steps to set it up.
+The broadcasting system uses a background worker process to send messages. This process is initiated by a cron job.
 
-### 1. Start Redpanda (Kafka)
-
-The easiest way to run Redpanda is with Docker. Open a new terminal window and run the following command. Keep this terminal open while you work.
-
-**Standard Command (Default 1MB message limit)**
-```bash
-docker run --rm -it -p 9092:9092 -p 9644:9644 redpandadata/redpanda:latest \
-  redpanda start --smp 1 --overprovisioned --node-id 0 --kafka-addr 0.0.0.0:9092 --advertise-kafka-addr 127.0.0.1:9092
-```
-
-**High-Throughput Command (100MB message limit)**
-If you are sending very large broadcasts (tens of thousands of contacts), use this command to increase the message size limit.
-```bash
-docker run --rm -it -p 9022:9092 -p 9644:9644 redpandadata/redpanda:latest \
-  redpanda start \
-    --smp 1 \
-    --overprovisioned \
-    --node-id 0 \
-    --kafka-addr 0.0.0.0:9092 \
-    --advertise-kafka-addr 127.0.0.1:9092 \
-    --set redpanda.kafka_message_max_bytes=104857600 \
-    --set redpanda.kafka_max_request_size=104857600
-```
-This command starts a single Redpanda broker and makes it available on `localhost:9092`.
+### 1. Start the Application
+In production, the worker starts automatically with `npm run start:pm2`. In development, it starts with `npm run dev`.
 
 ### 2. Triggering a WhatsApp Broadcast
 
-1.  **Ensure Redpanda is running** (from Step 1).
-2.  **Start the application** (`npm run dev` for development, or `npm run start:pm2` for production).
-3.  **Queue a Broadcast**: Go to the SabNode dashboard, navigate to "Campaigns", and create a new broadcast campaign by selecting a template and uploading a contact list.
-4.  **Trigger the Cron Job**: The system uses a cron job to find queued broadcasts and push them to the Kafka `messages` topic. In production, this happens automatically. In development, you must trigger it manually by opening this URL in your browser:
+1.  **Queue a Broadcast**: In the SabNode dashboard, navigate to "Campaigns", and create a new broadcast campaign by selecting a template and uploading a contact list. This saves the campaign with a "QUEUED" status.
+2.  **Set up a Cron Job**: To process these queued campaigns, you need to set up a cron job (or use a service like `cron-job.org`) to periodically send a GET request to the following URL:
     ```
-    http://localhost:3002/api/cron/send-broadcasts
+    https://your-app-domain.com/api/cron/send-broadcasts
     ```
-5.  **Monitor the Output**:
-    *   **In Production**: Check the worker logs with `pm2 logs sabnode-worker`. You will see logs from the workers as they pick up and process the message batches from Kafka.
+    A frequency of **every 1 minute** is recommended. This endpoint acts as a lightweight trigger that signals the background worker to start processing a queued campaign.
+3.  **Monitor the Output**:
+    *   **In Production**: Check the worker logs with `pm2 logs sabnode-worker`. You will see logs from the worker as it picks up and sends the messages.
     *   **In Development**: Check the terminal where you are running `npm run dev`.
 
 ---
-That's it! Your SabNode application is now fully configured for development and production, including the high-performance broadcasting system.
+That's it! Your SabNode application is now fully configured for development and production.

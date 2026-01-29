@@ -2,14 +2,11 @@
 'use strict';
 
 const path = require('path');
-// This ensures that .env variables are loaded from the project root
 require('dotenv').config({ path: path.resolve(process.cwd(), '.env') });
 
-// **DEFINITIVE FIX:** Use worker-specific, runtime-safe JS modules instead of ts-node wrappers.
 const { connectToDatabase } = require(path.resolve(process.cwd(), 'src/lib/mongodb.worker.js'));
 const { getErrorMessage } = require(path.resolve(process.cwd(), 'src/lib/utils.worker.js'));
 
-const { Kafka } = require('kafkajs');
 const undici = require('undici');
 const { ObjectId } = require('mongodb');
 
@@ -21,18 +18,9 @@ const importPThrottle = async () => {
   return pThrottle;
 };
 
-if (!process.env.KAFKA_BROKERS) {
-  console.error('[WORKER] FATAL: KAFKA_BROKERS environment variable is not set.');
-  process.exit(1);
-}
-
 const API_VERSION = 'v22.0';
-const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
-const LOG_PREFIX = '[WORKER]';
+const LOG_PREFIX = '[BROADCAST-WORKER]';
 
-// -------------------------------------------------------------------
-// Logging
-// -------------------------------------------------------------------
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
   try {
     await db.collection('broadcast_logs').insertOne({
@@ -48,32 +36,44 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message, meta 
   }
 }
 
-// -------------------------------------------------------------------
-// WhatsApp Message Sender
-// -------------------------------------------------------------------
 async function sendWhatsAppMessage(job, contact, agent) {
   try {
-    const { accessToken, phoneNumberId, templateName, language = 'en_US' } = job;
-
+    const { accessToken, phoneNumberId, templateName, language = 'en_US', components } = job;
+    
     const payload = {
       messaging_product: 'whatsapp',
       to: contact.phone,
       type: 'template',
       template: {
         name: templateName,
-        language: { code: language }
+        language: { code: language },
+        components: components || [],
       }
     };
+    
+    // Replace variables in components
+    if (payload.template.components) {
+        payload.template.components.forEach(component => {
+            if (component.parameters) {
+                component.parameters.forEach(param => {
+                    if (param.type === 'text') {
+                        const varName = param.text.match(/{{(.*?)}}/);
+                        if (varName && varName[1] && contact[varName[1]]) {
+                            param.text = contact[varName[1]];
+                        }
+                    }
+                });
+            }
+        });
+    }
+
 
     const response = await undici.request(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
       {
         method: 'POST',
         dispatcher: agent,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify(payload),
         throwOnError: false
       }
@@ -86,170 +86,111 @@ async function sendWhatsAppMessage(job, contact, agent) {
       return { success: true, messageId };
     }
 
-    return {
-      success: false,
-      error: JSON.stringify(json?.error || json)
-    };
+    return { success: false, error: JSON.stringify(json?.error || json) };
 
   } catch (err) {
     return { success: false, error: getErrorMessage(err) };
   }
 }
 
-// -------------------------------------------------------------------
-// MAIN WORKER: PARALLEL eachBatch
-// -------------------------------------------------------------------
-async function startBroadcastWorker(workerId, kafkaTopic) {
+async function startBroadcastWorker(workerId) {
   const { db } = await connectToDatabase();
   const pThrottleLib = await importPThrottle();
 
-  const kafka = new Kafka({
-    clientId: `whatsapp-worker-${workerId}`,
-    brokers: KAFKA_BROKERS,
-  });
+  console.log(`${LOG_PREFIX} Worker ${workerId} started. Polling for jobs every 5 seconds.`);
 
-  const consumer = kafka.consumer({
-    groupId: `sabnode-broadcaster-v5`,
-    sessionTimeout: 60000,
-    heartbeatInterval: 3000,
-  });
+  setInterval(async () => {
+    try {
+      const job = await db.collection('broadcasts').findOneAndUpdate(
+        { status: 'PENDING_PROCESSING' },
+        { $set: { status: 'PROCESSING', workerId: workerId, startedAt: new Date() } },
+        { returnDocument: 'after' }
+      );
 
-  console.log(`${LOG_PREFIX} Worker ${workerId} starting with PARALLEL Kafka batches...`);
+      if (!job) {
+        return; // No job to process
+      }
+      
+      const broadcastId = job._id;
+      const projectId = job.projectId;
 
-  await consumer.connect();
-  await consumer.subscribe({ topic: kafkaTopic });
+      await addBroadcastLog(db, broadcastId, projectId, "INFO", `Worker ${workerId} picked up job.`);
 
-  await consumer.run({
-    eachBatch: async ({ batch, heartbeat, resolveOffset, commitOffsetsIfNecessary }) => {
+      const contacts = await db.collection('broadcast_contacts').find({ broadcastId: broadcastId, status: { $ne: 'SENT' } }).toArray();
 
-      for (const message of batch.messages) {
-        if (!message.value) continue;
+      if (contacts.length === 0) {
+        await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { status: 'Completed', completedAt: new Date() } });
+        await addBroadcastLog(db, broadcastId, projectId, "INFO", `No contacts to process. Marking broadcast as complete.`);
+        return;
+      }
+      
+      const mps = Number(job.messagesPerSecond) || 80;
+      const agent = new undici.Agent({ connections: 200, pipelining: 1 });
 
-        let payload;
-        try {
-          payload = JSON.parse(message.value.toString());
-        } catch {
-          console.error(`${LOG_PREFIX} Invalid JSON payload in worker ${workerId}`);
-          continue;
-        }
+      const throttle = pThrottleLib({
+        limit: mps,
+        interval: 1000,
+        strict: true
+      });
 
-        const { jobDetails, contacts } = payload;
-        if (!jobDetails?._id || !Array.isArray(contacts)) {
-          console.error(`${LOG_PREFIX} Worker ${workerId} | Invalid Kafka payload`);
-          continue;
-        }
+      const throttledSend = throttle((contact) => sendWhatsAppMessage(job, contact, agent));
 
-        const broadcastId = new ObjectId(jobDetails._id);
-        const projectId = new ObjectId(jobDetails.projectId);
+      const results = await Promise.all(contacts.map(async (contact) => {
+        const r = await throttledSend(contact);
+        return { contactId: contact._id, ...r };
+      }));
 
-        const mps = Number(jobDetails.messagesPerSecond);
-        
-        const agent = new undici.Agent({
-          connections: 200,
-          pipelining: 1,
-        });
+      const bulkOps = [];
+      let success = 0;
+      let failed = 0;
 
-        await addBroadcastLog(
-          db, broadcastId, projectId, "INFO",
-          `Worker ${workerId} processing batch: ${contacts.length} contacts | Concurrency: ${mps} msg/s`
-        );
-
-        const throttle = pThrottleLib({
-          limit: mps,
-          interval: 1000,
-          strict: true
-        });
-
-        const throttledSend = throttle((contact) =>
-          sendWhatsAppMessage(jobDetails, contact, agent)
-        );
-
-        const results = await Promise.all(
-          contacts.map(async (contact) => {
-            try { await heartbeat(); } catch (e) { console.warn("Heartbeat failed", e); }
-            const r = await throttledSend(contact);
-            return { contactId: contact._id, ...r };
-          })
-        );
-
-        const bulkOps = [];
-        let success = 0;
-        let failed = 0;
-
-        for (const r of results) {
-          if (r.success) {
-            success++;
-            bulkOps.push({
-              updateOne: {
-                filter: { _id: new ObjectId(r.contactId) },
-                update: {
-                  $set: {
-                    status: "SENT",
-                    sentAt: new Date(),
-                    messageId: r.messageId,
-                    error: null
-                  }
-                }
-              }
-            });
-          } else {
-            failed++;
-            bulkOps.push({
-              updateOne: {
-                filter: { _id: new ObjectId(r.contactId) },
-                update: {
-                  $set: {
-                    status: "FAILED",
-                    error: r.error
-                  }
-                }
-              }
-            });
-          }
-        }
-
-        if (bulkOps.length > 0) {
-          await db.collection("broadcast_contacts").bulkWrite(bulkOps, { ordered: false });
-        }
-
-        await addBroadcastLog(
-          db, broadcastId, projectId, "INFO",
-          `Worker ${workerId} finished batch — sent: ${success} | failed: ${failed}`
-        );
-
-        await db.collection('broadcasts').updateOne(
-          { _id: broadcastId },
-          {
-            $inc: {
-              successCount: success,
-              errorCount: failed
+      for (const r of results) {
+        if (r.success) {
+          success++;
+          bulkOps.push({
+            updateOne: {
+              filter: { _id: new ObjectId(r.contactId) },
+              update: { $set: { status: "SENT", sentAt: new Date(), messageId: r.messageId, error: null } }
             }
-          }
-        );
-
-        const job = await db.collection('broadcasts').findOne({ _id: broadcastId });
-
-        if ((job.successCount + job.errorCount) >= job.contactCount) {
-          await db.collection('broadcasts').updateOne(
-            { _id: broadcastId },
-            { $set: { status: 'Completed', completedAt: new Date() } }
-          );
-
-          await addBroadcastLog(
-            db,
-            broadcastId,
-            projectId,
-            "INFO",
-            `Worker ${workerId}: Broadcast Completed`
-          );
+          });
+        } else {
+          failed++;
+          bulkOps.push({
+            updateOne: {
+              filter: { _id: new ObjectId(r.contactId) },
+              update: { $set: { status: "FAILED", error: r.error } }
+            }
+          });
         }
-
-        resolveOffset(message.offset);
       }
 
-      await commitOffsetsIfNecessary();
+      if (bulkOps.length > 0) {
+        await db.collection("broadcast_contacts").bulkWrite(bulkOps, { ordered: false });
+      }
+
+      await addBroadcastLog(
+        db, broadcastId, projectId, "INFO",
+        `Worker ${workerId} finished processing. Sent: ${success} | Failed: ${failed}`
+      );
+      
+      const finalUpdate = await db.collection('broadcasts').updateOne(
+        { _id: broadcastId },
+        {
+          $inc: { successCount: success, errorCount: failed },
+          $set: { status: 'Completed', completedAt: new Date() }
+        }
+      );
+
+      if (finalUpdate.modifiedCount > 0) {
+          await addBroadcastLog(db, broadcastId, projectId, "INFO", `Broadcast marked as Completed.`);
+      }
+
+    } catch (e) {
+      console.error(`${LOG_PREFIX} Worker ${workerId} CRITICAL ERROR:`, getErrorMessage(e));
+      // Optionally, find the job this worker was processing and mark it as FAILED
+      // This is complex to do safely without more state management.
     }
-  });
+  }, 5000); // Polls every 5 seconds
 }
 
 module.exports = { startBroadcastWorker };
