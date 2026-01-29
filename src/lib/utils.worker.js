@@ -1,7 +1,7 @@
+
 'use strict';
 const axios = require('axios');
 
-// cn function is not needed by the worker. getErrorMessage is.
 const getErrorMessage = (error) => {
     if (axios.isAxiosError(error) && error.response) {
         const apiError = error.response.data?.error;

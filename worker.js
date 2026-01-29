@@ -1,3 +1,4 @@
+
 'use strict';
 
 const path = require('path');
@@ -9,7 +10,6 @@ const undici = require('undici');
 const { ObjectId } = require('mongodb');
 
 let pThrottle;
-const BATCH_SIZE = 1000;
 const API_VERSION = 'v23.0';
 const LOG_PREFIX = '[BROADCAST-WORKER]';
 
@@ -94,6 +94,7 @@ async function startBroadcastWorker(workerId) {
   const pThrottleLib = await import('p-throttle');
   pThrottle = pThrottleLib.default;
 
+  // Create a single, persistent agent for all HTTP requests to reuse connections.
   const agent = new undici.Agent({ connections: 200, pipelining: 1 });
 
   console.log(`${LOG_PREFIX} Worker ${workerId} started. Polling for jobs every 5 seconds.`);
