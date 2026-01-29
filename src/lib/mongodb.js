@@ -1,2 +1,2 @@
-require('ts-node/register');   // allow TS loading
+// This file is deprecated. Imports should point to the .ts file directly.
 module.exports = require('./mongodb.ts');
