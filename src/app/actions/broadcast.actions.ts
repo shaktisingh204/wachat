@@ -35,25 +35,37 @@ export async function getAllBroadcasts(
     }
 }
 
-export async function getBroadcastsForProject(projectId: string): Promise<WithId<Broadcast>[]> {
+export async function getBroadcastsForProject(
+    projectId: string,
+    page: number = 1,
+    limit: number = 10
+): Promise<{ broadcasts: WithId<Broadcast>[], total: number }> {
     if (!projectId || !ObjectId.isValid(projectId)) {
-        return [];
+        return { broadcasts: [], total: 0 };
     }
     const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+    if (!hasAccess) return { broadcasts: [], total: 0 };
 
     try {
         const { db } = await connectToDatabase();
-        const broadcasts = await db.collection('broadcasts')
-            .find({ projectId: new ObjectId(projectId) })
-            .sort({ createdAt: -1 })
-            .limit(50)
-            .toArray();
-
-        return JSON.parse(JSON.stringify(broadcasts));
+        const skip = (page - 1) * limit;
+        const [broadcasts, total] = await Promise.all([
+            db.collection('broadcasts')
+                .find({ projectId: new ObjectId(projectId) })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .toArray(),
+            db.collection('broadcasts').countDocuments({ projectId: new ObjectId(projectId) })
+        ]);
+        
+        return {
+            broadcasts: JSON.parse(JSON.stringify(broadcasts)),
+            total
+        };
     } catch (e) {
         console.error("Failed to get broadcasts for project:", e);
-        return [];
+        return { broadcasts: [], total: 0 };
     }
 }
 
@@ -251,11 +263,23 @@ export async function handleStartBroadcast(
     if (headerComponentDef) {
         const format = headerComponentDef.format?.toLowerCase();
         
-        if ((headerImageUrl || headerMediaFile) && format && ['image', 'video', 'document'].includes(format)) {
-            const parameter: any = { type: format };
-            parameter[format] = { link: headerImageUrl }; // File is handled by worker, just pass url for now
-            components.push({ type: 'header', parameters: [parameter] });
-        } else if (headerText) {
+        // Media header (Image, Video, Document)
+        if (format && ['image', 'video', 'document'].includes(format)) {
+            // Only create the header component if there's actually media to send
+            if (headerImageUrl || (headerMediaFile && headerMediaFile.size > 0)) {
+                const parameter: any = { type: format };
+                // IMPORTANT: Only set the 'link' if a URL is provided.
+                // If it's a file upload, the worker will handle creating the 'id'.
+                if (headerImageUrl) {
+                    parameter[format] = { link: headerImageUrl };
+                }
+                // If only a file is provided, the parameter will be just { type: 'image' }.
+                // The worker will see this, upload the file, and add the { image: { id: '...' } } part.
+                components.push({ type: 'header', parameters: [parameter] });
+            }
+        } 
+        // Text header
+        else if (format === 'text' && headerText) {
              components.push({
                 type: 'header',
                 parameters: [{ type: 'text', text: headerText }]
@@ -417,3 +441,25 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
     revalidatePath('/dashboard/broadcasts');
     return { message: `${contacts.length} contacts have been re-queued for broadcast.` };
 }
+
+export async function handleStopBroadcast(broadcastId: string): Promise<{ message?: string; error?: string }> {
+    if (!broadcastId || !ObjectId.isValid(broadcastId)) {
+        return { error: 'Invalid Broadcast ID.' };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('broadcasts').updateOne(
+            { _id: new ObjectId(broadcastId), status: { $in: ['QUEUED', 'PROCESSING', 'PENDING_PROCESSING'] } },
+            { $set: { status: 'Cancelled' } }
+        );
+        if (result.matchedCount === 0) {
+            return { error: 'Broadcast not found or has already completed/failed.' };
+        }
+        revalidatePath('/dashboard/broadcasts');
+        return { message: 'Broadcast has been cancelled.' };
+    } catch(e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+    
