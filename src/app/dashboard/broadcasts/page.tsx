@@ -181,6 +181,15 @@ export default function BroadcastPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
+  const getFormattedDate = (dateString?: string) => {
+      if (!dateString) return 'N/A';
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+          return 'Invalid Date';
+      }
+      return date.toLocaleString();
+  };
+
   const fetchData = useCallback(async (projectId: string, page: number, showToast = false) => {
     startRefreshTransition(async () => {
         try {
@@ -263,7 +272,6 @@ export default function BroadcastPage() {
 
   const onBroadcastSuccess = () => {
       if (activeProjectId) {
-        // Go back to first page to see the new broadcast
         if (currentPage === 1) {
             fetchData(activeProjectId, 1, false);
         } else {
@@ -343,7 +351,7 @@ export default function BroadcastPage() {
                     <TableBody>
                         {history.map((item) => (
                           <TableRow key={item._id.toString()}>
-                            <TableCell>{item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A'}</TableCell>
+                            <TableCell>{getFormattedDate(item.createdAt)}</TableCell>
                             <TableCell>{item.templateName}</TableCell>
                             <TableCell>
                                 <div className="w-40 space-y-1">
@@ -398,7 +406,7 @@ export default function BroadcastPage() {
                               <CardTitle className="text-base leading-snug">{item.templateName}</CardTitle>
                               <Badge variant={getStatusVariant(item)} className="capitalize">{item.status?.toLowerCase() || 'unknown'}</Badge>
                           </div>
-                          <CardDescription className="text-xs">{item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A'}</CardDescription>
+                          <CardDescription className="text-xs">{getFormattedDate(item.createdAt)}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4 text-sm">
                           {item.status === 'PROCESSING' && item.contactCount > 0 && (
