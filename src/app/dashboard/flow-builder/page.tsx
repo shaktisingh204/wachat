@@ -340,7 +340,6 @@ export function FlowBuilder() {
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const [isPropsPanelCollapsed, setIsPropsPanelCollapsed] = useState(true);
 
     // Canvas state
     const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -378,6 +377,10 @@ export function FlowBuilder() {
         setSelectedNodeId(null);
         setIsBlocksSheetOpen(false);
     }
+
+    const handleSelectNode = (nodeId: string) => {
+        setSelectedNodeId(nodeId);
+    };
     
     const handleCreateNewFlow = () => {
         setCurrentFlow(null);
@@ -563,7 +566,7 @@ export function FlowBuilder() {
     }
     
     return (
-        <div className="flex h-full flex-col bg-muted/30">
+        <div className="flex h-[calc(100vh-theme(spacing.20))] bg-muted/30">
              <div className={cn("flex-col gap-4 p-2 bg-background border-r transition-all duration-300", isSidebarCollapsed ? 'hidden' : 'hidden md:flex md:w-64')}>
                 <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
             </div>
@@ -596,7 +599,7 @@ export function FlowBuilder() {
                  <main className="flex-1 grid grid-cols-12 overflow-hidden">
                     <Card
                         ref={viewportRef}
-                        className={cn("col-span-12 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing rounded-none border-0", !isPropsPanelCollapsed && "md:col-span-9 md:border-r")}
+                        className={cn("col-span-12 h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing rounded-none border-0", !isSidebarCollapsed && 'md:col-span-9 md:border-r')}
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}
@@ -629,7 +632,7 @@ export function FlowBuilder() {
                             )}
                         </div>
                         <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-                             <Button variant="outline" size="icon" className="hidden md:flex" onClick={() => setIsPropsPanelCollapsed(prev => !prev)} disabled={!selectedNodeId}>
+                             <Button variant="outline" size="icon" className={cn("hidden", !isSidebarCollapsed && "md:flex")} onClick={() => setIsSidebarCollapsed(prev => !prev)} disabled={!selectedNodeId}>
                                 <Settings2 className="h-4 w-4" />
                             </Button>
                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
@@ -638,7 +641,7 @@ export function FlowBuilder() {
                             <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
                     </Card>
-                    <aside className={cn("hidden p-4 overflow-y-auto bg-background", !isPropsPanelCollapsed && "md:block md:col-span-3")}>
+                    <aside className={cn("hidden p-4 overflow-y-auto bg-background", !isSidebarCollapsed && "md:block md:col-span-3")}>
                         {selectedNode && <PropertiesPanel node={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}
                     </aside>
                  </main>
