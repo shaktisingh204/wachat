@@ -15,7 +15,7 @@ This document provides a comprehensive guide to setting up, running, and using t
     - [Production Mode](#production-mode)
 5.  [Broadcasting System](#broadcasting-system)
     - [1. Start the Application](#1-start-the-application)
-    - [2. Triggering a WhatsApp Broadcast](#2-triggering-a-whatsapp-broadcast)
+    - [2. How Broadcasting Works](#2-how-broadcasting-works)
 6.  [Database Maintenance](#database-maintenance)
 
 ## Prerequisites
@@ -184,22 +184,20 @@ This mode builds the application for production and starts a clustered server us
 
 ## Broadcasting System
 
-The broadcasting system uses a background worker process to send messages. This process is initiated by a cron job.
+The broadcasting system uses a background worker process to send messages. This ensures that the main web application remains responsive while large campaigns are processed.
 
 ### 1. Start the Application
 In production, the worker starts automatically with `npm run start:pm2`. In development, it starts with `npm run dev`.
 
-### 2. Triggering a WhatsApp Broadcast
+### 2. How Broadcasting Works
 
-1.  **Queue a Broadcast**: In the SabNode dashboard, navigate to "Campaigns", and create a new broadcast campaign by selecting a template and uploading a contact list. This saves the campaign with a "QUEUED" status.
-2.  **Set up a Cron Job**: To process these queued campaigns, you need to set up a cron job (or use a service like `cron-job.org`) to periodically send a GET request to the following URL:
-    ```
-    https://your-app-domain.com/api/cron/send-broadcasts
-    ```
-    A frequency of **every 1 minute** is recommended. This endpoint acts as a lightweight trigger that signals the background worker to start processing a queued campaign.
+1.  **Queue a Broadcast**: In the SabNode dashboard, navigate to "Campaigns" and create a new broadcast campaign. When you click "Start Broadcast", the job is immediately flagged in the database for processing.
+2.  **Worker Processing**: The background worker process constantly polls the database for jobs that are ready to be processed. Once it finds your new campaign, it takes ownership and begins sending messages in batches.
 3.  **Monitor the Output**:
     *   **In Production**: Check the worker logs with `pm2 logs sabnode-worker`. You will see logs from the worker as it picks up and sends the messages.
     *   **In Development**: Check the terminal where you are running `npm run dev`.
+
+This system is fully automated and does not require an external cron job.
 
 ## Database Maintenance
 

@@ -304,7 +304,7 @@ export async function handleStartBroadcast(
         templateName: template.name,
         templateId: template._id,
         language: template.language,
-        status: 'QUEUED',
+        status: 'PENDING_PROCESSING',
         contactCount: contacts.length,
         audienceType: audienceType,
         tagIds: audienceType === 'tags' ? tagIds.map(id => new ObjectId(id)) : [],
@@ -383,7 +383,7 @@ export async function handleBulkBroadcast(
                 templateName: template.name,
                 templateId: template._id,
                 language: template.language,
-                status: 'QUEUED',
+                status: 'PENDING_PROCESSING',
                 contactCount: projectContacts.length,
                 audienceType: 'file-bulk',
                 accessToken: project.accessToken,
@@ -448,7 +448,7 @@ export async function handleStartApiBroadcast(data: {
         templateName: template.name,
         templateId: template._id,
         language: template.language,
-        status: 'QUEUED',
+        status: 'PENDING_PROCESSING',
         contactCount: contacts.length,
         audienceType: 'api',
         accessToken: project.accessToken,
@@ -510,7 +510,7 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
     const newBroadcastData: Omit<Broadcast, '_id' | 'createdAt'> = {
         ...originalBroadcast,
         name: `${originalBroadcast.name} (Requeued)`,
-        status: 'QUEUED',
+        status: 'PENDING_PROCESSING',
         contactCount: contacts.length,
         successCount: 0,
         errorCount: 0,
@@ -546,5 +546,3 @@ export async function handleStopBroadcast(broadcastId: string): Promise<{ messag
         return { error: getErrorMessage(e) };
     }
 }
-
-    
