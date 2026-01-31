@@ -464,7 +464,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                       <Label htmlFor="language">Language</Label>
                       <Select name="language" value={language} onValueChange={setLanguage} required>
                       <SelectTrigger id="language"><SelectValue placeholder="Select a language" /></SelectTrigger>
-                      <SelectContent searchable>
+                      <SelectContent>
                           {languages.map((lang) => (
                               <SelectItem key={lang.code} value={lang.code}>{lang.name} ({lang.code})</SelectItem>
                           ))}
@@ -611,7 +611,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                         <Label htmlFor="language">Language</Label>
                         <Select name="language" defaultValue="en_US" required>
                         <SelectTrigger><SelectValue/></SelectTrigger>
-                        <SelectContent searchable>{languages.map(lang => <SelectItem key={lang.code} value={lang.code}>{lang.name} ({lang.code})</SelectItem>)}</SelectContent>
+                        <SelectContent>{languages.map(lang => <SelectItem key={lang.code} value={lang.code}>{lang.name} ({lang.code})</SelectItem>)}</SelectContent>
                         </Select>
                     </div>
                     <input type="hidden" name="category" value="MARKETING" />

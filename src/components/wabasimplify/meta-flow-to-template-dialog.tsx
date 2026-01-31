@@ -109,7 +109,7 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
                     <Label htmlFor="language">Language</Label>
                     <Select name="language" defaultValue="en_US" required>
                         <SelectTrigger id="language"><SelectValue /></SelectTrigger>
-                        <SelectContent searchable>
+                        <SelectContent>
                             {languages.map(lang => <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>)}
                         </SelectContent>
                     </Select>
