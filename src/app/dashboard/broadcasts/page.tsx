@@ -181,13 +181,26 @@ export default function BroadcastPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
-  const getFormattedDate = (dateString?: string) => {
-      if (!dateString) return 'N/A';
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-          return 'Invalid Date';
+  const getFormattedDate = (item: WithId<Broadcast>) => {
+      const dateString = item.createdAt;
+      if (dateString) {
+          const date = new Date(dateString);
+          if (!isNaN(date.getTime())) {
+              return date.toLocaleString();
+          }
       }
-      return date.toLocaleString();
+      // Fallback to ObjectId timestamp
+      if (item._id) {
+          try {
+              const objectIdDate = new Date(parseInt(item._id.toString().substring(0, 8), 16) * 1000);
+              if (!isNaN(objectIdDate.getTime())) {
+                  return objectIdDate.toLocaleString();
+              }
+          } catch(e) {
+              // Ignore parsing errors
+          }
+      }
+      return 'N/A';
   };
 
   const fetchData = useCallback(async (projectId: string, page: number, showToast = false) => {
@@ -351,7 +364,7 @@ export default function BroadcastPage() {
                     <TableBody>
                         {history.map((item) => (
                           <TableRow key={item._id.toString()}>
-                            <TableCell>{getFormattedDate(item.createdAt)}</TableCell>
+                            <TableCell>{getFormattedDate(item)}</TableCell>
                             <TableCell>{item.templateName}</TableCell>
                             <TableCell>
                                 <div className="w-40 space-y-1">
@@ -406,7 +419,7 @@ export default function BroadcastPage() {
                               <CardTitle className="text-base leading-snug">{item.templateName}</CardTitle>
                               <Badge variant={getStatusVariant(item)} className="capitalize">{item.status?.toLowerCase() || 'unknown'}</Badge>
                           </div>
-                          <CardDescription className="text-xs">{getFormattedDate(item.createdAt)}</CardDescription>
+                          <CardDescription className="text-xs">{getFormattedDate(item)}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4 text-sm">
                           {item.status === 'PROCESSING' && item.contactCount > 0 && (
