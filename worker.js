@@ -77,11 +77,11 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
         const finalComponents = JSON.parse(JSON.stringify(components || []));
         const headerComponent = finalComponents.find(c => c.type === 'header');
 
-        if (headerMediaFile && headerMediaFile.buffer && headerComponent?.parameters?.[0]) {
+        if (headerMediaFile && headerMediaFile.buffer && headerMediaFile.buffer.data && headerComponent?.parameters?.[0]) {
             const parameter = headerComponent.parameters[0];
             const mediaType = parameter.type;
 
-            if (!parameter[mediaType]?.link) {
+            if (!parameter[mediaType]?.link && !parameter[mediaType]?.id) {
                 const buffer = Buffer.from(headerMediaFile.buffer.data);
                 const form = new FormData();
                 form.append('file', buffer, { filename: headerMediaFile.name, contentType: headerMediaFile.type });
@@ -109,8 +109,6 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
             if (component.parameters) {
                 component.parameters.forEach(param => {
                     if (param.type === 'text' && param.text) {
-                       param.text = interpolateText(param.text, contact.variables);
-                    } else if (component.type === 'button' && param.type === 'text' && param.text) {
                        param.text = interpolateText(param.text, contact.variables);
                     }
                 });
@@ -156,7 +154,7 @@ async function startBroadcastWorker(workerId) {
   const { db } = await connectToDatabase();
   const pThrottleLib = await import('p-throttle');
   const pThrottle = pThrottleLib.default;
-  const agent = new undici.Agent({ connections: 200, pipelining: 1 });
+  const agent = new undici.Agent({ connections: 200, pipelining: 10 });
 
   console.log(`${LOG_PREFIX} Worker ${workerId} started. Polling for jobs every 5 seconds.`);
 
@@ -174,7 +172,10 @@ async function startBroadcastWorker(workerId) {
       const { _id: broadcastId, projectId, messagesPerSecond } = job;
       await addBroadcastLog(db, broadcastId, projectId, "INFO", `Worker ${workerId} picked up job.`);
 
-      const throttle = pThrottle({ limit: messagesPerSecond || 80, interval: 1000 });
+      const throttle = pThrottle({
+          limit: messagesPerSecond || 80,
+          interval: 1000
+      });
       
       const throttledSend = throttle(async (contact) => {
         const result = await sendWhatsAppMessage(db, job, contact, agent);
@@ -185,15 +186,14 @@ async function startBroadcastWorker(workerId) {
       });
 
       const cursor = db.collection('broadcast_contacts').find({ broadcastId, status: 'PENDING' });
+      
       const promises = [];
       for await (const contact of cursor) {
         promises.push(throttledSend(contact));
       }
       
-      // Correctly wait for all promises to settle
       await Promise.all(promises);
       
-      // Finalize the job after all sends are done
       const successCount = await db.collection('broadcast_contacts').countDocuments({ broadcastId, status: 'SENT' });
       const failedCount = await db.collection('broadcast_contacts').countDocuments({ broadcastId, status: 'FAILED' });
 
