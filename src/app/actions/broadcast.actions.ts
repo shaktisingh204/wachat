@@ -258,34 +258,36 @@ export async function handleStartBroadcast(
 
     // --- Build Component Payload ---
     const components: any[] = [];
-    const headerComponentDef = template.components?.find(c => c.type === 'HEADER');
-    
+    const templateComponents = template.components || [];
+
+    const headerComponentDef = templateComponents.find(c => c.type === 'HEADER');
     if (headerComponentDef) {
         const format = headerComponentDef.format?.toLowerCase();
         
-        // Media header (Image, Video, Document)
+        let parameter: any = {};
+        let shouldAddComponent = false;
+
         if (format && ['image', 'video', 'document'].includes(format)) {
-            // Only create the header component if there's actually media to send
-            if (headerImageUrl || (headerMediaFile && headerMediaFile.size > 0)) {
-                const parameter: any = { type: format };
-                // IMPORTANT: Only set the 'link' if a URL is provided.
-                // If it's a file upload, the worker will handle creating the 'id'.
-                if (headerImageUrl) {
-                    parameter[format] = { link: headerImageUrl };
-                }
-                // If only a file is provided, the parameter will be just { type: 'image' }.
-                // The worker will see this, upload the file, and add the { image: { id: '...' } } part.
-                components.push({ type: 'header', parameters: [parameter] });
+            parameter.type = format;
+            if (headerImageUrl) {
+                parameter[format] = { link: headerImageUrl };
+                shouldAddComponent = true;
+            } else if (headerMediaFile && headerMediaFile.size > 0) {
+                // The worker will handle the upload, we just need to signal it.
+                // An empty object signifies the worker needs to create the ID.
+                parameter[format] = {};
+                shouldAddComponent = true;
             }
-        } 
-        // Text header
-        else if (format === 'text' && headerText) {
-             components.push({
-                type: 'header',
-                parameters: [{ type: 'text', text: headerText }]
-            });
+        } else if (format === 'text' && headerText) {
+            parameter = { type: 'text', text: headerText };
+            shouldAddComponent = true;
+        }
+        
+        if (shouldAddComponent) {
+            components.push({ type: 'header', parameters: [parameter] });
         }
     }
+
 
     if (variableMappings.length > 0) {
         components.push({
@@ -297,7 +299,7 @@ export async function handleStartBroadcast(
         });
     }
     
-    const broadcastData: Omit<Broadcast, '_id' | 'createdAt'> = {
+    const broadcastData: Omit<Broadcast, '_id'> = {
         name: `${template.name} - ${new Date().toLocaleString()}`,
         projectId: new ObjectId(projectId),
         phoneNumberId,
@@ -310,6 +312,7 @@ export async function handleStartBroadcast(
         tagIds: audienceType === 'tags' ? tagIds.map(id => new ObjectId(id)) : [],
         accessToken: project.accessToken,
         components,
+        createdAt: new Date(),
         headerMediaFile: headerMediaFile?.size > 0 ? {
             buffer: Buffer.from(await headerMediaFile.arrayBuffer()),
             name: headerMediaFile.name,
@@ -376,7 +379,7 @@ export async function handleBulkBroadcast(
                 continue;
             }
 
-            const broadcastData: Omit<Broadcast, '_id' | 'createdAt'> = {
+            const broadcastData: Omit<Broadcast, '_id'> = {
                 name: `Bulk: ${template.name} - ${new Date().toLocaleString()}`,
                 projectId: new ObjectId(projectId),
                 phoneNumberId: project.phoneNumbers?.[0]?.id || '', // Use the first available number
@@ -388,6 +391,7 @@ export async function handleBulkBroadcast(
                 audienceType: 'file-bulk',
                 accessToken: project.accessToken,
                 components: template.components || [],
+                createdAt: new Date(),
             };
     
             const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
@@ -441,7 +445,7 @@ export async function handleStartApiBroadcast(data: {
         });
     }
 
-    const broadcastData: Omit<Broadcast, '_id' | 'createdAt'> = {
+    const broadcastData: Omit<Broadcast, '_id'> = {
         name: `API Broadcast - ${template.name} - ${new Date().toLocaleString()}`,
         projectId: new ObjectId(projectId),
         phoneNumberId,
@@ -453,6 +457,7 @@ export async function handleStartApiBroadcast(data: {
         audienceType: 'api',
         accessToken: project.accessToken,
         components,
+        createdAt: new Date(),
     };
 
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
@@ -507,7 +512,7 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
         }
     }
     
-    const newBroadcastData: Omit<Broadcast, '_id' | 'createdAt'> = {
+    const newBroadcastData: Omit<Broadcast, '_id'> = {
         ...originalBroadcast,
         name: `${originalBroadcast.name} (Requeued)`,
         status: 'PENDING_PROCESSING',
@@ -516,6 +521,7 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
         errorCount: 0,
         startedAt: undefined,
         completedAt: undefined,
+        createdAt: new Date(),
         components: headerImageUrl ? components : originalBroadcast.components,
     };
     delete (newBroadcastData as any)._id;
