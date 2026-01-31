@@ -43,8 +43,6 @@ import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import {Calendar} from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import { getBroadcasts } from '@/app/actions/broadcast.actions';
-import { SpeedDisplay } from '@/components/wabasimplify/broadcast-speed-display';
-
 
 type Broadcast = {
   _id: any;
@@ -56,7 +54,7 @@ type Broadcast = {
   contactCount: number;
   successCount?: number;
   errorCount?: number;
-  status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled';
+  status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled' | 'PENDING_PROCESSING';
   createdAt: string;
   completedAt?: string;
   startedAt?: string;
@@ -281,7 +279,7 @@ export default function BroadcastPage() {
   useEffect(() => {
     if (!activeProjectId || isRefreshing) return;
 
-    const hasActiveBroadcasts = history.some(b => b.status === 'QUEUED' || b.status === 'PROCESSING');
+    const hasActiveBroadcasts = history.some(b => b.status === 'QUEUED' || b.status === 'PROCESSING' || b.status === 'PENDING_PROCESSING');
     if (!hasActiveBroadcasts) return;
 
     const interval = setInterval(() => {
@@ -328,7 +326,7 @@ export default function BroadcastPage() {
     if (!status) return 'outline';
     return status === 'QUEUED'
             ? 'outline'
-            : status === 'PROCESSING'
+            : status === 'PROCESSING' || status === 'PENDING_PROCESSING'
             ? 'secondary'
             : status === 'Completed'
             ? 'default'
@@ -419,11 +417,9 @@ export default function BroadcastPage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Queued</TableHead>
-                        <TableHead>Duration</TableHead>
                         <TableHead>Template / Flow</TableHead>
                         <TableHead>Delivery Stats</TableHead>
                         <TableHead>File</TableHead>
-                        <TableHead>Speed</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
@@ -431,16 +427,7 @@ export default function BroadcastPage() {
                     <TableBody>
                         {history.map((item) => (
                           <TableRow key={item._id.toString()}>
-                            <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
-                            <TableCell>
-                              {item.status === 'PROCESSING' && item.startedAt ? (
-                                <LiveTimer startTime={item.startedAt} />
-                              ) : item.completedAt && item.startedAt ? (
-                                formatDuration(item.startedAt, item.completedAt)
-                              ) : (
-                                '-'
-                              )}
-                            </TableCell>
+                            <TableCell>{item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A'}</TableCell>
                             <TableCell>{item.templateName}</TableCell>
                             <TableCell>
                                 <div className="w-40 space-y-1">
@@ -456,16 +443,13 @@ export default function BroadcastPage() {
                             </TableCell>
                             <TableCell>{item.fileName}</TableCell>
                             <TableCell>
-                                <SpeedDisplay item={item} />
-                            </TableCell>
-                            <TableCell>
                               <Badge variant={getStatusVariant(item)} className="capitalize">
                                 {item.status?.toLowerCase() || 'unknown'}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-2">
-                                {(item.status === 'QUEUED' || item.status === 'PROCESSING') && (
+                                {(item.status === 'QUEUED' || item.status === 'PROCESSING' || item.status === 'PENDING_PROCESSING') && (
                                       <StopBroadcastButton broadcastId={item._id.toString()} />
                                   )}
                                   {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
@@ -498,7 +482,7 @@ export default function BroadcastPage() {
                               <CardTitle className="text-base leading-snug">{item.templateName}</CardTitle>
                               <Badge variant={getStatusVariant(item)} className="capitalize">{item.status?.toLowerCase() || 'unknown'}</Badge>
                           </div>
-                          <CardDescription className="text-xs">{new Date(item.createdAt).toLocaleString()}</CardDescription>
+                          <CardDescription className="text-xs">{item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A'}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4 text-sm">
                           {item.status === 'PROCESSING' && item.contactCount > 0 && (
@@ -510,17 +494,14 @@ export default function BroadcastPage() {
                               </div>
                           )}
                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-                              <div className="flex justify-between"><span className="text-muted-foreground">Duration:</span> <span className="font-mono">{item.status === 'PROCESSING' && item.startedAt ? <LiveTimer startTime={item.startedAt} /> : item.completedAt && item.startedAt ? formatDuration(item.startedAt, item.completedAt) : '-'}</span></div>
                               <div className="flex justify-between"><span className="text-muted-foreground">Contacts:</span> <span className="font-medium">{item.contactCount}</span></div>
                               <div className="flex justify-between"><span className="text-muted-foreground">Sent:</span> <span className="font-medium">{item.successCount || 0}</span></div>
                               <div className="flex justify-between"><span className="text-muted-foreground">Failed:</span> <span className="font-medium">{item.errorCount || 0}</span></div>
                               <div className="flex justify-between col-span-2"><span className="text-muted-foreground">File:</span> <span className="font-medium truncate">{item.fileName}</span></div>
                            </div>
-                           <Separator />
-                           <SpeedDisplay item={item} />
                         </CardContent>
                         <CardFooter className="flex justify-end gap-2">
-                             {(item.status === 'QUEUED' || item.status === 'PROCESSING') && <StopBroadcastButton broadcastId={item._id.toString()} size="sm" />}
+                             {(item.status === 'QUEUED' || item.status === 'PROCESSING' || item.status === 'PENDING_PROCESSING') && <StopBroadcastButton broadcastId={item._id.toString()} size="sm" />}
                               {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
                                 <RequeueBroadcastDialog
                                   broadcastId={item._id.toString()}
