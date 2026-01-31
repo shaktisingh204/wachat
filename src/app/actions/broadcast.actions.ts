@@ -35,7 +35,7 @@ export async function getAllBroadcasts(
     }
 }
 
-export async function getBroadcastsForProject(
+export async function getBroadcasts(
     projectId: string,
     page: number = 1,
     limit: number = 10
@@ -325,6 +325,91 @@ export async function handleStartBroadcast(
     revalidatePath('/dashboard/broadcasts');
     
     return { message: `Broadcast successfully queued for ${contactsInserted} contacts. Sending will begin shortly.` };
+}
+
+export async function handleBulkBroadcast(
+    prevState: any,
+    formData: FormData
+): Promise<{ message?: string; error?: string }> {
+    const projectIdsString = formData.get('projectIds') as string;
+    const templateName = formData.get('templateName') as string;
+    const language = formData.get('language') as string;
+    const contactFile = formData.get('contactFile') as File;
+
+    if (!projectIdsString || !templateName || !language || !contactFile || contactFile.size === 0) {
+        return { error: 'Missing required fields for bulk broadcast.' };
+    }
+
+    const projectIds = projectIdsString.split(',');
+    
+    try {
+        const { db } = await connectToDatabase();
+        const allContacts = await parseContactFile(contactFile);
+        
+        if (allContacts.length === 0) {
+            return { error: 'Contact file is empty or could not be parsed.' };
+        }
+
+        const contactsPerProject = Math.ceil(allContacts.length / projectIds.length);
+        let successCount = 0;
+        let failedProjects: string[] = [];
+
+        for (let i = 0; i < projectIds.length; i++) {
+            const projectId = projectIds[i];
+            const projectContacts = allContacts.slice(i * contactsPerProject, (i + 1) * contactsPerProject);
+            
+            if (projectContacts.length === 0) continue;
+
+            const project = await getProjectById(projectId);
+            if (!project) {
+                failedProjects.push(`Project ID ${projectId} (not found)`);
+                continue;
+            }
+
+            const template = await db.collection<Template>('templates').findOne({ projectId: new ObjectId(projectId), name: templateName, language: language });
+            if (!template) {
+                failedProjects.push(`${project.name} (template not found)`);
+                continue;
+            }
+            if (template.status !== 'APPROVED') {
+                failedProjects.push(`${project.name} (template not approved)`);
+                continue;
+            }
+
+            const broadcastData: Omit<Broadcast, '_id' | 'createdAt'> = {
+                name: `Bulk: ${template.name} - ${new Date().toLocaleString()}`,
+                projectId: new ObjectId(projectId),
+                phoneNumberId: project.phoneNumbers?.[0]?.id || '', // Use the first available number
+                templateName: template.name,
+                templateId: template._id,
+                language: template.language,
+                status: 'QUEUED',
+                contactCount: projectContacts.length,
+                audienceType: 'file-bulk',
+                accessToken: project.accessToken,
+                components: template.components || [],
+            };
+    
+            const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
+            const broadcastId = broadcastResult.insertedId;
+            
+            await createBroadcastContacts(db, broadcastId, projectContacts);
+            successCount++;
+        }
+
+        let message = `Successfully queued broadcasts for ${successCount} project(s).`;
+        if (failedProjects.length > 0) {
+            message += ` Failed on ${failedProjects.length} project(s): ${failedProjects.join(', ')}.`;
+        }
+
+        revalidatePath('/dashboard/bulk');
+        revalidatePath('/dashboard/broadcasts');
+        
+        return { message };
+
+    } catch (e: any) {
+        return { error: `Failed to process bulk broadcast: ${getErrorMessage(e)}` };
+    }
 }
 
 export async function handleStartApiBroadcast(data: {
