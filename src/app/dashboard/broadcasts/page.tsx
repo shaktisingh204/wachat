@@ -44,6 +44,7 @@ import {Calendar} from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import { getBroadcasts } from '@/app/actions/broadcast.actions';
 
+
 type Broadcast = {
   _id: any;
   templateId: any;
@@ -182,25 +183,21 @@ export default function BroadcastPage() {
   const [totalPages, setTotalPages] = useState(0);
 
   const getFormattedDate = (item: WithId<Broadcast>) => {
+    try {
       const dateString = item.createdAt;
-      if (dateString) {
-          const date = new Date(dateString);
-          if (!isNaN(date.getTime())) {
-              return date.toLocaleString();
-          }
+      if (dateString && !isNaN(new Date(dateString).getTime())) {
+        return new Date(dateString).toLocaleString();
       }
-      // Fallback to ObjectId timestamp
       if (item._id) {
-          try {
-              const objectIdDate = new Date(parseInt(item._id.toString().substring(0, 8), 16) * 1000);
-              if (!isNaN(objectIdDate.getTime())) {
-                  return objectIdDate.toLocaleString();
-              }
-          } catch(e) {
-              // Ignore parsing errors
-          }
+        const objectIdDate = new Date(parseInt(item._id.toString().substring(0, 8), 16) * 1000);
+        if (!isNaN(objectIdDate.getTime())) {
+          return objectIdDate.toLocaleString();
+        }
       }
-      return 'N/A';
+    } catch (e) {
+      console.error("Date formatting failed", e);
+    }
+    return 'N/A';
   };
 
   const fetchData = useCallback(async (projectId: string, page: number, showToast = false) => {
