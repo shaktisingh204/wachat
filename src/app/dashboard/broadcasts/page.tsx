@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, handleStopBroadcast, handleRunCron } from '@/app/actions/index.ts';
+import { getTemplates, handleStopBroadcast } from '@/app/actions/index.ts';
 import { handleSyncTemplates } from '@/app/actions/template.actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
@@ -116,66 +116,6 @@ function StopBroadcastButton({ broadcastId, size = 'sm' }: { broadcastId: string
   );
 }
 
-function LiveTimer({ startTime }: { startTime: string }) {
-  const [elapsedTime, setElapsedTime] = useState('00:00:00');
-
-  useEffect(() => {
-    if (!startTime) return;
-    const start = new Date(startTime).getTime();
-    if (isNaN(start)) return;
-
-    const intervalId = setInterval(() => {
-      const now = Date.now();
-      const difference = now - start;
-      if (difference < 0) return;
-
-      const hours = Math.floor(difference / 3600000);
-      const minutes = Math.floor((difference % 3600000) / 60000);
-      const seconds = Math.floor(((difference % 3600000) % 60000) / 1000);
-
-      const formattedTime = [
-        String(hours).padStart(2, '0'),
-        String(minutes).padStart(2, '0'),
-        String(seconds).padStart(2, '0')
-      ].join(':');
-      
-      setElapsedTime(formattedTime);
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [startTime]);
-
-  return (
-    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground font-mono">
-      <Clock className="h-4 w-4" />
-      <span>{elapsedTime}</span>
-    </div>
-  );
-}
-
-function formatDuration(start: string, end: string) {
-    const startDate = new Date(start).getTime();
-    const endDate = new Date(end).getTime();
-    if (isNaN(startDate) || isNaN(endDate)) return '-';
-
-    let difference = endDate - startDate;
-    if (difference < 0) difference = 0;
-    
-    if (difference < 1000) {
-        return '< 1s';
-    }
-
-    const hours = Math.floor(difference / 3600000);
-    const minutes = Math.floor((difference % 3600000) / 60000);
-    const seconds = Math.floor(((difference % 3600000) % 60000) / 1000);
-
-    return [
-        String(hours).padStart(2, '0'),
-        String(minutes).padStart(2, '0'),
-        String(seconds).padStart(2, '0')
-      ].join(':');
-}
-
 function ISTClock() {
     const [time, setTime] = useState<string | null>(null);
 
@@ -236,7 +176,6 @@ export default function BroadcastPage() {
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
-  const [isRunningCron, startCronRunTransition] = useTransition();
   const { toast } = useToast();
   
   const [currentPage, setCurrentPage] = useState(1);
@@ -306,21 +245,6 @@ export default function BroadcastPage() {
     });
   }, [toast, activeProjectId]);
 
-  const onRunCron = useCallback(async () => {
-    startCronRunTransition(async () => {
-      toast({ title: 'Starting Cron Manually', description: 'The scheduler is now processing queued jobs.' });
-      const result = await handleRunCron();
-      if (result.error) {
-        toast({ title: "Cron Run Failed", description: result.error, variant: "destructive" });
-      } else {
-        toast({ title: "Cron Run Complete", description: result.message });
-      }
-      if (activeProjectId) {
-        fetchData(activeProjectId, currentPage, false);
-      }
-    });
-  }, [toast, activeProjectId, currentPage, fetchData]);
-
   const getStatusVariant = (item: WithId<Broadcast>) => {
     const status = item.status;
     if (!status) return 'outline';
@@ -377,19 +301,11 @@ export default function BroadcastPage() {
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <ISTClock />
-                 <Button onClick={onRunCron} disabled={isRunningCron || isRefreshing} variant="outline" size="sm">
-                  {isRunningCron ? (
-                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Play className="mr-2 h-4 w-4" />
-                  )}
-                  <span>Enqueue Jobs</span>
-                </Button>
                 <Button onClick={onSyncTemplates} disabled={isSyncingTemplates || isRefreshing} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
                   Sync Templates
                 </Button>
-                <Button onClick={() => activeProjectId && fetchData(activeProjectId, currentPage, true)} disabled={isRefreshing || isRunningCron} variant="outline" size="sm">
+                <Button onClick={() => activeProjectId && fetchData(activeProjectId, currentPage, true)} disabled={isRefreshing} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
