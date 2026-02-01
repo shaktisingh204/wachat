@@ -16,7 +16,8 @@ if (!MONGODB_URI || !MONGODB_DB) {
   throw new Error('Missing MongoDB env variables');
 }
 
-let cachedClient, cachedDb;
+let cachedClient = null;
+let cachedDb = null;
 
 async function connectToDatabase() {
   if (cachedDb) return { db: cachedDb };
@@ -41,8 +42,8 @@ const getErrorMessage = (err) =>
 async function addBroadcastLog(db, broadcastId, projectId, level, message) {
   try {
     await db.collection('broadcast_logs').insertOne({
-      broadcastId: new ObjectId(broadcastId),
-      projectId: new ObjectId(projectId),
+      broadcastId: new ObjectId(String(broadcastId)),
+      projectId: new ObjectId(String(projectId)),
       level,
       message,
       timestamp: new Date(),
@@ -75,6 +76,7 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
     const finalComponents = structuredClone(components || []);
     const header = finalComponents.find(c => c.type === 'header');
 
+    // Header media upload (once per message if needed)
     if (headerMediaFile?.buffer?.data && header?.parameters?.[0]) {
       const param = header.parameters[0];
       if (!param[param.type]?.id) {
@@ -106,6 +108,7 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
       }
     }
 
+    // Variable interpolation
     for (const c of finalComponents) {
       for (const p of c.parameters || []) {
         if (p.type === 'text') {
@@ -140,6 +143,7 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
     if (!body?.messages?.[0]?.id) throw new Error('Message send failed');
 
     return { success: true, messageId: body.messages[0].id };
+
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
   }
@@ -151,7 +155,10 @@ async function startBroadcastWorker(workerId) {
   const { db } = await connectToDatabase();
   const PQueue = (await import('p-queue')).default;
 
-  const agent = new undici.Agent({ connections: 200, pipelining: 10 });
+  const agent = new undici.Agent({
+    connections: 200,
+    pipelining: 10,
+  });
 
   console.log(`${LOG_PREFIX} Worker ${workerId} started`);
 
@@ -161,7 +168,7 @@ async function startBroadcastWorker(workerId) {
     if (busy) return;
     busy = true;
 
-    let job;
+    let job = null;
 
     try {
       const res = await db.collection('broadcasts').findOneAndUpdate(
@@ -170,7 +177,8 @@ async function startBroadcastWorker(workerId) {
         { returnDocument: 'after' }
       );
 
-      job = res.value;
+      // 🔥 MongoDB v4 / v6 SAFE
+      job = res?.value ?? res;
       if (!job) return;
 
       const { _id, projectId, messagesPerSecond = 80 } = job;
@@ -178,7 +186,7 @@ async function startBroadcastWorker(workerId) {
       await addBroadcastLog(db, _id, projectId, 'INFO', 'Broadcast started');
 
       const queue = new PQueue({
-        intervalCap: messagesPerSecond,
+        intervalCap: messagesPerSecond, // MPS
         interval: 1000,
         concurrency: messagesPerSecond,
       });
@@ -194,8 +202,19 @@ async function startBroadcastWorker(workerId) {
           await db.collection('broadcast_contacts').updateOne(
             { _id: contact._id },
             result.success
-              ? { $set: { status: 'SENT', sentAt: new Date(), messageId: result.messageId } }
-              : { $set: { status: 'FAILED', error: result.error } }
+              ? {
+                  $set: {
+                    status: 'SENT',
+                    sentAt: new Date(),
+                    messageId: result.messageId
+                  }
+                }
+              : {
+                  $set: {
+                    status: 'FAILED',
+                    error: result.error
+                  }
+                }
           );
         });
       }
@@ -233,7 +252,12 @@ async function startBroadcastWorker(workerId) {
       if (job?._id) {
         await db.collection('broadcasts').updateOne(
           { _id: job._id },
-          { $set: { status: 'FAILED_PROCESSING', error: getErrorMessage(e) } }
+          {
+            $set: {
+              status: 'FAILED_PROCESSING',
+              error: getErrorMessage(e)
+            }
+          }
         );
       }
     } finally {
@@ -251,6 +275,7 @@ function main() {
       : `pid-${process.pid}`;
 
   console.log(`${LOG_PREFIX} Booting ${workerId}`);
+
   startBroadcastWorker(workerId).catch(err => {
     console.error(`${LOG_PREFIX} Startup failure`, err);
     process.exit(1);
