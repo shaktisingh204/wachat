@@ -7,69 +7,59 @@ const { MongoClient, ObjectId } = require('mongodb');
 const undici = require('undici');
 const FormData = require('form-data');
 
-// --- DATABASE CONNECTION ---
+/* ================= DATABASE ================= */
+
 const MONGODB_URI = process.env.MONGODB_URI;
 const MONGODB_DB = process.env.MONGODB_DB;
 
 if (!MONGODB_URI || !MONGODB_DB) {
-  throw new Error('Please define MONGODB_URI and MONGODB_DB environment variables');
+  throw new Error('Missing MongoDB env variables');
 }
 
-let cachedClient = null;
-let cachedDb = null;
+let cachedClient, cachedDb;
 
 async function connectToDatabase() {
-  if (cachedClient && cachedDb) return { client: cachedClient, db: cachedDb };
+  if (cachedDb) return { db: cachedDb };
 
   const client = new MongoClient(MONGODB_URI, { maxPoolSize: 10 });
   await client.connect();
 
-  const db = client.db(MONGODB_DB);
   cachedClient = client;
-  cachedDb = db;
+  cachedDb = client.db(MONGODB_DB);
 
-  return { client, db };
+  return { db: cachedDb };
 }
 
-// --- UTILITIES ---
-const getErrorMessage = (error) => {
-  if (error?.response?.data?.error) {
-    const apiError = error.response.data.error;
-    let message = apiError.error_user_title
-      ? `${apiError.error_user_title}: ${apiError.error_user_msg}`
-      : apiError.message || 'An unknown API error occurred.';
-    if (apiError.code) message += ` (Code: ${apiError.code})`;
-    return message;
-  }
-  if (error instanceof Error) return error.message;
-  return String(error) || 'Unknown error';
-};
+/* ================= HELPERS ================= */
 
-// --- WORKER LOGIC ---
 const API_VERSION = 'v23.0';
 const LOG_PREFIX = '[BROADCAST-WORKER]';
 
-async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
+const getErrorMessage = (err) =>
+  err instanceof Error ? err.message : String(err);
+
+async function addBroadcastLog(db, broadcastId, projectId, level, message) {
   try {
     await db.collection('broadcast_logs').insertOne({
-      broadcastId: new ObjectId(String(broadcastId)),
-      projectId: new ObjectId(String(projectId)),
+      broadcastId: new ObjectId(broadcastId),
+      projectId: new ObjectId(projectId),
       level,
       message,
-      meta,
       timestamp: new Date(),
     });
   } catch (e) {
-    console.error(`${LOG_PREFIX} Failed to write log`, e);
+    console.error(`${LOG_PREFIX} Log write failed`, e);
   }
 }
 
-function interpolateText(text, variables) {
-  if (!text || !variables) return text;
-  return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (_, key) =>
-    variables[key] !== undefined ? String(variables[key]) : _
+function interpolateText(text, vars) {
+  if (!text || !vars) return text;
+  return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (_, k) =>
+    vars[k] !== undefined ? String(vars[k]) : _
   );
 }
+
+/* ================= META SEND ================= */
 
 async function sendWhatsAppMessage(db, job, contact, agent) {
   try {
@@ -82,28 +72,21 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
       headerMediaFile
     } = job;
 
-    const finalComponents = JSON.parse(JSON.stringify(components || []));
-    const headerComponent = finalComponents.find(c => c.type === 'header');
+    const finalComponents = structuredClone(components || []);
+    const header = finalComponents.find(c => c.type === 'header');
 
-    if (
-      headerMediaFile &&
-      headerMediaFile.buffer?.data &&
-      headerComponent?.parameters?.[0]
-    ) {
-      const parameter = headerComponent.parameters[0];
-      const mediaType = parameter.type;
-
-      if (!parameter[mediaType]?.id) {
-        const buffer = Buffer.from(headerMediaFile.buffer.data);
+    if (headerMediaFile?.buffer?.data && header?.parameters?.[0]) {
+      const param = header.parameters[0];
+      if (!param[param.type]?.id) {
         const form = new FormData();
-
-        form.append('file', buffer, {
-          filename: headerMediaFile.name,
-          contentType: headerMediaFile.type,
-        });
+        form.append(
+          'file',
+          Buffer.from(headerMediaFile.buffer.data),
+          headerMediaFile.name
+        );
         form.append('messaging_product', 'whatsapp');
 
-        const { statusCode, body } = await undici.request(
+        const upload = await undici.request(
           `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
           {
             method: 'POST',
@@ -116,36 +99,22 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
           }
         );
 
-        const uploadResponse = await body.json();
+        const data = await upload.body.json();
+        if (!data?.id) throw new Error('Media upload failed');
 
-        if (statusCode >= 400 || !uploadResponse?.id) {
-          throw new Error('Media upload failed');
-        }
-
-        parameter[mediaType] = { id: uploadResponse.id };
+        param[param.type] = { id: data.id };
       }
     }
 
-    for (const component of finalComponents) {
-      for (const param of component.parameters || []) {
-        if (param.type === 'text') {
-          param.text = interpolateText(param.text, contact.variables);
+    for (const c of finalComponents) {
+      for (const p of c.parameters || []) {
+        if (p.type === 'text') {
+          p.text = interpolateText(p.text, contact.variables);
         }
       }
     }
 
-    const payload = {
-      messaging_product: 'whatsapp',
-      to: contact.phone,
-      type: 'template',
-      template: {
-        name: templateName,
-        language: { code: language },
-        components: finalComponents,
-      },
-    };
-
-    const { statusCode, body } = await undici.request(
+    const res = await undici.request(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
       {
         method: 'POST',
@@ -154,49 +123,59 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to: contact.phone,
+          type: 'template',
+          template: {
+            name: templateName,
+            language: { code: language },
+            components: finalComponents,
+          },
+        }),
       }
     );
 
-    const response = await body.json();
+    const body = await res.body.json();
+    if (!body?.messages?.[0]?.id) throw new Error('Message send failed');
 
-    if (statusCode >= 400 || !response?.messages?.[0]?.id) {
-      throw new Error('Message send failed');
-    }
-
-    return { success: true, messageId: response.messages[0].id };
-
-  } catch (err) {
-    return { success: false, error: getErrorMessage(err) };
+    return { success: true, messageId: body.messages[0].id };
+  } catch (e) {
+    return { success: false, error: getErrorMessage(e) };
   }
 }
+
+/* ================= WORKER ================= */
 
 async function startBroadcastWorker(workerId) {
   const { db } = await connectToDatabase();
   const PQueue = (await import('p-queue')).default;
 
-  const agent = new undici.Agent({
-    connections: 200,
-    pipelining: 10,
-  });
+  const agent = new undici.Agent({ connections: 200, pipelining: 10 });
 
   console.log(`${LOG_PREFIX} Worker ${workerId} started`);
 
+  let busy = false;
+
   setInterval(async () => {
+    if (busy) return;
+    busy = true;
+
     let job;
 
     try {
-      job = await db.collection('broadcasts').findOneAndUpdate(
+      const res = await db.collection('broadcasts').findOneAndUpdate(
         { status: 'PENDING_PROCESSING' },
         { $set: { status: 'PROCESSING', workerId, startedAt: new Date() } },
         { returnDocument: 'after' }
       );
 
+      job = res.value;
       if (!job) return;
 
-      const { _id: broadcastId, projectId, messagesPerSecond = 80 } = job;
+      const { _id, projectId, messagesPerSecond = 80 } = job;
 
-      await addBroadcastLog(db, broadcastId, projectId, 'INFO', 'Broadcast started');
+      await addBroadcastLog(db, _id, projectId, 'INFO', 'Broadcast started');
 
       const queue = new PQueue({
         intervalCap: messagesPerSecond,
@@ -205,7 +184,7 @@ async function startBroadcastWorker(workerId) {
       });
 
       const cursor = db.collection('broadcast_contacts')
-        .find({ broadcastId, status: 'PENDING' })
+        .find({ broadcastId: _id, status: 'PENDING' })
         .batchSize(500);
 
       for await (const contact of cursor) {
@@ -223,43 +202,47 @@ async function startBroadcastWorker(workerId) {
 
       await queue.onIdle();
 
-      const successCount = await db.collection('broadcast_contacts')
-        .countDocuments({ broadcastId, status: 'SENT' });
+      const success = await db.collection('broadcast_contacts')
+        .countDocuments({ broadcastId: _id, status: 'SENT' });
 
-      const failedCount = await db.collection('broadcast_contacts')
-        .countDocuments({ broadcastId, status: 'FAILED' });
+      const failed = await db.collection('broadcast_contacts')
+        .countDocuments({ broadcastId: _id, status: 'FAILED' });
 
       await db.collection('broadcasts').updateOne(
-        { _id: broadcastId },
+        { _id },
         {
           $set: {
             status: 'COMPLETED',
             completedAt: new Date(),
-            successCount,
-            errorCount: failedCount,
+            successCount: success,
+            errorCount: failed,
           },
         }
       );
 
       await addBroadcastLog(
         db,
-        broadcastId,
+        _id,
         projectId,
         'INFO',
-        `Completed. Sent: ${successCount}, Failed: ${failedCount}`
+        `Completed: ${success} sent, ${failed} failed`
       );
 
-    } catch (err) {
-      console.error(`${LOG_PREFIX} CRITICAL ERROR`, err);
+    } catch (e) {
+      console.error(`${LOG_PREFIX} CRITICAL`, e);
       if (job?._id) {
         await db.collection('broadcasts').updateOne(
           { _id: job._id },
-          { $set: { status: 'FAILED_PROCESSING', error: getErrorMessage(err) } }
+          { $set: { status: 'FAILED_PROCESSING', error: getErrorMessage(e) } }
         );
       }
+    } finally {
+      busy = false;
     }
   }, 5000);
 }
+
+/* ================= BOOT ================= */
 
 function main() {
   const workerId =
@@ -267,8 +250,7 @@ function main() {
       ? `pm2-${process.env.PM2_INSTANCE_ID}`
       : `pid-${process.pid}`;
 
-  console.log(`${LOG_PREFIX} Starting worker ${workerId}`);
-
+  console.log(`${LOG_PREFIX} Booting ${workerId}`);
   startBroadcastWorker(workerId).catch(err => {
     console.error(`${LOG_PREFIX} Startup failure`, err);
     process.exit(1);
