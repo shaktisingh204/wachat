@@ -1,3 +1,4 @@
+
 'use strict';
 
 const path = require('path');
@@ -7,8 +8,7 @@ const { MongoClient, ObjectId } = require('mongodb');
 const undici = require('undici');
 const FormData = require('form-data');
 
-/* ================= DATABASE ================= */
-
+// --- DATABASE CONNECTION ---
 const MONGODB_URI = process.env.MONGODB_URI;
 const MONGODB_DB = process.env.MONGODB_DB;
 
@@ -31,8 +31,7 @@ async function connectToDatabase() {
   return { db: cachedDb };
 }
 
-/* ================= HELPERS ================= */
-
+// --- UTILITIES ---
 const API_VERSION = 'v23.0';
 const LOG_PREFIX = '[BROADCAST-WORKER]';
 
@@ -70,16 +69,20 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
       templateName,
       language = 'en_US',
       components,
-      headerMediaFile
+      headerMediaFile,
     } = job;
 
-    const finalComponents = structuredClone(components || []);
+    const finalComponents = JSON.parse(JSON.stringify(components || []));
     const header = finalComponents.find(c => c.type === 'header');
 
-    // Header media upload (once per message if needed)
-    if (headerMediaFile?.buffer?.data && header?.parameters?.[0]) {
+    if (
+      headerMediaFile?.buffer?.data &&
+      header?.parameters?.[0]
+    ) {
       const param = header.parameters[0];
-      if (!param[param.type]?.id) {
+      const mediaType = param.type;
+      
+      if (!param[mediaType]?.id) {
         const form = new FormData();
         form.append(
           'file',
@@ -101,14 +104,14 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
           }
         );
 
-        const data = await upload.body.json();
-        if (!data?.id) throw new Error('Media upload failed');
-
-        param[param.type] = { id: data.id };
+        const uploadData = await upload.body.json();
+        if (upload.statusCode >= 400 || !uploadData?.id) {
+          throw new Error(`Media upload failed: ${JSON.stringify(uploadData?.error || 'Unknown upload error')}`);
+        }
+        param[mediaType] = { id: uploadData.id };
       }
     }
 
-    // Variable interpolation
     for (const c of finalComponents) {
       for (const p of c.parameters || []) {
         if (p.type === 'text') {
@@ -116,6 +119,17 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
         }
       }
     }
+
+    const payload = {
+      messaging_product: 'whatsapp',
+      to: contact.phone,
+      type: 'template',
+      template: {
+        name: templateName,
+        language: { code: language },
+        components: finalComponents,
+      },
+    };
 
     const res = await undici.request(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
@@ -126,26 +140,35 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          messaging_product: 'whatsapp',
-          to: contact.phone,
-          type: 'template',
-          template: {
-            name: templateName,
-            language: { code: language },
-            components: finalComponents,
-          },
-        }),
+        body: JSON.stringify(payload),
       }
     );
 
-    const body = await res.body.json();
-    if (!body?.messages?.[0]?.id) throw new Error('Message send failed');
+    const resBodyText = await res.body.text();
+    let resData;
+    try {
+        resData = JSON.parse(resBodyText);
+    } catch (e) {
+        throw new Error(`Meta API returned non-JSON response (Status: ${res.statusCode}): ${resBodyText.substring(0, 500)}`);
+    }
 
-    return { success: true, messageId: body.messages[0].id };
+    if (res.statusCode >= 400 || !resData?.messages?.[0]?.id) {
+        const apiError = resData?.error;
+        if (apiError && typeof apiError === 'object') {
+            let message = apiError.error_user_title 
+                ? `${apiError.error_user_title}: ${apiError.error_user_msg}` 
+                : apiError.message || JSON.stringify(apiError);
+            if (apiError.code) message += ` (Code: ${apiError.code})`;
+            if (apiError.fbtrace_id) message += ` (Trace: ${apiError.fbtrace_id})`;
+            throw new Error(message);
+        }
+        throw new Error(`Meta API error (Status: ${res.statusCode}): ${JSON.stringify(resData)}`);
+    }
 
-  } catch (e) {
-    return { success: false, error: getErrorMessage(e) };
+    return { success: true, messageId: resData.messages[0].id, sentPayload: payload.template };
+
+  } catch (err) {
+    return { success: false, error: getErrorMessage(err) };
   }
 }
 
@@ -176,14 +199,16 @@ async function startBroadcastWorker(workerId) {
         { $set: { status: 'PROCESSING', workerId, startedAt: new Date() } },
         { returnDocument: 'after' }
       );
-
-      // 🔥 MongoDB v4 / v6 SAFE
-      job = res?.value ?? res;
-      if (!job) return;
+      
+      job = res;
+      if (!job) {
+          busy = false;
+          return;
+      }
 
       const { _id, projectId, messagesPerSecond = 80 } = job;
 
-      await addBroadcastLog(db, _id, projectId, 'INFO', 'Broadcast started');
+      await addBroadcastLog(db, _id, projectId, 'INFO', `Worker ${workerId} picked up job.`);
 
       const queue = new PQueue({
         intervalCap: messagesPerSecond, // MPS
@@ -195,49 +220,44 @@ async function startBroadcastWorker(workerId) {
         .find({ broadcastId: _id, status: 'PENDING' })
         .batchSize(500);
 
+      const tasks = [];
       for await (const contact of cursor) {
-        queue.add(async () => {
+        tasks.push(queue.add(async () => {
           const result = await sendWhatsAppMessage(db, job, contact, agent);
+          
+          if (result.success) {
+            await db.collection("broadcast_contacts").updateOne({ _id: contact._id }, { $set: { status: "SENT", sentAt: new Date(), messageId: result.messageId, error: null } });
 
-          await db.collection('broadcast_contacts').updateOne(
-            { _id: contact._id },
-            result.success
-              ? {
-                  $set: {
-                    status: 'SENT',
-                    sentAt: new Date(),
-                    messageId: result.messageId
-                  }
-                }
-              : {
-                  $set: {
-                    status: 'FAILED',
-                    error: result.error
-                  }
-                }
-          );
-        });
+            const now = new Date();
+            const { value: contactDoc } = await db.collection('contacts').findOneAndUpdate(
+                { projectId: new ObjectId(job.projectId), waId: contact.phone },
+                {
+                    $setOnInsert: { projectId: new ObjectId(job.projectId), phoneNumberId: job.phoneNumberId, name: contact.name, waId: contact.phone, createdAt: now },
+                    $set: { status: 'open', lastMessage: `[Template]: ${job.templateName}`.substring(0, 50), lastMessageTimestamp: now }
+                },
+                { upsert: true, returnDocument: 'after' }
+            );
+
+            if (contactDoc) {
+                await db.collection('outgoing_messages').insertOne({
+                    direction: 'out', contactId: contactDoc._id, projectId: new ObjectId(job.projectId), wamid: result.messageId,
+                    messageTimestamp: now, type: 'template', content: { template: result.sentPayload }, status: 'sent',
+                    statusTimestamps: { sent: now }, createdAt: now,
+                });
+            }
+          } else {
+            await db.collection("broadcast_contacts").updateOne({ _id: contact._id }, { $set: { status: "FAILED", error: result.error } });
+          }
+        }));
       }
 
-      await queue.onIdle();
-
+      await Promise.all(tasks);
+      
       const success = await db.collection('broadcast_contacts')
         .countDocuments({ broadcastId: _id, status: 'SENT' });
 
       const failed = await db.collection('broadcast_contacts')
         .countDocuments({ broadcastId: _id, status: 'FAILED' });
-
-      await db.collection('broadcasts').updateOne(
-        { _id },
-        {
-          $set: {
-            status: 'COMPLETED',
-            completedAt: new Date(),
-            successCount: success,
-            errorCount: failed,
-          },
-        }
-      );
 
       await addBroadcastLog(
         db,
@@ -245,6 +265,18 @@ async function startBroadcastWorker(workerId) {
         projectId,
         'INFO',
         `Completed: ${success} sent, ${failed} failed`
+      );
+
+      await db.collection('broadcasts').updateOne(
+        { _id },
+        {
+          $set: {
+            status: 'Completed',
+            completedAt: new Date(),
+            successCount: success,
+            errorCount: failed,
+          },
+        }
       );
 
     } catch (e) {
