@@ -299,8 +299,8 @@ export default function BroadcastReportPage() {
             </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 gap-6 items-start">
+            <div className="">
                 <Card>
                     <CardHeader>
                         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -381,26 +381,6 @@ export default function BroadcastReportPage() {
                                 Next
                             </Button>
                         </div>
-                    </CardContent>
-                </Card>
-            </div>
-            <div className="lg:col-span-1">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/>Broadcast Log</CardTitle>
-                        <CardDescription>A real-time log of events for this campaign.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ScrollArea className="h-[60vh] border rounded-md p-2">
-                             <div className="space-y-3">
-                                {logs.length > 0 ? logs.map(log => (
-                                    <div key={log._id.toString()} className="text-xs font-mono">
-                                        <span className="text-muted-foreground/70">[{new Date(log.timestamp).toLocaleTimeString()}] </span>
-                                        <span className={getLogLevelVariant(log.level)}>{log.message}</span>
-                                    </div>
-                                )) : <p className="text-xs text-muted-foreground text-center p-4">No log entries yet.</p>}
-                             </div>
-                        </ScrollArea>
                     </CardContent>
                 </Card>
             </div>
