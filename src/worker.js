@@ -13,42 +13,45 @@ const MONGODB_URI = process.env.MONGODB_URI;
 const MONGODB_DB = process.env.MONGODB_DB;
 
 if (!MONGODB_URI || !MONGODB_DB) {
-  throw new Error('Please define MONGODB_URI and MONGODB_DB environment variables');
+  throw new Error('Missing MongoDB env variables');
 }
 
 let cachedClient = null;
 let cachedDb = null;
 
 async function connectToDatabase() {
-  if (cachedClient && cachedDb) return { client: cachedClient, db: cachedDb };
+  if (cachedDb) return { db: cachedDb };
 
   const client = new MongoClient(MONGODB_URI, { maxPoolSize: 10 });
   await client.connect();
 
-  const db = client.db(MONGODB_DB);
   cachedClient = client;
-  cachedDb = db;
+  cachedDb = client.db(MONGODB_DB);
 
-  return { client, db };
+  return { db: cachedDb };
 }
 
 // --- UTILITIES ---
-const getErrorMessage = (error) => {
-  if (error?.response?.data?.error) {
-    const apiError = error.response.data.error;
-    let message = apiError.error_user_title
-      ? `${apiError.error_user_title}: ${apiError.error_user_msg}`
-      : apiError.message || 'An unknown API error occurred.';
-    if (apiError.code) message += ` (Code: ${apiError.code})`;
-    return message;
-  }
-  if (error instanceof Error) return error.message;
-  return String(error) || 'Unknown error';
-};
-
-// --- WORKER LOGIC ---
 const API_VERSION = 'v23.0';
 const LOG_PREFIX = '[BROADCAST-WORKER]';
+
+const getErrorMessage = (error) => {
+    // Axios-like structure from undici response
+    if (error?.error && typeof error.error === 'object') {
+        const apiError = error.error;
+        let message = apiError.error_user_title
+            ? `${apiError.error_user_title}: ${apiError.error_user_msg}`
+            : apiError.message || JSON.stringify(apiError);
+        if (apiError.code) message += ` (Code: ${apiError.code})`;
+        if (apiError.fbtrace_id) message += ` (Trace: ${apiError.fbtrace_id})`;
+        return message;
+    }
+    // Standard JS Error
+    if (error instanceof Error) return error.message;
+    // Other cases
+    return String(error) || 'Unknown error';
+};
+
 
 async function addBroadcastLog(db, broadcastId, projectId, level, message, meta = {}) {
   try {
@@ -75,6 +78,8 @@ function interpolateText(text, variables) {
   });
 }
 
+/* ================= META SEND ================= */
+
 async function sendWhatsAppMessage(db, job, contact, agent) {
   try {
     const {
@@ -82,94 +87,148 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
       phoneNumberId,
       templateName,
       language = 'en_US',
-      components,
+      components: originalComponents,
+      headerImageUrl,
       headerMediaFile,
     } = job;
 
-    const finalComponents = JSON.parse(JSON.stringify(components || []));
-    const headerComponent = finalComponents.find(c => c.type === 'header');
-
-    if (
-      headerMediaFile &&
-      headerMediaFile.buffer?.data &&
-      headerComponent?.parameters?.[0]
-    ) {
-      const parameter = headerComponent.parameters[0];
-      const mediaType = parameter.type;
-
-      if (!parameter[mediaType]?.id) {
-        const buffer = Buffer.from(headerMediaFile.buffer.data);
-        const form = new FormData();
-        form.append('file', buffer, { filename: headerMediaFile.name, contentType: headerMediaFile.type });
-        form.append('messaging_product', 'whatsapp');
-
-        const { statusCode, body } = await undici.request(
-          `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
-          { method: 'POST', dispatcher: agent, headers: { ...form.getHeaders(), Authorization: `Bearer ${accessToken}` }, body: form }
-        );
-        const uploadResponse = await body.json();
-        if (statusCode >= 400 || !uploadResponse?.id) throw new Error(`Media upload failed: ${JSON.stringify(uploadResponse?.error || 'Unknown upload error')}`);
-        parameter[mediaType] = { id: uploadResponse.id };
-      }
+    const payloadComponents = [];
+    const headerDef = originalComponents.find(c => c.type === 'HEADER');
+    
+    if (headerDef) {
+        let parameter;
+        const format = headerDef.format?.toLowerCase();
+        
+        if (format && ['image', 'video', 'document'].includes(format)) {
+            let mediaId;
+            if (headerMediaFile?.buffer?.data) {
+                const buffer = Buffer.from(headerMediaFile.buffer.data);
+                const form = new FormData();
+                form.append('file', buffer, { filename: headerMediaFile.name, contentType: headerMediaFile.type });
+                form.append('messaging_product', 'whatsapp');
+                const { statusCode, body } = await undici.request(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`, { method: 'POST', dispatcher: agent, headers: { ...form.getHeaders(), Authorization: `Bearer ${accessToken}` }, body: form });
+                const uploadResponse = await body.json();
+                if (statusCode >= 400 || !uploadResponse?.id) throw new Error(`Media upload failed: ${JSON.stringify(uploadResponse?.error || 'Unknown upload error')}`);
+                mediaId = uploadResponse.id;
+            }
+            if (mediaId) {
+                parameter = { type: format, [format]: { id: mediaId } };
+            } else if (headerImageUrl) {
+                parameter = { type: format, [format]: { link: headerImageUrl } };
+            }
+        } else if (format === 'text' && headerDef.text) {
+             const headerVars = (headerDef.text.match(/{{\s*(\d+)\s*}}/g) || []).map(v => parseInt(v.replace(/{{\s*|\s*}}/g, '')));
+             if (headerVars.length > 0) {
+                 const textValue = interpolateText(headerDef.text, contact.variables);
+                 parameter = { type: 'text', text: textValue };
+             }
+        }
+        if (parameter) {
+            payloadComponents.push({ type: 'header', parameters: [parameter] });
+        }
     }
 
-    for (const component of finalComponents) {
-      for (const param of component.parameters || []) {
-        if (param.type === 'text') {
-          param.text = interpolateText(param.text, contact.variables);
+    const bodyDef = originalComponents.find(c => c.type === 'BODY');
+    if (bodyDef?.text) {
+        const bodyVars = (bodyDef.text.match(/{{\s*(\d+)\s*}}/g) || []).map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))).sort((a, b) => a - b);
+        if (bodyVars.length > 0) {
+            const parameters = bodyVars.map(varNum => {
+                const varKey = `variable${varNum}`;
+                const value = contact.variables?.[varKey] || '';
+                return { type: 'text', text: value };
+            });
+            payloadComponents.push({ type: 'body', parameters });
         }
-      }
+    }
+
+    const buttonsDef = originalComponents.find(c => c.type === 'BUTTONS');
+    if (buttonsDef?.buttons) {
+        buttonsDef.buttons.forEach((button, index) => {
+            if (button.type === 'URL' && button.url?.includes('{{1}}')) {
+                 const varKey = `button_variable_${index}`;
+                 const buttonVarValue = contact.variables?.[varKey] || '';
+                 if (buttonVarValue) {
+                      payloadComponents.push({ type: 'button', sub_type: 'url', index: String(index), parameters: [{ type: 'text', text: buttonVarValue }]});
+                 }
+            }
+        });
     }
 
     const payload = {
       messaging_product: 'whatsapp',
       to: contact.phone,
       type: 'template',
-      template: { name: templateName, language: { code: language }, components: finalComponents },
+      template: { name: templateName, language: { code: language }, ...(payloadComponents.length > 0 && { components: payloadComponents }) }
     };
 
-    const { statusCode, body } = await undici.request(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
-      { method: 'POST', dispatcher: agent, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` }, body: JSON.stringify(payload) }
-    );
-    const response = await body.json();
-
-    if (statusCode >= 400 || !response?.messages?.[0]?.id) {
-      throw new Error(`Meta API error: ${JSON.stringify(response?.error || response)}`);
+    const res = await undici.request(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, { method: 'POST', dispatcher: agent, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` }, body: JSON.stringify(payload) });
+    const resBodyText = await res.body.text();
+    let resData;
+    try {
+        resData = JSON.parse(resBodyText);
+    } catch (e) {
+        throw new Error(`Meta API returned non-JSON response (Status: ${res.statusCode}): ${resBodyText.substring(0, 500)}`);
     }
 
-    return { success: true, messageId: response.messages[0].id, sentPayload: payload.template };
+    if (res.statusCode >= 400 || !resData?.messages?.[0]?.id) {
+        throw new Error(getErrorMessage(resData));
+    }
+
+    return { success: true, messageId: resData.messages[0].id, sentPayload: payload.template };
+
   } catch (err) {
     return { success: false, error: getErrorMessage(err) };
   }
 }
 
+/* ================= WORKER ================= */
+
 async function startBroadcastWorker(workerId) {
   const { db } = await connectToDatabase();
   const PQueue = (await import('p-queue')).default;
+
   const agent = new undici.Agent({ connections: 200, pipelining: 10 });
 
-  console.log(`${LOG_PREFIX} Worker ${workerId} started. Polling for jobs every 5 seconds.`);
+  console.log(`${LOG_PREFIX} Worker ${workerId} started`);
+
+  let busy = false;
 
   setInterval(async () => {
-    let job;
+    if (busy) return;
+    busy = true;
+
+    let job = null;
+
     try {
-      job = await db.collection('broadcasts').findOneAndUpdate(
+      const res = await db.collection('broadcasts').findOneAndUpdate(
         { status: 'PENDING_PROCESSING' },
         { $set: { status: 'PROCESSING', workerId, startedAt: new Date() } },
         { returnDocument: 'after' }
       );
-
-      if (!job) return;
+      
+      job = res;
+      if (!job) {
+          busy = false;
+          return;
+      }
 
       const { _id: broadcastId, projectId, messagesPerSecond = 80 } = job;
-      await addBroadcastLog(db, broadcastId, projectId, "INFO", `Worker ${workerId} picked up job.`);
 
-      const queue = new PQueue({ concurrency: messagesPerSecond });
-      const cursor = db.collection('broadcast_contacts').find({ broadcastId, status: 'PENDING' });
+      await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} picked up job.`);
 
+      const queue = new PQueue({
+        intervalCap: messagesPerSecond,
+        interval: 1000,
+        concurrency: messagesPerSecond,
+      });
+
+      const cursor = db.collection('broadcast_contacts')
+        .find({ broadcastId, status: 'PENDING' })
+        .batchSize(500);
+
+      const tasks = [];
       for await (const contact of cursor) {
-        queue.add(async () => {
+        tasks.push(queue.add(async () => {
           const result = await sendWhatsAppMessage(db, job, contact, agent);
           
           if (result.success) {
@@ -195,31 +254,66 @@ async function startBroadcastWorker(workerId) {
           } else {
             await db.collection("broadcast_contacts").updateOne({ _id: contact._id }, { $set: { status: "FAILED", error: result.error } });
           }
-        });
+        }));
       }
 
-      await queue.onIdle();
+      await Promise.all(tasks);
       
-      const successCount = await db.collection('broadcast_contacts').countDocuments({ broadcastId, status: 'SENT' });
-      const failedCount = await db.collection('broadcast_contacts').countDocuments({ broadcastId, status: 'FAILED' });
+      const success = await db.collection('broadcast_contacts')
+        .countDocuments({ broadcastId, status: 'SENT' });
 
-      await addBroadcastLog(db, broadcastId, projectId, "INFO", `Completed. Sent: ${successCount}, Failed: ${failedCount}`);
-      await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { status: 'Completed', completedAt: new Date(), successCount, errorCount: failedCount } });
+      const failed = await db.collection('broadcast_contacts')
+        .countDocuments({ broadcastId, status: 'FAILED' });
+
+      await addBroadcastLog(
+        db,
+        _id,
+        projectId,
+        'INFO',
+        `Completed: ${success} sent, ${failed} failed`
+      );
+
+      await db.collection('broadcasts').updateOne(
+        { _id },
+        {
+          $set: {
+            status: 'Completed',
+            completedAt: new Date(),
+            successCount: success,
+            errorCount: failed,
+          },
+        }
+      );
 
     } catch (e) {
-      const errorMessage = getErrorMessage(e);
-      console.error(`${LOG_PREFIX} Worker ${workerId} CRITICAL ERROR:`, errorMessage, e.stack);
+      console.error(`${LOG_PREFIX} CRITICAL`, e);
       if (job?._id) {
-        await addBroadcastLog(db, job._id, job.projectId, 'ERROR', `Worker CRITICAL ERROR: ${errorMessage}`);
-        await db.collection('broadcasts').updateOne({ _id: job._id }, { $set: { status: 'FAILED_PROCESSING', error: errorMessage } });
+        await db.collection('broadcasts').updateOne(
+          { _id: job._id },
+          {
+            $set: {
+              status: 'FAILED_PROCESSING',
+              error: getErrorMessage(e)
+            }
+          }
+        );
       }
+    } finally {
+      busy = false;
     }
   }, 5000);
 }
 
+/* ================= BOOT ================= */
+
 function main() {
-  const workerId = process.env.PM2_INSTANCE_ID !== undefined ? `pm2-${process.env.PM2_INSTANCE_ID}` : `pid-${process.pid}`;
-  console.log(`${LOG_PREFIX} Starting worker ${workerId}`);
+  const workerId =
+    process.env.PM2_INSTANCE_ID !== undefined
+      ? `pm2-${process.env.PM2_INSTANCE_ID}`
+      : `pid-${process.pid}`;
+
+  console.log(`${LOG_PREFIX} Booting ${workerId}`);
+
   startBroadcastWorker(workerId).catch(err => {
     console.error(`${LOG_PREFIX} Startup failure`, err);
     process.exit(1);

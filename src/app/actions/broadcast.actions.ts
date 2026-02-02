@@ -220,11 +220,6 @@ export async function handleStartBroadcast(
     // Header variables
     const headerImageUrl = formData.get('headerImageUrl') as string | null;
     const headerMediaFile = formData.get('headerImageFile') as File | null;
-    const headerText = formData.get('headerText') as string | null;
-    
-    // Body variables mapping
-    const variableMappingsJSON = formData.get('variableMappings') as string | null;
-    const variableMappings = variableMappingsJSON ? JSON.parse(variableMappingsJSON) : [];
     
     const { db } = await connectToDatabase();
     
@@ -255,49 +250,6 @@ export async function handleStartBroadcast(
     if (contacts.length === 0) {
         return { error: 'No contacts found for the selected audience.' };
     }
-
-    // --- Build Component Payload ---
-    const components: any[] = [];
-    const templateComponents = template.components || [];
-
-    const headerComponentDef = templateComponents.find(c => c.type === 'HEADER');
-    if (headerComponentDef) {
-        const format = headerComponentDef.format?.toLowerCase();
-        
-        let parameter: any = {};
-        let shouldAddComponent = false;
-
-        if (format && ['image', 'video', 'document'].includes(format)) {
-            parameter.type = format;
-            if (headerImageUrl) {
-                parameter[format] = { link: headerImageUrl };
-                shouldAddComponent = true;
-            } else if (headerMediaFile && headerMediaFile.size > 0) {
-                // The worker will handle the upload, we just need to signal it.
-                // An empty object signifies the worker needs to create the ID.
-                parameter[format] = {};
-                shouldAddComponent = true;
-            }
-        } else if (format === 'text' && headerText) {
-            parameter = { type: 'text', text: headerText };
-            shouldAddComponent = true;
-        }
-        
-        if (shouldAddComponent) {
-            components.push({ type: 'header', parameters: [parameter] });
-        }
-    }
-
-
-    if (variableMappings.length > 0) {
-        components.push({
-            type: 'body',
-            parameters: variableMappings.map((m: any) => ({
-                type: 'text',
-                text: `{{${m.contactField}}}` // The worker will interpolate this
-            }))
-        });
-    }
     
     const broadcastData: Omit<Broadcast, '_id'> = {
         name: `${template.name} - ${new Date().toLocaleString()}`,
@@ -311,7 +263,8 @@ export async function handleStartBroadcast(
         audienceType: audienceType,
         tagIds: audienceType === 'tags' ? tagIds.map(id => new ObjectId(id)) : [],
         accessToken: project.accessToken,
-        components,
+        components: template.components || [], // Pass the original template components
+        headerImageUrl: headerImageUrl || undefined, // Pass override URL if provided
         createdAt: new Date(),
         headerMediaFile: headerMediaFile?.size > 0 ? {
             buffer: Buffer.from(await headerMediaFile.arrayBuffer()),
@@ -434,17 +387,6 @@ export async function handleStartApiBroadcast(data: {
     if (!project) return { error: 'Project not found.' };
     if (!template) return { error: 'Template not found for this project.' };
 
-    const components: any[] = [];
-     if (variableMappings && variableMappings.length > 0) {
-        components.push({
-            type: 'body',
-            parameters: variableMappings.map(m => ({
-                type: 'text',
-                text: `{{${m.contactField}}}`
-            }))
-        });
-    }
-
     const broadcastData: Omit<Broadcast, '_id'> = {
         name: `API Broadcast - ${template.name} - ${new Date().toLocaleString()}`,
         projectId: new ObjectId(projectId),
@@ -456,7 +398,7 @@ export async function handleStartApiBroadcast(data: {
         contactCount: contacts.length,
         audienceType: 'api',
         accessToken: project.accessToken,
-        components,
+        components: template.components || [], // Pass original components
         createdAt: new Date(),
     };
 
@@ -498,19 +440,6 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
     if (contacts.length === 0) {
         return { error: 'No contacts found to requeue.' };
     }
-
-    const components: any[] = [];
-    if(headerImageUrl) {
-         const headerComponentDef = template.components?.find(c => c.type === 'HEADER');
-         if (headerComponentDef?.format) {
-            const format = headerComponentDef.format.toLowerCase();
-            if (['image', 'video', 'document'].includes(format)) {
-                const parameter: any = { type: format };
-                parameter[format] = { link: headerImageUrl };
-                components.push({ type: 'header', parameters: [parameter] });
-            }
-        }
-    }
     
     const newBroadcastData: Omit<Broadcast, '_id'> = {
         ...originalBroadcast,
@@ -522,7 +451,8 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
         startedAt: undefined,
         completedAt: undefined,
         createdAt: new Date(),
-        components: headerImageUrl ? components : originalBroadcast.components,
+        components: template.components, // Use the new/original template's components
+        headerImageUrl: headerImageUrl || undefined,
     };
     delete (newBroadcastData as any)._id;
 
