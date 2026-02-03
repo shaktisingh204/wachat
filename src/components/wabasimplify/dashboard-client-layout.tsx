@@ -5,37 +5,39 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle, UserRound} from 'lucide-react';
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle, UserRound
+} from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getProjects } from "@/app/actions/user.actions"
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
-import type { Plan, WithId, Project, User } from '@/lib/definitions';
+import type { Plan, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarTrigger,
-  SidebarProvider,
-  useSidebar
+    Sidebar,
+    SidebarContent,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuItem,
+    SidebarMenuButton,
+    SidebarFooter,
+    SidebarTrigger,
+    SidebarProvider,
+    useSidebar
 } from '@/components/ui/sidebar';
 import { Drawer, DrawerTrigger } from '../ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
@@ -45,21 +47,21 @@ import { ProjectSwitcher } from './project-switcher';
 
 
 const wachatMenuItems = [
-  { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
-  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'] },
-  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'] },
-  { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
-  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'] },
-  { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'] },
-  { href: '/dashboard/catalog', label: 'Ecomm + Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
-  { href: '/dashboard/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'] },
-  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
-  { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'] },
-  { href: '/dashboard/integrations', label: 'Integrations', icon: Bolt, roles: ['owner', 'admin'] },
-  { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'] },
-  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
-  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
-  { href: '/dashboard/settings', label: 'Project Settings', icon: Settings, roles: ['owner', 'admin'] },
+    { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
+    { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'] },
+    { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'] },
+    { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
+    { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'] },
+    { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'] },
+    { href: '/dashboard/catalog', label: 'Ecomm + Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
+    { href: '/dashboard/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'] },
+    { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
+    { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'] },
+    { href: '/dashboard/integrations', label: 'Integrations', icon: Bolt, roles: ['owner', 'admin'] },
+    { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'] },
+    { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
+    { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
+    { href: '/dashboard/settings', label: 'Project Settings', icon: Settings, roles: ['owner', 'admin'] },
 ];
 
 const crmMenuItems = [
@@ -91,7 +93,7 @@ const crmMenuItems = [
             { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes" },
         ]
     },
-     {
+    {
         href: '/dashboard/crm/inventory',
         label: 'Inventory',
         icon: Briefcase,
@@ -172,7 +174,7 @@ const crmMenuItems = [
                     { href: "/dashboard/crm/hr-payroll/holidays", label: "Holiday List" },
                 ],
             },
-             {
+            {
                 label: 'Payroll Management',
                 subSubItems: [
                     { href: "/dashboard/crm/hr-payroll/payroll", label: "Generate Payroll" },
@@ -247,75 +249,75 @@ const sabChatMenuItems = [
 
 
 const facebookMenuGroups = [
-  {
-    title: 'General',
-    items: [
-      { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench },
-      { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard },
-    ],
-  },
-  {
-    title: 'Content',
-    items: [
-      { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper },
-      { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar },
-      { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video },
-      { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat },
-    ],
-  },
-  {
-    title: 'Engagement',
-    items: [
-        { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare },
-        { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: FolderKanban },
-        { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: Bot },
-    ]
-  },
-  {
-    title: 'Custom Shops',
-    items: [
-      { href: '/dashboard/facebook/custom-ecommerce', label: 'Shops Dashboard', icon: LayoutDashboard },
-    ],
-  },
-  {
-    title: 'Meta Commerce',
-    items: [
-        { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag },
-        { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutDashboard },
-        { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package },
-    ]
-  }
+    {
+        title: 'General',
+        items: [
+            { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench },
+            { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard },
+        ],
+    },
+    {
+        title: 'Content',
+        items: [
+            { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper },
+            { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar },
+            { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video },
+            { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat },
+        ],
+    },
+    {
+        title: 'Engagement',
+        items: [
+            { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare },
+            { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: FolderKanban },
+            { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: Bot },
+        ]
+    },
+    {
+        title: 'Custom Shops',
+        items: [
+            { href: '/dashboard/facebook/custom-ecommerce', label: 'Shops Dashboard', icon: LayoutDashboard },
+        ],
+    },
+    {
+        title: 'Meta Commerce',
+        items: [
+            { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag },
+            { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutDashboard },
+            { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package },
+        ]
+    }
 ];
 
 const instagramMenuGroups = [
-  {
-    title: 'General',
-    items: [
-      { href: '/dashboard/instagram/connections', label: 'Connections', icon: Wrench },
-      { href: '/dashboard/instagram', label: 'Dashboard', icon: LayoutDashboard },
-    ],
-  },
-  {
-    title: 'Content',
-    items: [
-      { href: '/dashboard/instagram/feed', label: 'Feed', icon: Newspaper },
-      { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard },
-      { href: '/dashboard/instagram/reels', label: 'Reels', icon: Video },
-    ],
-  },
-  {
-    title: 'Engagement',
-    items: [
-        { href: '/dashboard/instagram/messages', label: 'Messages', icon: MessageSquare },
-    ]
-  },
-  {
-    title: 'Growth',
-    items: [
-        { href: '/dashboard/instagram/discovery', label: 'Discovery', icon: Compass },
-        { href: '/dashboard/instagram/hashtag-search', label: 'Hashtag Search', icon: Search },
-    ]
-  }
+    {
+        title: 'General',
+        items: [
+            { href: '/dashboard/instagram/connections', label: 'Connections', icon: Wrench },
+            { href: '/dashboard/instagram', label: 'Dashboard', icon: LayoutDashboard },
+        ],
+    },
+    {
+        title: 'Content',
+        items: [
+            { href: '/dashboard/instagram/feed', label: 'Feed', icon: Newspaper },
+            { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard },
+            { href: '/dashboard/instagram/reels', label: 'Reels', icon: Video },
+        ],
+    },
+    {
+        title: 'Engagement',
+        items: [
+            { href: '/dashboard/instagram/messages', label: 'Messages', icon: MessageSquare },
+        ]
+    },
+    {
+        title: 'Growth',
+        items: [
+            { href: '/dashboard/instagram/discovery', label: 'Discovery', icon: Compass },
+            { href: '/dashboard/instagram/hashtag-search', label: 'Hashtag Search', icon: Search },
+        ]
+    }
 ];
 
 const adManagerMenuItems = [
@@ -353,9 +355,9 @@ const smsMenuItems = [
         label: "Messaging",
         icon: MessageSquare,
         subItems: [
-             { href: "/dashboard/sms/campaigns", label: "Send SMS" },
-             { href: "/dashboard/sms/message-history", label: "Message History" },
-             { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports" },
+            { href: "/dashboard/sms/campaigns", label: "Send SMS" },
+            { href: "/dashboard/sms/message-history", label: "Message History" },
+            { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports" },
         ]
     },
     { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
@@ -401,17 +403,17 @@ const userSettingsItems = [
 
 const FullPageSkeleton = () => (
     <div className="flex h-screen w-screen bg-background p-2 gap-2">
-        <div className="w-16 rounded-lg bg-card p-2"><Skeleton className="h-full w-full"/></div>
-        <div className="w-60 rounded-lg bg-card p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="w-16 rounded-lg bg-card p-2"><Skeleton className="h-full w-full" /></div>
+        <div className="w-60 rounded-lg bg-card p-2"><Skeleton className="h-full w-full" /></div>
         <div className="flex-1 flex flex-col gap-2">
-            <div className="h-16 rounded-lg bg-card p-4"><Skeleton className="h-full w-full"/></div>
-            <div className="flex-1 rounded-lg bg-card p-4"><Skeleton className="h-full w-full"/></div>
+            <div className="h-16 rounded-lg bg-card p-4"><Skeleton className="h-full w-full" /></div>
+            <div className="flex-1 rounded-lg bg-card p-4"><Skeleton className="h-full w-full" /></div>
         </div>
     </div>
 );
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
-    const { 
+    const {
         projects,
         activeProject,
         activeProjectId,
@@ -419,7 +421,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         sessionUser,
         isLoadingProject
     } = useProject();
-    
+
     const pathname = usePathname();
     const [activeApp, setActiveApp] = React.useState('whatsapp');
     const [isSparklesEnabled, setIsSparklesEnabled] = React.useState(false);
@@ -444,15 +446,15 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
         else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
         else if (pathname.startsWith('/dashboard/user')) { currentApp = 'user-settings'; }
-        else if (pathname.startsWith('/dashboard/settings')) { currentApp = 'whatsapp'; } 
+        else if (pathname.startsWith('/dashboard/settings')) { currentApp = 'whatsapp'; }
         setActiveApp(currentApp);
     }, [pathname]);
 
     const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban') || pathname.startsWith('/dashboard/sabchat/inbox');
     const isBuilderPage = pathname.includes('builder');
-  
+
     const currentUserRole = React.useMemo(() => {
-        if (!sessionUser || !activeProject) return 'owner'; 
+        if (!sessionUser || !activeProject) return 'owner';
         if (sessionUser._id.toString() === activeProject.userId.toString()) return 'owner';
         const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id.toString());
         return agentInfo?.role || 'none';
@@ -475,7 +477,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'qr-code-maker', icon: QrCode, label: 'QR Codes', href: '/dashboard/qr-code-maker' },
         { id: 'seo-suite', icon: SeoIcon, label: 'SEO', href: '/dashboard/seo' },
     ];
-  
+
     const mainContent = (
         <div className="p-4 md:p-6 lg:p-8 h-full">
             {children}
@@ -500,17 +502,17 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         return (
             <Collapsible defaultOpen={isOpen}>
                 <CollapsibleTrigger asChild>
-                     <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
+                    <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
                         <div className="flex items-center gap-2">
-                          {Icon && <Icon className="h-4 w-4" />}
-                          <span>{item.label}</span>
+                            {Icon && <Icon className="h-4 w-4" />}
+                            <span>{item.label}</span>
                         </div>
-                        <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-90"/>
+                        <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-90" />
                     </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent asChild>
                     <SidebarMenu className="pl-4">
-                        {(item.subItems || item.subSubItems || []).map((subItem: any, index: number) => 
+                        {(item.subItems || item.subSubItems || []).map((subItem: any, index: number) =>
                             subItem.subSubItems ? (
                                 <CollapsibleSidebarItem key={subItem.label || index} item={subItem} />
                             ) : (
@@ -524,46 +526,48 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     }
 
     const AppRail = () => (
-        <Sidebar className="w-16 bg-sidebar-background border-sidebar-border">
-            <SidebarHeader>
-                <SabNodeLogo className="w-8 h-8" />
-            </SidebarHeader>
-            <SidebarContent>
-                <SidebarMenu>
-                    {appIcons.map(app => (
-                        <SidebarMenuItem key={app.id} className={cn("relative", activeApp === app.id && 'active-app-border')}>
-                            <SidebarMenuButton asChild isActive={activeApp === app.id} tooltip={app.label}>
-                                <Link href={app.href} className="h-12"><app.icon /></Link>
+        <Sidebar className="w-16 bg-sidebar-background border-sidebar-border flex !w-16 !block md:!flex z-20">
+            <div className="flex flex-col h-full">
+                <SidebarHeader className="h-16 flex items-center justify-center">
+                    <SabNodeLogo className="w-8 h-8" />
+                </SidebarHeader>
+                <SidebarContent>
+                    <SidebarMenu className="items-center">
+                        {appIcons.map(app => (
+                            <SidebarMenuItem key={app.id} className={cn("relative w-full flex justify-center", activeApp === app.id && 'active-app-border')}>
+                                <SidebarMenuButton asChild isActive={activeApp === app.id} tooltip={app.label} className="h-10 w-10 justify-center p-0">
+                                    <Link href={app.href}><app.icon className="h-5 w-5" /></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </SidebarContent>
+                <SidebarFooter>
+                    <SidebarMenu className="items-center">
+                        <SidebarMenuItem className="w-full flex justify-center">
+                            <SidebarMenuButton asChild tooltip="User Settings" className="h-10 w-10 justify-center p-0">
+                                <Link href="/dashboard/user/settings">
+                                    <UserIcon className="h-4 w-4" />
+                                    <span className="sr-only">Settings</span>
+                                </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
-                    ))}
-                </SidebarMenu>
-            </SidebarContent>
-             <SidebarFooter>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip="User Settings">
-                            <Link href="/dashboard/user/settings">
-                                <UserIcon className="h-4 w-4" />
-                                <span className="sr-only">Settings</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarFooter>
+                    </SidebarMenu>
+                </SidebarFooter>
+            </div>
         </Sidebar>
     );
-    
+
     const HeaderAppRail = () => (
         <nav className="hidden items-center gap-1 md:flex">
-           {appIcons.map(app => (
+            {appIcons.map(app => (
                 <Button key={app.id} asChild variant={activeApp === app.id ? 'secondary' : 'ghost'} size="sm">
                     <Link href={app.href} className="flex items-center gap-2">
-                        <app.icon className="h-4 w-4"/>
+                        <app.icon className="h-4 w-4" />
                         {app.label}
                     </Link>
                 </Button>
-           ))}
+            ))}
         </nav>
     );
 
@@ -572,13 +576,13 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-muted/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
                 <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
                     <div className="flex items-center gap-2">
-                         <SidebarTrigger>
-                            <Button variant="ghost" size="icon" className="md:hidden">
-                                <PanelLeft />
+                        <SidebarTrigger>
+                            <Button variant="ghost" size="icon">
+                                <PanelLeft className="h-5 w-5" />
                             </Button>
                         </SidebarTrigger>
                         <Link href="/dashboard" className="hidden font-bold sm:inline-block">
-                          SabNode
+                            SabNode
                         </Link>
                         {appRailPosition === 'top' && (
                             <>
@@ -590,23 +594,23 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
                     <div className="flex items-center gap-2">
                         <div className="font-medium text-sm hidden md:block">{activeProjectName}</div>
-                         <DropdownMenu>
+                        <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                                <Avatar>
-                                    <AvatarImage src={sessionUser?.image || `https://i.pravatar.cc/150?u=${sessionUser?.email}`} data-ai-hint="person avatar"/>
-                                    <AvatarFallback>{sessionUser?.name?.charAt(0) || 'U'}</AvatarFallback>
-                                </Avatar>
+                                    <Avatar>
+                                        <AvatarImage src={sessionUser?.image || `https://i.pravatar.cc/150?u=${sessionUser?.email}`} data-ai-hint="person avatar" />
+                                        <AvatarFallback>{sessionUser?.name?.charAt(0) || 'U'}</AvatarFallback>
+                                    </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                                <DropdownMenuSeparator/>
+                                <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
-                                <DropdownMenuSeparator/>
-                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout"><LogOut className="mr-2 h-4 w-4"/>Admin Logout</Link></DropdownMenuItem>
-                                <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout"><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4" />Logout</Link></DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -619,97 +623,97 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                             <ProjectSwitcher />
                         </SidebarHeader>
                         <SidebarContent>
-                        {activeApp === 'whatsapp' && (
-                            <SidebarMenu>
-                                {wachatMenuItems.filter(item => item.roles.includes(currentUserRole)).map((item) => (
-                                    <SidebarItem key={item.href} item={item} />
-                                ))}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'ad-manager' && (
-                            <SidebarMenu>
-                                {adManagerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'sabchat' && (
-                            <SidebarMenu>
-                                {sabChatMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'sabflow' && (
-                            <SidebarMenu>
-                                {sabflowMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'facebook' && (
-                            <SidebarMenu>
-                            {facebookMenuGroups.map(group => (
-                                <React.Fragment key={group.title}>
-                                <p className="px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mt-4 mb-1">{group.title}</p>
-                                {group.items.map(item => (
-                                    <SidebarItem key={item.href} item={item} />
-                                ))}
-                                </React.Fragment>
-                            ))}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'instagram' && (
-                            <SidebarMenu>
-                                {instagramMenuGroups.flatMap(g => g.items).map(item => (
-                                    <SidebarItem key={item.href} item={item} />
-                                ))}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'crm' && (
-                            <SidebarMenu>
-                                {crmMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                         {activeApp === 'team' && (
-                            <SidebarMenu>
-                                {teamMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'email' && (
-                            <SidebarMenu>
-                                {emailMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                         {activeApp === 'sms' && (
-                            <SidebarMenu>
-                                {smsMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'api' && (
-                            <SidebarMenu>
-                                {apiMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'website-builder' && (
-                            <SidebarMenu>
-                                {portfolioMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'url-shortener' && (
-                            <SidebarMenu>
-                                {urlShortenerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'qr-code-maker' && (
-                            <SidebarMenu>
-                                {qrCodeMakerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'seo-suite' && (
-                            <SidebarMenu>
-                                {seoMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'user-settings' && (
-                             <SidebarMenu>
-                                {userSettingsItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
+                            {activeApp === 'whatsapp' && (
+                                <SidebarMenu>
+                                    {wachatMenuItems.filter(item => item.roles.includes(currentUserRole)).map((item) => (
+                                        <SidebarItem key={item.href} item={item} />
+                                    ))}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'ad-manager' && (
+                                <SidebarMenu>
+                                    {adManagerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'sabchat' && (
+                                <SidebarMenu>
+                                    {sabChatMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'sabflow' && (
+                                <SidebarMenu>
+                                    {sabflowMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'facebook' && (
+                                <SidebarMenu>
+                                    {facebookMenuGroups.map(group => (
+                                        <React.Fragment key={group.title}>
+                                            <p className="px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mt-4 mb-1">{group.title}</p>
+                                            {group.items.map(item => (
+                                                <SidebarItem key={item.href} item={item} />
+                                            ))}
+                                        </React.Fragment>
+                                    ))}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'instagram' && (
+                                <SidebarMenu>
+                                    {instagramMenuGroups.flatMap(g => g.items).map(item => (
+                                        <SidebarItem key={item.href} item={item} />
+                                    ))}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'crm' && (
+                                <SidebarMenu>
+                                    {crmMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'team' && (
+                                <SidebarMenu>
+                                    {teamMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'email' && (
+                                <SidebarMenu>
+                                    {emailMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'sms' && (
+                                <SidebarMenu>
+                                    {smsMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'api' && (
+                                <SidebarMenu>
+                                    {apiMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'website-builder' && (
+                                <SidebarMenu>
+                                    {portfolioMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'url-shortener' && (
+                                <SidebarMenu>
+                                    {urlShortenerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'qr-code-maker' && (
+                                <SidebarMenu>
+                                    {qrCodeMakerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'seo-suite' && (
+                                <SidebarMenu>
+                                    {seoMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'user-settings' && (
+                                <SidebarMenu>
+                                    {userSettingsItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
                         </SidebarContent>
                     </Sidebar>
                     <main className="flex-1 overflow-y-auto">
