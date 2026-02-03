@@ -14,7 +14,7 @@ import NodeFormData from 'form-data';
 import { getSession } from './user.actions';
 import { handleSendTemplateMessage } from './send-template.actions';
 
-const API_VERSION = 'v23.0';
+const API_VERSION = 'v24.0';
 
 export async function getPublicProjectById(projectId: string): Promise<WithId<Project> | null> {
     try {
@@ -625,21 +625,38 @@ export async function handleRequestWhatsAppPayment(prevState: any, formData: For
         }
 
         const requestId = response.data.id;
+        const now = new Date();
 
+        // Log the message as before
         await db.collection('outgoing_messages').insertOne({
             direction: 'out',
             contactId: contact._id,
             projectId: project._id,
             wamid: requestId,
-            messageTimestamp: new Date(),
-            type: 'payment_request' as any, // This is a custom type for logging
+            messageTimestamp: now,
+            type: 'payment_request' as any,
             content: payload,
             status: 'sent',
-            statusTimestamps: { sent: new Date() },
-            createdAt: new Date(),
-        });
+            statusTimestamps: { sent: now },
+            createdAt: now,
+        } as OutgoingMessage);
+
+        // Create a transaction record
+        await db.collection('transactions').insertOne({
+            userId: contact.userId,
+            projectId: project._id,
+            type: 'WHATSAPP_PAY',
+            description: `Payment Request: ${description}`,
+            amount: Math.round(parseFloat(amount) * 100), // Convert to smallest unit (cd)
+            status: 'PENDING',
+            provider: 'meta',
+            providerTransactionId: requestId,
+            createdAt: now,
+            updatedAt: now,
+        } as Transaction);
 
         revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/whatsapp-pay');
         return { message: 'WhatsApp Pay request sent successfully.' };
 
     } catch (e: any) {
@@ -733,7 +750,7 @@ export async function handleCreatePaymentConfiguration(prevState: any, formData:
         configuration_name: formData.get('configuration_name'),
         purpose_code: formData.get('purpose_code'),
         merchant_category_code: formData.get('merchant_category_code'),
-        provider_name,
+        provider_name: providerName,
     };
 
     if (providerName === 'upi_vpa') {
@@ -895,7 +912,7 @@ export async function getTransactionsForProject(projectId: string): Promise<With
 
     try {
         const { db } = await connectToDatabase();
-        const transactions = await db.collection('transactions').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
+        const transactions = await db.collection<Transaction>('transactions').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
         return JSON.parse(JSON.stringify(transactions));
     } catch (e) {
         console.error("Failed to fetch transactions:", e);

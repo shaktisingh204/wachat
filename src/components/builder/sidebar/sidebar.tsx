@@ -3,6 +3,9 @@
 import React from 'react';
 import { useEditor } from '@/components/builder/editor-provider';
 import { WIDGET_REGISTRY } from '@/components/builder/registry';
+import { DraggableSidebarItem } from './draggable-item';
+import { StylePanel } from './style-panel';
+import { ThemePanel } from './theme-panel';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Assuming these exist usually
 import { Input } from '@/components/ui/input';
@@ -36,7 +39,7 @@ export const BuilderSidebar = () => {
             type: 'SECTION',
             content: {},
             style: { padding: '20px', minHeight: '100px', backgroundColor: '#f3f4f6' },
-            children: []
+            children: [] as any[]
         };
 
         const col1 = {
@@ -47,7 +50,7 @@ export const BuilderSidebar = () => {
             children: []
         }
 
-        newSection.children.push(col1 as any);
+        newSection.children.push(col1);
 
         dispatch({
             type: 'ADD_ELEMENT',
@@ -90,80 +93,71 @@ export const BuilderSidebar = () => {
                 <TabsList className="w-full">
                     <TabsTrigger value="add" className="flex-1">Add</TabsTrigger>
                     <TabsTrigger value="edit" className="flex-1">Edit</TabsTrigger>
+                    <TabsTrigger value="global" className="flex-1">Global</TabsTrigger>
                 </TabsList>
                 <TabsContent value="add" className="p-4 space-y-4">
                     <div className="space-y-2">
                         <h3 className="text-sm font-medium text-gray-500">Layout</h3>
-                        <Button variant="outline" className="w-full justify-start" onClick={handleAddSection}>
-                            + Isolate Section (1 Col)
-                        </Button>
+                        <DraggableSidebarItem type="SECTION" label="Section" />
                     </div>
                     <div className="space-y-2">
                         <h3 className="text-sm font-medium text-gray-500">Basic Widgets</h3>
                         {Object.keys(WIDGET_REGISTRY).map(type => (
-                            <Button key={type} variant="secondary" className="w-full justify-start text-sm" onClick={() => handleAddWidget(type)}>
-                                {type}
-                            </Button>
+                            <DraggableSidebarItem key={type} type={type} label={type} />
                         ))}
                     </div>
                 </TabsContent>
-                <TabsContent value="edit" className="p-4">
+                <TabsContent value="edit" className="p-4 h-[calc(100vh-100px)] overflow-hidden flex flex-col">
                     {selectedElement ? (
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                                <h3 className="font-medium">{selectedElement.type} Settings</h3>
-                                <Button variant="destructive" size="sm" onClick={handleDelete}>Delete</Button>
+                        <div className="space-y-4 h-full flex flex-col">
+                            <div className="flex justify-between items-center pb-2 border-b">
+                                <h3 className="font-medium text-sm">Content</h3>
+                                <Button variant="destructive" size="sm" onClick={handleDelete} className="h-6 text-xs">Delete</Button>
                             </div>
 
-                            {selectedElement.type === 'WIDGET' && (
-                                <div className="space-y-2">
-                                    <Label>Text / Content</Label>
-                                    <Input
-                                        value={selectedElement.content.text || ''}
-                                        onChange={(e) => handleUpdate('text', e.target.value)}
-                                    />
-                                </div>
-                            )}
+                            {/* Content Tab */}
+                            <div className="space-y-4 pb-4 border-b">
+                                {selectedElement.type === 'WIDGET' && (
+                                    <>
+                                        {/* Text Content */}
+                                        {['HEADING', 'TEXT', 'BUTTON'].includes(selectedElement.widgetType) && (
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Text</Label>
+                                                <Input
+                                                    value={selectedElement.content.text || ''}
+                                                    onChange={(e) => handleUpdate('text', e.target.value)}
+                                                    className="h-8 text-sm"
+                                                />
+                                            </div>
+                                        )}
 
-                            <div className="space-y-2 pt-4 border-t">
-                                <h4 className="text-sm font-medium">Styles</h4>
-                                <div>
-                                    <Label>Background Color</Label>
-                                    <Input
-                                        type="color"
-                                        value={selectedElement.style.backgroundColor || '#ffffff'}
-                                        onChange={(e) => handleUpdate('backgroundColor', e.target.value, true)}
-                                    />
-                                </div>
-                                <div>
-                                    <Label>Color</Label>
-                                    <Input
-                                        type="color"
-                                        value={selectedElement.style.color || '#000000'}
-                                        onChange={(e) => handleUpdate('color', e.target.value, true)}
-                                    />
-                                </div>
-                                <div>
-                                    <Label>Padding</Label>
-                                    <Input
-                                        value={selectedElement.style.padding || ''}
-                                        onChange={(e) => handleUpdate('padding', e.target.value, true)}
-                                        placeholder="e.g. 10px"
-                                    />
-                                </div>
-                                <div>
-                                    <Label>Font Size</Label>
-                                    <Input
-                                        value={selectedElement.style.fontSize || ''}
-                                        onChange={(e) => handleUpdate('fontSize', e.target.value, true)}
-                                        placeholder="e.g. 16px"
-                                    />
-                                </div>
+                                        {/* Image Source */}
+                                        {selectedElement.widgetType === 'IMAGE' && (
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Image URL</Label>
+                                                <Input
+                                                    value={selectedElement.content.src || ''}
+                                                    onChange={(e) => handleUpdate('src', e.target.value)}
+                                                    className="h-8 text-sm"
+                                                    placeholder="https://..."
+                                                />
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                                {/* Common Settings for Columns/Sections could go here (e.g. Layout Flex) */}
+                            </div>
+                            {/* Styles Panel */}
+                            <div className="flex-1 overflow-hidden">
+                                <StylePanel />
                             </div>
                         </div>
                     ) : (
                         <div className="text-center text-gray-500 py-10">Select an element to edit</div>
                     )}
+                </TabsContent>
+                <TabsContent value="global" className="h-[calc(100vh-100px)] overflow-hidden">
+                    <ThemePanel />
                 </TabsContent>
             </Tabs>
         </div>

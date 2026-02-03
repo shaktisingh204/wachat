@@ -1552,13 +1552,14 @@ export type Invitation = {
 
 export type Transaction = WithId<{
     userId: ObjectId;
-    type: 'PLAN' | 'CREDITS';
+    projectId?: ObjectId;
+    type: 'PLAN' | 'CREDITS' | 'WHATSAPP_PAY';
     description: string;
     planId?: ObjectId;
     credits?: number;
     amount: number;
     status: 'PENDING' | 'SUCCESS' | 'FAILED';
-    provider: 'razorpay' | 'phonepe';
+    provider: 'razorpay' | 'phonepe' | 'meta';
     providerTransactionId?: string;
     providerOrderId?: string;
     createdAt: Date;
