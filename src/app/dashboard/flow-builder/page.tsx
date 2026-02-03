@@ -1,347 +1,211 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect, useTransition } from 'react';
-import {
-    ReactFlow,
-    ReactFlowProvider,
-    addEdge,
-    useNodesState,
-    useEdgesState,
-    Controls,
-    Background,
-    applyEdgeChanges,
-    applyNodeChanges,
-    Connection,
-    Edge,
-    Node,
-    OnNodesChange,
-    OnEdgesChange,
-    OnConnect,
-    BackgroundVariant,
-    Panel,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
+import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
+import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
+import { getFlowsForProject, deleteFlow } from '@/app/actions/flow.actions';
+import type { Flow } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
 
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, Save, Settings2, ArrowLeft, BookOpen, Play, Plus } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
-import { useProject } from '@/context/project-context';
-import { getFlowById, saveFlow, getFlowsForProject } from '@/app/actions/flow.actions';
-import { Sidebar } from '@/components/flow-builder/Sidebar';
-import CustomNode from '@/components/flow-builder/CustomNode';
-import { PropertiesPanel } from '@/components/wabasimplify/properties-panel';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, PlusCircle, ServerCog, Trash2, Edit, MoreHorizontal, Search, RefreshCcw } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { useProject } from '@/context/project-context';
+import { format } from 'date-fns';
 
-const nodeTypes = {
-    text: CustomNode,
-    image: CustomNode,
-    buttons: CustomNode,
-    input: CustomNode,
-    delay: CustomNode,
-    condition: CustomNode,
-    api: CustomNode,
-    sendTemplate: CustomNode,
-    triggerMetaFlow: CustomNode,
-    sendSms: CustomNode,
-    sendEmail: CustomNode,
-    createCrmLead: CustomNode,
-    generateShortLink: CustomNode,
-    generateQrCode: CustomNode,
-    start: CustomNode,
-};
-
-let id = 0;
-const getId = () => `dndnode_${id++}`;
-
-const FlowBuilder = () => {
-    const router = useRouter();
+export default function FlowBuilderListPage() {
+    const [flows, setFlows] = useState<WithId<Flow>[]>([]);
+    const [isLoading, startLoadingTransition] = useTransition();
     const { activeProjectId } = useProject();
     const { toast } = useToast();
+    const [searchQuery, setSearchQuery] = useState('');
 
-    // React Flow state
-    const reactFlowWrapper = useRef(null);
-    const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-    const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-
-    // App state
-    const [currentFlow, setCurrentFlow] = useState<any>(null);
-    const [flowName, setFlowName] = useState('New Flow');
-    const [isSaving, startSaveTransition] = useTransition();
-    const [isLoading, startLoadingTransition] = useTransition();
-    const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-    const [isPropsOpen, setIsPropsOpen] = useState(false);
-
-    // Load flow
-    useEffect(() => {
-        if (activeProjectId) {
-            startLoadingTransition(async () => {
-                const flows = await getFlowsForProject(activeProjectId);
-                if (flows.length > 0) {
-                    // Load the first flow for now, or use URL param logic if present
-                    // For simple reconstruction, we just load the most recent or create new
-                    const flow = flows[0]; // Simplification for demo
-                    loadFlow(flow._id.toString());
-                } else {
-                    // Init empty flow
-                    setNodes([{ id: 'start', type: 'start', position: { x: 50, y: 50 }, data: { label: 'Start Flow' } }]);
-                }
-            });
-        }
+    const fetchFlows = useCallback(() => {
+        if (!activeProjectId) return;
+        startLoadingTransition(async () => {
+            const data = await getFlowsForProject(activeProjectId);
+            setFlows(data);
+        });
     }, [activeProjectId]);
 
-    const loadFlow = async (flowId: string) => {
-        const flow = await getFlowById(flowId);
-        if (!flow) return;
-        setCurrentFlow(flow);
-        setFlowName(flow.name);
-
-        // Restore nodes and edges (React Flow format)
-        // Assuming backend data structure is compatible or we map it
-        setNodes(flow.nodes || []);
-        setEdges(flow.edges || []);
-    };
-
-    const onConnect: OnConnect = useCallback(
-        (params) => setEdges((eds) => addEdge(params, eds)),
-        [setEdges],
-    );
-
-    const onDragOver = useCallback((event: React.DragEvent) => {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
-    }, []);
-
-    const onDrop = useCallback(
-        (event: React.DragEvent) => {
-            event.preventDefault();
-
-            const type = event.dataTransfer.getData('application/reactflow');
-
-            // check if the dropped element is valid
-            if (typeof type === 'undefined' || !type) {
-                return;
-            }
-
-            const position = reactFlowInstance.screenToFlowPosition({
-                x: event.clientX,
-                y: event.clientY,
-            });
-            const newNode = {
-                id: getId(),
-                type,
-                position,
-                data: { label: `${type} node` },
-            };
-
-            setNodes((nds) => nds.concat(newNode));
-        },
-        [reactFlowInstance],
-    );
-
-    const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-        setSelectedNode(node);
-        setIsPropsOpen(true);
-    }, []);
-
-    const onPaneClick = useCallback(() => {
-        setSelectedNode(null);
-        setIsPropsOpen(false);
-    }, []);
-
-    const handleSave = async () => {
-        if (!activeProjectId) return;
-        if (!flowName) {
-            toast({ title: 'Error', description: 'Flow name is required', variant: 'destructive' });
-            return;
+    useEffect(() => {
+        if (activeProjectId) {
+            fetchFlows();
         }
+    }, [activeProjectId, fetchFlows]);
 
-        startSaveTransition(async () => {
-            // Serialize nodes and edges
-            const flowData = {
-                flowId: currentFlow?._id.toString(),
-                projectId: activeProjectId,
-                name: flowName,
-                nodes: nodes as any,
-                edges: edges as any,
-                // Backend logic for triggerKeywords might need manual extraction from start node data if used
-                triggerKeywords: [],
-            };
+    const handleDelete = async (flowId: string) => {
+        if (!confirm("Are you sure you want to delete this flow? This cannot be undone.")) return;
 
-            const result = await saveFlow(flowData);
-            if (result.error) {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            } else {
-                toast({ title: 'Success', description: 'Flow saved successfully' });
-                if (result.flowId && !currentFlow) {
-                    // If it was a new flow, set currentFlow so future saves update it
-                    setCurrentFlow({ _id: result.flowId, name: flowName });
-                }
-            }
-        });
-    };
-
-    const onNodeUpdate = (id: string, newData: any) => {
-        setNodes((nds) => nds.map((node) => {
-            if (node.id === id) {
-                return { ...node, data: { ...node.data, ...newData } };
-            }
-            return node;
-        }));
-        // Update selected node reference as well to keep UI in sync
-        setSelectedNode((prev) => {
-            if (!prev || prev.id !== id) return prev;
-            return { ...prev, data: { ...prev.data, ...newData } } as Node;
-        });
-    };
-
-    const onDeleteNode = (id: string) => {
-        setNodes((nds) => nds.filter((n) => n.id !== id));
-        setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
-        setSelectedNode(null);
-        setIsPropsOpen(false);
-    };
-
-    if (!activeProjectId) {
-        return (
-            <div className="h-full flex items-center justify-center p-4">
-                <Alert variant="destructive" className="max-w-md">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>
-                        Please select a project from the main dashboard to use the Flow Builder.
-                    </AlertDescription>
-                </Alert>
-            </div>
-        );
+        const result = await deleteFlow(flowId);
+        if (result.error) {
+            toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        } else {
+            toast({ title: 'Success', description: result.message });
+            fetchFlows();
+        }
     }
 
+    const filteredFlows = useMemo(() => {
+        return flows.filter(flow =>
+            flow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (flow.triggerKeywords || []).join(', ').toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [flows, searchQuery]);
+
     return (
-        <div className="flex flex-col h-full bg-background overflow-hidden relative">
-            {/* Header */}
-            <header className="flex h-14 items-center justify-between border-b px-4 lg:h-[60px] bg-card">
-                <div className="flex items-center gap-4">
-                    <Link href="/dashboard" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back
-                    </Link>
-                    <div className="h-6 w-px bg-border" />
-                    <Input
-                        value={flowName}
-                        onChange={(e) => setFlowName(e.target.value)}
-                        className="h-8 w-[200px] font-medium"
-                        placeholder="Flow Name"
-                    />
+        <div className="flex flex-col gap-8 h-full p-4 md:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">Bot Flows</h1>
+                    <p className="text-muted-foreground">Manage your automated chatbot flows.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                        <Link href="/dashboard/flow-builder/docs" target="_blank">
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            Docs
+                    <Button asChild>
+                        <Link href="/dashboard/flow-builder/new">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Create New Flow
                         </Link>
                     </Button>
-                    <Button size="sm" onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                        Save Flow
-                    </Button>
-                    <Sheet open={isPropsOpen} onOpenChange={setIsPropsOpen}>
-                        <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="md:hidden">
-                                <Settings2 className="h-5 w-5" />
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="right" className="p-0 sm:max-w-md">
-                            <SheetHeader className="sr-only">
-                                <SheetTitle>Properties</SheetTitle>
-                            </SheetHeader>
-                            {selectedNode && (
-                                <PropertiesPanel
-                                    node={selectedNode}
-                                    onUpdate={onNodeUpdate}
-                                    deleteNode={onDeleteNode}
-                                    availableVariables={[]}
-                                />
-                            )}
-                        </SheetContent>
-                    </Sheet>
                 </div>
-            </header>
-
-            {/* Main Content */}
-            <div className="flex flex-1 overflow-hidden">
-                {/* Canvas */}
-                <div className="flex-1 h-full w-full relative" ref={reactFlowWrapper}>
-                    <ReactFlow
-                        nodes={nodes}
-                        edges={edges}
-                        onNodesChange={onNodesChange}
-                        onEdgesChange={onEdgesChange}
-                        onConnect={onConnect}
-                        onInit={setReactFlowInstance}
-                        onDrop={onDrop}
-                        onDragOver={onDragOver}
-                        onNodeClick={onNodeClick}
-                        onPaneClick={onPaneClick}
-                        nodeTypes={nodeTypes}
-                        fitView
-                        proOptions={{ hideAttribution: true }}
-                        snapToGrid
-                    >
-                        <Controls />
-                        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-
-                        <Panel position="top-left" className="m-4">
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button size="icon" className="h-12 w-12 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-all active:scale-95">
-                                        <Plus className="h-6 w-6 text-primary-foreground" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent side="right" align="start" className="w-[340px] p-0 ml-4 max-h-[80vh] overflow-hidden bg-background/95 backdrop-blur-sm shadow-2xl border-muted">
-                                    <div className="p-4 border-b">
-                                        <h4 className="font-semibold leading-none">Add Block</h4>
-                                        <p className="text-sm text-muted-foreground mt-1">Drag blocks to the canvas</p>
-                                    </div>
-                                    <ScrollArea className="h-[400px]">
-                                        <div className="p-4 pt-2">
-                                            <Sidebar className="w-full" />
-                                        </div>
-                                    </ScrollArea>
-                                </PopoverContent>
-                            </Popover>
-                        </Panel>
-
-                        {/* Helper text if needed, or remove since FAB is self-explanatory */}
-                    </ReactFlow>
-                </div>
-
-                {/* Right Panel (Desktop) */}
-                {selectedNode && isPropsOpen && (
-                    <aside className="w-80 border-l bg-background hidden md:block overflow-y-auto shrink-0 z-10 shadow-[-5px_0_15px_-5px_hsl(var(--foreground)/0.05)]">
-                        <PropertiesPanel
-                            node={selectedNode}
-                            onUpdate={onNodeUpdate}
-                            deleteNode={onDeleteNode}
-                            availableVariables={[]}
-                        />
-                    </aside>
-                )}
             </div>
-        </div>
-    );
-};
 
-export default function FlowBuilderPage() {
-    return (
-        <ReactFlowProvider>
-            <FlowBuilder />
-        </ReactFlowProvider>
+            {!activeProjectId ? (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>Please select a project from the main dashboard to manage Flows.</AlertDescription>
+                </Alert>
+            ) : (
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="relative w-full max-w-sm">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                type="search"
+                                placeholder="Search flows..."
+                                className="pl-8"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={fetchFlows} disabled={isLoading}>
+                            <RefreshCcw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
+                            Refresh
+                        </Button>
+                    </div>
+
+                    <div className="rounded-md border bg-card">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-[300px]">Flow Name</TableHead>
+                                    <TableHead>Trigger Keywords</TableHead>
+                                    <TableHead>Last Updated</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {isLoading ? (
+                                    [...Array(5)].map((_, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                            <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                                            <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                                            <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : filteredFlows.length > 0 ? (
+                                    filteredFlows.map((flow) => (
+                                        <TableRow key={flow._id.toString()}>
+                                            <TableCell className="font-medium">
+                                                <Link href={`/dashboard/flow-builder/${flow._id.toString()}`} className="hover:underline">
+                                                    {flow.name}
+                                                </Link>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {(flow.triggerKeywords || []).map((k, i) => (
+                                                        <Badge key={i} variant="secondary" className="text-xs">{k}</Badge>
+                                                    ))}
+                                                    {(!flow.triggerKeywords || flow.triggerKeywords.length === 0) && <span className="text-muted-foreground text-sm italic">No triggers</span>}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground text-sm">
+                                                {flow.updatedAt ? format(new Date(flow.updatedAt), 'MMM d, yyyy HH:mm') : 'N/A'}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                                            <span className="sr-only">Open menu</span>
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem asChild>
+                                                            <Link href={`/dashboard/flow-builder/${flow._id.toString()}`} className="cursor-pointer">
+                                                                <Edit className="mr-2 h-4 w-4" /> Edit Flow
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem
+                                                            className="text-destructive focus:text-destructive cursor-pointer"
+                                                            onClick={() => handleDelete(flow._id.toString())}
+                                                        >
+                                                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="h-24 text-center">
+                                            <div className="flex flex-col items-center justify-center text-muted-foreground py-8">
+                                                {searchQuery ? (
+                                                    <p>No flows found matching "{searchQuery}"</p>
+                                                ) : (
+                                                    <>
+                                                        <ServerCog className="h-10 w-10 mb-2 opacity-20" />
+                                                        <p>No Bot Flows found.</p>
+                                                        <Button variant="link" asChild className="mt-2">
+                                                            <Link href="/dashboard/flow-builder/new">Create your first flow</Link>
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
