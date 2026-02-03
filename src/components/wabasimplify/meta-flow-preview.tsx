@@ -202,35 +202,33 @@ export const MetaFlowPreview = ({ flowJson, activeScreenId, className }: { flowJ
                 </div>
             </ScrollArea>
 
-            {/* Flow Screen Modal */}
-            <div className="absolute inset-0 bg-black/30 flex flex-col justify-end">
-                <div className="bg-white rounded-t-xl h-[95%] flex flex-col animate-slide-in-up" style={{ animationDelay: '3.3s' }}>
-                    <CardHeader className="p-3 flex flex-row items-center justify-between border-b flex-shrink-0">
-                        <Button variant="ghost" size="icon" className="text-gray-600"><ArrowLeft className="h-5 w-5" /></Button>
-                        <p className="font-semibold text-gray-800">{currentScreen.title || 'Flow Preview'}</p>
-                        <Button variant="ghost" size="icon" className="text-gray-600"><MoreVertical className="h-5 w-5" /></Button>
-                    </CardHeader>
-                    <ScrollArea className="flex-1">
-                        <CardContent className="p-4 space-y-4">
-                            {renderableComponents.filter(c => c && c.type !== 'Footer').map((component: any, index: number) => (
-                                <FlowComponent key={component.name || index} component={component} formData={formData} setFormData={setFormData} />
-                            ))}
-                        </CardContent>
-                    </ScrollArea>
-                    {footerComponent && (
-                        <CardFooter className="p-4 bg-white border-t flex-col items-center flex-shrink-0 space-y-2">
-                            <Button
-                                onClick={() => handleAction(footerComponent['on-click-action'])}
-                                size="lg"
-                                className="w-full bg-[#00A884] hover:bg-[#00A884]/90"
-                                disabled={!footerComponent.enabled}
-                            >
-                                {footerComponent.label}
-                            </Button>
-                            <p className="text-xs text-gray-500">Managed by Ecoshop. <span className="text-blue-500">Learn more</span></p>
-                        </CardFooter>
-                    )}
-                </div>
+            {/* Flow Screen - Full Edge to Edge */}
+            <div className="absolute inset-0 bg-white flex flex-col z-20">
+                <CardHeader className="p-3 flex flex-row items-center justify-between border-b flex-shrink-0 bg-white">
+                    <Button variant="ghost" size="icon" className="text-gray-600"><ArrowLeft className="h-5 w-5" /></Button>
+                    <p className="font-semibold text-gray-800">{currentScreen.title || 'Flow Preview'}</p>
+                    <Button variant="ghost" size="icon" className="text-gray-600"><MoreVertical className="h-5 w-5" /></Button>
+                </CardHeader>
+                <ScrollArea className="flex-1 bg-white">
+                    <CardContent className="p-4 space-y-4">
+                        {renderableComponents.filter(c => c && c.type !== 'Footer').map((component: any, index: number) => (
+                            <FlowComponent key={component.name || index} component={component} formData={formData} setFormData={setFormData} />
+                        ))}
+                    </CardContent>
+                </ScrollArea>
+                {footerComponent && (
+                    <CardFooter className="p-4 bg-white border-t flex-col items-center flex-shrink-0 space-y-2">
+                        <Button
+                            onClick={() => handleAction(footerComponent['on-click-action'])}
+                            size="lg"
+                            className="w-full bg-[#00A884] hover:bg-[#00A884]/90 rounded-full"
+                            disabled={!footerComponent.enabled}
+                        >
+                            {footerComponent.label}
+                        </Button>
+                        <p className="text-[10px] text-gray-400">Securely processed by Meta</p>
+                    </CardFooter>
+                )}
             </div>
         </div>
     );
