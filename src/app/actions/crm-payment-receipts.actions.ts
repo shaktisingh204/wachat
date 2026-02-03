@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { CrmPaymentReceipt, CrmInvoice } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -20,9 +20,9 @@ export async function getPaymentReceipts(
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         const filter: Filter<CrmPaymentReceipt> = { userId: userObjectId };
-        
+
         const skip = (page - 1) * limit;
 
         const [receipts, total] = await Promise.all([
@@ -73,7 +73,7 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
         }
 
         const { db } = await connectToDatabase();
-        
+
         // Use a transaction to ensure atomicity
         const dbSession = db.client.startSession();
         try {
@@ -84,7 +84,7 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
                     createdAt: new Date(),
                     updatedAt: new Date()
                 } as any, { session: dbSession });
-                
+
                 // 2. Update the status of settled invoices
                 if (settledInvoices.length > 0) {
                     const invoiceIds = settledInvoices.map((s: any) => new ObjectId(s.invoiceId));
@@ -95,12 +95,12 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
                         const amountSettled = settlement?.amountSettled || 0;
                         const existingPaidAmount = invoice.paidAmount || 0;
                         const newPaidAmount = existingPaidAmount + amountSettled;
-                        
+
                         let newStatus: CrmInvoice['status'] = 'Partially Paid';
                         if (newPaidAmount >= invoice.total) {
                             newStatus = 'Paid';
                         }
-                        
+
                         await db.collection('crm_invoices').updateOne(
                             { _id: invoice._id },
                             { $set: { status: newStatus, paidAmount: newPaidAmount } },

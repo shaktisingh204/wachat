@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { ShortUrl, User, CustomDomain } from '@/lib/definitions';
 import { nanoid } from 'nanoid';
 import { headers } from 'next/headers';
@@ -41,7 +41,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
 
     try {
         const { db } = await connectToDatabase();
-        
+
         let shortCode = alias || generateShortCode();
 
         const query: any = { shortCode };
@@ -75,7 +75,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         return { message: 'Short URL created successfully!', shortUrlId: insertedId.toString() };
 
     } catch (e: any) {
-        if (e.code === 11000) { 
+        if (e.code === 11000) {
             return { error: 'That short code is already taken, please try again.' };
         }
         return { error: e.message || 'An unexpected error occurred.' };
@@ -85,7 +85,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
 async function processUrlStream(inputStream: NodeJS.ReadableStream | string, userId: ObjectId): Promise<number> {
     return new Promise<number>((resolve, reject) => {
         const urlRows: { url: string; alias?: string }[] = [];
-        
+
         Papa.parse(inputStream, {
             header: true,
             skipEmptyLines: true,
@@ -107,7 +107,7 @@ async function processUrlStream(inputStream: NodeJS.ReadableStream | string, use
                     try { new URL(originalUrl); } catch { return null; }
 
                     const alias = (row[aliasColumnHeader as keyof typeof row] || '').trim() || null;
-                    
+
                     return {
                         userId,
                         originalUrl,
@@ -126,7 +126,7 @@ async function processUrlStream(inputStream: NodeJS.ReadableStream | string, use
                 try {
                     const result = await db.collection('short_urls').insertMany(urlsToInsert as any[], { ordered: false });
                     resolve(result.insertedCount);
-                } catch(e: any) {
+                } catch (e: any) {
                     if (e.code === 11000) {
                         resolve(e.result.nInserted || 0);
                     } else {
@@ -141,7 +141,7 @@ async function processUrlStream(inputStream: NodeJS.ReadableStream | string, use
 
 export async function handleBulkCreateShortUrls(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const urlFile = formData.get('urlFile') as File;
-    
+
     const session = await getSession();
     if (!session?.user) return { error: "Access denied." };
 
@@ -184,16 +184,16 @@ export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & 
 
     try {
         const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) }, { projection: { password: 0 }});
-        
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) }, { projection: { password: 0 } });
+
         if (!user) return { user: null, urls: [], domains: [] };
-        
+
         const urls = await db.collection('short_urls')
             .find({ userId: new ObjectId(session.user._id) })
             .sort({ createdAt: -1 })
             .toArray();
 
-        return { 
+        return {
             user: JSON.parse(JSON.stringify(user)),
             urls: JSON.parse(JSON.stringify(urls)),
             domains: JSON.parse(JSON.stringify(user?.customDomains || [])),
@@ -228,12 +228,12 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
 
 
         if (!urlDoc) {
-             return { originalUrl: null, error: 'URL not found.' };
+            return { originalUrl: null, error: 'URL not found.' };
         }
         if (urlDoc.expiresAt && new Date() > new Date(urlDoc.expiresAt)) {
-             return { originalUrl: null, error: 'This link has expired.' };
+            return { originalUrl: null, error: 'This link has expired.' };
         }
-        
+
         const headerList = headers();
         const userAgent = headerList.get('user-agent');
         const referrer = headerList.get('referer');
@@ -241,9 +241,9 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
 
         await db.collection<ShortUrl>('short_urls').updateOne(
             { _id: urlDoc._id },
-            { 
+            {
                 $inc: { clickCount: 1 },
-                $push: { 
+                $push: {
                     analytics: {
                         $each: [{
                             timestamp: new Date(),
@@ -269,15 +269,15 @@ export async function deleteShortUrl(id: string): Promise<{ success: boolean; er
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
     if (!ObjectId.isValid(id)) {
-      return { success: false, error: 'Invalid URL ID.' };
+        return { success: false, error: 'Invalid URL ID.' };
     }
-    
+
     const urlToDelete = await getShortUrlById(id);
     if (!urlToDelete) return { success: false, error: 'URL not found or access denied.' };
     if (urlToDelete.userId.toString() !== session.user._id.toString()) {
         return { success: false, error: 'Access denied.' };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         await db.collection('short_urls').deleteOne({ _id: new ObjectId(id) });
@@ -291,14 +291,14 @@ export async function deleteShortUrl(id: string): Promise<{ success: boolean; er
 
 export async function getShortUrlById(id: string): Promise<WithId<ShortUrl> | null> {
     if (!ObjectId.isValid(id)) return null;
-    
+
     const session = await getSession();
     if (!session?.user) return null;
 
     const { db } = await connectToDatabase();
-    const url = await db.collection<ShortUrl>('short_urls').findOne({ 
+    const url = await db.collection<ShortUrl>('short_urls').findOne({
         _id: new ObjectId(id),
-        userId: new ObjectId(session.user._id) 
+        userId: new ObjectId(session.user._id)
     });
 
     if (!url) return null;
@@ -327,13 +327,13 @@ export async function addCustomDomain(prevState: any, formData: FormData): Promi
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };
     if (!hostname) return { error: 'Hostname is required.' };
-    
+
     // Basic validation
     const domainRegex = /^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/;
-    if(!domainRegex.test(hostname)) {
+    if (!domainRegex.test(hostname)) {
         return { error: 'Invalid domain format.' };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
@@ -364,7 +364,7 @@ export async function addCustomDomain(prevState: any, formData: FormData): Promi
 export async function verifyCustomDomain(domainId: string): Promise<{ success: boolean, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
-    
+
     // In a real application, this would perform a DNS lookup for the verification code.
     // For this prototype, we'll just simulate success.
     try {
@@ -384,7 +384,7 @@ export async function verifyCustomDomain(domainId: string): Promise<{ success: b
 export async function deleteCustomDomain(domainId: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
-    
+
     try {
         const { db } = await connectToDatabase();
         await db.collection('users').updateOne(

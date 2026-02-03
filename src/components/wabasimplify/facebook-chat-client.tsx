@@ -3,9 +3,10 @@
 
 import { useEffect, useState, useCallback, useTransition, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getFacebookChatInitialData, getFacebookConversationMessages, markFacebookConversationAsRead, getProjects } from '@/app/actions/facebook.actions';
-import { getSession } from '@/app/actions/index.ts';
-import type { WithId, Project, FacebookConversation, FacebookMessage, User, Plan } from '@/lib/definitions';
+import { getFacebookChatInitialData, getFacebookConversationMessages, markFacebookConversationAsRead } from '@/app/actions/facebook.actions';
+import { getSession } from '@/app/actions/index';
+import type { WithId } from 'mongodb';
+import type { Project, FacebookConversation, FacebookMessage, User, Plan } from '@/lib/definitions';
 import { FacebookConversationList } from './facebook-conversation-list';
 import { FacebookChatWindow } from './facebook-chat-window';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -27,13 +28,13 @@ export function FacebookChatClient() {
     const [conversations, setConversations] = useState<FacebookConversation[]>([]);
     const [selectedConversation, setSelectedConversation] = useState<FacebookConversation | null>(null);
     const [messages, setMessages] = useState<FacebookMessage[]>([]);
-    
+
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();
     const [permissionError, setPermissionError] = useState<string | null>(null);
     const [showInfoDialog, setShowInfoDialog] = useState(false);
-    
-    const [projectId, setProjectId] = useState<string|null>(null);
+
+    const [projectId, setProjectId] = useState<string | null>(null);
 
     const handleSelectConversation = useCallback(async (conversation: FacebookConversation, pid?: string) => {
         const currentProjectId = pid || projectId;
@@ -44,9 +45,9 @@ export function FacebookChatClient() {
 
         // Optimistically update the UI to remove the unread count immediately.
         if (conversation.unread_count > 0) {
-            setConversations(prev => prev.map(c => c.id === conversation.id ? {...c, unread_count: 0} : c));
-            // Then, make the server call in the background. No need to await it here.
-            markFacebookConversationAsRead(conversation.id, currentProjectId);
+            setConversations(prev => prev.map(c => c.id === conversation.id ? { ...c, unread_count: 0 } : c));
+            // Await the server call to ensure it completes before any data refetch
+            await markFacebookConversationAsRead(conversation.id, currentProjectId);
         }
 
         startConversationLoadTransition(async () => {
@@ -58,12 +59,12 @@ export function FacebookChatClient() {
                 setMessages(fetchedMessages || []);
             }
         });
-        
+
     }, [projectId, router]);
 
     const fetchInitialData = useCallback((pid: string) => {
         startLoadingTransition(async () => {
-             const [initialData, sessionData] = await Promise.all([
+            const [initialData, sessionData] = await Promise.all([
                 getFacebookChatInitialData(pid),
                 getSession()
             ]);
@@ -88,8 +89,8 @@ export function FacebookChatClient() {
                     handleSelectConversation(convo, pid);
                 }
             } else {
-                 setSelectedConversation(null);
-                 setMessages([]);
+                setSelectedConversation(null);
+                setMessages([]);
             }
         });
     }, [conversationIdFromUrl, handleSelectConversation]);
@@ -112,8 +113,8 @@ export function FacebookChatClient() {
 
     // Polling for real-time updates
     useEffect(() => {
-        // Don't poll if nothing is selected or if initial load is happening
-        if (!selectedConversation || !projectId || isLoading) return;
+        // Don't poll if nothing is selected
+        if (!selectedConversation || !projectId) return;
 
         const interval = setInterval(() => {
             // No transition here to avoid showing loading spinners for background polls
@@ -129,15 +130,15 @@ export function FacebookChatClient() {
         }, 5000); // Poll every 5 seconds
 
         return () => clearInterval(interval);
-    }, [selectedConversation, projectId, isLoading]);
-    
+    }, [selectedConversation, projectId]); // Removed isLoading to prevent infinite re-runs
+
     const onMessageSent = async () => {
         if (selectedConversation && projectId) {
             const { messages: fetchedMessages } = await getFacebookConversationMessages(selectedConversation.id, projectId);
             setMessages(fetchedMessages || []);
         }
     }
-    
+
     const onSuccessfulReconnect = () => {
         setPermissionError(null);
         if (projectId) {
@@ -146,7 +147,7 @@ export function FacebookChatClient() {
     }
 
     if (isLoading && !project) {
-        return <Skeleton className="h-full w-full rounded-xl"/>
+        return <Skeleton className="h-full w-full rounded-xl" />
     }
 
     if (!projectId) {
@@ -162,10 +163,10 @@ export function FacebookChatClient() {
             </div>
         );
     }
-    
+
     return (
         <>
-             <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
+            <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Start a Conversation</DialogTitle>
@@ -179,7 +180,7 @@ export function FacebookChatClient() {
                 </DialogContent>
             </Dialog>
 
-            <PermissionErrorDialog 
+            <PermissionErrorDialog
                 isOpen={!!permissionError}
                 onOpenChange={() => setPermissionError(null)}
                 error={permissionError}

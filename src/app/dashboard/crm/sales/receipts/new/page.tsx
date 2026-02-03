@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
-import { ArrowLeft, Save, LoaderCircle, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, LoaderCircle, PlusCircle, Trash2, Check } from 'lucide-react';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import type { WithId, CrmAccount, CrmInvoice, PaymentRecord } from '@/lib/definitions';
@@ -26,19 +26,19 @@ import { Textarea } from '@/components/ui/textarea';
 const initialState = { message: null, error: null };
 
 function SaveButton({ disabled }: { disabled: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending || disabled}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Save Payment
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending || disabled}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save Payment
+        </Button>
+    );
 }
 
 const StepIndicator = ({ currentStep, step, title }: { currentStep: number, step: number, title: string }) => (
     <div className="flex items-center gap-3">
         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= step ? 'bg-primary text-primary-foreground' : 'bg-muted border'}`}>
-            {currentStep > step ? <Check className="h-5 w-5"/> : step}
+            {currentStep > step ? <Check className="h-5 w-5" /> : step}
         </div>
         <div>
             <p className="text-sm text-muted-foreground">Step {step}</p>
@@ -52,18 +52,18 @@ export default function RecordPaymentPage() {
     const router = useRouter();
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
-    
+
     const [step, setStep] = useState(1);
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [receiptDate, setReceiptDate] = useState<Date | undefined>(new Date());
     const [currency, setCurrency] = useState<string>('INR');
-    
+
     const [paymentRecords, setPaymentRecords] = useState<PaymentRecord[]>([{ id: uuidv4(), date: new Date(), amount: 0, mode: 'Bank Transfer' }]);
-    
+
     const [unpaidInvoices, setUnpaidInvoices] = useState<WithId<CrmInvoice>[]>([]);
-    const [settledInvoices, setSettledInvoices] = useState<{invoiceId: string, amountSettled: number}[]>([]);
-    
+    const [settledInvoices, setSettledInvoices] = useState<{ invoiceId: string, amountSettled: number }[]>([]);
+
     const [isDataLoading, startDataLoading] = useTransition();
 
     useEffect(() => {
@@ -95,11 +95,11 @@ export default function RecordPaymentPage() {
         setSelectedClientId(clientId);
         fetchInvoices(clientId);
     }
-    
+
     const handleAddPaymentRecord = () => {
         setPaymentRecords(prev => [...prev, { id: uuidv4(), date: new Date(), amount: 0, mode: 'Bank Transfer' }]);
     };
-    
+
     const handleRemovePaymentRecord = (id: string) => {
         setPaymentRecords(prev => prev.filter(r => r.id !== id));
     };
@@ -126,14 +126,14 @@ export default function RecordPaymentPage() {
 
         setSettledInvoices(prev => {
             const existingIndex = prev.findIndex(item => item.invoiceId === invoiceId);
-            
+
             if (settledAmount <= 0) {
                 if (existingIndex > -1) {
                     return prev.filter((_, index) => index !== existingIndex);
                 }
                 return prev; // Nothing to remove
             }
-            
+
             if (existingIndex > -1) {
                 const updated = [...prev];
                 updated[existingIndex].amountSettled = settledAmount;
@@ -143,7 +143,7 @@ export default function RecordPaymentPage() {
             return [...prev, { invoiceId, amountSettled }];
         });
     };
-    
+
     const totalAmountReceived = paymentRecords.reduce((sum, record) => sum + Number(record.amount || 0), 0);
     const totalAmountSettled = settledInvoices.reduce((sum, s) => sum + s.amountSettled, 0);
     const advanceAmount = totalAmountReceived - totalAmountSettled;
@@ -181,14 +181,14 @@ export default function RecordPaymentPage() {
                             <Card>
                                 <CardContent className="p-6 space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-1.5"><Label htmlFor="receiptNumber">Payment Receipt No *</Label><Input id="receiptNumber" name="receiptNumber" defaultValue="A00001" required maxLength={50}/></div>
+                                        <div className="space-y-1.5"><Label htmlFor="receiptNumber">Payment Receipt No *</Label><Input id="receiptNumber" name="receiptNumber" defaultValue="A00001" required maxLength={50} /></div>
                                         <div className="space-y-1.5"><Label htmlFor="receiptDate">Receipt Date *</Label><DatePicker id="receiptDate" date={receiptDate} setDate={setReceiptDate} /></div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-1.5">
                                             <Label htmlFor="client-select">Payment Received From *</Label>
                                             <Select name="accountId" required onValueChange={handleClientChange}>
-                                                <SelectTrigger id="client-select"><SelectValue placeholder="Select a Client..."/></SelectTrigger>
+                                                <SelectTrigger id="client-select"><SelectValue placeholder="Select a Client..." /></SelectTrigger>
                                                 <SelectContent>{clients.map(client => <SelectItem key={client._id.toString()} value={client._id.toString()}>{client.name}</SelectItem>)}</SelectContent>
                                             </Select>
                                         </div>
@@ -209,9 +209,9 @@ export default function RecordPaymentPage() {
                                 <CardContent className="space-y-4">
                                     {paymentRecords.map((record, index) => (
                                         <div key={record.id} className="p-3 border rounded-lg space-y-3 relative bg-muted/50">
-                                            <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemovePaymentRecord(record.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                                            <div className="grid md:grid-cols-2 gap-4"><div className="space-y-1.5"><Label>Amount *</Label><Input type="number" value={record.amount} onChange={(e) => handleRecordChange(record.id, 'amount', e.target.value)}/></div><div className="space-y-1.5"><Label>Payment Date *</Label><DatePicker date={record.date} setDate={(d) => handleRecordChange(record.id, 'date', d)}/></div></div>
-                                            <div className="space-y-1.5"><Label>Mode *</Label><Select value={record.mode} onValueChange={(v) => handleRecordChange(record.id, 'mode', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Bank Transfer">Bank Transfer</SelectItem><SelectItem value="Cash">Cash</SelectItem><SelectItem value="Cheque">Cheque</SelectItem></SelectContent></Select></div>
+                                            <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemovePaymentRecord(record.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                            <div className="grid md:grid-cols-2 gap-4"><div className="space-y-1.5"><Label>Amount *</Label><Input type="number" value={record.amount} onChange={(e) => handleRecordChange(record.id, 'amount', e.target.value)} /></div><div className="space-y-1.5"><Label>Payment Date *</Label><DatePicker date={record.date} setDate={(d) => handleRecordChange(record.id, 'date', d)} /></div></div>
+                                            <div className="space-y-1.5"><Label>Mode *</Label><Select value={record.mode} onValueChange={(v) => handleRecordChange(record.id, 'mode', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Bank Transfer">Bank Transfer</SelectItem><SelectItem value="Cash">Cash</SelectItem><SelectItem value="Cheque">Cheque</SelectItem></SelectContent></Select></div>
                                             <div className="space-y-1.5"><Label>Reference # (Optional)</Label><Input value={record.reference || ''} onChange={(e) => handleRecordChange(record.id, 'reference', e.target.value)} maxLength={100} /></div>
                                         </div>
                                     ))}
@@ -231,14 +231,14 @@ export default function RecordPaymentPage() {
                                         <CardContent className="p-3 grid grid-cols-2 gap-4">
                                             <div><Label className="text-xs">Amount Received</Label><p className="font-bold text-lg">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountReceived)}</p></div>
                                             <div><Label className="text-xs">Amount to Settle</Label><p className="font-bold text-lg">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountSettled)}</p></div>
-                                            <div className="col-span-2"><Separator/></div>
+                                            <div className="col-span-2"><Separator /></div>
                                             <div className="col-span-2"><Label className="text-xs">Amount to be recorded as Advance</Label><p className="font-bold text-xl text-primary">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(advanceAmount)}</p></div>
                                         </CardContent>
                                     </Card>
                                     {isDataLoading ? (<LoaderCircle className="animate-spin" />) : unpaidInvoices.length > 0 ? (
                                         <div className="space-y-2">
                                             {unpaidInvoices.map(invoice => (
-                                                 <div key={invoice._id.toString()} className="flex items-center gap-2 p-2 border rounded-md">
+                                                <div key={invoice._id.toString()} className="flex items-center gap-2 p-2 border rounded-md">
                                                     <div className="flex-1 space-y-1"><p className="font-medium text-sm">{invoice.invoiceNumber}</p><p className="text-xs text-muted-foreground">Due: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(invoice.total)}</p></div>
                                                     <Input type="number" placeholder="Settle Amount" className="w-32" max={invoice.total} onChange={(e) => handleSettlementChange(invoice._id.toString(), e.target.value)} />
                                                 </div>
@@ -253,7 +253,7 @@ export default function RecordPaymentPage() {
                                     )}
                                     <div className="space-y-2">
                                         <Label htmlFor="notes">Notes (Optional)</Label>
-                                        <Textarea id="notes" name="notes" placeholder="e.g. Received via GPay" maxLength={500}/>
+                                        <Textarea id="notes" name="notes" placeholder="e.g. Received via GPay" maxLength={500} />
                                     </div>
                                 </CardContent>
                                 <CardFooter className="justify-between">

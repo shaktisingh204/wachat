@@ -15,7 +15,7 @@ function getJwtSecretKey(): Uint8Array {
 
 export async function GET(request: NextRequest) {
     const sessionToken = request.cookies.get('session')?.value;
-    
+
     if (sessionToken) {
         try {
             const { payload } = await jwtVerify(sessionToken, getJwtSecretKey());
@@ -35,9 +35,10 @@ export async function GET(request: NextRequest) {
         }
     }
 
-    // Redirect to the login page.
-    const response = NextResponse.redirect(new URL('/login', request.url));
-    
+    // Redirect to the main app's login page
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.url;
+    const response = NextResponse.redirect(new URL('/login', baseUrl));
+
     // Clear the session cookie regardless of whether token revocation worked.
     response.cookies.set({
         name: 'session',
@@ -45,6 +46,6 @@ export async function GET(request: NextRequest) {
         path: '/',
         expires: new Date(0),
     });
-    
+
     return response;
 }

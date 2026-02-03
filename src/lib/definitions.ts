@@ -1,6 +1,7 @@
 
 
 import type { ObjectId, WithId } from 'mongodb';
+export type { WithId };
 
 export type WalletTransaction = {
     _id: ObjectId;
@@ -1167,6 +1168,7 @@ export type SabFlowEdge = {
     source: string;
     target: string;
     sourceHandle?: string;
+    targetHandle?: string;
 };
 
 export type SabFlow = {
@@ -1502,6 +1504,7 @@ export type User = {
     tags?: Tag[];
     customDomains?: CustomDomain[];
     facebookUserAccessToken?: string;
+    metaSuiteAccessToken?: string; // Meta Suite (Facebook) access token
     activeProjectId?: string;
     crmIndustry?: string;
     crmPipelines?: CrmPipeline[];

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useActionState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,17 +30,17 @@ const yourBusinessDetails = {
 const initialState = { message: null, error: null };
 
 function SaveButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Save
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save
+        </Button>
+    );
 }
 
 
-const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[], setItems: React.Dispatch<React.SetStateAction<DeliveryChallanLineItem[]>>}) => {
+const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[], setItems: React.Dispatch<React.SetStateAction<DeliveryChallanLineItem[]>> }) => {
     const handleAddItem = () => {
         setItems([...items, { id: `item-${Date.now()}`, name: '', quantity: 1 }]);
     };
@@ -51,7 +52,7 @@ const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[],
     const handleItemChange = (id: string, field: keyof Omit<DeliveryChallanLineItem, 'id'>, value: string | number) => {
         setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
-    
+
     return (
         <div className="mt-6">
             <div className="overflow-x-auto">
@@ -72,14 +73,14 @@ const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[],
                                 <td className="p-2"><Input placeholder="e.g. 998314" value={item.hsnCode} onChange={e => handleItemChange(item.id, 'hsnCode', e.target.value)} maxLength={20} /></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} required /></td>
                                 <td className="p-2"><Input placeholder="e.g. PCS, Kgs" value={item.unit} onChange={e => handleItemChange(item.id, 'unit', e.target.value)} maxLength={20} /></td>
-                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></td>
+                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4"/>Add New Line</Button>
+                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</Button>
             </div>
         </div>
     );
@@ -89,12 +90,12 @@ export default function NewDeliveryChallanPage() {
     const [state, formAction] = useActionState(saveDeliveryChallan, initialState);
     const router = useRouter();
     const { toast } = useToast();
-    
+
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [challanDate, setChallanDate] = useState<Date | undefined>(new Date());
     const [lineItems, setLineItems] = useState<DeliveryChallanLineItem[]>([{ id: '1', name: '', quantity: 1 }]);
-    
+
     useEffect(() => {
         getCrmAccounts().then(data => setClients(data.accounts));
     }, []);
@@ -119,24 +120,24 @@ export default function NewDeliveryChallanPage() {
 
             <div className="bg-muted/30">
                 <div className="container mx-auto p-4 md:p-8">
-                     <header className="flex justify-between items-center mb-6">
-                         <div>
+                    <header className="flex justify-between items-center mb-6">
+                        <div>
                             <Button variant="ghost" asChild className="-ml-4">
                                 <Link href="/dashboard/crm/sales/delivery"><ArrowLeft className="mr-2 h-4 w-4" />Back to Delivery Challans</Link>
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
                             <Button variant="outline" type="button">Save As Draft</Button>
-                             <SaveButton />
+                            <SaveButton />
                         </div>
-                     </header>
+                    </header>
                     <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
                         <CardContent className="p-0">
                             <header className="mb-8">
                                 <h1 className="text-3xl font-bold text-primary">Delivery Challan</h1>
                             </header>
-                            
-                            <Separator className="my-8"/>
+
+                            <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
@@ -146,8 +147,8 @@ export default function NewDeliveryChallanPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold mb-2">To (Consignee):</h3>
-                                     <Select value={selectedClientId} onValueChange={setSelectedClientId} name="accountId" required>
-                                        <SelectTrigger><SelectValue placeholder="Select a Client..."/></SelectTrigger>
+                                    <Select value={selectedClientId} onValueChange={setSelectedClientId} name="accountId" required>
+                                        <SelectTrigger><SelectValue placeholder="Select a Client..." /></SelectTrigger>
                                         <SelectContent>{clients.map(client => <SelectItem key={client._id.toString()} value={client._id.toString()}>{client.name}</SelectItem>)}</SelectContent>
                                     </Select>
                                     {selectedClient && (
@@ -165,29 +166,29 @@ export default function NewDeliveryChallanPage() {
                                 <LineItemsTable items={lineItems} setItems={setLineItems} />
                             </section>
 
-                            <Separator className="my-8"/>
-                            
+                            <Separator className="my-8" />
+
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-4">
                                     <div className="space-y-2"><Label>Reason for Delivery</Label><Input name="reason" placeholder="e.g. For Job Work, Sale on Approval" maxLength={200} /></div>
                                     <div className="space-y-2"><Label>Notes (Optional)</Label><Textarea name="notes" placeholder="Any special instructions..." maxLength={500} /></div>
                                 </div>
                                 <div className="space-y-4">
-                                     <h3 className="font-semibold">Transport Details</h3>
-                                     <div className="grid grid-cols-2 gap-4">
+                                    <h3 className="font-semibold">Transport Details</h3>
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2"><Label>Vehicle Number</Label><Input name="vehicleNumber" placeholder="e.g. RJ14 AB 1234" maxLength={20} /></div>
                                         <div className="space-y-2"><Label>Driver Name</Label><Input name="driverName" placeholder="e.g. John Doe" maxLength={100} /></div>
-                                     </div>
-                                      <div className="space-y-2"><Label>Transport Mode</Label><Input name="mode" placeholder="e.g. By Road" maxLength={100} /></div>
+                                    </div>
+                                    <div className="space-y-2"><Label>Transport Mode</Label><Input name="mode" placeholder="e.g. By Road" maxLength={100} /></div>
                                 </div>
                             </section>
-                            <Separator className="my-8"/>
+                            <Separator className="my-8" />
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-2">
                                     <Label>Signature (Consignor)</Label>
                                     <div className="h-24 border rounded-md bg-muted/50 flex items-center justify-center text-muted-foreground text-sm">Authorized Signatory</div>
                                 </div>
-                                 <div className="space-y-2">
+                                <div className="space-y-2">
                                     <Label>Signature (Consignee)</Label>
                                     <div className="h-24 border rounded-md bg-muted/50 flex items-center justify-center text-muted-foreground text-sm">Receiver's Signature</div>
                                 </div>

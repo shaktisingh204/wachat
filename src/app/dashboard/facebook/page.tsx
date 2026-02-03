@@ -23,12 +23,12 @@ import { formatDistanceToNow } from 'date-fns';
 import { PermissionErrorDialog } from '@/components/wabasimplify/permission-error-dialog';
 import { WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
 
@@ -65,12 +65,12 @@ const RadialChartCard = ({ value, label, description }: { value: number, label: 
                     >
                         <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
                         <RadialBar dataKey="value" background={{ fill: 'hsl(var(--muted))' }} cornerRadius={10} />
-                         <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-foreground">
+                        <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-foreground">
                             {value}%
                         </text>
                     </RadialBarChart>
                 </ChartContainer>
-                 <p className="text-xs text-muted-foreground mt-2">{description}</p>
+                <p className="text-xs text-muted-foreground mt-2">{description}</p>
             </CardContent>
         </Card>
     );
@@ -90,20 +90,20 @@ const PostItemCard = ({ post }: { post: FacebookPost }) => {
         <Card className="hover:shadow-md transition-shadow card-gradient card-gradient-blue">
             <CardHeader className="flex flex-row justify-between items-start p-3">
                 <CardTitle className="text-base font-semibold leading-snug">{post.message || "Media Post"}</CardTitle>
-                <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0"><MoreHorizontal className="h-4 w-4"/></Button>
+                <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0"><MoreHorizontal className="h-4 w-4" /></Button>
             </CardHeader>
             {post.full_picture && (
                 <CardContent className="p-3 pt-0">
-                     <Image src={post.full_picture} alt="Post image" width={400} height={225} className="rounded-md object-cover w-full" data-ai-hint="social media post"/>
+                    <Image src={post.full_picture} alt="Post image" width={400} height={225} className="rounded-md object-cover w-full" data-ai-hint="social media post" />
                 </CardContent>
             )}
             <CardFooter className="p-3 pt-0 flex justify-between items-center text-xs text-muted-foreground">
-                 <span className="font-mono">{new Date(post.created_time).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}</span>
-                 <div className="flex gap-3">
-                     <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3"/>{post.comments?.summary?.total_count || 0}</span>
-                     <span className="flex items-center gap-1"><ThumbsUp className="h-3 w-3"/>{post.reactions?.summary?.total_count || 0}</span>
-                     <span className="flex items-center gap-1"><Share2 className="h-3 w-3"/>{post.shares?.count || 0}</span>
-                 </div>
+                <span className="font-mono">{new Date(post.created_time).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}</span>
+                <div className="flex gap-3">
+                    <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" />{post.comments?.summary?.total_count || 0}</span>
+                    <span className="flex items-center gap-1"><ThumbsUp className="h-3 w-3" />{post.reactions?.summary?.total_count || 0}</span>
+                    <span className="flex items-center gap-1"><Share2 className="h-3 w-3" />{post.shares?.count || 0}</span>
+                </div>
             </CardFooter>
         </Card>
     );
@@ -120,7 +120,7 @@ const CommentItemCard = ({ comment, postLink }: { comment: FacebookComment, post
                 <div className="flex-1">
                     <div className="flex justify-between items-center">
                         <p className="font-semibold text-sm">{comment.from.name}</p>
-                         <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(comment.created_time), { addSuffix: true })}</p>
+                        <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(comment.created_time), { addSuffix: true })}</p>
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
                         "{comment.message}"
@@ -167,8 +167,8 @@ export default function FacebookDashboardPage() {
                 return;
             }
             const [detailsResult, insightsResult, postsResult, igResult] = await Promise.all([
-                getPageDetails(id), 
-                getPageInsights(id), 
+                getPageDetails(id),
+                getPageInsights(id),
                 getFacebookPosts(id),
                 getInstagramAccountForPage(id)
             ]);
@@ -200,7 +200,7 @@ export default function FacebookDashboardPage() {
             fetchPageData(projectId);
         }
     }, [projectId, fetchPageData]);
-    
+
     const onSuccessfulReconnect = () => {
         setPermissionError(null);
         if (projectId) {
@@ -221,20 +221,20 @@ export default function FacebookDashboardPage() {
     }
 
     if (!projectId) {
-         return (
-             <Alert variant="destructive">
+        return (
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" /><AlertTitle>No Project Selected</AlertTitle>
                 <AlertDescription>Please select a project from the main dashboard to view its Facebook overview.</AlertDescription>
             </Alert>
-         )
+        )
     }
 
     if (!pageDetails) {
         return (
-             <div className="flex items-center justify-center h-full p-4">
+            <div className="flex items-center justify-center h-full p-4">
                 <Card className="max-w-xl text-center">
                     <CardHeader>
-                         <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit mb-2">
+                        <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit mb-2">
                             <AlertCircle className="h-8 w-8 text-destructive" />
                         </div>
                         <CardTitle>Connection Issue</CardTitle>
@@ -258,7 +258,7 @@ export default function FacebookDashboardPage() {
                             To resolve this, please re-authorize the connection and make sure to approve all requested permissions.
                         </p>
                         {project && (
-                             <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
+                            <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
                                 <a href={`/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth`}>
                                     <FacebookIcon className="mr-2 h-5 w-5" />
                                     Re-authorize Connection
@@ -267,10 +267,10 @@ export default function FacebookDashboardPage() {
                         )}
                     </CardFooter>
                 </Card>
-             </div>
+            </div>
         );
     }
-    
+
     return (
         <>
             <PermissionErrorDialog isOpen={!!permissionError} onOpenChange={() => setPermissionError(null)} error={permissionError} project={project} onSuccess={onSuccessfulReconnect} />
@@ -282,10 +282,10 @@ export default function FacebookDashboardPage() {
                         {instagramId && <InstagramIcon className="h-6 w-6 text-instagram" />}
                     </h2>
                     <div className="flex items-center gap-2">
-                        <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Search..." className="pl-8"/></div>
+                        <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Search..." className="pl-8" /></div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4"/>Filters</Button>
+                                <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4" />Filters</Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Filter Posts</DropdownMenuLabel>
@@ -295,15 +295,16 @@ export default function FacebookDashboardPage() {
                                 <DropdownMenuItem>Text Posts</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <Button asChild><Link href="/dashboard/facebook/create-post"><Plus className="mr-2 h-4 w-4"/>Create Post</Link></Button>
+                        <Button asChild><Link href="/dashboard/facebook/create-post"><Plus className="mr-2 h-4 w-4" />Create Post</Link></Button>
                     </div>
                 </div>
 
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <StatCard title="Followers" value={pageDetails.followers_count || 0} icon={Users} description="+20.1% from last month"/>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <StatCard title="Followers" value={pageDetails.followers_count || 0} icon={Users} description="+20.1% from last month" />
+                    <StatCard title="Page Likes" value={pageDetails.fan_count || 0} icon={Star} description="Total page likes" />
                     <StatCard title="Post Engagements" value={insights?.postEngagement || 0} icon={ThumbsUp} description="Last 28 days" />
-                    <StatCard title="Posts" value={totalPosts} icon={Newspaper} description="Total posts on page"/>
-                    <RadialChartCard value={engagementRate} label="Engagement Rate" description="Daily engagement / daily reach"/>
+                    <StatCard title="Posts" value={totalPosts} icon={Newspaper} description="Total posts on page" />
+                    <RadialChartCard value={engagementRate} label="Engagement Rate" description="Daily engagement / daily reach" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -318,12 +319,12 @@ export default function FacebookDashboardPage() {
                     </PostColumn>
                     <PostColumn title="Quick Links" count={0}>
                         <Card><CardContent className="p-3 space-y-2">
-                           {[
+                            {[
                                 { href: '/dashboard/facebook/posts', title: 'Manage Posts', icon: Newspaper },
                                 { href: '/dashboard/ad-manager', title: 'Ads Manager', icon: Megaphone },
                                 { href: '/dashboard/facebook/messages', title: 'Live Chat', icon: MessageSquare },
                                 { href: '/dashboard/facebook/settings', title: 'Settings', icon: Settings }
-                           ].map(link => <Button key={link.href} variant="ghost" className="w-full justify-start" asChild><Link href={link.href}><link.icon className="mr-2 h-4 w-4"/>{link.title}</Link></Button>)}
+                            ].map(link => <Button key={link.href} variant="ghost" className="w-full justify-start" asChild><Link href={link.href}><link.icon className="mr-2 h-4 w-4" />{link.title}</Link></Button>)}
                         </CardContent></Card>
                     </PostColumn>
                 </div>

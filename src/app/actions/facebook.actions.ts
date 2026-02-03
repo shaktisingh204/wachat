@@ -5,12 +5,12 @@
 import { revalidatePath } from 'next/cache';
 import axios from 'axios';
 import { ObjectId, type WithId } from 'mongodb';
-import FormData from 'form-data';
+import NodeFormData from 'form-data';
 import { cookies } from 'next/headers';
 
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getSession } from '@/app/actions/index.ts';
+import { getProjectById, getSession } from '@/app/actions/index';
 import { getEcommShopById } from './custom-ecommerce.actions';
 import type { Project, FacebookPage, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
@@ -29,13 +29,13 @@ async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToke
             subscribed_fields: subscribedFields,
             access_token: pageAccessToken
         });
-        
+
         if (response.data.success) {
             console.log(`Successfully subscribed page ${pageId} to webhooks.`);
             return { success: true };
         } else {
             console.warn(`Failed to subscribe page ${pageId} to webhooks.`, response.data.error);
-            return { success: false, error: getErrorMessage({response}) };
+            return { success: false, error: getErrorMessage({ response }) };
         }
     } catch (e: any) {
         console.error(`Error subscribing page ${pageId} to webhooks:`, getErrorMessage(e));
@@ -76,28 +76,28 @@ export async function handleFacebookPageSetup(data: {
 export async function handleFacebookOAuthCallback(code: string, state: string): Promise<{ success: boolean; error?: string, redirectPath?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied." };
-    
+
     const cookieStore = await cookies();
     const stateCookieJSON = cookieStore.get('onboarding_state')?.value;
     if (!stateCookieJSON) {
         return { success: false, error: "Onboarding session expired or cookies are disabled. Please try again." };
     }
-    
+
     const stateCookie = JSON.parse(stateCookieJSON);
     if (state !== stateCookie.state) {
         console.error(`[OAuth Callback] State mismatch. URL: ${state}, Cookie: ${stateCookie.state}`);
         return { success: false, error: 'Invalid state received during authentication.' };
     }
-    
+
     cookieStore.delete('onboarding_state');
-    
+
     let appId, appSecret;
     let tokenTargetField: 'metaSuiteAccessToken' | 'adManagerAccessToken';
 
     if (state === 'whatsapp') {
         appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
         appSecret = process.env.META_ONBOARDING_APP_SECRET;
-        tokenTargetField = 'metaSuiteAccessToken'; 
+        tokenTargetField = 'metaSuiteAccessToken';
     } else if (state === 'instagram') {
         appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID;
         appSecret = process.env.INSTAGRAM_APP_SECRET;
@@ -111,7 +111,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         appSecret = process.env.FACEBOOK_APP_SECRET;
         tokenTargetField = 'metaSuiteAccessToken';
     }
-    
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!appUrl) {
@@ -129,7 +129,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         });
         const shortLivedToken = tokenResponse.data.access_token;
         if (!shortLivedToken) return { success: false, error: 'Failed to obtain access token from Facebook.' };
-        
+
         const longLivedResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
             params: { grant_type: 'fb_exchange_token', client_id: appId, client_secret: appSecret, fb_exchange_token: shortLivedToken }
         });
@@ -146,15 +146,15 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                 params: { access_token: longLivedToken }
             });
             const businesses = businessesResponse.data.data;
-            
+
             if (!businesses || businesses.length === 0) {
-                 return { success: false, error: "No Meta Business Accounts found for your user. Please ensure your account is connected to a business in Meta Business Suite." };
+                return { success: false, error: "No Meta Business Accounts found for your user. Please ensure your account is connected to a business in Meta Business Suite." };
             }
 
             let allWabas: any[] = [];
             for (const business of businesses) {
                 try {
-                    const wabasResponse = await axios.get<{data: any[]}>(`https://graph.facebook.com/v23.0/${business.id}/owned_whatsapp_business_accounts`, {
+                    const wabasResponse = await axios.get<{ data: any[] }>(`https://graph.facebook.com/v23.0/${business.id}/owned_whatsapp_business_accounts`, {
                         params: { access_token: longLivedToken }
                     });
                     if (wabasResponse.data.data) {
@@ -164,7 +164,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                     console.warn(`Could not fetch WABAs for business ${business.id}: ${getErrorMessage(e)}`);
                 }
             }
-            
+
             if (allWabas.length === 0) {
                 return { success: false, error: "No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions." };
             }
@@ -184,15 +184,15 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
             return { success: true, redirectPath: '/dashboard' };
 
         } else if (state === 'facebook' || state === 'instagram' || state === 'facebook_reauth') {
-             await db.collection('users').updateOne({ _id: new ObjectId(session.user._id) }, { $set: userUpdate });
-             const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', { 
+            await db.collection('users').updateOne({ _id: new ObjectId(session.user._id) }, { $set: userUpdate });
+            const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', {
                 params: { fields: 'id,name,access_token,tasks', access_token: longLivedToken }
             });
             const userPagesWithTokens = pagesResponse.data?.data;
             if (!userPagesWithTokens || userPagesWithTokens.length === 0) {
-                 return { success: false, error: 'No manageable Facebook Pages found. Please ensure you granted access to at least one page.' };
+                return { success: false, error: 'No manageable Facebook Pages found. Please ensure you granted access to at least one page.' };
             }
-            
+
             const bulkOps = userPagesWithTokens.map((page: any) => ({
                 updateOne: {
                     filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
@@ -209,29 +209,29 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
             for (const page of userPagesWithTokens) {
                 await handleSubscribeFacebookPageWebhook(page.id, page.access_token);
             }
-            
+
             let redirectPath = state === 'instagram' ? '/dashboard/instagram/connections' : '/dashboard/facebook/all-projects';
             revalidatePath('/dashboard/facebook/all-projects');
             revalidatePath('/dashboard/instagram/connections');
             return { success: true, redirectPath };
-            
+
         } else if (state === 'ad_manager') {
-            const adAccountsResponse = await axios.get(`https://graph.facebook.com/v23.0/me/adaccounts`, { params: { access_token: longLivedToken, fields: 'id,name,account_id' }});
+            const adAccountsResponse = await axios.get(`https://graph.facebook.com/v23.0/me/adaccounts`, { params: { access_token: longLivedToken, fields: 'id,name,account_id' } });
             const adAccounts = adAccountsResponse.data?.data || [];
             if (adAccounts.length > 0) {
                 userUpdate.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
             }
-             await db.collection('users').updateOne(
-               { _id: new ObjectId(session.user._id) },
-               { $set: userUpdate }
-           );
-           revalidatePath('/dashboard/ad-manager/ad-accounts');
-           return { success: true, redirectPath: '/dashboard/ad-manager/ad-accounts' };
+            await db.collection('users').updateOne(
+                { _id: new ObjectId(session.user._id) },
+                { $set: userUpdate }
+            );
+            revalidatePath('/dashboard/ad-manager/ad-accounts');
+            return { success: true, redirectPath: '/dashboard/ad-manager/ad-accounts' };
         }
-        
+
         return { success: false, error: 'Invalid state received during authentication.' };
 
-    } catch(e) {
+    } catch (e) {
         console.error("Facebook OAuth Callback failed:", getErrorMessage(e));
         return { success: false, error: getErrorMessage(e) };
     }
@@ -252,7 +252,7 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
 
     try {
         const { db } = await connectToDatabase();
-        
+
         const existingProject = await db.collection('projects').findOne({
             userId: new ObjectId(session.user._id),
             facebookPageId: facebookPageId
@@ -273,7 +273,7 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
         };
 
         const result = await db.collection('projects').insertOne(newProject as any);
-        
+
         if (result.insertedId) {
             await handleSubscribeFacebookPageWebhook(facebookPageId, accessToken);
         }
@@ -290,7 +290,7 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
 export async function getFacebookPages(): Promise<{ pages?: FacebookPage[], error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'User not logged in.' };
-    
+
     const { db } = await connectToDatabase();
     const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
 
@@ -309,13 +309,13 @@ export async function getFacebookPages(): Promise<{ pages?: FacebookPage[], erro
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
-        
+
         return { pages: response.data.data || [] };
 
     } catch (e: any) {
         const errorMessage = getErrorMessage(e);
         if (errorMessage.includes('Session has expired') || errorMessage.includes('invalid') || errorMessage.includes('token')) {
-             return { error: 'Your Facebook connection has expired or is invalid. Please go to Project Connections and reconnect.' };
+            return { error: 'Your Facebook connection has expired or is invalid. Please go to Project Connections and reconnect.' };
         }
         return { error: errorMessage };
     }
@@ -339,7 +339,7 @@ export async function getPageDetails(projectId: string): Promise<{ page?: Facebo
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
-        
+
         return { page: response.data };
 
     } catch (e: any) {
@@ -358,18 +358,19 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
         const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/posts`, {
             params: {
                 fields: fields,
-                summary: 'total_count',
                 access_token: project.accessToken,
                 limit: 25,
             }
         });
-        
+
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
 
-        const totalCount = response.data.summary?.total_count || 0;
-        return { posts: response.data.data || [], totalCount };
+        // Facebook Graph API doesn't provide total count for /posts endpoint
+        // Return the count of posts we actually fetched
+        const posts = response.data.data || [];
+        return { posts, totalCount: posts.length };
 
     } catch (e: any) {
         return { error: getErrorMessage(e), posts: [], totalCount: 0 };
@@ -401,27 +402,36 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
     const { facebookPageId, accessToken } = project;
     const apiVersion = 'v23.0';
     let endpoint = '';
-    const form = new FormData();
+    const form = new NodeFormData();
     form.append('access_token', accessToken);
 
     if (isScheduled) {
         if (!scheduledDate || !scheduledTime) {
             return { error: 'A date and time are required for scheduling.' };
         }
+
+        // Parse the date-time string (user input is in their local timezone)
         const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
         if (isNaN(scheduledDateTime.getTime())) {
             return { error: 'Invalid date or time format.' };
         }
 
-        const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
+        // Get current time and add 10 minutes (both in same timezone context)
+        const now = new Date();
+        const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000);
+
         if (scheduledDateTime < tenMinutesFromNow) {
-            return { error: 'Scheduled time must be at least 10 minutes in the future.' };
+            // Calculate the actual difference to provide helpful error message
+            const diffMinutes = Math.round((scheduledDateTime.getTime() - now.getTime()) / 60000);
+            return {
+                error: `Scheduled time must be at least 10 minutes in the future. The selected time is ${Math.abs(diffMinutes)} minutes ${diffMinutes < 0 ? 'in the past' : 'from now'}.`
+            };
         }
 
         form.append('scheduled_publish_time', String(Math.floor(scheduledDateTime.getTime() / 1000)));
         form.append('published', 'false');
     }
-    
+
     try {
         if (postType === 'text') {
             if (!message) return { error: 'Message is required for a text post.' };
@@ -431,31 +441,31 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
             if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) return { error: 'An image URL or file is required.' };
             endpoint = `/${facebookPageId}/photos`;
             if (message) form.append('caption', message);
-            
+
             if (tags) {
                 const tagObjects = tags.split(',').map(id => ({ tag_uid: id.trim() }));
                 form.append('tags', JSON.stringify(tagObjects));
             }
-            
+
             if (mediaUrl) {
                 form.append('url', mediaUrl);
             } else {
-                 form.append('source', Buffer.from(await mediaFile.arrayBuffer()), { filename: mediaFile.name, contentType: mediaFile.type });
+                form.append('source', Buffer.from(await mediaFile.arrayBuffer()), { filename: mediaFile.name, contentType: mediaFile.type });
             }
         } else if (postType === 'video') {
-             if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) return { error: 'A video URL or file is required.' };
+            if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) return { error: 'A video URL or file is required.' };
             endpoint = `/${facebookPageId}/videos`;
-             if (message) form.append('description', message);
-             if (mediaUrl) {
+            if (message) form.append('description', message);
+            if (mediaUrl) {
                 form.append('file_url', mediaUrl);
-            } else { 
+            } else {
                 form.append('source', Buffer.from(await mediaFile.arrayBuffer()), { filename: mediaFile.name, contentType: mediaFile.type });
             }
         }
-        
+
         await axios.post(`https://graph.facebook.com/${apiVersion}${endpoint}`, form, {
-            headers: { 
-                ...form.getHeaders() 
+            headers: {
+                ...form.getHeaders()
             },
         });
 
@@ -498,7 +508,7 @@ export async function handleUpdatePost(prevState: any, formData: FormData): Prom
 
 
 export async function handleDeletePost(postId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
-     if (!projectId || !postId) {
+    if (!projectId || !postId) {
         return { success: false, error: 'Missing required information.' };
     }
 
@@ -523,7 +533,7 @@ export async function handleAddVideoThumbnail(prevState: any, formData: FormData
     const projectId = formData.get('projectId') as string;
     const videoId = formData.get('videoId') as string;
     const thumbnailFile = formData.get('thumbnailFile') as File;
-    
+
     if (!projectId || !videoId || !thumbnailFile || thumbnailFile.size === 0) {
         return { success: false, error: 'Missing required fields.' };
     }
@@ -532,9 +542,9 @@ export async function handleAddVideoThumbnail(prevState: any, formData: FormData
     if (!project || !project.accessToken) {
         return { success: false, error: 'Access denied or project not configured.' };
     }
-    
+
     try {
-        const form = new FormData();
+        const form = new NodeFormData();
         form.append('source', Buffer.from(await thumbnailFile.arrayBuffer()), { filename: thumbnailFile.name, contentType: thumbnailFile.type });
         form.append('access_token', project.accessToken);
 
@@ -549,17 +559,17 @@ export async function handleAddVideoThumbnail(prevState: any, formData: FormData
     }
 }
 
-export async function getEligibleCrosspostPages(postId: string, projectId: string): Promise<{pages: FacebookPage[], error?: string}> {
+export async function getEligibleCrosspostPages(postId: string, projectId: string): Promise<{ pages: FacebookPage[], error?: string }> {
     const project = await getProjectById(projectId);
     if (!project || !project.accessToken) {
         return { pages: [], error: 'Access denied or project not configured.' };
     }
-    
+
     try {
         const response = await axios.get(`https://graph.facebook.com/v23.0/${postId}/crosspost_eligible_pages`, {
             params: { access_token: project.accessToken }
         });
-        if (response.data.error) throw new Error(getErrorMessage({response}));
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
         return { pages: response.data.data || [] };
     } catch (e: any) {
         return { pages: [], error: getErrorMessage(e) };
@@ -575,12 +585,12 @@ export async function handleCrosspostVideo(prevState: any, formData: FormData): 
     if (!projectId || !postId || targetPageIds.length === 0) {
         return { success: false, error: 'Missing required information.' };
     }
-    
+
     const project = await getProjectById(projectId);
     if (!project || !project.accessToken) {
         return { success: false, error: 'Access denied or project not configured.' };
     }
-    
+
     try {
         await axios.post(`https://graph.facebook.com/v23.0/${postId}/crosspost`, {
             crossposted_pages: targetPageIds,
@@ -596,7 +606,7 @@ export async function handleCrosspostVideo(prevState: any, formData: FormData): 
 export async function handleUpdatePageDetails(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const pageId = formData.get('pageId') as string;
-    
+
     if (!projectId || !pageId) {
         return { success: false, error: 'Missing required IDs.' };
     }
@@ -605,13 +615,13 @@ export async function handleUpdatePageDetails(prevState: any, formData: FormData
     if (!project || !project.accessToken) {
         return { success: false, error: 'Access denied or project not configured.' };
     }
-    
+
     const payload: any = { access_token: project.accessToken };
     const fieldsToUpdate = ['about', 'phone', 'website'];
-    
+
     fieldsToUpdate.forEach(field => {
         const value = formData.get(field) as string | null;
-        if (value !== null) { 
+        if (value !== null) {
             payload[field] = value;
         }
     });
@@ -646,8 +656,26 @@ export async function getPageInsights(projectId: string): Promise<{ insights?: P
         }
 
         const insightsData = response.data.data;
-        const pageReach = insightsData.find((m: any) => m.name === 'page_impressions_unique')?.values?.[0]?.value || 0;
-        const postEngagement = insightsData.find((m: any) => m.name === 'page_post_engagements')?.values?.[0]?.value || 0;
+
+        // Find metrics with better error handling
+        const pageReachMetric = insightsData.find((m: any) => m.name === 'page_impressions_unique');
+        const postEngagementMetric = insightsData.find((m: any) => m.name === 'page_post_engagements');
+
+        // Extract values with multiple fallbacks
+        let pageReach = 0;
+        if (pageReachMetric?.values && pageReachMetric.values.length > 0) {
+            // Try to get the most recent value (last in array) or first value
+            const lastValue = pageReachMetric.values[pageReachMetric.values.length - 1]?.value;
+            const firstValue = pageReachMetric.values[0]?.value;
+            pageReach = lastValue ?? firstValue ?? 0;
+        }
+
+        let postEngagement = 0;
+        if (postEngagementMetric?.values && postEngagementMetric.values.length > 0) {
+            const lastValue = postEngagementMetric.values[postEngagementMetric.values.length - 1]?.value;
+            const firstValue = postEngagementMetric.values[0]?.value;
+            postEngagement = lastValue ?? firstValue ?? 0;
+        }
 
         return { insights: { pageReach, postEngagement } };
 
@@ -684,7 +712,7 @@ export async function handlePostComment(prevState: any, formData: FormData): Pro
 
 
 export async function handleDeleteComment(commentId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
-     if (!projectId || !commentId) {
+    if (!projectId || !commentId) {
         return { success: false, error: 'Missing required information.' };
     }
 
@@ -722,7 +750,7 @@ export async function handleLikeObject(objectId: string, projectId: string): Pro
     } catch (e: any) {
         // Facebook returns an error if you try to like something twice, so we can ignore that specific error.
         if (getErrorMessage(e).includes('already liked')) {
-             return { success: true }; // Already liked
+            return { success: true }; // Already liked
         }
         return { success: false, error: getErrorMessage(e) };
     }
@@ -743,7 +771,7 @@ export async function getScheduledPosts(projectId: string): Promise<{ posts?: Fa
                 limit: 100,
             }
         });
-        
+
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
@@ -797,7 +825,7 @@ export async function getFacebookConversations(projectId: string): Promise<{ con
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
-        
+
         return { conversations: response.data.data || [] };
 
     } catch (e: any) {
@@ -822,7 +850,7 @@ export async function getFacebookConversationMessages(conversationId: string, pr
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
-        
+
         // Return messages in chronological order
         return { messages: (response.data.data || []).reverse() };
 
@@ -839,14 +867,14 @@ export async function sendFacebookMessage(prevState: any, formData: FormData): P
     if (!projectId || !recipientId || !messageText) {
         return { error: 'Missing required information to send message.' };
     }
-    
+
     const project = await getProjectById(projectId);
     if (!project || !project.accessToken) {
         return { error: 'Project not found or access token missing.' };
     }
 
     try {
-        const response = await axios.post(`https://graph.facebook.com/v23.0/me/messages`, 
+        const response = await axios.post(`https://graph.facebook.com/v23.0/me/messages`,
             {
                 recipient: { id: recipientId },
                 messaging_type: "RESPONSE",
@@ -879,13 +907,13 @@ export async function getFacebookChatInitialData(projectId: string): Promise<{
     if (!project) {
         return { project: null, conversations: [], error: "Project not found." };
     }
-    
+
     const { conversations, error } = await getFacebookConversations(projectId);
-    
+
     if (error) {
         return { project, conversations: [], error };
     }
-    
+
     return {
         project: JSON.parse(JSON.stringify(project)),
         conversations: conversations || [],
@@ -916,19 +944,19 @@ export async function handleUpdateFacebookAutomationSettings(prevState: any, for
             };
             settingsUpdate = { facebookCommentAutoReply: settings };
         } else if (automationType === 'welcome') {
-             const quickRepliesJSON = formData.get('quickReplies') as string;
-             const quickReplies = quickRepliesJSON ? JSON.parse(quickRepliesJSON) : [];
-            
-             const settings: FacebookWelcomeMessageSettings = {
+            const quickRepliesJSON = formData.get('quickReplies') as string;
+            const quickReplies = quickRepliesJSON ? JSON.parse(quickRepliesJSON) : [];
+
+            const settings: FacebookWelcomeMessageSettings = {
                 enabled: formData.get('enabled') === 'on',
                 message: formData.get('message') as string,
                 quickReplies: quickReplies,
             };
-             settingsUpdate = { facebookWelcomeMessage: settings };
+            settingsUpdate = { facebookWelcomeMessage: settings };
         } else {
             return { success: false, error: 'Invalid automation type specified.' };
         }
-        
+
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
             { $set: settingsUpdate }
@@ -946,7 +974,7 @@ export async function handleUpdateFacebookAutomationSettings(prevState: any, for
 export async function saveRandomizerSettings(prevState: any, formData: FormData): Promise<{ success: boolean, error?: string }> {
     const projectId = formData.get('projectId') as string;
     if (!projectId) return { success: false, error: 'Project ID is required.' };
-    
+
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { success: false, error: 'Access denied.' };
 
@@ -1008,7 +1036,7 @@ export async function addRandomizerPost(prevState: any, formData: FormData): Pro
         await db.collection('randomizer_posts').insertOne(newPost as any);
         revalidatePath('/dashboard/facebook/post-randomizer');
         return { success: true };
-    } catch(e: any) {
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
@@ -1026,7 +1054,7 @@ export async function deleteRandomizerPost(postId: string, projectId: string): P
         await db.collection('randomizer_posts').deleteOne({ _id: new ObjectId(postId), projectId: new ObjectId(projectId) });
         revalidatePath('/dashboard/facebook/post-randomizer');
         return { success: true };
-    } catch(e: any) {
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
@@ -1066,18 +1094,18 @@ export async function handleSendFacebookBroadcast(prevState: any, formData: Form
 
     try {
         const { db } = await connectToDatabase();
-        
+
         const subscribers = await db.collection<FacebookSubscriber>('facebook_subscribers')
             .find({ projectId: project._id })
             .project({ psid: 1 })
             .toArray();
 
         const recipientIds = subscribers.map(s => s.psid);
-        
+
         if (recipientIds.length === 0) {
             return { error: "No contacts found to broadcast to. A user must message your page first." };
         }
-        
+
         const newBroadcast: Omit<FacebookBroadcast, '_id'> = {
             projectId: project._id,
             message,
@@ -1091,7 +1119,7 @@ export async function handleSendFacebookBroadcast(prevState: any, formData: Form
         const result = await db.collection('facebook_broadcasts').insertOne(newBroadcast as any);
         const broadcastId = result.insertedId;
 
-        await db.collection('facebook_broadcasts').updateOne({ _id: broadcastId }, { $set: { status: 'PROCESSING', startedAt: new Date() }});
+        await db.collection('facebook_broadcasts').updateOne({ _id: broadcastId }, { $set: { status: 'PROCESSING', startedAt: new Date() } });
 
         let successCount = 0;
         let failedCount = 0;
@@ -1099,7 +1127,7 @@ export async function handleSendFacebookBroadcast(prevState: any, formData: Form
 
         for (let i = 0; i < recipientIds.length; i += BATCH_SIZE) {
             const batch = recipientIds.slice(i, i + BATCH_SIZE);
-            
+
             const promises = batch.map(recipientId => (
                 axios.post(
                     `https://graph.facebook.com/v23.0/me/messages`,
@@ -1121,15 +1149,17 @@ export async function handleSendFacebookBroadcast(prevState: any, formData: Form
             await Promise.all(promises);
             await new Promise(res => setTimeout(res, 1000));
         }
-        
+
         await db.collection('facebook_broadcasts').updateOne(
             { _id: broadcastId },
-            { $set: { 
-                status: failedCount > 0 ? 'PARTIAL_FAILURE' : 'COMPLETED',
-                completedAt: new Date(),
-                successCount,
-                failedCount,
-            }}
+            {
+                $set: {
+                    status: failedCount > 0 ? 'PARTIAL_FAILURE' : 'COMPLETED',
+                    completedAt: new Date(),
+                    successCount,
+                    failedCount,
+                }
+            }
         );
 
         revalidatePath('/dashboard/facebook/broadcasts');
@@ -1188,7 +1218,7 @@ export async function handleScheduleLiveStream(prevState: any, formData: FormDat
         const { facebookPageId, accessToken } = project;
         const apiVersion = 'v23.0';
 
-        const form = new FormData();
+        const form = new NodeFormData();
         form.append('access_token', accessToken);
         form.append('title', title);
         form.append('description', description);
@@ -1198,13 +1228,9 @@ export async function handleScheduleLiveStream(prevState: any, formData: FormDat
             filename: videoFile.name,
             contentType: videoFile.type,
         });
-        
-        const response = await axios.post(`https://graph-video.facebook.com/${apiVersion}/${facebookPageId}/videos`, form, {
-            headers: {
-                ...form.getHeaders(),
-            },
-        });
-        
+
+        const response = await axios.post(`https://graph-video.facebook.com/${apiVersion}/${facebookPageId}/videos`, form);
+
         const responseData = response.data;
         if (responseData.error) {
             throw new Error(responseData.error.message || 'Failed to upload video.');
@@ -1250,7 +1276,7 @@ export async function getFacebookSubscribers(projectId: string): Promise<{ subsc
             .find({ projectId: new ObjectId(projectId) })
             .sort({ createdAt: -1 })
             .toArray();
-            
+
         return { subscribers: JSON.parse(JSON.stringify(subscribers)) };
 
     } catch (e: any) {
@@ -1265,7 +1291,7 @@ export async function handleUpdateCommentAutoReply(prevState: any, formData: For
 
     const project = await getProjectById(projectId);
     if (!project) return { success: false, error: 'Access denied or project not found.' };
-    
+
     try {
         const { db } = await connectToDatabase();
         const settings: FacebookCommentAutoReplySettings = {
@@ -1297,7 +1323,7 @@ export async function markFacebookConversationAsRead(conversationId: string, pro
 
     try {
         await axios.post(
-            `https://graph.facebook.com/v23.0/${conversationId}?state=read`, 
+            `https://graph.facebook.com/v23.0/${conversationId}?state=read`,
             {}, // Empty body
             { params: { access_token: project.accessToken } }
         );
@@ -1320,7 +1346,7 @@ export async function getFacebookKanbanData(projectId: string): Promise<{ projec
     const defaultData = { project: null, columns: [] };
     const project = await getProjectById(projectId);
     if (!project) return defaultData;
-    
+
     try {
         const { db } = await connectToDatabase();
         const conversations = await db.collection<FacebookSubscriber>('facebook_subscribers')
@@ -1351,7 +1377,7 @@ export async function handleUpdateFacebookSubscriberStatus(subscriberId: string,
     if (!ObjectId.isValid(subscriberId)) {
         return { success: false, error: 'Invalid subscriber ID.' };
     }
-    
+
     const { db } = await connectToDatabase();
     const subscriber = await db.collection('facebook_subscribers').findOne({ _id: new ObjectId(subscriberId) });
     if (!subscriber) {
@@ -1366,7 +1392,7 @@ export async function handleUpdateFacebookSubscriberStatus(subscriberId: string,
             { _id: new ObjectId(subscriberId) },
             { $set: { status } }
         );
-        
+
         revalidatePath('/dashboard/facebook/kanban');
         return { success: true };
     } catch (e: any) {
@@ -1382,7 +1408,7 @@ export async function saveFacebookKanbanStatuses(projectId: string, statuses: st
         const { db } = await connectToDatabase();
         const defaultStatuses = ['new', 'open', 'resolved'];
         const customStatuses = statuses.filter(s => !defaultStatuses.includes(s));
-        
+
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
             { $set: { facebookKanbanStatuses: customStatuses } }
@@ -1425,7 +1451,7 @@ export async function getCommerceMerchantSettings(projectId: string): Promise<{ 
     if (!project || !project.facebookPageId || !project.accessToken) {
         return { error: 'Project not found or is not configured for Facebook.' };
     }
-    
+
     try {
         const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}`, {
             params: {
@@ -1433,7 +1459,7 @@ export async function getCommerceMerchantSettings(projectId: string): Promise<{ 
                 access_token: project.accessToken,
             }
         });
-        
+
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
@@ -1442,7 +1468,7 @@ export async function getCommerceMerchantSettings(projectId: string): Promise<{ 
         if (!settings) {
             return { error: 'No Commerce Merchant Settings found for this Page. Please set up a shop in Meta Commerce Manager.' };
         }
-        
+
         return { settings };
 
     } catch (e: any) {
@@ -1506,7 +1532,7 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
     } catch (e) {
         return { success: false, error: 'Invalid menu items format.' };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         let apiPayload;
@@ -1514,14 +1540,14 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
         if (menuItems.length === 0) {
             apiPayload = {
                 platform: 'messenger',
-                psid: project.facebookPageId, 
+                psid: project.facebookPageId,
                 fields: ['persistent_menu']
             };
-             await axios.delete(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+            await axios.delete(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
                 params: { ...apiPayload, access_token: project.accessToken }
             });
         } else {
-             apiPayload = {
+            apiPayload = {
                 persistent_menu: [
                     {
                         locale: 'default',
@@ -1535,7 +1561,7 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
                     },
                 ],
             };
-             await axios.post(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+            await axios.post(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
                 ...apiPayload,
                 access_token: project.accessToken,
             });
@@ -1545,7 +1571,7 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
             { _id: shop._id },
             { $set: { persistentMenu: menuItems } }
         );
-        
+
         revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/settings`);
         return { success: true, error: undefined };
     } catch (e: any) {

@@ -3,7 +3,7 @@
 'use client';
 
 import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import { getQrCodes } from '@/app/actions/qr-code.actions';
 import { SavedQrCodes } from '@/components/wabasimplify/saved-qr-codes';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -31,7 +31,7 @@ export default function QrCodeMakerPage() {
         };
         fetchData();
     }, []);
-    
+
     if (isLoading) {
         return <div>Loading...</div>; // Or a proper skeleton
     }
@@ -45,7 +45,7 @@ export default function QrCodeMakerPage() {
             </Alert>
         );
     }
-    
+
     return (
         <div className="flex flex-col gap-8">
             <QrCodeGenerator user={session.user} />

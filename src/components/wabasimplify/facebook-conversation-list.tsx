@@ -18,10 +18,11 @@ interface FacebookConversationListProps {
     conversations: FacebookConversation[];
     selectedConversationId?: string;
     onSelectConversation: (conversation: FacebookConversation) => void;
+    onNewChat: () => void;
     isLoading: boolean;
 }
 
-export function FacebookConversationList({ sessionUser, conversations, selectedConversationId, onSelectConversation, isLoading }: FacebookConversationListProps) {
+export function FacebookConversationList({ sessionUser, conversations, selectedConversationId, onSelectConversation, onNewChat, isLoading }: FacebookConversationListProps) {
 
     const ConversationSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
@@ -32,7 +33,7 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
             </div>
         </div>
     );
-    
+
     const getParticipant = (convo: FacebookConversation) => {
         // A simple way to get the user, not the page
         return convo.participants.data.find(p => !p.name.includes("Page"));
@@ -44,7 +45,7 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                 {sessionUser ? (
                     <div className="flex items-center gap-3">
                         <Avatar>
-                             <AvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
+                            <AvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
                             <AvatarFallback>{sessionUser.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <p className="font-semibold">{sessionUser.name}</p>
@@ -55,14 +56,14 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                         <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16" /></div>
                     </div>
                 )}
-                 <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onNewChat}>
                     <MessageSquarePlus className="h-5 w-5" />
                     <span className="sr-only">New Chat</span>
                 </Button>
             </div>
 
             <div className="p-3 border-b flex-shrink-0 space-y-3">
-                 <div className="relative">
+                <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input placeholder="Search conversations..." className="pl-8" />
                 </div>
@@ -86,7 +87,7 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                                     )}
                                 >
                                     <Avatar>
-                                        <AvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar"/>
+                                        <AvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar" />
                                         <AvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1 overflow-hidden">
