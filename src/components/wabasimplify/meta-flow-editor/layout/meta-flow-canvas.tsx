@@ -57,14 +57,12 @@ export function MetaFlowCanvas({
                     </TabsList>
                 </div>
 
-                <TabsContent value="visual" className="flex-1 m-0 p-0 overflow-auto relative bg-muted/20">
-                    <div className="min-h-full w-full flex items-center justify-center p-4">
-                        <MetaFlowPreview
-                            flowJson={JSON.stringify(flowData)}
-                            activeScreenId={selectedScreenId}
-                            className="w-[390px] h-[844px] shadow-2xl rounded-[3rem] border-[8px] border-gray-900"
-                        />
-                    </div>
+                <TabsContent value="visual" className="flex-1 m-0 p-0 overflow-hidden relative bg-muted/20 flex items-center justify-center">
+                    <MetaFlowPreview
+                        flowJson={JSON.stringify(flowData)}
+                        activeScreenId={selectedScreenId}
+                        className="h-[90%] w-auto aspect-[9/19.5] shadow-2xl rounded-[2.5rem] border-[6px] border-gray-900"
+                    />
                 </TabsContent>
 
                 <TabsContent value="json" className="flex-1 m-0 p-0 relative flex flex-col">
