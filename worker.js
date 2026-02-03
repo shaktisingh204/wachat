@@ -81,7 +81,7 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
     ) {
       const param = header.parameters[0];
       const mediaType = param.type;
-      
+
       if (!param[mediaType]?.id) {
         const form = new FormData();
         form.append(
@@ -113,6 +113,12 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
     }
 
     for (const c of finalComponents) {
+      // Sanitize: Remove keys that Meta API does not accept in the "messages" endpoint components
+      delete c.format;
+      delete c.text;
+      delete c.example;
+      delete c.buttons;
+
       for (const p of c.parameters || []) {
         if (p.type === 'text') {
           p.text = interpolateText(p.text, contact.variables);
@@ -147,22 +153,22 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
     const resBodyText = await res.body.text();
     let resData;
     try {
-        resData = JSON.parse(resBodyText);
+      resData = JSON.parse(resBodyText);
     } catch (e) {
-        throw new Error(`Meta API returned non-JSON response (Status: ${res.statusCode}): ${resBodyText.substring(0, 500)}`);
+      throw new Error(`Meta API returned non-JSON response (Status: ${res.statusCode}): ${resBodyText.substring(0, 500)}`);
     }
 
     if (res.statusCode >= 400 || !resData?.messages?.[0]?.id) {
-        const apiError = resData?.error;
-        if (apiError && typeof apiError === 'object') {
-            let message = apiError.error_user_title 
-                ? `${apiError.error_user_title}: ${apiError.error_user_msg}` 
-                : apiError.message || JSON.stringify(apiError);
-            if (apiError.code) message += ` (Code: ${apiError.code})`;
-            if (apiError.fbtrace_id) message += ` (Trace: ${apiError.fbtrace_id})`;
-            throw new Error(message);
-        }
-        throw new Error(`Meta API error (Status: ${res.statusCode}): ${JSON.stringify(resData)}`);
+      const apiError = resData?.error;
+      if (apiError && typeof apiError === 'object') {
+        let message = apiError.error_user_title
+          ? `${apiError.error_user_title}: ${apiError.error_user_msg}`
+          : apiError.message || JSON.stringify(apiError);
+        if (apiError.code) message += ` (Code: ${apiError.code})`;
+        if (apiError.fbtrace_id) message += ` (Trace: ${apiError.fbtrace_id})`;
+        throw new Error(message);
+      }
+      throw new Error(`Meta API error (Status: ${res.statusCode}): ${JSON.stringify(resData)}`);
     }
 
     return { success: true, messageId: resData.messages[0].id, sentPayload: payload.template };
@@ -199,11 +205,11 @@ async function startBroadcastWorker(workerId) {
         { $set: { status: 'PROCESSING', workerId, startedAt: new Date() } },
         { returnDocument: 'after' }
       );
-      
+
       job = res;
       if (!job) {
-          busy = false;
-          return;
+        busy = false;
+        return;
       }
 
       const { _id, projectId, messagesPerSecond = 80 } = job;
@@ -224,26 +230,26 @@ async function startBroadcastWorker(workerId) {
       for await (const contact of cursor) {
         tasks.push(queue.add(async () => {
           const result = await sendWhatsAppMessage(db, job, contact, agent);
-          
+
           if (result.success) {
             await db.collection("broadcast_contacts").updateOne({ _id: contact._id }, { $set: { status: "SENT", sentAt: new Date(), messageId: result.messageId, error: null } });
 
             const now = new Date();
             const { value: contactDoc } = await db.collection('contacts').findOneAndUpdate(
-                { projectId: new ObjectId(job.projectId), waId: contact.phone },
-                {
-                    $setOnInsert: { projectId: new ObjectId(job.projectId), phoneNumberId: job.phoneNumberId, name: contact.name, waId: contact.phone, createdAt: now },
-                    $set: { status: 'open', lastMessage: `[Template]: ${job.templateName}`.substring(0, 50), lastMessageTimestamp: now }
-                },
-                { upsert: true, returnDocument: 'after' }
+              { projectId: new ObjectId(job.projectId), waId: contact.phone },
+              {
+                $setOnInsert: { projectId: new ObjectId(job.projectId), phoneNumberId: job.phoneNumberId, name: contact.name, waId: contact.phone, createdAt: now },
+                $set: { status: 'open', lastMessage: `[Template]: ${job.templateName}`.substring(0, 50), lastMessageTimestamp: now }
+              },
+              { upsert: true, returnDocument: 'after' }
             );
 
             if (contactDoc) {
-                await db.collection('outgoing_messages').insertOne({
-                    direction: 'out', contactId: contactDoc._id, projectId: new ObjectId(job.projectId), wamid: result.messageId,
-                    messageTimestamp: now, type: 'template', content: { template: result.sentPayload }, status: 'sent',
-                    statusTimestamps: { sent: now }, createdAt: now,
-                });
+              await db.collection('outgoing_messages').insertOne({
+                direction: 'out', contactId: contactDoc._id, projectId: new ObjectId(job.projectId), wamid: result.messageId,
+                messageTimestamp: now, type: 'template', content: { template: result.sentPayload }, status: 'sent',
+                statusTimestamps: { sent: now }, createdAt: now,
+              });
             }
           } else {
             await db.collection("broadcast_contacts").updateOne({ _id: contact._id }, { $set: { status: "FAILED", error: result.error } });
@@ -252,7 +258,7 @@ async function startBroadcastWorker(workerId) {
       }
 
       await Promise.all(tasks);
-      
+
       const success = await db.collection('broadcast_contacts')
         .countDocuments({ broadcastId: _id, status: 'SENT' });
 
