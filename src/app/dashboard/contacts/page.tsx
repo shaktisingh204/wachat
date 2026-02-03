@@ -182,9 +182,12 @@ export default function ContactsPage() {
     }, [activeProjectId, currentPage, searchQuery, selectedTags, toast, startTransition]);
 
     const handleContactAdded = useCallback(() => {
-        fetchData();
-        setRefreshKey(prev => prev + 1); // Reset dialog state
-        router.refresh(); // Force router cache refresh
+        // Small delay to ensure DB write propagation/server action completion
+        setTimeout(() => {
+            fetchData();
+            setRefreshKey(prev => prev + 1);
+            router.refresh();
+        }, 300);
     }, [fetchData, router]);
 
     useEffect(() => {

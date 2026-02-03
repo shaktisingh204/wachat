@@ -2,18 +2,20 @@
 
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, unstable_noStore as noStore } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { Contact, Project, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import * as Papa from 'papaparse';
 
+const CONTACTS_PER_PAGE = 20;
+
 
 export async function handleAddNewContact(
-    prevState: any, 
+    prevState: any,
     formData: FormData,
     sessionUser?: any // For API key authentication
 ): Promise<{ message?: string; error?: string, contactId?: string }> {
@@ -43,8 +45,8 @@ export async function handleAddNewContact(
     try {
         const { db } = await connectToDatabase();
 
-        const project = await db.collection<WithId<Project>>('projects').findOne({ 
-            _id: new ObjectId(projectId), 
+        const project = await db.collection<WithId<Project>>('projects').findOne({
+            _id: new ObjectId(projectId),
             $or: [
                 { userId: new ObjectId(session.user._id) },
                 { 'agents.userId': new ObjectId(session.user._id) }
@@ -60,7 +62,7 @@ export async function handleAddNewContact(
         if (existingContact) {
             return { error: 'A contact with this WhatsApp ID already exists in this project.' };
         }
-        
+
         const newContact: Omit<Contact, '_id'> = {
             projectId: new ObjectId(projectId),
             phoneNumberId,
@@ -70,11 +72,11 @@ export async function handleAddNewContact(
             status: 'new',
             createdAt: new Date(),
             updatedAt: new Date(),
-            tagIds: tagIds.map(id => new ObjectId(id))
+            tagIds: tagIds.map(id => new ObjectId(id)) as any
         };
 
         const result = await db.collection('contacts').insertOne(newContact as any);
-        
+
         revalidatePath('/dashboard/contacts');
 
         return { message: `Contact "${name}" added successfully.`, contactId: result.insertedId.toString() };
@@ -86,96 +88,97 @@ export async function handleAddNewContact(
 }
 
 export async function handleImportContacts(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-  const session = await getSession();
-  if (!session?.user) {
-    return { error: 'Authentication required.' };
-  }
-  const file = formData.get('contactFile') as File;
-  const projectId = formData.get('projectId') as string;
-  const phoneNumberId = formData.get('phoneNumberId') as string;
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'Authentication required.' };
+    }
+    const file = formData.get('contactFile') as File;
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
 
-  if (!file) {
-    return { error: 'No file uploaded.' };
-  }
-  
-  if (!projectId || !phoneNumberId) {
-    return { error: 'Project and Phone Number ID are required.' };
-  }
-
-  try {
-    const { db } = await connectToDatabase();
-    const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
-    if (!project || project.userId.toString() !== session.user._id) {
-        return { error: "Permission denied." };
+    if (!file) {
+        return { error: 'No file uploaded.' };
     }
 
-    const fileContent = await file.text();
-    const parsed = Papa.parse(fileContent, { header: true });
-    const contactsToImport = parsed.data as { phone: string; name: string; [key: string]: string }[];
-    
-    let importedCount = 0;
-    let skippedCount = 0;
+    if (!projectId || !phoneNumberId) {
+        return { error: 'Project and Phone Number ID are required.' };
+    }
 
-    const bulkOps = contactsToImport.map(contactRow => {
-        if (!contactRow.phone || !contactRow.name) {
-            skippedCount++;
-            return null;
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+        if (!project || project.userId.toString() !== session.user._id) {
+            return { error: "Permission denied." };
         }
-        const waId = contactRow.phone.replace(/\D/g, '');
-        const { phone, name, ...variables } = contactRow;
 
-        return {
-            updateOne: {
-                filter: { waId, projectId: new ObjectId(projectId) },
-                update: {
-                    $setOnInsert: {
-                        projectId: new ObjectId(projectId),
-                        phoneNumberId,
-                        name,
-                        waId,
-                        userId: new ObjectId(session.user._id),
-                        status: 'imported',
-                        createdAt: new Date(),
-                    },
-                    $set: {
-                        variables,
-                        updatedAt: new Date()
-                    }
-                },
-                upsert: true
+        const fileContent = await file.text();
+        const parsed = Papa.parse(fileContent, { header: true });
+        const contactsToImport = parsed.data as { phone: string; name: string;[key: string]: string }[];
+
+        let importedCount = 0;
+        let skippedCount = 0;
+
+        const bulkOps = contactsToImport.map(contactRow => {
+            if (!contactRow.phone || !contactRow.name) {
+                skippedCount++;
+                return null;
             }
-        };
-    }).filter(Boolean);
+            const waId = contactRow.phone.replace(/\D/g, '');
+            const { phone, name, ...variables } = contactRow;
+
+            return {
+                updateOne: {
+                    filter: { waId, projectId: new ObjectId(projectId) },
+                    update: {
+                        $setOnInsert: {
+                            projectId: new ObjectId(projectId),
+                            phoneNumberId,
+                            name,
+                            waId,
+                            userId: new ObjectId(session.user._id),
+                            status: 'imported',
+                            createdAt: new Date(),
+                        },
+                        $set: {
+                            variables,
+                            updatedAt: new Date()
+                        }
+                    },
+                    upsert: true
+                }
+            };
+        }).filter(Boolean);
 
 
-    if (bulkOps.length > 0) {
-      const result = await db.collection('contacts').bulkWrite(bulkOps as any[]);
-      importedCount = result.upsertedCount + result.modifiedCount;
+        if (bulkOps.length > 0) {
+            const result = await db.collection('contacts').bulkWrite(bulkOps as any[]);
+            importedCount = result.upsertedCount + result.modifiedCount;
+        }
+
+        revalidatePath('/dashboard/contacts');
+
+        return { message: `Import complete. ${importedCount} contacts imported/updated. ${skippedCount} rows skipped.` };
+
+    } catch (error) {
+        return { error: getErrorMessage(error) };
     }
-    
-    revalidatePath('/dashboard/contacts');
-
-    return { message: `Import complete. ${importedCount} contacts imported/updated. ${skippedCount} rows skipped.` };
-
-  } catch (error) {
-    return { error: getErrorMessage(error) };
-  }
 }
 
 
 export async function getContactsPageData(
-    projectId: string, 
-    page: number = 1, 
-    searchQuery: string = '', 
+    projectId: string,
+    page: number = 1,
+    searchQuery: string = '',
     tagIds?: string[]
 ): Promise<{ contacts: WithId<Contact>[]; total: number }> {
+    noStore(); // Opt out of static caching
     const session = await getSession();
     if (!session?.user) return { contacts: [], total: 0 };
-    
+
     try {
         const { db } = await connectToDatabase();
         const projectObjectId = new ObjectId(projectId);
-        
+
         const filter: Filter<Contact> = { projectId: projectObjectId };
 
         if (searchQuery) {
@@ -187,7 +190,7 @@ export async function getContactsPageData(
         }
 
         if (tagIds && tagIds.length > 0) {
-            filter.tagIds = { $in: tagIds.map(id => new ObjectId(id)) };
+            filter.tagIds = { $in: tagIds.map(id => new ObjectId(id)) } as any;
         }
 
         const limit = CONTACTS_PER_PAGE;
@@ -195,12 +198,12 @@ export async function getContactsPageData(
 
         const [contacts, total] = await Promise.all([
             db.collection<WithId<Contact>>('contacts')
-                .find(filter)
+                .find(filter as any)
                 .sort({ lastMessageTimestamp: -1, updatedAt: -1 })
                 .skip(skip)
                 .limit(limit)
                 .toArray(),
-            db.collection('contacts').countDocuments(filter)
+            db.collection('contacts').countDocuments(filter as any)
         ]);
 
         return {
@@ -220,7 +223,7 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
     }
     const contactId = formData.get('contactId') as string;
     const variablesJSON = formData.get('variables') as string;
-    
+
     if (!contactId || !ObjectId.isValid(contactId)) {
         return { success: false, error: 'Invalid contact ID.' };
     }
@@ -233,29 +236,29 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
             { _id: new ObjectId(contactId) },
             { $set: { variables: variables, updatedAt: new Date() } }
         );
-        
+
         revalidatePath('/dashboard/chat');
         return { success: true };
-    } catch(e) {
+    } catch (e) {
         return { success: false, error: 'Failed to update contact variables.' };
     }
 }
 
 export async function handleUpdateContactStatus(contactId: string, status: string, assignedAgentId?: string) {
-     const session = await getSession();
+    const session = await getSession();
     if (!session?.user) {
         return { success: false, error: 'Authentication required.' };
     }
-    
+
     if (!contactId || !ObjectId.isValid(contactId) || !status) {
         return { success: false, error: 'Invalid data provided.' };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
-        
+
         const updateDoc: any = { status };
-        if(assignedAgentId) {
+        if (assignedAgentId) {
             updateDoc.assignedAgentId = new ObjectId(assignedAgentId);
         } else {
             updateDoc.assignedAgentId = null;
@@ -269,7 +272,7 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
         revalidatePath('/dashboard/chat/kanban');
         return { success: true };
     } catch (e) {
-         return { success: false, error: getErrorMessage(e) };
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -279,7 +282,7 @@ export async function updateContactTags(contactId: string, tagIds: string[]) {
         return { success: false, error: 'Authentication required.' };
     }
 
-     if (!contactId || !ObjectId.isValid(contactId)) {
+    if (!contactId || !ObjectId.isValid(contactId)) {
         return { success: false, error: 'Invalid data provided.' };
     }
 
@@ -289,9 +292,9 @@ export async function updateContactTags(contactId: string, tagIds: string[]) {
             { _id: new ObjectId(contactId) },
             { $set: { tagIds: tagIds.map(id => new ObjectId(id)) } }
         );
-         revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/chat');
         return { success: true };
-    } catch(e) {
+    } catch (e) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
@@ -305,7 +308,7 @@ export async function deleteContact(contactId: string): Promise<{ success: boole
 
     try {
         const { db } = await connectToDatabase();
-        
+
         const result = await db.collection('contacts').deleteOne({
             _id: new ObjectId(contactId),
             userId: new ObjectId(session.user._id)
@@ -317,7 +320,7 @@ export async function deleteContact(contactId: string): Promise<{ success: boole
 
         revalidatePath('/dashboard/contacts');
         return { success: true };
-    } catch(e: any) {
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }

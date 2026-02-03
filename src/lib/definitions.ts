@@ -51,7 +51,7 @@ export type SabChatSettings = {
     welcomeMessage?: string;
     awayMessageEnabled?: boolean;
     awayMessage?: string;
-    officeHours?: any; 
+    officeHours?: any;
     // AI
     aiEnabled?: boolean;
     aiContext?: string;
@@ -854,36 +854,36 @@ export type GeneralReplyRule = {
 };
 
 export type AutoReplySettings = {
-  masterEnabled?: boolean;
-  welcomeMessage?: {
-    enabled: boolean;
-    message: string;
-  };
-  general?: {
-    enabled: boolean;
-    replies: GeneralReplyRule[];
-  };
-  inactiveHours?: {
-    enabled: boolean;
-    startTime: string;
-    endTime: string;
-    timezone: string;
-    days: number[]; // 0 = Sunday, 1 = Monday, etc.
-    message: string;
-  };
-  aiAssistant?: {
-    enabled: boolean;
-    context: string;
-    autoTranslate?: boolean;
-  };
+    masterEnabled?: boolean;
+    welcomeMessage?: {
+        enabled: boolean;
+        message: string;
+    };
+    general?: {
+        enabled: boolean;
+        replies: GeneralReplyRule[];
+    };
+    inactiveHours?: {
+        enabled: boolean;
+        startTime: string;
+        endTime: string;
+        timezone: string;
+        days: number[]; // 0 = Sunday, 1 = Monday, etc.
+        message: string;
+    };
+    aiAssistant?: {
+        enabled: boolean;
+        context: string;
+        autoTranslate?: boolean;
+    };
 };
 
 export type OptInOutSettings = {
-  enabled?: boolean;
-  optOutKeywords?: string[];
-  optOutResponse?: string;
-  optInKeywords?: string[];
-  optInResponse?: string;
+    enabled?: boolean;
+    optOutKeywords?: string[];
+    optOutResponse?: string;
+    optInKeywords?: string[];
+    optInResponse?: string;
 };
 
 export type UserAttribute = {
@@ -923,12 +923,12 @@ export type CustomDomain = {
 };
 
 export type FacebookCommentAutoReplySettings = {
-  enabled: boolean;
-  replyMode: 'static' | 'ai';
-  staticReplyText?: string;
-  aiReplyPrompt?: string;
-  moderationEnabled: boolean;
-  moderationPrompt?: string;
+    enabled: boolean;
+    replyMode: 'static' | 'ai';
+    staticReplyText?: string;
+    aiReplyPrompt?: string;
+    moderationEnabled: boolean;
+    moderationPrompt?: string;
 };
 
 export type FacebookWelcomeMessageSettings = {
@@ -971,22 +971,22 @@ export type WhatsAppWidgetSettings = {
 };
 
 export type FormField = {
-  id: string;
-  type: 'text' | 'email' | 'textarea' | 'url' | 'tel' | 'radio' | 'checkbox' | 'select' | 'number' | 'date' | 'time' | 'file' | 'password' | 'hidden' | 'html' | 'acceptance';
-  label: string;
-  placeholder?: string;
-  required?: boolean;
-  defaultValue?: string;
-  columnWidth?: string;
-  fieldId?: string;
-  labelPosition?: 'above' | 'inline' | 'hidden';
-  description?: string;
-  size?: 'sm' | 'md' | 'lg';
-  multiple?: boolean;
-  options?: string;
-  maxFileSize?: number;
-  allowedFileTypes?: string;
-  htmlContent?: string;
+    id: string;
+    type: 'text' | 'email' | 'textarea' | 'url' | 'tel' | 'radio' | 'checkbox' | 'select' | 'number' | 'date' | 'time' | 'file' | 'password' | 'hidden' | 'html' | 'acceptance';
+    label: string;
+    placeholder?: string;
+    required?: boolean;
+    defaultValue?: string;
+    columnWidth?: string;
+    fieldId?: string;
+    labelPosition?: 'above' | 'inline' | 'hidden';
+    description?: string;
+    size?: 'sm' | 'md' | 'lg';
+    multiple?: boolean;
+    options?: string;
+    maxFileSize?: number;
+    allowedFileTypes?: string;
+    htmlContent?: string;
 };
 
 export type WebsiteBlock = {
@@ -1156,27 +1156,27 @@ export type Flow = {
 };
 
 export type SabFlowNode = {
-  id: string;
-  type: string;
-  data: any;
-  position: { x: number, y: number };
+    id: string;
+    type: string;
+    data: any;
+    position: { x: number, y: number };
 };
 
 export type SabFlowEdge = {
-  id: string;
-  source: string;
-  target: string;
-  sourceHandle?: string;
+    id: string;
+    source: string;
+    target: string;
+    sourceHandle?: string;
 };
 
 export type SabFlow = {
-  name: string;
-  userId: ObjectId;
-  nodes: SabFlowNode[];
-  edges: SabFlowEdge[];
-  trigger: any;
-  createdAt: Date;
-  updatedAt: Date;
+    name: string;
+    userId: ObjectId;
+    nodes: SabFlowNode[];
+    edges: SabFlowEdge[];
+    trigger: any;
+    createdAt: Date;
+    updatedAt: Date;
 };
 
 
@@ -1299,16 +1299,16 @@ export type CustomAudience = {
 };
 
 export type FacebookComment = {
-  id: string;
-  message: string;
-  from: {
-    name: string;
     id: string;
-  };
-  created_time: string;
-  comments?: {
-    data: FacebookComment[];
-  }
+    message: string;
+    from: {
+        name: string;
+        id: string;
+    };
+    created_time: string;
+    comments?: {
+        data: FacebookComment[];
+    }
 };
 
 export type FacebookPost = {
@@ -1380,34 +1380,34 @@ export type FacebookLiveStream = {
 };
 
 export type FacebookSubscriber = {
-  _id: ObjectId;
-  projectId: ObjectId;
-  psid: string; // Page-Scoped ID
-  name: string;
-  createdAt: Date;
-  status?: string;
-  assignedAgentId?: string;
-  snippet?: string;
-  updated_time?: Date;
-  unread_count?: number;
-  activeEcommFlow?: {
-    flowId: string;
-    currentNodeId: string;
-    variables: Record<string, any>;
-    waitingSince?: Date;
-    cartLastUpdatedAt?: Date;
-  };
+    _id: ObjectId;
+    projectId: ObjectId;
+    psid: string; // Page-Scoped ID
+    name: string;
+    createdAt: Date;
+    status?: string;
+    assignedAgentId?: string;
+    snippet?: string;
+    updated_time?: Date;
+    unread_count?: number;
+    activeEcommFlow?: {
+        flowId: string;
+        currentNodeId: string;
+        variables: Record<string, any>;
+        waitingSince?: Date;
+        cartLastUpdatedAt?: Date;
+    };
 };
 
 
 export type MetaFlow = {
     name: string;
     projectId: ObjectId;
-    metaId: string; 
+    metaId: string;
     status: string;
     json_version?: string;
     categories: string[];
-    flow_data: any; 
+    flow_data: any;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -1513,13 +1513,13 @@ export type User = {
         pan?: string;
     };
     crm?: {
-      whatsappProjectId?: ObjectId;
-      permissions?: CrmPermissions;
-      customRoles?: CrmCustomRole[];
+        whatsappProjectId?: ObjectId;
+        permissions?: CrmPermissions;
+        customRoles?: CrmCustomRole[];
     };
     email?: {
-      permissions?: EmailPermissions;
-      compliance?: EmailComplianceSettings;
+        permissions?: EmailPermissions;
+        compliance?: EmailComplianceSettings;
     };
     smsProviderSettings?: SmsProviderSettings;
     sabChatSettings?: SabChatSettings;
@@ -1556,7 +1556,7 @@ export type Transaction = WithId<{
     description: string;
     planId?: ObjectId;
     credits?: number;
-    amount: number; 
+    amount: number;
     status: 'PENDING' | 'SUCCESS' | 'FAILED';
     provider: 'razorpay' | 'phonepe';
     providerTransactionId?: string;
@@ -1570,8 +1570,8 @@ export type BroadcastAttempt = {
     phone: string;
     status: 'PENDING' | 'SENT' | 'FAILED' | 'DELIVERED' | 'READ';
     sentAt?: Date;
-    messageId?: string; 
-    error?: string; 
+    messageId?: string;
+    error?: string;
 };
 
 export type BroadcastLog = {
@@ -1600,8 +1600,8 @@ export type NotificationWithProject = Notification & { projectName?: string };
 export type Contact = {
     projectId: ObjectId;
     userId?: ObjectId;
-    waId: string; 
-    phoneNumberId: string; 
+    waId: string;
+    phoneNumberId: string;
     name: string;
     lastMessage?: string;
     lastMessageTimestamp?: Date;
@@ -1618,12 +1618,14 @@ export type Contact = {
     hasReceivedWelcome?: boolean;
     status?: string;
     assignedAgentId?: string;
-    tagIds?: string[];
-}
+    tagIds?: ObjectId[];
+    updatedAt?: Date;
+    _id: ObjectId;
+};
 
 export type InteractiveMessageContent = {
     type: 'button' | 'list' | 'product' | 'product_list' | 'button_reply' | 'list_reply' | 'nfm_reply';
-    header?: { type: 'text' | 'video' | 'image' | 'document'; text?: string; [key: string]: any };
+    header?: { type: 'text' | 'video' | 'image' | 'document'; text?: string;[key: string]: any };
     body: { text: string };
     footer?: { text: string };
     action: {
@@ -1659,7 +1661,7 @@ export type OutgoingMessage = {
     error?: string;
     createdAt: Date;
     context?: {
-      message_id: string;
+        message_id: string;
     };
 }
 
@@ -1675,8 +1677,8 @@ export type IncomingMessage = {
     isRead: boolean;
     createdAt: Date;
     context?: {
-      from: string;
-      id: string;
+        from: string;
+        id: string;
     }
 }
 
@@ -1837,18 +1839,18 @@ export type CreateTemplateState = {
 };
 
 export type BroadcastState = {
-  message?: string | null;
-  error?: string | null;
+    message?: string | null;
+    error?: string | null;
 };
 
 export type UpdateProjectSettingsState = {
-  message?: string | null;
-  error?: string | null;
+    message?: string | null;
+    error?: string | null;
 };
 
 export type InitiatePaymentResult = {
-  redirectUrl?: string;
-  error?: string;
+    redirectUrl?: string;
+    error?: string;
 }
 
 export type KanbanColumnData = {
@@ -1878,66 +1880,66 @@ export type Catalog = {
 };
 
 export type Product = {
-  _id: ObjectId;
-  catalogId: ObjectId;
-  projectId: ObjectId;
-  metaProductId: string;
-  // --- Required ---
-  retailer_id: string; // SKU
-  name: string; // title
-  description: string;
-  availability: 'in stock' | 'out of stock' | 'preorder';
-  condition: 'new' | 'used' | 'refurbished';
-  price: number; // Stored as cents
-  currency: string;
-  link: string; // Product landing page
-  image_url: string;
-  // --- Recommended ---
-  brand?: string;
-  google_product_category?: string;
-  product_type?: string;
-  sale_price?: number;
-  sale_price_effective_date?: string;
-  item_group_id?: string;
-  additional_image_link?: string[];
-  inventory?: number; // quantity_to_sell_on_facebook
-  // --- Variant ---
-  color?: string;
-  size?: string;
-  material?: string;
-  pattern?: string;
-  gender?: 'male' | 'female' | 'unisex';
-  age_group?: 'adult' | 'kids';
-  gtin?: string;
-  mpn?: string;
-  // --- Shipping ---
-  shipping_weight?: string;
-  shipping_length?: string;
-  shipping_width?: string;
-  shipping_height?: string;
-  // --- WhatsApp Specific ---
-  tax?: number;
-  visibility?: 'published' | 'hidden';
-  // --- Advanced ---
-  custom_label_0?: string;
-  custom_label_1?: string;
-  custom_label_2?: string;
-  custom_label_3?: string;
-  custom_label_4?: string;
-  rich_text_description?: string;
-  expiration_date?: string;
-  return_policy_info?: any;
-  shipping?: any;
-  minimum_advertised_price?: string;
-  energy_efficiency_class?: string;
-  mobile_link?: string;
-  // --- Service/Digital ---
-  is_service?: boolean;
-  service_duration?: string;
-  booking_link?: string;
-  // --- Internal ---
-  createdAt: Date;
-  updatedAt?: Date;
+    _id: ObjectId;
+    catalogId: ObjectId;
+    projectId: ObjectId;
+    metaProductId: string;
+    // --- Required ---
+    retailer_id: string; // SKU
+    name: string; // title
+    description: string;
+    availability: 'in stock' | 'out of stock' | 'preorder';
+    condition: 'new' | 'used' | 'refurbished';
+    price: number; // Stored as cents
+    currency: string;
+    link: string; // Product landing page
+    image_url: string;
+    // --- Recommended ---
+    brand?: string;
+    google_product_category?: string;
+    product_type?: string;
+    sale_price?: number;
+    sale_price_effective_date?: string;
+    item_group_id?: string;
+    additional_image_link?: string[];
+    inventory?: number; // quantity_to_sell_on_facebook
+    // --- Variant ---
+    color?: string;
+    size?: string;
+    material?: string;
+    pattern?: string;
+    gender?: 'male' | 'female' | 'unisex';
+    age_group?: 'adult' | 'kids';
+    gtin?: string;
+    mpn?: string;
+    // --- Shipping ---
+    shipping_weight?: string;
+    shipping_length?: string;
+    shipping_width?: string;
+    shipping_height?: string;
+    // --- WhatsApp Specific ---
+    tax?: number;
+    visibility?: 'published' | 'hidden';
+    // --- Advanced ---
+    custom_label_0?: string;
+    custom_label_1?: string;
+    custom_label_2?: string;
+    custom_label_3?: string;
+    custom_label_4?: string;
+    rich_text_description?: string;
+    expiration_date?: string;
+    return_policy_info?: any;
+    shipping?: any;
+    minimum_advertised_price?: string;
+    energy_efficiency_class?: string;
+    mobile_link?: string;
+    // --- Service/Digital ---
+    is_service?: boolean;
+    service_duration?: string;
+    booking_link?: string;
+    // --- Internal ---
+    createdAt: Date;
+    updatedAt?: Date;
 };
 
 
@@ -2015,7 +2017,7 @@ export type FacebookOrder = {
             amount: string;
             currency: string;
             formatted_amount: string;
-            }
+        }
     };
     created: string;
     updated: string;
@@ -2034,9 +2036,9 @@ export type EcommCartItem = {
 export type EcommOrderItem = {
     productId: string;
     productName: string;
-    variantInfo?: string; 
+    variantInfo?: string;
     quantity: number;
-    price: number; 
+    price: number;
 };
 
 export type EcommOrder = {
@@ -2068,9 +2070,9 @@ export type EcommOrder = {
 };
 
 export type EcommProductVariant = {
-  id: string;
-  name: string;
-  options: string;
+    id: string;
+    name: string;
+    options: string;
 };
 
 export type ProductBatch = {
@@ -2082,43 +2084,43 @@ export type ProductBatch = {
 };
 
 export type EcommProduct = {
-  _id: ObjectId;
-  projectId: ObjectId;
-  shopId: ObjectId;
-  userId: ObjectId;
-  name: string;
-  description?: string;
-  price: number;
-  imageUrl?: string;
-  variants?: EcommProductVariant[];
-  inventory?: { warehouseId: ObjectId, stock: number }[];
-  createdAt: Date;
-  updatedAt: Date;
-  
-  // New detailed fields
-  sku?: string;
-  hsnSac?: string;
-  itemType?: 'goods' | 'service';
-  unit?: string;
-  buyingPrice?: number;
-  landedCost?: number;
-  taxRate?: number;
-  manageStock?: boolean;
-  batchTracking?: boolean;
-  batches?: ProductBatch[];
-  stockInHand?: number;
-  committedStock?: number;
-  reorderPoint?: number;
-  overstockPoint?: number;
-  dimensions?: { length?: number; breadth?: number; height?: number; volume?: number; };
-  weight?: { gross?: number; net?: number; };
-  totalSoldQuantity?: number;
-  totalPurchaseQuantity?: number;
-  isPackageItem?: boolean;
-  tags?: string[];
-  stock?: number; // legacy
-  category?: string;
-  subcategory?: string;
+    _id: ObjectId;
+    projectId: ObjectId;
+    shopId: ObjectId;
+    userId: ObjectId;
+    name: string;
+    description?: string;
+    price: number;
+    imageUrl?: string;
+    variants?: EcommProductVariant[];
+    inventory?: { warehouseId: ObjectId, stock: number }[];
+    createdAt: Date;
+    updatedAt: Date;
+
+    // New detailed fields
+    sku?: string;
+    hsnSac?: string;
+    itemType?: 'goods' | 'service';
+    unit?: string;
+    buyingPrice?: number;
+    landedCost?: number;
+    taxRate?: number;
+    manageStock?: boolean;
+    batchTracking?: boolean;
+    batches?: ProductBatch[];
+    stockInHand?: number;
+    committedStock?: number;
+    reorderPoint?: number;
+    overstockPoint?: number;
+    dimensions?: { length?: number; breadth?: number; height?: number; volume?: number; };
+    weight?: { gross?: number; net?: number; };
+    totalSoldQuantity?: number;
+    totalPurchaseQuantity?: number;
+    isPackageItem?: boolean;
+    tags?: string[];
+    stock?: number; // legacy
+    category?: string;
+    subcategory?: string;
 };
 
 export type CrmWarehouse = {
