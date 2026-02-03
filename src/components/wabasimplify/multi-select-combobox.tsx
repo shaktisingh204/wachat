@@ -53,7 +53,7 @@ export function MultiSelectCombobox({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -74,11 +74,11 @@ export function MultiSelectCombobox({
                   >
                     {option.label}
                     <button
-                        type="button"
-                        className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                        onKeyDown={(e) => { if (e.key === "Enter") handleSelect(option.value); }}
-                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                        onClick={(e) => { e.stopPropagation(); handleSelect(option.value); }}
+                      type="button"
+                      className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      onKeyDown={(e) => { if (e.key === "Enter") handleSelect(option.value); }}
+                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onClick={(e) => { e.stopPropagation(); handleSelect(option.value); }}
                     >
                       <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
                     </button>

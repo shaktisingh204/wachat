@@ -6,13 +6,14 @@ import { revalidatePath } from 'next/cache';
 import type { WithId } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import axios from 'axios';
-import FormData from 'form-data';
+import NodeFormData from 'form-data';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getAdminSession } from '@/app/actions/index.ts';
+import { getProjectById, getAdminSession } from '@/app/actions/index';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import type { Project, Template, CreateTemplateState, MetaTemplate, MetaTemplatesResponse, LibraryTemplate, TemplateCategory } from '@/lib/definitions';
+import { createTemplateSchema } from '@/lib/template-schema';
 
 const API_VERSION = 'v23.0';
 
@@ -25,7 +26,7 @@ export async function getTemplates(projectId: string): Promise<WithId<Template>[
         const { db } = await connectToDatabase();
         const project = await getProjectById(projectId);
         if (!project) return [];
-        
+
         const templates = await db.collection('templates').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
 
         return JSON.parse(JSON.stringify(templates));
@@ -41,13 +42,13 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
 
     try {
         const { db } = await connectToDatabase();
-        
+
         const { wabaId, accessToken } = project;
 
         const allTemplates: MetaTemplate[] = [];
         let nextUrl: string | undefined = `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
 
-        while(nextUrl) {
+        while (nextUrl) {
             const response = await fetch(nextUrl, { method: 'GET' });
 
             if (!response.ok) {
@@ -62,14 +63,14 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
             }
 
             const templatesResponse: MetaTemplatesResponse = await response.json();
-            
+
             if (templatesResponse.data && templatesResponse.data.length > 0) {
                 allTemplates.push(...templatesResponse.data);
             }
 
             nextUrl = templatesResponse.paging?.next;
         }
-        
+
         if (allTemplates.length === 0) {
             return { message: "No templates found in your WhatsApp Business Account to sync." }
         }
@@ -77,7 +78,7 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
         const templatesToUpsert = allTemplates.map(t => {
             const bodyComponent = t.components.find(c => c.type === 'BODY');
             const headerComponent = t.components.find(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format || ''));
-            
+
             return {
                 name: t.name,
                 category: t.category,
@@ -102,9 +103,9 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
 
         const result = await db.collection('templates').bulkWrite(bulkOps);
         const syncedCount = result.upsertedCount + result.modifiedCount;
-        
+
         revalidatePath('/dashboard/templates');
-        
+
         return { message: `Successfully synced ${syncedCount} template(s).`, count: syncedCount };
 
     } catch (e: any) {
@@ -147,11 +148,11 @@ async function getMediaHandleForTemplate(file: File | null, url: string | null, 
         return { handle: null, error: `Media upload failed: ${errorMessage}` };
     }
 }
-  
+
 export async function handleCreateTemplate(
     prevState: CreateTemplateState,
     formData: FormData
-  ): Promise<CreateTemplateState> {
+): Promise<CreateTemplateState> {
 
     const cleanText = (text: string | null | undefined): string => {
         if (!text) return '';
@@ -163,17 +164,17 @@ export async function handleCreateTemplate(
         if (!projectId || !ObjectId.isValid(projectId)) {
             return { error: 'Invalid Project ID.' };
         }
-    
+
         const project = await getProjectById(projectId);
         if (!project) {
             return { error: 'Project not found or you do not have access.' };
         }
-        
+
         const { db } = await connectToDatabase();
         const templateType = formData.get('templateType') as string;
 
         if (templateType === 'CATALOG_MESSAGE') {
-            const name = formData.get('templateName') as string;
+            const name = (formData.get('templateName') as string || formData.get('name') as string || '').trim();
             const catalogId = formData.get('catalogId') as string;
             const headerText = formData.get('carouselHeader') as string;
             const bodyText = formData.get('carouselBody') as string;
@@ -183,20 +184,35 @@ export async function handleCreateTemplate(
             const section2Title = formData.get('section2Title') as string;
             const section2ProductIDs = (formData.get('section2ProductIDs') as string).split('\n').map(id => id.trim()).filter(Boolean);
 
-            if (!name || !catalogId || !bodyText || !section1Title || section1ProductIDs.length === 0 || !section2Title || section2ProductIDs.length === 0) {
-                return { error: 'For Carousel templates, you must provide a name, catalog ID, body text, and at least one product for each of the two sections.' };
+            const validationResult = createTemplateSchema.safeParse({
+                templateType: 'CATALOG_MESSAGE',
+                name,
+                language: 'multi', // Catalog templates are multi-language implicitly or fixed
+                category: 'INTERACTIVE', // Fixed for catalog
+                catalogId,
+                carouselHeader: headerText,
+                carouselBody: bodyText,
+                carouselFooter: footerText,
+                section1Title,
+                section1ProductIDs: formData.get('section1ProductIDs') as string, // Pass raw string to schema if we want, but schema expects string. Wait, schema is string.
+                section2Title,
+                section2ProductIDs: formData.get('section2ProductIDs') as string,
+            });
+
+            if (!validationResult.success) {
+                return { error: validationResult.error.errors.map(e => e.message).join('\n') };
             }
-            
+
             const carouselTemplateData = {
                 type: 'CATALOG_MESSAGE',
                 name,
-                category: 'INTERACTIVE', 
+                category: 'INTERACTIVE',
                 status: 'LOCAL',
                 language: 'multi',
                 projectId: new ObjectId(projectId),
                 components: [
                     { type: 'BODY', text: bodyText },
-                    { 
+                    {
                         type: 'CATALOG_MESSAGE_ACTION',
                         headerText,
                         footerText,
@@ -214,32 +230,51 @@ export async function handleCreateTemplate(
             revalidatePath('/dashboard/templates');
             return { message: 'Product Carousel template saved successfully.' };
         }
-        
+
         const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
         if (!appId) {
             return { error: 'App ID is not configured for this project, and no fallback is set in environment variables. Please set NEXT_PUBLIC_META_APP_ID in the .env file or re-configure the project.' };
         }
 
-        const name = (formData.get('name') as string || '').trim();
-        const nameRegex = /^[a-z0-9_]+$/;
-
-        if (!name) {
-            return { error: 'Template name is required.' };
-        }
-        if (name.length > 512) {
-            return { error: 'Template name cannot exceed 512 characters.' };
-        }
-        if (!nameRegex.test(name)) {
-            return { error: 'Template name can only contain lowercase letters, numbers, and underscores (_).' };
-        }
-
-        const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
+        const name = (formData.get('name') as string || formData.get('templateName') as string || '').trim();
+        const category = formData.get('category') as any;
         const language = formData.get('language') as string;
 
-         if (!category || !language) {
-            return { error: 'Language, and Category are required.' };
+        // Prepare data for validation
+        const validationData: any = {
+            name,
+            category,
+            language,
+            templateType: templateType === 'MARKETING_CAROUSEL' ? 'MARKETING_CAROUSEL' : 'STANDARD',
+        };
+
+        if (templateType === 'MARKETING_CAROUSEL') {
+            const cardsDataString = formData.get('carouselCards') as string;
+            try {
+                validationData.carouselCards = JSON.parse(cardsDataString);
+            } catch (e) {
+                return { error: "Invalid carousel cards data." };
+            }
+        } else {
+            // Standard template fields
+            validationData.body = cleanText(formData.get('body') as string);
+            validationData.footer = cleanText(formData.get('footer') as string);
+            validationData.headerFormat = formData.get('headerFormat') as string;
+            validationData.headerText = cleanText(formData.get('headerText') as string);
+
+            const buttonsJson = formData.get('buttons') as string;
+            try {
+                validationData.buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
+            } catch (e) {
+                return { error: "Invalid buttons data." };
+            }
         }
-        
+
+        const validationResult = createTemplateSchema.safeParse(validationData);
+        if (!validationResult.success) {
+            return { error: validationResult.error.errors.map(e => e.message).join('\n') };
+        }
+
         const { wabaId, accessToken } = project;
         let payload: any = {
             name,
@@ -256,7 +291,7 @@ export async function handleCreateTemplate(
         if (templateType === 'MARKETING_CAROUSEL') {
             const cardsDataString = formData.get('carouselCards') as string;
             const cardsData = JSON.parse(cardsDataString);
-            
+
             finalTemplateToInsert.type = 'MARKETING_CAROUSEL';
 
             const mediaUploadResults = await Promise.all(
@@ -268,17 +303,17 @@ export async function handleCreateTemplate(
                     return { handle: null, error: null };
                 })
             );
-            
+
             const finalCards = [];
 
             for (let i = 0; i < cardsData.length; i++) {
                 const card = cardsData[i];
                 const uploadResult = mediaUploadResults[i];
-                if(uploadResult.error) return { error: `Card ${i+1} media error: ${uploadResult.error}` };
+                if (uploadResult.error) return { error: `Card ${i + 1} media error: ${uploadResult.error}` };
 
                 const cardComponents: any[] = [];
                 if (uploadResult.handle && card.headerFormat !== 'NONE') {
-                    cardComponents.push({ type: 'HEADER', format: card.headerFormat, example: { header_handle: [uploadResult.handle] }});
+                    cardComponents.push({ type: 'HEADER', format: card.headerFormat, example: { header_handle: [uploadResult.handle] } });
                 }
                 cardComponents.push({ type: 'BODY', text: card.body });
                 if (card.buttons && card.buttons.length > 0) {
@@ -287,10 +322,10 @@ export async function handleCreateTemplate(
                 }
                 finalCards.push({ components: cardComponents });
             }
-            
+
             payload.components.push({ type: 'CAROUSEL', cards: finalCards });
-            
-        } else { 
+
+        } else {
             const bodyText = cleanText(formData.get('body') as string);
             const footerText = cleanText(formData.get('footer') as string);
             const buttonsJson = formData.get('buttons') as string;
@@ -310,7 +345,7 @@ export async function handleCreateTemplate(
             }));
 
             if (!bodyText) return { error: 'Body text is required for standard templates.' };
-            
+
             const trimmedBody = bodyText.trim();
             const variableAtStartRegex = /^{{\s*\d+\s*}}/;
             const variableAtEndRegex = /{{\s*\d+\s*}}$/;
@@ -324,23 +359,23 @@ export async function handleCreateTemplate(
                 if (headerFormat === 'TEXT') {
                     if (!headerText) return { error: 'Header text is required for TEXT header format.' };
                     headerComponent.text = headerText;
-                     if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
+                    if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
                         const headerExample = formData.get('headerExample') as string;
                         if (!headerExample) return { error: 'Example for header variable is required.' };
                         headerComponent.example = { header_text: [headerExample] };
                     }
                 } else {
                     const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, headerSampleUrl, accessToken, appId);
-                    if(error) return { error };
-                    if(handle) headerComponent.example = { header_handle: [handle] };
+                    if (error) return { error };
+                    if (handle) headerComponent.example = { header_handle: [handle] };
                 }
                 payload.components.push(headerComponent);
             }
-            
+
             const bodyComponent: any = { type: 'BODY', text: bodyText };
             const bodyVarMatches = bodyText.match(/{{\s*(\d+)\s*}}/g);
             if (bodyVarMatches) {
-                const bodyVarNumbers = [...new Set(bodyVarMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a,b) => a - b);
+                const bodyVarNumbers = [...new Set(bodyVarMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a, b) => a - b);
                 const bodyExamples = [];
                 for (const varNum of bodyVarNumbers) {
                     const exampleValue = formData.get(`body_example_${varNum}`) as string;
@@ -359,24 +394,24 @@ export async function handleCreateTemplate(
                 payload.components.push({ type: 'BUTTONS', buttons: formattedButtons });
             }
         }
-    
+
         const response = await fetch(
             `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
             {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
             }
         );
-    
+
         const responseText = await response.text();
         const responseData = responseText ? JSON.parse(responseText) : null;
-    
+
         if (!response.ok) {
-            const errorMessage = getErrorMessage({ response: { data: responseData }});
+            const errorMessage = getErrorMessage({ response: { data: responseData } });
             return { error: `API Error: ${errorMessage}`, payload: JSON.stringify(payload, null, 2) };
         }
 
@@ -393,12 +428,12 @@ export async function handleCreateTemplate(
         };
 
         await db.collection('templates').insertOne(templateToInsert as any);
-    
+
         revalidatePath('/dashboard/templates');
-    
+
         const message = `Template "${name}" submitted successfully!`;
         return { message };
-  
+
     } catch (e: any) {
         console.error('Error in handleCreateTemplate:', e);
         return { error: e.message || 'An unexpected error occurred.' };
@@ -412,7 +447,7 @@ export async function handleBulkCreateTemplate(
     const projectIdsString = formData.get('projectIds') as string;
     const projectIds = projectIdsString.split(',');
     const { db } = await connectToDatabase();
-    
+
     const cleanText = (text: string | null | undefined): string => {
         if (!text) return '';
         return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
@@ -420,7 +455,7 @@ export async function handleBulkCreateTemplate(
 
     let successes = 0;
     const errors: string[] = [];
-    
+
     try {
         const name = (formData.get('name') as string || '').trim();
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
@@ -431,26 +466,42 @@ export async function handleBulkCreateTemplate(
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = cleanText(formData.get('headerText') as string);
         const headerSampleFile = formData.get('headerSampleFile') as File;
-        
-        const trimmedBody = bodyText.trim();
-        const variableAtStartRegex = /^{{\s*\d+\s*}}/;
-        const variableAtEndRegex = /{{\s*\d+\s*}}$/;
-        if (bodyText && (variableAtStartRegex.test(trimmedBody) || variableAtEndRegex.test(trimmedBody))) {
-            return { error: "Variables cannot be at the beginning or end of the template body. Please add text before and after any variables." };
-        }
 
+        const trimmedBody = bodyText.trim();
+
+        // Validation for Bulk Create
         const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
             ...button, text: cleanText(button.text), url: (button.url || '').trim(),
             phone_number: (button.phone_number || '').trim(),
             example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
         }));
-        
+
+        const validationResult = createTemplateSchema.safeParse({
+            name,
+            category,
+            language,
+            templateType: 'STANDARD', // Bulk create seems to only support standard for now? The form implies logic predominantly for standard.
+            body: bodyText,
+            footer: footerText,
+            headerFormat,
+            headerText,
+            buttons
+        });
+
+        if (!validationResult.success) {
+            return { error: validationResult.error.errors.map(e => e.message).join('\n') };
+        }
+
+
+
+        // buttons are already parsed above
+
         let headerMediaDataUri: string | null = null;
         if (headerFormat && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && headerSampleFile && headerSampleFile.size > 0) {
             const buffer = Buffer.from(await headerSampleFile.arrayBuffer());
             headerMediaDataUri = `data:${headerSampleFile.type};base64,${buffer.toString('base64')}`;
         }
-        
+
         const components: any[] = [];
         if (headerFormat !== 'NONE') {
             const headerComponent: any = { type: 'HEADER', format: headerFormat };
@@ -472,7 +523,7 @@ export async function handleBulkCreateTemplate(
         for (const projectId of projectIds) {
             try {
                 const projectObjectId = new ObjectId(projectId);
-                
+
                 await db.collection('templates').insertOne({
                     projectId: projectObjectId,
                     name, category, language,
@@ -491,7 +542,7 @@ export async function handleBulkCreateTemplate(
                 errors.push(errorMessage);
             }
         }
-        
+
         let message = `Template saved as 'LOCAL' for ${successes} project(s). They will be submitted by the next cron run.`;
         if (errors.length > 0) {
             message += ` Failed on ${errors.length} project(s).`;
@@ -508,8 +559,8 @@ export async function handleBulkCreateTemplate(
 
 export async function handleCreateFlowTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
-    const flowId = formData.get('flowId') as string; 
-    
+    const flowId = formData.get('flowId') as string;
+
     const templateName = formData.get('templateName') as string;
     const language = formData.get('language') as string;
     const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
@@ -591,7 +642,7 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
 export async function saveLibraryTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { error: 'Permission denied.' };
-    
+
     const name = (formData.get('name') as string || '').trim();
     const nameRegex = /^[a-z0-9_]+$/;
 
@@ -606,7 +657,7 @@ export async function saveLibraryTemplate(prevState: any, formData: FormData): P
     }
 
     try {
-        const templateData: LibraryTemplate = {
+        const templateData: Omit<LibraryTemplate, '_id'> = {
             name: name,
             category: formData.get('category') as Template['category'],
             language: formData.get('language') as string,
@@ -661,7 +712,7 @@ export async function getLibraryTemplates() {
         return JSON.parse(JSON.stringify(allTemplates));
     } catch (e) {
         console.error("Failed to fetch library templates:", e);
-        return premadeTemplates; 
+        return premadeTemplates;
     }
 }
 

@@ -1767,6 +1767,16 @@ export type MetaPhoneNumber = {
     whatsapp_business_profile?: PhoneNumberProfile;
 };
 
+export type MetaTemplate = {
+    name: string;
+    components: any[];
+    language: string;
+    status: string;
+    category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
+    id: string;
+    quality_score?: { score: string };
+};
+
 export type MetaTemplatesResponse = {
     data: MetaTemplate[];
     paging?: {
