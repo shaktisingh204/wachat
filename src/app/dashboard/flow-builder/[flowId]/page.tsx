@@ -38,6 +38,8 @@ import { PropertiesPanel } from '@/components/wabasimplify/properties-panel';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 const nodeTypes = {
     text: CustomNode,
@@ -78,6 +80,28 @@ const FlowBuilder = ({ flowId }: { flowId: string }) => {
     const [isLoading, startLoadingTransition] = useTransition();
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [isPropsOpen, setIsPropsOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+    // Save settings from dialog
+    const handleSettingsSave = (name: string, keywords: string) => {
+        setFlowName(name);
+
+        // Update start node with new keywords
+        setNodes((nds) => nds.map(node => {
+            if (node.type === 'start') {
+                return {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        triggerKeywords: keywords
+                    }
+                };
+            }
+            return node;
+        }));
+
+        setIsSettingsOpen(false);
+    };
 
     // Load flow
     useEffect(() => {
@@ -164,16 +188,25 @@ const FlowBuilder = ({ flowId }: { flowId: string }) => {
 
         startSaveTransition(async () => {
             // Serialize nodes and edges
+            const startNode = nodes.find(n => n.type === 'start');
+            let triggerKeywords: string[] = [];
+
+            if (startNode && startNode.data && (startNode.data as any).triggerKeywords) {
+                const rawKeywords = (startNode.data as any).triggerKeywords;
+                if (typeof rawKeywords === 'string') {
+                    triggerKeywords = rawKeywords.split(',').map(k => k.trim()).filter(Boolean);
+                } else if (Array.isArray(rawKeywords)) {
+                    triggerKeywords = rawKeywords;
+                }
+            }
+
             const flowData = {
                 flowId: currentFlow?._id.toString(),
                 projectId: activeProjectId,
                 name: flowName,
                 nodes: nodes as any,
                 edges: edges as any,
-                // Backend logic for triggerKeywords might need manual extraction from start node data if used
-                // but usually the start node data contains it if editable there.
-                // For now we assume they are managed in properties or separate logic.
-                triggerKeywords: (nodes.find(n => n.type === 'start')?.data as any)?.triggerKeywords || [],
+                triggerKeywords,
             };
 
             const result = await saveFlow(flowData);
@@ -274,8 +307,19 @@ const FlowBuilder = ({ flowId }: { flowId: string }) => {
                             )}
                         </SheetContent>
                     </Sheet>
+                    <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(true)} title="Flow Settings">
+                        <Settings2 className="h-5 w-5" />
+                    </Button>
                 </div>
             </header>
+
+            <FlowSettingsDialog
+                open={isSettingsOpen}
+                onOpenChange={setIsSettingsOpen}
+                initialName={flowName}
+                initialKeywords={(nodes.find(n => n.type === 'start')?.data as any)?.triggerKeywords || ''}
+                onSave={handleSettingsSave}
+            />
 
             {/* Main Content */}
             <div className="flex flex-1 overflow-hidden">
@@ -356,5 +400,79 @@ export default function FlowBuilderPageWrapper({ params }: { params: Promise<{ f
         <ReactFlowProvider>
             <FlowBuilder flowId={flowId} />
         </ReactFlowProvider>
+    );
+}
+
+function FlowSettingsDialog({
+    open,
+    onOpenChange,
+    initialName,
+    initialKeywords,
+    onSave
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    initialName: string;
+    initialKeywords: string;
+    onSave: (name: string, keywords: string) => void;
+}) {
+    const [name, setName] = useState(initialName);
+    const [keywords, setKeywords] = useState(initialKeywords);
+
+    useEffect(() => {
+        if (open) {
+            setName(initialName);
+            setKeywords(initialKeywords);
+        }
+    }, [open, initialName, initialKeywords]);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave(name, keywords);
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Flow Settings</DialogTitle>
+                    <DialogDescription>
+                        Configure the basic settings for this flow.
+                    </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                            Name
+                        </Label>
+                        <Input
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="col-span-3"
+                            required
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="keywords" className="text-right">
+                            Keywords
+                        </Label>
+                        <Input
+                            id="keywords"
+                            value={keywords}
+                            onChange={(e) => setKeywords(e.target.value)}
+                            placeholder="hello, promo, help"
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="text-xs text-muted-foreground ml-auto col-span-4 text-right">
+                        Comma-separated triggers
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit">Save changes</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     );
 }
