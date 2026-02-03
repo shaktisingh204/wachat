@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { ScrollArea } from './scroll-area';
-import { PanelLeft , Calendar } from 'lucide-react';
+import { PanelLeft, Calendar } from 'lucide-react';
 
 type SidebarContextProps = {
   isOpen: boolean;
@@ -27,12 +27,14 @@ export function useSidebar() {
   return context;
 }
 
-export function SidebarProvider({ children }: { children: React.ReactNode }) {
+export function SidebarProvider({ children, defaultOpen = true }: { children: React.ReactNode; defaultOpen?: boolean }) {
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = React.useState(!isMobile);
+  const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
   React.useEffect(() => {
-    setIsOpen(!isMobile);
+    if (isMobile) {
+      setIsOpen(false);
+    }
   }, [isMobile]);
 
   return (
@@ -53,7 +55,7 @@ export function Sidebar({ className, children }: { className?: string; children:
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
         <DrawerContent className="h-full max-w-xs p-0 bg-sidebar-secondary-background">
-            {sidebarContent}
+          {sidebarContent}
         </DrawerContent>
       </Drawer>
     );
@@ -75,7 +77,7 @@ export function SidebarContent({ className, children }: React.HTMLAttributes<HTM
   const { isOpen } = useSidebar();
   return (
     <ScrollArea className="flex-1" viewportClassName={cn(!isOpen && 'p-2')}>
-        {children}
+      {children}
     </ScrollArea>
   );
 }
@@ -88,7 +90,7 @@ export const SidebarMenu = React.forwardRef<HTMLUListElement, React.HTMLAttribut
 });
 SidebarMenu.displayName = 'SidebarMenu';
 
-export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.HTMLAttributes<HTMLLIElement>>(({className, ...props}, ref) => (
+export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.HTMLAttributes<HTMLLIElement>>(({ className, ...props }, ref) => (
   <li ref={ref} className={cn('w-full', className)} {...props} />
 ));
 SidebarMenuItem.displayName = 'SidebarMenuItem';
@@ -133,24 +135,24 @@ export const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttribut
 SidebarFooter.displayName = 'SidebarFooter';
 
 export const SidebarTrigger = ({ children }: { children?: React.ReactNode }) => {
-    const { isMobile, isOpen, setIsOpen } = useSidebar();
-    if (isMobile) {
-        return (
-            <DrawerTrigger asChild>
-                {children}
-            </DrawerTrigger>
-        )
-    }
+  const { isMobile, isOpen, setIsOpen } = useSidebar();
+  if (isMobile) {
+    return (
+      <DrawerTrigger asChild>
+        {children}
+      </DrawerTrigger>
+    )
+  }
 
-    if (!children) {
-      return (
-        <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
-          <PanelLeft />
-        </Button>
-      );
-    }
+  if (!children) {
+    return (
+      <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
+        <PanelLeft />
+      </Button>
+    );
+  }
 
-    return React.cloneElement(children as React.ReactElement, {
-        onClick: () => setIsOpen(!isOpen),
-    });
+  return React.cloneElement(children as React.ReactElement, {
+    onClick: () => setIsOpen(!isOpen),
+  });
 }

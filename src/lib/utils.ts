@@ -1,21 +1,21 @@
-const { clsx } = require("clsx");
-const { twMerge } = require("tailwind-merge");
-const axios = require('axios');
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+import axios from 'axios';
 
-function cn(...inputs) {
-  return twMerge(clsx(inputs));
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
 }
 
-const getErrorMessage = (error) => {
+export const getErrorMessage = (error: any) => {
     // Axios error with a response from the server
     if (axios.isAxiosError(error) && error.response) {
         const apiError = error.response.data?.error;
         if (apiError && typeof apiError === 'object') {
-            let message = apiError.error_user_title 
-                ? `${apiError.error_user_title}: ${apiError.error_user_msg}` 
+            let message = apiError.error_user_title
+                ? `${apiError.error_user_title}: ${apiError.error_user_msg}`
                 : apiError.message || 'An unknown API error occurred.';
             if (apiError.code) {
-                 message += ` (Code: ${apiError.code})`
+                message += ` (Code: ${apiError.code})`
             }
             if (apiError.error_subcode) {
                 message += ` (Subcode: ${apiError.error_subcode})`;
@@ -40,8 +40,8 @@ const getErrorMessage = (error) => {
     // Standard JavaScript error
     if (error instanceof Error) {
         // Look for nested cause, which might hold the original error
-        if ('cause' in error && error.cause) {
-            return getErrorMessage(error.cause); // Recursively get message from cause
+        if ('cause' in error && (error as any).cause) {
+            return getErrorMessage((error as any).cause); // Recursively get message from cause
         }
         return error.message;
     }
@@ -54,19 +54,19 @@ const getErrorMessage = (error) => {
 };
 
 
-const VALIDATION_MESSAGES = {
-  unsupportedType: (fileName) => `File '${fileName}' has an unsupported file type.`,
-  sizeExceeded: (fileName, maxSizeMB) => `File '${fileName}' exceeds the size limit of ${maxSizeMB}MB.`,
-  noFile: "No file was uploaded.",
-  invalidName: "Invalid filename.",
+export const VALIDATION_MESSAGES = {
+    unsupportedType: (fileName: string) => `File '${fileName}' has an unsupported file type.`,
+    sizeExceeded: (fileName: string, maxSizeMB: number) => `File '${fileName}' exceeds the size limit of ${maxSizeMB}MB.`,
+    noFile: "No file was uploaded.",
+    invalidName: "Invalid filename.",
 };
 
-const sanitizeFilename = (filename) => {
+export const sanitizeFilename = (filename: string) => {
     // Replace spaces with underscores and remove characters that are not alphanumeric, underscores, hyphens, or dots.
     return filename.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_.-]/g, '');
 };
 
-const validateFile = (file, allowedTypes, maxSizeMB = 5) => {
+export const validateFile = (file: File, allowedTypes: string[], maxSizeMB = 5) => {
     if (!file || file.size === 0) {
         return { isValid: false, error: VALIDATION_MESSAGES.noFile };
     }
@@ -89,6 +89,3 @@ const validateFile = (file, allowedTypes, maxSizeMB = 5) => {
 
     return { isValid: true, error: null, sanitizedName };
 };
-
-
-module.exports = { cn, getErrorMessage, validateFile };

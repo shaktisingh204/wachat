@@ -456,7 +456,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const currentUserRole = React.useMemo(() => {
         if (!sessionUser || !activeProject) return 'owner';
         if (sessionUser._id.toString() === activeProject.userId.toString()) return 'owner';
-        const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id.toString());
+        const agentInfo = activeProject.agents?.find((a: any) => a.userId.toString() === sessionUser._id.toString());
         return agentInfo?.role || 'none';
     }, [sessionUser, activeProject]);
 
@@ -572,7 +572,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     );
 
     return (
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
             <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-muted/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
                 <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
                     <div className="flex items-center gap-2">
