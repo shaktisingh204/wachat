@@ -627,104 +627,106 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
 
             <div className="flex flex-1 overflow-hidden">
                 {appRailPosition === 'left' && <AppRail />}
-                <Sidebar className={cn("hidden md:flex")}>
-                    <SidebarHeader className="h-16 flex items-center justify-center p-0">
-                        {/* Project Switcher Removed */}
-                    </SidebarHeader>
-                    <SidebarContent>
-                        {activeApp === 'whatsapp' && (
-                            <SidebarMenu>
-                                {wachatMenuItems.filter(item => item.roles.includes(currentUserRole)).map((item) => (
-                                    <SidebarItem key={item.href} item={item} />
-                                ))}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'ad-manager' && (
-                            <SidebarMenu>
-                                {adManagerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'sabchat' && (
-                            <SidebarMenu>
-                                {sabChatMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'sabflow' && (
-                            <SidebarMenu>
-                                {sabflowMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'facebook' && (
-                            <SidebarMenu>
-                                {facebookMenuGroups.map(group => (
-                                    <React.Fragment key={group.title}>
-                                        <p className={cn("px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mt-4 mb-1 transition-all duration-300 whitespace-nowrap", !isOpen && "w-0 overflow-hidden opacity-0 h-0 mt-0 mb-0 group-hover:w-auto group-hover:opacity-100 group-hover:h-auto group-hover:mt-4 group-hover:mb-1")}>{group.title}</p>
-                                        {group.items.map(item => (
-                                            <SidebarItem key={item.href} item={item} />
-                                        ))}
-                                    </React.Fragment>
-                                ))}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'instagram' && (
-                            <SidebarMenu>
-                                {instagramMenuGroups.flatMap(g => g.items).map(item => (
-                                    <SidebarItem key={item.href} item={item} />
-                                ))}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'crm' && (
-                            <SidebarMenu>
-                                {crmMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'team' && (
-                            <SidebarMenu>
-                                {teamMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'email' && (
-                            <SidebarMenu>
-                                {emailMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'sms' && (
-                            <SidebarMenu>
-                                {smsMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'api' && (
-                            <SidebarMenu>
-                                {apiMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'website-builder' && (
-                            <SidebarMenu>
-                                {portfolioMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'url-shortener' && (
-                            <SidebarMenu>
-                                {urlShortenerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'qr-code-maker' && (
-                            <SidebarMenu>
-                                {qrCodeMakerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'seo-suite' && (
-                            <SidebarMenu>
-                                {seoMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                        {activeApp === 'user-settings' && (
-                            <SidebarMenu>
-                                {userSettingsItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                            </SidebarMenu>
-                        )}
-                    </SidebarContent>
-                </Sidebar>
+                {(!(!activeProject && (activeApp === 'whatsapp' || activeApp === 'facebook'))) && (
+                    <Sidebar className={cn("hidden md:flex")}>
+                        <SidebarHeader className="h-16 flex items-center justify-center p-0">
+                            {/* Project Switcher Removed */}
+                        </SidebarHeader>
+                        <SidebarContent>
+                            {activeApp === 'whatsapp' && (
+                                <SidebarMenu>
+                                    {wachatMenuItems.filter(item => item.roles.includes(currentUserRole)).map((item) => (
+                                        <SidebarItem key={item.href} item={item} />
+                                    ))}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'ad-manager' && (
+                                <SidebarMenu>
+                                    {adManagerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'sabchat' && (
+                                <SidebarMenu>
+                                    {sabChatMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'sabflow' && (
+                                <SidebarMenu>
+                                    {sabflowMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'facebook' && (
+                                <SidebarMenu>
+                                    {facebookMenuGroups.map(group => (
+                                        <React.Fragment key={group.title}>
+                                            <p className={cn("px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mt-4 mb-1 transition-all duration-300 whitespace-nowrap", !isOpen && "w-0 overflow-hidden opacity-0 h-0 mt-0 mb-0 group-hover:w-auto group-hover:opacity-100 group-hover:h-auto group-hover:mt-4 group-hover:mb-1")}>{group.title}</p>
+                                            {group.items.map(item => (
+                                                <SidebarItem key={item.href} item={item} />
+                                            ))}
+                                        </React.Fragment>
+                                    ))}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'instagram' && (
+                                <SidebarMenu>
+                                    {instagramMenuGroups.flatMap(g => g.items).map(item => (
+                                        <SidebarItem key={item.href} item={item} />
+                                    ))}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'crm' && (
+                                <SidebarMenu>
+                                    {crmMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'team' && (
+                                <SidebarMenu>
+                                    {teamMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'email' && (
+                                <SidebarMenu>
+                                    {emailMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'sms' && (
+                                <SidebarMenu>
+                                    {smsMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'api' && (
+                                <SidebarMenu>
+                                    {apiMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'website-builder' && (
+                                <SidebarMenu>
+                                    {portfolioMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'url-shortener' && (
+                                <SidebarMenu>
+                                    {urlShortenerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'qr-code-maker' && (
+                                <SidebarMenu>
+                                    {qrCodeMakerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'seo-suite' && (
+                                <SidebarMenu>
+                                    {seoMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                            {activeApp === 'user-settings' && (
+                                <SidebarMenu>
+                                    {userSettingsItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                </SidebarMenu>
+                            )}
+                        </SidebarContent>
+                    </Sidebar>
+                )}
                 <main className="flex-1 overflow-y-auto">
                     {isChatPage || isBuilderPage ? children : mainContent}
                 </main>
