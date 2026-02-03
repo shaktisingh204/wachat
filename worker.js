@@ -72,52 +72,31 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
       headerMediaFile,
     } = job;
 
-    const finalComponents = JSON.parse(JSON.stringify(components || []));
-    const header = finalComponents.find(c => c.type === 'header');
-
-    if (
-      headerMediaFile?.buffer?.data &&
-      header?.parameters?.[0]
-    ) {
-      const param = header.parameters[0];
-      const mediaType = param.type;
-
-      if (!param[mediaType]?.id) {
-        const form = new FormData();
-        form.append(
-          'file',
-          Buffer.from(headerMediaFile.buffer.data),
-          headerMediaFile.name
-        );
-        form.append('messaging_product', 'whatsapp');
-
-        const upload = await undici.request(
-          `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
-          {
-            method: 'POST',
-            dispatcher: agent,
-            headers: {
-              ...form.getHeaders(),
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: form,
-          }
-        );
-
-        const uploadData = await upload.body.json();
-        if (upload.statusCode >= 400 || !uploadData?.id) {
-          throw new Error(`Media upload failed: ${JSON.stringify(uploadData?.error || 'Unknown upload error')}`);
-        }
-        param[mediaType] = { id: uploadData.id };
-      }
-    }
+    const finalComponents = (components || [])
+      .map(c => {
+        // Fix: Map generic 'BUTTONS' type to Meta's expected 'BUTTON' if applicable,
+        // or ensure strict type compliance.
+        // Actually, Meta expects 'button' (lowercase) usually for components in /messages
+        // but let's check the error: "must be one of {..., BUTTON, ...}".
+        // It seems the API expects uppercase 'BUTTON'.
+        if (c.type === 'BUTTONS') return { ...c, type: 'BUTTON' };
+        return c;
+      })
+      .filter(c => {
+        // Meta API only accepts specific component types in the `components` param for /messages.
+        const allowedTypes = ['HEADER', 'BODY', 'FOOTER', 'BUTTON'];
+        return allowedTypes.includes(c.type?.toUpperCase());
+      });
 
     for (const c of finalComponents) {
-      // Sanitize: Remove keys that Meta API does not accept in the "messages" endpoint components
+      // Sanitize: Remove keys that Meta API does not accept
       delete c.format;
       delete c.text;
       delete c.example;
       delete c.buttons;
+
+      // Ensure index is strings for buttons if needed, or integers?
+      // Meta API typically needs: { type: 'button', sub_type: 'quick_reply', index: '0', parameters: [...] }
 
       for (const p of c.parameters || []) {
         if (p.type === 'text') {
