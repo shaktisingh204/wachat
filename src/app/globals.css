@@ -301,4 +301,31 @@
         stroke-dashoffset: 0;
       }
     }
+
+    /* Modern UI Utilities */
+    .glass-effect {
+        @apply backdrop-blur-xl bg-background/40 border border-white/20 shadow-lg dark:border-white/10 dark:bg-background/30;
+    }
+
+    .shadow-glow {
+        box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.5);
+    }
+
+    .shadow-glow-lg {
+        box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.6);
+    }
+
+    .card-elevated {
+        @apply shadow-xl shadow-black/5 hover:shadow-2xl hover:-translate-y-1 hover:shadow-black/10 transition-all duration-300;
+    }
+
+    .gradient-border {
+        @apply relative;
+        background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary))) border-box;
+        border: 2px solid transparent;
+    }
+
+    .text-gradient {
+        @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+    }
 }
