@@ -1,7 +1,7 @@
 
 "use client";
 
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import SplitPane from "react-split-pane";
 import { MetaFlowNavigator } from "./meta-flow-navigator";
 import { MetaFlowProperties } from "./meta-flow-properties";
 import { MetaFlowCanvas } from "./meta-flow-canvas";
@@ -134,8 +134,6 @@ export function MetaFlowBuilderLayout({
                 };
                 break;
             case 'Footer':
-                // Check if footer already exists? Strictly one footer per screen usually, but Form can have multiple children.
-                // Meta Best Practice: Footer should be at the bottom.
                 newComponent = {
                     type: 'Footer',
                     label: 'Continue',
@@ -213,10 +211,7 @@ export function MetaFlowBuilderLayout({
                 newComponent = {
                     type: 'Switch',
                     name: `switch_${compId}`,
-                    label: 'Switch Label', // Switch usually has a label? Check specs. V3 switch might just be name and value or state. 
-                    // Meta Switch: name, enabled, visible, initial_value (data). 
-                    // Wait, Switch visual usually needs a label? No, usually coupled with Text in Row.
-                    // But simplified:
+                    label: 'Switch Label',
                     enabled: true
                 };
                 break;
@@ -226,7 +221,7 @@ export function MetaFlowBuilderLayout({
 
         container.children.push(newComponent);
         setFlowData(newFlowData);
-        setSelectedComponent(newComponent); // This might be tricky as reference changes, but we select by object content usually or name/id
+        setSelectedComponent(newComponent);
     };
 
     const handleDeleteComponent = (componentName: string) => {
@@ -237,20 +232,6 @@ export function MetaFlowBuilderLayout({
             const container = screen.layout.children.find((c: any) => c.type === 'Form' || c.type === 'NavigationList');
             if (container && container.children) {
                 container.children = container.children.filter((c: any) => c.name !== componentName && c !== componentName);
-                // Fix: some components might not have name (like Text), so we might need better ID tracking.
-                // For now, assume Text components are deleted by reference or index if we were tracking it, 
-                // but handleDeleteComponent receives a string?
-                // The current invocation in Navigator passes `comp.name`. Text components don't have name.
-                // Navigator loop: key={comp.name || idx}. 
-                // We need to fix deletion for unnamed components later, but specifically for now we handle named ones.
-
-                // FALLBACK: If name is undefined, we can't easily delete by name.
-                // Re-implementation in Navigator should pass index or unique ID.
-                // For this step, I'll rely on the existing logic but knowing it's imperfect for Text.
-                // I will add ID generation for Text in handleAddComponent to help.
-                if (!componentName) {
-                    // Can't delete without ID.
-                }
             }
             setFlowData(newFlowData);
             setSelectedComponent(null);
@@ -264,20 +245,10 @@ export function MetaFlowBuilderLayout({
         if (screen) {
             const container = screen.layout.children.find((c: any) => c.type === 'Form' || c.type === 'NavigationList');
             if (container && container.children) {
-                // Try to find by name first
                 let index = -1;
                 if (updatedComponent.name) {
                     index = container.children.findIndex((c: any) => c.name === updatedComponent.name);
                 }
-                // If not found or no name, we might be stuck. 
-                // IDEALLY we should add internal IDs to all components in the editor state.
-                // For now, we assume editing the SELECTED component, which we can find by identity match if we had the original object, but we don't.
-                // Wait, if we use the index from the Navigator...
-
-                // Let's rely on name for inputs, and text... well text is hard.
-                // Actually, let's update Text components to have an internal `_id` or just rely on the fact that we replace the one that matches properties? Risky.
-
-                // IMPROVEMENT: I will add `_id` to new components.
                 if (updatedComponent._id) {
                     index = container.children.findIndex((c: any) => c._id === updatedComponent._id);
                 }
@@ -294,44 +265,69 @@ export function MetaFlowBuilderLayout({
     const currentScreen = flowData.screens?.find((s: any) => s.id === selectedScreenId) || null;
 
     return (
-        <ResizablePanelGroup direction="horizontal" className="h-full w-full rounded-lg border">
-            <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
-                <MetaFlowNavigator
-                    screens={flowData.screens || []}
-                    selectedScreenId={selectedScreenId}
-                    onSelectScreen={(id) => { setSelectedScreenId(id); setSelectedComponent(null); }}
-                    onAddScreen={handleAddScreen}
-                    onDeleteScreen={handleDeleteScreen}
-                    selectedComponent={selectedComponent}
-                    onSelectComponent={setSelectedComponent}
-                    onDeleteComponent={handleDeleteComponent}
-                    onAddComponent={handleAddComponent}
-                />
-            </ResizablePanel>
+        <div className="h-full w-full relative">
+            <style jsx global>{`
+                .Resizer {
+                    background: #000;
+                    opacity: .2;
+                    z-index: 1;
+                    box-sizing: border-box;
+                    background-clip: padding-box;
+                }
+                .Resizer:hover {
+                    transition: all 2s ease;
+                }
+                .Resizer.vertical {
+                    width: 11px;
+                    margin: 0 -5px;
+                    border-left: 5px solid rgba(255, 255, 255, 0);
+                    border-right: 5px solid rgba(255, 255, 255, 0);
+                    cursor: col-resize;
+                }
+                .Resizer.vertical:hover {
+                    border-left: 5px solid rgba(0, 0, 0, 0.5);
+                    border-right: 5px solid rgba(0, 0, 0, 0.5);
+                }
+            `}</style>
 
-            <ResizableHandle />
+            <SplitPane split="vertical" minSize={200} defaultSize={250}>
+                {/* Left Pane (Navigator) */}
+                <div className="h-full overflow-hidden bg-background">
+                    <MetaFlowNavigator
+                        screens={flowData.screens || []}
+                        selectedScreenId={selectedScreenId}
+                        onSelectScreen={(id) => { setSelectedScreenId(id); setSelectedComponent(null); }}
+                        onAddScreen={handleAddScreen}
+                        onDeleteScreen={handleDeleteScreen}
+                        selectedComponent={selectedComponent}
+                        onSelectComponent={setSelectedComponent}
+                        onDeleteComponent={handleDeleteComponent}
+                        onAddComponent={handleAddComponent}
+                    />
+                </div>
 
-            <ResizablePanel defaultSize={50}>
-                <MetaFlowCanvas
-                    flowData={flowData}
-                    setFlowData={setFlowData}
-                    selectedScreenId={selectedScreenId}
-                />
-            </ResizablePanel>
-
-            <ResizableHandle />
-
-            <ResizablePanel defaultSize={30} minSize={20}>
-                <MetaFlowProperties
-                    selectedScreen={currentScreen}
-                    onUpdateScreen={handleUpdateScreen}
-                    onDeleteScreen={handleDeleteScreen}
-                    selectedComponent={selectedComponent}
-                    onUpdateComponent={handleUpdateComponent}
-                    onDeleteComponent={handleDeleteComponent}
-                    allScreens={flowData.screens || []}
-                />
-            </ResizablePanel>
-        </ResizablePanelGroup>
+                {/* Right Area (Split Canvas | Properties) */}
+                <SplitPane split="vertical" minSize={400} defaultSize="60%" primary="first">
+                    <div className="h-full bg-background overflow-hidden relative">
+                        <MetaFlowCanvas
+                            flowData={flowData}
+                            setFlowData={setFlowData}
+                            selectedScreenId={selectedScreenId}
+                        />
+                    </div>
+                    <div className="h-full bg-background overflow-hidden border-l">
+                        <MetaFlowProperties
+                            selectedScreen={currentScreen}
+                            onUpdateScreen={handleUpdateScreen}
+                            onDeleteScreen={handleDeleteScreen}
+                            selectedComponent={selectedComponent}
+                            onUpdateComponent={handleUpdateComponent}
+                            onDeleteComponent={handleDeleteComponent}
+                            allScreens={flowData.screens || []}
+                        />
+                    </div>
+                </SplitPane>
+            </SplitPane>
+        </div>
     );
 }
