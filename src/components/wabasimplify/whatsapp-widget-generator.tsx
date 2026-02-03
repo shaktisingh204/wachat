@@ -16,12 +16,13 @@ import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { CodeBlock } from './code-block';
 import { Separator } from '../ui/separator';
 import { Slider } from '../ui/slider';
+import { ColorPicker } from '../ui/color-picker';
 import { saveWidgetSettings } from '@/app/actions/widget.actions';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 
 interface WhatsAppWidgetGeneratorProps {
-  project: WithId<Project>;
+    project: WithId<Project>;
 }
 
 const initialState = { message: null, error: undefined };
@@ -40,7 +41,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
     const [state, formAction] = useActionState(saveWidgetSettings, initialState);
     const { toast } = useToast();
     const [showWidget, setShowWidget] = useState(false);
-    
+
     // --- Form State ---
     const [settings, setSettings] = useState(() => ({
         phoneNumber: project.widgetSettings?.phoneNumber || project.phoneNumbers?.[0]?.display_phone_number || '',
@@ -57,7 +58,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
         textColor: project.widgetSettings?.textColor || '#111827',
         buttonTextColor: project.widgetSettings?.buttonTextColor || '#FFFFFF',
     }));
-    
+
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
@@ -68,7 +69,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
     }, [state, toast]);
 
     const handleSettingChange = (field: keyof typeof settings, value: string | number | boolean) => {
-        setSettings(prev => ({...prev, [field]: value}));
+        setSettings(prev => ({ ...prev, [field]: value }));
     }
 
     const handleFileChange = (file: File | null) => {
@@ -85,7 +86,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
         return `<script src="${appUrl}/api/widget/${project._id.toString()}" async defer></script>`;
     }, [project._id]);
-    
+
     return (
         <Card className="card-gradient card-gradient-blue">
             <form action={formAction}>
@@ -118,19 +119,19 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                         {/* Customization Panel */}
                         <div className="space-y-4">
                             <Card>
-                                <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5"/>Content</CardTitle></CardHeader>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" />Content</CardTitle></CardHeader>
                                 <CardContent className="space-y-4">
-                                     <div className="space-y-2"><Label>Phone Number</Label><Select value={settings.phoneNumber} onValueChange={(v) => handleSettingChange('phoneNumber', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{project.phoneNumbers.map(phone => (<SelectItem key={phone.id} value={phone.display_phone_number}>{phone.display_phone_number}</SelectItem>))}</SelectContent></Select></div>
-                                     <div className="space-y-2"><Label>Welcome Message</Label><Textarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} /></div>
-                                     <div className="space-y-2"><Label>Pre-filled User Message</Label><Textarea value={settings.prefilledMessage} onChange={e => handleSettingChange('prefilledMessage', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>Phone Number</Label><Select value={settings.phoneNumber} onValueChange={(v) => handleSettingChange('phoneNumber', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{project.phoneNumbers.map(phone => (<SelectItem key={phone.id} value={phone.display_phone_number}>{phone.display_phone_number}</SelectItem>))}</SelectContent></Select></div>
+                                    <div className="space-y-2"><Label>Welcome Message</Label><Textarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>Pre-filled User Message</Label><Textarea value={settings.prefilledMessage} onChange={e => handleSettingChange('prefilledMessage', e.target.value)} /></div>
                                 </CardContent>
                             </Card>
-                             <Card>
-                                <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5"/>Appearance</CardTitle></CardHeader>
+                            <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" />Appearance</CardTitle></CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2"><Label>Position</Label><Select value={settings.position} onValueChange={(v) => handleSettingChange('position', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="bottom-right">Bottom Right</SelectItem><SelectItem value="bottom-left">Bottom Left</SelectItem></SelectContent></Select></div>
-                                        <div className="space-y-2"><Label htmlFor="widget-color">Widget Color</Label><Input id="widget-color" type="color" value={settings.buttonColor} onChange={e => handleSettingChange('buttonColor', e.target.value)} /></div>
+                                        <div className="space-y-2"><Label htmlFor="widget-color">Widget Color</Label><ColorPicker id="widget-color" value={settings.buttonColor} onChange={v => handleSettingChange('buttonColor', v)} /></div>
                                     </div>
                                     <div className="space-y-2"><Label>Header Title</Label><Input value={settings.headerTitle} onChange={e => handleSettingChange('headerTitle', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>Header Subtitle</Label><Input value={settings.headerSubtitle} onChange={e => handleSettingChange('headerSubtitle', e.target.value)} /></div>
@@ -140,12 +141,12 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                         <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null)} className="text-xs" />
                                     </div>
                                     <div className="space-y-2"><Label>CTA Text</Label><Input value={settings.ctaText} onChange={e => handleSettingChange('ctaText', e.target.value)} /></div>
-                                     <Separator />
-                                    <div className="space-y-2"><Label>Border Radius ({settings.borderRadius}px)</Label><Slider value={[settings.borderRadius]} onValueChange={v => handleSettingChange('borderRadius', v[0])} min={0} max={50}/></div>
-                                    <div className="space-y-2"><Label>Padding ({settings.padding}px)</Label><Slider value={[settings.padding]} onValueChange={v => handleSettingChange('padding', v[0])} min={8} max={32}/></div>
+                                    <Separator />
+                                    <div className="space-y-2"><Label>Border Radius ({settings.borderRadius}px)</Label><Slider value={[settings.borderRadius]} onValueChange={v => handleSettingChange('borderRadius', v[0])} min={0} max={50} /></div>
+                                    <div className="space-y-2"><Label>Padding ({settings.padding}px)</Label><Slider value={[settings.padding]} onValueChange={v => handleSettingChange('padding', v[0])} min={8} max={32} /></div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label htmlFor="text-color">Text Color</Label><Input id="text-color" type="color" value={settings.textColor} onChange={e => handleSettingChange('textColor', e.target.value)} /></div>
-                                        <div className="space-y-2"><Label htmlFor="button-text-color">Button Text Color</Label><Input id="button-text-color" type="color" value={settings.buttonTextColor} onChange={e => handleSettingChange('buttonTextColor', e.target.value)} /></div>
+                                        <div className="space-y-2"><Label htmlFor="text-color">Text Color</Label><ColorPicker id="text-color" value={settings.textColor} onChange={v => handleSettingChange('textColor', v)} /></div>
+                                        <div className="space-y-2"><Label htmlFor="button-text-color">Button Text Color</Label><ColorPicker id="button-text-color" value={settings.buttonTextColor} onChange={v => handleSettingChange('buttonTextColor', v)} /></div>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -156,11 +157,11 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                             <div className="relative h-[500px] bg-muted rounded-lg overflow-hidden flex items-end" style={{ [settings.position.includes('right') ? 'justifyContent' : '']: settings.position.includes('right') ? 'flex-end' : 'flex-start', padding: '20px' }}>
                                 <div id="sabnode-widget-container-preview" className="static">
                                     <Button id="sabnode-widget-button-preview" style={{ backgroundColor: settings.buttonColor }} onClick={() => setShowWidget(!showWidget)} className="relative h-16 w-16">
-                                        <WhatsAppIcon className="h-8 w-8" style={{color: settings.buttonTextColor}} />
+                                        <WhatsAppIcon className="h-8 w-8" style={{ color: settings.buttonTextColor }} />
                                     </Button>
                                     {showWidget && (
-                                         <div id="sabnode-widget-chatbox-preview" className="absolute" style={{ bottom: '96px', right: '0', width: '350px', backgroundColor: 'white', borderRadius: `${settings.borderRadius}px`, overflow: 'hidden', boxShadow: '0 5px 20px rgba(0,0,0,0.2)'}}>
-                                            <div className="sabnode-chat-header" style={{backgroundColor: settings.buttonColor, color: settings.buttonTextColor, padding: `${settings.padding}px`, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div id="sabnode-widget-chatbox-preview" className="absolute" style={{ bottom: '96px', right: '0', width: '350px', backgroundColor: 'white', borderRadius: `${settings.borderRadius}px`, overflow: 'hidden', boxShadow: '0 5px 20px rgba(0,0,0,0.2)' }}>
+                                            <div className="sabnode-chat-header" style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor, padding: `${settings.padding}px`, display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                 <Avatar className="w-10 h-10">
                                                     {settings.headerAvatarUrl && <AvatarImage src={settings.headerAvatarUrl} />}
                                                     <AvatarFallback>{settings.headerTitle.charAt(0)}</AvatarFallback>
@@ -168,11 +169,11 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                                 <div><div className="title font-bold">{settings.headerTitle}</div><div className="subtitle text-xs opacity-90">{settings.headerSubtitle}</div></div>
                                             </div>
                                             <div className="sabnode-chat-body" style={{ padding: `${settings.padding}px`, backgroundColor: '#E5DDD5' }}>
-                                                <div className="sabnode-welcome-msg" style={{ background: 'white', color: settings.textColor, padding: '12px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)'}}>{settings.welcomeMessage}</div>
+                                                <div className="sabnode-welcome-msg" style={{ background: 'white', color: settings.textColor, padding: '12px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>{settings.welcomeMessage}</div>
                                             </div>
-                                            <div className="sabnode-chat-footer" style={{ padding: `${settings.padding}px`, background: '#f9f9f9', borderTop: '1px solid #eee'}}>
-                                                <Button className="sabnode-cta-button w-full h-12 rounded-full" style={{backgroundColor: settings.buttonColor, color: settings.buttonTextColor}}>
-                                                    <WhatsAppIcon className="h-4 w-4 mr-2"/>
+                                            <div className="sabnode-chat-footer" style={{ padding: `${settings.padding}px`, background: '#f9f9f9', borderTop: '1px solid #eee' }}>
+                                                <Button className="sabnode-cta-button w-full h-12 rounded-full" style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor }}>
+                                                    <WhatsAppIcon className="h-4 w-4 mr-2" />
                                                     {settings.ctaText}
                                                 </Button>
                                             </div>
@@ -181,14 +182,14 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                 <Label>Embed Code</Label>
-                                 <p className="text-xs text-muted-foreground">Copy this single line of code and paste it before the closing `&lt;/body&gt;` tag on your website.</p>
-                                 <CodeBlock code={embedCode} />
+                                <Label>Embed Code</Label>
+                                <p className="text-xs text-muted-foreground">Copy this single line of code and paste it before the closing `&lt;/body&gt;` tag on your website.</p>
+                                <CodeBlock code={embedCode} />
                             </div>
                         </div>
                     </div>
                 </CardContent>
-                 <CardFooter>
+                <CardFooter>
                     <SubmitButton />
                 </CardFooter>
             </form>
