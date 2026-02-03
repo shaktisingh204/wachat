@@ -85,7 +85,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.54.2",
     "react-qr-code": "^2.0.12",
-    "react-split-pane": "^3.0.6",
+    "react-split": "^2.0.14",
     "recharts": "^2.15.1",
     "redis": "^4.6.15",
     "require-in-the-middle": "7.3.0",

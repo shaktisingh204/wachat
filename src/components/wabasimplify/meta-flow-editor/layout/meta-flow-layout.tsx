@@ -1,7 +1,7 @@
 
 "use client";
 
-import SplitPane from "react-split-pane";
+import Split from "react-split";
 import { MetaFlowNavigator } from "./meta-flow-navigator";
 import { MetaFlowProperties } from "./meta-flow-properties";
 import { MetaFlowCanvas } from "./meta-flow-canvas";
@@ -215,6 +215,24 @@ export function MetaFlowBuilderLayout({
                     enabled: true
                 };
                 break;
+            case 'PhotoPicker':
+                newComponent = {
+                    type: 'PhotoPicker',
+                    name: `photo_${compId}`,
+                    label: 'Select Photo',
+                    required: false,
+                    enabled: true
+                };
+                break;
+            case 'DocumentPicker':
+                newComponent = {
+                    type: 'DocumentPicker',
+                    name: `doc_${compId}`,
+                    label: 'Select Document',
+                    required: false,
+                    enabled: true
+                };
+                break;
             default:
                 newComponent = { type, visible: true };
         }
@@ -267,30 +285,29 @@ export function MetaFlowBuilderLayout({
     return (
         <div className="h-full w-full relative">
             <style jsx global>{`
-                .Resizer {
-                    background: #000;
-                    opacity: .2;
-                    z-index: 1;
-                    box-sizing: border-box;
-                    background-clip: padding-box;
-                }
-                .Resizer:hover {
-                    transition: all 2s ease;
-                }
-                .Resizer.vertical {
-                    width: 11px;
-                    margin: 0 -5px;
-                    border-left: 5px solid rgba(255, 255, 255, 0);
-                    border-right: 5px solid rgba(255, 255, 255, 0);
+                .gutter {
+                    background-color: hsl(var(--border));
+                    background-repeat: no-repeat;
+                    background-position: 50%;
                     cursor: col-resize;
                 }
-                .Resizer.vertical:hover {
-                    border-left: 5px solid rgba(0, 0, 0, 0.5);
-                    border-right: 5px solid rgba(0, 0, 0, 0.5);
+                .gutter:hover {
+                    background-color: hsl(var(--primary) / 0.5);
                 }
             `}</style>
 
-            <SplitPane split="vertical" minSize={200} defaultSize={250}>
+            <Split
+                className="flex h-full"
+                sizes={[20, 50, 30]}
+                minSize={200}
+                expandToMin={false}
+                gutterSize={6}
+                gutterAlign="center"
+                snapOffset={30}
+                dragInterval={1}
+                direction="horizontal"
+                cursor="col-resize"
+            >
                 {/* Left Pane (Navigator) */}
                 <div className="h-full overflow-hidden bg-background">
                     <MetaFlowNavigator
@@ -306,28 +323,28 @@ export function MetaFlowBuilderLayout({
                     />
                 </div>
 
-                {/* Right Area (Split Canvas | Properties) */}
-                <SplitPane split="vertical" minSize={400} defaultSize="60%" primary="first">
-                    <div className="h-full bg-background overflow-hidden relative">
-                        <MetaFlowCanvas
-                            flowData={flowData}
-                            setFlowData={setFlowData}
-                            selectedScreenId={selectedScreenId}
-                        />
-                    </div>
-                    <div className="h-full bg-background overflow-hidden border-l">
-                        <MetaFlowProperties
-                            selectedScreen={currentScreen}
-                            onUpdateScreen={handleUpdateScreen}
-                            onDeleteScreen={handleDeleteScreen}
-                            selectedComponent={selectedComponent}
-                            onUpdateComponent={handleUpdateComponent}
-                            onDeleteComponent={handleDeleteComponent}
-                            allScreens={flowData.screens || []}
-                        />
-                    </div>
-                </SplitPane>
-            </SplitPane>
+                {/* Center Pane (Canvas) */}
+                <div className="h-full bg-background overflow-hidden border-l border-r relative">
+                    <MetaFlowCanvas
+                        flowData={flowData}
+                        setFlowData={setFlowData}
+                        selectedScreenId={selectedScreenId}
+                    />
+                </div>
+
+                {/* Right Pane (Properties) */}
+                <div className="h-full bg-background overflow-hidden relative">
+                    <MetaFlowProperties
+                        selectedScreen={currentScreen}
+                        onUpdateScreen={handleUpdateScreen}
+                        onDeleteScreen={handleDeleteScreen}
+                        selectedComponent={selectedComponent}
+                        onUpdateComponent={handleUpdateComponent}
+                        onDeleteComponent={handleDeleteComponent}
+                        allScreens={flowData.screens || []}
+                    />
+                </div>
+            </Split>
         </div>
     );
 }
