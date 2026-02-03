@@ -53,7 +53,7 @@ function CreateMetaFlowPageContent() {
     const [state, formAction] = useActionState(saveMetaFlow, createFlowInitialState);
 
     const [projectId, setProjectId] = useState<string | null>(null);
-    const [flowName, setFlowName] = useState('New Interactive Flow');
+    const [flowName, setFlowName] = useState(`New Interactive Flow - ${new Date().toLocaleString()}`);
     const [category, setCategory] = useState('');
     const [publishOnSave, setPublishOnSave] = useState(true);
     const [flowData, setFlowData] = useState<any>({ version: '3.0', screens: [], routing_model: {}, data_api_version: '3.0' });

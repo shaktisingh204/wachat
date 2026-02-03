@@ -86,7 +86,7 @@ const ChatBubble = ({ children }: { children: React.ReactNode }) => (
     </div>
 );
 
-export const MetaFlowPreview = ({ flowJson, activeScreenId }: { flowJson: string, activeScreenId?: string | null }) => {
+export const MetaFlowPreview = ({ flowJson, activeScreenId, className }: { flowJson: string, activeScreenId?: string | null, className?: string }) => {
     const [flowData, setFlowData] = useState<any>(null);
     const [currentScreenId, setCurrentScreenId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Record<string, any>>({});
@@ -155,7 +155,7 @@ export const MetaFlowPreview = ({ flowJson, activeScreenId }: { flowJson: string
     }
 
     return (
-        <div className="w-full max-w-[360px] mx-auto shadow-2xl rounded-3xl overflow-hidden h-full flex flex-col bg-[#E7E5DE] relative">
+        <div className={cn("w-full h-full flex flex-col bg-[#E7E5DE] relative overflow-hidden", className)}>
             {/* Phone Top Bar */}
             <div className="bg-gray-100 p-2 text-xs font-mono text-gray-500 flex justify-between">
                 <span>12:30</span>
