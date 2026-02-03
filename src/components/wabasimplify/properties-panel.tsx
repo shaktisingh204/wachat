@@ -23,12 +23,12 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
-import type { Variable } from '@/lib/definitions';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Trash2, Settings2 } from 'lucide-react';
 
 interface PropertiesPanelProps {
     node: any;
-    availableVariables: Variable[];
+    availableVariables: any[];
     onUpdate: (id: string, data: Partial<any>) => void;
     deleteNode: (id: string) => void;
 }
@@ -41,7 +41,7 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
     const handleDataChange = (data: Partial<any>) => {
         onUpdate(node.id, data);
     };
-    
+
     const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onUpdate(node.id, { label: e.target.value });
     };
@@ -71,21 +71,52 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
     }
 
     return (
-        <div className="space-y-4 h-full flex flex-col">
-            <h3 className="text-lg font-semibold">Properties</h3>
-            <div className="space-y-2">
-                <Label>Block Label</Label>
-                <Input value={node.data.label} onChange={handleLabelChange} />
+        <div className="flex flex-col h-full bg-background/50 backdrop-blur-sm">
+            <div className="flex items-center justify-between px-4 py-3 border-b shrink-0 bg-background/80">
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                    <Settings2 className="h-4 w-4 text-muted-foreground" />
+                    Block Properties
+                </h3>
             </div>
-            <Separator />
-            <div className="flex-1">
-                {renderEditorContent()}
-            </div>
+
+            <ScrollArea className="flex-1">
+                <div className="p-4 space-y-6">
+                    <div className="space-y-3">
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">General</Label>
+                        <div className="grid gap-2">
+                            <Label htmlFor="block-label">Block Label</Label>
+                            <Input
+                                id="block-label"
+                                value={node.data.label}
+                                onChange={handleLabelChange}
+                                placeholder="Enter a label for this block"
+                                className="bg-background"
+                            />
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Configuration</Label>
+                        <div className="space-y-4">
+                            {renderEditorContent()}
+                        </div>
+                    </div>
+                </div>
+            </ScrollArea>
+
             {node.type !== 'start' && (
-                <Button variant="destructive" className="w-full" onClick={() => deleteNode(node.id)}>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Block
-                </Button>
+                <div className="p-4 border-t bg-background/50 mt-auto shrink-0">
+                    <Button
+                        variant="ghost"
+                        className="w-full hover:bg-destructive/10 hover:text-destructive transition-colors text-destructive"
+                        onClick={() => deleteNode(node.id)}
+                    >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Block
+                    </Button>
+                </div>
             )}
         </div>
     );

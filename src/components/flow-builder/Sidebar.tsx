@@ -36,37 +36,32 @@ const blockTypes = [
     { type: 'generateQrCode', label: 'Generate QR Code', icon: QrCode },
 ];
 
-export const Sidebar = () => {
+export const Sidebar = ({ className }: { className?: string }) => {
     const onDragStart = (event: React.DragEvent, nodeType: string) => {
         event.dataTransfer.setData('application/reactflow', nodeType);
         event.dataTransfer.effectAllowed = 'move';
     };
 
     return (
-        <Card className="h-full border-r rounded-none border-y-0 border-l-0 flex flex-col">
-            <CardHeader className="p-4 border-b shrink-0">
-                <CardTitle className="text-sm font-semibold">Blocks</CardTitle>
-            </CardHeader>
-            <ScrollArea className="flex-1 w-full">
-                <div className="p-4 grid gap-2 pb-10">
-                    {blockTypes.map((block) => {
-                        const Icon = block.icon;
-                        return (
-                            <div
-                                key={block.type}
-                                className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-grab active:cursor-grabbing transition-colors"
-                                onDragStart={(event) => onDragStart(event, block.type)}
-                                draggable
-                            >
-                                <div className="p-2 rounded-md bg-muted">
-                                    <Icon className="h-4 w-4 text-muted-foreground" />
-                                </div>
-                                <span className="text-sm font-medium">{block.label}</span>
+        <div className={className}>
+            <div className="grid grid-cols-2 gap-2">
+                {blockTypes.map((block) => {
+                    const Icon = block.icon;
+                    return (
+                        <div
+                            key={block.type}
+                            className="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-grab active:cursor-grabbing transition-colors text-center"
+                            onDragStart={(event) => onDragStart(event, block.type)}
+                            draggable
+                        >
+                            <div className="p-2 rounded-md bg-muted">
+                                <Icon className="h-5 w-5 text-muted-foreground" />
                             </div>
-                        );
-                    })}
-                </div>
-            </ScrollArea>
-        </Card>
+                            <span className="text-xs font-medium">{block.label}</span>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
     );
 };

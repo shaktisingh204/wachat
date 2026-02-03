@@ -25,7 +25,9 @@ import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, Save, Settings2, ArrowLeft, BookOpen, Play } from 'lucide-react';
+import { LoaderCircle, Save, Settings2, ArrowLeft, BookOpen, Play, Plus } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useProject } from '@/context/project-context';
@@ -65,16 +67,16 @@ const FlowBuilder = () => {
 
     // React Flow state
     const reactFlowWrapper = useRef(null);
-    const [nodes, setNodes, onNodesChange] = useNodesState([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-    const [reactFlowInstance, setReactFlowInstance] = useState(null);
+    const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+    const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
 
     // App state
-    const [currentFlow, setCurrentFlow] = useState(null);
+    const [currentFlow, setCurrentFlow] = useState<any>(null);
     const [flowName, setFlowName] = useState('New Flow');
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoading, startLoadingTransition] = useTransition();
-    const [selectedNode, setSelectedNode] = useState(null);
+    const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [isPropsOpen, setIsPropsOpen] = useState(false);
 
     // Load flow
@@ -95,7 +97,7 @@ const FlowBuilder = () => {
         }
     }, [activeProjectId]);
 
-    const loadFlow = async (flowId) => {
+    const loadFlow = async (flowId: string) => {
         const flow = await getFlowById(flowId);
         if (!flow) return;
         setCurrentFlow(flow);
@@ -112,13 +114,13 @@ const FlowBuilder = () => {
         [setEdges],
     );
 
-    const onDragOver = useCallback((event) => {
+    const onDragOver = useCallback((event: React.DragEvent) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     }, []);
 
     const onDrop = useCallback(
-        (event) => {
+        (event: React.DragEvent) => {
             event.preventDefault();
 
             const type = event.dataTransfer.getData('application/reactflow');
@@ -144,7 +146,7 @@ const FlowBuilder = () => {
         [reactFlowInstance],
     );
 
-    const onNodeClick = useCallback((event, node) => {
+    const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
         setSelectedNode(node);
         setIsPropsOpen(true);
     }, []);
@@ -167,8 +169,8 @@ const FlowBuilder = () => {
                 flowId: currentFlow?._id.toString(),
                 projectId: activeProjectId,
                 name: flowName,
-                nodes,
-                edges,
+                nodes: nodes as any,
+                edges: edges as any,
                 // Backend logic for triggerKeywords might need manual extraction from start node data if used
                 triggerKeywords: [],
             };
@@ -186,7 +188,7 @@ const FlowBuilder = () => {
         });
     };
 
-    const onNodeUpdate = (id, newData) => {
+    const onNodeUpdate = (id: string, newData: any) => {
         setNodes((nds) => nds.map((node) => {
             if (node.id === id) {
                 return { ...node, data: { ...node.data, ...newData } };
@@ -194,10 +196,13 @@ const FlowBuilder = () => {
             return node;
         }));
         // Update selected node reference as well to keep UI in sync
-        setSelectedNode((prev) => prev?.id === id ? { ...prev, data: { ...prev.data, ...newData } } : prev);
+        setSelectedNode((prev) => {
+            if (!prev || prev.id !== id) return prev;
+            return { ...prev, data: { ...prev.data, ...newData } } as Node;
+        });
     };
 
-    const onDeleteNode = (id) => {
+    const onDeleteNode = (id: string) => {
         setNodes((nds) => nds.filter((n) => n.id !== id));
         setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
         setSelectedNode(null);
@@ -261,6 +266,7 @@ const FlowBuilder = () => {
                                     node={selectedNode}
                                     onUpdate={onNodeUpdate}
                                     deleteNode={onDeleteNode}
+                                    availableVariables={[]}
                                 />
                             )}
                         </SheetContent>
@@ -270,13 +276,8 @@ const FlowBuilder = () => {
 
             {/* Main Content */}
             <div className="flex flex-1 overflow-hidden">
-                {/* Sidebar */}
-                <aside className="w-64 hidden border-r bg-muted/10 md:block overflow-hidden">
-                    <Sidebar />
-                </aside>
-
                 {/* Canvas */}
-                <div className="flex-1 h-full w-full" ref={reactFlowWrapper}>
+                <div className="flex-1 h-full w-full relative" ref={reactFlowWrapper}>
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
@@ -295,21 +296,40 @@ const FlowBuilder = () => {
                     >
                         <Controls />
                         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-                        <Panel position="top-right" className="bg-background/50 p-2 rounded-lg backdrop-blur-sm border shadow-sm">
-                            <div className="text-xs text-muted-foreground">
-                                Drag blocks from the left sidebar
-                            </div>
+
+                        <Panel position="top-left" className="m-4">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button size="icon" className="h-12 w-12 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-all active:scale-95">
+                                        <Plus className="h-6 w-6 text-primary-foreground" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent side="right" align="start" className="w-[340px] p-0 ml-4 max-h-[80vh] overflow-hidden bg-background/95 backdrop-blur-sm shadow-2xl border-muted">
+                                    <div className="p-4 border-b">
+                                        <h4 className="font-semibold leading-none">Add Block</h4>
+                                        <p className="text-sm text-muted-foreground mt-1">Drag blocks to the canvas</p>
+                                    </div>
+                                    <ScrollArea className="h-[400px]">
+                                        <div className="p-4 pt-2">
+                                            <Sidebar className="w-full" />
+                                        </div>
+                                    </ScrollArea>
+                                </PopoverContent>
+                            </Popover>
                         </Panel>
+
+                        {/* Helper text if needed, or remove since FAB is self-explanatory */}
                     </ReactFlow>
                 </div>
 
                 {/* Right Panel (Desktop) */}
                 {selectedNode && isPropsOpen && (
-                    <aside className="w-80 border-l bg-background hidden md:block overflow-y-auto">
+                    <aside className="w-80 border-l bg-background hidden md:block overflow-y-auto shrink-0 z-10 shadow-[-5px_0_15px_-5px_hsl(var(--foreground)/0.05)]">
                         <PropertiesPanel
                             node={selectedNode}
                             onUpdate={onNodeUpdate}
                             deleteNode={onDeleteNode}
+                            availableVariables={[]}
                         />
                     </aside>
                 )}
