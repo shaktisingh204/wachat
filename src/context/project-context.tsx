@@ -4,8 +4,9 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import type { WithId, Project, User, Plan } from '@/lib/definitions';
-import { getProjectById, getProjects } from '@/app/actions/index.ts';
+import type { WithId } from 'mongodb';
+import type { Project, User, Plan } from '@/lib/definitions';
+import { getProjectById, getProjects } from '@/app/actions/index';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProjectContextType {
@@ -23,14 +24,14 @@ interface ProjectContextType {
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
-export function ProjectProvider({ 
-    children, 
-    initialProjects, 
-    user 
-} : { 
-    children: React.ReactNode, 
-    initialProjects: WithId<Project>[], 
-    user: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null 
+export function ProjectProvider({
+    children,
+    initialProjects,
+    user
+}: {
+    children: React.ReactNode,
+    initialProjects: WithId<Project>[],
+    user: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null
 }) {
     const [projects, setProjects] = useState<WithId<Project>[]>(initialProjects || []);
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
@@ -59,7 +60,7 @@ export function ProjectProvider({
         const storedId = localStorage.getItem('activeProjectId');
         const storedName = localStorage.getItem('activeProjectName');
 
-        if (pathname === '/dashboard') {
+        if (pathname === '/dashboard' || pathname === '/dashboard/facebook/all-projects') {
             localStorage.removeItem('activeProjectId');
             localStorage.removeItem('activeProjectName');
             setActiveProjectId(null);
