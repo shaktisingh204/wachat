@@ -35,7 +35,28 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange, allSc
 
   useEffect(() => {
     if (component) {
-      setLocalComponent(JSON.parse(JSON.stringify(component)));
+      const cloned = JSON.parse(JSON.stringify(component));
+
+      // Auto-normalize legacy types
+      if (['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(cloned.type)) {
+        console.warn(`Normalizing legacy component type: ${cloned.type}`);
+        const oldType = cloned.type;
+        cloned.type = 'Text';
+
+        // Apply defaults if not already present
+        if (!cloned['font-size']) {
+          if (oldType === 'TextHeading') cloned['font-size'] = 'headline';
+          if (oldType === 'TextSubheading') cloned['font-size'] = 'subheadline';
+          if (oldType === 'TextBody') cloned['font-size'] = 'body';
+          if (oldType === 'TextCaption') cloned['font-size'] = 'caption';
+        }
+        if (!cloned['font-weight']) {
+          if (oldType === 'TextHeading') cloned['font-weight'] = 'bold';
+          if (oldType === 'TextSubheading') cloned['font-weight'] = 'medium';
+        }
+      }
+
+      setLocalComponent(cloned);
     }
   }, [component]);
 
@@ -45,11 +66,11 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange, allSc
 
   const updateField = (key: string, value: any) => {
     if ((value === undefined || value === '') && typeof value !== 'boolean') {
-        const newState = {...localComponent};
-        delete newState[key];
-        setLocalComponent(newState);
+      const newState = { ...localComponent };
+      delete newState[key];
+      setLocalComponent(newState);
     } else {
-        setLocalComponent((prev: any) => ({ ...prev, [key]: value }));
+      setLocalComponent((prev: any) => ({ ...prev, [key]: value }));
     }
   };
 
@@ -59,12 +80,16 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange, allSc
 
   const renderEditorContent = () => {
     switch (localComponent.type) {
+      case 'Text':
+        return <TextEditor component={localComponent} updateField={updateField} />;
+
+      // Legacy support (should be caught by useEffect normalization but keeping safe fallback just in case)
       case 'TextHeading':
       case 'TextSubheading':
       case 'TextBody':
       case 'TextCaption':
         return <TextEditor component={localComponent} updateField={updateField} />;
-      
+
       case 'TextInput':
       case 'TextArea':
       case 'PhoneNumber':
@@ -78,13 +103,13 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange, allSc
 
       case 'NavigationList':
         return <NavigationListEditor component={localComponent} updateField={updateField} />;
-      
+
       case 'If':
         return <IfEditor component={localComponent} updateField={updateField} />;
-      
+
       case 'Switch':
         return <SwitchEditor component={localComponent} updateField={updateField} />;
-      
+
       case 'Dropdown':
         return <DropdownEditor component={localComponent} updateField={updateField} updateAction={(action) => updateAction(action, 'on-select-action')} />;
 
@@ -93,19 +118,19 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange, allSc
 
       case 'CheckboxGroup':
         return <CheckboxGroupEditor component={localComponent} updateField={updateField} updateAction={(action) => updateAction(action, 'on-select-action')} />;
-      
+
       case 'ChipsSelector':
         return <ChipsSelectorEditor component={localComponent} updateField={updateField} updateAction={(action) => updateAction(action, 'on-select-action')} />;
 
       case 'DatePicker':
         return <DatePickerEditor component={localComponent} updateField={updateField} />;
-        
+
       case 'CalendarPicker':
         return <CalendarPickerEditor component={localComponent} updateField={updateField} />;
-        
+
       case 'PhotoPicker':
         return <PhotoPickerEditor component={localComponent} updateField={updateField} />;
-        
+
       case 'DocumentPicker':
         return <DocumentPickerEditor component={localComponent} updateField={updateField} />;
 

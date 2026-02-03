@@ -24,79 +24,59 @@ const FlowComponent = ({ component, formData, setFormData }: { component: any, f
     };
 
     switch (component.type) {
-        case 'TextHeading':
-            return <h2 className="text-xl font-bold text-gray-800">{component.text}</h2>;
-        case 'TextSubheading':
-            return <h3 className="text-lg font-semibold text-gray-700">{component.text}</h3>;
-        case 'TextBody':
-            return <p className="text-sm text-gray-600">{component.text}</p>;
-        case 'TextCaption':
-            return <p className="text-xs text-gray-500">{component.text}</p>;
-        case 'TextInput':
-        case 'PhoneNumber':
-             return <div className="space-y-1 w-full"><Label htmlFor={name} className="text-sm font-medium text-gray-700">{component.label}</Label><Input id={name} name={name} placeholder={component.placeholder} value={value} onChange={e => handleChange(e.target.value)} className="bg-gray-50"/></div>;
-        case 'RadioButtonsGroup':
-            return (
-                <div className="w-full space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">{component.label}</Label>
-                    <RadioGroup name={name} value={value} onValueChange={handleChange} className="space-y-1">
-                        {(component['data-source'] || []).map((opt: any) => (
-                            <div key={opt.id} className="flex items-center justify-between p-3 rounded-md hover:bg-gray-50">
-                                <Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm text-gray-800 flex-1">{opt.title}</Label>
-                                <RadioGroupItem value={opt.id} id={`${name}-${opt.id}`} />
-                            </div>
-                        ))}
-                    </RadioGroup>
-                </div>
-            );
-         case 'CheckboxGroup':
-            const currentValues = (formData[name] || []) as string[];
-            const handleCheckboxChange = (id: string, checked: boolean) => {
-                const newValues = checked ? [...currentValues, id] : currentValues.filter(v => v !== id);
-                handleChange(newValues);
+        case 'Text':
+            const alignMap: Record<string, string> = { 'start': 'text-left', 'center': 'text-center', 'end': 'text-right' };
+            const sizeMap: Record<string, string> = {
+                'display': 'text-4xl', 'large_title': 'text-3xl', 'title': 'text-2xl',
+                'headline': 'text-xl', 'subheadline': 'text-lg', 'body': 'text-base', 'caption': 'text-xs'
             };
+            const weightMap: Record<string, string> = { 'light': 'font-light', 'regular': 'font-normal', 'medium': 'font-medium', 'bold': 'font-bold' };
+            const colorMap: Record<string, string> = {
+                'default': 'text-gray-900', 'muted': 'text-gray-500', 'disabled': 'text-gray-400',
+                'primary': 'text-blue-600', 'success': 'text-green-600', 'warning': 'text-yellow-600',
+                'danger': 'text-red-600', 'inverse': 'text-white'
+            };
+
+            const alignClass = alignMap[component['text-align']] || 'text-left';
+            const sizeClass = sizeMap[component['font-size']] || 'text-base';
+            const weightClass = weightMap[component['font-weight']] || 'font-normal';
+            const colorClass = colorMap[component.color] || 'text-gray-900';
+            const styleClass = component['font-style'] === 'italic' ? 'italic' : '';
+
             return (
-                <div className="w-full space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">{component.label}</Label>
-                    <div className="space-y-1">
-                        {(component['data-source'] || []).map((opt: any) => (
-                             <div key={opt.id} className="flex items-center justify-between p-3 rounded-md hover:bg-gray-50">
-                                <Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm text-gray-800 flex-1">{opt.title}</Label>
-                                <Checkbox id={`${name}-${opt.id}`} checked={currentValues.includes(opt.id)} onCheckedChange={(checked) => handleCheckboxChange(opt.id, !!checked)} />
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                <p className={cn(alignClass, sizeClass, weightClass, colorClass, styleClass)}>
+                    {component.text}
+                </p>
             );
-        case 'NavigationList':
+
+        // Legacy Support
+        case 'TextHeading': return <h2 className="text-xl font-bold text-gray-800">{component.text}</h2>;
+        case 'TextSubheading': return <h3 className="text-lg font-semibold text-gray-700">{component.text}</h3>;
+        case 'TextBody': return <p className="text-sm text-gray-600">{component.text}</p>;
+        case 'TextCaption': return <p className="text-xs text-gray-500">{component.text}</p>;
+
+        case 'TextInput':
+        case 'PhoneNumber': // Legacy or shortcut
+            const inputTypeMap: Record<string, string> = { 'text': 'text', 'password': 'password', 'email': 'email', 'number': 'number', 'phone': 'tel' };
+            const type = inputTypeMap[component['input-type']] || 'text';
             return (
-                <div className="w-full space-y-1">
-                    <Label className="text-sm font-medium text-gray-700">{component.label}</Label>
-                    <p className="text-xs text-gray-500 pb-2">{component.description}</p>
-                    {(component['list-items'] || []).map((item: any) => (
-                         <div key={item.id} className="flex items-center justify-between p-3 border-b hover:bg-gray-50 cursor-pointer">
-                            <div className="flex-1">
-                                <p className="font-semibold text-sm text-gray-800">{item['main-content']?.title}</p>
-                                <p className="text-xs text-gray-500">{item['main-content']?.description}</p>
-                            </div>
-                            <Circle className="h-5 w-5 text-gray-400" />
-                        </div>
-                    ))}
+                <div className="space-y-1 w-full">
+                    <Label htmlFor={name} className="text-sm font-medium text-gray-700">
+                        {component.label} {component.required && <span className="text-red-500">*</span>}
+                    </Label>
+                    <Input
+                        id={name}
+                        name={name}
+                        type={type}
+                        placeholder={component.placeholder}
+                        value={value}
+                        onChange={e => handleChange(e.target.value)}
+                        className="bg-gray-50"
+                        maxLength={component['max-chars']}
+                    />
+                    {component['helper-text'] && <p className="text-[10px] text-gray-500">{component['helper-text']}</p>}
                 </div>
             );
-        case 'Image':
-             return (
-                <div className="w-full">
-                    {component.src ? (
-                        <Image src={component.src} alt={component['alt-text'] || 'flow-image'} width={400} height={225} className="rounded-md object-cover w-full h-auto"/>
-                    ) : (
-                        <div className="h-40 bg-gray-100 rounded-md flex items-center justify-center text-muted-foreground text-sm">Image Preview</div>
-                    )}
-                </div>
-            );
-        case 'EmbeddedLink':
-            return <Button variant="link" className="p-0 h-auto justify-start text-sm text-green-600">{component.text}</Button>
-        default: return <p className="text-xs italic text-gray-400">Preview for {component.type} not available.</p>;
     }
 }
 
@@ -106,11 +86,17 @@ const ChatBubble = ({ children }: { children: React.ReactNode }) => (
     </div>
 );
 
-export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
+export const MetaFlowPreview = ({ flowJson, activeScreenId }: { flowJson: string, activeScreenId?: string | null }) => {
     const [flowData, setFlowData] = useState<any>(null);
     const [currentScreenId, setCurrentScreenId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Record<string, any>>({});
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (activeScreenId) {
+            setCurrentScreenId(activeScreenId);
+        }
+    }, [activeScreenId]);
 
     useEffect(() => {
         try {
@@ -139,11 +125,11 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
     if (!currentScreen) {
         return <Card className="h-full flex items-center justify-center p-4"><p className="text-destructive text-center">Current screen not found!</p></Card>
     }
-    
+
     const layout = currentScreen.layout;
     const safeLayoutChildren = layout?.children?.filter(Boolean) || [];
     const mainContainer = safeLayoutChildren.find((c: any) => c && (c.type === 'Form' || c.type === 'NavigationList'));
-    
+
     let renderableComponents: any[] = [];
     let footerComponent: any = null;
 
@@ -158,18 +144,18 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
     const handleAction = (action: any) => {
         if (!action) return;
         if (action.name === 'navigate' && action.next?.name) {
-            if(flowData.screens.some((s: any) => s.id === action.next.name)) {
-               setCurrentScreenId(action.next.name);
+            if (flowData.screens.some((s: any) => s.id === action.next.name)) {
+                setCurrentScreenId(action.next.name);
             } else {
                 alert("Test Flow: Next screen not found!");
             }
-        } else if(action.name === 'complete') {
+        } else if (action.name === 'complete') {
             alert(`Flow Submitted (Test Mode)\nData: ${JSON.stringify(formData, null, 2)}`);
         }
     }
 
     return (
-       <div className="w-full max-w-[360px] mx-auto shadow-2xl rounded-3xl overflow-hidden h-full flex flex-col bg-[#E7E5DE] relative">
+        <div className="w-full max-w-[360px] mx-auto shadow-2xl rounded-3xl overflow-hidden h-full flex flex-col bg-[#E7E5DE] relative">
             {/* Phone Top Bar */}
             <div className="bg-gray-100 p-2 text-xs font-mono text-gray-500 flex justify-between">
                 <span>12:30</span>
@@ -195,27 +181,27 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
                         TODAY
                     </div>
                 </div>
-                 <div className="flex justify-center">
+                <div className="flex justify-center">
                     <div className="bg-[#FEFDE1] rounded-md px-3 py-2 text-xs text-[#7D6B39] text-center max-w-xs shadow-sm">
                         🔒 This business uses a secure service from Meta to manage this chat. Learn more.
                     </div>
                 </div>
                 <div className="flex justify-start">
                     <ChatBubble>
-                         <div className="p-2 space-y-2">
+                        <div className="p-2 space-y-2">
                             <p className="text-sm">Welcome! Tap the button below to start.</p>
                             <Button size="sm" className="w-full bg-white text-blue-500 border-t border-gray-200 rounded-t-none -m-2 mt-2" onClick={() => setCurrentScreenId(flowData.screens?.[0]?.id)}>Start Shopping</Button>
                         </div>
                     </ChatBubble>
                 </div>
 
-                 <div className="flex justify-end">
+                <div className="flex justify-end">
                     <div className="bg-[#E2F7CB] rounded-lg p-2 max-w-sm shadow-[0_1px_0.5px_rgba(0,0,0,0.13)]">
                         <p className="text-sm">Start Shopping</p>
                     </div>
-                 </div>
+                </div>
             </ScrollArea>
-           
+
             {/* Flow Screen Modal */}
             <div className="absolute inset-0 bg-black/30 flex flex-col justify-end">
                 <div className="bg-white rounded-t-xl h-[95%] flex flex-col animate-slide-in-up" style={{ animationDelay: '3.3s' }}>
@@ -233,9 +219,9 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
                     </ScrollArea>
                     {footerComponent && (
                         <CardFooter className="p-4 bg-white border-t flex-col items-center flex-shrink-0 space-y-2">
-                             <Button 
-                                onClick={() => handleAction(footerComponent['on-click-action'])} 
-                                size="lg" 
+                            <Button
+                                onClick={() => handleAction(footerComponent['on-click-action'])}
+                                size="lg"
                                 className="w-full bg-[#00A884] hover:bg-[#00A884]/90"
                                 disabled={!footerComponent.enabled}
                             >
@@ -246,6 +232,6 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
                     )}
                 </div>
             </div>
-       </div>
+        </div>
     );
 }

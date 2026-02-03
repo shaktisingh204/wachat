@@ -1,7 +1,3 @@
-
-'use server';
-
-import 'server-only'
 import { jwtVerify, type JWTPayload } from 'jose';
 
 function getJwtSecretKey(): Uint8Array {
@@ -27,13 +23,13 @@ export async function verifyJwtEdge(token: string): Promise<boolean> {
 export async function verifyAdminJwtEdge(token: string): Promise<JWTPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
-        
+
         if (payload.role !== 'admin') {
             return null;
         }
 
         return payload;
-    } catch(e: any) {
+    } catch (e: any) {
         // Re-throw the error so the middleware can catch it and handle cookie deletion.
         throw e;
     }

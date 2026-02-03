@@ -1,0 +1,131 @@
+
+> nextn@0.1.0 build
+> next build
+
+⚠ `eslint` configuration in next.config.js is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+⚠ Invalid next.config.js options detected: 
+⚠     Unrecognized key(s) in object: 'eslint'
+⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+▲ Next.js 16.1.1 (Turbopack)
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 4 errors:
+./src/components/ui/resizable.tsx:4:1
+Export PanelGroup doesn't exist in target module
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { [33mGripVertical[39m } [36mfrom[39m [32m"lucide-react"[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mResizablePrimitive[39m [36mfrom[39m [32m"react-resizable-panels"[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m
+ [90m 6 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m
+ [90m 7 |[39m[0m
+
+The export PanelGroup was not found in module [project]/node_modules/react-resizable-panels/dist/react-resizable-panels.js [app-client] (ecmascript).
+Did you mean to import Panel?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/ui/resizable.tsx [Client Component Browser]
+    ./src/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout.tsx [Client Component Browser]
+    ./src/app/dashboard/flows/create/page.tsx [Client Component Browser]
+    ./src/app/dashboard/flows/create/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/ui/resizable.tsx [Client Component SSR]
+    ./src/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout.tsx [Client Component SSR]
+    ./src/app/dashboard/flows/create/page.tsx [Client Component SSR]
+    ./src/app/dashboard/flows/create/page.tsx [Server Component]
+
+
+./src/components/ui/resizable.tsx:4:1
+Export PanelGroup doesn't exist in target module
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { [33mGripVertical[39m } [36mfrom[39m [32m"lucide-react"[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mResizablePrimitive[39m [36mfrom[39m [32m"react-resizable-panels"[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m
+ [90m 6 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m
+ [90m 7 |[39m[0m
+
+The export PanelGroup was not found in module [project]/node_modules/react-resizable-panels/dist/react-resizable-panels.js [app-ssr] (ecmascript).
+Did you mean to import Panel?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/ui/resizable.tsx [Client Component Browser]
+    ./src/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout.tsx [Client Component Browser]
+    ./src/app/dashboard/flows/create/page.tsx [Client Component Browser]
+    ./src/app/dashboard/flows/create/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/ui/resizable.tsx [Client Component SSR]
+    ./src/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout.tsx [Client Component SSR]
+    ./src/app/dashboard/flows/create/page.tsx [Client Component SSR]
+    ./src/app/dashboard/flows/create/page.tsx [Server Component]
+
+
+./src/components/ui/resizable.tsx:4:1
+Export PanelResizeHandle doesn't exist in target module
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { [33mGripVertical[39m } [36mfrom[39m [32m"lucide-react"[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mResizablePrimitive[39m [36mfrom[39m [32m"react-resizable-panels"[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m
+ [90m 6 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m
+ [90m 7 |[39m[0m
+
+The export PanelResizeHandle was not found in module [project]/node_modules/react-resizable-panels/dist/react-resizable-panels.js [app-client] (ecmascript).
+Did you mean to import Panel?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/ui/resizable.tsx [Client Component Browser]
+    ./src/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout.tsx [Client Component Browser]
+    ./src/app/dashboard/flows/create/page.tsx [Client Component Browser]
+    ./src/app/dashboard/flows/create/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/ui/resizable.tsx [Client Component SSR]
+    ./src/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout.tsx [Client Component SSR]
+    ./src/app/dashboard/flows/create/page.tsx [Client Component SSR]
+    ./src/app/dashboard/flows/create/page.tsx [Server Component]
+
+
+./src/components/ui/resizable.tsx:4:1
+Export PanelResizeHandle doesn't exist in target module
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { [33mGripVertical[39m } [36mfrom[39m [32m"lucide-react"[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mResizablePrimitive[39m [36mfrom[39m [32m"react-resizable-panels"[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m
+ [90m 6 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m
+ [90m 7 |[39m[0m
+
+The export PanelResizeHandle was not found in module [project]/node_modules/react-resizable-panels/dist/react-resizable-panels.js [app-ssr] (ecmascript).
+Did you mean to import Panel?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/ui/resizable.tsx [Client Component Browser]
+    ./src/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout.tsx [Client Component Browser]
+    ./src/app/dashboard/flows/create/page.tsx [Client Component Browser]
+    ./src/app/dashboard/flows/create/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/ui/resizable.tsx [Client Component SSR]
+    ./src/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout.tsx [Client Component SSR]
+    ./src/app/dashboard/flows/create/page.tsx [Client Component SSR]
+    ./src/app/dashboard/flows/create/page.tsx [Server Component]
+
+
+    at <unknown> (./src/components/ui/resizable.tsx:4:1)
+    at <unknown> (./src/components/ui/resizable.tsx:4:1)
+    at <unknown> (./src/components/ui/resizable.tsx:4:1)
+    at <unknown> (./src/components/ui/resizable.tsx:4:1)

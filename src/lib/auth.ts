@@ -1,7 +1,5 @@
 
 
-'use server';
-
 import bcrypt from 'bcryptjs';
 import { connectToDatabase } from './mongodb';
 import { SignJWT, jwtVerify } from 'jose';
@@ -23,31 +21,31 @@ function getJwtSecretKey(): Uint8Array {
 }
 
 function initializeFirebaseAdmin() {
-  try {
-    return admin.app(FIREBASE_APP_NAME);
-  } catch (err) {
-    console.log(`[AUTH_LIB] Initializing Firebase Admin SDK with name: ${FIREBASE_APP_NAME}`);
-    
-    let parsedServiceAccount;
     try {
-        if (typeof serviceAccount === 'string') {
-            parsedServiceAccount = JSON.parse(serviceAccount);
-        } else {
-            parsedServiceAccount = serviceAccount;
+        return admin.app(FIREBASE_APP_NAME);
+    } catch (err) {
+        console.log(`[AUTH_LIB] Initializing Firebase Admin SDK with name: ${FIREBASE_APP_NAME}`);
+
+        let parsedServiceAccount;
+        try {
+            if (typeof serviceAccount === 'string') {
+                parsedServiceAccount = JSON.parse(serviceAccount);
+            } else {
+                parsedServiceAccount = serviceAccount;
+            }
+        } catch (e) {
+            console.error("[AUTH_LIB] FATAL: Could not parse Firebase service account JSON.");
+            throw new Error("Invalid Firebase service account configuration.");
         }
-    } catch (e) {
-        console.error("[AUTH_LIB] FATAL: Could not parse Firebase service account JSON.");
-        throw new Error("Invalid Firebase service account configuration.");
-    }
 
-    if (parsedServiceAccount.private_key) {
-        parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
-    }
+        if (parsedServiceAccount.private_key) {
+            parsedServiceAccount.private_key = parsedServiceAccount.private_key.replace(/\\n/g, '\n');
+        }
 
-    return admin.initializeApp({
-      credential: admin.credential.cert(parsedServiceAccount),
-    }, FIREBASE_APP_NAME);
-  }
+        return admin.initializeApp({
+            credential: admin.credential.cert(parsedServiceAccount),
+        }, FIREBASE_APP_NAME);
+    }
 }
 
 
@@ -66,7 +64,7 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
         return !!revokedToken;
     } catch (error) {
         console.error("Error checking for revoked token:", error);
-        return true; 
+        return true;
     }
 }
 
@@ -86,7 +84,7 @@ export async function verifyFirebaseIdToken(token: string): Promise<any | null> 
 export async function verifyJwt(token: string): Promise<SessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
-        
+
         if (!payload.jti || !payload.userId || !payload.email) {
             console.error('Custom JWT payload missing required fields');
             return null;
@@ -117,7 +115,7 @@ export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload
             console.warn(`Attempted to use a revoked admin token: ${payload.jti}`);
             return null;
         }
-        
+
         return payload as AdminSessionPayload;
     } catch (error) {
         // This will catch expired tokens and other verification errors from jose
@@ -148,19 +146,19 @@ export async function createAdminSessionToken(): Promise<string> {
 
 // This function is for server components/actions ONLY
 export async function getDecodedSession(sessionCookie: string) {
-  console.log('[AUTH_LIB] getDecodedSession called.');
-  if (!sessionCookie) {
-    console.log('[AUTH_LIB] No session cookie provided to getDecodedSession.');
-    return null;
-  };
+    console.log('[AUTH_LIB] getDecodedSession called.');
+    if (!sessionCookie) {
+        console.log('[AUTH_LIB] No session cookie provided to getDecodedSession.');
+        return null;
+    };
 
-  try {
-    console.log('[AUTH_LIB] Attempting to verify custom session token...');
-    const payload = await verifyJwt(sessionCookie);
-    console.log(`[AUTH_LIB] Token successfully decoded for user ID: ${payload?.userId}`);
-    return payload;
-  } catch (e: any) {
-    console.error('[AUTH_LIB] Failed to decode session:', e.code, e.message);
-    return null;
-  }
+    try {
+        console.log('[AUTH_LIB] Attempting to verify custom session token...');
+        const payload = await verifyJwt(sessionCookie);
+        console.log(`[AUTH_LIB] Token successfully decoded for user ID: ${payload?.userId}`);
+        return payload;
+    } catch (e: any) {
+        console.error('[AUTH_LIB] Failed to decode session:', e.code, e.message);
+        return null;
+    }
 }

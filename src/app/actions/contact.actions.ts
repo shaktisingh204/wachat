@@ -229,18 +229,24 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
     }
 
     try {
-        const variables = JSON.parse(variablesJSON);
+        const variables = variablesJSON ? JSON.parse(variablesJSON) : null;
+        const name = formData.get('name') as string;
+
         const { db } = await connectToDatabase();
+
+        const updateData: any = { updatedAt: new Date() };
+        if (variables) updateData.variables = variables;
+        if (name) updateData.name = name;
 
         await db.collection('contacts').updateOne(
             { _id: new ObjectId(contactId) },
-            { $set: { variables: variables, updatedAt: new Date() } }
+            { $set: updateData }
         );
 
         revalidatePath('/dashboard/chat');
         return { success: true };
     } catch (e) {
-        return { success: false, error: 'Failed to update contact variables.' };
+        return { success: false, error: 'Failed to update contact details.' };
     }
 }
 

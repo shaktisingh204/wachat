@@ -4,13 +4,13 @@
 import { useState, useTransition, useEffect, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, Agent, Tag } from '@/lib/definitions';
-import { handleUpdateContactDetails, handleUpdateContactStatus, updateContactTags } from '@/app/actions/index.ts';
+import { handleUpdateContactDetails, handleUpdateContactStatus, updateContactTags } from '@/app/actions/index';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, Save, Phone, Mail, FileText, Link, ThumbsUp } from 'lucide-react';
+import { LoaderCircle, Save, Phone, Mail, FileText, Link, ThumbsUp, Pencil, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -23,9 +23,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 
 interface ContactInfoPanelProps {
-  project: WithId<Project>;
-  contact: WithId<Contact>;
-  onContactUpdate: (updatedContact: WithId<Contact>) => void;
+    project: WithId<Project>;
+    contact: WithId<Contact>;
+    onContactUpdate: (updatedContact: WithId<Contact>) => void;
 }
 
 function MultiSelectCombobox({
@@ -112,185 +112,233 @@ function MultiSelectCombobox({
 }
 
 export function ContactInfoPanel({ project, contact, onContactUpdate }: ContactInfoPanelProps) {
-  const [variables, setVariables] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState(contact.status || 'new');
-  const [assignedAgentId, setAssignedAgentId] = useState(contact.assignedAgentId || '');
-  const [tagIds, setTagIds] = useState<string[]>([]);
+    const [variables, setVariables] = useState<Record<string, string>>({});
+    const [status, setStatus] = useState(contact.status || 'new');
+    const [assignedAgentId, setAssignedAgentId] = useState(contact.assignedAgentId || '');
+    const [tagIds, setTagIds] = useState<string[]>([]);
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [editedName, setEditedName] = useState(contact.name);
 
-  const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
-  const userAttributes = project.userAttributes || [];
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
+    const userAttributes = project.userAttributes || [];
 
-  useEffect(() => {
-    // Reset local state when the contact prop changes
-    setVariables(contact.variables || {});
-    setStatus(contact.status || 'new');
-    setAssignedAgentId(contact.assignedAgentId || '');
-    setTagIds(contact.tagIds || []);
-  }, [contact]);
+    useEffect(() => {
+        // Reset local state when the contact prop changes
+        setVariables(contact.variables || {});
+        setStatus(contact.status || 'new');
+        setAssignedAgentId(contact.assignedAgentId || '');
+        setTagIds(contact.tagIds ? contact.tagIds.map(id => id.toString()) : []);
+        setEditedName(contact.name);
+        setIsEditingName(false);
+    }, [contact]);
 
-  const handleVariableChange = (name: string, value: string) => {
-    setVariables(prev => ({ ...prev, [name]: value }));
-  };
+    const handleVariableChange = (name: string, value: string) => {
+        setVariables(prev => ({ ...prev, [name]: value }));
+    };
 
-  const handleStatusChange = (newStatus: string) => {
-    setStatus(newStatus);
-    startTransition(async () => {
-        const result = await handleUpdateContactStatus(contact._id.toString(), newStatus, assignedAgentId);
-        if (result.success) {
-            toast({ title: 'Status Updated', description: `Conversation marked as ${newStatus}.`});
-            onContactUpdate({ ...contact, status: newStatus as any, assignedAgentId });
-        } else {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            setStatus(contact.status || 'new'); // Revert on failure
-        }
-    });
-  };
+    const handleStatusChange = (newStatus: string) => {
+        setStatus(newStatus);
+        startTransition(async () => {
+            const result = await handleUpdateContactStatus(contact._id.toString(), newStatus, assignedAgentId);
+            if (result.success) {
+                toast({ title: 'Status Updated', description: `Conversation marked as ${newStatus}.` });
+                onContactUpdate({ ...contact, status: newStatus as any, assignedAgentId });
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                setStatus(contact.status || 'new'); // Revert on failure
+            }
+        });
+    };
 
-  const handleAgentChange = (newAgentId: string) => {
-    const finalAgentId = newAgentId === 'unassigned' ? '' : newAgentId;
-    setAssignedAgentId(finalAgentId);
-     startTransition(async () => {
-        const result = await handleUpdateContactStatus(contact._id.toString(), status, finalAgentId);
-        if (result.success) {
-            toast({ title: 'Agent Assigned', description: `Conversation assigned.`});
-            onContactUpdate({ ...contact, status: status as any, assignedAgentId: finalAgentId });
-        } else {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            setAssignedAgentId(contact.assignedAgentId || ''); // Revert on failure
-        }
-    });
-  };
+    const handleAgentChange = (newAgentId: string) => {
+        const finalAgentId = newAgentId === 'unassigned' ? '' : newAgentId;
+        setAssignedAgentId(finalAgentId);
+        startTransition(async () => {
+            const result = await handleUpdateContactStatus(contact._id.toString(), status, finalAgentId);
+            if (result.success) {
+                toast({ title: 'Agent Assigned', description: `Conversation assigned.` });
+                onContactUpdate({ ...contact, status: status as any, assignedAgentId: finalAgentId });
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                setAssignedAgentId(contact.assignedAgentId || ''); // Revert on failure
+            }
+        });
+    };
 
-  const handleTagsChange = (newTagIds: string[]) => {
-    setTagIds(newTagIds);
-    startTransition(async () => {
-        const result = await updateContactTags(contact._id.toString(), newTagIds);
-        if (result.success) {
-            toast({ title: 'Tags Updated' });
-            onContactUpdate({ ...contact, tagIds: newTagIds });
-        } else {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            setTagIds(contact.tagIds || []); // Revert
-        }
-    });
-  }
+    const handleTagsChange = (newTagIds: string[]) => {
+        setTagIds(newTagIds);
+        startTransition(async () => {
+            const result = await updateContactTags(contact._id.toString(), newTagIds);
+            if (result.success) {
+                toast({ title: 'Tags Updated' });
+                onContactUpdate({ ...contact, tagIds: newTagIds as any });
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                setTagIds(contact.tagIds ? contact.tagIds.map(id => id.toString()) : []); // Revert
+            }
+        });
+    }
 
-  const handleSaveVariables = () => {
-    startTransition(async () => {
-      // This is a separate action now, only for variables
-      const formData = new FormData();
-      formData.append('contactId', contact._id.toString());
-      formData.append('variables', JSON.stringify(variables));
-      const result = await handleUpdateContactDetails(null, formData);
-      if (result.success) {
-        toast({ title: 'Success', description: 'Contact variables updated.' });
-        onContactUpdate({ ...contact, variables });
-      } else {
-        toast({ title: 'Error', description: result.error, variant: 'destructive' });
-      }
-    });
-  };
-  
-  const tagOptions = useMemo(() => {
-    return (project.tags || []).map(tag => ({
-        value: tag._id,
-        label: tag.name,
-        color: tag.color,
-    }));
-  }, [project.tags]);
+    const handleSaveName = () => {
+        if (!editedName.trim()) return;
 
-  return (
-    <div className="flex flex-col h-full bg-background">
-      <div className="p-4 border-b flex flex-col items-center flex-shrink-0">
-        <Avatar className="h-16 w-16 mb-2">
-            <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
-        </Avatar>
-        <p className="font-semibold">{contact.name}</p>
-        <p className="text-sm text-muted-foreground">{contact.waId}</p>
-        <div className="flex gap-2 mt-3">
-            <Button variant="outline" size="icon" disabled><Phone className="h-4 w-4"/></Button>
-            <Button variant="outline" size="icon" disabled><Mail className="h-4 w-4"/></Button>
-        </div>
-      </div>
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select value={status} onValueChange={handleStatusChange} disabled={isPending}>
-                        <SelectTrigger id="status"><SelectValue/></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="new">New</SelectItem>
-                            <SelectItem value="open">Open</SelectItem>
-                            <SelectItem value="resolved">Resolved</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="space-y-2">
-                     <Label htmlFor="agent">Assigned Agent</Label>
-                     <Select value={assignedAgentId || 'unassigned'} onValueChange={handleAgentChange} disabled={isPending}>
-                        <SelectTrigger id="agent"><SelectValue/></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="unassigned">Unassigned</SelectItem>
-                            {project.agents?.map((agent: Agent) => (
-                                <SelectItem key={agent.userId.toString()} value={agent.userId.toString()}>{agent.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+        startTransition(async () => {
+            const formData = new FormData();
+            formData.append('contactId', contact._id.toString());
+            formData.append('name', editedName);
+
+            const result = await handleUpdateContactDetails(null, formData);
+
+            if (result.success) {
+                toast({ title: 'Name Updated', description: "Contact name changed successfully." });
+                onContactUpdate({ ...contact, name: editedName });
+                setIsEditingName(false);
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    };
+
+    const handleSaveVariables = () => {
+        startTransition(async () => {
+            // This is a separate action now, only for variables
+            const formData = new FormData();
+            formData.append('contactId', contact._id.toString());
+            formData.append('variables', JSON.stringify(variables));
+            const result = await handleUpdateContactDetails(null, formData);
+            if (result.success) {
+                toast({ title: 'Success', description: 'Contact variables updated.' });
+                onContactUpdate({ ...contact, variables });
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    };
+
+    const tagOptions = useMemo(() => {
+        return (project.tags || []).map(tag => ({
+            value: tag._id,
+            label: tag.name,
+            color: tag.color,
+        }));
+    }, [project.tags]);
+
+    return (
+        <div className="flex flex-col h-full bg-background">
+            <div className="p-4 border-b flex flex-col items-center flex-shrink-0">
+                <Avatar className="h-16 w-16 mb-2">
+                    <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+
+                {isEditingName ? (
+                    <div className="flex items-center gap-2 mb-1 w-full max-w-[200px]">
+                        <Input
+                            value={editedName}
+                            onChange={(e) => setEditedName(e.target.value)}
+                            className="h-8 text-center"
+                            autoFocus
+                        />
+                        <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={handleSaveName} disabled={isPending}>
+                            <Check className="h-4 w-4 text-green-600" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={() => { setIsEditingName(false); setEditedName(contact.name); }}>
+                            <X className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2 group mb-1">
+                        <p className="font-semibold">{contact.name}</p>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setIsEditingName(true)}>
+                            <Pencil className="h-3 w-3 text-muted-foreground" />
+                        </Button>
+                    </div>
+                )}
+
+                <p className="text-sm text-muted-foreground">{contact.waId}</p>
+                <div className="flex gap-2 mt-3">
+                    <Button variant="outline" size="icon" disabled><Phone className="h-4 w-4" /></Button>
+                    <Button variant="outline" size="icon" disabled><Mail className="h-4 w-4" /></Button>
                 </div>
             </div>
-             <div className="space-y-2">
-                <Label>Tags</Label>
-                <MultiSelectCombobox
-                    options={tagOptions}
-                    selected={tagIds}
-                    onSelectionChange={handleTagsChange}
-                    placeholder="Select tags..."
-                />
-            </div>
+            <ScrollArea className="flex-1">
+                <div className="p-4 space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="status">Status</Label>
+                            <Select value={status} onValueChange={handleStatusChange} disabled={isPending}>
+                                <SelectTrigger id="status"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="new">New</SelectItem>
+                                    <SelectItem value="open">Open</SelectItem>
+                                    <SelectItem value="resolved">Resolved</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="agent">Assigned Agent</Label>
+                            <Select value={assignedAgentId || 'unassigned'} onValueChange={handleAgentChange} disabled={isPending}>
+                                <SelectTrigger id="agent"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                                    {project.agents?.map((agent: Agent) => (
+                                        <SelectItem key={agent.userId.toString()} value={agent.userId.toString()}>{agent.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Tags</Label>
+                        <MultiSelectCombobox
+                            options={tagOptions}
+                            selected={tagIds}
+                            onSelectionChange={handleTagsChange}
+                            placeholder="Select tags..."
+                        />
+                    </div>
 
-            <Separator />
-            <Tabs defaultValue="attributes" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 h-auto">
-                    <TabsTrigger value="attributes">Attributes</TabsTrigger>
-                    <TabsTrigger value="files">Shared Files</TabsTrigger>
-                </TabsList>
-                <TabsContent value="attributes" className="mt-4">
-                    <div className="space-y-4">
-                        {userAttributes.length > 0 ? (
-                            userAttributes.map(attr => (
-                                <div key={attr.id} className="space-y-2">
-                                    <Label htmlFor={`attr-${attr.id}`}>{attr.name}</Label>
-                                    <Input
-                                        id={`attr-${attr.id}`}
-                                        value={variables[attr.name] || ''}
-                                        onChange={(e) => handleVariableChange(attr.name, e.target.value)}
-                                        placeholder={`Enter value for ${attr.name}`}
-                                    />
-                                </div>
-                            ))
-                        ) : (
-                            <div className="text-center text-sm text-muted-foreground py-8">
-                                No custom attributes defined for this project.
+                    <Separator />
+                    <Tabs defaultValue="attributes" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 h-auto">
+                            <TabsTrigger value="attributes">Attributes</TabsTrigger>
+                            <TabsTrigger value="files">Shared Files</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="attributes" className="mt-4">
+                            <div className="space-y-4">
+                                {userAttributes.length > 0 ? (
+                                    userAttributes.map(attr => (
+                                        <div key={attr.id} className="space-y-2">
+                                            <Label htmlFor={`attr-${attr.id}`}>{attr.name}</Label>
+                                            <Input
+                                                id={`attr-${attr.id}`}
+                                                value={variables[attr.name] || ''}
+                                                onChange={(e) => handleVariableChange(attr.name, e.target.value)}
+                                                placeholder={`Enter value for ${attr.name}`}
+                                            />
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center text-sm text-muted-foreground py-8">
+                                        No custom attributes defined for this project.
+                                    </div>
+                                )}
+                                {userAttributes.length > 0 && (
+                                    <Button onClick={handleSaveVariables} disabled={isPending} className="w-full">
+                                        {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                        Save Attributes
+                                    </Button>
+                                )}
                             </div>
-                        )}
-                        {userAttributes.length > 0 && (
-                            <Button onClick={handleSaveVariables} disabled={isPending} className="w-full">
-                                {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                Save Attributes
-                            </Button>
-                        )}
-                    </div>
-                </TabsContent>
-                <TabsContent value="files" className="mt-4">
-                     <div className="text-center text-sm text-muted-foreground py-8">
-                        No files have been shared in this conversation yet.
-                    </div>
-                </TabsContent>
-            </Tabs>
+                        </TabsContent>
+                        <TabsContent value="files" className="mt-4">
+                            <div className="text-center text-sm text-muted-foreground py-8">
+                                No files have been shared in this conversation yet.
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+            </ScrollArea>
         </div>
-      </ScrollArea>
-    </div>
-  );
+    );
 }

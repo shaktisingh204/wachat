@@ -4,6 +4,7 @@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
 import { Button } from '@/components/ui/button';
@@ -39,39 +40,62 @@ export function ImageEditor({ component, updateField, updateAction }: ImageEdito
     };
     reader.readAsDataURL(file);
   };
-    
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="src">Image Source (Base64)</Label>
-        <Textarea 
-            id="src" 
-            value={component.src || ''} 
-            onChange={e => updateField('src', e.target.value)} 
-            placeholder="data:image/png;base64,iVBORw0KGgo..." 
-            className="font-mono text-xs h-32"
+        <Label htmlFor="src">Image Source (Base64 or URL)</Label>
+        <Textarea
+          id="src"
+          value={component.src || ''}
+          onChange={e => updateField('src', e.target.value)}
+          placeholder="data:image/png;base64,... or https://..."
+          className="font-mono text-xs h-24"
         />
         <div className="relative flex items-center">
-            <div className="flex-grow border-t border-muted"></div>
-            <span className="flex-shrink mx-2 text-xs text-muted-foreground">OR</span>
-            <div className="flex-grow border-t border-muted"></div>
+          <div className="flex-grow border-t border-muted"></div>
+          <span className="flex-shrink mx-2 text-xs text-muted-foreground">OR</span>
+          <div className="flex-grow border-t border-muted"></div>
         </div>
-        <Button asChild variant="outline">
-            <Label className="cursor-pointer">
-                <FileUp className="mr-2 h-4 w-4" />
-                Upload Image (max 100KB)
-                <Input type="file" accept="image/png, image/jpeg" className="sr-only" onChange={handleFileUpload} />
-            </Label>
+        <Button asChild variant="outline" size="sm" className="w-full">
+          <Label className="cursor-pointer">
+            <FileUp className="mr-2 h-4 w-4" />
+            Upload Image (converts to Base64, max 100KB)
+            <Input type="file" accept="image/png, image/jpeg" className="sr-only" onChange={handleFileUpload} />
+          </Label>
         </Button>
       </div>
 
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="height">Height (pixels)</Label>
+          <Input
+            id="height"
+            type="number"
+            value={component.height || ''}
+            onChange={e => updateField('height', e.target.value ? parseInt(e.target.value) : undefined)}
+            placeholder="e.g. 300"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Scale Type</Label>
+          <Select value={component['scale-type'] || 'cover'} onValueChange={(val) => updateField('scale-type', val)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="cover">Cover (Crop)</SelectItem>
+              <SelectItem value="contain">Contain (Fit)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="space-y-2">
-        <Label htmlFor="alt-text">Alt Text</Label>
+        <Label htmlFor="alt-text">Alt Text (Accessibility)</Label>
         <Input id="alt-text" value={component['alt-text'] || ''} onChange={e => updateField('alt-text', e.target.value)} />
       </div>
 
       <ActionEditor
-        label="On Click Action (optional)"
+        label="On Click Action"
         action={component['on-click-action']}
         onActionChange={updateAction}
         actionType="on-click-action"
@@ -81,6 +105,12 @@ export function ImageEditor({ component, updateField, updateAction }: ImageEdito
         label="Visible"
         value={component.visible}
         onChange={(val) => updateField('visible', val)}
+      />
+
+      <DynamicBooleanInput
+        label="Enabled"
+        value={component.enabled}
+        onChange={(val) => updateField('enabled', val)}
       />
     </div>
   );
