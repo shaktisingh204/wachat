@@ -113,6 +113,16 @@ export function MetaFlowNavigator({
                                                 <DropdownMenuItem onClick={() => onAddComponent(screen.id, 'Footer')}>
                                                     Footer (Button)
                                                 </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem onClick={() => onAddComponent(screen.id, 'Switch')}>
+                                                    Switch
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onAddComponent(screen.id, 'PhotoPicker')}>
+                                                    Photo Picker
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onAddComponent(screen.id, 'DocumentPicker')}>
+                                                    Document Picker
+                                                </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
 

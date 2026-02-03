@@ -15,6 +15,7 @@ import { flowCategories } from '@/components/wabasimplify/meta-flow-templates';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { MetaFlowBuilderLayout } from '@/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout';
+import { cleanMetaFlowData } from '@/lib/meta-flow-utils';
 
 const createFlowInitialState = { message: null, error: null, payload: null, debugInfo: null };
 
@@ -111,7 +112,7 @@ function CreateMetaFlowPageContent() {
                 {projectId && <input type="hidden" name="projectId" value={projectId} />}
                 {flowId && <input type="hidden" name="flowId" value={flowId} />}
                 {metaId && <input type="hidden" name="metaId" value={metaId} />}
-                <input type="hidden" name="flow_data" value={JSON.stringify(flowData, null, 2)} />
+                <input type="hidden" name="flow_data" value={JSON.stringify(cleanMetaFlowData(flowData), null, 2)} />
                 <input type="hidden" name="publish" value={publishOnSave ? 'on' : 'off'} />
 
                 {/* Header */}

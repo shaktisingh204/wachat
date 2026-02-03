@@ -3,40 +3,49 @@
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Lightbulb } from 'lucide-react';
+import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
+import { ActionEditor } from '../shared/action-editor';
 
 interface SwitchEditorProps {
-  component: any;
-  updateField: (key: string, value: any) => void;
+    component: any;
+    updateField: (key: string, value: any) => void;
+    updateAction: (action: any) => void;
 }
 
-export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
-    
+export function SwitchEditor({ component, updateField, updateAction }: SwitchEditorProps) {
+
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="value">Value to Match</Label>
-                <Input 
-                    id="value" 
-                    value={component.value || ''} 
-                    onChange={(e) => updateField('value', e.target.value)} 
-                    required 
-                    placeholder="${form.animal}"
-                    className="font-mono text-xs"
-                />
-                <p className="text-xs text-muted-foreground">
-                    A dynamic variable whose value will be matched against the keys in the "cases" object.
-                </p>
+                <Label htmlFor="name">Name (ID)</Label>
+                <Input id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
             </div>
-            
-            <Alert>
-                <Lightbulb className="h-4 w-4" />
-                <AlertTitle>Case Management</AlertTitle>
-                <AlertDescription>
-                    The "cases" object, which defines the outcomes for each value, should be managed in the "Raw JSON" editor view for full control.
-                </AlertDescription>
-            </Alert>
+            {/* Switch in Meta Flow often relies on a separate Text label in a row, or has an implicit label? 
+                Actually, v3 Switch has NO label prop. It's just the toggle.
+                However, usually we wrap it. But strictly editing 'Switch' component:
+            */}
+            <div className="space-y-2">
+                <Label htmlFor="label">Label (Optional)</Label>
+                <p className="text-[10px] text-muted-foreground">Note: Meta Switch component itself might not display a label. Use a Text component next to it if needed.</p>
+                <Input id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} />
+            </div>
+
+            <ActionEditor
+                label="On Change Action"
+                action={component['on-change-action']}
+                onActionChange={updateAction}
+                actionType="on-change-action"
+            />
+
+            <DynamicBooleanInput
+                label="Checks (Initial State)"
+                value={component.checked}
+                onChange={v => updateField('checked', v)}
+                placeholder="true / false / ${data.value}"
+            />
+
+            <DynamicBooleanInput label="Enabled" value={component.enabled} onChange={v => updateField('enabled', v)} />
+            <DynamicBooleanInput label="Visible" value={component.visible} onChange={v => updateField('visible', v)} />
         </div>
     );
 }
