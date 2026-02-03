@@ -412,7 +412,7 @@ const FullPageSkeleton = () => (
     </div>
 );
 
-function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+function DashboardMain({ children }: { children: React.ReactNode }) {
     const {
         projects,
         activeProject,
@@ -421,6 +421,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         sessionUser,
         isLoadingProject
     } = useProject();
+
+    const { isOpen } = useSidebar(); // Added to consume SidebarProvider context
 
     const pathname = usePathname();
     const [activeApp, setActiveApp] = React.useState('whatsapp');
@@ -490,24 +492,32 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         return (
             <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive} tooltip={item.label} className={cn(isSubItem && "pl-10")}>
-                    <Link href={item.href}>{LinkIcon && <LinkIcon />}<span>{item.label}</span>{item.new && <Badge className="ml-auto">New</Badge>}</Link>
+                    <Link href={item.href}>
+                        {LinkIcon && <LinkIcon className="h-5 w-5 shrink-0" />}
+                        <span className={cn("ml-2 whitespace-nowrap transition-all duration-300", !isOpen && "w-0 overflow-hidden opacity-0 group-hover:w-auto group-hover:opacity-100")}>
+                            {item.label}
+                        </span>
+                        {item.new && <Badge className="ml-auto">New</Badge>}
+                    </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>
         );
     }
 
     const CollapsibleSidebarItem = ({ item }: { item: any }) => {
-        const isOpen = pathname.startsWith(item.href || item.label);
+        const isOpenPath = pathname.startsWith(item.href || item.label);
         const Icon = item.icon;
         return (
-            <Collapsible defaultOpen={isOpen}>
+            <Collapsible defaultOpen={isOpenPath}>
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
+                    <SidebarMenuButton isActive={isOpenPath} tooltip={item.label} className="w-full">
                         <div className="flex items-center gap-2">
-                            {Icon && <Icon className="h-4 w-4" />}
-                            <span>{item.label}</span>
+                            {Icon && <Icon className="h-5 w-5 shrink-0" />}
+                            <span className={cn("whitespace-nowrap transition-all duration-300", !pathname.startsWith(item.href) && !isOpen && "w-0 overflow-hidden opacity-0 group-hover:w-auto group-hover:opacity-100")}>
+                                {item.label}
+                            </span>
                         </div>
-                        <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-90" />
+                        <ChevronRight className={cn("ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-90", !isOpen && "hidden group-hover:block")} />
                     </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent asChild>
@@ -572,155 +582,161 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     );
 
     return (
-        <SidebarProvider defaultOpen={false}>
-            <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-muted/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
-                <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
-                    <div className="flex items-center gap-2">
-                        <SidebarTrigger>
-                            <Button variant="ghost" size="icon">
-                                <PanelLeft className="h-5 w-5" />
-                            </Button>
-                        </SidebarTrigger>
-                        <Link href="/dashboard" className="hidden font-bold sm:inline-block">
-                            SabNode
-                        </Link>
-                        {appRailPosition === 'top' && (
-                            <>
-                                <Separator orientation="vertical" className="h-6 mx-2 hidden md:block" />
-                                <HeaderAppRail />
-                            </>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <div className="font-medium text-sm hidden md:block">{activeProjectName}</div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                                    <Avatar>
-                                        <AvatarImage src={sessionUser?.image || `https://i.pravatar.cc/150?u=${sessionUser?.email}`} data-ai-hint="person avatar" />
-                                        <AvatarFallback>{sessionUser?.name?.charAt(0) || 'U'}</AvatarFallback>
-                                    </Avatar>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
-                                <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout"><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></DropdownMenuItem>
-                                <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4" />Logout</Link></DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </header>
-
-                <div className="flex flex-1 overflow-hidden">
-                    {appRailPosition === 'left' && <AppRail />}
-                    <Sidebar className={cn("hidden md:flex")}>
-                        <SidebarHeader>
-                            <ProjectSwitcher />
-                        </SidebarHeader>
-                        <SidebarContent>
-                            {activeApp === 'whatsapp' && (
-                                <SidebarMenu>
-                                    {wachatMenuItems.filter(item => item.roles.includes(currentUserRole)).map((item) => (
-                                        <SidebarItem key={item.href} item={item} />
-                                    ))}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'ad-manager' && (
-                                <SidebarMenu>
-                                    {adManagerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'sabchat' && (
-                                <SidebarMenu>
-                                    {sabChatMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'sabflow' && (
-                                <SidebarMenu>
-                                    {sabflowMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'facebook' && (
-                                <SidebarMenu>
-                                    {facebookMenuGroups.map(group => (
-                                        <React.Fragment key={group.title}>
-                                            <p className="px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mt-4 mb-1">{group.title}</p>
-                                            {group.items.map(item => (
-                                                <SidebarItem key={item.href} item={item} />
-                                            ))}
-                                        </React.Fragment>
-                                    ))}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'instagram' && (
-                                <SidebarMenu>
-                                    {instagramMenuGroups.flatMap(g => g.items).map(item => (
-                                        <SidebarItem key={item.href} item={item} />
-                                    ))}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'crm' && (
-                                <SidebarMenu>
-                                    {crmMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'team' && (
-                                <SidebarMenu>
-                                    {teamMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'email' && (
-                                <SidebarMenu>
-                                    {emailMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'sms' && (
-                                <SidebarMenu>
-                                    {smsMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'api' && (
-                                <SidebarMenu>
-                                    {apiMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'website-builder' && (
-                                <SidebarMenu>
-                                    {portfolioMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'url-shortener' && (
-                                <SidebarMenu>
-                                    {urlShortenerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'qr-code-maker' && (
-                                <SidebarMenu>
-                                    {qrCodeMakerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'seo-suite' && (
-                                <SidebarMenu>
-                                    {seoMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                            {activeApp === 'user-settings' && (
-                                <SidebarMenu>
-                                    {userSettingsItems.map(item => <SidebarItem key={item.href} item={item} />)}
-                                </SidebarMenu>
-                            )}
-                        </SidebarContent>
-                    </Sidebar>
-                    <main className="flex-1 overflow-y-auto">
-                        {isChatPage || isBuilderPage ? children : mainContent}
-                    </main>
+        <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-muted/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
+            <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
+                <div className="flex items-center gap-2">
+                    <SidebarTrigger>
+                        <Button variant="ghost" size="icon">
+                            <PanelLeft className="h-5 w-5" />
+                        </Button>
+                    </SidebarTrigger>
+                    <Link href="/dashboard" className="hidden font-bold sm:inline-block">
+                        SabNode
+                    </Link>
+                    {appRailPosition === 'top' && (
+                        <>
+                            <Separator orientation="vertical" className="h-6 mx-2 hidden md:block" />
+                            <HeaderAppRail />
+                        </>
+                    )}
                 </div>
+
+                <div className="flex items-center gap-2">
+                    <div className="font-medium text-sm hidden md:block">{activeProjectName}</div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                                <Avatar>
+                                    <AvatarImage src={sessionUser?.image || `https://i.pravatar.cc/150?u=${sessionUser?.email}`} data-ai-hint="person avatar" />
+                                    <AvatarFallback>{sessionUser?.name?.charAt(0) || 'U'}</AvatarFallback>
+                                </Avatar>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
+                            <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild><Link href="/api/auth/admin-logout"><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></DropdownMenuItem>
+                            <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4" />Logout</Link></DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </header>
+
+            <div className="flex flex-1 overflow-hidden">
+                {appRailPosition === 'left' && <AppRail />}
+                <Sidebar className={cn("hidden md:flex")}>
+                    <SidebarHeader className="h-16 flex items-center justify-center p-0">
+                        {/* Project Switcher Removed */}
+                    </SidebarHeader>
+                    <SidebarContent>
+                        {activeApp === 'whatsapp' && (
+                            <SidebarMenu>
+                                {wachatMenuItems.filter(item => item.roles.includes(currentUserRole)).map((item) => (
+                                    <SidebarItem key={item.href} item={item} />
+                                ))}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'ad-manager' && (
+                            <SidebarMenu>
+                                {adManagerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'sabchat' && (
+                            <SidebarMenu>
+                                {sabChatMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'sabflow' && (
+                            <SidebarMenu>
+                                {sabflowMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'facebook' && (
+                            <SidebarMenu>
+                                {facebookMenuGroups.map(group => (
+                                    <React.Fragment key={group.title}>
+                                        <p className={cn("px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mt-4 mb-1 transition-all duration-300 whitespace-nowrap", !isOpen && "w-0 overflow-hidden opacity-0 h-0 mt-0 mb-0 group-hover:w-auto group-hover:opacity-100 group-hover:h-auto group-hover:mt-4 group-hover:mb-1")}>{group.title}</p>
+                                        {group.items.map(item => (
+                                            <SidebarItem key={item.href} item={item} />
+                                        ))}
+                                    </React.Fragment>
+                                ))}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'instagram' && (
+                            <SidebarMenu>
+                                {instagramMenuGroups.flatMap(g => g.items).map(item => (
+                                    <SidebarItem key={item.href} item={item} />
+                                ))}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'crm' && (
+                            <SidebarMenu>
+                                {crmMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'team' && (
+                            <SidebarMenu>
+                                {teamMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'email' && (
+                            <SidebarMenu>
+                                {emailMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'sms' && (
+                            <SidebarMenu>
+                                {smsMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'api' && (
+                            <SidebarMenu>
+                                {apiMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'website-builder' && (
+                            <SidebarMenu>
+                                {portfolioMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'url-shortener' && (
+                            <SidebarMenu>
+                                {urlShortenerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'qr-code-maker' && (
+                            <SidebarMenu>
+                                {qrCodeMakerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'seo-suite' && (
+                            <SidebarMenu>
+                                {seoMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                        {activeApp === 'user-settings' && (
+                            <SidebarMenu>
+                                {userSettingsItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                            </SidebarMenu>
+                        )}
+                    </SidebarContent>
+                </Sidebar>
+                <main className="flex-1 overflow-y-auto">
+                    {isChatPage || isBuilderPage ? children : mainContent}
+                </main>
             </div>
+        </div>
+    );
+}
+
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+    return (
+        <SidebarProvider defaultOpen={false}>
+            <DashboardMain>{children}</DashboardMain>
         </SidebarProvider>
     );
 }

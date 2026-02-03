@@ -62,7 +62,7 @@ export function Sidebar({ className, children }: { className?: string; children:
   }
 
   return (
-    <aside className={cn('flex h-full  flex-col bg-card rounded-lg shadow-sm transition-[width]', isOpen ? 'w-60' : 'w-0 hidden', className)}>
+    <aside className={cn('flex h-full flex-col bg-card rounded-lg shadow-sm transition-[width] duration-300 ease-in-out group overflow-hidden border-r z-30 relative', isOpen ? 'w-60' : 'w-[70px] hover:w-60 hover:shadow-xl', className)}>
       {sidebarContent}
     </aside>
   );
@@ -109,7 +109,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
       <Button
         ref={ref}
         variant={isActive ? 'sidebar-active' : 'ghost'}
-        className={cn('w-full', isOpen ? 'justify-start' : 'h-12 w-12 justify-center')}
+        className={cn('w-full transition-all duration-300', isOpen ? 'justify-start px-4' : 'h-12 w-full justify-center px-2 group-hover:justify-start group-hover:px-4')}
         asChild={asChild}
         {...props}
       />
