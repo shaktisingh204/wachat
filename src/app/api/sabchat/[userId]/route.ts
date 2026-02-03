@@ -5,14 +5,14 @@ import { ObjectId } from 'mongodb';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { userId: string } }
+    { params }: { params: Promise<{ userId: string }> }
 ) {
-    const { userId } = params;
+    const { userId } = await params;
 
     if (!userId) {
         return new NextResponse('User ID is required', { status: 400 });
     }
-    
+
     // The definitive fix: Check if the ID is a valid 24-char hex string BEFORE trying to use it.
     if (!ObjectId.isValid(userId)) {
         // If the ID format is wrong, the user can never be found.
@@ -21,7 +21,7 @@ export async function GET(
 
     try {
         const { db } = await connectToDatabase();
-        
+
         // Now we can safely create the ObjectId
         const userObjectId = new ObjectId(userId);
         const user = await db.collection('users').findOne({ _id: userObjectId });
@@ -29,15 +29,15 @@ export async function GET(
         if (!user) {
             return new NextResponse('User not found', { status: 404 });
         }
-        
+
         const settings = user.sabChatSettings || {};
-        
+
         if (settings.enabled === false) {
             return new NextResponse('// Chat widget is disabled by the administrator.', {
                 headers: { 'Content-Type': 'application/javascript' }
             });
         }
-        
+
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
 
         const script = `
@@ -253,7 +253,7 @@ export async function GET(
                 }
             })();
         `;
-        
+
         return new NextResponse(script, {
             headers: {
                 'Content-Type': 'application/javascript',
@@ -261,7 +261,7 @@ export async function GET(
             }
         });
 
-    } catch(e) {
+    } catch (e) {
         console.error("Failed to generate sabChat widget script:", e);
         return new NextResponse('Internal Server Error', { status: 500 });
     }
