@@ -23,15 +23,15 @@ import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
 
@@ -66,7 +66,7 @@ function ContactsPageSkeleton() {
 
 function TagsFilter({ tags, selectedTags, onSelectionChange }: { tags: Tag[], selectedTags: string[], onSelectionChange: (tags: string[]) => void }) {
     const [open, setOpen] = useState(false);
-    
+
     const handleSelect = (tagId: string) => {
         const newSelected = selectedTags.includes(tagId)
             ? selectedTags.filter(id => id !== tagId)
@@ -75,7 +75,7 @@ function TagsFilter({ tags, selectedTags, onSelectionChange }: { tags: Tag[], se
     };
 
     return (
-         <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" className="w-full sm:w-[200px] justify-between">
                     <span className="truncate">
@@ -90,7 +90,7 @@ function TagsFilter({ tags, selectedTags, onSelectionChange }: { tags: Tag[], se
                     <CommandList>
                         <CommandEmpty>No tags found.</CommandEmpty>
                         <CommandGroup>
-                             {(tags || []).map((tag) => (
+                            {(tags || []).map((tag) => (
                                 <CommandItem
                                     key={tag._id}
                                     value={tag.name}
@@ -128,7 +128,7 @@ function DeleteContactButton({ contact, onDeleted }: { contact: WithId<Contact>,
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -138,7 +138,7 @@ function DeleteContactButton({ contact, onDeleted }: { contact: WithId<Contact>,
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDelete} disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Delete
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -156,30 +156,37 @@ export default function ContactsPage() {
 
     const currentPage = Number(searchParams.get('page')) || 1;
     const searchQuery = searchParams.get('query') || '';
-    
+
     const tagsParam = searchParams.get('tags');
     const selectedTags = useMemo(() => tagsParam?.split(',').filter(Boolean) || [], [tagsParam]);
-    
+
     const [totalPages, setTotalPages] = useState(0);
     const { toast } = useToast();
-    
+    const [refreshKey, setRefreshKey] = useState(0);
+
     const fetchData = useCallback(() => {
         if (!activeProjectId) return;
         startTransition(async () => {
-             try {
+            try {
                 const data = await getContactsPageData(activeProjectId, currentPage, searchQuery, selectedTags);
                 setContacts(data.contacts);
                 setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
-             } catch (error) {
-                 toast({
+            } catch (error) {
+                toast({
                     title: "Error",
                     description: "Failed to load contacts. Please ensure a project is selected.",
                     variant: "destructive",
                 });
-             }
+            }
         });
     }, [activeProjectId, currentPage, searchQuery, selectedTags, toast, startTransition]);
-    
+
+    const handleContactAdded = useCallback(() => {
+        fetchData();
+        setRefreshKey(prev => prev + 1); // Reset dialog state
+        router.refresh(); // Force router cache refresh
+    }, [fetchData, router]);
+
     useEffect(() => {
         fetchData();
     }, [fetchData]);
@@ -206,15 +213,15 @@ export default function ContactsPage() {
 
     return (
         <div className="flex flex-col gap-8">
-             <div>
+            <div>
                 <h1 className="text-3xl font-bold font-headline">Contacts</h1>
                 <p className="text-muted-foreground">
                     {activeProject ? `Manage the contact list for project "${activeProject.name}".` : 'Manage your customer contact list.'}
                 </p>
             </div>
-            
+
             {!activeProjectId ? (
-                 <Alert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
                     <AlertDescription>
@@ -235,15 +242,19 @@ export default function ContactsPage() {
                                 {activeProject && (
                                     <>
                                         <ImportContactsDialog project={activeProject} onImported={fetchData} />
-                                        <AddContactDialog project={activeProject} onAdded={fetchData} />
+                                        <AddContactDialog
+                                            key={refreshKey}
+                                            project={activeProject}
+                                            onAdded={handleContactAdded}
+                                        />
                                     </>
                                 )}
                             </div>
                         </div>
                     </CardHeader>
                     <CardContent>
-                         <div className="mb-4 flex flex-wrap gap-4 items-center">
-                             <div className="relative flex-grow">
+                        <div className="mb-4 flex flex-wrap gap-4 items-center">
+                            <div className="relative flex-grow">
                                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     placeholder="Search by name or ID..."
@@ -252,8 +263,8 @@ export default function ContactsPage() {
                                     onChange={(e) => updateSearchParam('query', e.target.value)}
                                 />
                             </div>
-                            <TagsFilter 
-                                tags={activeProject?.tags || []} 
+                            <TagsFilter
+                                tags={activeProject?.tags || []}
                                 selectedTags={selectedTags}
                                 onSelectionChange={(tags) => updateSearchParam('tags', tags.join(','))}
                             />
@@ -270,41 +281,41 @@ export default function ContactsPage() {
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
-                                 <TableBody>
+                                <TableBody>
                                     {isLoading && contacts.length === 0 ? (
-                                         <TableRow>
+                                        <TableRow>
                                             <TableCell colSpan={5} className="h-24 text-center">
                                                 <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                             </TableCell>
                                         </TableRow>
                                     ) : contacts.length > 0 ? (
                                         contacts.map((contact) => (
-                                        <TableRow key={contact._id.toString()}>
-                                            <TableCell className="font-medium">{contact.name}</TableCell>
-                                            <TableCell className="font-mono text-sm">{contact.waId}</TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {(contact.tagIds || []).map(tagId => {
-                                                        const tag = activeProject?.tags?.find(t => t._id === tagId);
-                                                        return tag ? (
-                                                            <Badge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
-                                                                {tag.name}
-                                                            </Badge>
-                                                        ) : null;
-                                                    })}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {contact.lastMessageTimestamp ? new Date(contact.lastMessageTimestamp).toLocaleString() : 'N/A'}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="outline" size="sm" onClick={() => handleMessageContact(contact)}>
-                                                    <MessageSquare className="mr-2 h-4 w-4" />
-                                                    Message
-                                                </Button>
-                                                <DeleteContactButton contact={contact} onDeleted={fetchData} />
-                                            </TableCell>
-                                        </TableRow>
+                                            <TableRow key={contact._id.toString()}>
+                                                <TableCell className="font-medium">{contact.name}</TableCell>
+                                                <TableCell className="font-mono text-sm">{contact.waId}</TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {(contact.tagIds || []).map(tagId => {
+                                                            const tag = activeProject?.tags?.find(t => t._id === tagId);
+                                                            return tag ? (
+                                                                <Badge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
+                                                                    {tag.name}
+                                                                </Badge>
+                                                            ) : null;
+                                                        })}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {contact.lastMessageTimestamp ? new Date(contact.lastMessageTimestamp).toLocaleString() : 'N/A'}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="outline" size="sm" onClick={() => handleMessageContact(contact)}>
+                                                        <MessageSquare className="mr-2 h-4 w-4" />
+                                                        Message
+                                                    </Button>
+                                                    <DeleteContactButton contact={contact} onDeleted={fetchData} />
+                                                </TableCell>
+                                            </TableRow>
                                         ))
                                     ) : (
                                         <TableRow>
