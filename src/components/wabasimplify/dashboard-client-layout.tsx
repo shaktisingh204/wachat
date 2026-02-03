@@ -627,7 +627,7 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
 
             <div className="flex flex-1 overflow-hidden">
                 {appRailPosition === 'left' && <AppRail />}
-                {(!(!activeProject && (activeApp === 'whatsapp' || activeApp === 'facebook'))) && (
+                {(!(!activeProject?._id && (activeApp === 'whatsapp' || activeApp === 'facebook'))) && (
                     <Sidebar className={cn("hidden md:flex")}>
                         <SidebarHeader className="h-16 flex items-center justify-center p-0">
                             {/* Project Switcher Removed */}
