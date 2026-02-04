@@ -11,19 +11,19 @@ const corsHeaders = {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { userId, email, visitorId } = body;
-        
+        const { userId, email, name, visitorId } = body;
+
         if (!userId || !email) {
             return NextResponse.json({ error: 'User ID and email are required.' }, { status: 400, headers: corsHeaders });
         }
 
-        const result = await getOrCreateChatSession(userId, email, visitorId);
+        const result = await getOrCreateChatSession(userId, email, name, visitorId);
         if (result.error) {
             return NextResponse.json({ error: result.error }, { status: 500, headers: corsHeaders });
         }
 
         return NextResponse.json(result, { headers: corsHeaders });
-    } catch(e) {
+    } catch (e) {
         return NextResponse.json({ error: 'Invalid request body' }, { status: 400, headers: corsHeaders });
     }
 }

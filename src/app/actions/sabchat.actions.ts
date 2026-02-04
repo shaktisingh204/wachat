@@ -12,7 +12,7 @@ import { headers } from 'next/headers';
 export async function saveSabChatSettings(prevState: any, formData: FormData) {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required' };
-    
+
     // Existing settings not on this form, passed via hidden input
     const existingSettings = JSON.parse(formData.get('settings') as string || '{}');
 
@@ -32,7 +32,7 @@ export async function saveSabChatSettings(prevState: any, formData: FormData) {
         teamName: formData.get('teamName') as string,
         avatarUrl: formData.get('avatarUrl') as string,
     };
-    
+
     try {
         const { db } = await connectToDatabase();
         await db.collection('users').updateOne(
@@ -59,7 +59,7 @@ export async function saveSabChatFaq(prevState: any, formData: FormData) {
     const answer = formData.get('answer') as string;
 
     if (!question || !answer) return { error: 'Question and answer are required.' };
-    
+
     try {
         const { db } = await connectToDatabase();
         const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
@@ -114,7 +114,7 @@ export async function saveSabChatQuickReply(prevState: any, formData: FormData) 
 
     if (!shortcut || !message) return { error: 'Shortcut and message are required.' };
     if (!shortcut.startsWith('/')) return { error: 'Shortcut must start with a forward slash (/).' };
-    
+
     try {
         const { db } = await connectToDatabase();
         const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
@@ -196,14 +196,14 @@ export async function getFullChatSession(sessionId: string): Promise<WithId<SabC
     if (!sessionId || !ObjectId.isValid(sessionId)) {
         return null;
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         const chatSession = await db.collection<SabChatSession>('sabchat_sessions').findOne({
             _id: new ObjectId(sessionId),
             userId: new ObjectId(session.user._id)
         });
-        
+
         return chatSession ? JSON.parse(JSON.stringify(chatSession)) : null;
 
     } catch (e) {
@@ -211,12 +211,12 @@ export async function getFullChatSession(sessionId: string): Promise<WithId<SabC
     }
 }
 
-export async function getOrCreateChatSession(userId: string, email: string, visitorId?: string | null): Promise<{ sessionId?: string; session?: WithId<SabChatSession>, error?: string }> {
+export async function getOrCreateChatSession(userId: string, email: string, name?: string, visitorId?: string | null): Promise<{ sessionId?: string; session?: WithId<SabChatSession>, error?: string }> {
     try {
         const { db } = await connectToDatabase();
         const now = new Date();
-        const headersList = headers();
-        
+        const headersList = await headers();
+
         let validVisitorId: ObjectId;
 
         if (visitorId && ObjectId.isValid(visitorId)) {
@@ -228,10 +228,11 @@ export async function getOrCreateChatSession(userId: string, email: string, visi
 
         const result = await db.collection<SabChatSession>('sabchat_sessions').findOneAndUpdate(
             { userId: new ObjectId(userId), visitorId: validVisitorId },
-            { 
-                $set: { 
+            {
+                $set: {
                     updatedAt: now,
                     'visitorInfo.email': email,
+                    'visitorInfo.name': name || email.split('@')[0], // Fallback to email prefix
                     'visitorInfo.ip': headersList.get('x-forwarded-for') || 'unknown',
                     'visitorInfo.userAgent': headersList.get('user-agent') || 'unknown',
                     'visitorInfo.page': headersList.get('referer') || 'unknown'
@@ -246,13 +247,13 @@ export async function getOrCreateChatSession(userId: string, email: string, visi
             },
             { upsert: true, returnDocument: 'after' }
         );
-        
+
         const session = result;
 
         if (!session) {
             return { error: "Could not create or find a session." };
         }
-        
+
         return { sessionId: session._id.toString(), session: JSON.parse(JSON.stringify(session)) };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -266,7 +267,7 @@ export async function postChatMessage(sessionId: string, sender: 'visitor' | 'ag
 
     try {
         const { db } = await connectToDatabase();
-        
+
         const newMessage: SabChatMessage = {
             _id: new ObjectId(),
             sender,
@@ -277,8 +278,8 @@ export async function postChatMessage(sessionId: string, sender: 'visitor' | 'ag
 
         const result = await db.collection('sabchat_sessions').updateOne(
             { _id: new ObjectId(sessionId) },
-            { 
-                $push: { history: newMessage },
+            {
+                $push: { history: newMessage } as any,
                 $set: { updatedAt: new Date() }
             }
         );
@@ -321,22 +322,26 @@ export async function getSabChatAnalytics() {
 
         const dailyCounts = await db.collection('sabchat_sessions').aggregate([
             { $match: { userId: userId, createdAt: { $gte: sevenDaysAgo } } },
-            { $group: {
-                _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-                count: { $sum: 1 }
-            }},
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
             { $sort: { _id: 1 } },
-            { $project: { _id: 0, date: "$_id", count: "$count" }}
+            { $project: { _id: 0, date: "$_id", count: "$count" } }
         ]).toArray();
 
 
         const stats = await db.collection('sabchat_sessions').aggregate([
             { $match: { userId: userId } },
-            { $group: {
-                _id: null,
-                totalChats: { $sum: 1 },
-                openChats: { $sum: { $cond: [ { $eq: ['$status', 'open'] }, 1, 0] } }
-            }}
+            {
+                $group: {
+                    _id: null,
+                    totalChats: { $sum: 1 },
+                    openChats: { $sum: { $cond: [{ $eq: ['$status', 'open'] }, 1, 0] } }
+                }
+            }
         ]).next();
 
         return {
@@ -356,7 +361,7 @@ export async function getSabChatAnalytics() {
 
 export async function closeChatSession(sessionId: string): Promise<{ success: boolean; error?: string }> {
     if (!sessionId || !ObjectId.isValid(sessionId)) return { success: false, error: 'Invalid session ID' };
-    
+
     try {
         const { db } = await connectToDatabase();
         await db.collection('sabchat_sessions').updateOne(
@@ -365,7 +370,7 @@ export async function closeChatSession(sessionId: string): Promise<{ success: bo
         );
         revalidatePath('/dashboard/sabchat/inbox');
         return { success: true };
-    } catch(e: any) {
+    } catch (e: any) {
         return { success: false, error: 'Failed to close session.' };
     }
 }
@@ -376,4 +381,4 @@ export async function addTagToSession(sessionId: string, tagName: string): Promi
     await new Promise(res => setTimeout(res, 500));
     return { success: true };
 }
-    
+

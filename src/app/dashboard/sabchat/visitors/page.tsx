@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, LoaderCircle, RefreshCw } from "lucide-react";
+import { Users, LoaderCircle, RefreshCw, MessageSquare } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { getLiveVisitors } from '@/app/actions/sabchat.actions';
 import type { WithId, SabChatSession } from '@/lib/definitions';
@@ -43,11 +43,11 @@ export default function SabChatVisitorsPage() {
                     toast({ title: 'Refreshed', description: 'Visitor list has been updated.' });
                 }
             } catch (e) {
-                toast({ title: 'Error', description: 'Failed to fetch live visitors.', variant: 'destructive'});
+                toast({ title: 'Error', description: 'Failed to fetch live visitors.', variant: 'destructive' });
             }
         });
     }, [toast]);
-    
+
     useEffect(() => {
         fetchData(); // Initial fetch
         const intervalId = setInterval(() => fetchData(), 10000); // Poll every 10 seconds
@@ -64,11 +64,11 @@ export default function SabChatVisitorsPage() {
             <CardHeader>
                 <div className="flex justify-between items-center">
                     <div>
-                        <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/>Live Visitors</CardTitle>
+                        <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" />Live Visitors</CardTitle>
                         <CardDescription>A real-time list of visitors currently on your website.</CardDescription>
                     </div>
-                     <Button onClick={() => fetchData(true)} variant="outline" size="sm" disabled={isLoading}>
-                        {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <RefreshCw className="mr-2 h-4 w-4"/>}
+                    <Button onClick={() => fetchData(true)} variant="outline" size="sm" disabled={isLoading}>
+                        {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                         Refresh
                     </Button>
                 </div>
@@ -81,8 +81,8 @@ export default function SabChatVisitorsPage() {
                                 <TableHead>Visitor</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Last Seen</TableHead>
-                                <TableHead>IP Address</TableHead>
-                                <TableHead>Current Page</TableHead>
+                                <TableHead>Location</TableHead>
+                                <TableHead>Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -90,9 +90,17 @@ export default function SabChatVisitorsPage() {
                                 visitors.map(visitor => {
                                     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
                                     const isOnline = new Date(visitor.updatedAt) > fiveMinutesAgo;
+                                    const name = visitor.visitorInfo?.name || 'Visitor';
+                                    const email = visitor.visitorInfo?.email;
+
                                     return (
                                         <TableRow key={visitor._id.toString()}>
-                                            <TableCell className="font-medium">{visitor.visitorInfo?.email || visitor.visitorId}</TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">{name}</span>
+                                                    <span className="text-xs text-muted-foreground">{email}</span>
+                                                </div>
+                                            </TableCell>
                                             <TableCell>
                                                 <Badge variant={isOnline ? 'default' : 'secondary'}>
                                                     <div className={`h-2 w-2 rounded-full mr-2 ${isOnline ? 'bg-green-400' : 'bg-muted-foreground'}`}></div>
@@ -100,8 +108,22 @@ export default function SabChatVisitorsPage() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>{formatDistanceToNow(new Date(visitor.updatedAt), { addSuffix: true })}</TableCell>
-                                            <TableCell className="font-mono text-xs">{visitor.visitorInfo?.ip}</TableCell>
-                                            <TableCell className="text-xs max-w-xs truncate">{visitor.visitorInfo?.page}</TableCell>
+                                            <TableCell className="text-xs">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-mono">{visitor.visitorInfo?.ip}</span>
+                                                    <span className="text-muted-foreground max-w-[200px] truncate" title={visitor.visitorInfo?.page}>
+                                                        {visitor.visitorInfo?.page}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Button size="sm" variant="default" asChild>
+                                                    <a href={`/dashboard/sabchat/inbox?sessionId=${visitor._id.toString()}`}>
+                                                        <MessageSquare className="h-4 w-4 mr-2" />
+                                                        Chat
+                                                    </a>
+                                                </Button>
+                                            </TableCell>
                                         </TableRow>
                                     )
                                 })

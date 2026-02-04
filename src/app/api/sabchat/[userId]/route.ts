@@ -371,21 +371,23 @@ export async function GET(
                 // Heartbeat to keep the session alive
                 function startHeartbeat() {
                     const email = localStorage.getItem('sabchat_email');
+                    const name = localStorage.getItem('sabchat_name');
                     if (heartbeatInterval) clearInterval(heartbeatInterval);
                     
                     if (email) {
                         // Initial beat
-                        getOrCreateSession(email);
+                        getOrCreateSession(name, email);
                         // Beat every 2 minutes
                         heartbeatInterval = setInterval(() => {
-                            getOrCreateSession(email);
+                            getOrCreateSession(name, email);
                         }, CONSTANTS.HEARTBEAT_INTERVAL);
                     }
                 }
                 
                 function heartbeat() {
                      const email = localStorage.getItem('sabchat_email');
-                     if(email) getOrCreateSession(email);
+                     const name = localStorage.getItem('sabchat_name');
+                     if(email) getOrCreateSession(name, email);
                 }
 
                 function render() {
@@ -430,6 +432,10 @@ export async function GET(
                             </div>
                             <form id="sabnode-email-form" class="sabnode-email-form">
                                 <div class="sabnode-input-group">
+                                    <label style="display:block; margin-bottom:8px; font-size:14px; font-weight:500;">Your Name</label>
+                                    <input type="text" id="sabnode-name" class="sabnode-input" placeholder="John Doe" required>
+                                </div>
+                                <div class="sabnode-input-group">
                                     <label style="display:block; margin-bottom:8px; font-size:14px; font-weight:500;">Email Address</label>
                                     <input type="email" id="sabnode-email" class="sabnode-input" placeholder="name@example.com" required>
                                 </div>
@@ -462,15 +468,17 @@ export async function GET(
                     const form = document.getElementById('sabnode-email-form');
                     form.onsubmit = async (e) => {
                         e.preventDefault();
+                        const name = document.getElementById('sabnode-name').value;
                         const email = document.getElementById('sabnode-email').value;
-                        if (!email) return;
+                        if (!email || !name) return;
                         
                         const btn = form.querySelector('button');
                         btn.disabled = true;
                         btn.textContent = 'Starting...';
 
+                        localStorage.setItem('sabchat_name', name);
                         localStorage.setItem('sabchat_email', email);
-                        await getOrCreateSession(email);
+                        await getOrCreateSession(name, email);
                         render();
                     };
                 }
@@ -524,12 +532,7 @@ export async function GET(
                 function renderMessages() {
                     const container = document.getElementById('sabnode-msgs');
                     if (!container) return;
-                    
-                    // Keep the welcome message if it's the first render basically, 
-                    // but usually we just rebuild the list. 
-                    // To be safe and simple: clear and rebuild except welcome if desired. 
-                    // For now, let's just rebuild all from history.
-                    
+                                        
                     let html = \`
                         <div class="sabnode-msg sabnode-msg-agent">
                             \${config.welcomeMessage || 'Hello! How can we help you today?'}
@@ -548,12 +551,12 @@ export async function GET(
                     container.scrollTop = container.scrollHeight;
                 }
 
-                async function getOrCreateSession(email) {
+                async function getOrCreateSession(name, email) {
                     try {
                         const res = await fetch(\`\${CONSTANTS.API_BASE}/session\`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId, email, visitorId })
+                            body: JSON.stringify({ userId, name, email, visitorId })
                         });
                         
                         if (res.ok) {
