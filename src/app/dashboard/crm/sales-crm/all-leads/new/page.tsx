@@ -13,6 +13,7 @@ import { addCrmLead } from '@/app/actions/crm-leads.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import { getSession } from '@/app/actions/index';
 import type { WithId, CrmPipeline, User } from '@/lib/definitions';
+import { SmartPipelineSelect } from '@/components/crm/sales-crm/smart-pipeline-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
@@ -191,12 +192,16 @@ export default function AddLeadPage() {
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="pipelineId">Sales Pipeline</Label>
-                                <Select name="pipelineId" value={selectedPipelineId} onValueChange={setSelectedPipelineId}>
-                                    <SelectTrigger id="pipeline"><SelectValue placeholder="Select a pipeline..." /></SelectTrigger>
-                                    <SelectContent>
-                                        {pipelines.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
+                                <input type="hidden" name="pipelineId" value={selectedPipelineId} />
+                                <SmartPipelineSelect
+                                    value={selectedPipelineId}
+                                    onSelect={setSelectedPipelineId}
+                                    initialOptions={pipelines.map(p => ({ value: p.id, label: p.name }))}
+                                    onPipelineAdded={(newPipeline: CrmPipeline) => {
+                                        setPipelines(prev => [...prev, newPipeline]);
+                                        setSelectedPipelineId(newPipeline.id);
+                                    }}
+                                />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="stage">Pipeline Stage</Label>

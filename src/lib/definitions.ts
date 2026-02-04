@@ -124,18 +124,175 @@ export type CrmModulePermissions = {
     delete?: boolean;
 };
 
-export type CrmRolePermissions = {
-    contacts?: CrmModulePermissions;
-    accounts?: CrmModulePermissions;
-    deals?: CrmModulePermissions;
-    tasks?: CrmModulePermissions;
-    automations?: CrmModulePermissions;
-    reports?: CrmModulePermissions;
+export type ModulePermission = {
+    view: boolean;
+    create: boolean;
+    edit: boolean;
+    delete: boolean;
 };
 
-export type CrmPermissions = {
-    agent: CrmRolePermissions;
-    [key: string]: CrmRolePermissions; // For custom roles
+export type GlobalRolePermissions = {
+    // WaChat Core
+    wachat_overview?: ModulePermission;
+    wachat_chat?: ModulePermission;
+    wachat_contacts?: ModulePermission;
+    wachat_campaigns?: ModulePermission;
+    wachat_templates?: ModulePermission;
+    wachat_catalog?: ModulePermission;
+    wachat_calls?: ModulePermission;
+    wachat_flow_builder?: ModulePermission;
+    wachat_flows?: ModulePermission; // Meta Flows
+    wachat_integrations?: ModulePermission;
+    wachat_whatsapp_pay?: ModulePermission;
+    wachat_numbers?: ModulePermission;
+    wachat_webhooks?: ModulePermission;
+    wachat_settings?: ModulePermission;
+
+    // CRM - Sales
+    crm_dashboard?: ModulePermission;
+    crm_clients?: ModulePermission;
+    crm_quotations?: ModulePermission;
+    crm_proforma?: ModulePermission;
+    crm_invoices?: ModulePermission;
+    crm_receipts?: ModulePermission;
+    crm_orders?: ModulePermission;
+    crm_delivery?: ModulePermission;
+    crm_credit_notes?: ModulePermission;
+
+    // CRM - Purchases
+    crm_vendors?: ModulePermission;
+    crm_expenses?: ModulePermission;
+    crm_purchase_orders?: ModulePermission;
+    crm_payouts?: ModulePermission;
+    crm_debit_notes?: ModulePermission;
+
+    // CRM - Inventory
+    crm_items?: ModulePermission;
+    crm_warehouses?: ModulePermission;
+    crm_inventory_pnl?: ModulePermission;
+    crm_stock_value?: ModulePermission;
+    crm_batch_expiry?: ModulePermission;
+    crm_party_transactions?: ModulePermission;
+    crm_all_transactions?: ModulePermission;
+
+    // CRM - Accounting
+    crm_account_groups?: ModulePermission;
+    crm_chart_of_accounts?: ModulePermission;
+    crm_vouchers?: ModulePermission;
+    crm_balance_sheet?: ModulePermission;
+    crm_trial_balance?: ModulePermission;
+    crm_pnl?: ModulePermission;
+    crm_income_statement?: ModulePermission;
+    crm_day_book?: ModulePermission;
+    crm_cash_flow?: ModulePermission;
+
+    // CRM - Sales CRM (Leads/Deals)
+    crm_leads?: ModulePermission;
+    crm_deals?: ModulePermission;
+    crm_tasks?: ModulePermission;
+    crm_automations?: ModulePermission;
+    crm_pipelines?: ModulePermission;
+    crm_forms?: ModulePermission;
+    crm_analytics?: ModulePermission;
+    crm_reports?: ModulePermission; // Combined sales reports
+
+    // CRM - Banking
+    crm_banking_accounts?: ModulePermission;
+    crm_banking_employee?: ModulePermission;
+    crm_banking_reconciliation?: ModulePermission;
+
+    // CRM - HR
+    crm_employees?: ModulePermission;
+    crm_attendance?: ModulePermission;
+    crm_payroll?: ModulePermission;
+
+    // CRM - Tax Reports
+    crm_gstr1?: ModulePermission;
+    crm_gstr2b?: ModulePermission;
+
+    // CRM - Settings
+    crm_settings?: ModulePermission;
+
+    // Team
+    team_users?: ModulePermission;
+    team_roles?: ModulePermission;
+    team_tasks?: ModulePermission;
+    team_chat?: ModulePermission;
+
+    // Meta - Facebook
+    facebook_dashboard?: ModulePermission;
+    facebook_posts?: ModulePermission;
+    facebook_scheduled?: ModulePermission;
+    facebook_live?: ModulePermission;
+    facebook_randomizer?: ModulePermission;
+    facebook_messages?: ModulePermission;
+    facebook_kanban?: ModulePermission;
+    facebook_automation?: ModulePermission;
+    facebook_shops?: ModulePermission;
+    facebook_products?: ModulePermission;
+    facebook_shop_setup?: ModulePermission;
+    facebook_orders?: ModulePermission;
+
+    // Meta - Instagram
+    instagram_dashboard?: ModulePermission;
+    instagram_feed?: ModulePermission;
+    instagram_stories?: ModulePermission;
+    instagram_reels?: ModulePermission;
+    instagram_messages?: ModulePermission;
+    instagram_discovery?: ModulePermission;
+    instagram_hashtags?: ModulePermission;
+
+    // Meta - Ad Manager
+    ad_manager_accounts?: ModulePermission;
+    ad_manager_campaigns?: ModulePermission;
+    ad_manager_audiences?: ModulePermission;
+
+    // Email
+    email_dashboard?: ModulePermission;
+    email_inbox?: ModulePermission;
+    email_campaigns?: ModulePermission;
+    email_contacts?: ModulePermission;
+    email_templates?: ModulePermission;
+    email_analytics?: ModulePermission;
+    email_verification?: ModulePermission;
+    email_settings?: ModulePermission;
+
+    // SMS
+    sms_overview?: ModulePermission;
+    sms_campaigns?: ModulePermission;
+    sms_templates?: ModulePermission;
+    sms_config?: ModulePermission;
+    sms_developer?: ModulePermission;
+
+    // SabChat
+    sabchat_inbox?: ModulePermission;
+    sabchat_visitors?: ModulePermission;
+    sabchat_analytics?: ModulePermission;
+    sabchat_widget?: ModulePermission;
+    sabchat_auto_reply?: ModulePermission;
+    sabchat_quick_replies?: ModulePermission;
+    sabchat_ai_replies?: ModulePermission;
+    sabchat_faq?: ModulePermission;
+    sabchat_settings?: ModulePermission;
+
+    // Utilities
+    website_builder?: ModulePermission;
+    url_shortener?: ModulePermission;
+    qr_code_maker?: ModulePermission;
+
+    // SEO
+    seo_dashboard?: ModulePermission;
+    seo_brand_radar?: ModulePermission;
+    seo_site_explorer?: ModulePermission;
+
+    // Dev
+    api_keys?: ModulePermission;
+    api_docs?: ModulePermission;
+};
+
+export type GlobalPermissions = {
+    agent: GlobalRolePermissions;
+    [key: string]: GlobalRolePermissions;
 };
 
 export type CrmForm = {

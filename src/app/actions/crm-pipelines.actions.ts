@@ -1,10 +1,9 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { CrmPipeline } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -23,15 +22,15 @@ export async function getCrmPipelines(): Promise<CrmPipeline[]> {
     }
 }
 
-export async function saveCrmPipelines(pipelines: Omit<CrmPipeline, 'id'>[]): Promise<{ success: boolean; error?: string }> {
+export async function saveCrmPipelines(pipelines: any[]): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied' };
-    
+
     // Add unique IDs to any new pipelines or stages that don't have them
     const pipelinesWithIds = pipelines.map(p => ({
         ...p,
         id: p.id || uuidv4(),
-        stages: p.stages.map(s => ({...s, id: s.id || uuidv4()}))
+        stages: p.stages.map((s: any) => ({ ...s, id: s.id || uuidv4() }))
     }));
 
     try {
@@ -40,7 +39,7 @@ export async function saveCrmPipelines(pipelines: Omit<CrmPipeline, 'id'>[]): Pr
             { _id: new ObjectId(session.user._id) },
             { $set: { crmPipelines: pipelinesWithIds } }
         );
-        
+
         revalidatePath('/dashboard/crm/sales-crm/pipelines');
         return { success: true };
     } catch (e: any) {
@@ -48,4 +47,34 @@ export async function saveCrmPipelines(pipelines: Omit<CrmPipeline, 'id'>[]): Pr
     }
 }
 
-    
+export async function createCrmPipeline(name: string): Promise<{ success: boolean; pipeline?: CrmPipeline; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+
+    const newPipeline: CrmPipeline = {
+        id: uuidv4(),
+        name,
+        stages: [
+            { id: uuidv4(), name: 'New', chance: 10 },
+            { id: uuidv4(), name: 'Qualified', chance: 30 },
+            { id: uuidv4(), name: 'Proposal', chance: 60 },
+            { id: uuidv4(), name: 'Negotiation', chance: 80 },
+            { id: uuidv4(), name: 'Won', chance: 100 },
+            { id: uuidv4(), name: 'Lost', chance: 0 }
+        ]
+    };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $push: { crmPipelines: newPipeline } as any }
+        );
+
+        revalidatePath('/dashboard/crm/sales-crm/pipelines');
+        return { success: true, pipeline: newPipeline };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
