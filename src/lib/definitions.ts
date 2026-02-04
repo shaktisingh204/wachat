@@ -470,25 +470,44 @@ export type SmsCampaign = {
     failedCount: number;
 };
 
+export type EmailAttachment = {
+    id: string;
+    filename: string;
+    contentType: string;
+    size: number;
+    url: string;
+};
+
 export type EmailMessage = {
-    from: string;
+    id: string;
+    from: { name: string; email: string; avatar?: string };
+    to: { name: string; email: string }[];
+    cc?: { name: string; email: string }[];
+    bcc?: { name: string; email: string }[];
     subject: string;
     bodyText: string;
     bodyHtml: string;
     date: Date;
+    attachments?: EmailAttachment[];
+    isRead: boolean;
+    isStarred?: boolean;
+    folder: 'inbox' | 'sent' | 'drafts' | 'trash' | 'archive' | 'spam';
+    labels?: string[];
 };
 
 export type EmailConversation = {
     _id: ObjectId;
     userId: ObjectId;
-    fromEmail: string;
-    fromName: string;
+    participants: { name: string; email: string; avatar?: string }[];
     subject: string;
     snippet: string;
-    status: 'unread' | 'read' | 'archived' | 'follow_up';
-    assignedTo?: ObjectId;
+    status: 'unread' | 'read' | 'archived' | 'trash';
+    folder: 'inbox' | 'sent' | 'drafts' | 'trash' | 'archive' | 'spam';
+    labels?: string[];
     lastMessageAt: Date;
     messages: EmailMessage[];
+    unreadCount: number;
+    isStarred: boolean;
 };
 
 export type BankAccountDetails = {

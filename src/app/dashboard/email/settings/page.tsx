@@ -7,8 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from '@/components/ui/skeleton';
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
 import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, Mail, FileText, Settings, ShieldCheck, Zap } from 'lucide-react';
+import { AlertCircle, Mail, FileText, Settings, ShieldCheck, Zap, BarChart3 } from 'lucide-react';
 import { getEmailSettings, saveEmailComplianceSettings } from '@/app/actions/email.actions';
 import { getSession } from '@/app/actions/index';
 import type { EmailSettings as CrmEmailSettings, User, WithId, EmailComplianceSettings } from '@/lib/definitions';
@@ -17,6 +16,8 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { ModuleLayout } from '@/components/wabasimplify/module-layout';
+import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -198,48 +199,77 @@ function EmailSettingsPageContent() {
 
     return (
         <div className="flex flex-col gap-8">
-            <Tabs defaultValue={initialTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="email">Email Setup</TabsTrigger>
-                    <TabsTrigger value="templates">Templates</TabsTrigger>
-                    <TabsTrigger value="compliance">Compliance</TabsTrigger>
-                    <TabsTrigger value="deliverability">Deliverability</TabsTrigger>
-                </TabsList>
-                <TabsContent value="email" className="mt-6 space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5" />Connect Email Account</CardTitle>
-                            <CardDescription>Connect your email accounts to sync conversations and send emails from within the app.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <p className="text-sm text-muted-foreground">Connect a provider to get started. We recommend using a dedicated app password for security.</p>
-                            <div className="flex flex-wrap gap-4 p-4 border rounded-lg justify-center bg-muted/50">
-                                <Button asChild className="w-full sm:w-auto" variant="outline">
-                                    <Link href="/api/crm/auth/google/connect">
-                                        <GoogleIcon className="mr-2 h-5 w-5" /> Connect Gmail
-                                    </Link>
-                                </Button>
-                                <Button asChild className="w-full sm:w-auto" variant="outline">
-                                    <Link href="/api/crm/auth/outlook/connect">
-                                        <OutlookIcon className="mr-2 h-5 w-5" /> Connect Outlook
-                                    </Link>
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Separator />
-                    <CrmSmtpForm settings={settings} />
-                </TabsContent>
-                <TabsContent value="templates" className="mt-6">
-                    <EmailTemplatesManager />
-                </TabsContent>
-                <TabsContent value="compliance" className="mt-6">
-                    <ComplianceForm user={user} />
-                </TabsContent>
-                <TabsContent value="deliverability" className="mt-6">
-                    <DeliverabilityTab />
-                </TabsContent>
-            </Tabs>
+            const [activeTab, setActiveTab] = useState(initialTab || 'email');
+
+            return (
+            <div className="flex flex-col gap-8">
+                <ModuleLayout
+                    sidebar={
+                        <ModuleSidebar
+                            title="Email Settings"
+                            activeValue={activeTab}
+                            onValueChange={setActiveTab}
+                            items={[
+                                { value: 'email', label: 'Email Setup', icon: Mail },
+                                { value: 'templates', label: 'Templates', icon: FileText },
+                                { value: 'compliance', label: 'Compliance', icon: ShieldCheck },
+                                { value: 'deliverability', label: 'Deliverability', icon: BarChart3 },
+                            ]}
+                        />
+                    }
+                >
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline flex items-center gap-3 mb-6">
+                            <Settings className="h-8 w-8" />
+                            {activeTab === 'email' && 'Email Configuration'}
+                            {activeTab === 'templates' && 'Templates'}
+                            {activeTab === 'compliance' && 'Compliance'}
+                            {activeTab === 'deliverability' && 'Deliverability'}
+                        </h1>
+                    </div>
+
+                    {activeTab === 'email' && (
+                        <div className="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5" />Connect Email Account</CardTitle>
+                                    <CardDescription>Connect your email accounts to sync conversations and send emails from within the app.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <p className="text-sm text-muted-foreground">Connect a provider to get started. We recommend using a dedicated app password for security.</p>
+                                    <div className="flex flex-wrap gap-4 p-4 border rounded-lg justify-center bg-muted/50">
+                                        <Button asChild className="w-full sm:w-auto" variant="outline">
+                                            <Link href="/api/crm/auth/google/connect">
+                                                <GoogleIcon className="mr-2 h-5 w-5" /> Connect Gmail
+                                            </Link>
+                                        </Button>
+                                        <Button asChild className="w-full sm:w-auto" variant="outline">
+                                            <Link href="/api/crm/auth/outlook/connect">
+                                                <OutlookIcon className="mr-2 h-5 w-5" /> Connect Outlook
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Separator />
+                            <CrmSmtpForm settings={settings} />
+                        </div>
+                    )}
+
+                    {activeTab === 'templates' && (
+                        <EmailTemplatesManager />
+                    )}
+
+                    {activeTab === 'compliance' && (
+                        <ComplianceForm user={user} />
+                    )}
+
+                    {activeTab === 'deliverability' && (
+                        <DeliverabilityTab />
+                    )}
+                </ModuleLayout>
+            </div>
+            );
         </div>
     );
 }

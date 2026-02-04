@@ -22,7 +22,7 @@ import { sendCrmEmail } from '@/app/actions/crm-email.actions';
 import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
-const initialState = { success: false, message: null, error: null };
+const initialState = { success: false, message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -51,9 +51,9 @@ export function EmailComposeDialog({ isOpen, onOpenChange, initialTo = '', initi
 
   useEffect(() => {
     if (isOpen) {
-        getEmailTemplates().then(setTemplates);
-        setSubject(initialSubject);
-        setBody(''); // Reset body when opening
+      getEmailTemplates().then(setTemplates);
+      setSubject(initialSubject);
+      setBody(''); // Reset body when opening
     }
   }, [isOpen, initialSubject]);
 
@@ -68,53 +68,55 @@ export function EmailComposeDialog({ isOpen, onOpenChange, initialTo = '', initi
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
   }, [state, toast, onOpenChange]);
-  
+
   const handleTemplateSelect = (templateId: string) => {
     const selectedTemplate = templates.find(t => t._id.toString() === templateId);
     if (selectedTemplate) {
-        setSubject(selectedTemplate.subject);
-        setBody(selectedTemplate.body);
+      setSubject(selectedTemplate.subject);
+      setBody(selectedTemplate.body);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
-        <form action={formAction} ref={formRef}>
-          <DialogHeader>
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Compose Email</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
                 <Label htmlFor="template">Use Template (Optional)</Label>
                 <Select onValueChange={handleTemplateSelect}>
-                    <SelectTrigger id="template">
-                        <SelectValue placeholder="Select a template..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {templates.map(template => (
-                            <SelectItem key={template._id.toString()} value={template._id.toString()}>
-                                {template.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
+                  <SelectTrigger id="template">
+                    <SelectValue placeholder="Select a template..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map(template => (
+                      <SelectItem key={template._id.toString()} value={template._id.toString()}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="to">To</Label>
-              <Input id="to" name="to" type="email" placeholder="recipient@example.com" defaultValue={initialTo} key={initialTo} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
-              <Input id="subject" name="subject" placeholder="Your subject line" value={subject} onChange={(e) => setSubject(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="body">Message</Label>
-              <Textarea id="body" name="body" className="min-h-[250px]" placeholder="Write your email here..." value={body} onChange={(e) => setBody(e.target.value)} />
-              <p className="text-xs text-muted-foreground">You can use variables like {'{{contact.name}}'} or {'{{account.name}}'}.</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="to">To</Label>
+                <Input id="to" name="to" type="email" placeholder="recipient@example.com" defaultValue={initialTo} key={initialTo} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subject">Subject</Label>
+                <Input id="subject" name="subject" placeholder="Your subject line" value={subject} onChange={(e) => setSubject(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="body">Message</Label>
+                <Textarea id="body" name="body" className="min-h-[250px]" placeholder="Write your email here..." value={body} onChange={(e) => setBody(e.target.value)} />
+                <p className="text-xs text-muted-foreground">You can use variables like {'{{contact.name}}'} or {'{{account.name}}'}.</p>
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>

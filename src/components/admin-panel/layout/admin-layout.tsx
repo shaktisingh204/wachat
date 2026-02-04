@@ -69,7 +69,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     const showSidebar = !(!activeProject?._id && ['whatsapp', 'facebook', 'instagram', 'ad-manager'].includes(activeApp));
 
     return (
-        <SidebarProvider defaultOpen={true}>
+        <SidebarProvider defaultOpen={false}>
             <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-muted/40", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
 
                 <AdminHeader appRailPosition={appRailPosition} activeApp={activeApp} />

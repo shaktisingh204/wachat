@@ -25,16 +25,16 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Switch } from '../ui/switch';
 import { Separator } from '../ui/separator';
 
-const initialState = {
-  message: null,
-  error: null,
+const initialState: { message?: string; error?: string } = {
+  message: undefined,
+  error: undefined,
 };
 
 const verticals = [
-    "UNDEFINED", "OTHER", "AUTO", "BEAUTY", "APPAREL", "EDU", 
-    "ENTERTAIN", "EVENT_PLAN", "FINANCE", "GROCERY", "GOVT", 
-    "HOTEL", "HEALTH", "NONPROFIT", "PROF_SERVICES", "RETAIL", 
-    "TRAVEL", "RESTAURANT", "NOT_A_BIZ"
+  "UNDEFINED", "OTHER", "AUTO", "BEAUTY", "APPAREL", "EDU",
+  "ENTERTAIN", "EVENT_PLAN", "FINANCE", "GROCERY", "GOVT",
+  "HOTEL", "HEALTH", "NONPROFIT", "PROF_SERVICES", "RETAIL",
+  "TRAVEL", "RESTAURANT", "NOT_A_BIZ"
 ];
 
 
@@ -50,7 +50,7 @@ function SubmitButton() {
         </>
       ) : (
         <>
-        <Save className="mr-2 h-4 w-4" />
+          <Save className="mr-2 h-4 w-4" />
           Save Changes
         </>
       )}
@@ -59,17 +59,18 @@ function SubmitButton() {
 }
 
 interface EditPhoneNumberDialogProps {
-    isOpen: boolean;
-    onOpenChange: (open: boolean) => void;
-    project: WithId<Project>;
-    phone: PhoneNumber;
-    onUpdateSuccess: () => void;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  project: WithId<Project>;
+  phone: PhoneNumber;
+  onUpdateSuccess: () => void;
 }
 
 export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, onUpdateSuccess }: EditPhoneNumberDialogProps) {
   const [profileState, profileFormAction] = useActionState(handleUpdatePhoneNumberProfile, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(phone.profile?.profile_picture_url || null);
 
   useEffect(() => {
     if (profileState.message) {
@@ -82,65 +83,120 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
     }
   }, [profileState, toast, onOpenChange, onUpdateSuccess]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <form action={profileFormAction} ref={formRef}>
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={profileFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input type="hidden" name="phoneNumberId" value={phone.id} />
-          <DialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Edit Phone Number Profile</DialogTitle>
             <DialogDescription>
-              Update the public business profile for {phone.display_phone_number}.
+              Update the public business profile details for {phone.display_phone_number}.
             </DialogDescription>
           </DialogHeader>
 
-            <ScrollArea className="max-h-[60vh] -mx-6 px-6">
-                <div className="grid gap-6 py-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="profilePicture">Display Picture</Label>
-                        <Input id="profilePicture" name="profilePicture" type="file" accept="image/jpeg,image/png" />
-                        <p className="text-xs text-muted-foreground">Upload a square image (e.g., 500x500px).</p>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="about">About Text</Label>
-                        <Textarea id="about" name="about" defaultValue={phone.profile?.about} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
-                        <Textarea id="description" name="description" defaultValue={phone.profile?.description} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="address">Address</Label>
-                        <Textarea id="address" name="address" defaultValue={phone.profile?.address} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" defaultValue={phone.profile?.email} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="vertical">Vertical</Label>
-                            <Select name="vertical" defaultValue={phone.profile?.vertical}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a vertical..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {verticals.map(v => <SelectItem key={v} value={v} className="capitalize">{v.replace(/_/g, ' ').toLowerCase()}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Websites</Label>
-                        <Input name="websites" placeholder="https://www.example.com" defaultValue={phone.profile?.websites?.[0]} />
-                        <Input name="websites" placeholder="https://shop.example.com" defaultValue={phone.profile?.websites?.[1]} />
-                    </div>
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-6">
+
+              {/* Top Section: Profile Pic & Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-6">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="relative h-40 w-40 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden bg-muted/30 hover:bg-muted/50 transition-colors group">
+                    {previewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={previewUrl} alt="Profile Preview" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center text-muted-foreground group-hover:text-foreground transition-colors">
+                        <LoaderCircle className="h-8 w-8 mb-2 opacity-50" /> {/* Using Loader as a placeholder icon if UserCircle isn't imported, but user requested 'better preview', image tag handles preview */}
+                        <span className="text-xs font-medium">Upload Photo</span>
+                      </div>
+                    )}
+                    <label htmlFor="profilePicture" className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity font-medium text-sm">
+                      Change
+                    </label>
+                    <Input
+                      id="profilePicture"
+                      name="profilePicture"
+                      type="file"
+                      accept="image/jpeg,image/png"
+                      className="hidden"
+                      onChange={handleImageChange}
+                    />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground text-center px-4">
+                    Recommended: 500x500px, JPG or PNG.
+                  </p>
                 </div>
-            </ScrollArea>
-          
-          <DialogFooter className="mt-6">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="vertical">Business Category</Label>
+                    <Select name="vertical" defaultValue={phone.profile?.vertical}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {verticals.map(v => <SelectItem key={v} value={v} className="capitalize">{v.replace(/_/g, ' ').toLowerCase()}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Business Email</Label>
+                    <Input id="email" name="email" type="email" placeholder="contact@example.com" defaultValue={phone.profile?.email} />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Middle Section: Text Fields */}
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="about">Status (About)</Label>
+                    <span className="text-xs text-muted-foreground">Max 139 chars</span>
+                  </div>
+                  <Input id="about" name="about" defaultValue={phone.profile?.about} maxLength={139} placeholder="Hey there! I am using WhatsApp." />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="description">Business Description</Label>
+                    <span className="text-xs text-muted-foreground">Max 256 chars</span>
+                  </div>
+                  <Textarea id="description" name="description" defaultValue={phone.profile?.description} maxLength={256} className="h-24 resize-none" placeholder="Tell your customers about your business..." />
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Bottom Section: Contact & Socials */}
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="address">Business Address</Label>
+                  <Input id="address" name="address" defaultValue={phone.profile?.address} placeholder="1234 Main St, City, Country" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Websites</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Input name="websites" placeholder="https://www.example.com" defaultValue={phone.profile?.websites?.[0]} />
+                    <Input name="websites" placeholder="https://shop.example.com" defaultValue={phone.profile?.websites?.[1]} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>
         </form>

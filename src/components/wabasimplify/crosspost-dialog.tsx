@@ -46,21 +46,21 @@ export function CrosspostDialog({ isOpen, onOpenChange, postId, projectId, onSuc
   const [state, formAction] = useActionState(handleCrosspostVideo, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-  
+
   const [eligiblePages, setEligiblePages] = useState<FacebookPage[]>([]);
   const [isLoading, startLoading] = useTransition();
 
   useEffect(() => {
-      if (isOpen) {
-          startLoading(async () => {
-              const result = await getEligibleCrosspostPages(postId, projectId);
-              if(result.error) {
-                  toast({ title: "Error", description: `Could not fetch eligible pages: ${result.error}`, variant: "destructive"});
-              } else {
-                  setEligiblePages(result.pages || []);
-              }
-          })
-      }
+    if (isOpen) {
+      startLoading(async () => {
+        const result = await getEligibleCrosspostPages(postId, projectId);
+        if (result.error) {
+          toast({ title: "Error", description: `Could not fetch eligible pages: ${result.error}`, variant: "destructive" });
+        } else {
+          setEligiblePages(result.pages || []);
+        }
+      })
+    }
   }, [isOpen, postId, projectId, toast]);
 
 
@@ -77,41 +77,43 @@ export function CrosspostDialog({ isOpen, onOpenChange, postId, projectId, onSuc
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="postId" value={postId} />
-          <DialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Crosspost Video</DialogTitle>
             <DialogDescription>
               Select pages to share this video with. Pages must be linked in your Business Manager.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
-            <Label>Eligible Pages</Label>
-            <ScrollArea className="h-48 mt-2 rounded-md border p-2">
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <Label>Eligible Pages</Label>
+              <div className="mt-2 rounded-md border p-2">
                 {isLoading ? (
-                    <div className="space-y-2">
-                        <Skeleton className="h-8 w-full" />
-                        <Skeleton className="h-8 w-full" />
-                    </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
+                  </div>
                 ) : eligiblePages.length > 0 ? (
-                    <div className="space-y-2">
-                        {eligiblePages.map(page => (
-                            <div key={page.id} className="flex items-center space-x-2">
-                                <Checkbox id={page.id} name="targetPageIds" value={page.id} />
-                                <Label htmlFor={page.id} className="font-normal">{page.name}</Label>
-                            </div>
-                        ))}
-                    </div>
+                  <div className="space-y-2">
+                    {eligiblePages.map(page => (
+                      <div key={page.id} className="flex items-center space-x-2">
+                        <Checkbox id={page.id} name="targetPageIds" value={page.id} />
+                        <Label htmlFor={page.id} className="font-normal">{page.name}</Label>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
-                    <p className="text-sm text-center text-muted-foreground p-4">No eligible pages found for crossposting.</p>
+                  <p className="text-sm text-center text-muted-foreground p-4">No eligible pages found for crossposting.</p>
                 )}
-            </ScrollArea>
+              </div>
+            </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>

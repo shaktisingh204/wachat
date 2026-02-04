@@ -5,13 +5,13 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ import { LoaderCircle, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createSite } from '@/app/actions/portfolio.actions';
 
-const initialState = { message: null, error: undefined, siteId: undefined };
+const initialState = { message: undefined, error: undefined, siteId: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -33,7 +33,7 @@ function SubmitButton() {
 }
 
 interface CreatePortfolioDialogProps {
-  onSuccess: () => void;
+    onSuccess: () => void;
 }
 
 export function CreatePortfolioDialog({ onSuccess }: CreatePortfolioDialogProps) {
@@ -52,7 +52,7 @@ export function CreatePortfolioDialog({ onSuccess }: CreatePortfolioDialogProps)
             toast({ title: 'Error Creating Site', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, onSuccess]);
-    
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -61,21 +61,23 @@ export function CreatePortfolioDialog({ onSuccess }: CreatePortfolioDialogProps)
                     Create New Site
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <form action={formAction} ref={formRef}>
-                    <DialogHeader>
+            <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+                <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+                    <DialogHeader className="px-6 pt-6 pb-2">
                         <DialogTitle>Create New Site</DialogTitle>
                         <DialogDescription>
                             Enter a name for your new portfolio or landing page site.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Site Name</Label>
-                            <Input id="name" name="name" placeholder="e.g., My Awesome Portfolio" required />
+                    <div className="flex-1 overflow-y-auto px-6 py-2">
+                        <div className="grid gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Site Name</Label>
+                                <Input id="name" name="name" placeholder="e.g., My Awesome Portfolio" required />
+                            </div>
                         </div>
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="px-6 pb-6 pt-2">
                         <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                         <SubmitButton />
                     </DialogFooter>

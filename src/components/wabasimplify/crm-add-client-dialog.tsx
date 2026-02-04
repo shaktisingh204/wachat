@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Checkbox } from '../ui/checkbox';
 import { Textarea } from '../ui/textarea';
 
-const initialState = { message: null, error: null };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -65,98 +65,98 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
           New Prospect
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <form action={formAction} ref={formRef}>
-          <DialogHeader>
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Create a New Client</DialogTitle>
             <DialogDescription>
               Add a new client to your CRM. Required fields are marked with an asterisk.
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="max-h-[70vh] -mx-6 my-4 px-6">
+          <div className="flex-1 overflow-y-auto px-6 py-2">
             <Accordion type="multiple" defaultValue={['basic', 'address']} className="w-full">
               <AccordionItem value="basic">
-                  <AccordionTrigger>Basic Information</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-2">
+                <AccordionTrigger>Basic Information</AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="logo">Upload Logo</Label>
+                    <Input id="logo" name="logo" type="file" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="logo">Upload Logo</Label>
-                      <Input id="logo" name="logo" type="file" />
+                      <Label htmlFor="businessName">Business Name *</Label>
+                      <Input id="businessName" name="businessName" maxLength={100} required />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="businessName">Business Name *</Label>
-                        <Input id="businessName" name="businessName" maxLength={100} required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="clientIndustry">Client Industry</Label>
-                        <Select name="clientIndustry"><SelectTrigger><SelectValue placeholder="-Select an Industry-"/></SelectTrigger><SelectContent><SelectItem value="tech">Technology</SelectItem><SelectItem value="retail">Retail</SelectItem></SelectContent></Select>
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="clientIndustry">Client Industry</Label>
+                      <Select name="clientIndustry"><SelectTrigger><SelectValue placeholder="-Select an Industry-" /></SelectTrigger><SelectContent><SelectItem value="tech">Technology</SelectItem><SelectItem value="retail">Retail</SelectItem></SelectContent></Select>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                              <Label htmlFor="country">Country *</Label>
-                              <Select name="country" defaultValue="India" required><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem><SelectItem value="USA">United States</SelectItem></SelectContent></Select>
-                          </div>
-                          <div className="space-y-2">
-                              <Label htmlFor="city">City/Town</Label>
-                              <Input id="city" name="city" maxLength={100} />
-                          </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="country">Country *</Label>
+                      <Select name="country" defaultValue="India" required><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem><SelectItem value="USA">United States</SelectItem></SelectContent></Select>
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="tax">
-                  <AccordionTrigger>Tax Information (Optional)</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-2">
-                    <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2"><Label htmlFor="gstin">Business GSTIN</Label><Input id="gstin" name="gstin" maxLength={15} /></div>
-                          <div className="space-y-2"><Label htmlFor="pan">Business PAN</Label><Input id="pan" name="pan" maxLength={10} /></div>
+                    <div className="space-y-2">
+                      <Label htmlFor="city">City/Town</Label>
+                      <Input id="city" name="city" maxLength={100} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2"><Label>Client Type</Label><Select name="clientType"><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="individual">Individual</SelectItem><SelectItem value="company">Company</SelectItem></SelectContent></Select></div>
-                          <div className="space-y-2"><Label>Tax Treatment</Label><Select name="taxTreatment"><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="registered">Registered</SelectItem><SelectItem value="unregistered">Unregistered</SelectItem></SelectContent></Select></div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="address">
-                  <AccordionTrigger>Address (Optional)</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-2">
-                      <div className="space-y-2"><Label htmlFor="street">Street Address</Label><Input id="street" name="street" maxLength={200} /></div>
-                      <div className="grid grid-cols-3 gap-4">
-                          <div className="space-y-2"><Label htmlFor="addressCity">City</Label><Input id="addressCity" name="addressCity" maxLength={100} /></div>
-                          <div className="space-y-2"><Label htmlFor="addressState">State</Label><Input id="addressState" name="addressState" maxLength={100} /></div>
-                          <div className="space-y-2"><Label htmlFor="addressZip">ZIP Code</Label><Input id="addressZip" name="addressZip" maxLength={20} /></div>
-                      </div>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="shipping">
-                  <AccordionTrigger>Shipping Details (Optional)</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-2">
-                      <div className="flex items-center space-x-2"><Checkbox id="copy-billing" /><Label htmlFor="copy-billing">Copy from billing address</Label></div>
-                      <div className="space-y-2"><Label htmlFor="shippingName">Name</Label><Input id="shippingName" name="shippingName" maxLength={100} /></div>
-                      <div className="space-y-2"><Label htmlFor="shippingStreet">Street Address</Label><Input id="shippingStreet" name="shippingStreet" maxLength={200} /></div>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="additional">
-                  <AccordionTrigger>Additional Details (Optional)</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-2">
-                      <div className="space-y-2"><Label htmlFor="alias">Business Alias</Label><Input id="alias" name="alias" maxLength={100} /></div>
-                      <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" maxLength={100} /></div>
-                          <div className="space-y-2"><Label htmlFor="phone">Phone No.</Label><Input id="phone" name="phone" maxLength={30} /></div>
-                      </div>
-                      <div className="space-y-2"><Label>Attachments</Label><Input type="file" multiple /></div>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="account-details">
-                  <AccordionTrigger>Account Details (Optional)</AccordionTrigger>
-                  <AccordionContent className="pt-2 text-center text-muted-foreground">
-                      <p className="text-sm">Enable Advanced Accounting to create or link ledger.</p>
-                      <Button variant="outline" size="sm" className="mt-2" disabled>Enable Now</Button>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-          </ScrollArea>
-          <DialogFooter className="pt-6">
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="tax">
+                <AccordionTrigger>Tax Information (Optional)</AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label htmlFor="gstin">Business GSTIN</Label><Input id="gstin" name="gstin" maxLength={15} /></div>
+                    <div className="space-y-2"><Label htmlFor="pan">Business PAN</Label><Input id="pan" name="pan" maxLength={10} /></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label>Client Type</Label><Select name="clientType"><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent><SelectItem value="individual">Individual</SelectItem><SelectItem value="company">Company</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-2"><Label>Tax Treatment</Label><Select name="taxTreatment"><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent><SelectItem value="registered">Registered</SelectItem><SelectItem value="unregistered">Unregistered</SelectItem></SelectContent></Select></div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="address">
+                <AccordionTrigger>Address (Optional)</AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-2">
+                  <div className="space-y-2"><Label htmlFor="street">Street Address</Label><Input id="street" name="street" maxLength={200} /></div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2"><Label htmlFor="addressCity">City</Label><Input id="addressCity" name="addressCity" maxLength={100} /></div>
+                    <div className="space-y-2"><Label htmlFor="addressState">State</Label><Input id="addressState" name="addressState" maxLength={100} /></div>
+                    <div className="space-y-2"><Label htmlFor="addressZip">ZIP Code</Label><Input id="addressZip" name="addressZip" maxLength={20} /></div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="shipping">
+                <AccordionTrigger>Shipping Details (Optional)</AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-2">
+                  <div className="flex items-center space-x-2"><Checkbox id="copy-billing" /><Label htmlFor="copy-billing">Copy from billing address</Label></div>
+                  <div className="space-y-2"><Label htmlFor="shippingName">Name</Label><Input id="shippingName" name="shippingName" maxLength={100} /></div>
+                  <div className="space-y-2"><Label htmlFor="shippingStreet">Street Address</Label><Input id="shippingStreet" name="shippingStreet" maxLength={200} /></div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="additional">
+                <AccordionTrigger>Additional Details (Optional)</AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-2">
+                  <div className="space-y-2"><Label htmlFor="alias">Business Alias</Label><Input id="alias" name="alias" maxLength={100} /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" maxLength={100} /></div>
+                    <div className="space-y-2"><Label htmlFor="phone">Phone No.</Label><Input id="phone" name="phone" maxLength={30} /></div>
+                  </div>
+                  <div className="space-y-2"><Label>Attachments</Label><Input type="file" multiple /></div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="account-details">
+                <AccordionTrigger>Account Details (Optional)</AccordionTrigger>
+                <AccordionContent className="pt-2 text-center text-muted-foreground">
+                  <p className="text-sm">Enable Advanced Accounting to create or link ledger.</p>
+                  <Button variant="outline" size="sm" className="mt-2" disabled>Enable Now</Button>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>

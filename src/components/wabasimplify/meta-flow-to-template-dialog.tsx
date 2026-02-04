@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -23,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { MetaFlow } from '@/lib/definitions';
 
-const initialState = { message: null, error: null, payload: null };
+const initialState = { message: undefined, error: undefined, payload: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -40,30 +39,30 @@ interface MetaFlowToTemplateDialogProps {
 }
 
 const languages = [
-    { name: 'Afrikaans', code: 'af' }, { name: 'Albanian', code: 'sq' }, { name: 'Arabic', code: 'ar' },
-    { name: 'Azerbaijani', code: 'az' }, { name: 'Bengali', code: 'bn' }, { name: 'Bulgarian', code: 'bg' },
-    { name: 'Catalan', code: 'ca' }, { name: 'Chinese (CHN)', code: 'zh_CN' }, { name: 'Chinese (HKG)', code: 'zh_HK' },
-    { name: 'Chinese (TAI)', code: 'zh_TW' }, { name: 'Croatian', code: 'hr' }, { name: 'Czech', code: 'cs' },
-    { name: 'Danish', code: 'da' }, { name: 'Dutch', code: 'nl' }, { name: 'English', code: 'en' },
-    { name: 'English (US)', code: 'en_US' }, { name: 'Estonian', code: 'et' }, { name: 'Filipino', code: 'fil' },
-    { name: 'Finnish', code: 'fi' }, { name: 'French', code: 'fr' }, { name: 'Georgian', code: 'ka' },
-    { name: 'German', code: 'de' }, { name: 'Greek', code: 'el' }, { name: 'Gujarati', code: 'gu' },
-    { name: 'Hausa', code: 'ha' }, { name: 'Hebrew', code: 'he' }, { name: 'Hindi', code: 'hi' },
-    { name: 'Hungarian', code: 'hu' }, { name: 'Indonesian', code: 'id' }, { name: 'Irish', code: 'ga' },
-    { name: 'Italian', code: 'it' }, { name: 'Japanese', code: 'ja' }, { name: 'Kannada', code: 'kn' },
-    { name: 'Kazakh', code: 'kk' }, { name: 'Kinyarwanda', code: 'rw_RW' }, { name: 'Korean', code: 'ko' },
-    { name: 'Kyrgyz (Kyrgyzstan)', code: 'ky_KG' }, { name: 'Lao', code: 'lo' }, { name: 'Latvian', code: 'lv' },
-    { name: 'Lithuanian', code: 'lt' }, { name: 'Macedonian', code: 'mk' }, { name: 'Malay', code: 'ms' },
-    { name: 'Malayalam', code: 'ml' }, { name: 'Marathi', code: 'mr' }, { name: 'Norwegian', code: 'nb' },
-    { name: 'Persian', code: 'fa' }, { name: 'Polish', code: 'pl' }, { name: 'Portuguese (BR)', code: 'pt_BR' },
-    { name: 'Portuguese (POR)', code: 'pt_PT' }, { name: 'Punjabi', code: 'pa' }, { name: 'Romanian', code: 'ro' },
-    { name: 'Russian', code: 'ru' }, { name: 'Serbian', code: 'sr' }, { name: 'Slovak', code: 'sk' },
-    { name: 'Slovenian', code: 'sl' }, { name: 'Spanish', code: 'es' }, { name: 'Spanish (ARG)', code: 'es_AR' },
-    { name: 'Spanish (MEX)', code: 'es_MX' }, { name: 'Spanish (SPA)', code: 'es_ES' }, { name: 'Swahili', code: 'sw' },
-    { name: 'Swedish', code: 'sv' }, { name: 'Tamil', code: 'ta' }, { name: 'Telugu', code: 'te' },
-    { name: 'Thai', code: 'th' }, { name: 'Turkish', code: 'tr' }, { name: 'Ukrainian', code: 'uk' },
-    { name: 'Urdu', code: 'ur' }, { name: 'Uzbek', code: 'uz' }, { name: 'Vietnamese', code: 'vi' },
-    { name: 'Zulu', code: 'zu' }
+  { name: 'Afrikaans', code: 'af' }, { name: 'Albanian', code: 'sq' }, { name: 'Arabic', code: 'ar' },
+  { name: 'Azerbaijani', code: 'az' }, { name: 'Bengali', code: 'bn' }, { name: 'Bulgarian', code: 'bg' },
+  { name: 'Catalan', code: 'ca' }, { name: 'Chinese (CHN)', code: 'zh_CN' }, { name: 'Chinese (HKG)', code: 'zh_HK' },
+  { name: 'Chinese (TAI)', code: 'zh_TW' }, { name: 'Croatian', code: 'hr' }, { name: 'Czech', code: 'cs' },
+  { name: 'Danish', code: 'da' }, { name: 'Dutch', code: 'nl' }, { name: 'English', code: 'en' },
+  { name: 'English (US)', code: 'en_US' }, { name: 'Estonian', code: 'et' }, { name: 'Filipino', code: 'fil' },
+  { name: 'Finnish', code: 'fi' }, { name: 'French', code: 'fr' }, { name: 'Georgian', code: 'ka' },
+  { name: 'German', code: 'de' }, { name: 'Greek', code: 'el' }, { name: 'Gujarati', code: 'gu' },
+  { name: 'Hausa', code: 'ha' }, { name: 'Hebrew', code: 'he' }, { name: 'Hindi', code: 'hi' },
+  { name: 'Hungarian', code: 'hu' }, { name: 'Indonesian', code: 'id' }, { name: 'Irish', code: 'ga' },
+  { name: 'Italian', code: 'it' }, { name: 'Japanese', code: 'ja' }, { name: 'Kannada', code: 'kn' },
+  { name: 'Kazakh', code: 'kk' }, { name: 'Kinyarwanda', code: 'rw_RW' }, { name: 'Korean', code: 'ko' },
+  { name: 'Kyrgyz (Kyrgyzstan)', code: 'ky_KG' }, { name: 'Lao', code: 'lo' }, { name: 'Latvian', code: 'lv' },
+  { name: 'Lithuanian', code: 'lt' }, { name: 'Macedonian', code: 'mk' }, { name: 'Malay', code: 'ms' },
+  { name: 'Malayalam', code: 'ml' }, { name: 'Marathi', code: 'mr' }, { name: 'Norwegian', code: 'nb' },
+  { name: 'Persian', code: 'fa' }, { name: 'Polish', code: 'pl' }, { name: 'Portuguese (BR)', code: 'pt_BR' },
+  { name: 'Portuguese (POR)', code: 'pt_PT' }, { name: 'Punjabi', code: 'pa' }, { name: 'Romanian', code: 'ro' },
+  { name: 'Russian', code: 'ru' }, { name: 'Serbian', code: 'sr' }, { name: 'Slovak', code: 'sk' },
+  { name: 'Slovenian', code: 'sl' }, { name: 'Spanish', code: 'es' }, { name: 'Spanish (ARG)', code: 'es_AR' },
+  { name: 'Spanish (MEX)', code: 'es_MX' }, { name: 'Spanish (SPA)', code: 'es_ES' }, { name: 'Swahili', code: 'sw' },
+  { name: 'Swedish', code: 'sv' }, { name: 'Tamil', code: 'ta' }, { name: 'Telugu', code: 'te' },
+  { name: 'Thai', code: 'th' }, { name: 'Turkish', code: 'tr' }, { name: 'Ukrainian', code: 'uk' },
+  { name: 'Urdu', code: 'ur' }, { name: 'Uzbek', code: 'uz' }, { name: 'Vietnamese', code: 'vi' },
+  { name: 'Zulu', code: 'zu' }
 ];
 
 export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps) {
@@ -86,56 +85,58 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="sm"><Send className="mr-2 h-4 w-4"/>Create Send Template</Button>
+        <Button variant="secondary" size="sm"><Send className="mr-2 h-4 w-4" />Create Send Template</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        <form action={formAction} ref={formRef}>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={flow.projectId.toString()} />
           <input type="hidden" name="flowId" value={flow.metaId} />
-          <DialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Create Template for Flow</DialogTitle>
             <DialogDescription>
               Create a message template with a button to trigger the "{flow.name}" flow.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="templateName">Template Name</Label>
-              <Input id="templateName" name="templateName" placeholder="e.g., start_support_flow" required />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="templateName">Template Name</Label>
+                <Input id="templateName" name="templateName" placeholder="e.g., start_support_flow" required />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="language">Language</Label>
-                    <Select name="language" defaultValue="en_US" required>
-                        <SelectTrigger id="language"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                            {languages.map(lang => <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
+                  <Label htmlFor="language">Language</Label>
+                  <Select name="language" defaultValue="en_US" required>
+                    <SelectTrigger id="language"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {languages.map(lang => <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select name="category" required>
-                        <SelectTrigger id="category"><SelectValue placeholder="Select..."/></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="MARKETING">Marketing</SelectItem>
-                            <SelectItem value="UTILITY">Utility</SelectItem>
-                            <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
-                        </SelectContent>
-                    </Select>
+                  <Label htmlFor="category">Category</Label>
+                  <Select name="category" required>
+                    <SelectTrigger id="category"><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MARKETING">Marketing</SelectItem>
+                      <SelectItem value="UTILITY">Utility</SelectItem>
+                      <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="bodyText">Body Text</Label>
-              <Textarea id="bodyText" name="bodyText" placeholder="This message will appear above the button." required />
-            </div>
-             <div className="space-y-2">
-              <Label htmlFor="buttonText">Button Text</Label>
-              <Input id="buttonText" name="buttonText" placeholder="e.g., Start Support Chat" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bodyText">Body Text</Label>
+                <Textarea id="bodyText" name="bodyText" placeholder="This message will appear above the button." required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="buttonText">Button Text</Label>
+                <Input id="buttonText" name="buttonText" placeholder="e.g., Start Support Chat" required />
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>

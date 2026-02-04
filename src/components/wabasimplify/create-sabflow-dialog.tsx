@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { saveSabFlow } from '@/app/actions/sabflow.actions';
 import { useRouter } from 'next/navigation';
 
-const initialState = { message: null, error: null, flowId: undefined };
+const initialState = { message: undefined, error: undefined, flowId: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -61,7 +61,7 @@ export function CreateSabFlowDialog({ onSuccess }: CreateSabFlowDialogProps) {
     formData.append('flowId', 'new-flow');
     formData.append('nodes', JSON.stringify([startNode]));
     formData.append('edges', '[]');
-    formData.append('trigger', JSON.stringify({type: 'manual'}));
+    formData.append('trigger', JSON.stringify({ type: 'manual' }));
     formAction(formData);
   }
 
@@ -69,24 +69,26 @@ export function CreateSabFlowDialog({ onSuccess }: CreateSabFlowDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            New Flow
+          <Plus className="mr-2 h-4 w-4" />
+          New Flow
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <form action={handleFormAction} ref={formRef}>
-            <DialogHeader>
-                <DialogTitle>Create New Flow</DialogTitle>
-                <DialogDescription>Give your new automation workflow a name to get started.</DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-                <Label htmlFor="name">Flow Name</Label>
-                <Input id="name" name="name" placeholder="e.g., New Lead Follow-up" required />
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={handleFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Create New Flow</DialogTitle>
+            <DialogDescription>Give your new automation workflow a name to get started.</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <Label htmlFor="name">Flow Name</Label>
+              <Input id="name" name="name" placeholder="e.g., New Lead Follow-up" required />
             </div>
-            <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                <SubmitButton />
-            </DialogFooter>
+          </div>
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <SubmitButton />
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

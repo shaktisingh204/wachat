@@ -3,12 +3,12 @@
 import { useState, useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,13 +20,13 @@ import Image from 'next/image';
 import { GoogleSheetsConnection } from './connections/google-sheets-connection';
 
 interface NewConnectionDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  app: any | null;
-  onConnectionSaved: () => void;
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+    app: any | null;
+    onConnectionSaved: () => void;
 }
 
-const initialState = { message: null, error: null };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton({ app }: { app: any }) {
     const { pending } = useFormStatus();
@@ -37,7 +37,7 @@ function SubmitButton({ app }: { app: any }) {
 
     return (
         <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : null}
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Connect
         </Button>
     );
@@ -48,7 +48,7 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
     const [state, formAction] = useActionState(saveSabFlowConnection, initialState);
     const formRef = useRef<HTMLFormElement>(null);
 
-     useEffect(() => {
+    useEffect(() => {
         if (state.message) {
             toast({ title: "Success!", description: state.message });
             onOpenChange(false);
@@ -78,19 +78,19 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                         {(app.credentials || []).map((cred: any) => (
                             <div className="space-y-2" key={cred.name}>
                                 <Label htmlFor={cred.name}>{cred.label}</Label>
-                                <Input 
-                                    id={cred.name} 
-                                    name={cred.name} 
-                                    type={cred.type || 'text'} 
-                                    placeholder={cred.placeholder || ''} 
-                                    required 
+                                <Input
+                                    id={cred.name}
+                                    name={cred.name}
+                                    type={cred.type || 'text'}
+                                    placeholder={cred.placeholder || ''}
+                                    required
                                 />
                             </div>
                         ))}
                     </div>
                 );
             case 'oauth':
-                 return (
+                return (
                     <div className="text-center space-y-4">
                         <p className="text-sm text-muted-foreground">To connect {app.name}, you'll be redirected to their authorization page.</p>
                         <Button type="button" disabled>Connect via {app.name}</Button>
@@ -100,31 +100,31 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                 return <p className="text-sm text-muted-foreground text-center">This app integration is not yet fully configured.</p>
         }
     }
-  
+
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg">
-                <form action={formAction} ref={formRef}>
+            <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+                <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     {app && <input type="hidden" name="appId" value={app.appId} />}
                     {app && <input type="hidden" name="appName" value={app.name} />}
                     {app && app.credentials && <input type="hidden" name="credentialKeys" value={app.credentials.map((c: any) => c.name).join(',')} />}
-                    <DialogHeader className="items-center text-center">
+                    <DialogHeader className="items-center text-center px-6 pt-6 pb-2">
                         {app?.logo ? (
-                            <Image src={app.logo} alt={`${app.name} logo`} width={48} height={48} className="rounded-md"/>
+                            <Image src={app.logo} alt={`${app.name} logo`} width={48} height={48} className="rounded-md" />
                         ) : app?.icon ? (
                             <div className="w-12 h-12 bg-muted flex items-center justify-center rounded-md">
-                                <app.icon className="w-8 h-8 text-muted-foreground"/>
+                                <app.icon className="w-8 h-8 text-muted-foreground" />
                             </div>
                         ) : null}
                         <DialogTitle>Connect to {app?.name}</DialogTitle>
                         <DialogDescription>
-                          {app?.description || 'Provide the necessary details to connect your account.'}
+                            {app?.description || 'Provide the necessary details to connect your account.'}
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="py-6">
+                    <div className="flex-1 overflow-y-auto px-6 py-2">
                         {renderFormFields()}
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="px-6 pb-6 pt-2">
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton app={app} />
                     </DialogFooter>

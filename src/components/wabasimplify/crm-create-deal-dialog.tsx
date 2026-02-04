@@ -23,7 +23,7 @@ import type { WithId, CrmContact, CrmAccount } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { DatePicker } from '../ui/date-picker';
 
-const initialState = { message: null, error: null };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -36,10 +36,10 @@ function SubmitButton() {
 }
 
 interface CreateDealDialogProps {
-    contacts: WithId<CrmContact>[];
-    accounts: WithId<CrmAccount>[];
-    onDealCreated: () => void;
-    dealStages: string[];
+  contacts: WithId<CrmContact>[];
+  accounts: WithId<CrmAccount>[];
+  onDealCreated: () => void;
+  dealStages: string[];
 }
 
 export function CreateDealDialog({ contacts, accounts, onDealCreated, dealStages }: CreateDealDialogProps) {
@@ -66,46 +66,48 @@ export function CreateDealDialog({ contacts, accounts, onDealCreated, dealStages
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Deal
+          <Plus className="mr-2 h-4 w-4" />
+          Create Deal
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        <form action={formAction} ref={formRef}>
-            <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
-            <DialogHeader>
-                <DialogTitle>Create New Deal</DialogTitle>
-                <DialogDescription>Track a new sales opportunity.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="space-y-2"><Label htmlFor="name">Deal Name</Label><Input id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label htmlFor="value">Value</Label><Input id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
-                    <div className="space-y-2"><Label htmlFor="currency">Currency</Label><Select name="currency" defaultValue="USD" required><SelectTrigger id="currency"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="USD">USD</SelectItem><SelectItem value="INR">INR</SelectItem><SelectItem value="EUR">EUR</SelectItem></SelectContent></Select></div>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Create New Deal</DialogTitle>
+            <DialogDescription>Track a new sales opportunity.</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2"><Label htmlFor="name">Deal Name</Label><Input id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label htmlFor="value">Value</Label><Input id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
+                <div className="space-y-2"><Label htmlFor="currency">Currency</Label><Select name="currency" defaultValue="USD" required><SelectTrigger id="currency"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="USD">USD</SelectItem><SelectItem value="INR">INR</SelectItem><SelectItem value="EUR">EUR</SelectItem></SelectContent></Select></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="stage">Stage</Label>
+                  <Select name="stage" defaultValue={dealStages[0]} required>
+                    <SelectTrigger id="stage"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {dealStages.map(stage => (
+                        <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="stage">Stage</Label>
-                        <Select name="stage" defaultValue={dealStages[0]} required>
-                            <SelectTrigger id="stage"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                {dealStages.map(stage => (
-                                    <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2"><Label>Expected Close Date</Label><DatePicker date={closeDate} setDate={setCloseDate} /></div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label htmlFor="accountId">Account</Label><Select name="accountId" required><SelectTrigger id="accountId"><SelectValue placeholder="Select an account..."/></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-2"><Label htmlFor="contactId">Primary Contact</Label><Select name="contactId" required><SelectTrigger id="contactId"><SelectValue placeholder="Select a contact..." /></SelectTrigger><SelectContent>{contacts.map(c => <SelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
-                </div>
+                <div className="space-y-2"><Label>Expected Close Date</Label><DatePicker date={closeDate} setDate={setCloseDate} /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label htmlFor="accountId">Account</Label><Select name="accountId" required><SelectTrigger id="accountId"><SelectValue placeholder="Select an account..." /></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label htmlFor="contactId">Primary Contact</Label><Select name="contactId" required><SelectTrigger id="contactId"><SelectValue placeholder="Select a contact..." /></SelectTrigger><SelectContent>{contacts.map(c => <SelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
+              </div>
             </div>
-            <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                <SubmitButton />
-            </DialogFooter>
+          </div>
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <SubmitButton />
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

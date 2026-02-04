@@ -20,7 +20,7 @@ import { LoaderCircle, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { importCrmContacts } from '@/app/actions/crm.actions';
 
-const initialState = { message: null, error: null };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -33,7 +33,7 @@ function SubmitButton() {
 }
 
 interface CrmImportContactsDialogProps {
-    onImported: () => void;
+  onImported: () => void;
 }
 
 export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogProps) {
@@ -58,28 +58,30 @@ export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogP
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-            <Upload className="mr-2 h-4 w-4" />
-            Import
+          <Upload className="mr-2 h-4 w-4" />
+          Import
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
-            <DialogHeader>
-                <DialogTitle>Import Contacts</DialogTitle>
-                <DialogDescription>
-                   Upload a CSV or XLSX file. Ensure columns match: `name`, `email`, `phone`, `company`, `jobTitle`, `status`, `leadScore`.
-                </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                    <Label htmlFor="contactFile">File</Label>
-                    <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
-                </div>
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Import Contacts</DialogTitle>
+            <DialogDescription>
+              Upload a CSV or XLSX file. Ensure columns match: `name`, `email`, `phone`, `company`, `jobTitle`, `status`, `leadScore`.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="contactFile">File</Label>
+                <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
+              </div>
             </div>
-            <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                <SubmitButton />
-            </DialogFooter>
+          </div>
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <SubmitButton />
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

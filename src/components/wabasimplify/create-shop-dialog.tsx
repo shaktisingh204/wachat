@@ -4,13 +4,13 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createEcommShop } from '@/app/actions/custom-ecommerce.actions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
-const initialState = { message: null, error: undefined };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -33,8 +33,8 @@ function SubmitButton() {
 }
 
 interface CreateEcommShopDialogProps {
-  projectId: string;
-  onSuccess: () => void;
+    projectId: string;
+    onSuccess: () => void;
 }
 
 export function CreateEcommShopDialog({ projectId, onSuccess }: CreateEcommShopDialogProps) {
@@ -53,7 +53,7 @@ export function CreateEcommShopDialog({ projectId, onSuccess }: CreateEcommShopD
             toast({ title: 'Error Creating Shop', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, onSuccess]);
-    
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -62,34 +62,36 @@ export function CreateEcommShopDialog({ projectId, onSuccess }: CreateEcommShopD
                     Create New Shop
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <form action={formAction} ref={formRef}>
+            <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+                <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     <input type="hidden" name="projectId" value={projectId} />
-                    <DialogHeader>
+                    <DialogHeader className="px-6 pt-6 pb-2">
                         <DialogTitle>Create New Shop</DialogTitle>
                         <DialogDescription>
                             Enter a name and currency for your new e-commerce storefront.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Shop Name</Label>
-                            <Input id="name" name="name" placeholder="e.g., My T-Shirt Store" required />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="currency">Currency</Label>
-                             <Select name="currency" defaultValue="USD" required>
-                                <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="USD">USD - US Dollar</SelectItem>
-                                    <SelectItem value="EUR">EUR - Euro</SelectItem>
-                                    <SelectItem value="INR">INR - Indian Rupee</SelectItem>
-                                    <SelectItem value="GBP">GBP - British Pound</SelectItem>
-                                </SelectContent>
-                            </Select>
+                    <div className="flex-1 overflow-y-auto px-6 py-2">
+                        <div className="grid gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Shop Name</Label>
+                                <Input id="name" name="name" placeholder="e.g., My T-Shirt Store" required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="currency">Currency</Label>
+                                <Select name="currency" defaultValue="USD" required>
+                                    <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="USD">USD - US Dollar</SelectItem>
+                                        <SelectItem value="EUR">EUR - Euro</SelectItem>
+                                        <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+                                        <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="px-6 pb-6 pt-2">
                         <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                         <SubmitButton />
                     </DialogFooter>

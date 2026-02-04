@@ -32,7 +32,7 @@ function SubmitButton() {
 }
 
 interface SmsImportContactsDialogProps {
-    onImported: () => void;
+  onImported: () => void;
 }
 
 export function SmsImportContactsDialog({ onImported }: SmsImportContactsDialogProps) {
@@ -44,8 +44,8 @@ export function SmsImportContactsDialog({ onImported }: SmsImportContactsDialogP
 
   const action = (formData: FormData) => {
     startTransition(async () => {
-        const result = await importSmsContacts(null, formData);
-        setState(result);
+      const result = await importSmsContacts(null, formData);
+      setState(result);
     });
   };
 
@@ -65,31 +65,33 @@ export function SmsImportContactsDialog({ onImported }: SmsImportContactsDialogP
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-            <Upload className="mr-2 h-4 w-4" />
-            Import
+          <Upload className="mr-2 h-4 w-4" />
+          Import
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <form action={action} ref={formRef}>
-            <DialogHeader>
-                <DialogTitle>Import SMS Contacts</DialogTitle>
-                <DialogDescription>
-                   Upload a CSV or XLSX file. The first column must be 'phone' and the second 'name'. Include country code in phone numbers.
-                </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                    <Label htmlFor="contactFile">File</Label>
-                    <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
-                </div>
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={action} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Import SMS Contacts</DialogTitle>
+            <DialogDescription>
+              Upload a CSV or XLSX file. The first column must be 'phone' and the second 'name'. Include country code in phone numbers.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="contactFile">File</Label>
+                <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
+              </div>
             </div>
-            <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={isPending}>
-                  {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  Import Contacts
-                </Button>
-            </DialogFooter>
+          </div>
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Import Contacts
+            </Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

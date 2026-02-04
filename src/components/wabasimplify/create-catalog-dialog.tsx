@@ -20,8 +20,9 @@ import { createCatalog } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
 
 const initialState = {
-  message: null,
-  error: null,
+  success: false,
+  message: undefined,
+  error: undefined,
 };
 
 function SubmitButton() {
@@ -65,23 +66,25 @@ export function CreateCatalogDialog({ projectId, onCatalogCreated }: CreateCatal
           Create New Catalog
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={projectId || ''} />
-          <DialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Create New Product Catalog</DialogTitle>
             <DialogDescription>
               This will create a new, empty product catalog in your Meta Business account.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="catalogName">Catalog Name</Label>
-              <Input id="catalogName" name="catalogName" placeholder="e.g., My Online Store" required maxLength={100} />
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="catalogName">Catalog Name</Label>
+                <Input id="catalogName" name="catalogName" placeholder="e.g., My Online Store" required maxLength={100} />
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>

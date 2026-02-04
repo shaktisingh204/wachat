@@ -19,7 +19,7 @@ import { LoaderCircle, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmAccount } from '@/app/actions/crm-accounts.actions';
 
-const initialState = { message: null, error: null };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -32,7 +32,7 @@ function SubmitButton() {
 }
 
 interface CrmAddAccountDialogProps {
-    onAdded: () => void;
+  onAdded: () => void;
 }
 
 export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
@@ -57,40 +57,42 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Account
+          <Plus className="mr-2 h-4 w-4" />
+          Add Account
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
-            <DialogHeader>
-                <DialogTitle>Add New Account</DialogTitle>
-                <DialogDescription>Create a new company record in your CRM.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Add New Account</DialogTitle>
+            <DialogDescription>Create a new company record in your CRM.</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Company Name</Label>
+                <Input id="name" name="name" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="industry">Industry (Optional)</Label>
+                <Input id="industry" name="industry" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="name">Company Name</Label>
-                    <Input id="name" name="name" required />
+                  <Label htmlFor="website">Website (Optional)</Label>
+                  <Input id="website" name="website" type="url" placeholder="https://example.com" />
                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="industry">Industry (Optional)</Label>
-                    <Input id="industry" name="industry" />
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone (Optional)</Label>
+                  <Input id="phone" name="phone" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="website">Website (Optional)</Label>
-                        <Input id="website" name="website" type="url" placeholder="https://example.com" />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="phone">Phone (Optional)</Label>
-                        <Input id="phone" name="phone" />
-                    </div>
-                </div>
+              </div>
             </div>
-            <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                <SubmitButton />
-            </DialogFooter>
+          </div>
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <SubmitButton />
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

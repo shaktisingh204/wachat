@@ -1,0 +1,15 @@
+.gutter {
+    background-color: hsl(var(--border));
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transition: background-color 0.2s;
+}
+
+.gutter:hover {
+    background-color: hsl(var(--primary));
+    cursor: col-resize;
+}
+
+.gutter.gutter-horizontal {
+    cursor: col-resize;
+}

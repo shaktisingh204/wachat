@@ -55,7 +55,7 @@ export function CreateRandomizerPostDialog({ isOpen, onOpenChange, project, onPo
       toast({ title: 'Error Adding Post', description: state.error, variant: 'destructive' });
     }
   }, [state, toast, onOpenChange, onPostAdded]);
-  
+
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       formRef.current?.reset();
@@ -65,28 +65,30 @@ export function CreateRandomizerPostDialog({ isOpen, onOpenChange, project, onPo
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <form action={formAction} ref={formRef}>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={project._id.toString()} />
-          <DialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Add Post to Pool</DialogTitle>
             <DialogDescription>
               Create content that will be randomly selected for posting.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Textarea id="message" name="message" placeholder="What's on your mind?" className="min-h-32" required/>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-              <Input id="imageUrl" name="imageUrl" type="url" placeholder="https://example.com/image.jpg" />
-              <p className="text-xs text-muted-foreground">If provided, this post will be published as a photo post.</p>
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="message">Message</Label>
+                <Textarea id="message" name="message" placeholder="What's on your mind?" className="min-h-32" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="imageUrl">Image URL (Optional)</Label>
+                <Input id="imageUrl" name="imageUrl" type="url" placeholder="https://example.com/image.jpg" />
+                <p className="text-xs text-muted-foreground">If provided, this post will be published as a photo post.</p>
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>

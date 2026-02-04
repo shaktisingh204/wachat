@@ -13,7 +13,9 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Save, MessageSquareReply, ShieldX, Bot, MessageSquareHeart, Trash2, Plus } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Keep Tabs for inner usage if any, otherwise can remove
+import { ModuleLayout } from '@/components/wabasimplify/module-layout';
+import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -26,20 +28,20 @@ import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/featu
 const initialState = { success: false, error: undefined };
 
 function SubmitButton({ children }: { children: React.ReactNode }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} size="lg">
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      {children}
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending} size="lg">
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {children}
+        </Button>
+    );
 }
 
 function PageSkeleton() {
     return (
         <div className="space-y-6">
-            <Skeleton className="h-10 w-64"/>
-            <Skeleton className="h-4 w-96"/>
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-4 w-96" />
             <div className="space-y-4">
                 <Skeleton className="h-64 w-full" />
                 <Skeleton className="h-48 w-full" />
@@ -52,19 +54,19 @@ function CommentAutomationForm({ project, settings }: { project: WithId<Project>
     const [state, formAction] = useActionState(handleUpdateFacebookAutomationSettings, initialState);
     const { toast } = useToast();
     const [replyMode, setReplyMode] = useState<'static' | 'ai'>(settings?.replyMode || 'static');
-    
+
     useEffect(() => {
         if (state.success) toast({ title: 'Success!', description: 'Comment automation settings saved.' });
         if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }, [state, toast]);
-    
+
     return (
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <input type="hidden" name="automationType" value="comment" />
             <Card className="card-gradient card-gradient-purple">
                 <CardHeader>
-                     <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                             <Label htmlFor="enabled" className="text-base font-semibold">Enable Comment Automation</Label>
                             <p className="text-sm text-muted-foreground">Master switch for all comment-related features.</p>
@@ -75,29 +77,29 @@ function CommentAutomationForm({ project, settings }: { project: WithId<Project>
                 <CardContent>
                     <Tabs defaultValue="replies" className="w-full">
                         <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="replies"><Bot className="mr-2 h-4 w-4"/>Replies</TabsTrigger>
-                            <TabsTrigger value="moderation"><ShieldX className="mr-2 h-4 w-4"/>Moderation</TabsTrigger>
+                            <TabsTrigger value="replies"><Bot className="mr-2 h-4 w-4" />Replies</TabsTrigger>
+                            <TabsTrigger value="moderation"><ShieldX className="mr-2 h-4 w-4" />Moderation</TabsTrigger>
                         </TabsList>
                         <TabsContent value="replies" className="mt-4 space-y-4">
-                             <RadioGroup name="replyMode" value={replyMode} onValueChange={(v) => setReplyMode(v as any)} className="flex gap-4 pt-1">
+                            <RadioGroup name="replyMode" value={replyMode} onValueChange={(v) => setReplyMode(v as any)} className="flex gap-4 pt-1">
                                 <div className="flex items-center space-x-2"><RadioGroupItem value="static" id="mode-static" /><Label htmlFor="mode-static" className="font-normal">Static Reply</Label></div>
                                 <div className="flex items-center space-x-2"><RadioGroupItem value="ai" id="mode-ai" /><Label htmlFor="mode-ai" className="font-normal">AI-Generated Reply</Label></div>
-                             </RadioGroup>
-                             <Separator />
-                             {replyMode === 'static' ? (
+                            </RadioGroup>
+                            <Separator />
+                            {replyMode === 'static' ? (
                                 <div className="space-y-2">
                                     <Label htmlFor="staticReplyText">Static Reply Text</Label>
                                     <Textarea id="staticReplyText" name="staticReplyText" placeholder="Thanks for your comment! We'll get back to you shortly." defaultValue={settings?.staticReplyText || ''} className="min-h-32" />
                                 </div>
-                             ) : (
+                            ) : (
                                 <div className="space-y-2">
                                     <Label htmlFor="aiReplyPrompt">AI Reply Prompt</Label>
                                     <Textarea id="aiReplyPrompt" name="aiReplyPrompt" placeholder="You are a friendly community manager. Acknowledge the user's comment and tell them you appreciate their feedback. Keep it brief and positive." defaultValue={settings?.aiReplyPrompt || ''} className="min-h-32" />
-                                     <p className="text-xs text-muted-foreground">Provide instructions for the AI on how to generate replies.</p>
+                                    <p className="text-xs text-muted-foreground">Provide instructions for the AI on how to generate replies.</p>
                                 </div>
-                             )}
+                            )}
                         </TabsContent>
-                         <TabsContent value="moderation" className="mt-4 space-y-4">
+                        <TabsContent value="moderation" className="mt-4 space-y-4">
                             <div className="flex items-center justify-between pt-2">
                                 <div className="space-y-0.5">
                                     <Label htmlFor="moderationEnabled" className="text-base">Enable AI Moderation</Label>
@@ -110,7 +112,7 @@ function CommentAutomationForm({ project, settings }: { project: WithId<Project>
                                 <Textarea id="moderationPrompt" name="moderationPrompt" placeholder="Delete any comments that contain profanity, hate speech, or personal attacks." defaultValue={settings?.moderationPrompt || ''} className="min-h-32" />
                                 <p className="text-xs text-muted-foreground">Define the rules for the AI to follow. If the AI determines a comment violates these rules, it will be deleted.</p>
                             </div>
-                         </TabsContent>
+                        </TabsContent>
                     </Tabs>
                 </CardContent>
                 <CardFooter><SubmitButton>Save Comment Settings</SubmitButton></CardFooter>
@@ -138,15 +140,15 @@ function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>,
 
     const handleReplyChange = (index: number, field: 'title' | 'payload', value: string) => {
         const newReplies = [...quickReplies];
-        newReplies[index] = {...newReplies[index], [field]: value};
+        newReplies[index] = { ...newReplies[index], [field]: value };
         setQuickReplies(newReplies);
     };
-    
+
     useEffect(() => {
         if (state.success) toast({ title: 'Success!', description: 'Welcome message settings saved.' });
         if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }, [state, toast]);
-    
+
     return (
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
@@ -165,9 +167,9 @@ function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>,
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="message">Welcome Message Text</Label>
-                        <Textarea id="message" name="message" placeholder="Welcome to our page! How can we help you today?" defaultValue={settings?.message || ''} className="min-h-32"/>
+                        <Textarea id="message" name="message" placeholder="Welcome to our page! How can we help you today?" defaultValue={settings?.message || ''} className="min-h-32" />
                     </div>
-                     <Separator />
+                    <Separator />
                     <div className="space-y-2">
                         <Label>Quick Replies (Optional)</Label>
                         <p className="text-xs text-muted-foreground">Add up to 13 buttons to guide users after your welcome message.</p>
@@ -175,12 +177,12 @@ function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>,
                             {quickReplies.map((reply, index) => (
                                 <div key={index} className="flex items-center gap-2">
                                     <Input placeholder="Button Title (max 20 chars)" value={reply.title} onChange={e => handleReplyChange(index, 'title', e.target.value)} maxLength={20} />
-                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveReply(index)}><Trash2 className="h-4 w-4"/></Button>
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveReply(index)}><Trash2 className="h-4 w-4" /></Button>
                                 </div>
                             ))}
                         </div>
                         {quickReplies.length < 13 && (
-                            <Button type="button" variant="outline" size="sm" className="mt-2" onClick={handleAddReply}><Plus className="mr-2 h-4 w-4"/>Add Quick Reply</Button>
+                            <Button type="button" variant="outline" size="sm" className="mt-2" onClick={handleAddReply}><Plus className="mr-2 h-4 w-4" />Add Quick Reply</Button>
                         )}
                     </div>
                 </CardContent>
@@ -194,10 +196,11 @@ function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>,
 export default function FacebookAutomationPage() {
     const { activeProject, isLoadingProject, sessionUser } = useProject();
     const isAllowed = sessionUser?.plan?.features?.liveChat ?? false;
+    const [activeTab, setActiveTab] = useState('comments');
 
-    if(isLoadingProject) return <PageSkeleton />;
-    
-    if(!activeProject) {
+    if (isLoadingProject) return <PageSkeleton />;
+
+    if (!activeProject) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -206,33 +209,53 @@ export default function FacebookAutomationPage() {
             </Alert>
         );
     }
-    
+
     return (
         <div className="space-y-6 relative">
             <FeatureLockOverlay isAllowed={isAllowed} featureName="Facebook Automation" />
             <FeatureLock isAllowed={isAllowed}>
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Bot className="h-8 w-8"/>
+                        <Bot className="h-8 w-8" />
                         Facebook Automation
                     </h1>
                     <p className="text-muted-foreground mt-2">
                         Manage automations for your Facebook Page comments and Messenger conversations.
                     </p>
                 </div>
-                
-                <Tabs defaultValue="comments" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="comments"><MessageSquareReply className="mr-2 h-4 w-4"/>Comment Automation</TabsTrigger>
-                        <TabsTrigger value="messenger"><MessageSquareHeart className="mr-2 h-4 w-4"/>Messenger Automation</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="comments" className="mt-6">
-                        <CommentAutomationForm project={activeProject} settings={activeProject.facebookCommentAutoReply} />
-                    </TabsContent>
-                    <TabsContent value="messenger" className="mt-6">
-                        <MessengerWelcomeForm project={activeProject} settings={activeProject.facebookWelcomeMessage} />
-                    </TabsContent>
-                </Tabs>
+
+                <ModuleLayout
+                    sidebar={
+                        <ModuleSidebar
+                            title="Automation"
+                            activeValue={activeTab}
+                            onValueChange={setActiveTab}
+                            items={[
+                                { value: 'comments', label: 'Comment Automation', icon: MessageSquareReply },
+                                { value: 'messenger', label: 'Messenger Automation', icon: MessageSquareHeart },
+                            ]}
+                        />
+                    }
+                >
+                    {activeTab === 'comments' && (
+                        <div className="space-y-6">
+                            <div>
+                                <h2 className="text-2xl font-semibold tracking-tight">Comment Automation</h2>
+                                <p className="text-muted-foreground">Manage how your page automatically responds to comments.</p>
+                            </div>
+                            <CommentAutomationForm project={activeProject} settings={activeProject.facebookCommentAutoReply} />
+                        </div>
+                    )}
+                    {activeTab === 'messenger' && (
+                        <div className="space-y-6">
+                            <div>
+                                <h2 className="text-2xl font-semibold tracking-tight">Messenger Automation</h2>
+                                <p className="text-muted-foreground">Set up welcome messages and quick replies for new chats.</p>
+                            </div>
+                            <MessengerWelcomeForm project={activeProject} settings={activeProject.facebookWelcomeMessage} />
+                        </div>
+                    )}
+                </ModuleLayout>
             </FeatureLock>
         </div>
     );

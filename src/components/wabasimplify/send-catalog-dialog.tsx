@@ -4,12 +4,12 @@
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,23 +24,23 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 import Image from 'next/image';
 
-const initialState = { message: null, error: undefined };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-      Send Catalog
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+            Send Catalog
+        </Button>
+    );
 }
 
 interface SendCatalogDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  contact: WithId<Contact>;
-  project: WithId<Project>;
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+    contact: WithId<Contact>;
+    project: WithId<Project>;
 }
 
 export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: SendCatalogDialogProps) {
@@ -52,7 +52,7 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
     const [isLoading, startLoading] = useTransition();
 
     useEffect(() => {
-        if(isOpen && project.connectedCatalogId) {
+        if (isOpen && project.connectedCatalogId) {
             startLoading(async () => {
                 const fetchedProducts = await getProductsForCatalog(project.connectedCatalogId!, project._id.toString());
                 setProducts(fetchedProducts);
@@ -73,77 +73,79 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
     }, [state, toast, onOpenChange]);
 
     const handleProductSelect = (productId: string, checked: boolean) => {
-        setSelectedProducts(prev => 
+        setSelectedProducts(prev =>
             checked ? [...prev, productId] : prev.filter(id => id !== productId)
         );
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl">
-                <form action={formAction} ref={formRef}>
+            <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
+                <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
                     <input type="hidden" name="projectId" value={project._id.toString()} />
                     <input type="hidden" name="productRetailerIds" value={selectedProducts.join(',')} />
-                    
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2"><ShoppingBag/>Send Product Catalog</DialogTitle>
+
+                    <DialogHeader className="px-6 pt-6 pb-2">
+                        <DialogTitle className="flex items-center gap-2"><ShoppingBag />Send Product Catalog</DialogTitle>
                         <DialogDescription>
                             Select products to send to {contact.name}. You can send up to 30 items at a time.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid gap-6 py-4">
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="headerText">Header Text</Label>
-                                <Input id="headerText" name="headerText" placeholder="Our Top Products" required />
+                    <div className="flex-1 overflow-y-auto px-6 py-2">
+                        <div className="grid gap-6">
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="headerText">Header Text</Label>
+                                    <Input id="headerText" name="headerText" placeholder="Our Top Products" required />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="footerText">Footer Text (Optional)</Label>
+                                    <Input id="footerText" name="footerText" placeholder="Sale ends soon!" />
+                                </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="footerText">Footer Text (Optional)</Label>
-                                <Input id="footerText" name="footerText" placeholder="Sale ends soon!" />
+                                <Label htmlFor="bodyText">Body Text</Label>
+                                <Textarea id="bodyText" name="bodyText" placeholder="Check out these amazing products from our collection." required />
                             </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="bodyText">Body Text</Label>
-                            <Textarea id="bodyText" name="bodyText" placeholder="Check out these amazing products from our collection." required />
-                        </div>
 
-                        <div className="space-y-2">
-                            <Label>Select Products ({selectedProducts.length}/30)</Label>
-                             <ScrollArea className="h-64 border rounded-md p-2">
-                                {isLoading ? (
-                                    <div className="flex items-center justify-center h-full">
-                                        <LoaderCircle className="h-6 w-6 animate-spin" />
-                                    </div>
-                                ) : products.length > 0 ? (
-                                    <div className="space-y-2">
-                                        {products.map(product => (
-                                            <div key={product.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted">
-                                                <Checkbox
-                                                    id={`product-${product.id}`}
-                                                    checked={selectedProducts.includes(product.retailer_id)}
-                                                    onCheckedChange={(checked) => handleProductSelect(product.retailer_id, !!checked)}
-                                                    disabled={selectedProducts.length >= 30 && !selectedProducts.includes(product.retailer_id)}
-                                                />
-                                                 <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center">
-                                                    {product.image_url ? <Image src={product.image_url} alt={product.name} width={48} height={48} className="object-cover rounded-md"/> : <ShoppingBag className="h-6 w-6 text-gray-400"/>}
+                            <div className="space-y-2">
+                                <Label>Select Products ({selectedProducts.length}/30)</Label>
+                                <ScrollArea className="h-64 border rounded-md p-2">
+                                    {isLoading ? (
+                                        <div className="flex items-center justify-center h-full">
+                                            <LoaderCircle className="h-6 w-6 animate-spin" />
+                                        </div>
+                                    ) : products.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {products.map(product => (
+                                                <div key={product.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted">
+                                                    <Checkbox
+                                                        id={`product-${product.id}`}
+                                                        checked={selectedProducts.includes(product.retailer_id)}
+                                                        onCheckedChange={(checked) => handleProductSelect(product.retailer_id, !!checked)}
+                                                        disabled={selectedProducts.length >= 30 && !selectedProducts.includes(product.retailer_id)}
+                                                    />
+                                                    <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center">
+                                                        {product.image_url ? <Image src={product.image_url} alt={product.name} width={48} height={48} className="object-cover rounded-md" /> : <ShoppingBag className="h-6 w-6 text-gray-400" />}
+                                                    </div>
+                                                    <Label htmlFor={`product-${product.id}`} className="flex-1 cursor-pointer">
+                                                        <p className="font-medium">{product.name}</p>
+                                                        <p className="text-xs text-muted-foreground font-mono">{product.retailer_id}</p>
+                                                    </Label>
                                                 </div>
-                                                <Label htmlFor={`product-${product.id}`} className="flex-1 cursor-pointer">
-                                                    <p className="font-medium">{product.name}</p>
-                                                    <p className="text-xs text-muted-foreground font-mono">{product.retailer_id}</p>
-                                                </Label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center p-8 text-muted-foreground">No products found in this catalog.</div>
-                                )}
-                            </ScrollArea>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center p-8 text-muted-foreground">No products found in this catalog.</div>
+                                    )}
+                                </ScrollArea>
+                            </div>
                         </div>
                     </div>
-                    
-                    <DialogFooter>
+
+                    <DialogFooter className="px-6 pb-6 pt-2">
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
                     </DialogFooter>

@@ -59,18 +59,18 @@ export function EditPageDetailsDialog({ isOpen, onOpenChange, pageDetails, proje
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <form action={formAction} ref={formRef}>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="pageId" value={pageDetails.id} />
-          <DialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Edit Page Details</DialogTitle>
             <DialogDescription>
               Update information for your page "{pageDetails.name}". Changes may take time to appear.
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="max-h-[60vh] -mx-6 my-4 px-6">
-            <div className="space-y-4 py-4">
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="about">About</Label>
                 <Textarea id="about" name="about" defaultValue={pageDetails.about || ''} className="min-h-32" />
@@ -84,8 +84,8 @@ export function EditPageDetailsDialog({ isOpen, onOpenChange, pageDetails, proje
                 <Input id="website" name="website" type="url" defaultValue={pageDetails.website || ''} />
               </div>
             </div>
-          </ScrollArea>
-          <DialogFooter className="mt-4">
+          </div>
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>

@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { DatePicker } from '../ui/date-picker';
 import { Textarea } from '../ui/textarea';
 
-const initialState = { message: null, error: null };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -36,9 +36,9 @@ function SubmitButton() {
 }
 
 interface CrmCreateTaskDialogProps {
-    onTaskCreated: () => void;
-    contactId?: string;
-    dealId?: string;
+  onTaskCreated: () => void;
+  contactId?: string;
+  dealId?: string;
 }
 
 export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreateTaskDialogProps) {
@@ -65,64 +65,66 @@ export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreate
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Task
+          <Plus className="mr-2 h-4 w-4" />
+          Create Task
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        <form action={formAction} ref={formRef}>
-            <input type="hidden" name="dueDate" value={dueDate?.toISOString()} />
-            {contactId && <input type="hidden" name="contactId" value={contactId} />}
-            {dealId && <input type="hidden" name="dealId" value={dealId} />}
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <input type="hidden" name="dueDate" value={dueDate?.toISOString()} />
+          {contactId && <input type="hidden" name="contactId" value={contactId} />}
+          {dealId && <input type="hidden" name="dealId" value={dealId} />}
 
-            <DialogHeader>
-                <DialogTitle>Create New Task</DialogTitle>
-                <DialogDescription>Add a new to-do item for your team.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Create New Task</DialogTitle>
+            <DialogDescription>Add a new to-do item for your team.</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input id="title" name="title" required placeholder="e.g., Follow up with Acme Corp" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description (Optional)</Label>
+                <Textarea id="description" name="description" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input id="title" name="title" required placeholder="e.g., Follow up with Acme Corp" />
+                  <Label>Due Date</Label>
+                  <DatePicker date={dueDate} setDate={setDueDate} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="description">Description (Optional)</Label>
-                    <Textarea id="description" name="description" />
+                  <Label htmlFor="priority">Priority</Label>
+                  <Select name="priority" defaultValue="Medium">
+                    <SelectTrigger id="priority"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="High">High</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="Low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label>Due Date</Label>
-                        <DatePicker date={dueDate} setDate={setDueDate} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="priority">Priority</Label>
-                        <Select name="priority" defaultValue="Medium">
-                            <SelectTrigger id="priority"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="High">High</SelectItem>
-                                <SelectItem value="Medium">Medium</SelectItem>
-                                <SelectItem value="Low">Low</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="type">Task Type</Label>
-                    <Select name="type" defaultValue="Follow-up">
-                        <SelectTrigger id="type"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Follow-up">Follow-up</SelectItem>
-                            <SelectItem value="Call">Call</SelectItem>
-                            <SelectItem value="Meeting">Meeting</SelectItem>
-                            <SelectItem value="Email">Email</SelectItem>
-                            <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="type">Task Type</Label>
+                <Select name="type" defaultValue="Follow-up">
+                  <SelectTrigger id="type"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Follow-up">Follow-up</SelectItem>
+                    <SelectItem value="Call">Call</SelectItem>
+                    <SelectItem value="Meeting">Meeting</SelectItem>
+                    <SelectItem value="Email">Email</SelectItem>
+                    <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                <SubmitButton />
-            </DialogFooter>
+          </div>
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <SubmitButton />
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

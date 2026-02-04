@@ -20,7 +20,7 @@ import { applyForCrmLeave } from '@/app/actions/crm-hr.actions';
 import { DatePicker } from '../ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
-const initialState = { message: null, error: null };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -61,45 +61,47 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
-            <input type="hidden" name="startDate" value={startDate?.toISOString()} />
-            <input type="hidden" name="endDate" value={endDate?.toISOString()} />
-            <DialogHeader>
-                <DialogTitle>Apply for Leave</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <input type="hidden" name="startDate" value={startDate?.toISOString()} />
+          <input type="hidden" name="endDate" value={endDate?.toISOString()} />
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Apply for Leave</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="leaveType">Leave Type *</Label>
+                <Select name="leaveType" required>
+                  <SelectTrigger id="leaveType"><SelectValue placeholder="Select type..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Paid Leave">Paid Leave</SelectItem>
+                    <SelectItem value="Sick Leave">Sick Leave</SelectItem>
+                    <SelectItem value="Unpaid Leave">Unpaid Leave</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="leaveType">Leave Type *</Label>
-                    <Select name="leaveType" required>
-                        <SelectTrigger id="leaveType"><SelectValue placeholder="Select type..."/></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Paid Leave">Paid Leave</SelectItem>
-                            <SelectItem value="Sick Leave">Sick Leave</SelectItem>
-                            <SelectItem value="Unpaid Leave">Unpaid Leave</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                     <div className="space-y-2">
-                        <Label>Start Date *</Label>
-                        <DatePicker date={startDate} setDate={setStartDate} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>End Date *</Label>
-                        <DatePicker date={endDate} setDate={setEndDate} />
-                    </div>
+                  <Label>Start Date *</Label>
+                  <DatePicker date={startDate} setDate={setStartDate} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="reason">Reason *</Label>
-                    <Textarea id="reason" name="reason" required placeholder="Enter reason for leave..." />
+                  <Label>End Date *</Label>
+                  <DatePicker date={endDate} setDate={setEndDate} />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="reason">Reason *</Label>
+                <Textarea id="reason" name="reason" required placeholder="Enter reason for leave..." />
+              </div>
             </div>
-            <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                <SubmitButton />
-            </DialogFooter>
+          </div>
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <SubmitButton />
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

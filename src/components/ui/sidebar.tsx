@@ -62,7 +62,7 @@ export function Sidebar({ className, children }: { className?: string; children:
   }
 
   return (
-    <aside className={cn('flex h-full flex-col bg-card rounded-lg shadow-sm transition-[width] duration-300 ease-in-out group overflow-hidden z-30 relative', isOpen ? 'w-60' : 'w-[70px] hover:w-60 hover:shadow-xl', className)}>
+    <aside className={cn('flex h-full flex-col bg-card rounded-lg shadow-sm transition-[width] duration-300 ease-in-out group overflow-hidden z-30 relative', isOpen ? 'w-fit min-w-60' : 'w-[70px] hover:w-fit hover:min-w-60 hover:shadow-xl', className)}>
       {sidebarContent}
     </aside>
   );

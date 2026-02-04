@@ -4,7 +4,8 @@
 import { useActionState, useEffect, useState, useTransition, useCallback, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModuleLayout } from '@/components/wabasimplify/module-layout';
+import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
 import { ListChecks, CalendarDays, Percent, Bell, Shield, Settings, ShieldCheck } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { saveCrmPermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
@@ -16,24 +17,24 @@ import { Button } from '@/components/ui/button';
 import { LoaderCircle, Save, Plus, Trash2 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -95,14 +96,14 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 onRoleAdded();
                 setOpen(false);
             } else {
-                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
             }
         });
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4"/>Add Role</Button></DialogTrigger>
+            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" />Add Role</Button></DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create New Role</DialogTitle>
@@ -115,7 +116,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                     <Button onClick={handleAddRole} disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Create Role
                     </Button>
                 </DialogFooter>
@@ -127,7 +128,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
 function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: () => void }) {
     const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
-    
+
     if (role.id === 'agent') return null;
 
     const handleDelete = () => {
@@ -143,9 +144,9 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
     }
 
     return (
-         <AlertDialog>
+        <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive" /></Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -155,7 +156,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDelete} disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Delete
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -190,7 +191,7 @@ function AccessControlTab() {
         }
     }, [state, toast, fetchUser]);
 
-    if(isLoading || !user) {
+    if (isLoading || !user) {
         return <Skeleton className="h-96 w-full" />
     }
 
@@ -202,11 +203,11 @@ function AccessControlTab() {
                 <h3 className="text-lg font-semibold">Roles & Permissions</h3>
                 <AddRoleDialog onRoleAdded={fetchUser} />
             </div>
-             <Accordion type="single" collapsible className="w-full space-y-4">
-                 {allRoles.map(role => {
-                     const crmPermissions = role.permissions || {};
+            <Accordion type="single" collapsible className="w-full space-y-4">
+                {allRoles.map(role => {
+                    const crmPermissions = role.permissions || {};
 
-                     return (
+                    return (
                         <AccordionItem key={role.id} value={role.id} className="border rounded-lg bg-card">
                             <AccordionTrigger className="p-4 font-semibold text-lg hover:no-underline">
                                 <div className="flex items-center gap-2">
@@ -215,7 +216,7 @@ function AccessControlTab() {
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="p-4 pt-0">
-                                 <input type="hidden" name={`roleId`} value={role.id} />
+                                <input type="hidden" name={`roleId`} value={role.id} />
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -241,17 +242,18 @@ function AccessControlTab() {
                                 </Table>
                             </AccordionContent>
                         </AccordionItem>
-                     )
-                 })}
-             </Accordion>
-             <div className="flex justify-end mt-6">
+                    )
+                })}
+            </Accordion>
+            <div className="flex justify-end mt-6">
                 <SubmitButton />
-             </div>
+            </div>
         </form>
     );
 }
 
 export default function HrmSettingsPage() {
+    const [activeTab, setActiveTab] = useState('access_control');
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -266,34 +268,60 @@ export default function HrmSettingsPage() {
                 </div>
             </div>
 
-            <Tabs defaultValue="access_control" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-                    <TabsTrigger value="pay_cycle"><CalendarDays className="mr-2 h-4 w-4"/>Pay Cycle</TabsTrigger>
-                    <TabsTrigger value="attendance"><ListChecks className="mr-2 h-4 w-4"/>Attendance</TabsTrigger>
-                    <TabsTrigger value="leave_policy"><CalendarDays className="mr-2 h-4 w-4"/>Leave Policy</TabsTrigger>
-                    <TabsTrigger value="tax_deduction"><Percent className="mr-2 h-4 w-4"/>Tax & Deductions</TabsTrigger>
-                    <TabsTrigger value="notifications"><Bell className="mr-2 h-4 w-4"/>Notifications</TabsTrigger>
-                    <TabsTrigger value="access_control"><Shield className="mr-2 h-4 w-4"/>Access Control</TabsTrigger>
-                </TabsList>
-                <TabsContent value="pay_cycle" className="mt-6">
-                    <PlaceholderCard title="Pay Cycle Configuration" description="Define your company's pay period (e.g., monthly, weekly) and payroll processing dates." />
-                </TabsContent>
-                <TabsContent value="attendance" className="mt-6">
-                    <PlaceholderCard title="Attendance Rules" description="Set rules for late entry, early exit, overtime, and shift timings." />
-                </TabsContent>
-                <TabsContent value="leave_policy" className="mt-6">
-                    <PlaceholderCard title="Leave Policy Setup" description="Create and assign different leave types like Casual Leave (CL), Sick Leave (SL), and Paid Leave (PL)." />
-                </TabsContent>
-                <TabsContent value="tax_deduction" className="mt-6">
-                    <PlaceholderCard title="Tax & Deduction Rules" description="Manage formulas and rules for all statutory and custom deductions and allowances." />
-                </TabsContent>
-                <TabsContent value="notifications" className="mt-6">
-                    <PlaceholderCard title="Notification Settings" description="Configure email and SMS notification templates for HR-related events." />
-                </TabsContent>
-                <TabsContent value="access_control" className="mt-6">
-                     <AccessControlTab />
-                </TabsContent>
-            </Tabs>
+            <ModuleLayout
+                sidebar={
+                    <ModuleSidebar
+                        title="HRM Settings"
+                        activeValue={activeTab}
+                        onValueChange={setActiveTab}
+                        items={[
+                            { value: 'pay_cycle', label: 'Pay Cycle', icon: CalendarDays },
+                            { value: 'attendance', label: 'Attendance', icon: ListChecks },
+                            { value: 'leave_policy', label: 'Leave Policy', icon: CalendarDays },
+                            { value: 'tax_deduction', label: 'Tax & Deductions', icon: Percent },
+                            { value: 'notifications', label: 'Notifications', icon: Bell },
+                            { value: 'access_control', label: 'Access Control', icon: Shield },
+                        ]}
+                    />
+                }
+            >
+                {activeTab === 'pay_cycle' && (
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-semibold tracking-tight">Pay Cycle</h2>
+                        <PlaceholderCard title="Pay Cycle Configuration" description="Define your company's pay period (e.g., monthly, weekly) and payroll processing dates." />
+                    </div>
+                )}
+                {activeTab === 'attendance' && (
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-semibold tracking-tight">Attendance</h2>
+                        <PlaceholderCard title="Attendance Rules" description="Set rules for late entry, early exit, overtime, and shift timings." />
+                    </div>
+                )}
+                {activeTab === 'leave_policy' && (
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-semibold tracking-tight">Leave Policy</h2>
+                        <PlaceholderCard title="Leave Policy Setup" description="Create and assign different leave types like Casual Leave (CL), Sick Leave (SL), and Paid Leave (PL)." />
+                    </div>
+                )}
+                {activeTab === 'tax_deduction' && (
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-semibold tracking-tight">Tax & Deductions</h2>
+                        <PlaceholderCard title="Tax & Deduction Rules" description="Manage formulas and rules for all statutory and custom deductions and allowances." />
+                    </div>
+                )}
+                {activeTab === 'notifications' && (
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-semibold tracking-tight">Notifications</h2>
+                        <PlaceholderCard title="Notification Settings" description="Configure email and SMS notification templates for HR-related events." />
+                    </div>
+                )}
+                {activeTab === 'access_control' && (
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-semibold tracking-tight">Access Control</h2>
+                        <AccessControlTab />
+                    </div>
+                )}
+            </ModuleLayout>
         </div>
     );
 }

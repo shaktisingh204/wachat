@@ -65,46 +65,48 @@ export function ManualInstagramSetupDialog() {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Card className="flex flex-col text-center hover:shadow-lg hover:border-primary transition-all cursor-pointer card-gradient card-gradient-orange">
-            <CardHeader>
-                <CardTitle>Manual Setup</CardTitle>
-                <CardDescription>Enter your credentials directly if you are an advanced user.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow flex flex-col items-center justify-center p-6">
-                <Key className="h-10 w-10 text-muted-foreground mb-4" />
-                <Button variant="outline">Connect Manually</Button>
-            </CardContent>
+          <CardHeader>
+            <CardTitle>Manual Setup</CardTitle>
+            <CardDescription>Enter your credentials directly if you are an advanced user.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex-grow flex flex-col items-center justify-center p-6">
+            <Key className="h-10 w-10 text-muted-foreground mb-4" />
+            <Button variant="outline">Connect Manually</Button>
+          </CardContent>
         </Card>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        <form action={formAction} ref={formRef}>
-          <DialogHeader>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Manual Instagram/Facebook Connection</DialogTitle>
             <DialogDescription>
               Enter your Page ID and a permanent Access Token. For help, see the{' '}
               <Link href="/dashboard/instagram/setup/docs" className="text-primary hover:underline" onClick={() => setOpen(false)}>
-                  manual setup guide
+                manual setup guide
               </Link>.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="projectName">Connection Name</Label>
-              <Input id="projectName" name="projectName" placeholder="e.g., My Instagram Business Account" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="facebookPageId">Facebook Page ID</Label>
-              <Input id="facebookPageId" name="facebookPageId" placeholder="Your Page ID (linked to Instagram)" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="adAccountId">Ad Account ID</Label>
-              <Input id="adAccountId" name="adAccountId" placeholder="act_xxxxxxxxxxxx" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="accessToken">Permanent Access Token</Label>
-              <Input id="accessToken" name="accessToken" type="password" placeholder="A non-expiring System User Token" required />
+          <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="projectName">Connection Name</Label>
+                <Input id="projectName" name="projectName" placeholder="e.g., My Instagram Business Account" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="facebookPageId">Facebook Page ID</Label>
+                <Input id="facebookPageId" name="facebookPageId" placeholder="Your Page ID (linked to Instagram)" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="adAccountId">Ad Account ID</Label>
+                <Input id="adAccountId" name="adAccountId" placeholder="act_xxxxxxxxxxxx" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="accessToken">Permanent Access Token</Label>
+                <Input id="accessToken" name="accessToken" type="password" placeholder="A non-expiring System User Token" required />
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>
