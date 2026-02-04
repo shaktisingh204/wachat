@@ -41,7 +41,7 @@ interface CrmAddClientDialogProps {
   defaultName?: string;
 }
 
-import { SmartLocationSelect } from '@/components/wabasimplify/smart-location-select';
+import { SmartLocationSelect } from '@/components/crm/smart-location-select';
 import { SmartIndustrySelect } from '@/components/crm/inventory/smart-industry-select';
 
 // ... imports

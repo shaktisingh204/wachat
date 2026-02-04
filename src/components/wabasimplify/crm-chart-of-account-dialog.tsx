@@ -22,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { LoaderCircle, Save } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { SmartAccountGroupSelect } from '@/components/crm/accounting/smart-account-group-select';
 
 const saveInitialState = { message: undefined, error: undefined };
 
@@ -48,6 +49,8 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
     const [state, formAction] = useActionState(saveCrmChartOfAccount, saveInitialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
+
+    const [selectedGroupId, setSelectedGroupId] = useState(initialData?.accountGroupId.toString() || '');
 
     useEffect(() => {
         if (state.message) {
@@ -76,16 +79,12 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="accountGroupId">Account Group *</Label>
-                                <Select name="accountGroupId" required defaultValue={initialData?.accountGroupId.toString()}>
-                                    <SelectTrigger><SelectValue placeholder="Select a group..." /></SelectTrigger>
-                                    <SelectContent>
-                                        {accountGroups.map(group => (
-                                            <SelectItem key={group._id.toString()} value={group._id.toString()}>
-                                                {group.name} [{group.category?.replace(/_/g, ' ')}]
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <input type="hidden" name="accountGroupId" value={selectedGroupId} />
+                                <SmartAccountGroupSelect
+                                    value={selectedGroupId}
+                                    onSelect={(val: string) => setSelectedGroupId(val)}
+                                    initialOptions={accountGroups.map(g => ({ value: g._id.toString(), label: g.name }))}
+                                />
                             </div>
 
                             <div>

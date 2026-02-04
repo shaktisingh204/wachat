@@ -21,19 +21,20 @@ import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.action
 import { saveVoucherEntry, getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
 import type { WithId } from 'mongodb';
 import type { CrmChartOfAccount, CrmVoucherBook, CrmPaymentAccount } from '@/lib/definitions';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { SmartLedgerSelect } from '@/components/crm/accounting/smart-ledger-select';
 
-const initialState = { message: null, error: null };
+const initialState = { message: undefined, error: undefined };
 
 function SaveButton({ disabled }: { disabled: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending || disabled}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Submit
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending || disabled}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Submit
+        </Button>
+    );
 }
 
 type VoucherEntryItem = {
@@ -64,8 +65,8 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
     return (
         <section>
             <div className="flex justify-between items-baseline mb-2">
-                 <h3 className="font-semibold text-lg">{title}</h3>
-                 <p className="text-sm font-medium">Total: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</p>
+                <h3 className="font-semibold text-lg">{title}</h3>
+                <p className="text-sm font-medium">Total: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</p>
             </div>
             <div className="space-y-3">
                 {items.map((item, index) => (
@@ -81,14 +82,18 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <Label className="text-xs">Account *</Label>
-                                <Select value={item.accountId} onValueChange={(val) => handleItemChange(item.id, 'accountId', val)} required>
-                                    <SelectTrigger><SelectValue placeholder="Search from an Account..." /></SelectTrigger>
-                                    <SelectContent>
-                                        {accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{(acc as any).accountName || acc.name}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
+                                <SmartLedgerSelect
+                                    value={item.accountId}
+                                    onSelect={(val: string) => handleItemChange(item.id, 'accountId', val)}
+                                    initialOptions={accounts.map(acc => ({
+                                        value: acc._id.toString(),
+                                        label: (acc as any).accountName || (acc as any).name
+                                    }))}
+                                    placeholder="Search from an Account..."
+                                />
+                                <input type="hidden" name={item.accountId} value={item.accountId} required /> {/* Hidden input for required validation if needed, though form action manual check might be better */}
                             </div>
-                             <div className="space-y-1">
+                            <div className="space-y-1">
                                 <Label className="text-xs">Remark</Label>
                                 <Input placeholder="Add Remark" value={item.remark || ''} onChange={e => handleItemChange(item.id, 'remark', e.target.value)} />
                             </div>
@@ -104,7 +109,7 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
                                     </SelectContent>
                                 </Select>
                             </div>
-                             <div className="space-y-1">
+                            <div className="space-y-1">
                                 <Label className="text-xs">Amount *</Label>
                                 <Input type="number" value={item.amount} onChange={e => handleItemChange(item.id, 'amount', Number(e.target.value))} required />
                             </div>
@@ -112,7 +117,7 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
                     </div>
                 ))}
             </div>
-             <Button type="button" variant="outline" size="sm" className="mt-3" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4"/>Add Line Item</Button>
+            <Button type="button" variant="outline" size="sm" className="mt-3" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add Line Item</Button>
         </section>
     );
 }
@@ -121,13 +126,13 @@ export default function NewVoucherPage() {
     const [state, formAction] = useActionState(saveVoucherEntry, initialState);
     const router = useRouter();
     const { toast } = useToast();
-    
+
     const [user, setUser] = useState<any>(null);
     const [allAccounts, setAllAccounts] = useState<(WithId<CrmChartOfAccount> | WithId<CrmPaymentAccount>)[]>([]);
     const [voucherBooks, setVoucherBooks] = useState<WithId<CrmVoucherBook>[]>([]);
     const [voucherDate, setVoucherDate] = useState<Date | undefined>(new Date());
     const [currency, setCurrency] = useState('INR');
-    
+
     const [debitEntries, setDebitEntries] = useState<VoucherEntryItem[]>([{ id: uuidv4(), accountId: '', currency, amount: 0 }]);
     const [creditEntries, setCreditEntries] = useState<VoucherEntryItem[]>([{ id: uuidv4(), accountId: '', currency, amount: 0 }]);
 
@@ -156,7 +161,7 @@ export default function NewVoucherPage() {
     const totalDebits = debitEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
     const totalCredits = creditEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
     const difference = totalDebits - totalCredits;
-    
+
     const businessProfile = user?.businessProfile;
 
     return (
@@ -167,26 +172,26 @@ export default function NewVoucherPage() {
 
             <div className="bg-muted/30">
                 <div className="container mx-auto p-4 md:p-8">
-                     <header className="flex justify-between items-center mb-6">
-                         <div>
+                    <header className="flex justify-between items-center mb-6">
+                        <div>
                             <Button variant="ghost" asChild className="-ml-4">
                                 <Link href="/dashboard/crm/accounting/vouchers"><ArrowLeft className="mr-2 h-4 w-4" />Back to Voucher Books</Link>
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                             <SaveButton disabled={difference !== 0} />
+                            <SaveButton disabled={difference !== 0} />
                         </div>
-                     </header>
+                    </header>
                     <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
                         <CardContent className="p-0">
                             <header className="text-center mb-8">
                                 <h1 className="text-3xl font-bold text-primary">New Voucher Entry</h1>
                                 <p className="text-muted-foreground">Record a new journal entry.</p>
                             </header>
-                            
+
                             {!businessProfile?.name && (
                                 <Alert variant="destructive" className="mb-6">
-                                    <AlertCircle className="h-4 w-4"/>
+                                    <AlertCircle className="h-4 w-4" />
                                     <AlertTitle>Business Profile Incomplete</AlertTitle>
                                     <AlertDescription>
                                         Please complete your business profile to use accounting features.
@@ -195,13 +200,13 @@ export default function NewVoucherPage() {
                                 </Alert>
                             )}
 
-                            <Separator className="my-8"/>
+                            <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-3 gap-4 text-sm mb-8">
-                                 <div className="space-y-1">
+                                <div className="space-y-1">
                                     <Label htmlFor="voucherBookId">Voucher Book *</Label>
                                     <Select name="voucherBookId" required>
-                                        <SelectTrigger id="voucherBookId"><SelectValue placeholder="Select a book..."/></SelectTrigger>
+                                        <SelectTrigger id="voucherBookId"><SelectValue placeholder="Select a book..." /></SelectTrigger>
                                         <SelectContent>{voucherBooks.map(book => <SelectItem key={book._id.toString()} value={book._id.toString()}>{book.name}</SelectItem>)}</SelectContent>
                                     </Select>
                                 </div>
@@ -212,24 +217,24 @@ export default function NewVoucherPage() {
                                 <div className="space-y-1"><Label>Date *</Label><DatePicker date={voucherDate} setDate={setVoucherDate} /></div>
                                 <div className="space-y-1 md:col-span-3"><Label htmlFor="note">Note</Label><Textarea id="note" name="note" placeholder="Add a Note" /></div>
                             </section>
-                            
+
                             <LineItemsSection title="Debit Accounts" items={debitEntries} setItems={setDebitEntries} accounts={allAccounts} currency={currency} setCurrency={setCurrency} />
 
-                             <Separator className="my-8"/>
+                            <Separator className="my-8" />
 
                             <LineItemsSection title="Credit Accounts" items={creditEntries} setItems={setCreditEntries} accounts={allAccounts} currency={currency} setCurrency={setCurrency} />
 
-                             <Separator className="my-8"/>
-                            
-                             <div className="flex justify-end font-semibold text-lg p-4">
+                            <Separator className="my-8" />
+
+                            <div className="flex justify-end font-semibold text-lg p-4">
                                 <div className="w-full max-w-sm space-y-2">
-                                     <div className="flex justify-between"><span>Total Debit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalDebits)}</span></div>
-                                     <div className="flex justify-between"><span>Total Credit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalCredits)}</span></div>
-                                     {difference !== 0 && (
+                                    <div className="flex justify-between"><span>Total Debit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalDebits)}</span></div>
+                                    <div className="flex justify-between"><span>Total Credit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalCredits)}</span></div>
+                                    {difference !== 0 && (
                                         <div className="flex justify-between text-destructive pt-2 border-t"><span>Difference</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(Math.abs(difference))}</span></div>
-                                     )}
+                                    )}
                                 </div>
-                             </div>
+                            </div>
 
                         </CardContent>
                     </Card>

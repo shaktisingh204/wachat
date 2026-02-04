@@ -255,7 +255,7 @@ function EmailSettingsPageContent() {
                         <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Mail className="h-8 w-8" /> Email Suite</h1>
                         <p className="text-muted-foreground mt-2">Manage your connected email accounts.</p>
                     </div>
-                    <Button onClick={() => setView('connect')}>
+                    <Button onClick={() => router.push('/dashboard/email/settings?view=connect')}>
                         <Plus className="mr-2 h-4 w-4" /> Connect New Account
                     </Button>
                 </div>
@@ -265,7 +265,7 @@ function EmailSettingsPageContent() {
                         const Icon = account.provider === 'google' ? GoogleIcon : account.provider === 'outlook' ? OutlookIcon : Mail;
                         return (
                             <Card key={account._id.toString()} className="group hover:border-primary/50 transition-all cursor-pointer" onClick={() => {
-                                setView('manage');
+                                router.push(`/dashboard/email/settings?view=manage&accountId=${account._id.toString()}`);
                             }}>
                                 <CardHeader>
                                     <div className="flex justify-between items-start">
@@ -309,7 +309,7 @@ function EmailSettingsPageContent() {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                    <div className="flex flex-col gap-6 w-full max-w-xl">
                         <OnboardingCard
                             title="Gmail"
                             description="Best for Google Workspace users."
@@ -324,7 +324,7 @@ function EmailSettingsPageContent() {
                             href="/api/crm/auth/outlook/connect"
                             features={["Enterprise grade security", "Seamless integration", "Calendar sync ready"]}
                         />
-                        <div className="md:col-span-1">
+                        <div>
                             <div className="h-full border rounded-lg p-6 flex flex-col justify-center gap-4 bg-card text-card-foreground shadow-sm">
                                 <div className="flex items-center gap-3 mb-2 font-semibold">
                                     <Mail className="h-6 w-6" /> Custom SMTP
