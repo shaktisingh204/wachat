@@ -545,7 +545,7 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
                     <SidebarMenu className="items-center">
                         {appIcons.map(app => (
                             <SidebarMenuItem key={app.id} className={cn("relative w-full flex justify-center", activeApp === app.id && 'active-app-border')}>
-                                <SidebarMenuButton asChild isActive={activeApp === app.id} tooltip={app.label} className="h-10 w-10 justify-center p-0">
+                                <SidebarMenuButton asChild isActive={activeApp === app.id} tooltip={app.label} showTooltip={true} className="h-10 w-10 justify-center p-0">
                                     <Link href={app.href}><app.icon className="h-5 w-5" /></Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

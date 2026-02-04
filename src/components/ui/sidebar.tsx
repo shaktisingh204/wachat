@@ -99,10 +99,11 @@ type SidebarMenuButtonProps = ButtonProps & {
   isActive?: boolean;
   tooltip?: string;
   asChild?: boolean;
+  showTooltip?: boolean;
 };
 
 export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
-  ({ isActive, tooltip, asChild, ...props }, ref) => {
+  ({ isActive, tooltip, asChild, showTooltip, ...props }, ref) => {
     const { isOpen } = useSidebar();
 
     const buttonContent = (
@@ -115,7 +116,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
       />
     );
 
-    if (isOpen) return buttonContent;
+    if (isOpen && !props.showTooltip) return buttonContent;
 
     return (
       <Tooltip>

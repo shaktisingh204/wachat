@@ -6,7 +6,8 @@
 
 @layer base {
   :root {
-    --background: 210 17% 98%;
+    --background: 210 20% 96%;
+    /* Soft cool gray/white background #F3F4F6 */
     --foreground: 210 10% 23%;
     --card: 0 0% 100%;
     --card-foreground: 210 10% 23%;
@@ -14,8 +15,9 @@
     --popover-foreground: 210 10% 23%;
     --primary: 215 89% 48%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 134 61% 36%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 210 20% 96%;
+    /* Match background for floating effect pills */
+    --secondary-foreground: 210 10% 23%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
@@ -25,18 +27,16 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 215 89% 48%;
-    --chart-1: 215 89% 48%;
-    --chart-2: 140 50% 50%;
-    --chart-3: 150 40% 60%;
-    --chart-4: 285.2 83.2% 53.3%;
-    --chart-5: 350.2 83.2% 53.3%;
-    --radius: 0.5rem;
-    --instagram: 327 92% 55%;
+    --radius: 1rem;
+    /* 16px radius for buttons/inputs */
 
     /* Sidebar variables */
-    --sidebar-background: 0 0% 100%;
+    --sidebar-background: 0 0% 0% 0%;
+    /* Transparent sidebar */
     --sidebar-foreground: 220 10% 40%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 0 0% 0% 0%;
+    /* No sidebar border */
+
     --sidebar-ring: 215 89% 48%;
 
     --sidebar-secondary-background: 0 0% 100%;
@@ -118,7 +118,7 @@
   }
 
   .active-app-border {
-    @apply relative bg-blue-50/50 dark:bg-blue-900/20;
+    @apply relative bg-blue-200/200 dark:bg-blue-900/20;
   }
 
   .active-app-border::before {
@@ -338,8 +338,18 @@
     box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.6);
   }
 
+  /* Modern UI Utilities */
   .card-elevated {
-    @apply shadow-xl shadow-black/5 hover:shadow-2xl hover:-translate-y-1 hover:shadow-black/10 transition-all duration-300;
+    @apply bg-card rounded-3xl shadow-[0_10px_30px_-10px_rgba(0, 0, 0, 0.08)] border-none;
+  }
+
+  .card-modern {
+    @apply bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0, 0, 0, 0.04)] border-none;
+  }
+
+  /* Overriding default card to match */
+  .card {
+    @apply rounded-3xl shadow-sm border-none;
   }
 
   .gradient-border {
@@ -350,5 +360,9 @@
 
   .text-gradient {
     @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+  }
+
+  .btn-pill {
+    @apply rounded-full;
   }
 }
