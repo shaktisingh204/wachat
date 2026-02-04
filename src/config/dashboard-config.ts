@@ -5,9 +5,10 @@ import {
     Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search,
     Video, ShieldCheck, Key, BookCopy, Rss, TrendingUp, Calendar,
     Newspaper, Clapperboard, BarChart2, Landmark, Users as UsersIcon,
-    LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon
+    LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import React from 'react';
 
 export interface MenuItem {
     href: string;
@@ -50,7 +51,7 @@ export const wachatMenuItems: MenuItem[] = [
     { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'] },
     { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
     { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'] },
-    { href: '/dashboard/templates', label: 'Templates', icon: React.Fragment, roles: ['owner', 'admin'] }, // Using Fragment locally or replace with FileText if available
+    { href: '/dashboard/templates', label: 'Templates', icon: BookCopy, roles: ['owner', 'admin'] }, // Replaced React.Fragment with BookCopy
     { href: '/dashboard/catalog', label: 'Ecomm + Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
     { href: '/dashboard/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'] },
     { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
@@ -108,7 +109,7 @@ export const crmMenuItems: MenuItem[] = [
     {
         href: "/dashboard/crm/accounting",
         label: "Accounting",
-        icon: React.Fragment, // Database
+        icon: Database, // Replaced React.Fragment with Database
         subItems: [
             { href: "/dashboard/crm/accounting/groups", label: "Account Groups" },
             { href: "/dashboard/crm/accounting/charts", label: "Chart of Accounts" },
@@ -224,7 +225,7 @@ export const crmMenuItems: MenuItem[] = [
     {
         href: "/dashboard/crm/reports",
         label: "GST Reports",
-        icon: React.Fragment, // FileText
+        icon: BookCopy, // Replaced React.Fragment with BookCopy
         subItems: [
             { href: "/dashboard/crm/reports/gstr-1", label: "GSTR-1 Sales Report" },
             { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report" },
@@ -335,7 +336,7 @@ export const emailMenuItems: MenuItem[] = [
     { href: '/dashboard/email/inbox', label: 'Inbox', icon: Inbox },
     { href: '/dashboard/email/campaigns', label: 'Campaigns', icon: Send },
     { href: '/dashboard/email/contacts', label: 'Contacts', icon: Users },
-    { href: '/dashboard/email/templates', label: 'Templates', icon: React.Fragment }, // FileText
+    { href: '/dashboard/email/templates', label: 'Templates', icon: BookCopy }, // Replaced React.Fragment with BookCopy
     { href: '/dashboard/email/analytics', label: 'Analytics', icon: BarChart },
     { href: '/dashboard/email/verification', label: 'Verification', icon: ShieldCheck },
     { href: '/dashboard/email/settings', label: 'Settings', icon: Settings },
@@ -346,7 +347,7 @@ export const smsMenuItems: MenuItem[] = [
     {
         href: "/dashboard/sms/dlt",
         label: "DLT Management",
-        icon: React.Fragment, // Database
+        icon: Database, // Replaced React.Fragment with Database
         subItems: [
             { href: "/dashboard/sms/dlt", label: "Connect DLT Account" },
             { href: "/dashboard/sms/entity-management", label: "Entity Management" },
