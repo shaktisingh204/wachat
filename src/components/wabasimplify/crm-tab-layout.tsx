@@ -336,31 +336,11 @@ const emailMenuItems = [
 ];
 
 const smsMenuItems = [
-    { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
-    {
-        href: "/dashboard/sms/dlt",
-        label: "DLT Management",
-        icon: Database,
-        subItems: [
-            { href: "/dashboard/sms/dlt", label: "Connect DLT Account" },
-            { href: "/dashboard/sms/entity-management", label: "Entity Management" },
-            { href: "/dashboard/sms/header-management", label: "Header Management" },
-            { href: "/dashboard/sms/template-management", label: "Template Management" },
-        ]
-    },
-    {
-        href: "/dashboard/sms/messaging",
-        label: "Messaging",
-        icon: MessageSquare,
-        subItems: [
-            { href: "/dashboard/sms/campaigns", label: "Send SMS" },
-            { href: "/dashboard/sms/message-history", label: "Message History" },
-            { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports" },
-        ]
-    },
-    { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
-    { href: '/dashboard/sms/integrations', label: 'Integrations', icon: Zap },
-    { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard/sms', label: 'Overview', icon: LayoutGrid },
+    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: MessageSquare },
+    { href: '/dashboard/sms/templates', label: 'DLT Templates', icon: FileText },
+    { href: '/dashboard/sms/config', label: 'Configuration', icon: Settings },
+    { href: '/dashboard/sms/developer', label: 'Developer API', icon: Server },
 ];
 
 const apiMenuItems = [
