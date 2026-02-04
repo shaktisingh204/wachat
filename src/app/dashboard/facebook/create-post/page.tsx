@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useActionState, useRef, useEffect } from 'react';
+import React, { useState, useActionState, useRef, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { handleCreateFacebookPost, getPageDetails } from '@/app/actions/facebook.actions';
@@ -19,7 +19,7 @@ import Image from 'next/image';
 import type { FacebookPageDetails } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
 
-const initialState = { message: null, error: null };
+const initialState: { message?: string, error?: string } = {};
 
 function SubmitButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus();
@@ -39,13 +39,13 @@ export default function CreateFacebookPostPage() {
 
     const [projectId, setProjectId] = useState<string | null>(null);
     const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(null);
-    
+
     // Form state
     const [message, setMessage] = useState('');
     const [mediaFile, setMediaFile] = useState<File | null>(null);
     const [mediaPreview, setMediaPreview] = useState<string | null>(null);
     const [postType, setPostType] = useState<'text' | 'image' | 'video'>('text');
-    
+
     // Scheduling state
     const [isScheduled, setIsScheduled] = useState(false);
     const [scheduledDate, setScheduledDate] = useState<Date>();
@@ -55,7 +55,7 @@ export default function CreateFacebookPostPage() {
         setProjectId(storedProjectId);
         if (storedProjectId) {
             getPageDetails(storedProjectId).then(result => {
-                if(result.page) setPageDetails(result.page);
+                if (result.page) setPageDetails(result.page);
             });
         }
     }, []);
@@ -70,7 +70,7 @@ export default function CreateFacebookPostPage() {
             setPostType('text');
             setIsScheduled(false);
             setScheduledDate(undefined);
-            if(fileInputRef.current) fileInputRef.current.value = '';
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -93,13 +93,13 @@ export default function CreateFacebookPostPage() {
             reader.readAsDataURL(file);
         }
     };
-    
+
     const isPostButtonDisabled = message.trim() === '' && !mediaFile;
 
     if (!projectId) {
         return (
             <div className="flex justify-center p-4">
-                 <Alert variant="destructive" className="max-w-xl">
+                <Alert variant="destructive" className="max-w-xl">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
                     <AlertDescription>Please select a project with a connected Facebook Page to create a post.</AlertDescription>
@@ -107,7 +107,7 @@ export default function CreateFacebookPostPage() {
             </div>
         );
     }
-    
+
     return (
         <div className="flex justify-center p-4">
             <form action={formAction} ref={formRef} className="w-full max-w-xl">
@@ -117,7 +117,7 @@ export default function CreateFacebookPostPage() {
                 <Card className="card-gradient card-gradient-green">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <Button variant="ghost" size="icon" asChild>
-                            <Link href="/dashboard/facebook"><X className="h-5 w-5"/></Link>
+                            <Link href="/dashboard/facebook"><X className="h-5 w-5" /></Link>
                         </Button>
                         <h1 className="text-lg font-bold">Create Post</h1>
                         <SubmitButton disabled={isPostButtonDisabled} />
@@ -139,9 +139,9 @@ export default function CreateFacebookPostPage() {
                         </div>
 
                         {mediaPreview && (
-                             <div className="relative mt-4">
+                            <div className="relative mt-4">
                                 {postType === 'image' ? (
-                                    <Image src={mediaPreview} width={500} height={280} alt="Preview" className="rounded-lg object-cover w-full"/>
+                                    <Image src={mediaPreview} width={500} height={280} alt="Preview" className="rounded-lg object-cover w-full" />
                                 ) : (
                                     <video src={mediaPreview} controls className="rounded-lg w-full"></video>
                                 )}
@@ -154,28 +154,28 @@ export default function CreateFacebookPostPage() {
                                         setMediaFile(null);
                                         setMediaPreview(null);
                                         setPostType('text');
-                                        if(fileInputRef.current) fileInputRef.current.value = '';
+                                        if (fileInputRef.current) fileInputRef.current.value = '';
                                     }}
                                 >
-                                    <X className="h-4 w-4"/>
+                                    <X className="h-4 w-4" />
                                 </Button>
                             </div>
                         )}
-                        
-                        <input type="file" name="mediaFile" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*"/>
+
+                        <input type="file" name="mediaFile" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
                     </CardContent>
-                    
+
                     <CardFooter className="flex-col items-start gap-4 border-t pt-4">
                         <div className="flex items-center justify-between w-full">
-                           <Label className="font-semibold">Add to your post</Label>
-                           <div className="flex items-center gap-2">
-                               <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}><ImageIcon className="h-5 w-5 text-green-500"/></Button>
-                               <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}><Video className="h-5 w-5 text-blue-500"/></Button>
-                           </div>
+                            <Label className="font-semibold">Add to your post</Label>
+                            <div className="flex items-center gap-2">
+                                <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}><ImageIcon className="h-5 w-5 text-green-500" /></Button>
+                                <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}><Video className="h-5 w-5 text-blue-500" /></Button>
+                            </div>
                         </div>
 
-                        <Separator/>
-                        
+                        <Separator />
+
                         <div className="flex items-center justify-between w-full">
                             <div className="flex items-center space-x-2">
                                 <Switch id="isScheduledSwitch" name="isScheduled" checked={isScheduled} onCheckedChange={setIsScheduled} />
@@ -187,16 +187,16 @@ export default function CreateFacebookPostPage() {
                             {isScheduled && (
                                 <div className="flex flex-wrap gap-2">
                                     <DatePicker date={scheduledDate} setDate={setScheduledDate} />
-                                    <Input name="scheduledTime" type="time" required className="w-28"/>
+                                    <Input name="scheduledTime" type="time" required className="w-28" />
                                 </div>
                             )}
                         </div>
-                         {isScheduled && (
+                        {isScheduled && (
                             <>
                                 <input type="hidden" name="isScheduled" value="on" />
                                 <input type="hidden" name="scheduledDate" value={scheduledDate?.toISOString().split('T')[0]} />
                             </>
-                         )}
+                        )}
                     </CardFooter>
                 </Card>
             </form>
