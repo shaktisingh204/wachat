@@ -114,21 +114,36 @@ export function EmailSuiteLayout({ children }: EmailSuiteLayoutProps) {
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select Account" />
                             </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="back_to_list" className="font-medium text-muted-foreground">
+                            <SelectContent className="max-w-[300px]">
+                                <SelectItem value="back_to_list" className="font-medium text-muted-foreground mb-1">
                                     ← All Accounts
                                 </SelectItem>
-                                {accounts.map(acc => (
-                                    <SelectItem key={acc._id.toString()} value={acc._id.toString()}>
-                                        <div className="flex flex-col items-start text-left">
-                                            <span className="font-semibold text-sm truncate w-full">{acc.fromName || 'Account'}</span>
-                                            <span className="text-xs text-muted-foreground truncate w-full">{acc.fromEmail}</span>
+
+                                <div className="max-h-[200px] overflow-y-auto">
+                                    {accounts.length === 0 ? (
+                                        <div className="p-4 text-sm text-center text-muted-foreground">
+                                            No connected accounts found.
                                         </div>
-                                    </SelectItem>
-                                ))}
-                                <SelectItem value="add_new" className="text-primary focus:text-primary font-medium">
-                                    <div className="flex items-center gap-2">
-                                        <PlusCircle className="h-4 w-4" /> Add Account
+                                    ) : (
+                                        accounts.map(acc => (
+                                            <SelectItem key={acc._id.toString()} value={acc._id.toString()}>
+                                                <div className="flex flex-col items-start text-left overflow-hidden">
+                                                    <span className="font-semibold text-sm truncate w-full">{acc.fromName || 'Account'}</span>
+                                                    <span className="text-xs text-muted-foreground truncate w-full">{acc.fromEmail}</span>
+                                                </div>
+                                            </SelectItem>
+                                        ))
+                                    )}
+                                </div>
+                                <div className="h-px bg-border my-1" />
+                                <SelectItem value="add_new" className="text-primary focus:text-primary font-medium py-3">
+                                    <div className="flex flex-col gap-1 items-start w-full">
+                                        <div className="flex items-center gap-2 font-semibold">
+                                            <PlusCircle className="h-4 w-4" /> Connect Your Email
+                                        </div>
+                                        <span className="text-xs text-muted-foreground whitespace-normal text-left leading-snug">
+                                            Link your email account to sync conversations, send campaigns, and track deliverability directly from your dashboard.
+                                        </span>
                                     </div>
                                 </SelectItem>
                             </SelectContent>

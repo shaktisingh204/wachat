@@ -36,7 +36,7 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
         const vendorData: Partial<Omit<CrmVendor, '_id'>> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
-            industry: formData.get('clientIndustry') as string | undefined,
+            industryId: formData.get('industryId') ? new ObjectId(formData.get('industryId') as string) : undefined,
             email: formData.get('email') as string,
             phone: formData.get('phone') as string,
             country: formData.get('country') as string,

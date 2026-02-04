@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { CrmStockAdjustment } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -72,7 +72,7 @@ export async function saveCrmStockAdjustment(prevState: any, formData: FormData)
 
                 // If the warehouse inventory doesn't exist yet, create it
                 if (updateResult.matchedCount === 0) {
-                     await db.collection('crm_products').updateOne(
+                    await db.collection('crm_products').updateOne(
                         { _id: adjustmentData.productId, userId: adjustmentData.userId },
                         { $push: { inventory: { warehouseId: adjustmentData.warehouseId, stock: adjustmentData.quantity } } },
                         { session: dbSession }
@@ -86,7 +86,7 @@ export async function saveCrmStockAdjustment(prevState: any, formData: FormData)
         if (!adjustmentResult) {
             throw new Error("Failed to save stock adjustment due to a transaction error.");
         }
-        
+
         revalidatePath('/dashboard/crm/inventory/adjustments');
         revalidatePath('/dashboard/crm/products');
         return { message: 'Stock adjustment saved successfully!' };

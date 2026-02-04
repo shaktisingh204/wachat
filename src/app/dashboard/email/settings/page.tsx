@@ -381,42 +381,60 @@ function EmailSettingsPageContent() {
                                     <Button variant="outline" className="text-destructive hover:bg-destructive/10 border-destructive/20" onClick={async () => {
                                         if (confirm('Are you sure you want to disconnect this account? This action cannot be undone.')) {
                                             setIsLoading(true);
-                                            const result = await disconnectEmailSettings(currentSettings._id.toString());
-                                            if (result.message) {
-                                                toast({ title: 'Disconnected', description: result.message });
-                                                router.push('/dashboard/email'); // Go back to list
-                                            } else if (result.error) {
-                                                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                <div className="flex items-center gap-4 mb-2">
+                     <Button variant="ghost" size="sm" onClick={() => {
+                         router.push('/dashboard/email');
+                     }}>
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                     </Button>
+                     <span className="text-muted-foreground">/</span>
+                     <span className="font-semibold">{currentSettings?.fromEmail}</span>
+                </div>
+
+                <ModuleLayout
+                    sidebar={
+                        <ModuleSidebar
+                            title="Email Settings"
+                            activeValue={activeTab}
+                            onValueChange={setActiveTab}
+                            items={[
+                                { value: 'email', label: 'Configuration', icon: Settings },
+                                { value: 'templates', label: 'Templates', icon: FileText },
+                                { value: 'compliance', label: 'Compliance', icon: ShieldCheck },
+                                { value: 'deliverability', label: 'Deliverability', icon: BarChart3 },
+                                { value: 'integrations', label: 'Other Integrations', icon: Zap },
+                            ]}
+                        />
+                    }
+                >
+                    {activeTab === 'email' && currentSettings && (
+                        <div className="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                                            Connected via <span className="capitalize">{currentSettings.provider}</span>
+                                        </div>
+                                        <Badge variant="outline">{currentSettings.fromEmail}</Badge>
+                                    </CardTitle>
+                                    <CardDescription>This account is active and ready to send campaigns.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex items-center gap-4">
+                                        <Button variant="secondary">Re-authorize Connection</Button>
+                                        <Button variant="outline" className="text-destructive hover:bg-destructive/10 border-destructive/20" onClick={async () => {
+                                            if (confirm('Are you sure you want to disconnect this account? This action cannot be undone.')) {
+                                                setIsLoading(true);
+                                                const result = await disconnectEmailSettings(currentSettings._id.toString());
+                                                if (result.message) {
+                                                    toast({ title: 'Disconnected', description: result.message });
+                                                    router.push('/dashboard/email'); // Go back to list
+                                                } else if (result.error) {
+                                                    toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                                                }
+                                                setIsLoading(false);
                                             }
-                                            setIsLoading(false);
-                                        }
-                                    }}>
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        Disconnect Account
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {currentSettings.provider === 'smtp' && (
-                            <>
-                                <Separator />
-                                <div className="mt-6">
-                                    <h3 className="text-lg font-semibold mb-4">SMTP Configuration</h3>
-                                    <CrmSmtpForm settings={currentSettings} />
-                                </div>
-                            </>
-                        )}
-                    </div>
-                )}
-
-                {activeTab === 'templates' && (
-                    <EmailTemplatesManager />
-                )}
-
-                {activeTab === 'compliance' && (
-                    <ComplianceForm user={user} />
-                )}
 
                 {activeTab === 'deliverability' && (
                     <DeliverabilityTab />

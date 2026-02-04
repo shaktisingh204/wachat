@@ -20,6 +20,7 @@ import { saveCrmVendor } from '@/app/actions/crm-vendors.actions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SmartLocationSelect } from '@/components/crm/smart-location-select';
+import { SmartIndustrySelect } from '@/components/crm/inventory/smart-industry-select';
 
 const initialState = {
     message: '',
@@ -44,6 +45,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
     const [selectedState, setSelectedState] = useState<string>('');
     const [selectedStateName, setSelectedStateName] = useState<string>('');
     const [cityName, setCityName] = useState<string>('');
+    const [industryId, setIndustryId] = useState<string>('');
 
     useEffect(() => {
         if (defaultOpen) setOpen(true);
@@ -100,6 +102,13 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" maxLength={100} /></div>
                                     <div className="space-y-2"><Label htmlFor="phone">Phone</Label><Input id="phone" name="phone" maxLength={20} /></div>
+                                    <div className="space-y-2 col-span-2">
+                                        <Label>Industry</Label>
+                                        <SmartIndustrySelect
+                                            onSelect={(val) => setIndustryId(val)}
+                                        />
+                                        <input type="hidden" name="industryId" value={industryId} />
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">

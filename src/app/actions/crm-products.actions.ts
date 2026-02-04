@@ -1,161 +1,210 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId } from 'mongodb';
+import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
-import type { EcommProduct } from '@/lib/definitions';
+import { getSession } from '@/app/actions/index';
+import type { CrmProduct } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-import { v4 as uuidv4 } from 'uuid';
 
-export async function getCrmProducts(): Promise<WithId<EcommProduct>[]> {
+export async function getCrmProducts(
+    page: number = 1,
+    limit: number = 20,
+    query?: string
+): Promise<{ products: WithId<CrmProduct>[], total: number }> {
     const session = await getSession();
-    if (!session?.user) return [];
-    
+    if (!session?.user) return { products: [], total: 0 };
+
     try {
         const { db } = await connectToDatabase();
-        const filter: any = { userId: new ObjectId(session.user._id) };
-        
-        const products = await db.collection('crm_products')
-            .find(filter)
-            .sort({ createdAt: -1 })
-            .toArray();
-        return JSON.parse(JSON.stringify(products));
-    } catch (e) {
-        console.error("Failed to get CRM products:", e);
-        return [];
+        const userObjectId = new ObjectId(session.user._id);
+
+        const filter: Filter<CrmProduct> = { userId: userObjectId };
+        if (query) {
+            filter.$or = [
+                { name: { $regex: query, $options: 'i' } },
+                { sku: { $regex: query, $options: 'i' } }
+            ];
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [products, total] = await Promise.all([
+            db.collection<CrmProduct>('crm_products')
+                .find(filter)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .toArray(),
+            db.collection<CrmProduct>('crm_products').countDocuments(filter)
+        ]);
+
+        return {
+            products: JSON.parse(JSON.stringify(products)),
+            total
+        };
+    } catch (e: any) {
+        console.error("Failed to fetch CRM products:", e);
+        return { products: [], total: 0 };
     }
 }
 
-export async function saveCrmProduct(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+export async function saveCrmProduct(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
-    if (!session?.user) return { error: 'Access denied or project not found.' };
-
-    const productId = formData.get('productId') as string | null;
-    const isEditing = !!productId;
+    if (!session?.user) return { error: 'Access denied' };
 
     try {
-        const variantsString = formData.get('variants') as string;
-        const batchesString = formData.get('batches') as string;
-        const variants = variantsString ? JSON.parse(variantsString) : [];
-        const batches = batchesString ? JSON.parse(batchesString) : [];
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
 
-        const stockInHand = parseInt(formData.get('stockInHand') as string, 10) || 0;
-        const committedStock = parseInt(formData.get('committedStock') as string, 10) || 0;
+        const productId = formData.get('productId') as string; // Look for 'productId' hidden field
+        const isEditing = !!productId && productId !== '';
+
+        // Extract basic fields
+        const name = formData.get('name') as string;
+        const sku = formData.get('sku') as string;
+        const description = formData.get('description') as string;
+        const currency = formData.get('currency') as string || 'INR';
+
+        // Pricing
+        const costPrice = parseFloat(formData.get('costPrice') as string) || 0;
+        const sellingPrice = parseFloat(formData.get('sellingPrice') as string) || 0;
+        const taxRate = parseFloat(formData.get('taxRate') as string) || 0;
+
+        // Inventory
+        const isTrackInventory = formData.get('isTrackInventory') === 'on';
         const reorderPoint = parseInt(formData.get('reorderPoint') as string, 10) || 0;
-        const overstockPoint = parseInt(formData.get('overstockPoint') as string, 10) || 0;
 
-        const productData: Partial<Omit<EcommProduct, '_id' | 'createdAt'>> = {
-            userId: new ObjectId(session.user._id),
-            name: formData.get('name') as string,
-            description: formData.get('description') as string,
-            price: parseFloat(formData.get('price') as string),
-            sku: formData.get('sku') as string,
+        // Physical
+        const length = parseFloat(formData.get('length') as string) || 0;
+        const breadth = parseFloat(formData.get('breadth') as string) || 0;
+        const height = parseFloat(formData.get('height') as string) || 0;
+        const volume = parseFloat(formData.get('volume') as string) || 0;
+        const grossWeight = parseFloat(formData.get('grossWeight') as string) || 0;
+        const netWeight = parseFloat(formData.get('netWeight') as string) || 0;
+
+        const productData: Partial<CrmProduct> = {
+            userId: userObjectId,
+            name,
+            sku,
+            description,
+            currency,
+            costPrice,
+            sellingPrice,
+            taxRate,
+            isTrackInventory,
+            updatedAt: new Date(),
             hsnSac: formData.get('hsnSac') as string,
             itemType: formData.get('itemType') as 'goods' | 'service',
-            unit: formData.get('unit') as string,
-            category: formData.get('category') as string,
-            subcategory: formData.get('subcategory') as string,
-            tags: (formData.get('tags') as string)?.split(',').map(t => t.trim()).filter(Boolean),
-            isPackageItem: formData.get('isPackageItem') === 'on',
-            
-            // Pricing
-            buyingPrice: parseFloat(formData.get('buyingPrice') as string),
-            landedCost: parseFloat(formData.get('landedCost') as string),
-            taxRate: parseFloat(formData.get('taxRate') as string),
-            
-            // Stock
-            manageStock: formData.get('manageStock') === 'on',
-            stockInHand: stockInHand,
-            committedStock: committedStock,
-            reorderPoint: reorderPoint,
-            overstockPoint: overstockPoint,
-            
-            // Dimensions
-            dimensions: {
-                length: parseFloat(formData.get('length') as string),
-                breadth: parseFloat(formData.get('breadth') as string),
-                height: parseFloat(formData.get('height') as string),
-                volume: parseFloat(formData.get('volume') as string),
-            },
-            weight: {
-                gross: parseFloat(formData.get('grossWeight') as string),
-                net: parseFloat(formData.get('netWeight') as string),
-            },
-
-            // Variants & Batches
-            variants: variants,
+            dimensions: { length, breadth, height, volume },
+            weight: { gross: grossWeight, net: netWeight },
             batchTracking: formData.get('batchTracking') === 'on',
-            batches: batches,
-            updatedAt: new Date(),
         };
 
-        if (!productData.name || isNaN(productData.price)) {
-            return { error: 'Product name and selling price are required.' };
-        }
-        
+        // Relations
+        const categoryId = formData.get('categoryId') as string;
+        if (categoryId && categoryId !== 'none') productData.categoryId = new ObjectId(categoryId);
+
+        const brandId = formData.get('brandId') as string;
+        if (brandId && brandId !== 'none') productData.brandId = new ObjectId(brandId);
+
+        const unitId = formData.get('unitId') as string;
+        if (unitId && unitId !== 'none') productData.unitId = new ObjectId(unitId);
+
+        // Images (Single image legacy support + array)
+        /* 
+        // Logic for image upload would go here. For now, assuming image handling is done via separate upload or simplified.
+        // If imageUrl was passed:
+        const imageUrl = formData.get('imageUrl') as string;
+        if(imageUrl) productData.images = [imageUrl];
+        */
+        // Handling base64 image if present (similar to existing code)
         const imageFile = formData.get('imageFile') as File | null;
         if (imageFile && imageFile.size > 0) {
             const buffer = Buffer.from(await imageFile.arrayBuffer());
             const dataUri = `data:${imageFile.type};base64,${buffer.toString('base64')}`;
-            productData.imageUrl = dataUri;
-        } else if (isEditing) {
-            // Keep existing image if not uploading a new one
-            productData.imageUrl = formData.get('imageUrl') as string;
+            productData.images = [dataUri];
+        } else {
+            // If editing and no new file, keep existing? Need logic. 
+            // Ideally we shouldn't overwrite images unless explicit.
+            // But for now let's just not set it if null.
         }
 
-        const { db } = await connectToDatabase();
 
-        if (productId && ObjectId.isValid(productId)) {
+        if (!productData.name) {
+            return { error: 'Product name is required.' };
+        }
+
+        if (isEditing) {
             await db.collection('crm_products').updateOne(
-                { _id: new ObjectId(productId), userId: new ObjectId(session.user._id) },
+                { _id: new ObjectId(productId), userId: userObjectId },
                 { $set: productData }
             );
         } else {
-            productData.createdAt = new Date();
-            const warehouses = await db.collection('crm_warehouses').find({ userId: new ObjectId(session.user._id) }).toArray();
-            
-            const initialStock = productData.stockInHand || 0;
-            if (warehouses.length > 0) {
-                const defaultWarehouse = warehouses.find(w => w.isDefault) || warehouses[0];
-                productData.inventory = warehouses.map(w => ({ 
-                    warehouseId: w._id, 
-                    stock: w._id.equals(defaultWarehouse._id) ? initialStock : 0 
-                }));
-            } else {
-                productData.stock = initialStock;
+            // Check SKU uniqueness
+            if (productData.sku) {
+                const existing = await db.collection('crm_products').findOne({ userId: userObjectId, sku: productData.sku });
+                if (existing) {
+                    return { error: 'SKU already exists.' };
+                }
             }
 
-            await db.collection('crm_products').insertOne(productData as EcommProduct);
+            productData.createdAt = new Date();
+            // Initialize default inventory if tracking
+            if (productData.isTrackInventory) {
+                const warehouses = await db.collection('crm_warehouses').find({ userId: userObjectId }).toArray();
+                const stockInHand = parseInt(formData.get('stockInHand') as string, 10) || 0;
+
+                if (warehouses.length > 0) {
+                    const defaultWarehouse = warehouses.find(w => w.isDefault) || warehouses[0];
+                    productData.inventory = warehouses.map(w => ({
+                        warehouseId: w._id,
+                        stock: w._id.equals(defaultWarehouse._id) ? stockInHand : 0,
+                        reorderPoint // Apply reorder point to all or just default? applied to all structure for now
+                    }));
+                } else {
+                    // No warehouse? Just store totalStock or create a default warehouse implicitly?
+                    // Better to just have empty inventory array if no warehouse.
+                    productData.inventory = [];
+                }
+                productData.totalStock = stockInHand;
+            } else {
+                productData.inventory = [];
+                productData.totalStock = 0;
+            }
+
+            await db.collection('crm_products').insertOne(productData as CrmProduct);
         }
-        
+
         revalidatePath('/dashboard/crm/inventory/items');
-        revalidatePath(`/dashboard/crm/inventory/items/${productId}/edit`);
-        return { message: `Product "${productData.name}" saved successfully!` };
+        return { message: 'Product saved successfully.' };
     } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }
 
 export async function deleteCrmProduct(productId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(productId)) return { success: false, error: 'Invalid Product ID.' };
-    
+    if (!ObjectId.isValid(productId)) return { success: false, error: 'Invalid ID.' };
+
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
-    const { db } = await connectToDatabase();
-    const product = await db.collection('crm_products').findOne({ _id: new ObjectId(productId), userId: new ObjectId(session.user._id) });
-    if (!product) return { success: false, error: 'Product not found or you do not have permission to delete it.' };
-
     try {
-        await db.collection('crm_products').deleteOne({ _id: new ObjectId(productId) });
-        // Also delete any related stock adjustments
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_products').deleteOne({
+            _id: new ObjectId(productId),
+            userId: new ObjectId(session.user._id)
+        });
+
+        if (result.deletedCount === 0) {
+            return { success: false, error: 'Product not found.' };
+        }
+
+        // Cleanup stock adjustments 
         await db.collection('crm_stock_adjustments').deleteMany({ productId: new ObjectId(productId) });
 
-        revalidatePath(`/dashboard/crm/inventory/items`);
-        revalidatePath('/dashboard/crm/inventory/adjustments');
+        revalidatePath('/dashboard/crm/inventory/items');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };

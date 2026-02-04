@@ -79,24 +79,7 @@ export function SmartCombobox({
                     />
                     <CommandList>
                         <CommandEmpty>
-                            {onCreate && inputValue.length > 0 ? (
-                                <div className="p-1">
-                                    <Button
-                                        variant="ghost"
-                                        className="w-full justify-start text-sm"
-                                        onClick={() => {
-                                            onCreate(inputValue);
-                                            setOpen(false);
-                                        }}
-                                        disabled={isLoading}
-                                    >
-                                        {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                                        {createLabel} "{inputValue}"
-                                    </Button>
-                                </div>
-                            ) : (
-                                "No results found."
-                            )}
+                            No results found.
                         </CommandEmpty>
                         <CommandGroup>
                             {options.map((option) => (
@@ -118,9 +101,27 @@ export function SmartCombobox({
                                 </CommandItem>
                             ))}
                         </CommandGroup>
+                        {onCreate && (
+                            <>
+                                <CommandSeparator />
+                                <CommandGroup>
+                                    <CommandItem
+                                        value={`:::create:::${inputValue}`} // Unique value to avoid collision
+                                        onSelect={() => {
+                                            onCreate(inputValue);
+                                            setOpen(false);
+                                        }}
+                                        className="cursor-pointer text-muted-foreground"
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        {createLabel} {inputValue ? `"${inputValue}"` : ""}
+                                    </CommandItem>
+                                </CommandGroup>
+                            </>
+                        )}
                     </CommandList>
                 </Command>
             </PopoverContent>
-        </Popover>
+        </Popover >
     );
 }

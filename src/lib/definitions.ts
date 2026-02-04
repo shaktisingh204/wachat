@@ -615,6 +615,7 @@ export type CrmVendor = {
     name: string;
     displayName?: string;
     industry?: string;
+    industryId?: ObjectId;
     logoUrl?: string;
     email?: string;
     phone?: string;
@@ -675,6 +676,106 @@ export type CrmDebitNote = {
     reason?: string;
     notes?: string;
     status: 'Draft' | 'Sent' | 'Applied' | 'Refunded';
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmProductCategory = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    description?: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmBrand = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    description?: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmUnit = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string; // e.g., 'kg', 'pcs', 'box'
+    symbol: string; // e.g., 'kg'
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmWarehouse = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    pincode?: string;
+    phone?: string;
+    managerName?: string;
+    isDefault?: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmProduct = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    sku: string;
+    description?: string;
+    categoryId?: ObjectId;
+    brandId?: ObjectId;
+    unitId?: ObjectId;
+
+    // Pricing
+    costPrice: number; // Purchase rate
+    sellingPrice: number; // Sales rate
+    taxRate?: number; // %
+    currency: string;
+    hsnSac?: string;
+    itemType?: 'goods' | 'service';
+
+    // Inventory
+    isTrackInventory: boolean;
+    inventory: {
+        warehouseId: ObjectId;
+        stock: number;
+        reorderPoint?: number;
+    }[];
+    totalStock: number; // Calculated sum of warehouse stocks
+
+    // Physical Specs
+    dimensions?: { length?: number; breadth?: number; height?: number; volume?: number; };
+    weight?: { gross?: number; net?: number; };
+
+    // Variants & Batches
+    variants?: any[]; // To be defined strictly if needed, reusing structure for now
+    batches?: any[];
+    batchTracking?: boolean;
+
+    // Images
+    images?: string[]; // URLs
+
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmStockAdjustment = {
+    _id: ObjectId;
+    userId: ObjectId;
+    date: Date;
+    reason: 'Stock Received' | 'Inventory Count' | 'Damage' | 'Theft' | 'Loss' | 'Return' | 'Other';
+    referenceNumber?: string;
+    warehouseId: ObjectId;
+    productId: ObjectId;
+    quantity: number; // Positive for addition, Negative for reduction
+    notes?: string;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -2236,29 +2337,6 @@ export type EcommProduct = {
     stock?: number; // legacy
     category?: string;
     subcategory?: string;
-};
-
-export type CrmWarehouse = {
-    _id: ObjectId;
-    userId: ObjectId;
-    name: string;
-    location?: string;
-    isDefault?: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-};
-
-export type CrmStockAdjustment = {
-    _id: ObjectId;
-    userId: ObjectId;
-    productId: ObjectId;
-    warehouseId: ObjectId;
-    date: Date;
-    quantity: number; // can be positive or negative
-    reason: 'Initial Stock' | 'Stock Take' | 'Goods In' | 'Damaged' | 'Theft/Loss' | 'Sale' | 'Return';
-    notes?: string;
-    relatedPurchaseOrderId?: ObjectId;
-    relatedSaleId?: ObjectId;
 };
 
 export type InvoiceLineItem = {
