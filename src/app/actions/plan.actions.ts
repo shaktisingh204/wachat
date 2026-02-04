@@ -3,7 +3,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type Filter, WithId } from 'mongodb';
-import { getAdminSession } from '@/app/actions/index';
+import { getAdminSession } from '@/app/actions/admin.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Plan, PlanFeaturePermissions, TemplateCategory } from '@/lib/definitions';
 import { planFeaturesDefaults } from '@/lib/plans';

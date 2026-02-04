@@ -43,6 +43,8 @@ export * from './crm-accounting.actions';
 export * from './crm-vouchers.actions';
 export * from './crm-pipelines.actions';
 export * from './crm-payment-accounts.actions';
+export * from './crm-payouts.actions';
+export * from './crm-debit-notes.actions';
 export * from './crm-reconciliation.actions';
 export * from './email.actions';
 export * from './sms.actions';
