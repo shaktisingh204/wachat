@@ -1,11 +1,10 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/index';
 import { getErrorMessage } from '@/lib/utils';
 import Razorpay from 'razorpay';
 import type { Project, WhatsAppWidgetSettings, Contact } from '@/lib/definitions';
@@ -14,7 +13,7 @@ import { handleSendMessage } from './whatsapp.actions';
 export async function saveRazorpaySettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     if (!projectId) return { error: 'Project ID is missing.' };
-    
+
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: 'Access denied or project not found.' };
 
@@ -51,7 +50,7 @@ async function createRazorpayPaymentLink(
     if (!razorpayConfig?.keyId || !razorpayConfig.keySecret) {
         return { error: 'Razorpay is not configured for this project. Please add your API keys in the integrations settings.' };
     }
-    
+
     if (amount < 1) {
         return { error: 'Payment amount must be at least ₹1.' };
     }
@@ -92,7 +91,7 @@ export async function handlePaymentRequest(prevState: any, formData: FormData): 
     const contactId = formData.get('contactId') as string;
     const amount = parseFloat(formData.get('amount') as string);
     const description = formData.get('description') as string;
-    
+
     if (!contactId || !amount || !description) {
         return { error: 'Missing required fields.' };
     }

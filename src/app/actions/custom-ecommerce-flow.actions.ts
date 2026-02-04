@@ -1,10 +1,9 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getSession, getProjectById } from '@/app/actions/index';
 import type { EcommFlow, EcommFlowNode, EcommFlowEdge } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -51,9 +50,9 @@ export async function saveEcommFlow(data: {
     if (!projectId || !name) return { error: 'Project ID and Flow Name are required.' };
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: 'Access denied' };
-    
+
     const isNew = !flowId;
-    
+
     const flowData: Omit<EcommFlow, '_id' | 'createdAt'> = {
         name,
         projectId: new ObjectId(projectId),
@@ -66,7 +65,7 @@ export async function saveEcommFlow(data: {
 
     try {
         const { db } = await connectToDatabase();
-        
+
         // If this flow is the new welcome flow, unset the flag on any others for this project.
         if (isWelcomeFlow) {
             await db.collection('ecomm_flows').updateMany(

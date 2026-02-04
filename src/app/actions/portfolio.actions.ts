@@ -2,7 +2,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Website, WebsitePage, WebsiteBlock } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
@@ -36,7 +36,7 @@ export async function getSiteById(siteId: string): Promise<WithId<Website> | nul
     const site = await db.collection<Website>('sites').findOne({ _id: new ObjectId(siteId) });
 
     if (!site) return null;
-    
+
     const session = await getSession();
     if (session?.user._id.toString() !== site.userId.toString()) {
         // This is a check for management, not public viewing
@@ -53,7 +53,7 @@ export async function getSiteBySlug(slug: string): Promise<WithId<Website> | nul
         const site = await db.collection<Website>('sites').findOne({ slug });
         if (!site) return null;
         return JSON.parse(JSON.stringify(site));
-    } catch(e) {
+    } catch (e) {
         console.error("Failed to get site by slug:", e);
         return null;
     }
@@ -63,7 +63,7 @@ export async function getSiteBySlug(slug: string): Promise<WithId<Website> | nul
 export async function createSite(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, siteId?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
-    
+
     const name = formData.get('name') as string;
     if (!name) return { error: 'Site Name is required.' };
 
@@ -71,7 +71,7 @@ export async function createSite(prevState: any, formData: FormData): Promise<{ 
 
     try {
         const { db } = await connectToDatabase();
-        
+
         const existingSlug = await db.collection('sites').findOne({ slug });
         if (existingSlug) {
             return { error: 'A site with this name already exists, resulting in a duplicate URL slug. Please choose a different name.' };
@@ -87,7 +87,7 @@ export async function createSite(prevState: any, formData: FormData): Promise<{ 
 
         const result = await db.collection('sites').insertOne(newSite as any);
         const siteId = result.insertedId;
-        
+
         const homepage: Omit<WebsitePage, '_id'> = {
             siteId,
             userId: new ObjectId(session.user._id),
@@ -99,7 +99,7 @@ export async function createSite(prevState: any, formData: FormData): Promise<{ 
             updatedAt: new Date(),
         };
         await db.collection('website_pages').insertOne(homepage as any);
-        
+
         revalidatePath('/dashboard/website-builder');
         return { message: `Site "${name}" created successfully.`, siteId: siteId.toString() };
 
@@ -133,17 +133,17 @@ export async function saveWebsitePage(data: {
 }): Promise<{ message?: string, error?: string, pageId?: string }> {
     const { pageId, siteId, name, slug, layout } = data;
     if (!siteId || !name || !slug) return { error: 'Site ID, Page Name, and Slug are required.' };
-    
+
     const site = await getSiteById(siteId);
     if (!site) return { error: 'Access denied' };
-    
+
     const session = await getSession();
     if (session?.user._id.toString() !== site.userId.toString()) {
         return { error: 'Access denied' };
     }
-    
+
     const isNew = !pageId || pageId.startsWith('temp_');
-    
+
     const pageData: Omit<WebsitePage, '_id' | 'createdAt' | 'isHomepage'> = {
         name,
         slug,
@@ -155,7 +155,7 @@ export async function saveWebsitePage(data: {
 
     try {
         const { db } = await connectToDatabase();
-        
+
         if (isNew) {
             const result = await db.collection('website_pages').insertOne({ ...pageData, createdAt: new Date() } as any);
             revalidatePath(`/dashboard/website-builder/manage/${siteId}/builder`);
@@ -183,7 +183,7 @@ export async function deleteWebsitePage(pageId: string): Promise<{ message?: str
 
     const site = await getSiteById(page.siteId.toString());
     if (!site) return { error: 'Access denied' };
-    
+
     if (page.isHomepage) return { error: 'Cannot delete the homepage. Please set another page as the homepage first.' };
 
     try {
@@ -196,18 +196,18 @@ export async function deleteWebsitePage(pageId: string): Promise<{ message?: str
 }
 
 export async function setAsHomepage(pageId: string, siteId: string): Promise<{ message?: string; error?: string }> {
-     if (!ObjectId.isValid(pageId) || !ObjectId.isValid(siteId)) return { error: 'Invalid IDs.' };
-     const site = await getSiteById(siteId);
-     if (!site) return { error: 'Access denied' };
+    if (!ObjectId.isValid(pageId) || !ObjectId.isValid(siteId)) return { error: 'Invalid IDs.' };
+    const site = await getSiteById(siteId);
+    if (!site) return { error: 'Access denied' };
 
-     try {
+    try {
         const { db } = await connectToDatabase();
-        
+
         await db.collection('website_pages').updateMany(
             { siteId: new ObjectId(siteId), isHomepage: true },
             { $set: { isHomepage: false } }
         );
-        
+
         await db.collection('website_pages').updateOne(
             { _id: new ObjectId(pageId), siteId: new ObjectId(siteId) },
             { $set: { isHomepage: true } }
@@ -216,7 +216,7 @@ export async function setAsHomepage(pageId: string, siteId: string): Promise<{ m
         revalidatePath(`/dashboard/website-builder/manage/${siteId}/builder`);
         revalidatePath(`/web/${site.slug}`);
         return { message: 'Homepage updated.' };
-     } catch(e) {
+    } catch (e) {
         return { error: 'Failed to set homepage.' };
-     }
+    }
 }

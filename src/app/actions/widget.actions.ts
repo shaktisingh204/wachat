@@ -1,10 +1,9 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/index';
 import { getErrorMessage } from '@/lib/utils';
 import type { WhatsAppWidgetSettings } from '@/lib/definitions';
 
@@ -46,7 +45,7 @@ export async function saveWidgetSettings(
         revalidatePath(`/dashboard/integrations/whatsapp-widget-generator`);
         return { message: "Widget settings saved successfully." };
 
-    } catch(e) {
+    } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }

@@ -1,10 +1,9 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type Filter, WithId } from 'mongodb';
-import { getAdminSession } from '@/app/actions/index.ts';
+import { getAdminSession } from '@/app/actions/index';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Plan, PlanFeaturePermissions, TemplateCategory } from '@/lib/definitions';
 import { planFeaturesDefaults } from '@/lib/plans';
@@ -12,7 +11,7 @@ import { planFeaturesDefaults } from '@/lib/plans';
 export async function getPlans(filter?: Filter<Plan>): Promise<WithId<Plan>[]> {
     try {
         const { db } = await connectToDatabase();
-        const plans = await db.collection('plans').find(filter || {}).sort({ price: 1 }).toArray();
+        const plans = await db.collection('plans').find((filter || {}) as any).sort({ price: 1 }).toArray();
         return JSON.parse(JSON.stringify(plans));
     } catch (error) {
         console.error("Failed to fetch plans:", error);
@@ -41,7 +40,7 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
 
     try {
         const features: Partial<PlanFeaturePermissions> = {};
-        for(const key of Object.keys(planFeaturesDefaults)) {
+        for (const key of Object.keys(planFeaturesDefaults)) {
             features[key as keyof PlanFeaturePermissions] = formData.get(key) === 'on';
         }
 
@@ -71,9 +70,9 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
         if (!planData.name || isNaN(planData.price)) {
             return { error: 'Plan name and price are required.' };
         }
-        
+
         const { db } = await connectToDatabase();
-        
+
         if (planData.isDefault) {
             await db.collection('plans').updateMany({ _id: { $ne: isNew ? new ObjectId() : new ObjectId(planId) } }, { $set: { isDefault: false } });
         }
@@ -105,7 +104,7 @@ export async function deletePlan(prevState: any, formData: FormData): Promise<{ 
     try {
         const { db } = await connectToDatabase();
         const planObjectId = new ObjectId(planId);
-        
+
         const plan = await db.collection('plans').findOne({ _id: planObjectId });
         if (plan?.isDefault) {
             return { error: 'Cannot delete the default plan.' };
@@ -158,7 +157,7 @@ export async function saveTemplateCategory(prevState: any, formData: FormData): 
 export async function deleteTemplateCategory(id: string): Promise<{ message?: string; error?: string }> {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { error: 'Permission denied.' };
-    
+
     if (!ObjectId.isValid(id)) return { error: 'Invalid category ID.' };
     try {
         const { db } = await connectToDatabase();

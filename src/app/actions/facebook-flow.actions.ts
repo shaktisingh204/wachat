@@ -1,10 +1,9 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById, getSession } from '@/app/actions/index';
 import type { FacebookFlow, FacebookFlowNode, FacebookFlowEdge } from '@/lib/definitions';
 
 export async function getFacebookFlows(projectId: string): Promise<WithId<FacebookFlow>[]> {
@@ -49,9 +48,9 @@ export async function saveFacebookFlow(data: {
     if (!projectId || !name) return { error: 'Project ID and Flow Name are required.' };
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: 'Access denied' };
-    
+
     const isNew = !flowId;
-    
+
     const flowData: Omit<FacebookFlow, '_id' | 'createdAt'> = {
         name,
         projectId: new ObjectId(projectId),
