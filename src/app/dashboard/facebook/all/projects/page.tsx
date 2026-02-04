@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { getProjects } from "@/lib/actions/user.actions.ts";
+import { getProjects } from "@/app/actions/project.actions";
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -49,14 +49,14 @@ export default function AllProjectsPage() {
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <Wrench className="h-8 w-8"/>
+                    <Wrench className="h-8 w-8" />
                     All Project Connections
                 </h1>
                 <p className="text-muted-foreground mt-2">
                     Connect your projects to Facebook to enable "Click to WhatsApp" ad creation.
                 </p>
             </div>
-            
+
             <div className="space-y-4">
                 {projects.length > 0 ? (
                     projects.map(project => {
@@ -79,7 +79,7 @@ export default function AllProjectsPage() {
                                             <p>Not Connected</p>
                                         </div>
                                     )}
-                                    
+
                                     {appId && configId ? (
                                         <FacebookEmbeddedSignup
                                             appId={appId}
@@ -96,9 +96,9 @@ export default function AllProjectsPage() {
                     })
                 ) : (
                     <Card className="text-center py-12">
-                         <CardContent>
+                        <CardContent>
                             <p className="text-muted-foreground">No projects found. Please create a project first.</p>
-                         </CardContent>
+                        </CardContent>
                     </Card>
                 )}
             </div>

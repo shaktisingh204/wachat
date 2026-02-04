@@ -59,6 +59,68 @@ export async function getProjectById(projectId?: string | null): Promise<WithId<
     }
 }
 
+export async function getProjectByIdSystem(projectId: string): Promise<WithId<Project> | null> {
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return null;
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
+
+        if (!project) return null;
+
+        // Populate plan if needed, similar to getProjectById but simpler if fine
+        // Using existing aggregation logic if plan details are required everywhere
+        // For now, doing a simple findOne as wachat.ts mainly needs phoneNumbers/access token
+        // If plan is needed, we should replicate aggregation or share logic.
+        // Replicating aggregation from getProjectById for consistency:
+        const projectWithPlan = await db.collection('projects').aggregate([
+            { $match: { _id: new ObjectId(projectId) } },
+            {
+                $lookup: {
+                    from: 'plans',
+                    localField: 'planId',
+                    foreignField: '_id',
+                    as: 'planInfo'
+                }
+            },
+            { $unwind: { path: '$planInfo', preserveNullAndEmptyArrays: true } },
+            { $addFields: { plan: '$planInfo' } },
+            { $project: { planInfo: 0 } }
+        ]).next();
+
+        return projectWithPlan ? JSON.parse(JSON.stringify(projectWithPlan)) : null;
+
+    } catch (error) {
+        console.error("Failed to fetch project (system):", error);
+        return null;
+    }
+}
+
+export async function getProjectForBroadcast(projectId: string): Promise<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers' | 'tags' | 'optInOutSettings'>) | null> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne(
+            { _id: new ObjectId(projectId) },
+            { projection: { name: 1, phoneNumbers: 1, optInOutSettings: 1, tags: 1 } }
+        );
+
+        if (!project) {
+            console.error("Project not found for ID:", projectId);
+            return null;
+        }
+
+        return JSON.parse(JSON.stringify(project));
+    } catch (error: any) {
+        console.error("Exception in getProjectForBroadcast:", error);
+        return null;
+    }
+}
+
 
 export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<WithId<Project>[]> {
     const session = await getSession();

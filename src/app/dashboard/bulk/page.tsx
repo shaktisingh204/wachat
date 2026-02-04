@@ -2,7 +2,7 @@
 'use client';
 
 import { Suspense, useEffect, useState, useTransition, useMemo, useCallback } from 'react';
-import { getProjects } from "@/lib/actions/user.actions.ts";
+import { getProjects } from "@/app/actions/project.actions"; // Removed .ts and updated path
 import { getTemplates } from '@/app/actions/template.actions';
 import type { WithId, Project, Template } from '@/lib/definitions';
 import { BulkActionsClient } from '@/components/wabasimplify/bulk-actions-client';
@@ -32,15 +32,15 @@ function BulkPageContent() {
     const fetchInitialData = useCallback(() => {
         startTransition(async () => {
             const storedProjectIds = JSON.parse(localStorage.getItem('bulkProjectIds') || '[]');
-            const { projects: fetchedProjects } = await getProjects(undefined, 'whatsapp');
+            const fetchedProjects = await getProjects(undefined, 'whatsapp');
             setAllProjects(fetchedProjects);
-            
+
             if (storedProjectIds.length > 0) {
                 const filteredProjects = fetchedProjects.filter(p => storedProjectIds.includes(p._id.toString()));
                 setSelectedProjects(filteredProjects);
-                
+
                 const sourceProject = filteredProjects[0];
-                if(sourceProject) {
+                if (sourceProject) {
                     const fetchedTemplates = await getTemplates(sourceProject._id.toString());
                     setTemplates(fetchedTemplates);
                 }
@@ -57,11 +57,11 @@ function BulkPageContent() {
     }
 
     return (
-        <BulkActionsClient 
+        <BulkActionsClient
             sourceProjectName={selectedProjects[0]?.name || ''}
-            allProjects={allProjects} 
-            initialTemplates={templates} 
-            initialSelectedProjects={selectedProjects} 
+            allProjects={allProjects}
+            initialTemplates={templates}
+            initialSelectedProjects={selectedProjects}
         />
     );
 }
@@ -75,4 +75,3 @@ export default function BulkPage() {
     );
 }
 
-    

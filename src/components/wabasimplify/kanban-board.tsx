@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getKanbanData, handleUpdateContactStatus, saveKanbanStatuses } from '@/app/actions/project.actions';
+import { getKanbanData, saveKanbanStatuses } from '@/app/actions/project.actions';
+import { handleUpdateContactStatus } from '@/app/actions/contact.actions';
 import type { WithId, Contact, Project, KanbanColumnData } from '@/lib/definitions';
 import { KanbanColumn } from '@/components/wabasimplify/kanban-column';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -87,7 +88,7 @@ export function KanbanBoard() {
         setIsClient(true);
         fetchData();
     }, []);
-    
+
     const handleAddList = (name: string) => {
         if (!project) return;
         const newBoardData = [...boardData, { name, contacts: [] }];
@@ -100,16 +101,16 @@ export function KanbanBoard() {
                 toast({ title: "Error", description: "Could not save new list.", variant: "destructive" });
                 fetchData(); // Revert on failure
             } else {
-                 toast({ title: "Success", description: `List "${name}" added.`});
+                toast({ title: "Success", description: `List "${name}" added.` });
             }
         });
     };
 
     const handleOnDragEnd = (result: any) => {
         if (!result.destination) return;
-        
+
         const { source, destination, draggableId } = result;
-        
+
         if (source.droppableId === destination.droppableId) return;
 
         let movedContact: WithId<Contact> | undefined;
@@ -120,13 +121,13 @@ export function KanbanBoard() {
 
         const sourceColumn = boardData[sourceColumnIndex];
         const destColumn = boardData[destColumnIndex];
-        
+
         const sourceContacts = Array.from(sourceColumn.contacts);
         [movedContact] = sourceContacts.splice(source.index, 1);
-        
+
         const destContacts = Array.from(destColumn.contacts);
         destContacts.splice(destination.index, 0, movedContact);
-        
+
         const newBoardData = [...boardData];
         newBoardData[sourceColumnIndex] = { ...sourceColumn, contacts: sourceContacts };
         newBoardData[destColumnIndex] = { ...destColumn, contacts: destContacts };
@@ -142,7 +143,7 @@ export function KanbanBoard() {
 
     if (!project) {
         return (
-             <div className="p-4">
+            <div className="p-4">
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
@@ -150,15 +151,15 @@ export function KanbanBoard() {
                         Please select a project from the main dashboard page to view the chat kanban board.
                     </AlertDescription>
                 </Alert>
-             </div>
+            </div>
         );
     }
-    
+
     return (
         <DragDropContext onDragEnd={handleOnDragEnd}>
             <div className="h-full w-full">
                 <ScrollArea className="h-full w-full">
-                    <div style={{minWidth: "100%", display: "table", height: '100%'}}>
+                    <div style={{ minWidth: "100%", display: "table", height: '100%' }}>
                         <div className="flex h-full w-max p-4 gap-4">
                             {boardData.map(column => (
                                 <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} />

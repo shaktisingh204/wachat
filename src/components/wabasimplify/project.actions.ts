@@ -2,7 +2,8 @@
 
 'use server';
 
-import { getSession, getProjectById } from '@/app/actions/user.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { getProjectById } from '@/app/actions/project.actions';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
@@ -30,9 +31,9 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
     try {
         // We will now attempt to create the project first, and only then try to subscribe the webhook.
         // This prevents setup failure if the token is valid but lacks webhook permissions.
-        
+
         let businessId: string | undefined = undefined;
-        if(includeCatalog) {
+        if (includeCatalog) {
             try {
                 const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
                     params: { access_token: accessToken }
@@ -43,12 +44,12 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
                 } else {
                     console.warn("Could not find a Meta Business Account associated with this token to enable Catalog features.");
                 }
-            } catch(e) {
+            } catch (e) {
                 // Non-fatal, just means catalog features might not work
                 console.warn("Could not retrieve business ID for catalog features:", getErrorMessage(e));
             }
         }
-        
+
         const projectDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name&access_token=${accessToken}`);
         const projectData = await projectDetailsResponse.json();
 
@@ -57,14 +58,14 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
         }
 
         const { db } = await connectToDatabase();
-        
+
         const existingProject = await db.collection('projects').findOne({ wabaId: wabaId });
-        if(existingProject) {
-            return { error: 'A project with this WABA ID already exists.'};
+        if (existingProject) {
+            return { error: 'A project with this WABA ID already exists.' };
         }
 
         const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
-        
+
         const newProject: Omit<Project, '_id'> = {
             userId: new ObjectId(session.user._id),
             name: projectData.name,
@@ -81,15 +82,15 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
         };
 
         const result = await db.collection('projects').insertOne(newProject as any);
-        
+
         // Attempt to subscribe to webhooks after creation, but don't fail the entire process if it doesn't work.
-        if(result.insertedId) {
+        if (result.insertedId) {
             await handleSyncPhoneNumbers(result.insertedId.toString());
             await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
         }
 
         revalidatePath('/dashboard');
-        
+
         return { message: `Project "${projectData.name}" created successfully!` };
 
     } catch (e: any) {
@@ -99,8 +100,8 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
 }
 
 export async function handleUpdateProjectSettings(
-  prevState: any,
-  formData: FormData
+    prevState: any,
+    formData: FormData
 ): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const messagesPerSecond = formData.get('messagesPerSecond') as string;
@@ -122,11 +123,11 @@ export async function handleUpdateProjectSettings(
             { _id: new ObjectId(projectId) },
             { $set: { messagesPerSecond: mps } }
         );
-        
+
         if (result.matchedCount === 0) {
             return { error: 'Project not found.' };
         }
-        
+
         revalidatePath('/dashboard/settings');
 
         return { message: 'Settings updated successfully!' };
@@ -187,15 +188,15 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
 
     const projectId = formData.get('projectId') as string;
     const attributesJSON = formData.get('attributes') as string;
-    
+
     if (!projectId) return { error: 'Project ID is missing.' };
-    
+
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
-    
+
     try {
         const attributes = JSON.parse(attributesJSON);
-        
+
         const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
@@ -212,10 +213,10 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
 export async function saveCannedMessageAction(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };
-    
+
     const messageId = formData.get('_id') as string | null;
     const projectId = formData.get('projectId') as string;
-    
+
     if (!projectId) return { error: 'Project ID is missing.' };
 
     const cannedMessageData = {
@@ -236,7 +237,7 @@ export async function saveCannedMessageAction(prevState: any, formData: FormData
     try {
         const { db } = await connectToDatabase();
         if (messageId) {
-            await db.collection('canned_messages').updateOne({ _id: new ObjectId(messageId) }, { $set: { ...cannedMessageData, createdAt: undefined } as any});
+            await db.collection('canned_messages').updateOne({ _id: new ObjectId(messageId) }, { $set: { ...cannedMessageData, createdAt: undefined } as any });
         } else {
             await db.collection('canned_messages').insertOne(cannedMessageData as any);
         }
@@ -287,7 +288,7 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
         if (!project || project.userId.toString() !== session.user._id.toString()) {
             return { error: 'Project not found or you are not the owner.' };
         }
-        
+
         if (!project.plan) return { error: 'Could not determine your plan limits.' };
         const plan = project.plan;
 
@@ -321,7 +322,7 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
         };
 
         await db.collection('invitations').insertOne(newInvitation as any);
-        
+
         revalidatePath('/dashboard/settings');
         return { message: `Invitation sent to ${email}.` };
 
@@ -352,7 +353,7 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
             { _id: new ObjectId(projectId) },
             { $pull: { agents: { userId: new ObjectId(agentUserId) } } }
         );
-        
+
         revalidatePath('/dashboard/settings');
         return { message: 'Agent removed successfully.' };
 
@@ -380,8 +381,8 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
         const repliesJSON = formData.get('replies') as string;
         try {
             updatePayload.replies = repliesJSON ? JSON.parse(repliesJSON) : [];
-            delete updatePayload.message; 
-            delete updatePayload.context; 
+            delete updatePayload.message;
+            delete updatePayload.context;
         } catch (e) {
             return { error: 'Invalid format for replies data.' };
         }
@@ -400,7 +401,7 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
         updatePayload.autoTranslate = formData.get('autoTranslate') === 'on';
         delete updatePayload.message;
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
@@ -418,7 +419,7 @@ export async function getKanbanData(projectId: string): Promise<{ project: WithI
     const defaultData = { project: null, columns: [] };
     const project = await getProjectById(projectId);
     if (!project) return defaultData;
-    
+
     try {
         const { db } = await connectToDatabase();
         const contacts = await db.collection<Contact>('contacts')
@@ -453,7 +454,7 @@ export async function saveKanbanStatuses(projectId: string, statuses: string[]):
         const { db } = await connectToDatabase();
         const defaultStatuses = ['new', 'open', 'resolved'];
         const customStatuses = statuses.filter(s => !defaultStatuses.includes(s));
-        
+
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
             { $set: { kanbanStatuses: customStatuses } }
@@ -478,16 +479,16 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
 
         const project = await getProjectById(contact.projectId.toString());
         if (!project) return { success: false, error: 'Access denied' };
-        
+
         const update: any = { status };
         if (assignedAgentId) {
             update.assignedAgentId = assignedAgentId;
         } else {
             update.assignedAgentId = null;
         }
-        
+
         await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: update });
-        
+
         revalidatePath('/dashboard/chat');
         revalidatePath('/dashboard/chat/kanban');
         return { success: true };
@@ -504,11 +505,11 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
     if (!ObjectId.isValid(contactId)) {
         return { success: false, error: 'Invalid Contact ID' };
     }
-    
+
     try {
         const variables = JSON.parse(variablesJSON);
         const { db } = await connectToDatabase();
-        
+
         await db.collection('contacts').updateOne(
             { _id: new ObjectId(contactId) },
             { $set: { variables } }
@@ -530,14 +531,14 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
     if (!projectIdsString || !newAppId) {
         return { success: false, error: 'Project IDs and a new App ID are required.' };
     }
-    
+
     const projectIds = projectIdsString.split(',');
     console.log(`Bulk updating App ID for ${projectIds.length} projects to ${newAppId}`);
-    
+
     try {
         const { db } = await connectToDatabase();
         const objectIds = projectIds.map(id => new ObjectId(id));
-        
+
         // Ensure user owns all selected projects
         const ownedProjectsCount = await db.collection('projects').countDocuments({
             _id: { $in: objectIds },

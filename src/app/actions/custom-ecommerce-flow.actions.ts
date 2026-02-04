@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession, getProjectById } from '@/app/actions/user.actions';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { EcommFlow, EcommFlowNode, EcommFlowEdge } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 

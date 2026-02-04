@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, type Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/user.actions';
+import { getProjectById } from '@/app/actions/project.actions';
 import { handleManualWachatSetup } from '@/app/actions/whatsapp.actions';
 import { getErrorMessage, validateFile } from '@/lib/utils';
 import type { Project, Template, Broadcast, Contact } from '@/lib/definitions';
@@ -29,7 +29,7 @@ export async function getAllBroadcasts(
             total
         };
 
-    } catch(e) {
+    } catch (e) {
         console.error("Failed to get all broadcasts:", e);
         return { broadcasts: [], total: 0 };
     }
@@ -58,7 +58,7 @@ export async function getBroadcasts(
                 .toArray(),
             db.collection('broadcasts').countDocuments({ projectId: new ObjectId(projectId) })
         ]);
-        
+
         return {
             broadcasts: JSON.parse(JSON.stringify(broadcasts)),
             total
@@ -79,7 +79,7 @@ export async function getBroadcastById(broadcastId: string): Promise<WithId<any>
 
         const hasAccess = await getProjectById(broadcast.projectId.toString());
         if (!hasAccess) return null;
-        
+
         return JSON.parse(JSON.stringify(broadcast));
 
     } catch (e) {
@@ -94,12 +94,12 @@ export async function getBroadcastAttempts(
     limit: number = 50,
     statusFilter?: string
 ): Promise<{ attempts: any[], total: number }> {
-     if (!broadcastId || !ObjectId.isValid(broadcastId)) return { attempts: [], total: 0 };
-     try {
+    if (!broadcastId || !ObjectId.isValid(broadcastId)) return { attempts: [], total: 0 };
+    try {
         const { db } = await connectToDatabase();
-        
+
         const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
-        if(statusFilter && statusFilter !== 'ALL') {
+        if (statusFilter && statusFilter !== 'ALL') {
             filter.status = statusFilter;
         }
 
@@ -115,36 +115,36 @@ export async function getBroadcastAttempts(
             total
         };
 
-     } catch(e) {
-         return { attempts: [], total: 0 };
-     }
+    } catch (e) {
+        return { attempts: [], total: 0 };
+    }
 }
 
 export async function getBroadcastAttemptsForExport(broadcastId: string, statusFilter?: string): Promise<any[]> {
     if (!broadcastId || !ObjectId.isValid(broadcastId)) return [];
-     try {
+    try {
         const { db } = await connectToDatabase();
         const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
-        if(statusFilter && statusFilter !== 'ALL') {
+        if (statusFilter && statusFilter !== 'ALL') {
             filter.status = statusFilter;
         }
         const attempts = await db.collection('broadcast_contacts').find(filter).project({ phone: 1, status: 1, messageId: 1, error: 1, sentAt: 1 }).toArray();
         return JSON.parse(JSON.stringify(attempts));
-     } catch(e) {
-         return [];
-     }
+    } catch (e) {
+        return [];
+    }
 }
 
 
 export async function getBroadcastLogs(broadcastId: string): Promise<WithId<any>[]> {
-     if (!broadcastId || !ObjectId.isValid(broadcastId)) return [];
-     try {
+    if (!broadcastId || !ObjectId.isValid(broadcastId)) return [];
+    try {
         const { db } = await connectToDatabase();
         const logs = await db.collection('broadcast_logs').find({ broadcastId: new ObjectId(broadcastId) }).sort({ timestamp: -1 }).limit(100).toArray();
         return JSON.parse(JSON.stringify(logs));
-     } catch(e) {
+    } catch (e) {
         return [];
-     }
+    }
 }
 
 
@@ -154,9 +154,9 @@ const parseContactFile = async (file: File) => {
 
     const buffer = await file.arrayBuffer();
     const data = new Uint8Array(buffer);
-    
+
     let rows: any[] = [];
-    if(file.type === 'text/csv') {
+    if (file.type === 'text/csv') {
         const text = new TextDecoder("utf-8").decode(data);
         rows = Papa.parse(text, { header: true, skipEmptyLines: true }).data;
     } else {
@@ -216,13 +216,13 @@ export async function handleStartBroadcast(
     const templateId = formData.get('templateId') as string;
     const audienceType = formData.get('audienceType') as 'file' | 'tags';
     const tagIds = formData.getAll('tagIds') as string[];
-    
+
     // Header variables
     const headerImageUrl = formData.get('headerImageUrl') as string | null;
     const headerMediaFile = formData.get('headerImageFile') as File | null;
-    
+
     const { db } = await connectToDatabase();
-    
+
     const project = await getProjectById(projectId);
     if (!project) return { error: 'Project not found.' };
 
@@ -246,11 +246,11 @@ export async function handleStartBroadcast(
             tagIds: { $in: validTagIds }
         }).toArray();
     }
-    
+
     if (contacts.length === 0) {
         return { error: 'No contacts found for the selected audience.' };
     }
-    
+
     const broadcastData: Omit<Broadcast, '_id'> = {
         name: `${template.name} - ${new Date().toLocaleString()}`,
         projectId: new ObjectId(projectId),
@@ -272,14 +272,14 @@ export async function handleStartBroadcast(
             type: headerMediaFile.type,
         } : undefined,
     };
-    
+
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
     const broadcastId = broadcastResult.insertedId;
-    
+
     const contactsInserted = await createBroadcastContacts(db, broadcastId, contacts);
 
     revalidatePath('/dashboard/broadcasts');
-    
+
     return { message: `Broadcast successfully queued for ${contactsInserted} contacts. Sending will begin shortly.` };
 }
 
@@ -297,11 +297,11 @@ export async function handleBulkBroadcast(
     }
 
     const projectIds = projectIdsString.split(',');
-    
+
     try {
         const { db } = await connectToDatabase();
         const allContacts = await parseContactFile(contactFile);
-        
+
         if (allContacts.length === 0) {
             return { error: 'Contact file is empty or could not be parsed.' };
         }
@@ -313,7 +313,7 @@ export async function handleBulkBroadcast(
         for (let i = 0; i < projectIds.length; i++) {
             const projectId = projectIds[i];
             const projectContacts = allContacts.slice(i * contactsPerProject, (i + 1) * contactsPerProject);
-            
+
             if (projectContacts.length === 0) continue;
 
             const project = await getProjectById(projectId);
@@ -346,10 +346,10 @@ export async function handleBulkBroadcast(
                 components: template.components || [],
                 createdAt: new Date(),
             };
-    
+
             const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
             const broadcastId = broadcastResult.insertedId;
-            
+
             await createBroadcastContacts(db, broadcastId, projectContacts);
             successCount++;
         }
@@ -361,7 +361,7 @@ export async function handleBulkBroadcast(
 
         revalidatePath('/dashboard/bulk');
         revalidatePath('/dashboard/broadcasts');
-        
+
         return { message };
 
     } catch (e: any) {
@@ -378,7 +378,7 @@ export async function handleStartApiBroadcast(data: {
 }): Promise<{ message?: string; error?: string }> {
     const { projectId, phoneNumberId, templateId, contacts, variableMappings } = data;
     const { db } = await connectToDatabase();
-    
+
     const [project, template] = await Promise.all([
         getProjectById(projectId),
         db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) })
@@ -404,7 +404,7 @@ export async function handleStartApiBroadcast(data: {
 
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
     const broadcastId = broadcastResult.insertedId;
-    
+
     await createBroadcastContacts(db, broadcastId, contacts);
 
     return { message: `Broadcast successfully queued via API for ${contacts.length} contacts. Sending will begin shortly.` };
@@ -417,12 +417,12 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
     const newTemplateId = formData.get('templateId') as string;
     const headerImageUrl = formData.get('headerImageUrl') as string | null;
 
-    if(!broadcastId) return { error: 'Original broadcast ID is missing.' };
+    if (!broadcastId) return { error: 'Original broadcast ID is missing.' };
 
     const { db } = await connectToDatabase();
     const originalBroadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
     if (!originalBroadcast) return { error: 'Original broadcast not found.' };
-    
+
     const projectId = originalBroadcast.projectId.toString();
     const project = await getProjectById(projectId);
     if (!project) return { error: 'Project not found.' };
@@ -430,7 +430,7 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
     const templateId = newTemplateId || originalBroadcast.templateId.toString();
     const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) });
     if (!template) return { error: 'Template not found.' };
-    
+
     const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
     if (requeueScope === 'FAILED') {
         filter.status = 'FAILED';
@@ -440,7 +440,7 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
     if (contacts.length === 0) {
         return { error: 'No contacts found to requeue.' };
     }
-    
+
     const newBroadcastData: Omit<Broadcast, '_id'> = {
         ...originalBroadcast,
         name: `${originalBroadcast.name} (Requeued)`,
@@ -478,7 +478,7 @@ export async function handleStopBroadcast(broadcastId: string): Promise<{ messag
         }
         revalidatePath('/dashboard/broadcasts');
         return { message: 'Broadcast has been cancelled.' };
-    } catch(e) {
+    } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }

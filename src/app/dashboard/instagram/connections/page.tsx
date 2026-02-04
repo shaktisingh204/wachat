@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { getProjects } from "@/lib/actions/user.actions.ts";
+import { getProjects } from "@/app/actions/project.actions";
 import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,7 +36,7 @@ function InstagramAccountCard({ project, onSelect }: { project: WithId<Project> 
             <CardHeader className="flex-row items-center gap-4">
                 <Avatar className="h-12 w-12">
                     <AvatarImage src={instagramProfile?.profile_picture_url} alt={instagramProfile?.username} />
-                    <AvatarFallback><InstagramIcon className="h-6 w-6"/></AvatarFallback>
+                    <AvatarFallback><InstagramIcon className="h-6 w-6" /></AvatarFallback>
                 </Avatar>
                 <div>
                     <CardTitle>{instagramProfile?.username || project.name}</CardTitle>
@@ -45,11 +45,11 @@ function InstagramAccountCard({ project, onSelect }: { project: WithId<Project> 
             </CardHeader>
             <CardContent className="flex-grow">
                 <p className="text-sm text-muted-foreground">Followers: {instagramProfile?.followers_count?.toLocaleString() || 'N/A'}</p>
-                 <p className="text-sm text-muted-foreground">Media Count: {instagramProfile?.media_count?.toLocaleString() || 'N/A'}</p>
+                <p className="text-sm text-muted-foreground">Media Count: {instagramProfile?.media_count?.toLocaleString() || 'N/A'}</p>
             </CardContent>
             <CardFooter>
-                 <Button onClick={onSelect} className="w-full">
-                    Manage Account <ArrowRight className="ml-2 h-4 w-4"/>
+                <Button onClick={onSelect} className="w-full">
+                    Manage Account <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </CardFooter>
         </Card>
@@ -63,7 +63,7 @@ export default function InstagramConnectionsPage() {
 
     useEffect(() => {
         startLoading(async () => {
-            const { projects: facebookProjects } = await getProjects(undefined, 'facebook');
+            const facebookProjects = await getProjects(undefined, 'facebook');
             const projectsWithIg = await Promise.all(
                 facebookProjects.map(async (p) => {
                     const { instagramAccount } = await getInstagramAccountForPage(p._id.toString());
@@ -86,9 +86,9 @@ export default function InstagramConnectionsPage() {
 
     return (
         <div className="flex flex-col gap-8">
-             <div>
+            <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <InstagramIcon className="h-8 w-8"/>
+                    <InstagramIcon className="h-8 w-8" />
                     Instagram Connections
                 </h1>
                 <p className="text-muted-foreground mt-2">
@@ -97,21 +97,21 @@ export default function InstagramConnectionsPage() {
             </div>
 
             {projects.length > 0 ? (
-                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {projects.map(p => (
                         <InstagramAccountCard key={p._id.toString()} project={p} onSelect={() => handleSelectProject(p)} />
                     ))}
                 </div>
             ) : (
                 <Card className="text-center py-12">
-                     <CardContent className="space-y-4">
+                    <CardContent className="space-y-4">
                         <p className="text-lg font-semibold">No Instagram Accounts Found</p>
                         <p className="text-muted-foreground max-w-md mx-auto">
                             We couldn't find any Instagram Business Accounts linked to your connected Facebook Pages. Please ensure they are properly connected in your Meta Business Suite.
                         </p>
                         <Button asChild variant="outline">
                             <Link href="/dashboard/instagram/setup">
-                                <Wrench className="mr-2 h-4 w-4"/>
+                                <Wrench className="mr-2 h-4 w-4" />
                                 Go to Setup
                             </Link>
                         </Button>

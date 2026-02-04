@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/app/actions/api-keys.actions';
-import { getProjects } from "@/lib/actions/user.actions.ts";
+import { getProjects } from "@/app/actions/project.actions";
 import { checkRateLimit } from '@/lib/rate-limiter';
 
 export async function GET(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const { projects } = await getProjects(undefined, 'whatsapp');
+        const projects = await getProjects(undefined, 'whatsapp');
         return NextResponse.json({ success: true, data: projects });
     } catch (e: any) {
         return NextResponse.json({ error: e.message || 'An unexpected error occurred.' }, { status: 500 });

@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/user.actions';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { Flow, FlowNode, FlowEdge } from '@/lib/definitions';
 
 export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
@@ -50,9 +50,9 @@ export async function saveFlow(data: {
     if (!projectId || !name) return { error: 'Project ID and Flow Name are required.' };
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: 'Access denied' };
-    
+
     const isNew = !flowId;
-    
+
     const flowData: Omit<Flow, '_id' | 'createdAt'> = {
         name,
         projectId: new ObjectId(projectId),

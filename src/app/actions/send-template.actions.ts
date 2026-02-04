@@ -7,15 +7,15 @@ import axios from 'axios';
 import FormData from 'form-data';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/user.actions';
+import { getProjectById } from '@/app/actions/project.actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { Contact, Template, OutgoingMessage, Project } from '@/lib/definitions';
 
 const API_VERSION = 'v23.0';
 
 export async function handleSendTemplateMessage(
-    prevState: any, 
-    data: { [key: string]: any }, 
+    prevState: any,
+    data: { [key: string]: any },
     projectFromAction?: WithId<Project>
 ): Promise<{ message?: string; error?: string }> {
     const {
@@ -32,18 +32,18 @@ export async function handleSendTemplateMessage(
     }
 
     const { db } = await connectToDatabase();
-    
+
     const [contact, template] = await Promise.all([
         db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) }),
         db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) }),
     ]);
-    
+
     if (!contact) return { error: 'Contact not found.' };
-    const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString(), projectFromAction?.userId.toString() || contact.userId?.toString());
+    const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString());
     if (!hasAccess) return { error: 'Access Denied.' };
     if (!template) return { error: 'Template not found.' };
     if (template.status !== 'APPROVED') return { error: 'Cannot send a template that is not approved.' };
-    
+
     const phoneNumberId = contact.phoneNumberId;
     const waId = contact.waId;
     const { accessToken, appId } = hasAccess;
@@ -53,14 +53,14 @@ export async function handleSendTemplateMessage(
         const getVars = (text: string): number[] => {
             if (!text) return [];
             const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
-            return variableMatches 
-                ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] 
+            return variableMatches
+                ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))]
                 : [];
         };
 
         const payloadComponents: any[] = [];
         const templateComponents = template.components || [];
-        
+
         // --- HEADER ---
         const headerComponentDef = templateComponents.find(c => c.type === 'HEADER');
         if (headerComponentDef) {
@@ -69,17 +69,17 @@ export async function handleSendTemplateMessage(
             const fileData = headerMediaFile as { content: string, name: string, type: string };
 
             if (mediaSource === 'file' && fileData?.content) {
-                 const form = new FormData();
-                 const buffer = Buffer.from(fileData.content, 'base64');
-                 form.append('file', buffer, { filename: fileData.name, contentType: fileData.type });
-                 form.append('messaging_product', 'whatsapp');
-                 const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
-                 const mediaId = uploadResponse.data.id;
-                 if(mediaId) {
+                const form = new FormData();
+                const buffer = Buffer.from(fileData.content, 'base64');
+                form.append('file', buffer, { filename: fileData.name, contentType: fileData.type });
+                form.append('messaging_product', 'whatsapp');
+                const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
+                const mediaId = uploadResponse.data.id;
+                if (mediaId) {
                     if (format === 'IMAGE') parameter = { type: 'image', image: { id: mediaId } };
                     else if (format === 'VIDEO') parameter = { type: 'video', video: { id: mediaId } };
                     else if (format === 'DOCUMENT') parameter = { type: 'document', document: { id: mediaId } };
-                 }
+                }
             } else if (headerMediaUrl) {
                 if (format === 'IMAGE') parameter = { type: 'image', image: { link: headerMediaUrl } };
                 else if (format === 'VIDEO') parameter = { type: 'video', video: { link: headerMediaUrl } };
@@ -88,19 +88,19 @@ export async function handleSendTemplateMessage(
                 const headerVar = (variables['variable_header_1'] as string || '').trim();
                 parameter = { type: 'text', text: headerVar === '' ? '\u200B' : headerVar };
             }
-            
+
             if (parameter) {
                 payloadComponents.push({ type: 'header', parameters: [parameter] });
             }
         }
-        
+
         // --- BODY ---
         const bodyComponentDef = templateComponents.find(c => c.type === 'BODY');
         const bodyText = bodyComponentDef?.text || template.body;
         if (bodyText) {
             const bodyVars = getVars(bodyText);
             if (bodyVars.length > 0) {
-                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => {
+                const parameters = bodyVars.sort((a, b) => a - b).map(varNum => {
                     const varValue = (variables[`variable_body_${varNum}`] as string || '').trim();
                     return { type: 'text', text: varValue === '' ? '\u200B' : varValue };
                 });
@@ -139,7 +139,7 @@ export async function handleSendTemplateMessage(
             }
         };
 
-        if(payloadComponents.length > 0) {
+        if (payloadComponents.length > 0) {
             payload.template.components = payloadComponents;
         }
 
@@ -148,18 +148,18 @@ export async function handleSendTemplateMessage(
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
         const now = new Date();
-        
+
         const finalTemplatePayloadForDb = {
             ...payload.template,
             original_components: template.components,
             sent_components: payload.template.components
         };
-        
+
         await db.collection('outgoing_messages').insertOne({
             direction: 'out', contactId: contact._id, projectId: hasAccess._id, wamid, messageTimestamp: now, type: 'template',
             content: { template: finalTemplatePayloadForDb }, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         } as OutgoingMessage);
-        
+
         const lastMessage = `[Template]: ${template.name}`;
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } });
 
