@@ -481,7 +481,7 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
     ];
 
     const mainContent = (
-        <div className="p-4 md:p-6 lg:p-8 h-full">
+        <div className="p-4 md:p-6 lg:p-8 h-[calc(100%-1rem)] overflow-y-auto rounded-2xl bg-muted/10 m-2 ml-0 shadow-sm border border-white/20">
             {children}
         </div>
     );
@@ -536,7 +536,7 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
     }
 
     const AppRail = () => (
-        <Sidebar className="w-16 bg-sidebar-background flex !w-16 !block md:!flex z-20">
+        <Sidebar className="w-16 bg-sidebar-background flex !w-16 !block md:!flex z-20 m-2 rounded-2xl h-[calc(100%-1rem)] shadow-lg border-none">
             <div className="flex flex-col h-full">
                 <SidebarHeader className="h-16 flex items-center justify-center">
                     <SabNodeLogo className="w-8 h-8" />
@@ -628,7 +628,7 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
             <div className="flex flex-1 overflow-hidden">
                 {appRailPosition === 'left' && <AppRail />}
                 {(!(!activeProject?._id && (activeApp === 'whatsapp' || activeApp === 'facebook'))) && (
-                    <Sidebar className={cn("hidden md:flex")}>
+                    <Sidebar className={cn("hidden md:flex m-2 ml-0 rounded-2xl h-[calc(100%-1rem)] shadow-lg border-none")}>
                         <SidebarHeader className="h-16 flex items-center justify-center p-0">
                             {/* Project Switcher Removed */}
                         </SidebarHeader>
@@ -727,7 +727,7 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
                         </SidebarContent>
                     </Sidebar>
                 )}
-                <main className="flex-1 overflow-y-auto">
+                <main className="flex-1 overflow-hidden relative">
                     {isChatPage || isBuilderPage ? children : mainContent}
                 </main>
             </div>
