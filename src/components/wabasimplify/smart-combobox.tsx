@@ -86,7 +86,8 @@ export function SmartCombobox({
                                 <CommandItem
                                     key={option.value}
                                     value={option.label}
-                                    onSelect={() => {
+                                    onSelect={(_) => {
+                                        // Ignore cmdk internal value, use the stable loop variable
                                         onSelect(option.value);
                                         setOpen(false);
                                     }}

@@ -172,6 +172,7 @@ export const crmMenuGroups: MenuGroup[] = [
 export const teamMenuItems: MenuItem[] = [
     { href: "/dashboard/team/manage-users", label: "Manage Users", icon: UsersIcon },
     { href: "/dashboard/team/manage-roles", label: "Manage Roles", icon: ShieldCheck },
+    { href: "/dashboard/team/tasks", label: "Tasks", icon: FolderKanban },
     { href: "/dashboard/team/team-chat", label: "Team Chat", icon: MessageSquare },
 ];
 

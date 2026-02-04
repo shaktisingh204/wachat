@@ -12,6 +12,7 @@ import {
     SidebarMenuItem,
     SidebarMenuButton,
 } from '@/components/ui/sidebar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { User as UserIcon } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { appIcons } from '@/config/dashboard-config';
@@ -31,11 +32,24 @@ export function AppRail({ activeApp }: AppRailProps) {
                     <SidebarMenu className="items-center gap-1.5 py-2">
                         {appIcons.map(app => (
                             <SidebarMenuItem key={app.id} className={cn("relative w-full flex justify-center", activeApp === app.id && 'active-app-border')}>
-                                <SidebarMenuButton asChild isActive={activeApp === app.id} tooltip={app.label} showTooltip={true} className="h-10 w-10 justify-center p-0 rounded-xl hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200">
-                                    <Link href={app.href}>
-                                        <app.icon className="h-5 w-5" />
-                                    </Link>
-                                </SidebarMenuButton>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Link
+                                            href={app.href}
+                                            className={cn(
+                                                "h-10 w-10 flex items-center justify-center p-0 rounded-xl transition-all duration-200",
+                                                activeApp === app.id
+                                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                                    : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+                                            )}
+                                        >
+                                            <app.icon className="h-5 w-5" />
+                                        </Link>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" sideOffset={10}>
+                                        <p>{app.label}</p>
+                                    </TooltipContent>
+                                </Tooltip>
                             </SidebarMenuItem>
                         ))}
                     </SidebarMenu>

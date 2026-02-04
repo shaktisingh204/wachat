@@ -11,7 +11,7 @@ import { LoaderCircle, Save, ArrowLeft, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmLead } from '@/app/actions/crm-leads.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { WithId, CrmPipeline, User } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,20 +21,24 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 
-const initialState = { message: null, error: null, leadId: undefined };
+const initialState: { message?: string; error?: string; leadId?: string } = { message: undefined, error: undefined, leadId: undefined };
 
 const leadStatuses = [
     "New", "Contacted", "Qualified", "Unqualified", "Converted"
 ];
 
+const leadSources = [
+    "Website", "Referral", "Cold Call", "Social Media", "Email Campaign", "Advertisement", "Partner", "Other"
+];
+
 function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} size="lg">
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-      Add Lead
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending} size="lg">
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Add Lead
+        </Button>
+    );
 }
 
 function NewLeadPageSkeleton() {
@@ -81,12 +85,12 @@ export default function AddLeadPage() {
             setPipelines(pipelinesData);
             setUser(sessionData?.user || null);
 
-            if(pipelinesData.length > 0 && !selectedPipelineId) {
+            if (pipelinesData.length > 0 && !selectedPipelineId) {
                 setSelectedPipelineId(pipelinesData[0].id);
             }
         })
     }, [selectedPipelineId]);
-    
+
     useEffect(() => {
         fetchData();
     }, [fetchData]);
@@ -100,9 +104,9 @@ export default function AddLeadPage() {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, router]);
-    
+
     const selectedPipeline = pipelines.find(p => p.id === selectedPipelineId);
-    
+
     if (isLoading || !user) {
         return <NewLeadPageSkeleton />;
     }
@@ -130,14 +134,14 @@ export default function AddLeadPage() {
                             <Input id="title" name="title" required placeholder="e.g. Mobile App Development for Retail Client" />
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
-                             <div className="space-y-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="value">Estimated Value</Label>
                                 <Input id="value" name="value" type="number" placeholder="e.g. 50000" />
                             </div>
-                             <div className="space-y-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="currency">Currency</Label>
                                 <Select name="currency" defaultValue="INR">
-                                    <SelectTrigger id="currency"><SelectValue/></SelectTrigger>
+                                    <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
                                     <SelectContent><SelectItem value="INR">INR</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent>
                                 </Select>
                             </div>
@@ -149,7 +153,7 @@ export default function AddLeadPage() {
                                 <Label htmlFor="contactName">Contact Name *</Label>
                                 <Input id="contactName" name="contactName" required placeholder="Full name of the lead contact" />
                             </div>
-                             <div className="space-y-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="email">Email *</Label>
                                 <Input id="email" name="email" type="email" required placeholder="Email address of the lead" />
                             </div>
@@ -158,23 +162,23 @@ export default function AddLeadPage() {
                             <div className="space-y-2"><Label htmlFor="phone">Phone</Label><Input id="phone" name="phone" /></div>
                             <div className="space-y-2"><Label htmlFor="company">Company</Label><Input id="company" name="company" /></div>
                         </div>
-                         <div className="grid md:grid-cols-2 gap-4">
-                             <div className="space-y-2"><Label htmlFor="website">Website</Label><Input id="website" name="website" /></div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2"><Label htmlFor="website">Website</Label><Input id="website" name="website" /></div>
                             <div className="space-y-2"><Label htmlFor="contactCountry">Contact Country</Label><Select name="contactCountry" defaultValue="India"><SelectTrigger id="contactCountry"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem><SelectItem value="USA">United States</SelectItem></SelectContent></Select></div>
                         </div>
-                         <Separator />
-                         <h3 className="font-semibold text-lg pb-2">Lead Status & Assignment</h3>
-                          <div className="grid md:grid-cols-2 gap-4">
+                        <Separator />
+                        <h3 className="font-semibold text-lg pb-2">Lead Status & Assignment</h3>
+                        <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="source">Lead Source</Label>
                                 <Select name="source">
-                                    <SelectTrigger id="source"><SelectValue placeholder="Select lead source..."/></SelectTrigger>
+                                    <SelectTrigger id="source"><SelectValue placeholder="Select lead source..." /></SelectTrigger>
                                     <SelectContent>
                                         {leadSources.map(source => (<SelectItem key={source} value={source}>{source}</SelectItem>))}
                                     </SelectContent>
                                 </Select>
                             </div>
-                             <div className="space-y-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="status">Lead Status</Label>
                                 <Select name="status" defaultValue="New">
                                     <SelectTrigger id="status"><SelectValue /></SelectTrigger>
@@ -188,7 +192,7 @@ export default function AddLeadPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="pipelineId">Sales Pipeline</Label>
                                 <Select name="pipelineId" value={selectedPipelineId} onValueChange={setSelectedPipelineId}>
-                                    <SelectTrigger id="pipeline"><SelectValue placeholder="Select a pipeline..."/></SelectTrigger>
+                                    <SelectTrigger id="pipeline"><SelectValue placeholder="Select a pipeline..." /></SelectTrigger>
                                     <SelectContent>
                                         {pipelines.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                                     </SelectContent>
@@ -204,14 +208,14 @@ export default function AddLeadPage() {
                                 </Select>
                             </div>
                         </div>
-                         <div className="grid md:grid-cols-2 gap-4">
-                             <div className="space-y-2">
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
                                 <Label htmlFor="assignedTo">Assigned To</Label>
-                                <Select name="assignedTo"><SelectTrigger id="assignedTo"><SelectValue placeholder="Unassigned"/></SelectTrigger><SelectContent>
+                                <Select name="assignedTo"><SelectTrigger id="assignedTo"><SelectValue placeholder="Unassigned" /></SelectTrigger><SelectContent>
                                     <SelectItem value={user._id.toString()}>Me ({user.name})</SelectItem>
                                 </SelectContent></Select>
                             </div>
-                             <div className="space-y-2">
+                            <div className="space-y-2">
                                 <Label>Next Follow-up</Label>
                                 <DatePicker date={nextFollowUp} setDate={setNextFollowUp} />
                             </div>

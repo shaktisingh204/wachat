@@ -257,6 +257,44 @@ export type CrmTask = {
     updatedAt?: Date;
 };
 
+export type TeamTask = {
+    _id: ObjectId;
+    userId: ObjectId;
+    title: string;
+    description?: string;
+    dueDate?: Date;
+    status: 'To-Do' | 'In Progress' | 'Completed';
+    priority: 'High' | 'Medium' | 'Low';
+    assignedTo?: ObjectId;
+    createdAt: Date;
+    updatedAt?: Date;
+};
+
+export type TeamChannel = {
+    _id: ObjectId;
+    type: 'dm' | 'group';
+    participants: { userId: ObjectId; name: string; avatar?: string }[];
+    name?: string; // For group chats
+    lastMessage?: {
+        content: string;
+        senderId: ObjectId;
+        createdAt: Date;
+    };
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TeamMessage = {
+    _id: ObjectId;
+    channelId: ObjectId;
+    senderId: ObjectId;
+    content: string;
+    attachments?: { type: 'image' | 'file'; url: string; name: string }[];
+    readBy: ObjectId[]; // User IDs who have read the message
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 export type CrmDeal = {
     _id: ObjectId;
     userId: ObjectId;
