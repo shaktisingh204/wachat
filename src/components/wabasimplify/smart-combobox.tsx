@@ -85,8 +85,7 @@ export function SmartCombobox({
                             {options.map((option) => (
                                 <CommandItem
                                     key={option.value}
-                                    value={option.value} // Use unique ID as value
-                                    keywords={[option.label]} // Search by label
+                                    value={option.label}
                                     onSelect={() => {
                                         onSelect(option.value);
                                         setOpen(false);
@@ -107,7 +106,7 @@ export function SmartCombobox({
                                 <CommandSeparator />
                                 <CommandGroup>
                                     <CommandItem
-                                        value={`:::create:::${inputValue}`} // Unique value
+                                        value={`:::create:::${inputValue}`}
                                         onSelect={() => {
                                             onCreate(inputValue);
                                             setOpen(false);

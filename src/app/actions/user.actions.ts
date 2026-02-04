@@ -221,9 +221,12 @@ export async function getSession() {
             plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
         }
 
+        // Sanitize dbUser to ensure all ObjectIds and Dates are stringified (especially nested ones like apiKeys)
+        const serializedUser = JSON.parse(JSON.stringify(dbUser));
+
         return {
             user: {
-                ...dbUser,
+                ...serializedUser,
                 _id: dbUser._id.toString(),
                 planId: dbUser.planId?.toString(),
                 name: dbUser.name || decoded.name,

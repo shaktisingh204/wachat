@@ -1,118 +1,78 @@
 
-'use client';
-
-import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from "next/navigation";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from '@/components/ui/skeleton';
+import { Suspense } from 'react';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Settings, Sliders, Mail, FileText } from 'lucide-react';
+import { getCrmSettings } from '@/app/actions/crm-settings.actions';
+import { getEmailSettings } from '@/app/actions/email.actions';
+import { CrmSettingsForm } from '@/components/crm/settings/crm-settings-form';
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
 import { EmailTemplatesManager } from "@/components/wabasimplify/crm-email-templates-manager";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, Mail, FileText, Settings, ShieldCheck, Zap } from 'lucide-react';
-import { getEmailSettings } from '@/app/actions/email.actions';
-import { getSession } from '@/app/actions/index.ts';
-import type { CrmEmailSettings, User, WithId } from '@/lib/definitions';
-import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
+import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
-function PageSkeleton() {
+export const dynamic = 'force-dynamic';
+
+export default async function CrmSettingsPage({ searchParams }: { searchParams?: Promise<{ tab?: string }> }) {
+    const params = await searchParams;
+    const activeTab = params?.tab || 'preferences';
+
+    const [crmSettings, emailSettings] = await Promise.all([
+        getCrmSettings(),
+        getEmailSettings().then(res => res[0])
+    ]);
+
+    if (!crmSettings) return <div>Failed to load settings.</div>;
+
     return (
-        <div className="flex flex-col gap-8">
-            <Skeleton className="h-10 w-64"/>
-            <Skeleton className="h-4 w-96"/>
-            <Skeleton className="h-64 w-full" />
-            <Skeleton className="h-48 w-full" />
-        </div>
-    );
-}
-
-function CrmSettingsPageContent() {
-    const searchParams = useSearchParams();
-    const initialTab = searchParams.get('tab') || 'email';
-    const [user, setUser] = useState<WithId<User> | null>(null);
-    const [settings, setSettings] = useState<WithId<CrmEmailSettings> | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        setIsLoading(true);
-        const fetchData = async () => {
-            const session = await getSession();
-            if (session?.user) {
-                setUser(session.user as any);
-                const fetchedSettings = await getEmailSettings();
-                setSettings(fetchedSettings[0] || null);
-            }
-            setIsLoading(false);
-        };
-        fetchData();
-    }, []);
-
-    if (isLoading) {
-        return <PageSkeleton />;
-    }
-    
-    if (!user) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Not Logged In</AlertTitle>
-                <AlertDescription>Please log in to manage CRM settings.</AlertDescription>
-            </Alert>
-        );
-    }
-    
-    return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-6 p-6">
             <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Settings /> CRM Settings</h1>
-                <p className="text-muted-foreground">Configure your CRM pipelines, automation, and integrations.</p>
+                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Settings className="h-8 w-8 text-primary" /> CRM Settings</h1>
+                <p className="text-muted-foreground mt-2">Manage your organization profile, sales preferences, inventory configurations, and integrations.</p>
             </div>
-            
-            <Tabs defaultValue={initialTab}>
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="email">Email Setup</TabsTrigger>
-                    <TabsTrigger value="templates">Templates</TabsTrigger>
+
+            <Tabs defaultValue={activeTab} className="w-full">
+                <TabsList className="grid w-full max-w-2xl grid-cols-3">
+                    <TabsTrigger value="preferences" className="gap-2"><Sliders className="h-4 w-4" /> Preferences</TabsTrigger>
+                    <TabsTrigger value="email" className="gap-2"><Mail className="h-4 w-4" /> Email & SMTP</TabsTrigger>
+                    <TabsTrigger value="templates" className="gap-2"><FileText className="h-4 w-4" /> Templates</TabsTrigger>
                 </TabsList>
+
+                <TabsContent value="preferences" className="mt-6">
+                    <CrmSettingsForm settings={crmSettings} />
+                </TabsContent>
+
                 <TabsContent value="email" className="mt-6 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5"/>Connect Email Account</CardTitle>
-                            <CardDescription>Connect your email accounts to sync conversations and send emails from within the CRM.</CardDescription>
+                            <CardTitle className="flex items-center gap-2">Connect Email Account</CardTitle>
+                            <CardDescription>Sync emails directly from your provider (Gmail/Outlook) or configure custom SMTP.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <p className="text-sm text-muted-foreground">Connect a provider to get started. We recommend using a dedicated app password for security.</p>
-                            <div className="flex flex-wrap gap-4 p-4 border rounded-lg justify-center bg-muted/50">
-                                <Button asChild className="w-full sm:w-auto" variant="outline">
-                                <Link href="/api/crm/auth/google/connect">
-                                        <GoogleIcon className="mr-2 h-5 w-5"/> Connect Gmail
-                                </Link>
+                            <div className="flex flex-wrap gap-4">
+                                <Button asChild variant="outline" className="h-12 border-2">
+                                    <Link href="/api/crm/auth/google/connect">
+                                        <GoogleIcon className="mr-2 h-5 w-5" /> Connect Gmail
+                                    </Link>
                                 </Button>
-                                <Button asChild className="w-full sm:w-auto" variant="outline">
+                                <Button asChild variant="outline" className="h-12 border-2">
                                     <Link href="/api/crm/auth/outlook/connect">
-                                        <OutlookIcon className="mr-2 h-5 w-5"/> Connect Outlook
+                                        <OutlookIcon className="mr-2 h-5 w-5" /> Connect Outlook
                                     </Link>
                                 </Button>
                             </div>
                         </CardContent>
                     </Card>
                     <Separator />
-                    <CrmSmtpForm settings={settings} />
+                    <CrmSmtpForm settings={emailSettings} />
                 </TabsContent>
+
                 <TabsContent value="templates" className="mt-6">
                     <EmailTemplatesManager />
                 </TabsContent>
             </Tabs>
         </div>
     );
-}
-
-export default function CrmSettingsPage() {
-    return (
-        <Suspense fallback={<PageSkeleton/>}>
-            <CrmSettingsPageContent/>
-        </Suspense>
-    )
 }

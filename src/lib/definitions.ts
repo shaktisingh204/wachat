@@ -2539,3 +2539,45 @@ export type CrmProformaInvoice = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export type CrmSettings = {
+    _id: ObjectId;
+    userId: ObjectId;
+    // General
+    companyName: string;
+    companyAddress: string;
+    companyEmail: string;
+    companyPhone: string;
+    gstin: string;
+    currency: string;
+    timezone: string;
+    financialYearStart: string; // "April"
+    dateFormat: string; // "DD-MM-YYYY"
+
+    // Sales
+    invoicePrefix: string;
+    quotationPrefix: string;
+    defaultInvoiceTerms: string;
+    defaultQuotationTerms: string;
+    enableStockValidation: boolean;
+    defaultTaxRate: number;
+
+    // Inventory
+    enableLowStockAlerts: boolean;
+    lowStockThreshold: number;
+
+    // HR
+    standardWorkingDays: number; // 5 or 6
+    dailyWorkingHours: number; // 8 or 9
+
+    // Features
+    modules: {
+        proforma: boolean;
+        challans: boolean;
+        estimates: boolean;
+        smsNotifications: boolean;
+        emailNotifications: boolean;
+    };
+
+    updatedAt: Date;
+};
