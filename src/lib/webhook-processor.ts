@@ -563,13 +563,7 @@ async function handleSmsAction(node: FlowNode, contact: WithId<Contact>, variabl
         logger.log('SMS action skipped: Missing recipient or message text.');
         return;
     }
-    const recipient = interpolate(node.data.recipient || contact.phone, variables);
-    const message = interpolate(node.data.text, variables);
-    if (!recipient || !message) {
-        logger.log('SMS action skipped: Missing recipient or message text.');
-        return;
-    }
-    // sendSingleSms(null, formData) is legacy. 
+
     // We use the new Quick Send action.
     try {
         const result = await sendQuickSms(recipient, message);

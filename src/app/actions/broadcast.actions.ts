@@ -7,7 +7,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/project.actions';
 import { handleManualWachatSetup } from '@/app/actions/whatsapp.actions';
 import { getErrorMessage, validateFile } from '@/lib/utils';
-import type { Project, Template, Broadcast, Contact } from '@/lib/definitions';
+import type { Project, Template, BroadcastJob, Contact } from '@/lib/definitions';
 import Papa from 'papaparse';
 import * as xlsx from 'xlsx';
 import { nanoid } from 'nanoid';
@@ -15,7 +15,7 @@ import { nanoid } from 'nanoid';
 export async function getAllBroadcasts(
     page: number = 1,
     limit: number = 20
-): Promise<{ broadcasts: WithId<Broadcast>[], total: number }> {
+): Promise<{ broadcasts: WithId<BroadcastJob>[], total: number }> {
     try {
         const { db } = await connectToDatabase();
         const skip = (page - 1) * limit;
@@ -39,7 +39,7 @@ export async function getBroadcasts(
     projectId: string,
     page: number = 1,
     limit: number = 10
-): Promise<{ broadcasts: WithId<Broadcast>[], total: number }> {
+): Promise<{ broadcasts: WithId<BroadcastJob>[], total: number }> {
     if (!projectId || !ObjectId.isValid(projectId)) {
         return { broadcasts: [], total: 0 };
     }
@@ -150,7 +150,7 @@ export async function getBroadcastLogs(broadcastId: string): Promise<WithId<any>
 
 const parseContactFile = async (file: File) => {
     const { isValid, error } = validateFile(file, ['text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
-    if (!isValid) throw new Error(error);
+    if (!isValid) throw new Error(error || 'Invalid file');
 
     const buffer = await file.arrayBuffer();
     const data = new Uint8Array(buffer);
@@ -213,21 +213,30 @@ export async function handleStartBroadcast(
 ): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
-    const templateId = formData.get('templateId') as string;
     const audienceType = formData.get('audienceType') as 'file' | 'tags';
     const tagIds = formData.getAll('tagIds') as string[];
+    const broadcastType = (formData.get('broadcastType') as 'template' | 'flow') || 'template';
+
+    const { db } = await connectToDatabase();
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found.' };
+
+    let template: WithId<Template> | null = null;
+    let flow: WithId<any> | null = null; // MetaFlow
+
+    if (broadcastType === 'template') {
+        const templateId = formData.get('templateId') as string;
+        template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) });
+        if (!template) return { error: 'Template not found for this project.' };
+    } else {
+        const flowId = formData.get('flowId') as string;
+        flow = await db.collection('meta_flows').findOne({ _id: new ObjectId(flowId), projectId: new ObjectId(projectId) });
+        if (!flow) return { error: 'Flow not found for this project.' };
+    }
 
     // Header variables
     const headerImageUrl = formData.get('headerImageUrl') as string | null;
     const headerMediaFile = formData.get('headerImageFile') as File | null;
-
-    const { db } = await connectToDatabase();
-
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found.' };
-
-    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) });
-    if (!template) return { error: 'Template not found for this project.' };
 
     let contacts: any[] = [];
 
@@ -251,29 +260,50 @@ export async function handleStartBroadcast(
         return { error: 'No contacts found for the selected audience.' };
     }
 
-    const broadcastData: Omit<Broadcast, '_id'> = {
-        name: `${template.name} - ${new Date().toLocaleString()}`,
+    const broadcastData: any = {
         projectId: new ObjectId(projectId),
         phoneNumberId,
-        templateName: template.name,
-        templateId: template._id,
-        language: template.language,
         status: 'PENDING_PROCESSING',
         contactCount: contacts.length,
+        fileName: audienceType === 'file' ? (formData.get('csvFile') as File).name : 'Audience Tag',
         audienceType: audienceType,
         tagIds: audienceType === 'tags' ? tagIds.map(id => new ObjectId(id)) : [],
         accessToken: project.accessToken,
-        components: template.components || [], // Pass the original template components
-        headerImageUrl: headerImageUrl || undefined, // Pass override URL if provided
         createdAt: new Date(),
-        headerMediaFile: headerMediaFile?.size > 0 ? {
-            buffer: Buffer.from(await headerMediaFile.arrayBuffer()),
-            name: headerMediaFile.name,
-            type: headerMediaFile.type,
-        } : undefined,
+        broadcastType,
     };
 
-    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
+    if (broadcastType === 'template' && template) {
+        broadcastData.name = `${template.name} - ${new Date().toLocaleString()}`;
+        broadcastData.templateName = template.name;
+        broadcastData.templateId = template._id;
+        broadcastData.language = template.language;
+        broadcastData.components = template.components || [];
+        broadcastData.headerImageUrl = headerImageUrl || undefined;
+        if (headerMediaFile && headerMediaFile.size > 0) {
+            broadcastData.headerMediaFile = {
+                buffer: Buffer.from(await headerMediaFile.arrayBuffer()),
+                name: headerMediaFile.name,
+                type: headerMediaFile.type,
+            };
+        }
+    } else if (broadcastType === 'flow' && flow) {
+        broadcastData.name = `Flow: ${flow.name} - ${new Date().toLocaleString()}`;
+        broadcastData.templateName = `Flow: ${flow.name}`; // Fallback for display
+        broadcastData.flowId = flow._id;
+        broadcastData.flowName = flow.name;
+        broadcastData.flowMetaId = flow.metaId;
+
+        // Flow message configuration
+        broadcastData.flowConfig = {
+            header: formData.get('flowHeader'),
+            body: formData.get('flowBody'),
+            footer: formData.get('flowFooter'),
+            cta: formData.get('flowCta'),
+        };
+    }
+
+    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData);
     const broadcastId = broadcastResult.insertedId;
 
     const contactsInserted = await createBroadcastContacts(db, broadcastId, contacts);
@@ -332,15 +362,17 @@ export async function handleBulkBroadcast(
                 continue;
             }
 
-            const broadcastData: Omit<Broadcast, '_id'> = {
+            const broadcastData: Omit<BroadcastJob, '_id'> = {
                 name: `Bulk: ${template.name} - ${new Date().toLocaleString()}`,
                 projectId: new ObjectId(projectId),
+                broadcastType: 'template',
                 phoneNumberId: project.phoneNumbers?.[0]?.id || '', // Use the first available number
                 templateName: template.name,
                 templateId: template._id,
                 language: template.language,
                 status: 'PENDING_PROCESSING',
                 contactCount: projectContacts.length,
+                fileName: contactFile.name,
                 audienceType: 'file-bulk',
                 accessToken: project.accessToken,
                 components: template.components || [],
@@ -387,15 +419,17 @@ export async function handleStartApiBroadcast(data: {
     if (!project) return { error: 'Project not found.' };
     if (!template) return { error: 'Template not found for this project.' };
 
-    const broadcastData: Omit<Broadcast, '_id'> = {
+    const broadcastData: Omit<BroadcastJob, '_id'> = {
         name: `API Broadcast - ${template.name} - ${new Date().toLocaleString()}`,
         projectId: new ObjectId(projectId),
+        broadcastType: 'template',
         phoneNumberId,
         templateName: template.name,
         templateId: template._id,
         language: template.language,
         status: 'PENDING_PROCESSING',
         contactCount: contacts.length,
+        fileName: 'API Request',
         audienceType: 'api',
         accessToken: project.accessToken,
         components: template.components || [], // Pass original components
@@ -441,8 +475,8 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
         return { error: 'No contacts found to requeue.' };
     }
 
-    const newBroadcastData: Omit<Broadcast, '_id'> = {
-        ...originalBroadcast,
+    const newBroadcastData: Omit<BroadcastJob, '_id'> = {
+        ...originalBroadcast as any, // Cast to any to avoid type issues with changing properties
         name: `${originalBroadcast.name} (Requeued)`,
         status: 'PENDING_PROCESSING',
         contactCount: contacts.length,
@@ -454,7 +488,7 @@ export async function handleRequeueBroadcast(prevState: any, formData: FormData)
         components: template.components, // Use the new/original template's components
         headerImageUrl: headerImageUrl || undefined,
     };
-    delete (newBroadcastData as any)._id;
+    if ('_id' in newBroadcastData) delete (newBroadcastData as any)._id;
 
     const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData as any);
     await createBroadcastContacts(db, newBroadcastResult.insertedId, contacts);

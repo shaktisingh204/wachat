@@ -1957,6 +1957,7 @@ export type VariableMapping = {
 export type BroadcastJob = {
     _id: ObjectId;
     projectId: ObjectId;
+    name: string;
     broadcastType: 'template' | 'flow';
     templateId?: ObjectId;
     templateName: string;
@@ -1964,7 +1965,7 @@ export type BroadcastJob = {
     flowName?: string;
     phoneNumberId: string;
     accessToken: string;
-    status: 'DRAFT' | 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
+    status: 'DRAFT' | 'QUEUED' | 'PENDING_PROCESSING' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
     createdAt: Date;
     startedAt?: Date;
     completedAt?: Date;
@@ -1979,6 +1980,15 @@ export type BroadcastJob = {
     errorCount?: number;
     messagesPerSecond?: number;
     projectMessagesPerSecond?: number;
+    audienceType?: 'file' | 'tags' | 'api' | 'file-bulk';
+    tagIds?: ObjectId[];
+    flowMetaId?: string;
+    flowConfig?: {
+        header?: string;
+        body: string;
+        footer?: string;
+        cta: string;
+    };
     variableMappings?: VariableMapping[];
 };
 

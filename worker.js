@@ -70,51 +70,75 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
       language = 'en_US',
       components,
       headerMediaFile,
+      broadcastType,
+      flowMetaId,
+      flowConfig
     } = job;
 
-    const finalComponents = (components || [])
-      .map(c => {
-        // Fix: Map generic 'BUTTONS' type to Meta's expected 'BUTTON' if applicable,
-        // or ensure strict type compliance.
-        // Actually, Meta expects 'button' (lowercase) usually for components in /messages
-        // but let's check the error: "must be one of {..., BUTTON, ...}".
-        // It seems the API expects uppercase 'BUTTON'.
-        if (c.type === 'BUTTONS') return { ...c, type: 'BUTTON' };
-        return c;
-      })
-      .filter(c => {
-        // Meta API only accepts specific component types in the `components` param for /messages.
-        const allowedTypes = ['HEADER', 'BODY', 'FOOTER', 'BUTTON'];
-        return allowedTypes.includes(c.type?.toUpperCase());
-      });
+    let payload;
 
-    for (const c of finalComponents) {
-      // Sanitize: Remove keys that Meta API does not accept
-      delete c.format;
-      delete c.text;
-      delete c.example;
-      delete c.buttons;
+    if (broadcastType === 'flow') {
+      payload = {
+        messaging_product: 'whatsapp',
+        to: contact.phone,
+        recipient_type: 'individual',
+        type: 'interactive',
+        interactive: {
+          type: 'flow',
+          header: flowConfig?.header ? { type: 'text', text: flowConfig.header } : undefined,
+          body: { text: flowConfig?.body || 'Open Flow' },
+          footer: flowConfig?.footer ? { text: flowConfig.footer } : undefined,
+          action: {
+            name: 'flow',
+            parameters: {
+              flow_message_version: '3',
+              flow_token: contact._id.toString(),
+              flow_id: flowMetaId,
+              flow_cta: flowConfig?.cta || 'Open App',
+              flow_action: 'navigate',
+              flow_action_payload: {
+                screen: 'INIT'
+              }
+            }
+          }
+        }
+      };
+    } else {
+      // Template Logic
+      const finalComponents = (components || [])
+        .map(c => {
+          if (c.type === 'BUTTONS') return { ...c, type: 'BUTTON' };
+          return c;
+        })
+        .filter(c => {
+          const allowedTypes = ['HEADER', 'BODY', 'FOOTER', 'BUTTON'];
+          return allowedTypes.includes(c.type?.toUpperCase());
+        });
 
-      // Ensure index is strings for buttons if needed, or integers?
-      // Meta API typically needs: { type: 'button', sub_type: 'quick_reply', index: '0', parameters: [...] }
+      for (const c of finalComponents) {
+        delete c.format;
+        delete c.text;
+        delete c.example;
+        delete c.buttons;
 
-      for (const p of c.parameters || []) {
-        if (p.type === 'text') {
-          p.text = interpolateText(p.text, contact.variables);
+        for (const p of c.parameters || []) {
+          if (p.type === 'text') {
+            p.text = interpolateText(p.text, contact.variables);
+          }
         }
       }
-    }
 
-    const payload = {
-      messaging_product: 'whatsapp',
-      to: contact.phone,
-      type: 'template',
-      template: {
-        name: templateName,
-        language: { code: language },
-        components: finalComponents,
-      },
-    };
+      payload = {
+        messaging_product: 'whatsapp',
+        to: contact.phone,
+        type: 'template',
+        template: {
+          name: templateName,
+          language: { code: language },
+          components: finalComponents,
+        },
+      };
+    }
 
     const res = await undici.request(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
@@ -150,7 +174,7 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
       throw new Error(`Meta API error (Status: ${res.statusCode}): ${JSON.stringify(resData)}`);
     }
 
-    return { success: true, messageId: resData.messages[0].id, sentPayload: payload.template };
+    return { success: true, messageId: resData.messages[0].id, sentPayload: payload.template || payload.interactive };
 
   } catch (err) {
     return { success: false, error: getErrorMessage(err) };
@@ -218,15 +242,18 @@ async function startBroadcastWorker(workerId) {
               { projectId: new ObjectId(job.projectId), waId: contact.phone },
               {
                 $setOnInsert: { projectId: new ObjectId(job.projectId), phoneNumberId: job.phoneNumberId, name: contact.name, waId: contact.phone, createdAt: now },
-                $set: { status: 'open', lastMessage: `[Template]: ${job.templateName}`.substring(0, 50), lastMessageTimestamp: now }
+                $set: { status: 'open', lastMessage: (job.broadcastType === 'flow' ? `[Flow]: ${job.flowName || job.templateName}` : `[Template]: ${job.templateName}`).substring(0, 50), lastMessageTimestamp: now }
               },
               { upsert: true, returnDocument: 'after' }
             );
 
             if (contactDoc) {
+              const isFlow = job.broadcastType === 'flow';
               await db.collection('outgoing_messages').insertOne({
                 direction: 'out', contactId: contactDoc._id, projectId: new ObjectId(job.projectId), wamid: result.messageId,
-                messageTimestamp: now, type: 'template', content: { template: result.sentPayload }, status: 'sent',
+                messageTimestamp: now, type: isFlow ? 'interactive' : 'template',
+                content: isFlow ? { interactive: result.sentPayload } : { template: result.sentPayload },
+                status: 'sent',
                 statusTimestamps: { sent: now }, createdAt: now,
               });
             }
