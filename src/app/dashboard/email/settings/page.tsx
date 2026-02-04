@@ -309,22 +309,24 @@ function EmailSettingsPageContent() {
                         </p>
                     </div>
 
-                    <div className="flex flex-col gap-6 w-full max-w-xl">
-                        <OnboardingCard
-                            title="Gmail"
-                            description="Best for Google Workspace users."
-                            icon={GoogleIcon}
-                            href="/api/crm/auth/google/connect"
-                            features={["One-click secure OAuth", "Sync emails & threads", "Import Google Contacts"]}
-                        />
-                        <OnboardingCard
-                            title="Outlook"
-                            description="For Microsoft 365 & Outlook."
-                            icon={OutlookIcon}
-                            href="/api/crm/auth/outlook/connect"
-                            features={["Enterprise grade security", "Seamless integration", "Calendar sync ready"]}
-                        />
-                        <div>
+                    <div className="flex flex-col gap-6 w-full max-w-4xl">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                            <OnboardingCard
+                                title="Gmail"
+                                description="Best for Google Workspace users."
+                                icon={GoogleIcon}
+                                href="/api/crm/auth/google/connect"
+                                features={["One-click secure OAuth", "Sync emails & threads", "Import Google Contacts"]}
+                            />
+                            <OnboardingCard
+                                title="Outlook"
+                                description="For Microsoft 365 & Outlook."
+                                icon={OutlookIcon}
+                                href="/api/crm/auth/outlook/connect"
+                                features={["Enterprise grade security", "Seamless integration", "Calendar sync ready"]}
+                            />
+                        </div>
+                        <div className="w-full">
                             <div className="h-full border rounded-lg p-6 flex flex-col justify-center gap-4 bg-card text-card-foreground shadow-sm">
                                 <div className="flex items-center gap-3 mb-2 font-semibold">
                                     <Mail className="h-6 w-6" /> Custom SMTP

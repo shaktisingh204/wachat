@@ -50,7 +50,7 @@ export async function getCrmProducts(
     }
 }
 
-export async function saveCrmProduct(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function saveCrmProduct(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; newProduct?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
@@ -174,11 +174,12 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
                 productData.totalStock = 0;
             }
 
-            await db.collection('crm_products').insertOne(productData as CrmProduct);
+            const result = await db.collection('crm_products').insertOne(productData as CrmProduct);
+            return { message: 'Product saved successfully.', newProduct: { ...productData, _id: result.insertedId } };
         }
 
         revalidatePath('/dashboard/crm/inventory/items');
-        return { message: 'Product saved successfully.' };
+        return { message: 'Product saved successfully.' }; // Fallback for edit, though typically we might want updated product too. For now QuickAdd is only for new.
     } catch (e) {
         return { error: getErrorMessage(e) };
     }

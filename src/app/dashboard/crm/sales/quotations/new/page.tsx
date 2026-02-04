@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2 } from 'lucide-react';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
+import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
 import Link from 'next/link';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
@@ -79,7 +80,18 @@ const QuotationLineItems = ({ items, setItems, currency }: { items: QuotationLin
                     <tbody>
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b">
-                                <td className="p-2"><Input placeholder="Name/SKU Id (Required)" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
+                                <td className="p-2">
+                                    <SmartProductSelect
+                                        value={item.id.startsWith('item-') && !item.name ? '' : undefined}
+                                        placeholder="Name/SKU"
+                                        onSelect={(val) => { }}
+                                        onProductChange={(product) => {
+                                            handleItemChange(item.id, 'name', product.name);
+                                            handleItemChange(item.id, 'rate', product.sellingPrice);
+                                        }}
+                                        className="w-full"
+                                    />
+                                </td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
                                 <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>

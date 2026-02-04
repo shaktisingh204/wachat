@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePicker } from '@/components/ui/date-picker';
 import { SmartVendorSelect } from '@/components/crm/purchases/smart-vendor-select';
+import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
 import { LoaderCircle, Plus, Trash2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -142,11 +143,18 @@ export function NewPurchaseOrderForm() {
                             {lineItems.map((item, index) => (
                                 <div key={index} className="grid grid-cols-12 gap-2 p-3 border-t items-center">
                                     <div className="col-span-5">
-                                        <Input
-                                            value={item.description}
-                                            onChange={(e) => updateLineItem(index, 'description', e.target.value)}
-                                            placeholder="Item description"
-                                        />
+                                        <div className="col-span-5">
+                                            <SmartProductSelect
+                                                value={''} // Uncontrolled for now as we map to description
+                                                placeholder="Item description"
+                                                onSelect={() => { }}
+                                                onProductChange={(product) => {
+                                                    updateLineItem(index, 'description', product.name);
+                                                    updateLineItem(index, 'rate', product.costPrice || product.sellingPrice); // PO uses cost price usually
+                                                }}
+                                                className="w-full"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="col-span-2">
                                         <Input

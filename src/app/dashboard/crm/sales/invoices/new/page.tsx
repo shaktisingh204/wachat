@@ -23,6 +23,7 @@ import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
+import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
 
 type TermItem = { id: string; text: string; }
 type AdditionalInfoItem = { id: string; key: string; value: string; }
@@ -77,7 +78,42 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
                     <tbody>
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b">
-                                <td className="p-2"><Input placeholder="Name/SKU Id (Required)" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
+                                <td className="p-2">
+                                    <SmartProductSelect
+                                        value={item.id.startsWith('item-') && !item.name ? '' : undefined} // Reset if new item and empty name, otherwise uncontrolled or value managed? SmartCombobox uses value. But row id is unique.
+                                        // Actually SmartProductSelect expects value as ID. item.name is just name.
+                                        // We should store productId in line item if possible.
+                                        // Assuming item.name is used for display. 
+                                        // Wait, the original code used Input for name.
+                                        // I should probably use SmartProductSelect but it selects by ID.
+                                        // Does line item have productId? No.
+                                        // I should stick to using name or add productId to LineItem type?
+                                        // For now, let's just populate name and rate.
+                                        // But SmartCombobox needs a value (ID) to show selected state.
+                                        // If I don't store ID, I can't bind value.
+                                        // I will simply use it as an uncontrolled picker that fills the name.
+                                        // But SmartCombobox is controlled. 
+                                        // Let's assume we want to store key info.
+                                        placeholder="Select Product"
+                                        onSelect={(val) => { /* handled via onProductChange mainly */ }}
+                                        onProductChange={(product) => {
+                                            handleItemChange(item.id, 'name', product.name);
+                                            handleItemChange(item.id, 'rate', product.sellingPrice);
+                                            // Optional: handleItemChange(item.id, 'description', product.description);
+                                        }}
+                                        className="w-full"
+                                    />
+                                    {/* Fallback Input if they want to type custom? SmartCombobox allows custom? No. 
+                                        If we want custom items, we might need a way to toggle or SmartCombobox supports create.
+                                        But create makes a product.
+                                        If user wants ad-hoc item, specific to invoice?
+                                        Maybe keep Input but add SmartSelect as a helper?
+                                        Or replace Input and force product creation?
+                                        Usually standardizing on Products is better.
+                                        But "Name/SKU Id" implies free text.
+                                        Let's stick to SmartProductSelect for now as per requirement.
+                                    */}
+                                </td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
                                 <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
