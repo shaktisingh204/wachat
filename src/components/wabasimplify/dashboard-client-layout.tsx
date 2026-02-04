@@ -536,7 +536,7 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
     }
 
     const AppRail = () => (
-        <Sidebar className="w-16 bg-sidebar-background border-sidebar-border flex !w-16 !block md:!flex z-20">
+        <Sidebar className="w-16 bg-sidebar-background flex !w-16 !block md:!flex z-20">
             <div className="flex flex-col h-full">
                 <SidebarHeader className="h-16 flex items-center justify-center">
                     <SabNodeLogo className="w-8 h-8" />
@@ -583,7 +583,7 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
 
     return (
         <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-muted/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
-            <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
+            <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 px-4 bg-transparent backdrop-blur-sm">
                 <div className="flex items-center gap-2">
                     <SidebarTrigger>
                         <Button variant="ghost" size="icon">

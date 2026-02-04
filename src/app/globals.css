@@ -118,6 +118,9 @@
   }
 
   .active-app-border {
+    border-radius: calc(var(--radius) - 2px);
+    height: 2.5rem;
+    width: 2.5rem !important;
     @apply relative bg-blue-200/100 dark:bg-blue-900/20;
   }
 

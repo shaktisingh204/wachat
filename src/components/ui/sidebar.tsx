@@ -62,14 +62,14 @@ export function Sidebar({ className, children }: { className?: string; children:
   }
 
   return (
-    <aside className={cn('flex h-full flex-col bg-card rounded-lg shadow-sm transition-[width] duration-300 ease-in-out group overflow-hidden border-r z-30 relative', isOpen ? 'w-60' : 'w-[70px] hover:w-60 hover:shadow-xl', className)}>
+    <aside className={cn('flex h-full flex-col bg-card rounded-lg shadow-sm transition-[width] duration-300 ease-in-out group overflow-hidden z-30 relative', isOpen ? 'w-60' : 'w-[70px] hover:w-60 hover:shadow-xl', className)}>
       {sidebarContent}
     </aside>
   );
 }
 
 export const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('flex h-16 shrink-0 items-center justify-center border-b p-3', className)} {...props} />
+  <div ref={ref} className={cn('flex h-16 shrink-0 items-center justify-center p-3', className)} {...props} />
 ));
 SidebarHeader.displayName = 'SidebarHeader';
 
@@ -116,7 +116,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
       />
     );
 
-    if (isOpen && !props.showTooltip) return buttonContent;
+    if (isOpen && !showTooltip) return buttonContent;
 
     return (
       <Tooltip>
