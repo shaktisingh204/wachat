@@ -633,6 +633,80 @@ export type CrmVendor = {
     showEmailInInvoice?: boolean;
     showPhoneInInvoice?: boolean;
     attachments?: string[]; // URLs
+    updatedAt: Date;
+};
+
+export type CrmPurchaseOrder = {
+    _id: ObjectId;
+    userId: ObjectId;
+    vendorId: ObjectId;
+    orderNumber: string;
+    orderDate: Date;
+    expectedDeliveryDate?: Date;
+    currency: string;
+    lineItems: {
+        description: string;
+        quantity: number;
+        rate: number;
+        amount: number;
+    }[];
+    total: number;
+    paymentTerms?: string;
+    notes?: string;
+    status: 'Draft' | 'Sent' | 'Received' | 'Cancelled';
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmDebitNote = {
+    _id: ObjectId;
+    userId: ObjectId;
+    vendorId: ObjectId;
+    noteNumber: string;
+    noteDate: Date;
+    currency: string;
+    lineItems: {
+        description: string;
+        quantity: number;
+        rate: number;
+        amount: number;
+    }[];
+    total: number;
+    reason?: string;
+    notes?: string;
+    status: 'Draft' | 'Sent' | 'Applied' | 'Refunded';
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmExpense = {
+    _id: ObjectId;
+    userId: ObjectId;
+    vendorId?: ObjectId; // Optional, some expenses might not have a specific vendor record
+    expenseAccount: string; // e.g., 'Travel', 'Meals' - could be linked to Chart of Accounts later
+    amount: number;
+    currency: string;
+    expenseDate: Date;
+    description?: string;
+    referenceNumber?: string;
+    receiptUrl?: string;
+    isBillable?: boolean;
+    customerId?: ObjectId; // If billable
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmPayout = {
+    _id: ObjectId;
+    userId: ObjectId;
+    vendorId: ObjectId;
+    paymentDate: Date;
+    amount: number;
+    currency: string;
+    paymentMode: 'Cash' | 'Bank Transfer' | 'Cheque' | 'Credit Card' | 'Other';
+    referenceNumber?: string;
+    notes?: string;
+    purchaseOrderIds?: ObjectId[]; // Optional link to specific POs
     createdAt: Date;
     updatedAt: Date;
 };

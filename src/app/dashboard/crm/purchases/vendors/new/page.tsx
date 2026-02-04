@@ -20,16 +20,18 @@ import { CrmAddBankAccountDialog } from '@/components/wabasimplify/crm-add-bank-
 import type { BankAccountDetails } from '@/lib/definitions';
 import { Checkbox } from '@/components/ui/checkbox';
 
-const initialState = { message: null, error: null };
+import { SmartLocationSelect } from '@/components/crm/smart-location-select';
+
+const initialState = { message: '', error: '' };
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Add Vendor
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Add Vendor
+        </Button>
+    );
 }
 
 export default function NewVendorPage() {
@@ -39,6 +41,19 @@ export default function NewVendorPage() {
     const formRef = useRef<HTMLFormElement>(null);
     const [bankDetails, setBankDetails] = useState<Partial<BankAccountDetails>>({});
     const [isBankDialogOpen, setIsBankDialogOpen] = useState(false);
+
+    // Location State
+    const [country, setCountry] = useState<string>('IN');
+    const [countryName, setCountryName] = useState<string>('India');
+    const [selectedState, setSelectedState] = useState<string>('');
+    const [selectedStateName, setSelectedStateName] = useState<string>('');
+    const [cityName, setCityName] = useState<string>('');
+
+    const [addressCountry, setAddressCountry] = useState<string>('');
+    const [addressCountryName, setAddressCountryName] = useState<string>('');
+    const [addressState, setAddressState] = useState<string>('');
+    const [addressStateName, setAddressStateName] = useState<string>('');
+    const [addressCityName, setAddressCityName] = useState<string>('');
 
     useEffect(() => {
         if (state.message) {
@@ -57,7 +72,7 @@ export default function NewVendorPage() {
                 onOpenChange={setIsBankDialogOpen}
                 onSave={(details) => setBankDetails(details)}
             />
-             <div>
+            <div>
                 <Button variant="ghost" asChild className="mb-2 -ml-4">
                     <Link href="/dashboard/crm/purchases/vendors"><ArrowLeft className="mr-2 h-4 w-4" />Back to Vendors</Link>
                 </Button>
@@ -77,7 +92,7 @@ export default function NewVendorPage() {
                             <AccordionItem value="basic">
                                 <AccordionTrigger>Basic Information</AccordionTrigger>
                                 <AccordionContent className="space-y-4 pt-2">
-                                     <div className="space-y-2">
+                                    <div className="space-y-2">
                                         <Label htmlFor="logo">Upload Logo</Label>
                                         <Input id="logo" name="logo" type="file" accept="image/jpeg,image/png" />
                                     </div>
@@ -87,21 +102,46 @@ export default function NewVendorPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="clientIndustry">Vendor Industry</Label>
-                                        <Select name="clientIndustry"><SelectTrigger><SelectValue placeholder="-Select an Industry-"/></SelectTrigger><SelectContent><SelectItem value="tech">Technology</SelectItem><SelectItem value="retail">Retail</SelectItem></SelectContent></Select>
+                                        <Select name="clientIndustry"><SelectTrigger><SelectValue placeholder="-Select an Industry-" /></SelectTrigger><SelectContent><SelectItem value="tech">Technology</SelectItem><SelectItem value="retail">Retail</SelectItem></SelectContent></Select>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-3 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="country">Country *</Label>
-                                            <Select name="country" defaultValue="India" required><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem><SelectItem value="USA">United States</SelectItem></SelectContent></Select>
+                                            <SmartLocationSelect
+                                                type="country"
+                                                onSelect={(val, label) => {
+                                                    setCountry(val);
+                                                    setCountryName(label);
+                                                }}
+                                            />
+                                            <input type="hidden" name="country" value={countryName} />
                                         </div>
                                         <div className="space-y-2">
-                                             <Label htmlFor="city">City/Town</Label>
-                                            <Input id="city" name="city" maxLength={100} />
+                                            <Label htmlFor="state">State</Label>
+                                            <SmartLocationSelect
+                                                type="state"
+                                                selectedCountryCode={country}
+                                                onSelect={(val, label) => {
+                                                    setSelectedState(val);
+                                                    setSelectedStateName(label);
+                                                }}
+                                            />
+                                            <input type="hidden" name="state" value={selectedStateName} />
                                         </div>
-                                   </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="city">City/Town</Label>
+                                            <SmartLocationSelect
+                                                type="city"
+                                                selectedCountryCode={country}
+                                                selectedStateCode={selectedState}
+                                                onSelect={(val, label) => setCityName(label)}
+                                            />
+                                            <input type="hidden" name="city" value={cityName} />
+                                        </div>
+                                    </div>
                                 </AccordionContent>
                             </AccordionItem>
-                             <AccordionItem value="tax">
+                            <AccordionItem value="tax">
                                 <AccordionTrigger>Tax Information (Optional)</AccordionTrigger>
                                 <AccordionContent className="space-y-4 pt-2">
                                     <div className="grid grid-cols-2 gap-4">
@@ -109,23 +149,55 @@ export default function NewVendorPage() {
                                         <div className="space-y-2"><Label>Business PAN</Label><Input name="pan" maxLength={10} /></div>
                                     </div>
                                     <div className="space-y-2"><Label>Name as Per PAN</Label><Input name="panName" maxLength={100} /></div>
-                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label>Vendor Type</Label><RadioGroup name="vendorType" defaultValue="individual" className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><RadioGroupItem value="individual" id="type-individual"/><Label htmlFor="type-individual" className="font-normal">Individual</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="company" id="type-company"/><Label htmlFor="type-company" className="font-normal">Company</Label></div></RadioGroup></div>
-                                        <div className="space-y-2"><Label>Tax Treatment</Label><Select name="taxTreatment"><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="registered">Registered</SelectItem><SelectItem value="unregistered">Unregistered</SelectItem></SelectContent></Select></div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2"><Label>Vendor Type</Label><RadioGroup name="vendorType" defaultValue="individual" className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><RadioGroupItem value="individual" id="type-individual" /><Label htmlFor="type-individual" className="font-normal">Individual</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="company" id="type-company" /><Label htmlFor="type-company" className="font-normal">Company</Label></div></RadioGroup></div>
+                                        <div className="space-y-2"><Label>Tax Treatment</Label><Select name="taxTreatment"><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent><SelectItem value="registered">Registered</SelectItem><SelectItem value="unregistered">Unregistered</SelectItem></SelectContent></Select></div>
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="address">
                                 <AccordionTrigger>Address (Optional)</AccordionTrigger>
                                 <AccordionContent className="space-y-4 pt-2">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label>State / Province</Label><Select name="state"><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="Rajasthan">Rajasthan</SelectItem></SelectContent></Select></div>
-                                        <div className="space-y-2"><Label>Postal Code / Zip Code</Label><Input name="pincode" maxLength={20}/></div>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Country</Label>
+                                            <SmartLocationSelect
+                                                type="country"
+                                                onSelect={(val, label) => {
+                                                    setAddressCountry(val);
+                                                    setAddressCountryName(label);
+                                                }}
+                                            />
+                                            <input type="hidden" name="addressCountry" value={addressCountryName} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>State / Province</Label>
+                                            <SmartLocationSelect
+                                                type="state"
+                                                selectedCountryCode={addressCountry}
+                                                onSelect={(val, label) => {
+                                                    setAddressState(val);
+                                                    setAddressStateName(label);
+                                                }}
+                                            />
+                                            <input type="hidden" name="addressState" value={addressStateName} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>City</Label>
+                                            <SmartLocationSelect
+                                                type="city"
+                                                selectedCountryCode={addressCountry}
+                                                selectedStateCode={addressState}
+                                                onSelect={(val, label) => setAddressCityName(label)}
+                                            />
+                                            <input type="hidden" name="addressCity" value={addressCityName} />
+                                        </div>
                                     </div>
-                                    <div className="space-y-2"><Label>Street Address</Label><Input name="street" maxLength={200}/></div>
+                                    <div className="space-y-2"><Label>Postal Code / Zip Code</Label><Input name="pincode" maxLength={20} /></div>
+                                    <div className="space-y-2"><Label>Street Address</Label><Input name="street" maxLength={200} /></div>
                                 </AccordionContent>
                             </AccordionItem>
-                             <AccordionItem value="additional">
+                            <AccordionItem value="additional">
                                 <AccordionTrigger>Additional Details (Optional)</AccordionTrigger>
                                 <AccordionContent className="space-y-4 pt-2">
                                     <div className="space-y-2"><Label htmlFor="displayName">Display Name</Label><Input id="displayName" name="displayName" maxLength={100} /></div>
@@ -133,16 +205,16 @@ export default function NewVendorPage() {
                                         <div className="space-y-2">
                                             <Label htmlFor="email">Email</Label>
                                             <Input id="email" name="email" type="email" maxLength={100} />
-                                            <div className="flex items-center space-x-2"><Checkbox id="show-email"/><Label htmlFor="show-email" className="font-normal text-xs">Show in Invoice</Label></div>
+                                            <div className="flex items-center space-x-2"><Checkbox id="show-email" /><Label htmlFor="show-email" className="font-normal text-xs">Show in Invoice</Label></div>
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="phone">Phone No.</Label>
                                             <Input id="phone" name="phone" maxLength={30} />
-                                            <div className="flex items-center space-x-2"><Checkbox id="show-phone"/><Label htmlFor="show-phone" className="font-normal text-xs">Show in Invoice</Label></div>
+                                            <div className="flex items-center space-x-2"><Checkbox id="show-phone" /><Label htmlFor="show-phone" className="font-normal text-xs">Show in Invoice</Label></div>
                                         </div>
                                     </div>
-                                     <div className="space-y-2"><Label htmlFor="subject">Subject</Label><Input id="subject" name="subject" placeholder="Brief 4-5 words on what they’re looking for" maxLength={100} /></div>
-                                      <div className="space-y-2"><Label>Attachments</Label><Input type="file" multiple /></div>
+                                    <div className="space-y-2"><Label htmlFor="subject">Subject</Label><Input id="subject" name="subject" placeholder="Brief 4-5 words on what they’re looking for" maxLength={100} /></div>
+                                    <div className="space-y-2"><Label>Attachments</Label><Input type="file" multiple /></div>
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="bank">
@@ -165,7 +237,7 @@ export default function NewVendorPage() {
                             </AccordionItem>
                             <AccordionItem value="account-details">
                                 <AccordionTrigger>Account Details (Optional)</AccordionTrigger>
-                                 <AccordionContent className="pt-2 text-center text-muted-foreground">
+                                <AccordionContent className="pt-2 text-center text-muted-foreground">
                                     <p className="text-sm">Enable Advanced Accounting to create or link ledger.</p>
                                     <Button variant="outline" size="sm" className="mt-2" disabled>Enable Now</Button>
                                 </AccordionContent>

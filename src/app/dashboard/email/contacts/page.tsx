@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getEmailContacts } from '@/app/actions/email.actions';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { EmailContact, Tag, User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -18,6 +18,7 @@ import { EmailImportContactsDialog } from '@/components/wabasimplify/email-impor
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -52,89 +53,91 @@ export default function EmailContactsPage() {
     }, 300);
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Email Contacts</h1>
-                    <p className="text-muted-foreground">Manage your email subscriber lists.</p>
+        <EmailSuiteLayout>
+            <div className="flex flex-col gap-8">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline">Email Contacts</h1>
+                        <p className="text-muted-foreground">Manage your email subscriber lists.</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <EmailImportContactsDialog onImported={fetchData} />
+                        <EmailAddContactDialog onAdded={fetchData} availableTags={user?.tags || []} />
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <EmailImportContactsDialog onImported={fetchData} />
-                    <EmailAddContactDialog onAdded={fetchData} availableTags={user?.tags || []} />
-                </div>
-            </div>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>All Contacts</CardTitle>
-                    <CardDescription>A list of all contacts for your email campaigns.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="mb-4">
-                        <div className="relative w-full max-w-sm">
-                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search by name or email..."
-                                className="pl-8"
-                                onChange={(e) => handleSearch(e.target.value)}
-                            />
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>All Contacts</CardTitle>
+                        <CardDescription>A list of all contacts for your email campaigns.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="mb-4">
+                            <div className="relative w-full max-w-sm">
+                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search by name or email..."
+                                    className="pl-8"
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                />
+                            </div>
                         </div>
-                    </div>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Contact</TableHead>
-                                    <TableHead>Tags</TableHead>
-                                    <TableHead>Added</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    [...Array(5)].map((_, i) => (
-                                        <TableRow key={i}>
-                                            <TableCell colSpan={3}><Skeleton className="h-10 w-full" /></TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : contacts.length > 0 ? (
-                                    contacts.map((contact) => (
-                                        <TableRow key={contact._id.toString()} className="cursor-pointer">
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <Avatar>
-                                                        <AvatarFallback>{(contact.name || contact.email).charAt(0).toUpperCase()}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div>
-                                                        <div className="font-medium">{contact.name || 'N/A'}</div>
-                                                        <div className="text-sm text-muted-foreground">{contact.email}</div>
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {(contact.tags || []).map(tagId => {
-                                                        const tag = user?.tags?.find(t => t._id === tagId);
-                                                        return tag ? (
-                                                            <Badge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
-                                                                {tag.name}
-                                                            </Badge>
-                                                        ) : null;
-                                                    })}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{formatDistanceToNow(new Date(contact.createdAt), { addSuffix: true })}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
+                        <div className="border rounded-md">
+                            <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={3} className="h-24 text-center">No contacts found.</TableCell>
+                                        <TableHead>Contact</TableHead>
+                                        <TableHead>Tags</TableHead>
+                                        <TableHead>Added</TableHead>
                                     </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+                                </TableHeader>
+                                <TableBody>
+                                    {isLoading ? (
+                                        [...Array(5)].map((_, i) => (
+                                            <TableRow key={i}>
+                                                <TableCell colSpan={3}><Skeleton className="h-10 w-full" /></TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : contacts.length > 0 ? (
+                                        contacts.map((contact) => (
+                                            <TableRow key={contact._id.toString()} className="cursor-pointer">
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <Avatar>
+                                                            <AvatarFallback>{(contact.name || contact.email).charAt(0).toUpperCase()}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div>
+                                                            <div className="font-medium">{contact.name || 'N/A'}</div>
+                                                            <div className="text-sm text-muted-foreground">{contact.email}</div>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {(contact.tags || []).map(tagId => {
+                                                            const tag = user?.tags?.find(t => t._id === tagId);
+                                                            return tag ? (
+                                                                <Badge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
+                                                                    {tag.name}
+                                                                </Badge>
+                                                            ) : null;
+                                                        })}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>{formatDistanceToNow(new Date(contact.createdAt), { addSuffix: true })}</TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={3} className="h-24 text-center">No contacts found.</TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </EmailSuiteLayout>
     );
 }

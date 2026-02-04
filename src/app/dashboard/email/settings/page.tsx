@@ -1,16 +1,15 @@
-
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from '@/components/ui/skeleton';
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
 import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
-import { AlertCircle, Mail, FileText, Settings, ShieldCheck, Zap, BarChart3 } from 'lucide-react';
-import { getEmailSettings, saveEmailComplianceSettings } from '@/app/actions/email.actions';
+import { AlertCircle, Mail, FileText, Settings, ShieldCheck, Zap, BarChart3, Plus, ArrowLeft, Trash2, CheckCircle } from 'lucide-react';
+import { getEmailSettings, saveEmailComplianceSettings, disconnectEmailSettings } from '@/app/actions/email.actions';
 import { getSession } from '@/app/actions/index';
-import type { EmailSettings as CrmEmailSettings, User, WithId, EmailComplianceSettings } from '@/lib/definitions';
+import type { EmailSettings as CrmEmailSettings, User, WithId } from '@/lib/definitions';
 import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -22,10 +21,12 @@ import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useActionState, useTransition } from 'react';
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle, Save } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
 
 function PageSkeleton() {
     return (
@@ -162,12 +163,60 @@ function IntegrationsTab({ userId }: { userId: string }) {
     )
 }
 
+function OnboardingCard({ title, description, icon: Icon, href, features }: any) {
+    return (
+        <Card className="hover:border-primary/50 transition-colors cursor-pointer group relative overflow-hidden h-full flex flex-col">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-950/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                    <Icon className="h-6 w-6" />
+                    {title}
+                </CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow">
+                <ul className="text-sm text-muted-foreground space-y-2 mb-6">
+                    {features.map((feature: string, i: number) => (
+                        <li key={i} className="flex items-start gap-2">
+                            <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                            <span>{feature}</span>
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+            <CardFooter>
+                {href ? (
+                    <Button asChild className="w-full" variant="default">
+                        <Link href={href}>{title === 'Custom SMTP' ? 'Configure SMTP' : `Connect ${title}`}</Link>
+                    </Button>
+                ) : (
+                    <div className="w-full mt-4">
+                        <CrmSmtpForm settings={null} />
+                    </div>
+                )}
+            </CardFooter>
+        </Card>
+    )
+}
+
 function EmailSettingsPageContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const initialTab = searchParams.get('tab') || 'email';
+    const viewParam = searchParams.get('view');
+    const accountIdParam = searchParams.get('accountId');
+
     const [user, setUser] = useState<WithId<User> | null>(null);
-    const [settings, setSettings] = useState<WithId<CrmEmailSettings> | null>(null);
+    const [allSettings, setAllSettings] = useState<WithId<CrmEmailSettings>[]>([]);
+
+    // We derive 'view' from params now
+    const view = viewParam === 'connect' ? 'connect' : 'manage';
+    const activeSettingsId = accountIdParam;
+
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+
+    const [activeTab, setActiveTab] = useState(initialTab || 'email');
 
     useEffect(() => {
         setIsLoading(true);
@@ -176,12 +225,12 @@ function EmailSettingsPageContent() {
             if (session?.user) {
                 setUser(session.user as any);
                 const fetchedSettings = await getEmailSettings();
-                setSettings(fetchedSettings[0] || null);
+                setAllSettings(fetchedSettings);
             }
             setIsLoading(false);
         };
         fetchData();
-    }, []);
+    }, [activeSettingsId]);
 
     if (isLoading) {
         return <PageSkeleton />;
@@ -197,171 +246,164 @@ function EmailSettingsPageContent() {
         );
     }
 
-    // Helper component for the Onboarding View
-    function OnboardingView() {
+    // LIST VIEW: Show all connected accounts
+    if (view === 'list' && allSettings.length > 0) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-2xl mx-auto space-y-8">
-                <div className="text-center space-y-4">
-                    <div className="bg-primary/10 p-4 rounded-full w-fit mx-auto">
-                        <Mail className="h-12 w-12 text-primary" />
+            <div className="space-y-8 max-w-5xl mx-auto">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Mail className="h-8 w-8" /> Email Suite</h1>
+                        <p className="text-muted-foreground mt-2">Manage your connected email accounts.</p>
                     </div>
-                    <h1 className="text-3xl font-bold tracking-tight">Connect Your Email</h1>
-                    <p className="text-lg text-muted-foreground">
-                        Link your email account to sync conversations, send campaigns, and track deliverability directly from your dashboard.
-                    </p>
+                    <Button onClick={() => setView('connect')}>
+                        <Plus className="mr-2 h-4 w-4" /> Connect New Account
+                    </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                    <Card className="hover:border-primary/50 transition-colors cursor-pointer group relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-950/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-3">
-                                <GoogleIcon className="h-6 w-6" />
-                                Gmail
-                            </CardTitle>
-                            <CardDescription>Best for Google Workspace users.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ul className="text-sm text-muted-foreground space-y-2 mb-4">
-                                <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> One-click secure OAuth</li>
-                                <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> Sync emails & threads</li>
-                            </ul>
-                            <Button asChild className="w-full" variant="default">
-                                <Link href="/api/crm/auth/google/connect">Connect Gmail</Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="hover:border-primary/50 transition-colors cursor-pointer group relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-950/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-3">
-                                <OutlookIcon className="h-6 w-6" />
-                                Outlook
-                            </CardTitle>
-                            <CardDescription>For Microsoft 365 & Outlook.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ul className="text-sm text-muted-foreground space-y-2 mb-4">
-                                <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> Enterprise grade security</li>
-                                <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> Seamless integration</li>
-                            </ul>
-                            <Button asChild className="w-full" variant="default">
-                                <Link href="/api/crm/auth/outlook/connect">Connect Outlook</Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="w-full">
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background px-2 text-muted-foreground">Or connect via SMTP</span>
-                        </div>
-                    </div>
-                    <div className="mt-6">
-                        <CrmSmtpForm settings={null} />
-                    </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {allSettings.map((account) => {
+                        const Icon = account.provider === 'google' ? GoogleIcon : account.provider === 'outlook' ? OutlookIcon : Mail;
+                        return (
+                            <Card key={account._id.toString()} className="group hover:border-primary/50 transition-all cursor-pointer" onClick={() => {
+                                setActiveSettingsId(account._id.toString());
+                                setView('manage');
+                            }}>
+                                <CardHeader>
+                                    <div className="flex justify-between items-start">
+                                        <div className="p-3 bg-muted rounded-full group-hover:bg-primary/10 transition-colors">
+                                            <Icon className="h-6 w-6 text-foreground group-hover:text-primary transition-colors" />
+                                        </div>
+                                        <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100"><CheckCircle className="h-3 w-3 mr-1" /> Active</Badge>
+                                    </div>
+                                    <CardTitle className="pt-4 truncate">{account.fromName || 'Unnamed Account'}</CardTitle>
+                                    <CardDescription className="truncate">{account.fromEmail}</CardDescription>
+                                </CardHeader>
+                                <CardFooter>
+                                    <Button variant="outline" className="w-full">Manage Settings</Button>
+                                </CardFooter>
+                            </Card>
+                        )
+                    })}
                 </div>
             </div>
         );
     }
 
-    const [activeTab, setActiveTab] = useState(initialTab || 'email');
+    // CONNECT VIEW: Onboarding / Add New
+    if (view === 'connect') {
+        return (
+            <EmailSuiteLayout>
+                <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-4xl mx-auto space-y-8 px-4 py-10">
+                    <div className="w-full flex justify-start">
+                        <Button variant="ghost" onClick={() => router.push('/dashboard/email')}>
+                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Accounts
+                        </Button>
+                    </div>
 
-    // Determine if user has any email connected
-    const isConnected = !!settings;
+                    <div className="text-center space-y-4 max-w-2xl">
+                        <div className="bg-primary/10 p-4 rounded-full w-fit mx-auto">
+                            <Mail className="h-12 w-12 text-primary" />
+                        </div>
+                        <h1 className="text-3xl font-bold tracking-tight">Connect Your Email</h1>
+                        <p className="text-lg text-muted-foreground">
+                            Link your email account to sync conversations, send campaigns, and track deliverability directly from your dashboard.
+                        </p>
+                    </div>
 
-    // If NOT connected, show the Onboarding View
-    if (!isConnected) {
-        return <OnboardingView />;
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                        <OnboardingCard
+                            title="Gmail"
+                            description="Best for Google Workspace users."
+                            icon={GoogleIcon}
+                            href="/api/crm/auth/google/connect"
+                            features={["One-click secure OAuth", "Sync emails & threads", "Import Google Contacts"]}
+                        />
+                        <OnboardingCard
+                            title="Outlook"
+                            description="For Microsoft 365 & Outlook."
+                            icon={OutlookIcon}
+                            href="/api/crm/auth/outlook/connect"
+                            features={["Enterprise grade security", "Seamless integration", "Calendar sync ready"]}
+                        />
+                        <div className="md:col-span-1">
+                            <div className="h-full border rounded-lg p-6 flex flex-col justify-center gap-4 bg-card text-card-foreground shadow-sm">
+                                <div className="flex items-center gap-3 mb-2 font-semibold">
+                                    <Mail className="h-6 w-6" /> Custom SMTP
+                                </div>
+                                <p className="text-sm text-muted-foreground mb-4">Connect any email provider via SMTP/IMAP credentials.</p>
+                                <div className="flex-grow">
+                                    <CrmSmtpForm settings={null} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </EmailSuiteLayout>
+        )
     }
 
-    // Determine provider label for display
-    const getProviderLabel = () => {
-        if (settings?.provider === 'google') return 'Gmail / Google Workspace';
-        if (settings?.provider === 'outlook') return 'Outlook / Microsoft 365';
-        if (settings?.provider === 'smtp') return 'Custom SMTP';
-        return 'Unknown Provider';
-    };
+    // MANAGE VIEW: Module Layout is now provided by EmailSuiteLayout
+    const currentSettings = allSettings.find(s => s._id.toString() === activeSettingsId);
+    // Fallback if settings ID invalid
+    if (!currentSettings && activeSettingsId) {
+        // If ID provided but not found, maybe redirect to list?
+        return <EmailSuiteLayout><div className="p-4">Account not found.</div></EmailSuiteLayout>;
+    }
+
+    // If no ID and not connect view, waiting for selection (this shouldn't happen due to layout logic, but safety)
+    if (!currentSettings) {
+        return <EmailSuiteLayout><div /></EmailSuiteLayout>;
+    }
 
     return (
-        <div className="flex flex-col gap-8">
-            <ModuleLayout
-                sidebar={
-                    <ModuleSidebar
-                        title="Email Settings"
-                        activeValue={activeTab}
-                        onValueChange={setActiveTab}
-                        items={[
-                            { value: 'email', label: 'Email Setup', icon: Mail },
-                            { value: 'templates', label: 'Templates', icon: FileText },
-                            { value: 'compliance', label: 'Compliance', icon: ShieldCheck },
-                            { value: 'deliverability', label: 'Deliverability', icon: BarChart3 },
-                            { value: 'integrations', label: 'Integrations', icon: Zap },
-                        ]}
-                    />
-                }
-            >
+        <EmailSuiteLayout>
+            <div className="flex flex-col gap-8 h-full">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3 mb-6">
-                        <Settings className="h-8 w-8" />
-                        {activeTab === 'email' && 'Email Configuration'}
-                        {activeTab === 'templates' && 'Templates'}
-                        {activeTab === 'compliance' && 'Compliance'}
-                        {activeTab === 'deliverability' && 'Deliverability'}
-                        {activeTab === 'integrations' && 'Integrations'}
-                    </h1>
+                    {/* Title is handled by Layout Sidebar usually, but we can add specific header if needed */}
                 </div>
 
-                {activeTab === 'email' && (
+                {activeTab === 'email' && currentSettings && (
                     <div className="space-y-6">
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                        Connected to {getProviderLabel()}
+                                        Connected via <span className="capitalize">{currentSettings.provider}</span>
                                     </div>
-                                    {settings?.fromEmail && <span className="text-sm font-normal text-muted-foreground">{settings.fromEmail}</span>}
+                                    <Badge variant="outline">{currentSettings.fromEmail}</Badge>
                                 </CardTitle>
-                                <CardDescription>Your email account is active and ready to send campaigns.</CardDescription>
+                                <CardDescription>This account is active and ready to send campaigns.</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="flex items-center gap-4">
-                                    <Button variant="outline" className="text-destructive hover:text-destructive" onClick={async () => {
-                                        if (confirm('Are you sure you want to disconnect? This will stop all email syncing.')) {
+                                    <Button variant="secondary">Re-authorize Connection</Button>
+                                    <Button variant="outline" className="text-destructive hover:bg-destructive/10 border-destructive/20" onClick={async () => {
+                                        if (confirm('Are you sure you want to disconnect this account? This action cannot be undone.')) {
                                             setIsLoading(true);
-                                            const { disconnectEmailSettings } = await import('@/app/actions/email.actions');
-                                            const result = await disconnectEmailSettings();
+                                            const result = await disconnectEmailSettings(currentSettings._id.toString());
                                             if (result.message) {
-                                                setSettings(null);
                                                 toast({ title: 'Disconnected', description: result.message });
+                                                router.push('/dashboard/email'); // Go back to list
                                             } else if (result.error) {
                                                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
                                             }
                                             setIsLoading(false);
                                         }
                                     }}>
+                                        <Trash2 className="mr-2 h-4 w-4" />
                                         Disconnect Account
                                     </Button>
-                                    <Button variant="secondary">Re-authorize / Update Connection</Button>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Only show SMTP form if connected via SMTP to allow updates, or maybe hide it entirely if we want them to disconnect first? 
-                            For now, let's allow editing SMTP settings if that's the active provider. 
-                        */}
-                        {settings?.provider === 'smtp' && (
+                        {currentSettings.provider === 'smtp' && (
                             <>
                                 <Separator />
                                 <div className="mt-6">
                                     <h3 className="text-lg font-semibold mb-4">SMTP Configuration</h3>
-                                    <CrmSmtpForm settings={settings} />
+                                    <CrmSmtpForm settings={currentSettings} />
                                 </div>
                             </>
                         )}
@@ -382,8 +424,8 @@ function EmailSettingsPageContent() {
                 {activeTab === 'integrations' && (
                     <IntegrationsTab userId={user.id} />
                 )}
-            </ModuleLayout>
-        </div>
+            </div>
+        </EmailSuiteLayout>
     );
 }
 

@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { CrmVendor } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -25,7 +25,7 @@ export async function getCrmVendors(): Promise<WithId<CrmVendor>[]> {
     }
 }
 
-export async function saveCrmVendor(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function saveCrmVendor(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; newVendor?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };
 
@@ -33,7 +33,7 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
     const isEditing = !!vendorId;
 
     try {
-        const vendorData: Partial<Omit<CrmVendor, '_id' | 'createdAt'>> = {
+        const vendorData: Partial<Omit<CrmVendor, '_id'>> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             industry: formData.get('clientIndustry') as string | undefined,
@@ -59,16 +59,23 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
             return { error: 'Vendor name is required.' };
         }
 
+        let savedId = isEditing ? new ObjectId(vendorId) : null;
+
         const { db } = await connectToDatabase();
         if (isEditing && ObjectId.isValid(vendorId)) {
             await db.collection('crm_vendors').updateOne({ _id: new ObjectId(vendorId), userId: new ObjectId(session.user._id) }, { $set: vendorData });
         } else {
             vendorData.createdAt = new Date();
-            await db.collection('crm_vendors').insertOne(vendorData as CrmVendor);
+            const result = await db.collection('crm_vendors').insertOne(vendorData as CrmVendor);
+            savedId = result.insertedId;
         }
-        
+
+        const savedVendor = { ...vendorData, _id: savedId };
+
         revalidatePath('/dashboard/crm/purchases/vendors');
-        return { message: `Vendor "${vendorData.name}" saved successfully!` };
+        revalidatePath('/dashboard/crm/purchases/orders'); // Revalidate potential usage areas
+
+        return { message: `Vendor "${vendorData.name}" saved successfully!`, newVendor: JSON.parse(JSON.stringify(savedVendor)) };
     } catch (e) {
         return { error: getErrorMessage(e) };
     }
@@ -76,14 +83,14 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
 
 export async function deleteCrmVendor(vendorId: string): Promise<{ success: boolean; error?: string }> {
     if (!ObjectId.isValid(vendorId)) return { success: false, error: 'Invalid Vendor ID.' };
-    
+
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
     const { db } = await connectToDatabase();
     const vendor = await db.collection('crm_vendors').findOne({ _id: new ObjectId(vendorId), userId: new ObjectId(session.user._id) });
     if (!vendor) return { success: false, error: 'Vendor not found or you do not have permission.' };
-    
+
     try {
         await db.collection('crm_vendors').deleteOne({ _id: new ObjectId(vendorId) });
         revalidatePath(`/dashboard/crm/purchases/vendors`);

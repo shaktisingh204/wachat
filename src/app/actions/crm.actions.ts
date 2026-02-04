@@ -119,7 +119,7 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
     }
 }
 
-export async function addCrmClient(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+export async function addCrmClient(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, newClient?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
 
@@ -145,10 +145,11 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
             status: 'new_lead',
             createdAt: new Date(),
         };
-        await db.collection('crm_contacts').insertOne(newContact as CrmContact);
+        const insertResult = await db.collection('crm_contacts').insertOne(newContact as CrmContact);
+        const createdClient = { ...newContact, _id: insertResult.insertedId };
 
         revalidatePath('/dashboard/crm/sales/clients');
-        return { message: 'New client added successfully.' };
+        return { message: 'New client added successfully.', newClient: JSON.parse(JSON.stringify(createdClient)) };
     } catch (e) {
         return { error: getErrorMessage(e) };
     }

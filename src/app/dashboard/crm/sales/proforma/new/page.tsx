@@ -12,6 +12,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
+import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import Link from 'next/link';
 import type { WithId, CrmAccount, InvoiceLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
@@ -26,16 +27,16 @@ const yourBusinessDetails = {
     pan: 'FNSPK2133N'
 };
 
-const initialState = { message: null, error: null };
+const initialState = { message: '', error: '' };
 
 function SaveButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Save Proforma Invoice
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save Proforma Invoice
+        </Button>
+    );
 }
 
 const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[], setItems: React.Dispatch<React.SetStateAction<InvoiceLineItem[]>>, currency: string }) => {
@@ -50,7 +51,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
     const handleItemChange = (id: string, field: keyof Omit<InvoiceLineItem, 'id'>, value: string | number) => {
         setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
-    
+
     const totalAmount = items.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
 
     return (
@@ -69,18 +70,18 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
                     <tbody>
                         {items.map((item) => (
                             <tr key={item.id} className="border-b">
-                                <td className="p-2"><Input placeholder="Name/SKU Id (Required)" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required/></td>
+                                <td className="p-2"><Input placeholder="Name/SKU Id (Required)" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required /></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
                                 <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
-                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></td>
+                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4"/>Add New Line</Button>
+                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</Button>
             </div>
             <Separator />
             <div className="p-4 flex justify-end">
@@ -133,8 +134,8 @@ export default function NewProformaInvoicePage() {
 
             <div className="bg-muted/30">
                 <div className="container mx-auto p-4 md:p-8">
-                     <header className="flex justify-between items-center mb-6">
-                         <div>
+                    <header className="flex justify-between items-center mb-6">
+                        <div>
                             <Button variant="ghost" asChild className="-ml-4">
                                 <Link href="/dashboard/crm/sales/proforma"><ArrowLeft className="mr-2 h-4 w-4" />Back to Proforma Invoices</Link>
                             </Button>
@@ -143,14 +144,14 @@ export default function NewProformaInvoicePage() {
                             <Button variant="outline" type="button">Save As Draft</Button>
                             <SaveButton />
                         </div>
-                     </header>
+                    </header>
                     <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
                         <CardContent className="p-0">
                             <header className="mb-8">
                                 <h1 className="text-3xl font-bold text-primary">Proforma Invoice</h1>
                             </header>
-                            
-                            <Separator className="my-8"/>
+
+                            <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
@@ -160,19 +161,26 @@ export default function NewProformaInvoicePage() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold mb-2">To:</h3>
-                                     <Select value={selectedClientId} onValueChange={setSelectedClientId} name="accountId" required>
-                                        <SelectTrigger><SelectValue placeholder="Select a Client..."/></SelectTrigger>
-                                        <SelectContent>{clients.map(client => <SelectItem key={client._id.toString()} value={client._id.toString()}>{client.name}</SelectItem>)}</SelectContent>
-                                    </Select>
+                                    <SmartClientSelect
+                                        value={selectedClientId}
+                                        onSelect={setSelectedClientId}
+                                        initialOptions={clients.map(c => ({ value: c._id.toString(), label: c.name }))}
+                                        onClientAdded={(newClient: any) => {
+                                            if (newClient) {
+                                                setClients(prev => [...prev, { ...newClient, _id: newClient._id || newClient.insertedId }]);
+                                                setSelectedClientId(newClient._id?.toString() || newClient.insertedId?.toString());
+                                            }
+                                        }}
+                                    />
                                 </div>
                             </section>
 
                             <section className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs">Proforma No.</Label><Input name="invoiceNumber" defaultValue="PI-00001" className="h-8"/></div>
-                                <div className="space-y-1"><Label className="text-xs">Date</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8"/></div>
-                                 <div className="space-y-1"><Label className="text-xs">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Proforma No.</Label><Input name="invoiceNumber" defaultValue="PI-00001" className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs">Date</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
                             </section>
-                            
+
                             <section>
                                 <LineItemsTable items={lineItems} setItems={setLineItems} currency="INR" />
                             </section>

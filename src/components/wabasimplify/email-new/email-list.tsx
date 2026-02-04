@@ -23,7 +23,7 @@ export function EmailList() {
     );
 
     const handleSelect = (id: string) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams.toString());
         params.set('id', id);
         router.push(`?${params.toString()}`);
     }

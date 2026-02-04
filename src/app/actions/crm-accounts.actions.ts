@@ -1,9 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { type Db, ObjectId, type WithId, Filter, Document } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { CrmAccount } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -39,8 +39,8 @@ export async function getCrmAccounts(
         const skip = (page - 1) * limit;
 
         const [accounts, total] = await Promise.all([
-            db.collection<CrmAccount>('crm_accounts').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
-            db.collection('crm_accounts').countDocuments(filter)
+            db.collection<CrmAccount>('crm_accounts').find(filter as Filter<Document>).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection('crm_accounts').countDocuments(filter as Filter<Document>)
         ]);
 
         return {
@@ -72,7 +72,7 @@ export async function getCrmAccountById(accountId: string): Promise<WithId<CrmAc
     }
 }
 
-export async function addCrmAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+export async function addCrmAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, newClient?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
 
@@ -90,15 +90,23 @@ export async function addCrmAccount(prevState: any, formData: FormData): Promise
             status: 'active'
         };
 
+        if (formData.get('businessName')) {
+            newAccount.name = formData.get('businessName') as string;
+        }
+
         if (!newAccount.name) {
             return { error: 'Company Name is required.' };
         }
 
         const { db } = await connectToDatabase();
-        await db.collection('crm_accounts').insertOne(newAccount as CrmAccount);
+        const result = await db.collection('crm_accounts').insertOne(newAccount as CrmAccount);
 
         revalidatePath('/dashboard/crm/accounts');
-        return { message: 'Account added successfully.' };
+
+        return {
+            message: 'Account added successfully.',
+            newClient: { ...newAccount, _id: result.insertedId }
+        };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }

@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
 import { Label } from "@/components/ui/label";
 import { format } from 'date-fns';
+import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
+import { SmartVendorSelect } from '@/components/crm/purchases/smart-vendor-select';
 
 type PartyTransaction = {
     date: Date;
@@ -98,7 +100,7 @@ export default function PartyTransactionsReportPage() {
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Users /> Party Transactions Report</h1>
                     <p className="text-muted-foreground">View all inventory transactions for a specific customer or vendor.</p>
                 </div>
-                 <Button variant="outline" onClick={handleDownload} disabled={reportData.length === 0}><Download className="mr-2 h-4 w-4"/>Download CSV</Button>
+                <Button variant="outline" onClick={handleDownload} disabled={reportData.length === 0}><Download className="mr-2 h-4 w-4" />Download CSV</Button>
             </div>
 
             <Card>
@@ -106,14 +108,29 @@ export default function PartyTransactionsReportPage() {
                     <CardTitle>Filters</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="space-y-1"><Label>Party Type</Label><Select value={partyType} onValueChange={(val) => setPartyType(val as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="customer">Customer</SelectItem><SelectItem value="vendor">Vendor</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label>Select Party</Label><Select value={partyId} onValueChange={setPartyId}><SelectTrigger><SelectValue placeholder="Select a party..."/></SelectTrigger><SelectContent>{parties.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-1"><Label>Party Type</Label><Select value={partyType} onValueChange={(val) => setPartyType(val as any)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="customer">Customer</SelectItem><SelectItem value="vendor">Vendor</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-1">
+                        <Label>Select Party</Label>
+                        {partyType === 'customer' ? (
+                            <SmartClientSelect
+                                value={partyId}
+                                onSelect={setPartyId}
+                                initialOptions={parties.map(p => ({ value: p.id, label: p.name }))}
+                            />
+                        ) : (
+                            <SmartVendorSelect
+                                value={partyId}
+                                onSelect={setPartyId}
+                                initialOptions={parties.map(p => ({ value: p.id, label: p.name }))}
+                            />
+                        )}
+                    </div>
                     <div className="space-y-1"><Label>Start Date</Label><DatePicker date={startDate} setDate={setStartDate} /></div>
                     <div className="space-y-1"><Label>End Date</Label><DatePicker date={endDate} setDate={setEndDate} /></div>
                 </CardContent>
-                 <CardFooter>
+                <CardFooter>
                     <Button onClick={handleGenerateReport} disabled={isLoading || !partyId}>
-                         {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                        {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Generate Report
                     </Button>
                 </CardFooter>
@@ -140,7 +157,7 @@ export default function PartyTransactionsReportPage() {
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
-                                    <TableRow><TableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin" /></TableCell></TableRow>
                                 ) : reportData.length > 0 ? (
                                     reportData.map((row, index) => (
                                         <TableRow key={index}>

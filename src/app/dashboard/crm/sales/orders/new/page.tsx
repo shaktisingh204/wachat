@@ -12,6 +12,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, ShoppingBag } from 'lucide-react';
+import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import Link from 'next/link';
 import type { WithId, CrmAccount, SalesOrderLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
@@ -19,16 +20,16 @@ import { useToast } from '@/hooks/use-toast';
 import { saveSalesOrder } from '@/app/actions/crm-sales-orders.actions';
 import { useRouter } from 'next/navigation';
 
-const initialState = { message: null, error: null };
+const initialState = { message: '', error: '' };
 
 function SaveButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-      Save Order
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save Order
+        </Button>
+    );
 }
 
 const LineItemsTable = ({ items, setItems, currency }: { items: SalesOrderLineItem[], setItems: React.Dispatch<React.SetStateAction<SalesOrderLineItem[]>>, currency: string }) => {
@@ -43,7 +44,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: SalesOrderLineIt
     const handleItemChange = (id: string, field: keyof Omit<SalesOrderLineItem, 'id'>, value: string | number) => {
         setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
-    
+
     const totalAmount = items.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
 
     return (
@@ -66,14 +67,14 @@ const LineItemsTable = ({ items, setItems, currency }: { items: SalesOrderLineIt
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
                                 <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
-                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></td>
+                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4"/>Add New Line</Button>
+                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</Button>
             </div>
             <Separator />
             <div className="p-4 flex justify-end">
@@ -89,7 +90,7 @@ export default function NewSalesOrderPage() {
     const [state, formAction] = useActionState(saveSalesOrder, initialState);
     const router = useRouter();
     const { toast } = useToast();
-    
+
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [orderDate, setOrderDate] = useState<Date | undefined>(new Date());
@@ -110,7 +111,7 @@ export default function NewSalesOrderPage() {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, router]);
-      
+
     const selectedClient = clients.find(c => c._id.toString() === selectedClientId);
 
     return (
@@ -123,8 +124,8 @@ export default function NewSalesOrderPage() {
 
             <div className="bg-muted/30">
                 <div className="container mx-auto p-4 md:p-8">
-                     <header className="flex justify-between items-center mb-6">
-                         <div>
+                    <header className="flex justify-between items-center mb-6">
+                        <div>
                             <Button variant="ghost" asChild className="-ml-4">
                                 <Link href="/dashboard/crm/sales/orders"><ArrowLeft className="mr-2 h-4 w-4" />Back to Sales Orders</Link>
                             </Button>
@@ -133,22 +134,29 @@ export default function NewSalesOrderPage() {
                             <Button variant="outline" type="button">Save As Draft</Button>
                             <SaveButton />
                         </div>
-                     </header>
+                    </header>
                     <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
                         <CardContent className="p-0">
                             <header className="mb-8">
                                 <h1 className="text-3xl font-bold text-primary">Sales Order</h1>
                             </header>
-                            
-                            <Separator className="my-8"/>
+
+                            <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
                                     <h3 className="font-semibold mb-2">Customer Details:</h3>
-                                     <Select name="accountId" required value={selectedClientId} onValueChange={setSelectedClientId}>
-                                        <SelectTrigger><SelectValue placeholder="Select a Client..."/></SelectTrigger>
-                                        <SelectContent>{clients.map(client => <SelectItem key={client._id.toString()} value={client._id.toString()}>{client.name}</SelectItem>)}</SelectContent>
-                                    </Select>
+                                    <SmartClientSelect
+                                        value={selectedClientId}
+                                        onSelect={setSelectedClientId}
+                                        initialOptions={clients.map(c => ({ value: c._id.toString(), label: c.name }))}
+                                        onClientAdded={(newClient: any) => {
+                                            if (newClient) {
+                                                setClients(prev => [...prev, { ...newClient, _id: newClient._id || newClient.insertedId }]);
+                                                setSelectedClientId(newClient._id?.toString() || newClient.insertedId?.toString());
+                                            }
+                                        }}
+                                    />
                                     {selectedClient && (
                                         <div className="mt-2 text-muted-foreground">
                                             <p>{selectedClient.phone}</p>
@@ -156,8 +164,8 @@ export default function NewSalesOrderPage() {
                                     )}
                                 </div>
                                 <div>
-                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1"><Label htmlFor="orderNumber">Order #</Label><Input id="orderNumber" name="orderNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50}/></div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1"><Label htmlFor="orderNumber">Order #</Label><Input id="orderNumber" name="orderNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
                                         <div className="space-y-1"><Label className="text-xs">Order Date *</Label><DatePicker date={orderDate} setDate={setOrderDate} /></div>
                                     </div>
                                     <div className="mt-2 space-y-1"><Label className="text-xs">Expected Delivery Date</Label><DatePicker date={deliveryDate} setDate={setDeliveryDate} /></div>
@@ -167,17 +175,17 @@ export default function NewSalesOrderPage() {
                             <section>
                                 <LineItemsTable items={lineItems} setItems={setLineItems} currency="INR" />
                             </section>
-                            
-                            <Separator className="my-8"/>
-                            
+
+                            <Separator className="my-8" />
+
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
-                                 <div className="space-y-4">
-                                    <div className="space-y-2"><Label className="font-semibold">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." maxLength={500}/></div>
-                                    <div className="space-y-2"><Label className="font-semibold">Shipping Details</Label><Textarea name="shippingDetails" placeholder="e.g. Shipping method, tracking information..." maxLength={500}/></div>
+                                <div className="space-y-4">
+                                    <div className="space-y-2"><Label className="font-semibold">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold">Shipping Details</Label><Textarea name="shippingDetails" placeholder="e.g. Shipping method, tracking information..." maxLength={500} /></div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="font-semibold">Notes</Label>
-                                    <Textarea placeholder="Any special instructions for this order..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500}/>
+                                    <Textarea placeholder="Any special instructions for this order..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} />
                                 </div>
                             </section>
                         </CardContent>

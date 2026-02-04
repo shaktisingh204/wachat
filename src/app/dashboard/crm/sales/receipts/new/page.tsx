@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { ArrowLeft, Save, LoaderCircle, PlusCircle, Trash2, Check } from 'lucide-react';
+import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import type { WithId, CrmAccount, CrmInvoice, PaymentRecord } from '@/lib/definitions';
@@ -23,7 +24,7 @@ import { NotebookText } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
-const initialState = { message: null, error: null };
+const initialState = { message: '', error: '' };
 
 function SaveButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus();
@@ -140,7 +141,7 @@ export default function RecordPaymentPage() {
                 return updated;
             }
 
-            return [...prev, { invoiceId, amountSettled }];
+            return [...prev, { invoiceId, amountSettled: settledAmount }];
         });
     };
 
@@ -182,15 +183,23 @@ export default function RecordPaymentPage() {
                                 <CardContent className="p-6 space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-1.5"><Label htmlFor="receiptNumber">Payment Receipt No *</Label><Input id="receiptNumber" name="receiptNumber" defaultValue="A00001" required maxLength={50} /></div>
-                                        <div className="space-y-1.5"><Label htmlFor="receiptDate">Receipt Date *</Label><DatePicker id="receiptDate" date={receiptDate} setDate={setReceiptDate} /></div>
+                                        <div className="space-y-1.5"><Label htmlFor="receiptDate">Receipt Date *</Label><DatePicker date={receiptDate} setDate={setReceiptDate} /></div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-1.5">
                                             <Label htmlFor="client-select">Payment Received From *</Label>
-                                            <Select name="accountId" required onValueChange={handleClientChange}>
-                                                <SelectTrigger id="client-select"><SelectValue placeholder="Select a Client..." /></SelectTrigger>
-                                                <SelectContent>{clients.map(client => <SelectItem key={client._id.toString()} value={client._id.toString()}>{client.name}</SelectItem>)}</SelectContent>
-                                            </Select>
+                                            <SmartClientSelect
+                                                value={selectedClientId}
+                                                onSelect={handleClientChange}
+                                                initialOptions={clients.map(c => ({ value: c._id.toString(), label: c.name }))}
+                                                onClientAdded={(newClient: any) => {
+                                                    if (newClient) {
+                                                        const newId = newClient._id?.toString() || newClient.insertedId?.toString();
+                                                        setClients(prev => [...prev, { ...newClient, _id: newId }]);
+                                                        handleClientChange(newId);
+                                                    }
+                                                }}
+                                            />
                                         </div>
                                         <div className="space-y-1.5">
                                             <Label htmlFor="currency">Currency *</Label>

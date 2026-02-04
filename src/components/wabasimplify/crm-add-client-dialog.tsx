@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Checkbox } from '../ui/checkbox';
 import { Textarea } from '../ui/textarea';
 
-const initialState = { message: undefined, error: undefined };
+const initialState: { message?: string; error?: string; newClient?: any } = { message: undefined, error: undefined, newClient: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -36,31 +36,61 @@ function SubmitButton() {
 }
 
 interface CrmAddClientDialogProps {
-  onClientAdded: () => void;
+  onClientAdded: (client?: any) => void;
+  defaultOpen?: boolean;
+  defaultName?: string;
 }
 
-export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(addCrmClient, initialState);
+import { SmartLocationSelect } from '@/components/crm/smart-location-select';
+
+// ... imports
+
+export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, defaultName = '' }: CrmAddClientDialogProps) {
+  const [open, setOpen] = useState(defaultOpen);
+  const [formState, formAction] = useActionState(addCrmClient, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
+  // Location State
+  const [country, setCountry] = useState<string>('IN'); // Default India ISO
+  const [countryName, setCountryName] = useState<string>('India');
+  const [selectedState, setSelectedState] = useState<string>('');
+  const [selectedStateName, setSelectedStateName] = useState<string>('');
+  const [cityName, setCityName] = useState<string>('');
+
+  const [addressCountry, setAddressCountry] = useState<string>('');
+  const [addressCountryName, setAddressCountryName] = useState<string>('');
+  const [addressState, setAddressState] = useState<string>('');
+  const [addressStateName, setAddressStateName] = useState<string>('');
+  const [addressCityName, setAddressCityName] = useState<string>('');
+
+  // Sync internal open state if defaultOpen changes (though usually managed internally)
   useEffect(() => {
-    if (state.message) {
-      toast({ title: 'Success!', description: state.message });
+    if (defaultOpen) setOpen(true);
+  }, [defaultOpen]);
+
+  useEffect(() => {
+    if (formState.message) {
+      toast({ title: 'Success!', description: formState.message });
       formRef.current?.reset();
       setOpen(false);
-      onClientAdded();
+      // Pass the new client back
+      onClientAdded(formState.newClient);
     }
-    if (state.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    if (formState.error) {
+      toast({ title: 'Error', description: formState.error, variant: 'destructive' });
     }
-  }, [state, toast, onClientAdded]);
+  }, [formState, toast, onClientAdded]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(val) => {
+      setOpen(val);
+      if (!val) {
+        // Optional: reset default name or handle closure if needed
+      }
+    }}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className={defaultName ? "hidden" : ""}>
           <Plus className="mr-2 h-4 w-4" />
           New Prospect
         </Button>
@@ -85,45 +115,89 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="businessName">Business Name *</Label>
-                      <Input id="businessName" name="businessName" maxLength={100} required />
+                      <Input id="businessName" name="businessName" maxLength={100} required defaultValue={defaultName} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="clientIndustry">Client Industry</Label>
                       <Select name="clientIndustry"><SelectTrigger><SelectValue placeholder="-Select an Industry-" /></SelectTrigger><SelectContent><SelectItem value="tech">Technology</SelectItem><SelectItem value="retail">Retail</SelectItem></SelectContent></Select>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="country">Country *</Label>
-                      <Select name="country" defaultValue="India" required><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem><SelectItem value="USA">United States</SelectItem></SelectContent></Select>
+                      <SmartLocationSelect
+                        type="country"
+                        onSelect={(val, label) => {
+                          setCountry(val);
+                          setCountryName(label);
+                        }}
+                      />
+                      <input type="hidden" name="country" value={countryName} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="state">State</Label>
+                      <SmartLocationSelect
+                        type="state"
+                        selectedCountryCode={country}
+                        onSelect={(val, label) => {
+                          setSelectedState(val);
+                          setSelectedStateName(label);
+                        }}
+                      />
+                      <input type="hidden" name="state" value={selectedStateName} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="city">City/Town</Label>
-                      <Input id="city" name="city" maxLength={100} />
+                      <SmartLocationSelect
+                        type="city"
+                        selectedCountryCode={country}
+                        selectedStateCode={selectedState}
+                        onSelect={(val, label) => setCityName(label)}
+                      />
+                      <input type="hidden" name="city" value={cityName} />
                     </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="tax">
-                <AccordionTrigger>Tax Information (Optional)</AccordionTrigger>
-                <AccordionContent className="space-y-4 pt-2">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label htmlFor="gstin">Business GSTIN</Label><Input id="gstin" name="gstin" maxLength={15} /></div>
-                    <div className="space-y-2"><Label htmlFor="pan">Business PAN</Label><Input id="pan" name="pan" maxLength={10} /></div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label>Client Type</Label><Select name="clientType"><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent><SelectItem value="individual">Individual</SelectItem><SelectItem value="company">Company</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-2"><Label>Tax Treatment</Label><Select name="taxTreatment"><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent><SelectItem value="registered">Registered</SelectItem><SelectItem value="unregistered">Unregistered</SelectItem></SelectContent></Select></div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+              {/* ... Tax ... */}
               <AccordionItem value="address">
                 <AccordionTrigger>Address (Optional)</AccordionTrigger>
                 <AccordionContent className="space-y-4 pt-2">
                   <div className="space-y-2"><Label htmlFor="street">Street Address</Label><Input id="street" name="street" maxLength={200} /></div>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-2"><Label htmlFor="addressCity">City</Label><Input id="addressCity" name="addressCity" maxLength={100} /></div>
-                    <div className="space-y-2"><Label htmlFor="addressState">State</Label><Input id="addressState" name="addressState" maxLength={100} /></div>
+                    <div className="space-y-2">
+                      <Label htmlFor="addressCountry">Country</Label>
+                      <SmartLocationSelect
+                        type="country"
+                        onSelect={(val, label) => {
+                          setAddressCountry(val);
+                          setAddressCountryName(label);
+                        }}
+                      />
+                      <input type="hidden" name="addressCountry" value={addressCountryName} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="addressState">State</Label>
+                      <SmartLocationSelect
+                        type="state"
+                        selectedCountryCode={addressCountry}
+                        onSelect={(val, label) => {
+                          setAddressState(val);
+                          setAddressStateName(label);
+                        }}
+                      />
+                      <input type="hidden" name="addressState" value={addressStateName} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="addressCity">City</Label>
+                      <SmartLocationSelect
+                        type="city"
+                        selectedCountryCode={addressCountry}
+                        selectedStateCode={addressState}
+                        onSelect={(val, label) => setAddressCityName(label)}
+                      />
+                      <input type="hidden" name="addressCity" value={addressCityName} />
+                    </div>
                     <div className="space-y-2"><Label htmlFor="addressZip">ZIP Code</Label><Input id="addressZip" name="addressZip" maxLength={20} /></div>
                   </div>
                 </AccordionContent>

@@ -56,29 +56,33 @@ export function EmailSidebar() {
 
             <div className="flex-1 overflow-y-auto space-y-6 px-2">
                 <div className="space-y-1">
-                    {mainItems.map((item) => (
-                        <Button
-                            key={item.id}
-                            variant={currentFolder === item.id ? 'secondary' : 'ghost'}
-                            className={cn(
-                                "w-full justify-between font-normal",
-                                currentFolder === item.id && "font-semibold"
-                            )}
-                            asChild
-                        >
-                            <Link href={`?folder=${item.id}`}>
-                                <div className="flex items-center gap-3">
-                                    <item.icon className="w-4 h-4" />
-                                    {item.label}
-                                </div>
-                                {item.count && (
-                                    <span className="text-xs text-muted-foreground bg-muted-foreground/10 px-2 py-0.5 rounded-full">
-                                        {item.count}
-                                    </span>
+                    {mainItems.map((item) => {
+                        const newParams = new URLSearchParams(searchParams.toString());
+                        newParams.set('folder', item.id);
+                        return (
+                            <Button
+                                key={item.id}
+                                variant={currentFolder === item.id ? 'secondary' : 'ghost'}
+                                className={cn(
+                                    "w-full justify-between font-normal",
+                                    currentFolder === item.id && "font-semibold"
                                 )}
-                            </Link>
-                        </Button>
-                    ))}
+                                asChild
+                            >
+                                <Link href={`?${newParams.toString()}`}>
+                                    <div className="flex items-center gap-3">
+                                        <item.icon className="w-4 h-4" />
+                                        {item.label}
+                                    </div>
+                                    {item.count && (
+                                        <span className="text-xs text-muted-foreground bg-muted-foreground/10 px-2 py-0.5 rounded-full">
+                                            {item.count}
+                                        </span>
+                                    )}
+                                </Link>
+                            </Button>
+                        )
+                    })}
                 </div>
 
                 <div className="space-y-1">

@@ -13,6 +13,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
+import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import Link from 'next/link';
 import type { WithId, CrmAccount, DeliveryChallanLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
@@ -27,7 +28,7 @@ const yourBusinessDetails = {
     pan: 'FNSPK2133N'
 }
 
-const initialState = { message: null, error: null };
+const initialState = { message: '', error: '' };
 
 function SaveButton() {
     const { pending } = useFormStatus();
@@ -147,10 +148,17 @@ export default function NewDeliveryChallanPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold mb-2">To (Consignee):</h3>
-                                    <Select value={selectedClientId} onValueChange={setSelectedClientId} name="accountId" required>
-                                        <SelectTrigger><SelectValue placeholder="Select a Client..." /></SelectTrigger>
-                                        <SelectContent>{clients.map(client => <SelectItem key={client._id.toString()} value={client._id.toString()}>{client.name}</SelectItem>)}</SelectContent>
-                                    </Select>
+                                    <SmartClientSelect
+                                        value={selectedClientId}
+                                        onSelect={setSelectedClientId}
+                                        initialOptions={clients.map(c => ({ value: c._id.toString(), label: c.name }))}
+                                        onClientAdded={(newClient: any) => {
+                                            if (newClient) {
+                                                setClients(prev => [...prev, { ...newClient, _id: newClient._id || newClient.insertedId }]);
+                                                setSelectedClientId(newClient._id?.toString() || newClient.insertedId?.toString());
+                                            }
+                                        }}
+                                    />
                                     {selectedClient && (
                                         <p className="text-muted-foreground mt-1">{selectedClient?.phone}</p>
                                     )}

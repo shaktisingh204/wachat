@@ -2,7 +2,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { type Db, ObjectId, type WithId, Filter, Document } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/index.ts';
 import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation, EmailPermissions, EmailComplianceSettings, EmailSettings } from '@/lib/definitions';
@@ -133,8 +133,8 @@ export async function getEmailContacts(
         const skip = (page - 1) * limit;
 
         const [contacts, total] = await Promise.all([
-            db.collection<EmailContact>('email_contacts').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
-            db.collection('email_contacts').countDocuments(filter)
+            db.collection<EmailContact>('email_contacts').find(filter as Filter<Document>).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection('email_contacts').countDocuments(filter as Filter<Document>)
         ]);
 
         return {
@@ -193,7 +193,7 @@ export async function saveEmailTemplate(prevState: any, formData: FormData): Pro
         if (isEditing && ObjectId.isValid(templateId)) {
             existingTemplateFilter._id = { $ne: new ObjectId(templateId) };
         }
-        const existingTemplate = await db.collection('email_templates').findOne(existingTemplateFilter);
+        const existingTemplate = await db.collection('email_templates').findOne(existingTemplateFilter as Filter<Document>);
         if (existingTemplate) {
             return { error: `A template with the name "${templateData.name}" already exists.` };
         }
@@ -240,14 +240,19 @@ export async function deleteEmailTemplate(templateId: string): Promise<{ success
     }
 }
 
-export async function getEmailCampaigns(): Promise<WithId<EmailCampaign>[]> {
+export async function getEmailCampaigns(fromEmail?: string): Promise<WithId<EmailCampaign>[]> {
     const session = await getSession();
     if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
+        const filter: Filter<EmailCampaign> = { userId: new ObjectId(session.user._id) };
+        if (fromEmail) {
+            filter.fromEmail = fromEmail;
+        }
+
         const campaigns = await db.collection<EmailCampaign>('email_campaigns')
-            .find({ userId: new ObjectId(session.user._id) })
+            .find(filter)
             .sort({ createdAt: -1 })
             .limit(50)
             .toArray();
@@ -490,8 +495,21 @@ export async function saveOAuthTokens(data: {
         };
     }
 
+    // Create a filter that attempts to find an existing setup for this specific account
+    // If the provider returns an ID, that would be best. Lacking that, we try to match by email + provider.
+    // If fromEmail is missing (unlikely from OAuth), we fall back to userId + provider (legacy behavior).
+
+    const filter: Filter<EmailSettings> = {
+        userId: new ObjectId(userId),
+        provider: provider
+    };
+
+    if (data.fromEmail) {
+        filter.fromEmail = data.fromEmail;
+    }
+
     await db.collection('email_settings').updateOne(
-        { userId: new ObjectId(userId) },
+        filter as Filter<Document>,
         { $set: updateData },
         { upsert: true }
     );
@@ -522,16 +540,26 @@ export async function getSingleEmailSettings(userId: string): Promise<WithId<Ema
     return setting ? JSON.parse(JSON.stringify(setting)) : null;
 }
 
-export async function disconnectEmailSettings(): Promise<{ message?: string; error?: string }> {
+export async function disconnectEmailSettings(settingsId?: string): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
 
     try {
         const { db } = await connectToDatabase();
-        await db.collection('email_settings').deleteMany({ userId: new ObjectId(session.user._id) });
 
-        revalidatePath('/dashboard/email/settings');
-        return { message: "Email account disconnected successfully." };
+        if (settingsId && ObjectId.isValid(settingsId)) {
+            await db.collection('email_settings').deleteOne({
+                _id: new ObjectId(settingsId),
+                userId: new ObjectId(session.user._id)
+            });
+            revalidatePath('/dashboard/email/settings');
+            return { message: "Account disconnected successfully." };
+        } else {
+            // Deprecated: Fallback to delete all if no ID provided
+            await db.collection('email_settings').deleteMany({ userId: new ObjectId(session.user._id) });
+            revalidatePath('/dashboard/email/settings');
+            return { message: "All email accounts disconnected." };
+        }
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
