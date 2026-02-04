@@ -378,31 +378,36 @@ export async function updateEntityStatus(id: string, type: 'campaign' | 'adset' 
 
 export async function uploadAdImage(formData: FormData): Promise<{ imageHash?: string; imageUrl?: string; error?: string }> {
     const session = await getSession();
-    if (!session?.user?.adManagerAccessToken || !session?.user?.activeAdAccountAccountId) {
-        return { error: 'Authentication or Ad Account required' };
+    if (!session?.user) {
+        return { error: 'Authentication required' };
+    }
+    const user = session.user as any; // Cast to access custom properties
+
+    if (!user.adManagerAccessToken) {
+        return { error: 'Ad Manager Token required' };
+    }
+
+    const adAccountIdRaw = formData.get('adAccountId') as string;
+    // ensure act_ prefix
+    const adAccountId = adAccountIdRaw ? (adAccountIdRaw.startsWith('act_') ? adAccountIdRaw : `act_${adAccountIdRaw}`) : null;
+
+    if (!adAccountId) {
+        return { error: 'Ad Account ID required for upload' };
     }
 
     const file = formData.get('file') as File;
     if (!file) return { error: 'No file provided' };
 
-    console.log(`${LOG_PREFIX} Uploading ad image: ${file.name}`);
+    console.log(`${LOG_PREFIX} Uploading ad image: ${file.name} to account ${adAccountId}`);
 
     try {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // This usually requires a different content type or specific formData structure for FB Graph API
-        const form = new FormData();
-        // We have to use 'fs' streams usually for standard node-fetch, but typically we can pass blob/buffer if supported
-        // However, axios + FormData in Node environment is tricky.
-        // Simplified approach: encoding as bytes and sending if possible, or using a library that handles multipart/form-data well in Node.
-        // For simplicity in this environment, let's assume standard FormData works or we mock the actual upload interaction if libraries are missing.
-
-        // Correct approach for Node.js file upload to FB Graph API:
-        const url = `https://graph.facebook.com/${API_VERSION}/${session.user.activeAdAccountAccountId}/adimages`;
+        const url = `https://graph.facebook.com/${API_VERSION}/${adAccountId}/adimages`;
         const uploadData = new FormData();
         uploadData.append('filename', new Blob([buffer as any]), file.name);
-        uploadData.append('access_token', session.user.adManagerAccessToken);
+        uploadData.append('access_token', user.adManagerAccessToken);
 
         const response = await fetch(url, {
             method: 'POST',
@@ -415,7 +420,6 @@ export async function uploadAdImage(formData: FormData): Promise<{ imageHash?: s
             throw new Error(data.error.message);
         }
 
-        // FB returns { images: { "filename": { hash: "...", url: "..." } } }
         const imageInfo = Object.values(data.images)[0] as any;
         return { imageHash: imageInfo.hash, imageUrl: imageInfo.url };
 

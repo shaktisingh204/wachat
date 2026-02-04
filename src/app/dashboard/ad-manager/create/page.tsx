@@ -107,6 +107,9 @@ export default function CreateAdPage() {
 
         const uploadData = new FormData();
         uploadData.append('file', file);
+        if (adAccountId) {
+            uploadData.append('adAccountId', adAccountId);
+        }
 
         startUploading(async () => {
             const result = await uploadAdImage(uploadData);

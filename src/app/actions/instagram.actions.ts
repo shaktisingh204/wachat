@@ -25,6 +25,11 @@ export async function getInstagramAccountForPage(projectId: string): Promise<{ i
         }
 
         const instagramAccount = response.data.instagram_business_account;
+        if (!instagramAccount) {
+            console.warn(`[getInstagramAccountForPage] No linked Instagram account found for page ${project.facebookPageId}. Response data:`, JSON.stringify(response.data, null, 2));
+        } else {
+            console.log(`[getInstagramAccountForPage] Found Instagram account for page ${project.facebookPageId}: ${instagramAccount.username} (${instagramAccount.id})`);
+        }
         return { instagramAccount };
 
     } catch (e: any) {
@@ -47,7 +52,7 @@ export async function getInstagramMedia(projectId: string): Promise<{ media?: an
                 access_token: project.accessToken
             }
         });
-        if (response.data.error) throw new Error(getErrorMessage({response}));
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
         return { media: response.data.data || [] };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -86,9 +91,9 @@ export async function getInstagramComments(mediaId: string, projectId: string): 
                 access_token: project.accessToken
             }
         });
-        if (response.data.error) throw new Error(getErrorMessage({response}));
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
         return { comments: response.data.data || [] };
-    } catch(e) {
+    } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -107,7 +112,7 @@ export async function getInstagramStories(projectId: string): Promise<{ stories?
                 access_token: project.accessToken
             }
         });
-        if (response.data.error) throw new Error(getErrorMessage({response}));
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
         return { stories: response.data.data || [] };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -133,7 +138,7 @@ export async function discoverInstagramAccount(username: string, projectId: stri
         if (response.data.error) throw new Error(getErrorMessage({ response }));
 
         return { account: response.data.business_discovery };
-    } catch(e) {
+    } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -156,7 +161,7 @@ export async function createInstagramImagePost(prevState: any, formData: FormDat
     if (!project || !project.accessToken) {
         return { error: 'Project access token is missing.' };
     }
-    
+
     try {
         // Step 1: Create media container
         const containerResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${instagramAccount.id}/media`, {
@@ -175,7 +180,7 @@ export async function createInstagramImagePost(prevState: any, formData: FormDat
             creation_id: creationId,
             access_token: project.accessToken,
         });
-        
+
         if (publishResponse.data.id) {
             return { message: "Instagram post published successfully!" };
         } else {
@@ -203,10 +208,10 @@ export async function searchHashtagId(hashtag: string, projectId: string): Promi
             }
         });
         if (response.data.error) throw new Error(getErrorMessage({ response }));
-        
+
         const hashtagId = response.data.data?.[0]?.id;
         return { hashtagId };
-    } catch(e) {
+    } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -218,7 +223,7 @@ export async function getHashtagRecentMedia(hashtagId: string, projectId: string
     }
     const project = await getProjectById(projectId);
     if (!project) return { error: 'Project not found' };
-    
+
     try {
         const response = await axios.get(`https://graph.facebook.com/v23.0/${hashtagId}/recent_media`, {
             params: {
