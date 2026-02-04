@@ -111,7 +111,21 @@ export async function getCrmVendorTypes(): Promise<WithId<CrmVendorType>[]> {
             .toArray();
 
         const defaultTypes = [
-            'Goods Supplier', 'Service Provider', 'Contractor', 'Freelancer', 'Consultant', 'Manufacturer', 'Distributor', 'Wholesaler', 'Retailer'
+            'Goods Supplier', 'Service Provider', 'Contractor', 'Freelancer', 'Consultant',
+            'Manufacturer', 'Distributor', 'Wholesaler', 'Retailer', 'Dropshipper',
+            'Raw Materials Supplier', 'Office Supplies Provider', 'Logistics Partner', 'Transport & Shipping',
+            'Utilities Provider', 'Rent/Lease Provider', 'Real Estate Agent', 'Facilities Management',
+            'Legal Counsel', 'Marketing Agency', 'Advertising Agency', 'PR Firm', 'Media Production',
+            'Software Vendor (SaaS)', 'Hardware Supplier', 'IT Support Services', 'Cloud Infrastructure',
+            'Cyber Security Firm', 'Web Development Agency', 'Data Analytics Provider',
+            'Maintenance & Repair Services', 'Cleaning Services', 'Security Services', 'Waste Management',
+            'Event Planner', 'Catering Service', 'Travel Agency', 'Accommodation/Hotel',
+            'Training & Coaching', 'HR & Recruitment Agency', 'Payroll Services', 'Staffing Firm',
+            'Accounting Firm', 'Tax Consultant', 'Audit Services', 'Insurance Provider',
+            'Bank/Financial Institution', 'Investment Advisor', 'Payment Gateway Provider',
+            'Printing & Publishing', 'Packaging Supplier', 'Telecommunications', 'Internet Service Provider (ISP)',
+            'Construction Firm', 'Engineering Consultant', 'Architect', 'Sub-contractor', 'Affiliate Partner',
+            'Other'
         ];
 
         const existingNames = new Set(types.map((t: any) => t.name.toLowerCase()));

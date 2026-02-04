@@ -57,7 +57,7 @@ export function SmartCombobox({
     }, [options, value]);
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen} modal={true}>
             <PopoverTrigger asChild>
                 <Button
                     variant="outline"
@@ -77,7 +77,7 @@ export function SmartCombobox({
                         value={inputValue}
                         onValueChange={setInputValue}
                     />
-                    <CommandList>
+                    <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
                         <CommandEmpty>
                             No results found.
                         </CommandEmpty>
@@ -106,7 +106,7 @@ export function SmartCombobox({
                                 <CommandSeparator />
                                 <CommandGroup>
                                     <CommandItem
-                                        value={`:::create:::${inputValue}`} // Unique value to avoid collision
+                                        value={`:::create:::${inputValue}`} // Unique value
                                         onSelect={() => {
                                             onCreate(inputValue);
                                             setOpen(false);

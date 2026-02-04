@@ -200,7 +200,7 @@ export async function getCrmIndustries(): Promise<WithId<CrmIndustry>[]> {
             'Semiconductors', 'Shipbuilding', 'Sporting Goods', 'Sports', 'Staffing and Recruiting', 'Supermarkets',
             'Telecommunications', 'Textiles', 'Think Tanks', 'Tobacco', 'Translation and Localization', 'Transportation/Trucking/Railroad',
             'Utilities', 'Venture Capital & Private Equity', 'Veterinary', 'Warehousing', 'Wholesale', 'Wine and Spirits',
-            'Wireless', 'Writing and Editing'
+            'Wireless', 'Writing and Editing', 'Other'
         ];
 
         // Create a Set of existing names for fast lookup
