@@ -72,22 +72,22 @@ export default function CrmDashboardPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard
                     title="Total Contacts"
-                    value={stats.counts.contacts.toLocaleString()}
+                    value={stats.counts?.contacts?.toLocaleString() ?? 0}
                     icon={Users}
                 />
                 <StatCard
                     title="Total Deals"
-                    value={stats.counts.dealCount.toLocaleString()}
+                    value={stats.counts?.deals?.toLocaleString() ?? 0}
                     icon={Handshake}
                 />
                 <StatCard
                     title="Deals Won"
-                    value={stats.counts.dealsWon.toLocaleString()}
+                    value={stats.counts?.dealsWon?.toLocaleString() ?? 0}
                     icon={Trophy}
                 />
                 <StatCard
                     title="Pipeline Revenue"
-                    value={new Intl.NumberFormat('en-US', { style: 'currency', currency: stats.currency || 'USD' }).format(stats.counts.pipelineValue)}
+                    value={new Intl.NumberFormat('en-US', { style: 'currency', currency: stats.currency || 'USD' }).format(stats.counts?.pipelineValue ?? 0)}
                     icon={DollarSign}
                 />
             </div>

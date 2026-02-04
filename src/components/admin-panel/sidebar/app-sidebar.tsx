@@ -18,7 +18,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ChevronRight } from 'lucide-react';
 import {
     wachatMenuItems,
-    crmMenuItems,
+    crmMenuGroups,
     adManagerMenuItems,
     sabChatMenuItems,
     sabflowMenuItems,
@@ -159,7 +159,14 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
                 return instagramMenuGroups.flatMap(g => g.items).map(item => <SidebarItem key={item.href} item={item} />);
 
             case 'crm':
-                return crmMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />);
+                return crmMenuGroups.map((group) => (
+                    <React.Fragment key={group.title}>
+                        <div className={cn("px-3 text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider mt-6 mb-2 transition-all duration-300 whitespace-nowrap", !isOpen && "hidden group-hover:block")}>
+                            {group.title}
+                        </div>
+                        {group.items.map(item => <SidebarItem key={item.href} item={item} />)}
+                    </React.Fragment>
+                ));
 
             case 'team':
                 return teamMenuItems.map(item => <SidebarItem key={item.href} item={item} />);

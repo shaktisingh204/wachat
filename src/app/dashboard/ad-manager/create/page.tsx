@@ -315,6 +315,9 @@ export default function CreateAdPage() {
                     <input type="hidden" name="targetCountry" value={formData.targetCountry} />
                     <input type="hidden" name="minAge" value={formData.minAge} />
                     <input type="hidden" name="imageHash" value={formData.imageHash} />
+                    <input type="hidden" name="objective" value="LINK_CLICKS" />
+                    <input type="hidden" name="status" value="PAUSED" />
+                    <input type="hidden" name="special_ad_categories" value="[]" />
 
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">

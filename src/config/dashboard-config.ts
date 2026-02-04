@@ -63,176 +63,110 @@ export const wachatMenuItems: MenuItem[] = [
     { href: '/dashboard/settings', label: 'Project Settings', icon: Settings, roles: ['owner', 'admin'] },
 ];
 
-export const crmMenuItems: MenuItem[] = [
-    { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, exact: true },
+export const crmMenuGroups: MenuGroup[] = [
     {
-        href: "/dashboard/crm/sales",
-        label: "Sales",
-        icon: Handshake,
-        subItems: [
-            { href: "/dashboard/crm/sales/clients", label: "Clients & Prospects" },
-            { href: "/dashboard/crm/sales/quotations", label: "Quotation & Estimates" },
-            { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoices" },
-            { href: "/dashboard/crm/sales/invoices", label: "Invoices" },
-            { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts" },
-            { href: "/dashboard/crm/sales/orders", label: "Sales Orders" },
-            { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans" },
-            { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes" },
+        title: "Overview",
+        items: [
+            { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, exact: true },
         ]
     },
     {
-        href: "/dashboard/crm/purchases",
-        label: 'Purchases',
-        icon: ShoppingBag,
-        subItems: [
-            { href: "/dashboard/crm/purchases/vendors", label: "Vendors & Suppliers" },
-            { href: "/dashboard/crm/purchases/expenses", label: "Purchases & Expenses" },
-            { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders" },
-            { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts" },
-            { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes" },
+        title: "Sales",
+        items: [
+            { href: "/dashboard/crm/sales/clients", label: "Clients & Prospects", icon: Handshake },
+            { href: "/dashboard/crm/sales/quotations", label: "Quotation & Estimates", icon: Handshake },
+            { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoices", icon: Handshake },
+            { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: Handshake },
+            { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts", icon: Handshake },
+            { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: Handshake },
+            { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Handshake },
+            { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Handshake },
         ]
     },
     {
-        href: '/dashboard/crm/inventory',
-        label: 'Inventory',
-        icon: Briefcase,
-        subItems: [
-            { href: "/dashboard/crm/inventory/items", label: "All Items" },
-            { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses" },
-            { href: "/dashboard/crm/inventory/pnl", label: "Product-wise P&L" },
-            { href: "/dashboard/crm/inventory/stock-value", label: "Stock Value Report" },
-            { href: "/dashboard/crm/inventory/batch-expiry", label: "Batch Expiry Report" },
-            { href: "/dashboard/crm/inventory/party-transactions", label: "Party Transactions Report" },
-            { href: "/dashboard/crm/inventory/all-transactions", label: "All Transactions Report" },
+        title: "Purchases",
+        items: [
+            { href: "/dashboard/crm/purchases/vendors", label: "Vendors & Suppliers", icon: ShoppingBag },
+            { href: "/dashboard/crm/purchases/expenses", label: "Purchases & Expenses", icon: ShoppingBag },
+            { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders", icon: ShoppingBag },
+            { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts", icon: ShoppingBag },
+            { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes", icon: ShoppingBag },
         ]
     },
     {
-        href: "/dashboard/crm/accounting",
-        label: "Accounting",
-        icon: Database, // Replaced React.Fragment with Database
-        subItems: [
-            { href: "/dashboard/crm/accounting/groups", label: "Account Groups" },
-            { href: "/dashboard/crm/accounting/charts", label: "Chart of Accounts" },
-            { href: "/dashboard/crm/accounting/vouchers", label: "Voucher Books" },
-            { href: "/dashboard/crm/accounting/balance-sheet", label: "Balance Sheet" },
-            { href: "/dashboard/crm/accounting/trial-balance", label: "Trial Balance" },
-            { href: "/dashboard/crm/accounting/pnl", label: "Profit and Loss" },
-            { href: "/dashboard/crm/accounting/income-statement", label: "Income Statement" },
-            { href: "/dashboard/crm/accounting/day-book", label: "Day Book" },
-            { href: "/dashboard/crm/accounting/cash-flow", label: "Cash Flow Statement" },
+        title: "Inventory",
+        items: [
+            { href: "/dashboard/crm/inventory/items", label: "All Items", icon: Briefcase },
+            { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Briefcase },
+            { href: "/dashboard/crm/inventory/pnl", label: "Product-wise P&L", icon: Briefcase },
+            { href: "/dashboard/crm/inventory/stock-value", label: "Stock Value Report", icon: Briefcase },
+            { href: "/dashboard/crm/inventory/batch-expiry", label: "Batch Expiry Report", icon: Briefcase },
+            { href: "/dashboard/crm/inventory/party-transactions", label: "Party Transactions Report", icon: Briefcase },
+            { href: "/dashboard/crm/inventory/all-transactions", label: "All Transactions Report", icon: Briefcase },
         ]
     },
     {
-        href: "/dashboard/crm/sales-crm",
-        label: "Sales CRM",
-        icon: BarChart2,
-        subItems: [
-            { href: "/dashboard/crm/sales-crm/all-leads", label: "Leads & Contacts" },
-            { href: "/dashboard/crm/deals", label: "Deals Pipeline" },
-            { href: "/dashboard/crm/tasks", label: "Tasks" },
-            { href: "/dashboard/crm/automations", label: "Automations" },
-            { href: "/dashboard/crm/sales-crm/pipelines", label: "Manage Pipelines" },
-            { href: "/dashboard/crm/sales-crm/forms", label: "Forms" },
-            { href: "/dashboard/crm/analytics", label: "Analytics" },
-            { href: "/dashboard/crm/sales-crm/leads-summary", label: "Leads Summary" },
-            { href: "/dashboard/crm/sales-crm/team-sales-report", label: "Team Sales Report" },
-            { href: "/dashboard/crm/sales-crm/client-performance-report", label: "Client Performance Report" },
-            { href: "/dashboard/crm/sales-crm/lead-source-report", label: "Lead Source Report" },
+        title: "Accounting",
+        items: [
+            { href: "/dashboard/crm/accounting/groups", label: "Account Groups", icon: Database },
+            { href: "/dashboard/crm/accounting/charts", label: "Chart of Accounts", icon: Database },
+            { href: "/dashboard/crm/accounting/vouchers", label: "Voucher Books", icon: Database },
+            { href: "/dashboard/crm/accounting/balance-sheet", label: "Balance Sheet", icon: Database },
+            { href: "/dashboard/crm/accounting/trial-balance", label: "Trial Balance", icon: Database },
+            { href: "/dashboard/crm/accounting/pnl", label: "Profit and Loss", icon: Database },
+            { href: "/dashboard/crm/accounting/income-statement", label: "Income Statement", icon: Database },
+            { href: "/dashboard/crm/accounting/day-book", label: "Day Book", icon: Database },
+            { href: "/dashboard/crm/accounting/cash-flow", label: "Cash Flow Statement", icon: Database },
         ]
     },
     {
-        href: "/dashboard/crm/banking",
-        label: "Bank & Payments",
-        icon: Landmark,
-        subItems: [
-            { href: "/dashboard/crm/banking/all", label: "All Payment Accounts" },
-            { href: "/dashboard/crm/banking/bank-accounts", label: "Bank Accounts" },
-            { href: "/dashboard/crm/banking/employee-accounts", label: "Employee Accounts" },
-            { href: "/dashboard/crm/banking/reconciliation", label: "Bank Reconciliation" },
+        title: "Sales CRM",
+        items: [
+            { href: "/dashboard/crm/sales-crm/all-leads", label: "Leads & Contacts", icon: BarChart2 },
+            { href: "/dashboard/crm/deals", label: "Deals Pipeline", icon: BarChart2 },
+            { href: "/dashboard/crm/tasks", label: "Tasks", icon: BarChart2 },
+            { href: "/dashboard/crm/automations", label: "Automations", icon: BarChart2 },
+            { href: "/dashboard/crm/sales-crm/pipelines", label: "Manage Pipelines", icon: BarChart2 },
+            { href: "/dashboard/crm/sales-crm/forms", label: "Forms", icon: BarChart2 },
+            { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart2 },
+            { href: "/dashboard/crm/sales-crm/leads-summary", label: "Leads Summary", icon: BarChart2 },
+            { href: "/dashboard/crm/sales-crm/team-sales-report", label: "Team Sales Report", icon: BarChart2 },
+            { href: "/dashboard/crm/sales-crm/client-performance-report", label: "Client Performance Report", icon: BarChart2 },
+            { href: "/dashboard/crm/sales-crm/lead-source-report", label: "Lead Source Report", icon: BarChart2 },
         ]
     },
     {
-        href: "/dashboard/crm/hr-payroll",
-        label: "HR & Payroll",
-        icon: UsersIcon,
-        subItems: [
-            {
-                href: 'hr-employee-management', // Dummy href for grouping
-                label: 'Employee Management',
-                subSubItems: [
-                    { href: "/dashboard/crm/hr-payroll/employees", label: "Employee Directory" },
-                    { href: "/dashboard/crm/hr-payroll/employees/new", label: "Add Employee" },
-                    { href: "/dashboard/crm/hr-payroll/departments", label: "Departments" },
-                    { href: "/dashboard/crm/hr-payroll/designations", label: "Designations" },
-                ],
-            },
-            {
-                href: 'hr-attendance',
-                label: 'Attendance & Leave',
-                subSubItems: [
-                    { href: "/dashboard/crm/hr-payroll/attendance", label: "Daily Attendance" },
-                    { href: "/dashboard/crm/hr-payroll/leave", label: "Leave Management" },
-                    { href: "/dashboard/crm/hr-payroll/holidays", label: "Holiday List" },
-                ],
-            },
-            {
-                href: 'hr-payroll',
-                label: 'Payroll Management',
-                subSubItems: [
-                    { href: "/dashboard/crm/hr-payroll/payroll", label: "Generate Payroll" },
-                    { href: "/dashboard/crm/hr-payroll/salary-structure", label: "Salary Structure" },
-                    { href: "/dashboard/crm/hr-payroll/payslips", label: "Payslips" },
-                ],
-            },
-            {
-                href: 'hr-compliance',
-                label: 'Statutory Compliance',
-                subSubItems: [
-                    { href: "/dashboard/crm/hr-payroll/pf-esi", label: "PF / ESI Management" },
-                    { href: "/dashboard/crm/hr-payroll/professional-tax", label: "Professional Tax" },
-                    { href: "/dashboard/crm/hr-payroll/tds", label: "TDS" },
-                    { href: "/dashboard/crm/hr-payroll/form-16", label: "Form 16" },
-                ],
-            },
-            {
-                href: 'hr-performance',
-                label: 'Performance & Appraisal',
-                subSubItems: [
-                    { href: "/dashboard/crm/hr-payroll/goal-setting", label: "Goal Setting" },
-                    { href: "/dashboard/crm/hr-payroll/kpi-tracking", label: "KPI Tracking" },
-                    { href: "/dashboard/crm/hr-payroll/appraisal-reviews", label: "Appraisal Reviews" },
-                ],
-            },
-            {
-                href: 'hr-reports',
-                label: 'Reports & Analytics',
-                subSubItems: [
-                    { href: "/dashboard/crm/hr-payroll/reports/attendance", label: "Attendance Report" },
-                    { href: "/dashboard/crm/hr-payroll/reports/leave", label: "Leave Report" },
-                    { href: "/dashboard/crm/hr-payroll/reports/payroll-summary", label: "Payroll Summary" },
-                    { href: "/dashboard/crm/hr-payroll/reports/salary-register", label: "Salary Register" },
-                ],
-            },
-            {
-                href: 'hr-settings',
-                label: 'HRM Settings',
-                subSubItems: [
-                    { href: "/dashboard/crm/hr-payroll/settings", label: "All Settings" },
-                ],
-            }
-        ],
-    },
-    {
-        href: "/dashboard/crm/reports",
-        label: "GST Reports",
-        icon: BookCopy, // Replaced React.Fragment with BookCopy
-        subItems: [
-            { href: "/dashboard/crm/reports/gstr-1", label: "GSTR-1 Sales Report" },
-            { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report" },
+        title: "Banking",
+        items: [
+            { href: "/dashboard/crm/banking/all", label: "All Payment Accounts", icon: Landmark },
+            { href: "/dashboard/crm/banking/bank-accounts", label: "Bank Accounts", icon: Landmark },
+            { href: "/dashboard/crm/banking/employee-accounts", label: "Employee Accounts", icon: Landmark },
+            { href: "/dashboard/crm/banking/reconciliation", label: "Bank Reconciliation", icon: Landmark },
         ]
     },
-    { href: "/dashboard/crm/integrations", label: "Integrations", icon: Bolt },
-    { href: "/dashboard/crm/settings", label: "CRM Settings", icon: Settings },
+    {
+        title: "HR & Payroll",
+        items: [
+            { href: "/dashboard/crm/hr-payroll/employees", label: "Employee Directory", icon: UsersIcon },
+            { href: "/dashboard/crm/hr-payroll/employees/new", label: "Add Employee", icon: UsersIcon },
+            { href: "/dashboard/crm/hr-payroll/attendance", label: "Attendance", icon: UsersIcon },
+            { href: "/dashboard/crm/hr-payroll/payroll", label: "Payroll", icon: UsersIcon },
+        ]
+    },
+    {
+        title: "Reports",
+        items: [
+            { href: "/dashboard/crm/reports/gstr-1", label: "GSTR-1 Sales Report", icon: BookCopy },
+            { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report", icon: BookCopy },
+        ]
+    },
+    {
+        title: "Settings",
+        items: [
+            { href: "/dashboard/crm/integrations", label: "Integrations", icon: Bolt },
+            { href: "/dashboard/crm/settings", label: "CRM Settings", icon: Settings },
+        ]
+    }
 ];
 
 export const teamMenuItems: MenuItem[] = [
