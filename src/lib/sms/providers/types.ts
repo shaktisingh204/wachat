@@ -1,4 +1,30 @@
 
+
+export type SmsProviderType =
+    | 'twilio'
+    | 'msg91'
+    | 'aws-sns'
+    | 'gupshup'
+    | 'plivo'
+    | 'vonage'
+    | 'clicksend'
+    | 'messagebird'
+    | 'sinch'
+    | 'kaleyra'
+    | '2factor'
+    | 'fast2sms'
+    | 'infobip'
+    | 'termii'
+    | 'telnyx'
+    | 'bandwidth'
+    | 'cm-com'
+    | 'textmagic'
+    | 'karix'
+    | 'textlocal'
+    | 'africastalking'
+    | 'bulksms'
+    | 'generic'; // Fallback for any other HTTP API
+
 export interface ISmsProvider {
     /**
      * Send a single SMS.

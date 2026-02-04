@@ -58,23 +58,30 @@ export async function middleware(request: NextRequest) {
     if (adminSessionToken) response.cookies.delete('admin_session'); // Clear invalid/expired cookie
     return response;
   }
-  
+
   if (pathname.startsWith(PENDING_APPROVAL_PAGE) && !isUserSessionValid) {
     const response = NextResponse.redirect(new URL('/login', appUrl));
     if (sessionToken) response.cookies.delete('session');
     return response;
   }
 
-  return NextResponse.next();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-url', pathname);
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 export const config = {
   matcher: [
-    '/dashboard/:path*', 
-    '/admin/dashboard/:path*', 
-    '/login', 
-    '/signup', 
-    '/forgot-password', 
+    '/dashboard/:path*',
+    '/admin/dashboard/:path*',
+    '/login',
+    '/signup',
+    '/forgot-password',
     '/admin-login',
     '/pending-approval'
   ],

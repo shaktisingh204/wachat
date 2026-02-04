@@ -9,7 +9,7 @@ import type { GlobalPermissions, CrmCustomRole } from '@/lib/definitions';
 import { v4 as uuidv4 } from 'uuid';
 
 // List of all permission keys defined in GlobalRolePermissions
-export const globalModules = [
+const globalModules = [
     // WaChat Core
     'wachat_overview', 'wachat_chat', 'wachat_contacts', 'wachat_campaigns',
     'wachat_templates', 'wachat_catalog', 'wachat_calls', 'wachat_flow_builder',

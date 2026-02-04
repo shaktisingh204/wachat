@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { DashboardClientLayout } from '@/components/wabasimplify/dashboard-client-layout';
+import { RBACGuard } from '@/components/wabasimplify/rbac-guard';
 
 // This is now a Server Component that renders the client layout.
 export default function RootDashboardLayout({
@@ -8,5 +9,9 @@ export default function RootDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <DashboardClientLayout>{children}</DashboardClientLayout>;
+  return (
+    <RBACGuard>
+      <DashboardClientLayout>{children}</DashboardClientLayout>
+    </RBACGuard>
+  );
 }
