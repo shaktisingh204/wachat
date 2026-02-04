@@ -34,11 +34,13 @@ import {
     LineChart,
     Facebook,
     Instagram,
-    Monitor
+    Monitor,
+    Grid
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationPopover } from '@/components/notifications/notification-popover';
+import { AllAppsPopover } from './all-apps-popover';
 
 interface AppRailProps {
     activeApp: string;
@@ -75,17 +77,13 @@ export function AppRail({ activeApp }: AppRailProps) {
                             <NotificationPopover />
                         </div>
 
-                        {/* 3. Apps Label & List */}
-                        <div className="flex flex-col items-center gap-3 w-full mt-2">
-                            <div className="bg-muted/50 rounded-xl px-2 py-1 text-[10px] font-medium text-muted-foreground w-full text-center">
-                                Apps
-                            </div>
-
+                        {/* 3. Apps List */}
+                        <div className="flex flex-col items-center gap-2 w-full mt-2">
                             <SidebarMenu className="items-center gap-2 w-full">
                                 <RailItem
                                     icon={MessageSquare}
                                     label="WaChat"
-                                    active={pathname === '/dashboard/' || pathname === '/dashboard/home'}
+                                    active={pathname === '/dashboard/'}
                                     href="/dashboard/"
                                 />
                                 <RailItem
@@ -136,36 +134,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                                     active={activeApp === 'sabchat'}
                                     href="/dashboard/sabchat"
                                 />
-                                <RailItem
-                                    icon={MessageCircle}
-                                    label="Live Chat"
-                                    active={pathname.startsWith('/dashboard/chat')}
-                                    href="/dashboard/chat"
-                                />
-                                <RailItem
-                                    icon={Monitor}
-                                    label="Website Builder"
-                                    active={activeApp === 'website-builder'}
-                                    href="/dashboard/website-builder"
-                                />
-                                <RailItem
-                                    icon={LinkIcon}
-                                    label="URL Shortener"
-                                    active={activeApp === 'url-shortener'}
-                                    href="/dashboard/url-shortener"
-                                />
-                                <RailItem
-                                    icon={QrCode}
-                                    label="QR Code"
-                                    active={activeApp === 'qr-code-maker'}
-                                    href="/dashboard/qr-code-maker"
-                                />
-                                <RailItem
-                                    icon={LineChart}
-                                    label="SEO"
-                                    active={activeApp === 'seo'}
-                                    href="/dashboard/seo"
-                                />
+                                <AllAppsPopover activeApp={activeApp} />
                             </SidebarMenu>
                         </div>
 
