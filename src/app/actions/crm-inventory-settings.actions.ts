@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/index';
-import type { CrmProductCategory, CrmBrand, CrmUnit } from '@/lib/definitions';
+import type { CrmProductCategory, CrmBrand, CrmUnit, CrmIndustry } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
 // --- Categories ---
@@ -157,6 +157,57 @@ export async function saveCrmUnit(prevState: any, formData: FormData): Promise<{
 
         revalidatePath('/dashboard/crm/inventory/items');
         return { message: 'Unit saved.', topic: JSON.parse(JSON.stringify(result)) };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+// --- Industries ---
+export async function getCrmIndustries(): Promise<WithId<CrmIndustry>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const industries = await db.collection('crm_industries')
+            .find({ userId: new ObjectId(session.user._id) })
+            .sort({ name: 1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(industries));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function saveCrmIndustry(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; topic?: WithId<CrmIndustry> }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+    try {
+        const { db } = await connectToDatabase();
+        const name = formData.get('name') as string;
+        if (!name) return { error: 'Name is required' };
+
+        const industryData = {
+            userId: new ObjectId(session.user._id),
+            name,
+            description: formData.get('description') as string,
+            updatedAt: new Date()
+        };
+
+        let result;
+        const id = formData.get('_id') as string;
+        if (id) {
+            await db.collection('crm_industries').updateOne(
+                { _id: new ObjectId(id) },
+                { $set: industryData }
+            );
+            result = { ...industryData, _id: new ObjectId(id) };
+        } else {
+            const res = await db.collection('crm_industries').insertOne({ ...industryData, createdAt: new Date() });
+            result = { ...industryData, createdAt: new Date(), _id: res.insertedId };
+        }
+
+        revalidatePath('/dashboard/crm/inventory/items');
+        return { message: 'Industry saved.', topic: JSON.parse(JSON.stringify(result)) };
     } catch (e) {
         return { error: getErrorMessage(e) };
     }
