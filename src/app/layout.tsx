@@ -1,4 +1,5 @@
 
+import "@/react-shim";
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
@@ -35,9 +36,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={poppins.variable}>
       <body className="antialiased font-sans">
         <SessionProvider>
-            <TooltipProvider>
-                {children}
-            </TooltipProvider>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
         </SessionProvider>
         <Toaster />
       </body>
