@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from './user.actions';
+import { getProjectById, getProjects } from './project.actions';
 import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, AnyMessage, Plan } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
@@ -331,7 +331,7 @@ export async function handleSubscribeAllProjects(): Promise<{ message?: string; 
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };
 
-    const { projects } = await getProjects();
+    const projects = await getProjects();
     const results = await Promise.all(
         projects.map(p => handleSubscribeProjectWebhook(p.wabaId!, p.appId!, p.accessToken))
     );
@@ -380,7 +380,7 @@ export async function handleSendMessage(
         return { error: 'Required fields are missing to send message.' };
     }
 
-    const project = projectFromAction || await getProjectById(projectId, null);
+    const project = projectFromAction || await getProjectById(projectId);
     if (!project) return { error: 'Project not found or you do not have access.' };
 
     try {
@@ -463,8 +463,8 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
         return { error: 'Missing required information.' };
     }
 
-    const hasAccess = projectFromAction || await getProjectById(projectId, null);
-    if (!hasAccess) return { error: "Access denied." };
+    const project = projectFromAction || await getProjectById(projectId);
+    if (!project) return { error: "Access denied." };
 
     try {
         const { db } = await connectToDatabase();
@@ -475,7 +475,7 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
                 $setOnInsert: {
                     waId,
                     projectId: new ObjectId(projectId),
-                    userId: hasAccess.userId,
+                    userId: project.userId,
                     name: `User (${waId.slice(-4)})`,
                     createdAt: new Date(),
                     status: 'new',
@@ -513,8 +513,8 @@ export async function getInitialChatData(projectId: string, phoneNumberId?: stri
         contactFilter.waId = waId;
     }
 
-    const contacts = await db.collection('contacts').find(contactFilter).sort({ lastMessageTimestamp: -1 }).limit(30).toArray();
-    const totalContacts = await db.collection('contacts').countDocuments(contactFilter);
+    const contacts = await db.collection('contacts').find(contactFilter as any).sort({ lastMessageTimestamp: -1 }).limit(30).toArray() as unknown as WithId<Contact>[];
+    const totalContacts = await db.collection('contacts').countDocuments(contactFilter as any);
     const templates = await db.collection('templates').find({ projectId: new ObjectId(projectId), status: 'APPROVED' }).toArray();
 
     let selectedContact: WithId<Contact> | null = null;
@@ -523,7 +523,8 @@ export async function getInitialChatData(projectId: string, phoneNumberId?: stri
     if (contactId) {
         selectedContact = contacts.find(c => c._id.toString() === contactId) || null;
         if (!selectedContact) {
-            selectedContact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId), projectId: new ObjectId(projectId) });
+            const found = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId), projectId: new ObjectId(projectId) });
+            selectedContact = found ? JSON.parse(JSON.stringify(found)) as WithId<Contact> : null;
         }
     } else if (waId) {
         selectedContact = contacts.find(c => c.waId === waId) || null;
@@ -556,10 +557,10 @@ export async function getConversation(contactId: string): Promise<AnyMessage[]> 
         db.collection('outgoing_messages').find({ contactId: contactObjectId }).sort({ messageTimestamp: 1 }).toArray(),
     ]);
 
-    const conversation: AnyMessage[] = [...incoming, ...outgoing];
+    const conversation: AnyMessage[] = [...(incoming as any[]), ...(outgoing as any[])];
     conversation.sort((a, b) => new Date(a.messageTimestamp).getTime() - new Date(b.messageTimestamp).getTime());
 
-    return JSON.parse(JSON.stringify(conversation));
+    return JSON.parse(JSON.stringify(conversation)) as AnyMessage[];
 }
 
 export async function markConversationAsRead(contactId: string): Promise<{ success: boolean }> {
