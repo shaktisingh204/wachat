@@ -55,8 +55,13 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
     }
 
     // Admins/Owners bypass all checks
-    // Check roles array string match
-    if (user.roles?.includes('owner') || user.roles?.includes('admin')) {
+    // Check both 'roles' array and legacy/singular 'role' string
+    if (
+        user.roles?.includes('owner') ||
+        user.roles?.includes('admin') ||
+        user.role === 'owner' ||
+        user.role === 'admin'
+    ) {
         return <>{children}</>;
     }
 

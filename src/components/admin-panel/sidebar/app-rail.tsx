@@ -35,9 +35,11 @@ import {
     Facebook,
     Instagram,
     Monitor,
-    Grid
+    Grid,
+    Mic
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
+import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationPopover } from '@/components/notifications/notification-popover';
 import { AllAppsPopover } from './all-apps-popover';
@@ -59,7 +61,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                     </div>
                 </SidebarHeader>
 
-                <ScrollArea className="flex-1 w-full px-2">
+                <ScrollArea className="flex-1 w-full">
                     <SidebarContent className="flex flex-col items-center gap-4 w-full overflow-visible">
                         {/* 1. Home */}
                         <SidebarMenu className="items-center gap-2 w-full">
@@ -79,21 +81,22 @@ export function AppRail({ activeApp }: AppRailProps) {
 
                         {/* 3. Apps List */}
                         <div className="flex flex-col items-center gap-2 w-full mt-2">
+                            <div className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[10px] font-medium">Apps</div>
                             <SidebarMenu className="items-center gap-2 w-full">
                                 <RailItem
-                                    icon={MessageSquare}
+                                    icon={WhatsAppIcon}
                                     label="WaChat"
-                                    active={pathname === '/dashboard/'}
-                                    href="/dashboard/"
+                                    active={pathname === '/dashboard'}
+                                    href="/dashboard"
                                 />
                                 <RailItem
-                                    icon={Facebook}
+                                    icon={MetaIcon}
                                     label="Meta Suite"
                                     active={activeApp === 'facebook'}
                                     href="/dashboard/facebook"
                                 />
                                 <RailItem
-                                    icon={Crosshair}
+                                    icon={Mic}
                                     label="Ad Manager"
                                     active={activeApp === 'ad-manager'}
                                     href="/dashboard/ad-manager"
@@ -142,7 +145,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                 </ScrollArea>
 
                 {/* Footer Section */}
-                <SidebarFooter className="w-full px-2 mt-auto">
+                <SidebarFooter className="w-full mt-auto">
                     <SidebarMenu className="items-center gap-2 w-full flex-col">
                         <RailItem
                             icon={Settings}
