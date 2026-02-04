@@ -6,6 +6,7 @@ import type { WithId, User, SabChatSettings } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Code, Save, LoaderCircle, MessageSquare } from 'lucide-react';
@@ -15,7 +16,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { saveSabChatSettings } from '@/app/actions/sabchat.actions';
 import { useFormStatus } from 'react-dom';
 
-const initialState = { message: null, error: undefined };
+const initialState: { message: string | null; error?: string } = { message: null, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -28,10 +29,11 @@ function SubmitButton() {
 }
 
 export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
+    // @ts-ignore
     const [state, formAction] = useActionState(saveSabChatSettings, initialState);
     const { toast } = useToast();
     const [showWidget, setShowWidget] = useState(false);
-    
+
     const [settings, setSettings] = useState<SabChatSettings>(() => ({
         enabled: user.sabChatSettings?.enabled ?? true,
         widgetColor: user.sabChatSettings?.widgetColor || '#1f2937',
@@ -46,23 +48,23 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
             toast({ title: 'Success!', description: state.message });
         }
         if (state.error) {
-            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+            toast({ title: 'Error', description: state.error || 'An error occurred', variant: 'destructive' });
         }
     }, [state, toast]);
 
     const handleSettingChange = (field: keyof SabChatSettings, value: string | boolean) => {
-        setSettings(prev => ({...prev, [field]: value}));
+        setSettings(prev => ({ ...prev, [field]: value }));
     }
 
     const embedCode = useMemo(() => {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
         return `<script src="${appUrl}/api/sabchat/${user._id.toString()}" async defer></script>`;
     }, [user._id]);
-    
+
     return (
         <Card>
             <form action={formAction}>
-                 <input type="hidden" name="settings" value={JSON.stringify(settings)} />
+                <input type="hidden" name="settings" value={JSON.stringify(settings)} />
                 <CardHeader>
                     <div className="flex items-center gap-3">
                         <Code className="h-8 w-8" />
@@ -76,6 +78,24 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                     <div className="grid lg:grid-cols-2 gap-8 items-start">
                         {/* Customization Panel */}
                         <div className="space-y-4">
+                            <div className="flex items-center space-x-2 border p-4 rounded-lg bg-slate-50">
+                                <Switch
+                                    id="widget-enabled"
+                                    checked={settings.enabled}
+                                    onCheckedChange={(checked) => handleSettingChange('enabled', checked)}
+                                />
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="widget-enabled">Enable Chat Widget</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        {settings.enabled ? 'Widget is active and visible on your site.' : 'Widget is disabled and hidden from your site.'}
+                                    </p>
+                                </div>
+                                {/* Important: The action expects 'enabled' to be 'on' if checked.
+                                    If we don't include this, the action logic `formData.get('enabled') === 'on'` will be false.
+                                */}
+                                {settings.enabled && <input type="hidden" name="enabled" value="on" />}
+                            </div>
+
                             <div className="space-y-2">
                                 <Label>Widget Color</Label>
                                 <Input type="color" value={settings.widgetColor} onChange={e => handleSettingChange('widgetColor', e.target.value)} />
@@ -88,7 +108,7 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                                 <Label>Welcome Message</Label>
                                 <Textarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} />
                             </div>
-                             <div className="space-y-2">
+                            <div className="space-y-2">
                                 <Label>Avatar URL</Label>
                                 <Input value={settings.avatarUrl} onChange={e => handleSettingChange('avatarUrl', e.target.value)} />
                             </div>
@@ -102,7 +122,7 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                                         <MessageSquare className="h-8 w-8" />
                                     </Button>
                                     {showWidget && (
-                                         <div className="absolute bottom-[96px] right-[16px] w-[350px] bg-white rounded-lg shadow-2xl flex flex-col h-[300px]">
+                                        <div className="absolute bottom-[96px] right-[16px] w-[350px] bg-white rounded-lg shadow-2xl flex flex-col h-[300px]">
                                             <div style={{ backgroundColor: settings.widgetColor }} className="text-white p-4 flex items-center gap-3 rounded-t-lg">
                                                 <Avatar>
                                                     {settings.avatarUrl && <AvatarImage src={settings.avatarUrl} />}
@@ -122,14 +142,14 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                 <Label>Embed Code</Label>
-                                 <p className="text-xs text-muted-foreground">Copy and paste this code before the closing `&lt;/body&gt;` tag on your website.</p>
-                                 <CodeBlock code={embedCode} />
+                                <Label>Embed Code</Label>
+                                <p className="text-xs text-muted-foreground">Copy and paste this code before the closing `&lt;/body&gt;` tag on your website.</p>
+                                <CodeBlock code={embedCode} />
                             </div>
                         </div>
                     </div>
                 </CardContent>
-                 <CardFooter>
+                <CardFooter>
                     <SubmitButton />
                 </CardFooter>
             </form>

@@ -224,6 +224,12 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
         } else {
             // Default domain lookup
             urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode, domainId: { $exists: false } });
+
+            // Fallback: If not found, check if it exists with a domainId (allow accessing custom domain links via default domain)
+            if (!urlDoc) {
+                urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode });
+            }
+
         }
 
 

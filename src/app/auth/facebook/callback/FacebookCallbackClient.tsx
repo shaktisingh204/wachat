@@ -29,13 +29,24 @@ export default function FacebookCallbackClient({
   const [, startTransition] = useTransition()
 
   useEffect(() => {
+    const getRedirectPath = (state: string | undefined) => {
+      switch (state) {
+        case 'whatsapp': return '/dashboard';
+        case 'facebook': return '/dashboard/facebook/all-projects';
+        case 'ad_manager': return '/dashboard/ad-manager/ad-accounts';
+        case 'instagram': return '/dashboard/instagram/connections';
+        default: return '/dashboard/facebook/all-projects';
+      }
+    };
+    const redirectPath = getRedirectPath(stateFromUrl);
+
     if (error) {
       toast({
         title: 'Connection Failed',
         description: error,
         variant: 'destructive',
       })
-      router.replace('/dashboard/facebook/all-projects')
+      router.replace(redirectPath)
       return
     }
 
@@ -45,7 +56,7 @@ export default function FacebookCallbackClient({
         description: 'The connection process was cancelled or no code was provided.',
         variant: 'default',
       })
-      router.replace('/dashboard/facebook/all-projects');
+      router.replace(redirectPath);
       return;
     }
 
@@ -64,10 +75,10 @@ export default function FacebookCallbackClient({
           description: result.error || 'An unknown error occurred.',
           variant: 'destructive',
         })
-        router.replace('/dashboard/facebook/all-projects')
+        router.replace(redirectPath)
       }
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, error, stateFromUrl, router, toast])
 
   return (
