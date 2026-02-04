@@ -1,11 +1,11 @@
 
 'use client';
 
-import * as React from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
-  Send, Megaphone, Newspaper, MessageSquare, ArrowRight, Star, ChevronDown, Check, Users, Settings, Edit, Trash2, Calendar, ThumbsUp, Share2, Facebook as FacebookIcon, Instagram as InstagramIcon, Bot, LayoutDashboard, Wrench, LayoutGrid, Brush, ShoppingBag
+    Send, Megaphone, Newspaper, MessageSquare, ArrowRight, Star, ChevronDown, Check, Users, Settings, Edit, Trash2, Calendar, ThumbsUp, Share2, Facebook as FacebookIcon, Instagram as InstagramIcon, Bot, LayoutDashboard, Wrench, LayoutGrid, Brush, ShoppingBag
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -55,11 +55,11 @@ export const MetaSuiteShowcase = () => {
                     <p className="mx-auto text-lg text-muted-foreground">Unify your social media presence. Manage content, ads, and messages for Facebook and Instagram from one powerful dashboard.</p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Button size="lg" asChild><Link href="/signup">Get Started for Free <ArrowRight className="ml-2 h-5 w-5" /></Link></Button>
-                        <Button size="lg" variant="outline" asChild><Link href="#features">Learn More <ChevronDown className="ml-2 h-5 w-5"/></Link></Button>
+                        <Button size="lg" variant="outline" asChild><Link href="#features">Learn More <ChevronDown className="ml-2 h-5 w-5" /></Link></Button>
                     </div>
                 </div>
             </div>
-            
+
             {/* Features Section */}
             <section id="features" className="py-16 bg-muted rounded-lg">
                 <div className="container mx-auto px-4">
@@ -69,17 +69,17 @@ export const MetaSuiteShowcase = () => {
                     </div>
                 </div>
             </section>
-            
+
             {/* Showcase Section */}
             <section id="showcase" className="py-16 md:py-24">
                 <div className="container mx-auto px-4">
                     <div className="text-center space-y-4 mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold font-headline">Built for Efficiency and Scale</h2>
                         <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-                           See how our unified tools simplify your social media management.
+                            See how our unified tools simplify your social media management.
                         </p>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 gap-16 xl:gap-24">
                         {/* Live Chat Mockup */}
                         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12" key={`meta-showcase-chat-${animationKey}`}>
@@ -90,16 +90,16 @@ export const MetaSuiteShowcase = () => {
                                 </p>
                             </div>
                             <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full flex justify-center">
-                               <Card className="w-full shadow-xl animate-fade-in-up flex h-[450px] overflow-hidden">
+                                <Card className="w-full shadow-xl animate-fade-in-up flex h-[450px] overflow-hidden">
                                     <div className="w-1/3 border-r bg-card flex flex-col">
-                                        <div className="p-3 border-b"><Input placeholder="Search..."/></div>
+                                        <div className="p-3 border-b"><Input placeholder="Search..." /></div>
                                         <div className="flex-1 overflow-y-auto">
                                             <div className="p-3 flex gap-3 border-b bg-muted">
-                                                <Avatar><AvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="woman portrait"/><AvatarFallback>A</AvatarFallback></Avatar>
+                                                <Avatar><AvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="woman portrait" /><AvatarFallback>A</AvatarFallback></Avatar>
                                                 <div><p className="font-semibold text-sm">Aisha Ahmed</p><p className="text-xs text-muted-foreground">Thanks for the help!</p></div>
                                             </div>
                                             <div className="p-3 flex gap-3 border-b">
-                                                <Avatar><AvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="man portrait"/><AvatarFallback>D</AvatarFallback></Avatar>
+                                                <Avatar><AvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="man portrait" /><AvatarFallback>D</AvatarFallback></Avatar>
                                                 <div><p className="font-semibold text-sm">David Chen</p><p className="text-xs text-muted-foreground">Sure, here is my order #...</p></div>
                                             </div>
                                         </div>
@@ -108,11 +108,11 @@ export const MetaSuiteShowcase = () => {
                                         <div className="p-3 border-b flex-shrink-0 flex items-center gap-2"><Avatar><AvatarFallback>A</AvatarFallback></Avatar><p className="font-semibold">Aisha Ahmed</p></div>
                                         <div className="flex-1 p-4 space-y-3 bg-slate-100">
                                             <div className="flex justify-start"><div className="bg-slate-200 p-2 rounded-lg text-sm">Is the blue shirt in stock?</div></div>
-                                            <div className="flex justify-end animate-fade-in-up" style={{animationDelay: '0.5s'}}><div className="bg-blue-600 text-white p-2 rounded-lg text-sm">Yes it is! Would you like to order?</div></div>
+                                            <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-blue-600 text-white p-2 rounded-lg text-sm">Yes it is! Would you like to order?</div></div>
                                         </div>
-                                        <div className="p-2 border-t"><Input placeholder="Type a message..."/></div>
+                                        <div className="p-2 border-t"><Input placeholder="Type a message..." /></div>
                                     </div>
-                               </Card>
+                                </Card>
                             </div>
                         </div>
                         {/* Kanban Board Mockup */}
@@ -165,9 +165,9 @@ export const MetaSuiteShowcase = () => {
                             <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full flex justify-center">
                                 <Card className="w-full shadow-xl animate-fade-in-up flex h-[450px] overflow-hidden">
                                     <div className="w-1/4 border-r bg-card flex flex-col p-2 space-y-2">
-                                        <Button variant="outline" size="sm" className="justify-start"><LayoutGrid className="mr-2 h-4 w-4"/> Section</Button>
-                                        <Button variant="outline" size="sm" className="justify-start"><Newspaper className="mr-2 h-4 w-4"/> Heading</Button>
-                                        <Button variant="outline" size="sm" className="justify-start"><ShoppingBag className="mr-2 h-4 w-4"/> Products</Button>
+                                        <Button variant="outline" size="sm" className="justify-start"><LayoutGrid className="mr-2 h-4 w-4" /> Section</Button>
+                                        <Button variant="outline" size="sm" className="justify-start"><Newspaper className="mr-2 h-4 w-4" /> Heading</Button>
+                                        <Button variant="outline" size="sm" className="justify-start"><ShoppingBag className="mr-2 h-4 w-4" /> Products</Button>
                                     </div>
                                     <div className="flex-1 p-4 bg-slate-100">
                                         <div className="bg-white p-4 rounded-md shadow-inner space-y-4">
@@ -182,11 +182,11 @@ export const MetaSuiteShowcase = () => {
                                         <h4 className="font-semibold text-sm">Properties</h4>
                                         <div className="space-y-2">
                                             <Label className="text-xs">Background</Label>
-                                            <Input type="color" defaultValue="#e2e8f0"/>
+                                            <Input type="color" defaultValue="#e2e8f0" />
                                         </div>
-                                         <div className="space-y-2">
+                                        <div className="space-y-2">
                                             <Label className="text-xs">Padding</Label>
-                                            <Input type="number" defaultValue="32"/>
+                                            <Input type="number" defaultValue="32" />
                                         </div>
                                     </div>
                                 </Card>

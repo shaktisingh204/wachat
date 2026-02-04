@@ -1,7 +1,7 @@
 
 'use client';
 
-import * as React from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
