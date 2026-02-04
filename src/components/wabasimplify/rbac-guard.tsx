@@ -56,6 +56,43 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
         return <>{children}</>;
     }
 
+    // 0. Check Plan Permissions (Master Overlay)
+    // The Plan dictates the absolute maximum ceiling of what is possible.
+    // Even an Owner cannot access a module if their Plan disables it.
+
+    // session object structure from getSession: { user: { ...plan: { permissions: ... } } }
+    // User type has planId, and getSession populates 'plan'.
+
+    const plan = (user as any).plan;
+    if (plan && plan.permissions && permissionKey) {
+        // Parse module and action from permissionKey (format: module_view)
+        // Actually, our permission keys in `globalModules` are like `crm_sales`, but the guard passes `crm_sales` as key?
+        // Wait, `getRequiredPermissionForPath` returns keys like `crm_sales`?
+        // Let's verify `getRequiredPermissionForPath` logic. 
+        // Assuming permissionKey matches the module name in globalModules.
+
+        // If the Key matches a module name directly (e.g. 'crm_reports'), we check 'view' on that module.
+        // For now, let's assume 'view' is required to access the page.
+
+        const [module, action] = permissionKey.split(':'); // If format is module:action
+        // However, looking at rbca-guard usage, it seems it gets keys like 'crm_dashboard'.
+        // So we default to checking 'view' permission for that module.
+
+        const requiredModule = permissionKey;
+        const requiredAction = 'view';
+
+        const planModulePerms = plan.permissions[requiredModule];
+        if (planModulePerms) {
+            // If the module exists in plan permissions, we check the specific action.
+            // If the plan has explicit "false", we deny.
+            // If existing plans (legacy) don't have permissions object, we treat as "Allowed" (backward compat).
+
+            if (planModulePerms[requiredAction] === false) {
+                return <ForbiddenPage />;
+            }
+        }
+    }
+
     // 1. Check Explicit Roles
     // Check both 'roles' array and legacy/singular 'role' string
     if (

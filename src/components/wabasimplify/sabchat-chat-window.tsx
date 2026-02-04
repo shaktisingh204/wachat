@@ -13,9 +13,9 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Input } from '../ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { postChatMessage } from '@/app/actions/sabchat.actions';
+import { postChatMessageAction } from '@/app/actions/sabchat.actions';
 
-const sendInitialState = { success: false, error: null };
+const sendInitialState: { success: boolean; error?: string } = { success: false, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -28,7 +28,7 @@ function SubmitButton() {
 }
 
 function ChatMessage({ message, isAgent }: { message: SabChatMessage, isAgent: boolean }) {
-     return (
+    return (
         <div className={cn("flex items-end gap-2 group/message", isAgent ? "justify-end" : "justify-start")}>
             {!isAgent && (
                 <Avatar className="h-8 w-8 self-end">
@@ -44,7 +44,7 @@ function ChatMessage({ message, isAgent }: { message: SabChatMessage, isAgent: b
                 )}
             >
                 <p className="whitespace-pre-wrap">{message.content}</p>
-                 <div className={cn("flex items-center gap-1.5 self-end mt-1 text-xs", isAgent ? 'text-primary-foreground/80' : 'text-muted-foreground/80')}>
+                <div className={cn("flex items-center gap-1.5 self-end mt-1 text-xs", isAgent ? 'text-primary-foreground/80' : 'text-muted-foreground/80')}>
                     <p>
                         {format(new Date(message.timestamp), 'p')}
                     </p>
@@ -61,7 +61,7 @@ interface SabChatWindowProps {
 }
 
 export function SabChatWindow({ session, isLoading, onMessageSent }: SabChatWindowProps) {
-    const [sendState, sendFormAction] = useActionState(postChatMessage, sendInitialState);
+    const [sendState, sendFormAction] = useActionState(postChatMessageAction, sendInitialState);
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -92,11 +92,11 @@ export function SabChatWindow({ session, isLoading, onMessageSent }: SabChatWind
                     </div>
                 </div>
             </div>
-            
+
             <ScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
-                 {isLoading ? (
+                {isLoading ? (
                     <div className="flex items-center justify-center h-full">
-                         <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+                        <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
                 ) : (
                     <div className="p-4 space-y-4">
@@ -107,9 +107,9 @@ export function SabChatWindow({ session, isLoading, onMessageSent }: SabChatWind
                     </div>
                 )}
             </ScrollArea>
-            
+
             <div className="flex items-center p-3 border-t bg-background flex-shrink-0">
-                 <form ref={formRef} action={sendFormAction} className="w-full flex items-center gap-2">
+                <form ref={formRef} action={sendFormAction} className="w-full flex items-center gap-2">
                     <input type="hidden" name="sessionId" value={session._id.toString()} />
                     <input type="hidden" name="sender" value="agent" />
                     <Input name="content" placeholder="Type your reply..." autoComplete="off" />

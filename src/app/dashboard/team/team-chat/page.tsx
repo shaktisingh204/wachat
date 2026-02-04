@@ -5,14 +5,14 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, MessageSquare, Search, Bell } from 'lucide-react';
+import { Send, MessageSquare, Search, Bell, BellOff } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { getInvitedUsers } from '@/app/actions/team.actions';
 import { getErrorMessage } from '@/lib/utils';
 import { getOrCreateDmChannel, getChannelMessages, sendTeamMessage } from '@/app/actions/team-chat.actions';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { WithId, User, TeamMessage, TeamChannel } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -27,8 +27,29 @@ export default function TeamChatPage() {
     const [isLoadingMembers, startLoadingMembers] = useTransition();
     const [isLoadingMessages, startLoadingMessages] = useTransition();
     const [isSending, startSending] = useTransition();
+    const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
     const scrollRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
+
+    // Check notification permission on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined' && 'Notification' in window) {
+            setNotificationPermission(Notification.permission);
+        }
+    }, []);
+
+    const requestNotificationPermission = async () => {
+        if (!('Notification' in window)) {
+            toast({ title: 'Not Supported', description: 'This browser does not support desktop notifications.', variant: 'destructive' });
+            return;
+        }
+        const permission = await Notification.requestPermission();
+        setNotificationPermission(permission);
+        if (permission === 'granted') {
+            toast({ title: 'Notifications Enabled', description: 'You will now be notified of new messages.' });
+            new Notification('WaChat Team', { body: 'Notifications enabled!' });
+        }
+    };
 
     // Fetch initial data (Current User & Team Members)
     useEffect(() => {
@@ -67,13 +88,24 @@ export default function TeamChatPage() {
 
         const interval = setInterval(async () => {
             const newMessages = await getChannelMessages(currentChannel._id.toString());
-            // Simple optimization: only update if count changes or last ID is different
-            // For now, replacing all to be safe with updates
+
+            // Check for new messages to notify
+            if (newMessages.length > messages.length && messages.length > 0) {
+                const latestMsg = newMessages[newMessages.length - 1];
+                // Notify if message is NOT from current user and document is hidden OR permission granted
+                if (latestMsg.senderId.toString() !== currentUser?._id.toString() && notificationPermission === 'granted') {
+                    new Notification(`New message from ${selectedUser?.name || 'Team'}`, {
+                        body: latestMsg.content,
+                        icon: '/icon.png' // Optional: Add app icon if available
+                    });
+                }
+            }
+
             setMessages(newMessages);
         }, 3000); // Poll every 3 seconds
 
         return () => clearInterval(interval);
-    }, [currentChannel]);
+    }, [currentChannel, messages.length, notificationPermission, currentUser, selectedUser]); // Include dependencies for correct logic
 
     // Scroll to bottom on new messages
     useEffect(() => {
@@ -111,10 +143,24 @@ export default function TeamChatPage() {
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><MessageSquare /> Team Chat</h1>
                     <p className="text-muted-foreground">Communicate with your team members directly.</p>
                 </div>
-                <Button variant="outline" disabled>
-                    <Bell className="mr-2 h-4 w-4" />
-                    Enable Notifications
-                </Button>
+                {notificationPermission === 'default' && (
+                    <Button variant="outline" onClick={requestNotificationPermission}>
+                        <Bell className="mr-2 h-4 w-4" />
+                        Enable Notifications
+                    </Button>
+                )}
+                {notificationPermission === 'denied' && (
+                    <Button variant="outline" disabled className="text-destructive border-destructive/50">
+                        <BellOff className="mr-2 h-4 w-4" />
+                        Notifications Blocked
+                    </Button>
+                )}
+                {notificationPermission === 'granted' && (
+                    <Button variant="ghost" disabled className="text-green-600 bg-green-50/50">
+                        <Bell className="mr-2 h-4 w-4" />
+                        Notifications On
+                    </Button>
+                )}
             </div>
             <Card className="flex-1 flex overflow-hidden">
                 <div className="w-1/3 border-r flex flex-col">

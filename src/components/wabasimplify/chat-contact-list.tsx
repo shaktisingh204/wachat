@@ -29,16 +29,16 @@ interface ChatContactListProps {
     onPhoneNumberChange: (phoneId: string) => void;
 }
 
-export function ChatContactList({ 
+export function ChatContactList({
     sessionUser,
-    project, 
-    contacts, 
-    selectedContactId, 
-    onSelectContact, 
-    onNewChat, 
-    isLoading, 
-    hasMoreContacts, 
-    loadMoreRef, 
+    project,
+    contacts,
+    selectedContactId,
+    onSelectContact,
+    onNewChat,
+    isLoading,
+    hasMoreContacts,
+    loadMoreRef,
     selectedPhoneNumberId,
     onPhoneNumberChange
 }: ChatContactListProps) {
@@ -51,12 +51,12 @@ export function ChatContactList({
     const filteredContacts = useMemo(() => {
         if (!searchQuery) return contacts;
         const lowercasedQuery = searchQuery.toLowerCase();
-        return contacts.filter(contact => 
+        return contacts.filter(contact =>
             contact.name.toLowerCase().includes(lowercasedQuery) ||
             contact.waId.includes(searchQuery)
         );
     }, [contacts, searchQuery]);
-    
+
     const getStatusVariant = (status?: string) => {
         if (!status) return 'secondary';
         const s = status.toLowerCase();
@@ -76,7 +76,7 @@ export function ChatContactList({
             </div>
         </div>
     );
-    
+
     return (
         <div className="h-full flex flex-col overflow-hidden bg-card">
             <div className="p-3 border-b flex-shrink-0 flex items-center justify-between">
@@ -101,15 +101,15 @@ export function ChatContactList({
             </div>
 
             <div className="p-3 border-b flex-shrink-0 space-y-3">
-                 <div className="relative">
+                <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                        placeholder="Search or start new chat" 
-                        className="pl-8" 
+                    <Input
+                        placeholder="Search or start new chat"
+                        className="pl-8"
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                 </div>
-                 <Select value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
+                <Select value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
                     <SelectTrigger id="phoneNumberId">
                         <SelectValue placeholder="Select a phone number..." />
                     </SelectTrigger>
@@ -134,8 +134,8 @@ export function ChatContactList({
                                 key={contact._id.toString()}
                                 onClick={() => onSelectContact(contact)}
                                 className={cn(
-                                    "flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-accent",
-                                    selectedContactId === contact._id.toString() && "bg-accent"
+                                    "flex w-full items-start gap-3 p-3 text-left transition-all duration-200 rounded-xl mx-2 mb-1 w-[calc(100%-16px)] hover:bg-accent/50",
+                                    selectedContactId === contact._id.toString() && "bg-accent shadow-sm"
                                 )}
                             >
                                 <Avatar>

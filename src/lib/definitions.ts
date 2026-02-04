@@ -1794,6 +1794,10 @@ export type PlanFeaturePermissions = {
     crmGstReports: boolean;
     crmIntegrations: boolean;
     crmSettings: boolean;
+
+    // Team Features
+    teamChat: boolean;
+    teamTasks: boolean;
 };
 
 export type PlanMessageCosts = {
@@ -1817,9 +1821,14 @@ export type Plan = {
     flowLimit: number;
     metaFlowLimit: number;
     cannedMessageLimit: number;
+    // Team Limits
+    customRoleLimit: number;
+    teamChannelLimit: number;
+    teamTaskLimit: number;
     signupCredits?: number;
     messageCosts: PlanMessageCosts;
     features: PlanFeaturePermissions;
+    permissions?: GlobalPermissions; // Master permission controls (Team-like structure)
     createdAt: Date;
 };
 
@@ -1849,7 +1858,7 @@ export type User = {
     };
     crm?: {
         whatsappProjectId?: ObjectId;
-        permissions?: CrmPermissions;
+        permissions?: GlobalPermissions;
         customRoles?: CrmCustomRole[];
     };
     emailSettings?: {
@@ -2842,4 +2851,27 @@ export type SmsLog = {
     cost?: number; // If supported by provider
     sentAt: Date;
     createdAt: Date;
+};
+export type ActivityAction =
+    | 'TASK_CREATED'
+    | 'TASK_UPDATED'
+    | 'TASK_DELETED'
+    | 'MEMBER_INVITED'
+    | 'MEMBER_REMOVED'
+    | 'ROLE_UPDATED'
+    | 'PROJECT_CREATED'
+    | 'PROJECT_DELETED';
+
+export type ActivityLog = {
+    _id: ObjectId;
+    userId: ObjectId;
+    projectId?: ObjectId;
+    action: ActivityAction | string; // Allow string for flexibility
+    details: any;
+    createdAt: Date;
+    user?: {
+        name: string;
+        email: string;
+        avatar?: string;
+    };
 };

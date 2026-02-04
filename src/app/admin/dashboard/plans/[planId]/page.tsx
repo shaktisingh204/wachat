@@ -21,6 +21,7 @@ import { ChevronLeft, LoaderCircle, Save } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { planFeatureMap } from '@/lib/plans';
+import { PlanPermissionSelector } from '@/components/wabasimplify/plan-permission-selector';
 export const dynamic = 'force-dynamic';
 
 const initialState = { message: null, error: null };
@@ -45,9 +46,9 @@ export default function PlanEditorPage() {
 
     const [plan, setPlan] = useState<WithId<Plan> | null>(null);
     const [loading, setLoading] = useState(true);
-    
+
     const isNew = planId === 'new';
-    
+
     const formAction = (formData: FormData) => {
         startTransition(async () => {
             const result = await savePlan(null, formData);
@@ -91,7 +92,7 @@ export default function PlanEditorPage() {
             </div>
         );
     }
-    
+
     return (
         <form action={formAction} className="space-y-4">
             <input type="hidden" name="planId" value={plan?._id.toString() || 'new'} />
@@ -102,7 +103,7 @@ export default function PlanEditorPage() {
                 <h1 className="text-3xl font-bold font-headline">{isNew ? 'Create New Plan' : `Edit Plan: ${plan?.name}`}</h1>
                 <p className="text-muted-foreground">Configure the details, limits, and features for this plan.</p>
             </div>
-            
+
             <Card>
                 <CardHeader>
                     <CardTitle>Basic Details</CardTitle>
@@ -115,7 +116,7 @@ export default function PlanEditorPage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="appCategory">Plan Category</Label>
-                             <Select name="appCategory" defaultValue={plan?.appCategory}>
+                            <Select name="appCategory" defaultValue={plan?.appCategory}>
                                 <SelectTrigger id="appCategory"><SelectValue placeholder="Select a category..." /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="All-In-One">All-In-One</SelectItem>
@@ -146,7 +147,7 @@ export default function PlanEditorPage() {
                             </Select>
                         </div>
                     </div>
-                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="signupCredits">Signup Credits</Label>
                             <Input id="signupCredits" name="signupCredits" type="number" defaultValue={plan?.signupCredits ?? 0} required min="0" step="1" />
@@ -172,11 +173,11 @@ export default function PlanEditorPage() {
                     </div>
                 </CardContent>
                 <CardFooter className="flex flex-wrap gap-x-8 gap-y-4">
-                     <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2">
                         <Switch id="isPublic" name="isPublic" defaultChecked={plan?.isPublic ?? false} />
                         <Label htmlFor="isPublic">Publicly Visible</Label>
                     </div>
-                     <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2">
                         <Switch id="isDefault" name="isDefault" defaultChecked={plan?.isDefault ?? false} />
                         <Label htmlFor="isDefault">Default for New Signups</Label>
                     </div>
@@ -187,13 +188,16 @@ export default function PlanEditorPage() {
                 <Card>
                     <CardHeader><CardTitle>Feature Limits</CardTitle><CardDescription>Set to 0 for unlimited.</CardDescription></CardHeader>
                     <CardContent className="space-y-3">
-                        <div className="space-y-2"><Label htmlFor="projectLimit">Project Limit</Label><Input id="projectLimit" name="projectLimit" type="number" defaultValue={plan?.projectLimit ?? 5} required min="0"/></div>
-                        <div className="space-y-2"><Label htmlFor="agentLimit">Agent Limit (per project)</Label><Input id="agentLimit" name="agentLimit" type="number" defaultValue={plan?.agentLimit ?? 10} required min="0"/></div>
-                        <div className="space-y-2"><Label htmlFor="attributeLimit">Custom Attribute Limit</Label><Input id="attributeLimit" name="attributeLimit" type="number" defaultValue={plan?.attributeLimit ?? 20} required min="0"/></div>
-                        <div className="space-y-2"><Label htmlFor="templateLimit">Template Limit</Label><Input id="templateLimit" name="templateLimit" type="number" defaultValue={plan?.templateLimit ?? 50} required min="0"/></div>
-                        <div className="space-y-2"><Label htmlFor="flowLimit">Flow Builder Limit</Label><Input id="flowLimit" name="flowLimit" type="number" defaultValue={plan?.flowLimit ?? 10} required min="0"/></div>
-                        <div className="space-y-2"><Label htmlFor="metaFlowLimit">Meta Flows Limit</Label><Input id="metaFlowLimit" name="metaFlowLimit" type="number" defaultValue={plan?.metaFlowLimit ?? 10} required min="0"/></div>
-                        <div className="space-y-2"><Label htmlFor="cannedMessageLimit">Canned Messages Limit</Label><Input id="cannedMessageLimit" name="cannedMessageLimit" type="number" defaultValue={plan?.cannedMessageLimit ?? 25} required min="0"/></div>
+                        <div className="space-y-2"><Label htmlFor="projectLimit">Project Limit</Label><Input id="projectLimit" name="projectLimit" type="number" defaultValue={plan?.projectLimit ?? 5} required min="0" /></div>
+                        <div className="space-y-2"><Label htmlFor="agentLimit">Agent Limit (per project)</Label><Input id="agentLimit" name="agentLimit" type="number" defaultValue={plan?.agentLimit ?? 10} required min="0" /></div>
+                        <div className="space-y-2"><Label htmlFor="attributeLimit">Custom Attribute Limit</Label><Input id="attributeLimit" name="attributeLimit" type="number" defaultValue={plan?.attributeLimit ?? 20} required min="0" /></div>
+                        <div className="space-y-2"><Label htmlFor="templateLimit">Template Limit</Label><Input id="templateLimit" name="templateLimit" type="number" defaultValue={plan?.templateLimit ?? 50} required min="0" /></div>
+                        <div className="space-y-2"><Label htmlFor="flowLimit">Flow Builder Limit</Label><Input id="flowLimit" name="flowLimit" type="number" defaultValue={plan?.flowLimit ?? 10} required min="0" /></div>
+                        <div className="space-y-2"><Label htmlFor="metaFlowLimit">Meta Flows Limit</Label><Input id="metaFlowLimit" name="metaFlowLimit" type="number" defaultValue={plan?.metaFlowLimit ?? 10} required min="0" /></div>
+                        <div className="space-y-2"><Label htmlFor="cannedMessageLimit">Canned Messages Limit</Label><Input id="cannedMessageLimit" name="cannedMessageLimit" type="number" defaultValue={plan?.cannedMessageLimit ?? 25} required min="0" /></div>
+                        <div className="space-y-2"><Label htmlFor="customRoleLimit">Custom Role Limit (Team)</Label><Input id="customRoleLimit" name="customRoleLimit" type="number" defaultValue={plan?.customRoleLimit ?? 3} required min="0" /></div>
+                        <div className="space-y-2"><Label htmlFor="teamChannelLimit">Team Channel Limit</Label><Input id="teamChannelLimit" name="teamChannelLimit" type="number" defaultValue={plan?.teamChannelLimit ?? 10} required min="0" /></div>
+                        <div className="space-y-2"><Label htmlFor="teamTaskLimit">Team Task Limit</Label><Input id="teamTaskLimit" name="teamTaskLimit" type="number" defaultValue={plan?.teamTaskLimit ?? 50} required min="0" /></div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -203,26 +207,28 @@ export default function PlanEditorPage() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
-                        {planFeatureMap.map(feature => (
-                            <div key={feature.id} className="flex items-center space-x-3 rounded-md border p-3 hover:bg-accent">
-                                <Checkbox 
-                                    id={feature.id} 
-                                    name={feature.id} 
-                                    defaultChecked={(plan?.features as any)?.[feature.id] ?? true} 
-                                />
-                                <div className="space-y-1 leading-none">
-                                    <Label htmlFor={feature.id} className="font-normal flex items-center gap-2">
-                                        <feature.icon className="h-4 w-4" />
-                                        {feature.name}
-                                    </Label>
+                            {planFeatureMap.map(feature => (
+                                <div key={feature.id} className="flex items-center space-x-3 rounded-md border p-3 hover:bg-accent">
+                                    <Checkbox
+                                        id={feature.id}
+                                        name={feature.id}
+                                        defaultChecked={(plan?.features as any)?.[feature.id] ?? true}
+                                    />
+                                    <div className="space-y-1 leading-none">
+                                        <Label htmlFor={feature.id} className="font-normal flex items-center gap-2">
+                                            <feature.icon className="h-4 w-4" />
+                                            {feature.name}
+                                        </Label>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                         </div>
                     </CardContent>
                 </Card>
             </div>
-            
+
+            <PlanPermissionSelector defaultPermissions={plan?.permissions} />
+
             <Separator />
 
             <div className="flex justify-end">

@@ -1,9 +1,11 @@
 
 'use client';
 
+
 import { useState, useEffect, useRef, useActionState, useTransition } from 'react';
-import type { WithId, User } from '@/lib/definitions';
+import type { WithId, User, CrmCustomRole } from '@/lib/definitions';
 import { handleInviteAgent, handleRemoveAgent, getInvitedUsers } from '@/app/actions/team.actions';
+import { getCustomRoles } from '@/app/actions/crm-roles.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,22 +15,22 @@ import { Plus, Trash2, LoaderCircle, Users } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFormStatus } from 'react-dom';
 
-const removeAgentInitialState = { message: null, error: null };
-const inviteAgentInitialState = { message: null, error: null };
+const removeAgentInitialState = { message: '', error: '' };
+const inviteAgentInitialState = { message: '', error: '' };
 
 function RemoveAgentButton({ agentId, onAgentRemoved }: { agentId: string, onAgentRemoved: () => void }) {
     const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
@@ -55,10 +57,10 @@ function RemoveAgentButton({ agentId, onAgentRemoved }: { agentId: string, onAge
     }, [state, toast, onAgentRemoved]);
 
     return (
-         <AlertDialog>
+        <AlertDialog>
             <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm" disabled={isPending}>
-                    {isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4" />}
+                    {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -77,18 +79,18 @@ function RemoveAgentButton({ agentId, onAgentRemoved }: { agentId: string, onAge
     );
 }
 
-function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
+function InviteAgentForm({ onAgentInvited, customRoles = [] }: { onAgentInvited: () => void, customRoles: CrmCustomRole[] }) {
     const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 
-     const handleFormSubmit = (formData: FormData) => {
+    const handleFormSubmit = (formData: FormData) => {
         startTransition(() => {
             formAction(formData);
         });
     };
-    
+
     useEffect(() => {
         if (state?.message) {
             toast({ title: 'Success!', description: state.message });
@@ -99,7 +101,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, onAgentInvited]);
-    
+
     return (
         <Card className="p-4 border-dashed">
             <CardHeader>
@@ -107,26 +109,29 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
                 <CardDescription>Assign a role to the new user. They must have an existing SabNode account. This will grant them access to all your current and future projects with the selected role.</CardDescription>
             </CardHeader>
             <CardContent>
-            <form action={handleFormSubmit} ref={formRef} className="flex flex-col sm:flex-row gap-4">
-                <div className="space-y-2 flex-grow">
-                    <Label htmlFor="email" className="sr-only">Email</Label>
-                    <Input id="email" name="email" type="email" placeholder="Enter agent's email" required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="role" className="sr-only">Role</Label>
-                    <Select name="role" defaultValue="agent">
-                        <SelectTrigger id="role" className="w-full sm:w-[180px]"><SelectValue placeholder="Select role" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="agent">Agent</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                <Button type="submit" disabled={isPending} className="mt-auto">
-                  {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                  Invite Agent
-                </Button>
-            </form>
+                <form action={handleFormSubmit} ref={formRef} className="flex flex-col sm:flex-row gap-4">
+                    <div className="space-y-2 flex-grow">
+                        <Label htmlFor="email" className="sr-only">Email</Label>
+                        <Input id="email" name="email" type="email" placeholder="Enter agent's email" required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="role" className="sr-only">Role</Label>
+                        <Select name="role" defaultValue="agent">
+                            <SelectTrigger id="role" className="w-full sm:w-[180px]"><SelectValue placeholder="Select role" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="agent">Agent (Default)</SelectItem>
+                                <SelectItem value="admin">Admin (Full Access)</SelectItem>
+                                {customRoles.map((role) => (
+                                    <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <Button type="submit" disabled={isPending} className="mt-auto">
+                        {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                        Invite Agent
+                    </Button>
+                </form>
             </CardContent>
         </Card>
     );
@@ -134,18 +139,33 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
 
 export default function ManageUsersPage() {
     const [teamMembers, setTeamMembers] = useState<WithId<User & { roles: Record<string, string> }>[]>([]);
+    const [customRoles, setCustomRoles] = useState<CrmCustomRole[]>([]);
     const [isLoading, startTransition] = useTransition();
 
     const fetchData = () => {
         startTransition(async () => {
-            const users = await getInvitedUsers();
-            setTeamMembers(users);
+            const [users, roles] = await Promise.all([
+                getInvitedUsers(),
+                getCustomRoles()
+            ]);
+            // Cast users to any to avoid strict type mismatch with roles mismatch if needed
+            // getInvitedUsers now returns correct type but useState generic needs to match
+            setTeamMembers(users as any);
+            setCustomRoles(roles);
         });
     };
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    // Helper to find role name from ID
+    const getRoleName = (roleId: string) => {
+        if (roleId === 'agent') return 'Agent';
+        if (roleId === 'admin') return 'Admin';
+        const customRole = customRoles.find(r => r.id === roleId);
+        return customRole ? customRole.name : roleId;
+    }
 
     return (
         <div className="flex flex-col gap-8">
@@ -156,16 +176,16 @@ export default function ManageUsersPage() {
                 </h1>
                 <p className="text-muted-foreground">Invite and manage users for your account.</p>
             </div>
-            
-            <InviteAgentForm onAgentInvited={fetchData} />
+
+            <InviteAgentForm onAgentInvited={fetchData} customRoles={customRoles} />
             <Separator />
-            
+
             <Card>
                 <CardHeader>
                     <CardTitle>Team Members</CardTitle>
                     <CardDescription>A list of all users in your team.</CardDescription>
                 </CardHeader>
-                 <CardContent className="space-y-4">
+                <CardContent className="space-y-4">
                     {isLoading ? (
                         <div className="space-y-3">
                             <Skeleton className="h-16 w-full" />
@@ -185,9 +205,9 @@ export default function ManageUsersPage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                     <div className="text-sm text-muted-foreground">
+                                    <div className="text-sm text-muted-foreground">
                                         {agent.roles && Object.keys(agent.roles).length > 0
-                                            ? `Role: ${Object.values(agent.roles)[0]}`
+                                            ? `Role: ${getRoleName(Object.values(agent.roles)[0] as string)}`
                                             : 'No specific project roles'
                                         }
                                     </div>

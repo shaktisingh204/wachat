@@ -23,6 +23,7 @@ interface ChatMessageProps {
     message: AnyMessage;
     conversation: AnyMessage[];
     onReply: (messageId: string) => void;
+    isOutgoing?: boolean;
 }
 
 function StatusTicks({ message }: { message: OutgoingMessage }) {
@@ -74,11 +75,11 @@ function MediaContent({ message }: { message: AnyMessage }) {
     if (type === 'unsupported') {
         return <p className="whitespace-pre-wrap italic text-muted-foreground">This message type is not supported by the Cloud API.</p>;
     }
-    
+
     const media = message.content[type as keyof typeof message.content] as any;
-    
+
     if (!media) return <div className="text-sm text-muted-foreground italic">[Unsupported message content]</div>;
-    
+
     const url = media.url || media.link;
     const caption = media.caption || '';
     const fileName = media.filename || 'download';
@@ -96,20 +97,20 @@ function MediaContent({ message }: { message: AnyMessage }) {
         }
         return <div className="text-sm text-muted-foreground italic">[Image received - preview unavailable]</div>;
     }
-    
+
     if (type === 'sticker') {
-         if (url) {
+        if (url) {
             return (
                 <div className="relative w-32 h-32">
                     <Image src={url} alt="Sticker" layout="fill" objectFit="contain" />
                 </div>
             )
-         }
-         return <div className="text-sm text-muted-foreground italic">[Sticker received]</div>;
+        }
+        return <div className="text-sm text-muted-foreground italic">[Sticker received]</div>;
     }
 
     if (type === 'video') {
-         if (url) {
+        if (url) {
             return (
                 <div className="space-y-2">
                     <video src={url} controls className="rounded-lg w-64 aspect-video bg-black" />
@@ -137,13 +138,13 @@ function MediaContent({ message }: { message: AnyMessage }) {
     }
 
     if (type === 'audio') {
-         if (url) {
+        if (url) {
             return (
                 <div className="w-64">
                     <audio src={url} controls className="w-full" />
                 </div>
             )
-         }
+        }
         return <div className="text-sm text-muted-foreground italic">[Audio message]</div>;
     }
 
@@ -160,7 +161,7 @@ function MediaContent({ message }: { message: AnyMessage }) {
             </a>
         );
     }
-    
+
     return <div className="text-sm text-muted-foreground italic">[{type} message]</div>;
 };
 
@@ -191,7 +192,7 @@ const PaymentRequestContent = ({ message }: { message: OutgoingMessage }) => {
             <p className="text-sm">Amount: ₹{message.content.payment_request.amount}</p>
             <p className="text-xs text-muted-foreground">{message.content.payment_request.description}</p>
             <Button size="sm" className="w-full mt-2" onClick={checkStatus} disabled={isChecking}>
-                {isChecking ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <RefreshCw className="h-4 w-4" />}
+                {isChecking ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 <span className="ml-2 capitalize">{statusToText(paymentStatus)}</span>
             </Button>
         </div>
@@ -215,13 +216,13 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
         }
         if (action.button) {
             return (
-                 <div className="mt-2 text-center text-primary font-medium bg-white/80 dark:bg-muted/50 py-2.5 rounded-md text-sm border font-semibold">
+                <div className="mt-2 text-center text-primary font-medium bg-white/80 dark:bg-muted/50 py-2.5 rounded-md text-sm border font-semibold">
                     <List className="inline-block h-4 w-4 mr-2" />
                     {action.button}
                 </div>
             );
         }
-        if(action.catalog_id && action.product_retailer_id) {
+        if (action.catalog_id && action.product_retailer_id) {
             return <ProductMessageContent catalogId={action.catalog_id} productRetailerId={action.product_retailer_id} isReply={true} />
         }
         return null;
@@ -247,7 +248,7 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
         <div className="bg-black/5 dark:bg-white/5 p-2 rounded-md border-l-2 border-primary mb-2 text-xs">
             <p className="font-semibold text-primary">{senderName}</p>
             <div className="text-muted-foreground line-clamp-2">
-                <MessageBody message={message} isOutgoing={isOutgoing} conversation={[]} onReply={() => {}} />
+                <MessageBody message={message} isOutgoing={isOutgoing} conversation={[]} onReply={() => { }} />
             </div>
         </div>
     );
@@ -272,7 +273,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply }: ChatMessage
         // This is the interactive message itself
         return <InteractiveMessageDisplay content={message.content.interactive} />;
     }
-    
+
     // Incoming Order message
     if (!isOutgoing && message.type === 'order') {
         return <OrderMessageContent order={message.content.order} />;
@@ -287,12 +288,12 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply }: ChatMessage
     if (message.type === 'contacts') {
         return <ContactMessageContent contacts={message.content.contacts} />;
     }
-    
+
     // Standard text message
     if (message.type === 'text' && message.content.text?.body) {
         return <p className="whitespace-pre-wrap">{message.content.text.body}</p>;
     }
-    
+
     // Legacy button click message
     if (message.type === 'button' && message.content.button?.text) {
         return <p className="whitespace-pre-wrap">{message.content.button.text}</p>;
@@ -310,7 +311,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply }: ChatMessage
 export const ChatMessage = React.memo(function ChatMessage({ message, conversation, onReply }: ChatMessageProps) {
     const isOutgoing = message.direction === 'out';
     const timestamp = message.messageTimestamp || message.createdAt;
-    
+
     const [translatedText, setTranslatedText] = useState<string | null>(null);
     const [isTranslating, setIsTranslating] = useState(false);
     const { toast } = useToast();
@@ -346,11 +347,11 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
             setTranslatedText(result.translatedText);
         }
     };
-    
-    const isTextBased = message.type === 'text' || 
-                        (message.type === 'interactive' && message.content.interactive.button_reply) ||
-                        (message.type === 'button' && message.content.button?.text);
-    
+
+    const isTextBased = message.type === 'text' ||
+        (message.type === 'interactive' && message.content.interactive.button_reply) ||
+        (message.type === 'button' && message.content.button?.text);
+
     return (
         <div className={cn("flex items-end gap-2 group/message relative", isOutgoing ? "justify-end" : "justify-start")}>
             {!isOutgoing && (
@@ -358,30 +359,30 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                     <AvatarFallback>{message.content?.profile?.name?.charAt(0) || 'U'}</AvatarFallback>
                 </Avatar>
             )}
-             <div className="absolute top-0 opacity-0 group-hover/message:opacity-100 transition-opacity"
-                 style={isOutgoing ? { right: '100%', marginRight: '0.5rem'} : { left: '100%', marginLeft: '0.5rem' }}
-             >
+            <div className="absolute top-0 opacity-0 group-hover/message:opacity-100 transition-opacity"
+                style={isOutgoing ? { right: '100%', marginRight: '0.5rem' } : { left: '100%', marginLeft: '0.5rem' }}
+            >
                 <div className="flex items-center bg-background border rounded-full shadow-sm p-0.5">
-                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onReply(message.wamid)}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onReply(message.wamid)}>
                         <CornerUpLeft className="h-3 w-3" />
                     </Button>
                     {isTextBased && (
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onTranslate} disabled={isTranslating}>
-                            {isTranslating ? <LoaderCircle className="h-3 w-3 animate-spin"/> : <Languages className="h-3 w-3" />}
+                            {isTranslating ? <LoaderCircle className="h-3 w-3 animate-spin" /> : <Languages className="h-3 w-3" />}
                         </Button>
                     )}
                 </div>
             </div>
             <div
                 className={cn(
-                    "max-w-[70%] rounded-lg p-2 px-3 text-sm flex flex-col shadow-sm",
+                    "max-w-[75%] md:max-w-[60%] rounded-2xl p-3 text-sm flex flex-col relative",
                     isOutgoing
-                        ? "bg-[#E2F7CB] dark:bg-[#056056] text-gray-800 dark:text-gray-50 rounded-br-none"
-                        : "bg-white dark:bg-muted rounded-bl-none"
+                        ? "glass-bubble-out rounded-br-none"
+                        : "glass-bubble-in rounded-bl-none"
                 )}
             >
                 {quotedMessage && <QuotedMessage message={quotedMessage} />}
-                
+
                 <MessageBody message={message} isOutgoing={isOutgoing} conversation={conversation} onReply={onReply} />
 
                 {translatedText && (

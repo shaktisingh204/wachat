@@ -2,7 +2,7 @@
 'use server';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import { ObjectId, type WithId } from 'mongodb';
 import type { SabChatSettings, SabChatSession, SabChatMessage } from '@/lib/definitions';
 import { revalidatePath } from 'next/cache';
@@ -380,5 +380,17 @@ export async function addTagToSession(sessionId: string, tagName: string): Promi
     console.log(`Adding tag "${tagName}" to session ${sessionId}`);
     await new Promise(res => setTimeout(res, 500));
     return { success: true };
+}
+
+export async function postChatMessageAction(prevState: any, formData: FormData) {
+    const sessionId = formData.get('sessionId') as string;
+    const sender = formData.get('sender') as 'visitor' | 'agent';
+    const content = formData.get('content') as string;
+
+    if (!content || !content.trim()) {
+        return { success: false, error: 'Message cannot be empty.' };
+    }
+
+    return postChatMessage(sessionId, sender, content);
 }
 

@@ -21,7 +21,7 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, i
     { id: 'whatsappAds', name: 'WhatsApp Ads', icon: Megaphone },
     { id: 'webhooks', name: 'Webhooks Page', icon: Webhook },
     { id: 'numbers', name: 'Phone Numbers', icon: Phone },
-    
+
     // Meta Suite
     { id: 'instagramFeed', name: 'Instagram Feed', icon: Newspaper },
     { id: 'instagramStories', name: 'Instagram Stories', icon: Clapperboard },
@@ -40,7 +40,11 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, i
     { id: 'crmGstReports', name: 'GST Reports', icon: FileText },
     { id: 'crmIntegrations', name: 'CRM Integrations', icon: Zap },
     { id: 'crmSettings', name: 'CRM Settings', icon: Settings },
-    
+
+    // Team
+    { id: 'teamChat', name: 'Team Chat', icon: MessageSquare },
+    { id: 'teamTasks', name: 'Team Tasks', icon: Users },
+
     // Standalone
     { id: 'chatbot', name: 'AI Chatbot Builder', icon: Bot },
     { id: 'email', name: 'Email Suite', icon: Mail },
@@ -112,4 +116,6 @@ export const planFeaturesDefaults: PlanFeaturePermissions = {
     crmGstReports: true,
     crmIntegrations: true,
     crmSettings: true,
+    teamChat: true,
+    teamTasks: true,
 };

@@ -55,13 +55,13 @@ const Countdown = ({ targetTime, onExpire }: { targetTime: number, onExpire: () 
     return <span className="font-mono text-xs">{timeLeft}</span>;
 };
 
-export function ChatWindow({ 
-    project, 
-    contact, 
-    conversation, 
-    templates, 
-    isLoading, 
-    onBack, 
+export function ChatWindow({
+    project,
+    contact,
+    conversation,
+    templates,
+    isLoading,
+    onBack,
     onContactUpdate,
     onInfoToggle,
     isInfoPanelOpen
@@ -70,19 +70,19 @@ export function ChatWindow({
     const { sessionUser } = useProject();
     const [replyToMessage, setReplyToMessage] = useState<AnyMessage | null>(null);
     const [isWindowExpired, setIsWindowExpired] = useState(false);
-    
-    const lastUserMessage = useMemo(() => 
+
+    const lastUserMessage = useMemo(() =>
         conversation
             .filter(m => m.direction === 'in')
             .sort((a, b) => new Date(b.messageTimestamp).getTime() - new Date(a.messageTimestamp).getTime())
-            [0]
-    , [conversation]);
+        [0]
+        , [conversation]);
 
     const sessionExpiryTime = useMemo(() => {
         if (!lastUserMessage) return null;
         return new Date(lastUserMessage.messageTimestamp).getTime() + 24 * 60 * 60 * 1000;
     }, [lastUserMessage]);
-    
+
     useEffect(() => {
         if (sessionExpiryTime) {
             setIsWindowExpired(Date.now() > sessionExpiryTime);
@@ -115,13 +115,13 @@ export function ChatWindow({
                 messagesWithoutReactions.push(message);
             }
         }
-        
+
         return messagesWithoutReactions.map(message => {
             const reaction = reactionsMap.get(message.wamid);
             return reaction ? { ...message, reaction } : message;
         });
     }, [conversation]);
-    
+
     const handleReply = (messageId: string) => {
         const messageToReply = conversation.find(m => m.wamid === messageId);
         if (messageToReply) {
@@ -130,54 +130,54 @@ export function ChatWindow({
     };
 
     return (
-        <div className="flex flex-col h-full bg-transparent">
-            <div className="flex items-center justify-between gap-3 p-3 border-b bg-background h-[73px] flex-shrink-0">
+        <div className="flex flex-col h-full bg-transparent relative">
+            <div className="flex items-center justify-between gap-3 p-3 border-b bg-background/80 backdrop-blur-md h-[73px] flex-shrink-0 z-10 sticky top-0">
                 <div className="flex items-center gap-3">
                     <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
-                    <Avatar>
+                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
                         <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <p className="font-semibold">{contact.name}</p>
-                        <p className="text-sm text-muted-foreground">online</p>
+                        <p className="font-semibold leading-none">{contact.name}</p>
+                        <p className="text-xs text-muted-foreground mt-1">online</p>
                     </div>
                 </div>
-                 <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                     {sessionExpiryTime && !isWindowExpired && (
-                        <div className="hidden sm:block text-xs bg-muted text-muted-foreground p-2 rounded-md">
+                        <div className="hidden sm:block text-xs bg-muted/50 text-muted-foreground p-2 rounded-md border">
                             Session closes in: <Countdown targetTime={sessionExpiryTime} onExpire={() => setIsWindowExpired(true)} />
                         </div>
                     )}
                     <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" disabled><Phone className="h-5 w-5" /></Button>
-                        <Button variant="ghost" size="icon" disabled><Video className="h-5 w-5" /></Button>
+                        <Button variant="ghost" size="icon" disabled><Phone className="h-5 w-5 text-muted-foreground" /></Button>
+                        <Button variant="ghost" size="icon" disabled><Video className="h-5 w-5 text-muted-foreground" /></Button>
                         <Button variant="ghost" size="icon" onClick={onInfoToggle}>
-                            <Info className="h-5 w-5" />
+                            <Info className="h-5 w-5 text-muted-foreground" />
                             <span className="sr-only">Contact Info</span>
                         </Button>
                     </div>
                 </div>
             </div>
-            
+
             <ScrollArea viewportRef={viewportRef} className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
-                 {isLoading ? (
+                {isLoading ? (
                     <div className="flex items-center justify-center h-full">
-                         <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+                        <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
                 ) : (
                     <div className="p-4 space-y-4">
                         {processedConversation.map((msg) => (
-                            <ChatMessage key={msg._id.toString()} message={msg} conversation={conversation} onReply={handleReply}/>
+                            <ChatMessage key={msg._id.toString()} message={msg} conversation={conversation} onReply={handleReply} />
                         ))}
                     </div>
                 )}
             </ScrollArea>
-            
-            <div className="p-3 border-t bg-background flex-shrink-0 space-y-2">
-                 {isWindowExpired && (
-                     <Alert variant="destructive" className="bg-destructive/10 border-destructive/30">
+
+            <div className="p-3 bg-transparent flex-shrink-0 z-10 w-full max-w-4xl mx-auto">
+                {isWindowExpired && (
+                    <Alert variant="destructive" className="bg-destructive/10 border-destructive/30 mb-2">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>24-Hour Window Closed</AlertTitle>
                         <AlertDescription>
@@ -185,10 +185,10 @@ export function ChatWindow({
                         </AlertDescription>
                     </Alert>
                 )}
-                 {replyToMessage && (
-                    <div className="p-2 mb-2 bg-muted rounded-md text-sm relative">
+                {replyToMessage && (
+                    <div className="p-2 mb-2 bg-background/80 backdrop-blur-md rounded-xl text-sm relative border shadow-sm">
                         <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => setReplyToMessage(null)}>
-                            <X className="h-4 w-4"/>
+                            <X className="h-4 w-4" />
                         </Button>
                         <p className="font-semibold text-primary">
                             Replying to {replyToMessage.direction === 'out' ? 'You' : replyToMessage.content.profile?.name || 'User'}
@@ -198,13 +198,15 @@ export function ChatWindow({
                         </p>
                     </div>
                 )}
-                <ChatMessageInput 
-                    project={project} 
-                    contact={contact} 
-                    templates={templates} 
-                    replyToMessageId={replyToMessage?.wamid}
-                    disabled={isWindowExpired}
-                />
+                <div className="bg-background/80 backdrop-blur-xl border rounded-2xl shadow-lg p-2">
+                    <ChatMessageInput
+                        project={project}
+                        contact={contact}
+                        templates={templates}
+                        replyToMessageId={replyToMessage?.wamid}
+                        disabled={isWindowExpired}
+                    />
+                </div>
             </div>
         </div>
     );

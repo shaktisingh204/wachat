@@ -59,13 +59,37 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
             metaFlowLimit: Number(formData.get('metaFlowLimit')),
             cannedMessageLimit: Number(formData.get('cannedMessageLimit')),
             signupCredits: Number(formData.get('signupCredits') || 0),
+            customRoleLimit: Number(formData.get('customRoleLimit') ?? 3),
+            teamChannelLimit: Number(formData.get('teamChannelLimit') ?? 10),
+            teamTaskLimit: Number(formData.get('teamTaskLimit') ?? 50),
             messageCosts: {
                 marketing: Number(formData.get('cost_marketing')),
                 utility: Number(formData.get('cost_utility')),
                 authentication: Number(formData.get('cost_authentication')),
             },
             features: features as PlanFeaturePermissions,
+            permissions: { agent: {} }, // Will populate below
         };
+
+        // Initialize permissions with 'agent' key to satisfy GlobalPermissions type
+        const permissions: any = { agent: {} };
+
+        // Use require to avoid top-level import issues if not yet transpiled, or just to keep scope clean
+        // Ideally we should move this to a top-level import, but to fix validly now:
+        const { globalModules, permissionActions } = require('@/lib/permission-modules');
+
+        for (const module of globalModules) {
+            permissions[module] = {};
+            for (const action of permissionActions) {
+                const key = `${module}_${action}`;
+                // If the key is present in formData, it's checked (checkbox behavior)
+                // But wait, ShadCN Checkbox might send "on" or nothing.
+                // Native HTML Checkbox sends "on" if checked, nothing if not.
+                // So formData.get(key) === 'on' is correct.
+                permissions[module][action] = formData.get(key) === 'on';
+            }
+        }
+        planData.permissions = permissions;
 
         if (!planData.name || isNaN(planData.price)) {
             return { error: 'Plan name and price are required.' };

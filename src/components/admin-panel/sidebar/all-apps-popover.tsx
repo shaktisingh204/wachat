@@ -70,7 +70,7 @@ export function AllAppsPopover({ activeApp }: AllAppsPopoverProps) {
                                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                 )}
                             >
-                                <Grid className={cn("h-5 w-5", (isActive || open) && "fill-current")} />
+                                <Grid className={cn("h-5 w-5")} />
                                 <span className="sr-only">All Apps</span>
                             </button>
                         </PopoverTrigger>

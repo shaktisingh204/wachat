@@ -202,7 +202,7 @@ function RailItem({
                             className
                         )}
                     >
-                        <Icon className={cn("h-5 w-5", active && "fill-current")} />
+                        <Icon className={cn("h-5 w-5")} />
                         {label === 'Home' && <span className="sr-only">{label}</span>}
                     </Link>
                 </TooltipTrigger>

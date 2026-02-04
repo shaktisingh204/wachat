@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { TeamTask } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { logActivity } from '@/app/actions/activity.actions';
 
 export async function getTeamTasks(status?: 'To-Do' | 'In Progress' | 'Completed'): Promise<WithId<TeamTask>[]> {
     const session = await getSession();
@@ -46,6 +47,21 @@ export async function createTeamTask(prevState: any, formData: FormData): Promis
             createdAt: new Date(),
         };
 
+        // Check Plan Limits & Access
+        const plan = (session.user as any).plan;
+
+        if (plan?.features?.teamTasks === false) {
+            return { error: 'Team Tasks feature is not enabled on your plan.' };
+        }
+
+        const teamTaskLimit = plan?.teamTaskLimit ?? 50;
+        const { db } = await connectToDatabase();
+
+        const currentTaskCount = await db.collection('team_tasks').countDocuments({ userId: new ObjectId(session.user._id) });
+        if (currentTaskCount >= teamTaskLimit) {
+            return { error: `Team Task limit reached. Your plan allows up to ${teamTaskLimit} tasks.` };
+        }
+
         const assignedTo = formData.get('assignedTo') as string;
         if (assignedTo && ObjectId.isValid(assignedTo)) {
             newTaskData.assignedTo = new ObjectId(assignedTo);
@@ -55,6 +71,7 @@ export async function createTeamTask(prevState: any, formData: FormData): Promis
         await db.collection('team_tasks').insertOne(newTaskData as any);
 
         revalidatePath('/dashboard/team/tasks');
+        await logActivity('TASK_CREATED', { title: newTaskData.title, assignedTo: assignedTo || 'Unassigned' }, undefined);
         return { message: 'Task created successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -80,6 +97,7 @@ export async function updateTeamTaskStatus(taskId: string, status: TeamTask['sta
         );
 
         revalidatePath('/dashboard/team/tasks');
+        await logActivity('TASK_UPDATED', { taskId, status }, undefined);
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -100,6 +118,7 @@ export async function deleteTeamTask(taskId: string): Promise<{ success: boolean
     try {
         await db.collection('team_tasks').deleteOne({ _id: new ObjectId(taskId) });
         revalidatePath('/dashboard/team/tasks');
+        await logActivity('TASK_DELETED', { taskId }, undefined);
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };

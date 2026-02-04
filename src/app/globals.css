@@ -178,11 +178,23 @@
   }
 
   .bg-chat-texture {
-    background-color: #E5DDD5;
+    /* Modern subtle pattern */
+    background-color: hsl(var(--muted) / 0.3);
+    background-image: radial-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 
   .dark .bg-chat-texture {
-    background-color: #0b141a;
+    background-color: hsl(var(--background));
+    background-image: radial-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+  }
+
+  .glass-bubble-in {
+    @apply bg-white dark:bg-muted/50 backdrop-blur-sm border shadow-sm;
+  }
+
+  .glass-bubble-out {
+    @apply bg-primary text-primary-foreground shadow-md bg-gradient-to-br from-primary to-blue-600;
   }
 
   .bg-instagram {

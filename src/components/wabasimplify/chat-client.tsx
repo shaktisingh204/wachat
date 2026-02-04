@@ -33,17 +33,17 @@ export function ChatClient() {
 
     const initialContactId = useMemo(() => searchParams.get('contactId'), [searchParams]);
     const initialPhoneId = useMemo(() => searchParams.get('phoneId'), [searchParams]);
-    
+
     const [contacts, setContacts] = useState<WithId<Contact>[]>([]);
     const [selectedContact, setSelectedContact] = useState<WithId<Contact> | null>(null);
     const [conversation, setConversation] = useState<AnyMessage[]>([]);
     const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-    
+
 
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();
     const [isPolling, startPollingTransition] = useTransition();
-    
+
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
     const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
     const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
@@ -61,7 +61,7 @@ export function ChatClient() {
         startLoadingTransition(async () => {
             const [initialData] = await Promise.all([
                 getInitialChatData(
-                    activeProjectId, 
+                    activeProjectId,
                     phoneId || initialPhoneId,
                     initialContactId
                 ),
@@ -73,7 +73,7 @@ export function ChatClient() {
             setConversation(initialData.conversation);
             setTemplates(initialData.templates);
             setSelectedPhoneNumberId(initialData.selectedPhoneNumberId);
-            setContactPage(1); 
+            setContactPage(1);
         });
     }, [activeProjectId, initialContactId, initialPhoneId]);
 
@@ -102,12 +102,12 @@ export function ChatClient() {
 
     const loadMoreContacts = useCallback(async () => {
         if (!activeProject || !selectedPhoneNumberId || isFetchingMore || !hasMoreContacts) return;
-        
+
         setIsFetchingMore(true);
         try {
             const nextPage = contactPage + 1;
             const { contacts: newContacts, total } = await getContactsPageData(activeProject._id.toString(), selectedPhoneNumberId, nextPage, '', undefined);
-            
+
             if (newContacts.length > 0) {
                 setContacts(prev => [...prev, ...newContacts]);
                 setContactPage(nextPage);
@@ -148,7 +148,7 @@ export function ChatClient() {
             }
         };
     }, [loadMoreContacts, isFetchingMore]);
-    
+
     // Polling for real-time updates
     useEffect(() => {
         if (isLoading) return;
@@ -156,7 +156,7 @@ export function ChatClient() {
         const interval = setInterval(() => {
             startPollingTransition(async () => {
                 if (activeProject && selectedPhoneNumberId) {
-                     const { contacts: updatedContacts, total } = await getContactsPageData(activeProject._id.toString(), selectedPhoneNumberId, 1, '', undefined);
+                    const { contacts: updatedContacts, total } = await getContactsPageData(activeProject._id.toString(), selectedPhoneNumberId, 1, '', undefined);
                     setContacts(prev => {
                         const updatedMap = new Map(updatedContacts.map(c => [c._id.toString(), c]));
                         const mergedContacts = prev.map(old => updatedMap.get(old._id.toString()) || old);
@@ -191,10 +191,10 @@ export function ChatClient() {
             setIsNewChatDialogOpen(false);
         }
     };
-    
+
     const handleContactUpdate = (updatedContact: WithId<Contact>) => {
         setSelectedContact(updatedContact);
-        setContacts(prev => prev.map(c => 
+        setContacts(prev => prev.map(c =>
             c._id.toString() === updatedContact._id.toString() ? updatedContact : c
         ));
     };
@@ -210,7 +210,7 @@ export function ChatClient() {
                 messagesWithoutReactions.push(message);
             }
         }
-        
+
         return messagesWithoutReactions.map(message => {
             const reaction = reactionsMap.get(message.wamid);
             return reaction ? { ...message, reaction } : message;
@@ -222,8 +222,8 @@ export function ChatClient() {
     }
 
     if (!activeProjectId) {
-         return (
-             <div className="h-full flex items-center justify-center p-4">
+        return (
+            <div className="h-full flex items-center justify-center p-4">
                 <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
@@ -234,7 +234,7 @@ export function ChatClient() {
             </div>
         );
     }
-    
+
     return (
         <>
             <NewChatDialog
@@ -242,9 +242,9 @@ export function ChatClient() {
                 onOpenChange={setIsNewChatDialogOpen}
                 onStartChat={handleNewChat}
             />
-            <Card className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
+            <div className="h-full w-full flex flex-col overflow-hidden bg-background">
                 <div className="flex flex-1 overflow-hidden">
-                    <div className={cn("w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0", selectedContact ? "hidden md:flex" : "flex")}>
+                    <div className={cn("w-full flex-col border-r bg-background/50 backdrop-blur-xl md:w-[380px] flex-shrink-0", selectedContact ? "hidden md:flex" : "flex")}>
                         <ChatContactList
                             sessionUser={sessionUser}
                             project={activeProject}
@@ -260,8 +260,8 @@ export function ChatClient() {
                         />
                     </div>
 
-                    <div className={cn("w-full flex-col flex-1", selectedContact ? "flex" : "hidden md:flex")}>
-                         {selectedContact && activeProject ? (
+                    <div className={cn("w-full flex-col flex-1 relative", selectedContact ? "flex" : "hidden md:flex")}>
+                        {selectedContact && activeProject ? (
                             <ChatWindow
                                 key={selectedContact._id.toString()}
                                 project={activeProject}
@@ -276,15 +276,17 @@ export function ChatClient() {
                             />
                         ) : (
                             <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-chat-texture">
-                                <MessageSquare className="h-16 w-16" />
+                                <div className="h-20 w-20 bg-muted rounded-full flex items-center justify-center mb-2">
+                                    <MessageSquare className="h-10 w-10 text-muted-foreground/50" />
+                                </div>
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
-                                <p>Choose a contact from the list or start a new chat.</p>
+                                <p className="max-w-xs text-sm">Choose a contact from the list or start a new chat to begin messaging.</p>
                             </div>
                         )}
                     </div>
-                     {isInfoPanelOpen && selectedContact && activeProject && (
-                        <div className="w-[340px] border-l hidden lg:block flex-shrink-0 bg-background">
-                            <ContactInfoPanel 
+                    {isInfoPanelOpen && selectedContact && activeProject && (
+                        <div className="w-[340px] border-l hidden lg:block flex-shrink-0 bg-background/50 backdrop-blur-xl">
+                            <ContactInfoPanel
                                 project={activeProject}
                                 contact={selectedContact}
                                 onContactUpdate={handleContactUpdate}
@@ -292,7 +294,7 @@ export function ChatClient() {
                         </div>
                     )}
                 </div>
-            </Card>
+            </div>
         </>
     );
 }

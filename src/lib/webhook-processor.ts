@@ -1257,6 +1257,23 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
         type: message.type, content: message, isRead: false, createdAt: new Date(),
     });
 
+    // Create notification for the new message
+    try {
+        await db.collection('notifications').insertOne({
+            projectId: project._id,
+            wabaId: project.wabaId || '', // Fallback if wabaId is missing
+            message: `New WhatsApp message from ${senderName}`,
+            link: `/dashboard/chat?contactId=${contact._id.toString()}`,
+            isRead: false,
+            eventType: 'whatsapp_message',
+            sourceApp: 'wachat',
+            createdAt: new Date(),
+        });
+    } catch (e) {
+        console.error(`Failed to create notification for message from ${senderWaId}:`, e);
+        // Do not block flow execution if notification fails
+    }
+
     const wasOptInOut = await handleOptInOut(db, project, contact, message, phoneNumberId);
     if (!wasOptInOut) {
         const { handled, logger, flowStatus } = await handleFlowLogic(db, project, contact, message, phoneNumberId);
