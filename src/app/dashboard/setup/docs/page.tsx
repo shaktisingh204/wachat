@@ -1,4 +1,4 @@
-
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -132,7 +132,7 @@ export default function ManualSetupDocsPage() {
         </CardContent>
       </Card>
 
-       <Card>
+      <Card>
         <CardHeader>
           <CardTitle>Step 3: Connect to SabNode</CardTitle>
           <CardDescription>

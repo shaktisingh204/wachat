@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { getProjectById } from '@/app/actions/index.ts';
+import React, { useEffect, useState, useTransition } from 'react';
+import { getProjectById } from '@/app/actions/index';
 import type { WithId } from 'mongodb';
 import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,10 +41,10 @@ function LoadingSkeleton() {
                         </div>
                     </CardContent>
                 </Card>
-                 <Card>
+                <Card>
                     <CardHeader>
                         <Skeleton className="h-6 w-1/4" />
-                         <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-4 w-1/2" />
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
@@ -112,7 +112,7 @@ export default function ProjectInformationPage() {
             </div>
         );
     }
-    
+
     const paymentConfig: PaymentConfiguration | undefined = project.paymentConfiguration;
     const businessCaps: BusinessCapabilities | undefined = project.businessCapabilities;
 
@@ -165,11 +165,11 @@ export default function ProjectInformationPage() {
                     </CardHeader>
                     <CardContent>
                         {paymentConfig ? (
-                             <dl className="space-y-1">
+                            <dl className="space-y-1">
                                 <InfoRow label="Provider Name" value={<span className="capitalize">{paymentConfig.provider_name}</span>} />
                                 <InfoRow label="Configuration Name" value={paymentConfig.configuration_name} />
                                 <InfoRow label="Provider MID" value={<span className="font-mono text-sm break-all">{paymentConfig.provider_mid}</span>} />
-                                <InfoRow label="Status" value={<Badge variant={paymentConfig.status === 'Needs Testing' ? 'secondary' : 'default'}>{paymentConfig.status}</Badge>} />
+                                <InfoRow label="Status" value={<Badge variant={paymentConfig.status === 'Needs_Testing' ? 'secondary' : 'default'}>{paymentConfig.status}</Badge>} />
                                 <InfoRow label="Last Updated" value={new Date(paymentConfig.updated_timestamp * 1000).toLocaleString()} />
                             </dl>
                         ) : (
