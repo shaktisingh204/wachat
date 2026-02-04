@@ -67,21 +67,30 @@ const SidebarItem = ({ item, isSubItem = false }: { item: MenuItem; isSubItem?: 
 
 const CollapsibleSidebarItem = ({ item }: { item: MenuItem }) => {
     const pathname = usePathname();
-    const { isOpen } = useSidebar();
+    const { isOpen, setIsOpen } = useSidebar();
     const isOpenPath = pathname.startsWith(item.href || item.label);
     const Icon = item.icon;
 
     return (
         <Collapsible defaultOpen={isOpenPath} className="group/collapsible">
             <CollapsibleTrigger asChild>
-                <SidebarMenuButton isActive={isOpenPath} tooltip={item.label} className="w-full">
+                <SidebarMenuButton
+                    isActive={isOpenPath}
+                    tooltip={item.label}
+                    className="w-full"
+                    onClick={() => {
+                        if (!isOpen) {
+                            useSidebar().setIsOpen(true); // You can't call hooks inside callback, need to use the one from scope
+                        }
+                    }}
+                >
                     <div className="flex items-center gap-2">
                         {Icon && <Icon className="h-5 w-5 shrink-0" />}
-                        <span className={cn("whitespace-nowrap transition-all duration-300", !pathname.startsWith(item.href) && !isOpen && "w-0 overflow-hidden opacity-0 group-hover:w-auto group-hover:opacity-100")}>
+                        <span className={cn("whitespace-nowrap transition-all duration-300", !isOpen && "w-0 overflow-hidden opacity-0")}>
                             {item.label}
                         </span>
                     </div>
-                    <ChevronRight className={cn("ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90", !isOpen && "hidden group-hover:block")} />
+                    <ChevronRight className={cn("ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90", !isOpen && "hidden")} />
                 </SidebarMenuButton>
             </CollapsibleTrigger>
             <CollapsibleContent asChild>
@@ -189,7 +198,6 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
 
     return (
         <Sidebar
-            collapsible="icon"
             className="border-none bg-transparent shadow-none"
         >
             <SidebarHeader className="h-16 flex items-center justify-center p-0">
