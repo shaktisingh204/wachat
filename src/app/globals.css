@@ -118,13 +118,11 @@
   }
 
   .active-app-border {
-    @apply relative;
+    @apply relative bg-blue-50/50 dark:bg-blue-900/20;
   }
 
   .active-app-border::before {
-    content: '';
-    @apply absolute -inset-0.5 rounded-xl z-0;
-    background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)));
+    display: none;
   }
 }
 
