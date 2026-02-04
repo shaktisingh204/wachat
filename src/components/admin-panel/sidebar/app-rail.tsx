@@ -36,7 +36,8 @@ import {
     Instagram,
     Monitor,
     Grid,
-    Mic
+    Mic,
+    Megaphone
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -96,7 +97,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                                     href="/dashboard/facebook/all-projects"
                                 />
                                 <RailItem
-                                    icon={Mic}
+                                    icon={Megaphone}
                                     label="Ad Manager"
                                     active={activeApp === 'ad-manager'}
                                     href="/dashboard/ad-manager"

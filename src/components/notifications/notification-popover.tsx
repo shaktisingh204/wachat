@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useRef } from 'react';
+import * as React from 'react';
 import { Button } from "@/components/ui/button";
 import {
     Popover,
@@ -13,7 +14,8 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
-import { Bell, Check, Loader2, MessageSquare, Briefcase, Globe, Cpu, Info } from "lucide-react";
+import { Bell, Check, Loader2, Briefcase, Globe, Cpu, Info, Megaphone, ChevronLeft, ChevronRight } from "lucide-react";
+import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { getAllNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/app/actions/notification.actions';
@@ -86,12 +88,29 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
 
     const categories = [
         { id: 'all', label: 'All', icon: Bell },
-        { id: 'wachat', label: 'WaChat', icon: MessageSquare },
+        { id: 'wachat', label: 'WaChat', icon: WhatsAppIcon },
+        { id: 'facebook', label: 'Meta Suite', icon: MetaIcon },
+        { id: 'ad-manager', label: 'Ads', icon: Megaphone },
         { id: 'crm', label: 'CRM', icon: Briefcase },
-        { id: 'ad-manager', label: 'Ads', icon: Globe },
         { id: 'sabchat', label: 'SabChat', icon: Cpu },
         { id: 'system', label: 'System', icon: Info },
     ];
+
+    const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (scrollContainerRef.current) {
+            const scrollAmount = 150;
+            const newScrollLeft = direction === 'left'
+                ? scrollContainerRef.current.scrollLeft - scrollAmount
+                : scrollContainerRef.current.scrollLeft + scrollAmount;
+
+            scrollContainerRef.current.scrollTo({
+                left: newScrollLeft,
+                behavior: 'smooth'
+            });
+        }
+    };
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -115,20 +134,44 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                 </div>
 
                 <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <ScrollArea className="max-w-full border-b bg-muted/30">
-                        <TabsList className="w-full justify-start rounded-none h-12 bg-transparent p-0 px-2 overflow-x-auto">
-                            {categories.map(cat => (
-                                <TabsTrigger
-                                    key={cat.id}
-                                    value={cat.id}
-                                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 pb-2 pt-3 text-xs"
-                                >
-                                    <cat.icon className="h-3.5 w-3.5 mr-1.5 opacity-70" />
-                                    {cat.label}
-                                </TabsTrigger>
-                            ))}
-                        </TabsList>
-                    </ScrollArea>
+                    <div className="border-b bg-muted/30 relative flex items-center">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 absolute left-0 z-10 bg-background/80 backdrop-blur-sm rounded-none border-r shadow-sm"
+                            onClick={(e) => { e.stopPropagation(); scroll('left'); }}
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+
+                        <div
+                            ref={scrollContainerRef}
+                            className="flex overflow-x-auto no-scrollbar scroll-smooth px-8 w-full"
+                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        >
+                            <TabsList className="w-auto inline-flex justify-start rounded-none h-12 bg-transparent p-0">
+                                {categories.map(cat => (
+                                    <TabsTrigger
+                                        key={cat.id}
+                                        value={cat.id}
+                                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 pb-2 pt-3 text-xs whitespace-nowrap flex-shrink-0"
+                                    >
+                                        <cat.icon className="h-3.5 w-3.5 mr-1.5 opacity-70" />
+                                        {cat.label}
+                                    </TabsTrigger>
+                                ))}
+                            </TabsList>
+                        </div>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 absolute right-0 z-10 bg-background/80 backdrop-blur-sm rounded-none border-l shadow-sm"
+                            onClick={(e) => { e.stopPropagation(); scroll('right'); }}
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </div>
 
                     <TabsContent value={activeTab} className="m-0 focus-visible:ring-0 focus-visible:outline-none">
                         <ScrollArea className="h-[400px]">
