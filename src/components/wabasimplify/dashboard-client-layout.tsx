@@ -44,6 +44,7 @@ import { ProjectProvider, useProject } from '@/context/project-context';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '../ui/separator';
 import { ProjectSwitcher } from './project-switcher';
+import { AdManagerProvider, useAdManager } from '@/context/ad-manager-context';
 
 
 const wachatMenuItems = [
@@ -581,6 +582,22 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
         </nav>
     );
 
+    const { activeAccount } = useAdManager();
+
+    const AdManagerSidebarContent = () => {
+        if (!activeAccount) {
+            // Only show the Ad Accounts item if no account is active
+            const accountsItem = adManagerMenuItems.find(item => item.href.includes('ad-accounts'));
+            return accountsItem ? <SidebarItem item={accountsItem} /> : null;
+        }
+        // Show all items if account is active
+        return (
+            <>
+                {adManagerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+            </>
+        )
+    }
+
     return (
         <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-muted/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
             <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 px-4 bg-transparent backdrop-blur-sm">
@@ -642,7 +659,7 @@ function DashboardMain({ children }: { children: React.ReactNode }) {
                             )}
                             {activeApp === 'ad-manager' && (
                                 <SidebarMenu>
-                                    {adManagerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                    <AdManagerSidebarContent />
                                 </SidebarMenu>
                             )}
                             {activeApp === 'sabchat' && (
@@ -774,7 +791,9 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
     return (
         <ProjectProvider initialProjects={initialData.projects} user={initialData.user}>
-            <DashboardLayoutContent>{children}</DashboardLayoutContent>
+            <AdManagerProvider>
+                <DashboardLayoutContent>{children}</DashboardLayoutContent>
+            </AdManagerProvider>
         </ProjectProvider>
     );
 }

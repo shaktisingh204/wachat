@@ -8,7 +8,7 @@ import { ObjectId, type WithId } from 'mongodb';
 
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { AdCampaign, Project, CustomAudience, User, FacebookPage } from '@/lib/definitions';
 
 const API_VERSION = 'v23.0';
@@ -21,7 +21,7 @@ export async function getAdAccounts(): Promise<{ accounts: any[], error?: string
         console.error(`${LOG_PREFIX} getAdAccounts: Authentication required.`);
         return { accounts: [], error: 'Authentication required.' };
     }
-    
+
     const adAccounts = session.user.metaAdAccounts || [];
     console.log(`${LOG_PREFIX} getAdAccounts: Found ${adAccounts.length} ad accounts for user ${session.user._id}.`);
     return { accounts: adAccounts };
@@ -35,7 +35,7 @@ export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?:
         console.error(`${LOG_PREFIX} getAdCampaigns: Ad Manager account not connected.`);
         return { campaigns: [], error: 'Ad Manager account not connected.' };
     }
-    
+
     if (!adAccountId) {
         console.log(`${LOG_PREFIX} getAdCampaigns: No ad account ID provided.`);
         return { campaigns: [] };
@@ -47,16 +47,16 @@ export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?:
             .find({ adAccountId: adAccountId, userId: new ObjectId(session.user._id) })
             .sort({ createdAt: -1 })
             .toArray();
-        
+
         console.log(`${LOG_PREFIX} getAdCampaigns: Found ${localCampaigns.length} local campaigns.`);
-            
+
         if (localCampaigns.length === 0) {
             return { campaigns: [] };
         }
 
         const adIds = localCampaigns.map(c => c.metaAdId);
         console.log(`${LOG_PREFIX} getAdCampaigns: Fetching insights for Meta Ad IDs:`, adIds.join(','));
-        
+
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}`, {
             params: {
                 ids: adIds.join(','),
@@ -64,12 +64,12 @@ export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?:
                 access_token: session.user.adManagerAccessToken
             }
         });
-        
+
         if (response.data.error) {
             console.error(`${LOG_PREFIX} getAdCampaigns: Graph API error`, response.data.error);
             throw new Error(getErrorMessage({ response }));
         }
-        
+
         const metaData = response.data;
         console.log(`${LOG_PREFIX} getAdCampaigns: Successfully fetched insights from Meta.`);
 
@@ -92,7 +92,7 @@ export async function getFacebookPagesForAdCreation(): Promise<{ pages?: Faceboo
         console.error(`${LOG_PREFIX} getFacebookPagesForAdCreation: Facebook account not connected.`);
         return { error: 'Facebook account not connected.' };
     }
-    
+
     try {
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/accounts`, {
             params: {
@@ -133,7 +133,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
         console.error(`${LOG_PREFIX} handleCreateAdCampaign: Missing required fields.`);
         return { error: 'All fields are required.' };
     }
-    
+
     console.log(`${LOG_PREFIX} handleCreateAdCampaign: Data validated.`, { adAccountId, facebookPageId, campaignName });
     const { db } = await connectToDatabase();
 
@@ -162,7 +162,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
             throw new Error('Failed to create ad set.');
         }
         console.log(`${LOG_PREFIX} handleCreateAdCampaign: Ad set created with ID: ${adSetId}`);
-        
+
         // Step 3: Create Ad Creative
         console.log(`${LOG_PREFIX} handleCreateAdCampaign: Step 3 - Creating ad creative...`);
         const creativeResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/adcreatives`, {
@@ -198,7 +198,7 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
             adAccountId: adAccountId,
             name: campaignName,
             status: 'PAUSED',
-            dailyBudget: dailyBudget / 100, 
+            dailyBudget: dailyBudget / 100,
             metaCampaignId: campaignId,
             metaAdSetId: adSetId,
             metaAdCreativeId: creativeId,
@@ -224,15 +224,15 @@ export async function getCustomAudiences(adAccountId: string): Promise<{ audienc
         console.error(`${LOG_PREFIX} getCustomAudiences: Ad Manager account not connected.`);
         return { error: 'Ad Manager account not connected.' };
     }
-    
+
     if (!adAccountId) {
         console.log(`${LOG_PREFIX} getCustomAudiences: No ad account ID provided.`);
         return { audiences: [] };
     }
-    
+
     try {
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${adAccountId}/customaudiences`, {
-             params: {
+            params: {
                 fields: 'id,name,description,approximate_count_lower_bound,delivery_status,operation_status,time_updated',
                 access_token: session.user.adManagerAccessToken,
             }
@@ -242,12 +242,35 @@ export async function getCustomAudiences(adAccountId: string): Promise<{ audienc
             console.error(`${LOG_PREFIX} getCustomAudiences: Graph API error`, response.data.error);
             throw new Error(getErrorMessage({ response }));
         }
-        
+
         console.log(`${LOG_PREFIX} getCustomAudiences: Found ${response.data.data?.length || 0} custom audiences.`);
         return { audiences: response.data.data || [] };
 
     } catch (e: any) {
         console.error(`${LOG_PREFIX} Failed to fetch custom audiences:`, getErrorMessage(e));
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteAdAccount(accountId: string): Promise<{ success: boolean; error?: string }> {
+    console.log(`${LOG_PREFIX} deleteAdAccount called for account: ${accountId}`);
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, error: 'Authentication required' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $pull: { metaAdAccounts: { id: accountId } } } as any
+        );
+
+        console.log(`${LOG_PREFIX} Successfully removed ad account ${accountId} from user.`);
+        revalidatePath('/dashboard/ad-manager/ad-accounts');
+        return { success: true };
+    } catch (e: any) {
+        console.error(`${LOG_PREFIX} Failed to delete ad account:`, e);
+        return { success: false, error: 'Failed to disconnect ad account.' };
     }
 }
