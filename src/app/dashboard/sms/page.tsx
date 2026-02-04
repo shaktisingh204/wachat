@@ -1,35 +1,38 @@
-import { getDecodedSession } from "@/lib/auth";
-import { connectToDatabase } from "@/lib/mongodb";
-import { cookies } from "next/headers";
-import { SmsCampaign } from "@/lib/sms/types";
+import { getSmsAnalytics } from "@/app/actions/sms-analytics.actions";
+import { SmsAnalyticsCharts } from "@/components/wabasimplify/sms/sms-analytics-charts";
 import { Activity, CreditCard, MessageSquare, Send, Users, History, Code } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { QuickSendDialog } from "./quick-send-dialog";
+import { connectToDatabase } from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
+import { getDecodedSession } from "@/lib/auth";
+import { cookies } from "next/headers";
+import { SmsCampaign } from "@/lib/sms/types";
 
-async function getStats(userId: string) {
+// Helper to get recent campaigns separately as analytics action focuses on stats
+async function getRecentCampaigns(userId: string) {
     const { db } = await connectToDatabase();
-    // Aggregation for quick stats
-    const totalSent = await db.collection('sms_logs').countDocuments({ userId: new ObjectId(userId), status: 'SENT' });
-    const totalDelivered = await db.collection('sms_logs').countDocuments({ userId: new ObjectId(userId), status: 'DELIVERED' });
-    const campaignsCount = await db.collection('sms_campaigns').countDocuments({ userId: new ObjectId(userId) });
-    const recentCampaigns = await db.collection<SmsCampaign>('sms_campaigns')
+    return db.collection<SmsCampaign>('sms_campaigns')
         .find({ userId: new ObjectId(userId) })
         .sort({ createdAt: -1 })
         .limit(5)
         .toArray();
-
-    return { totalSent, totalDelivered, campaignsCount, recentCampaigns };
 }
 
 export default async function SmsDashboardPage() {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('session_token')?.value;
-    const session = await getDecodedSession(sessionToken || '');
-    // if (!session) return redirect('/auth/login'); // handled by middleware usually
+    // 1. Fetch Analytics
+    const { stats, daily } = await getSmsAnalytics();
 
-    const stats = session?.userId ? await getStats(session.userId) : { totalSent: 0, totalDelivered: 0, campaignsCount: 0, recentCampaigns: [] };
+    // 2. Fetch Recent Campaigns
+    const cookieStore = await cookies();
+    const session = await getDecodedSession(cookieStore.get('session_token')?.value || '');
+    const recentCampaigns = session?.userId ? await getRecentCampaigns(session.userId) : [];
+
+    // Fallback stats
+    const safeStats = stats || { total: 0, sent: 0, delivered: 0, failed: 0, queued: 0 };
+    const deliveryRate = safeStats.sent > 0 ? ((safeStats.delivered / safeStats.sent) * 100).toFixed(1) : "0";
 
     return (
         <div className="space-y-6">
@@ -53,8 +56,8 @@ export default async function SmsDashboardPage() {
                         <Send className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.totalSent}</div>
-                        <p className="text-xs text-muted-foreground">Messages sent via all providers</p>
+                        <div className="text-2xl font-bold">{safeStats.sent}</div>
+                        <p className="text-xs text-muted-foreground">Messages successfully sent</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -63,20 +66,18 @@ export default async function SmsDashboardPage() {
                         <Activity className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
-                            {stats.totalSent > 0 ? ((stats.totalDelivered / stats.totalSent) * 100).toFixed(1) : 0}%
-                        </div>
-                        <p className="text-xs text-muted-foreground">{stats.totalDelivered} delivered successfully</p>
+                        <div className="text-2xl font-bold">{deliveryRate}%</div>
+                        <p className="text-xs text-muted-foreground">{safeStats.delivered} delivered</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Campaigns</CardTitle>
+                        <CardTitle className="text-sm font-medium">Total Failed</CardTitle>
                         <MessageSquare className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.campaignsCount}</div>
-                        <p className="text-xs text-muted-foreground">Total campaigns created</p>
+                        <div className="text-2xl font-bold">{safeStats.failed}</div>
+                        <p className="text-xs text-muted-foreground">Undelivered or Failed</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -85,39 +86,18 @@ export default async function SmsDashboardPage() {
                         <CreditCard className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">₹ {(stats.totalSent * 0.20).toFixed(2)}</div>
+                        <div className="text-2xl font-bold">₹ {(safeStats.sent * 0.20).toFixed(2)}</div>
                         <p className="text-xs text-muted-foreground">Approx based on avg rates</p>
                     </CardContent>
                 </Card>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4">
-                    <CardHeader>
-                        <CardTitle>Recent Campaigns</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-8">
-                            {stats.recentCampaigns.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">No campaigns yet.</p>
-                            ) : (
-                                stats.recentCampaigns.map((c: any) => (
-                                    <div key={c._id} className="flex items-center">
-                                        <div className="space-y-1">
-                                            <p className="text-sm font-medium leading-none">{c.name}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {new Date(c.createdAt).toLocaleDateString()} • {c.status}
-                                            </p>
-                                        </div>
-                                        <div className="ml-auto font-medium">
-                                            {c.stats?.sent || 0} Sent
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
+
+                {/* Analytics Chart */}
+                <SmsAnalyticsCharts dailyData={daily} />
+
+                {/* Quick Actions */}
                 <Card className="col-span-3">
                     <CardHeader>
                         <CardTitle>Quick Actions</CardTitle>
@@ -147,9 +127,35 @@ export default async function SmsDashboardPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            <div className="grid gap-4 md:grid-cols-1">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Recent Campaigns</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {recentCampaigns.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No campaigns yet.</p>
+                            ) : (
+                                recentCampaigns.map((c: any) => (
+                                    <div key={c._id.toString()} className="flex items-center border-b pb-4 last:border-0 last:pb-0">
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-medium leading-none">{c.name}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {new Date(c.createdAt).toLocaleDateString()} • {c.status}
+                                            </p>
+                                        </div>
+                                        <div className="ml-auto font-medium text-sm">
+                                            {c.stats?.sent || 0} Sent
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }
-
-// Helper to ensure ObjectId import
-import { ObjectId } from "mongodb";

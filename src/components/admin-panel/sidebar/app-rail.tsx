@@ -22,7 +22,19 @@ import {
     Settings,
     Info,
     LogOut,
-    Bell
+    Bell,
+    MessageSquare,
+    Briefcase,
+    Users,
+    Mail,
+    Smartphone,
+    LayoutTemplate,
+    Link as LinkIcon,
+    QrCode,
+    LineChart,
+    Facebook,
+    Instagram,
+    Monitor
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -47,7 +59,6 @@ export function AppRail({ activeApp }: AppRailProps) {
 
                 <ScrollArea className="flex-1 w-full px-2">
                     <SidebarContent className="flex flex-col items-center gap-4 w-full overflow-visible">
-
                         {/* 1. Home */}
                         <SidebarMenu className="items-center gap-2 w-full">
                             <RailItem
@@ -57,6 +68,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                                 href="/dashboard/home"
                             />
                         </SidebarMenu>
+
 
                         {/* 2. Notification */}
                         <div className="w-full flex justify-center">
@@ -71,22 +83,88 @@ export function AppRail({ activeApp }: AppRailProps) {
 
                             <SidebarMenu className="items-center gap-2 w-full">
                                 <RailItem
+                                    icon={MessageSquare}
+                                    label="WaChat"
+                                    active={pathname === '/dashboard/' || pathname === '/dashboard/home'}
+                                    href="/dashboard/"
+                                />
+                                <RailItem
+                                    icon={Facebook}
+                                    label="Meta Suite"
+                                    active={activeApp === 'facebook'}
+                                    href="/dashboard/facebook"
+                                />
+                                <RailItem
+                                    icon={Crosshair}
+                                    label="Ad Manager"
+                                    active={activeApp === 'ad-manager'}
+                                    href="/dashboard/ad-manager"
+                                />
+                                <RailItem
+                                    icon={Instagram}
+                                    label="Instagram"
+                                    active={activeApp === 'instagram'}
+                                    href="/dashboard/instagram"
+                                />
+                                <RailItem
+                                    icon={Briefcase}
+                                    label="CRM"
+                                    active={activeApp === 'crm'}
+                                    href="/dashboard/crm"
+                                />
+                                <RailItem
+                                    icon={Users}
+                                    label="Team"
+                                    active={activeApp === 'team'}
+                                    href="/dashboard/team"
+                                />
+                                <RailItem
+                                    icon={Mail}
+                                    label="Email"
+                                    active={activeApp === 'email'}
+                                    href="/dashboard/email"
+                                />
+                                <RailItem
+                                    icon={Smartphone}
+                                    label="SMS"
+                                    active={activeApp === 'sms'}
+                                    href="/dashboard/sms"
+                                />
+                                <RailItem
                                     icon={Globe}
                                     label="SabChat"
                                     active={activeApp === 'sabchat'}
                                     href="/dashboard/sabchat"
                                 />
                                 <RailItem
-                                    icon={Crosshair}
-                                    label="Ad Manager"
-                                    active={activeApp === 'ad-manager'}
-                                    href="/dashboard/ad-manager/ad-accounts"
-                                />
-                                <RailItem
                                     icon={MessageCircle}
                                     label="Live Chat"
                                     active={pathname.startsWith('/dashboard/chat')}
                                     href="/dashboard/chat"
+                                />
+                                <RailItem
+                                    icon={Monitor}
+                                    label="Website Builder"
+                                    active={activeApp === 'website-builder'}
+                                    href="/dashboard/website-builder"
+                                />
+                                <RailItem
+                                    icon={LinkIcon}
+                                    label="URL Shortener"
+                                    active={activeApp === 'url-shortener'}
+                                    href="/dashboard/url-shortener"
+                                />
+                                <RailItem
+                                    icon={QrCode}
+                                    label="QR Code"
+                                    active={activeApp === 'qr-code-maker'}
+                                    href="/dashboard/qr-code-maker"
+                                />
+                                <RailItem
+                                    icon={LineChart}
+                                    label="SEO"
+                                    active={activeApp === 'seo'}
+                                    href="/dashboard/seo"
                                 />
                             </SidebarMenu>
                         </div>
