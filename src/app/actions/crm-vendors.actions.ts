@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmVendor } from '@/lib/definitions';
+import type { CrmVendor, CrmVendorType } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function getCrmVendors(): Promise<WithId<CrmVendor>[]> {
@@ -95,7 +95,77 @@ export async function deleteCrmVendor(vendorId: string): Promise<{ success: bool
         await db.collection('crm_vendors').deleteOne({ _id: new ObjectId(vendorId) });
         revalidatePath(`/dashboard/crm/purchases/vendors`);
         return { success: true };
-    } catch (e) {
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getCrmVendorTypes(): Promise<WithId<CrmVendorType>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const types = await db.collection('crm_vendor_types')
+            .find({ userId: new ObjectId(session.user._id) })
+            .sort({ name: 1 })
+            .toArray();
+
+        const defaultTypes = [
+            'Goods Supplier', 'Service Provider', 'Contractor', 'Freelancer', 'Consultant', 'Manufacturer', 'Distributor', 'Wholesaler', 'Retailer'
+        ];
+
+        const existingNames = new Set(types.map((t: any) => t.name.toLowerCase()));
+
+        const defaultTypeObjects = defaultTypes
+            .filter(name => !existingNames.has(name.toLowerCase()))
+            .map(name => ({
+                _id: new ObjectId().toString(),
+                userId: session.user._id,
+                name: name,
+                description: 'Default Vendor Type',
+                updatedAt: new Date(),
+                createdAt: new Date(),
+                isDefault: true
+            }));
+
+        const allTypes = [...types, ...defaultTypeObjects].sort((a: any, b: any) => a.name.localeCompare(b.name));
+        return JSON.parse(JSON.stringify(allTypes));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function saveCrmVendorType(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; topic?: WithId<CrmVendorType> }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+    try {
+        const { db } = await connectToDatabase();
+        const name = formData.get('name') as string;
+        if (!name) return { error: 'Name is required' };
+
+        const typeData = {
+            userId: new ObjectId(session.user._id),
+            name,
+            description: formData.get('description') as string,
+            updatedAt: new Date()
+        };
+
+        let result;
+        const id = formData.get('_id') as string;
+        if (id) {
+            await db.collection('crm_vendor_types').updateOne(
+                { _id: new ObjectId(id) },
+                { $set: typeData }
+            );
+            result = { ...typeData, _id: new ObjectId(id) };
+        } else {
+            const res = await db.collection('crm_vendor_types').insertOne({ ...typeData, createdAt: new Date() });
+            result = { ...typeData, createdAt: new Date(), _id: res.insertedId };
+        }
+
+        revalidatePath('/dashboard/crm/purchases/vendors');
+        return { message: 'Vendor Type saved.', topic: JSON.parse(JSON.stringify(result)) };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
     }
 }

@@ -11,12 +11,36 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Textarea } from '@/components/ui/textarea';
 
-export function EmailDisplay() {
+export function EmailDisplay({ initialAccountId }: { initialAccountId?: string }) {
     const searchParams = useSearchParams();
     const selectedId = searchParams.get('id');
-    const conversation = mockConversations.find(c => c._id.toString() === selectedId);
+    const accountId = searchParams.get('accountId') || initialAccountId;
 
-    if (!selectedId || !conversation) {
+    const [conversation, setConversation] = React.useState<any>(null);
+    const [isLoading, setIsLoading] = React.useState(false);
+
+    React.useEffect(() => {
+        if (selectedId && accountId) {
+            const fetchThread = async () => {
+                setIsLoading(true);
+                try {
+                    const { getEmailThreadDetails } = await import('@/app/actions/email.actions');
+                    const data = await getEmailThreadDetails(accountId, selectedId);
+                    setConversation(data);
+                } catch (e) {
+                    console.error("Failed to fetch thread", e);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            fetchThread();
+        } else {
+            setConversation(null);
+        }
+    }, [selectedId, accountId]);
+
+
+    if (!selectedId) {
         return (
             <div className="flex flex-col h-full items-center justify-center text-muted-foreground bg-background/50">
                 <div className="p-6 bg-background rounded-full mb-4 shadow-sm border">
@@ -27,6 +51,33 @@ export function EmailDisplay() {
         );
     }
 
+    if (isLoading) {
+        return (
+            <div className="flex flex-col h-full bg-background p-8 space-y-6">
+                <div className="h-8 w-3/4 bg-muted rounded animate-pulse" />
+                <div className="space-y-2">
+                    <div className="h-4 w-1/2 bg-muted rounded animate-pulse" />
+                    <div className="h-4 w-1/3 bg-muted rounded animate-pulse" />
+                </div>
+                <div className="h-64 bg-muted rounded animate-pulse" />
+            </div>
+        );
+    }
+
+    if (!conversation) {
+        return (
+            <div className="flex flex-col h-full items-center justify-center text-muted-foreground">
+                <p>Email not found.</p>
+            </div>
+        );
+    }
+
+    // Construct simplified view model from messages
+    // We assume the conversation object from backend has 'messages' array
+    const subject = "Conversation" // ToDo: Get subject from first message or thread meta
+    const messages = conversation.messages || [];
+    const firstMessage = messages[0];
+
     return (
         <div className="flex flex-col h-full bg-background overflow-hidden">
             {/* Header Toolbar */}
@@ -35,7 +86,7 @@ export function EmailDisplay() {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" disabled={!conversation}>
+                                <Button variant="ghost" size="icon">
                                     <Archive className="h-4 w-4" />
                                     <span className="sr-only">Archive</span>
                                 </Button>
@@ -44,7 +95,7 @@ export function EmailDisplay() {
                         </Tooltip>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" disabled={!conversation}>
+                                <Button variant="ghost" size="icon">
                                     <Trash2 className="h-4 w-4" />
                                     <span className="sr-only">Move to trash</span>
                                 </Button>
@@ -55,15 +106,15 @@ export function EmailDisplay() {
                     <Separator orientation="vertical" className="mx-1 h-6" />
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" disabled={!conversation}>
+                    <Button variant="ghost" size="icon">
                         <Reply className="h-4 w-4" />
                         <span className="sr-only">Reply</span>
                     </Button>
-                    <Button variant="ghost" size="icon" disabled={!conversation}>
+                    <Button variant="ghost" size="icon">
                         <ReplyAll className="h-4 w-4" />
                         <span className="sr-only">Reply all</span>
                     </Button>
-                    <Button variant="ghost" size="icon" disabled={!conversation}>
+                    <Button variant="ghost" size="icon">
                         <Forward className="h-4 w-4" />
                         <span className="sr-only">Forward</span>
                     </Button>
@@ -78,34 +129,29 @@ export function EmailDisplay() {
             {/* Content Scroll View */}
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="flex items-start justify-between">
-                    <h1 className="text-xl md:text-2xl font-bold mb-4">{conversation.subject}</h1>
-                    {conversation.labels?.map(l => (
-                        <span key={l} className="text-xs font-mono bg-muted px-2 py-1 rounded-full uppercase">{l}</span>
-                    ))}
+                    {/* Subject is tricky in Gmail threads, usually same as first msg */}
+                    <h1 className="text-xl md:text-2xl font-bold mb-4">{conversation.id} (Subject Placeholder)</h1>
                 </div>
 
                 <div className="space-y-6">
-                    {conversation.messages.map((message) => (
+                    {messages.map((message: any) => (
                         <div key={message.id} className="flex flex-col gap-4 border p-4 rounded-xl shadow-sm bg-card">
                             <div className="flex items-start gap-4">
                                 <Avatar className="h-10 w-10">
-                                    <AvatarImage alt={message.from.name} />
-                                    <AvatarFallback>{message.from.name.charAt(0)}</AvatarFallback>
+                                    <AvatarFallback>{message.from ? message.from.charAt(0) : '?'}</AvatarFallback>
                                 </Avatar>
                                 <div className="grid gap-1">
-                                    <div className="font-semibold">{message.from.name}</div>
-                                    <div className="text-xs text-muted-foreground">{message.from.email}</div>
-                                    <div className="text-xs text-muted-foreground">
-                                        To: {message.to.map(t => t.name).join(', ')}
+                                    <div className="font-semibold">{message.from}</div>
+                                    <div className="ml-auto text-xs text-muted-foreground">
+                                        {format(new Date(message.date), 'PPpp')}
                                     </div>
-                                </div>
-                                <div className="ml-auto text-xs text-muted-foreground">
-                                    {format(new Date(message.date), 'PPpp')}
                                 </div>
                             </div>
                             <Separator />
-                            <div className="text-sm prose prose-neutral dark:prose-invert max-w-none">
-                                <div dangerouslySetInnerHTML={{ __html: message.bodyHtml }}></div>
+                            <div className="text-sm prose prose-neutral dark:prose-invert max-w-none overflow-hidden">
+                                {message.body && (
+                                    <div dangerouslySetInnerHTML={{ __html: message.body }}></div>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -118,7 +164,7 @@ export function EmailDisplay() {
                     </Avatar>
                     <div className="flex-1 space-y-2">
                         <Textarea
-                            placeholder={`Reply to ${conversation.participants[0].name}...`}
+                            placeholder={`Reply...`}
                             className="min-h-[100px]"
                         />
                         <div className="flex justify-between items-center">

@@ -627,13 +627,14 @@ export type CrmVendor = {
     gstin?: string;
     pan?: string;
     panName?: string;
-    vendorType?: 'individual' | 'company';
+    vendorType?: string;
     taxTreatment?: string;
     subject?: string;
     bankAccountDetails?: BankAccountDetails;
     showEmailInInvoice?: boolean;
     showPhoneInInvoice?: boolean;
     attachments?: string[]; // URLs
+    createdAt: Date;
     updatedAt: Date;
 };
 
@@ -719,6 +720,24 @@ export type CrmWarehouse = {
     phone?: string;
     managerName?: string;
     isDefault?: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmVendorType = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    description?: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmIndustry = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    description?: string;
     createdAt: Date;
     updatedAt: Date;
 };

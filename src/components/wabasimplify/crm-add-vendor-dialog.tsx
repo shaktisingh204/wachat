@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SmartLocationSelect } from '@/components/crm/smart-location-select';
 import { SmartIndustrySelect } from '@/components/crm/inventory/smart-industry-select';
+import { SmartVendorTypeSelect } from '@/components/crm/purchases/smart-vendor-type-select';
 
 const initialState = {
     message: '',
@@ -44,7 +45,8 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
     const [countryName, setCountryName] = useState<string>('India');
     const [selectedState, setSelectedState] = useState<string>('');
     const [selectedStateName, setSelectedStateName] = useState<string>('');
-    const [cityName, setCityName] = useState<string>('');
+    const [cityName, setCityName] = useState('New Delhi');
+    const [vendorType, setVendorType] = useState('Goods Supplier');
     const [industryId, setIndustryId] = useState<string>('');
 
     useEffect(() => {
@@ -161,11 +163,12 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Vendor Type</Label>
-                                        <Select name="vendorType" defaultValue="goods">
-                                            <SelectTrigger><SelectValue /></SelectTrigger>
-                                            <SelectContent><SelectItem value="goods">Goods Supplier</SelectItem><SelectItem value="service">Service Provider</SelectItem></SelectContent>
-                                        </Select>
+                                        <Label htmlFor="vendorType">Vendor Type</Label>
+                                        <input type="hidden" name="vendorType" value={vendorType} />
+                                        <SmartVendorTypeSelect
+                                            value={vendorType}
+                                            onSelect={(val: string) => setVendorType(val)}
+                                        />
                                     </div>
                                     <div className="space-y-2"><Label>Tax Treatment</Label><Select name="taxTreatment"><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent><SelectItem value="registered">Registered</SelectItem><SelectItem value="unregistered">Unregistered</SelectItem></SelectContent></Select></div>
                                 </div>

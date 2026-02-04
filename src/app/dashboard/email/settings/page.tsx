@@ -265,7 +265,6 @@ function EmailSettingsPageContent() {
                         const Icon = account.provider === 'google' ? GoogleIcon : account.provider === 'outlook' ? OutlookIcon : Mail;
                         return (
                             <Card key={account._id.toString()} className="group hover:border-primary/50 transition-all cursor-pointer" onClick={() => {
-                                setActiveSettingsId(account._id.toString());
                                 setView('manage');
                             }}>
                                 <CardHeader>
@@ -358,37 +357,14 @@ function EmailSettingsPageContent() {
     return (
         <EmailSuiteLayout>
             <div className="flex flex-col gap-8 h-full">
-                <div>
-                    {/* Title is handled by Layout Sidebar usually, but we can add specific header if needed */}
-                </div>
-
-                {activeTab === 'email' && currentSettings && (
-                    <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                        Connected via <span className="capitalize">{currentSettings.provider}</span>
-                                    </div>
-                                    <Badge variant="outline">{currentSettings.fromEmail}</Badge>
-                                </CardTitle>
-                                <CardDescription>This account is active and ready to send campaigns.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex items-center gap-4">
-                                    <Button variant="secondary">Re-authorize Connection</Button>
-                                    <Button variant="outline" className="text-destructive hover:bg-destructive/10 border-destructive/20" onClick={async () => {
-                                        if (confirm('Are you sure you want to disconnect this account? This action cannot be undone.')) {
-                                            setIsLoading(true);
                 <div className="flex items-center gap-4 mb-2">
-                     <Button variant="ghost" size="sm" onClick={() => {
-                         router.push('/dashboard/email');
-                     }}>
+                    <Button variant="ghost" size="sm" onClick={() => {
+                        router.push('/dashboard/email');
+                    }}>
                         <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                     </Button>
-                     <span className="text-muted-foreground">/</span>
-                     <span className="font-semibold">{currentSettings?.fromEmail}</span>
+                    </Button>
+                    <span className="text-muted-foreground">/</span>
+                    <span className="font-semibold">{currentSettings?.fromEmail}</span>
                 </div>
 
                 <ModuleLayout
@@ -435,13 +411,42 @@ function EmailSettingsPageContent() {
                                                 }
                                                 setIsLoading(false);
                                             }
+                                        }}>
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Disconnect Account
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
 
-                {activeTab === 'deliverability' && (
-                    <DeliverabilityTab />
-                )}
-                {activeTab === 'integrations' && (
-                    <IntegrationsTab userId={user.id} />
-                )}
+                            {currentSettings.provider === 'smtp' && (
+                                <>
+                                    <Separator />
+                                    <div className="mt-6">
+                                        <h3 className="text-lg font-semibold mb-4">SMTP Configuration</h3>
+                                        <CrmSmtpForm settings={currentSettings} />
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'templates' && (
+                        <EmailTemplatesManager />
+                    )}
+
+                    {activeTab === 'compliance' && (
+                        <ComplianceForm user={user} />
+                    )}
+
+                    {activeTab === 'deliverability' && (
+                        <DeliverabilityTab />
+                    )}
+
+                    {activeTab === 'integrations' && (
+                        <IntegrationsTab userId={user.id} />
+                    )}
+                </ModuleLayout>
             </div>
         </EmailSuiteLayout>
     );

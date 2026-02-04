@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { SmartCombobox } from '@/components/wabasimplify/smart-combobox';
-import { AddIndustryDialog } from './add-industry-dialog'; // We will create this
-import { getCrmIndustries } from '@/app/actions/crm-inventory-settings.actions'; // We will add this
+import { AddIndustryDialog } from '@/components/crm/inventory/add-industry-dialog';
+import { getCrmIndustries } from '@/app/actions/crm-inventory-settings.actions';
 
 interface Option {
     value: string;
@@ -34,7 +34,7 @@ export function SmartIndustrySelect({
     const fetchIndustries = React.useCallback(async () => {
         if (options.length === 0) {
             const data = await getCrmIndustries();
-            setOptions(data.map(d => ({ value: d._id.toString(), label: d.name })));
+            setOptions(data.map(d => ({ value: d.name, label: d.name })));
         }
     }, [options.length]);
 
@@ -48,9 +48,9 @@ export function SmartIndustrySelect({
     };
 
     const handleIndustryAdded = (newIndustry: any) => {
-        const newOption = { value: newIndustry._id.toString(), label: newIndustry.name };
+        const newOption = { value: newIndustry.name, label: newIndustry.name };
         setOptions(prev => [...prev, newOption]);
-        onSelect(newIndustry._id.toString());
+        onSelect(newIndustry.name);
         setIsDialogOpen(false);
     };
 

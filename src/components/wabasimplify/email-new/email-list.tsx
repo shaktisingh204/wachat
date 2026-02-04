@@ -10,22 +10,58 @@ import { formatDistanceToNow, isToday, format } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 
-export function EmailList() {
+export function EmailList({ initialAccountId }: { initialAccountId?: string }) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const selectedId = searchParams.get('id');
     const folder = searchParams.get('folder') || 'inbox';
+    const accountId = searchParams.get('accountId') || initialAccountId;
 
-    // In real app, this would filter by folder from API
-    // For mock, we just filter client side
-    const filteredConversations = mockConversations.filter(c =>
-        folder === 'inbox' ? c.folder === 'inbox' : c.folder === folder
-    );
+    const [conversations, setConversations] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchConversations = async () => {
+            setIsLoading(true);
+            try {
+                // Import dynamically to avoid server-action-in-client issues depending on build set up, 
+                // but standard import is usually fine in Next.js 14. 
+                // We'll use the imported action.
+                const { getEmailConversations } = await import('@/app/actions/email.actions');
+                const data = await getEmailConversations(accountId || undefined);
+                setConversations(data);
+            } catch (error) {
+                console.error("Failed to load emails", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchConversations();
+    }, [accountId, folder]);
+
+    const filteredConversations = conversations; // Server filters by folder/account ideally, for now assuming action returns relevant list
 
     const handleSelect = (id: string) => {
         const params = new URLSearchParams(searchParams.toString());
         params.set('id', id);
         router.push(`?${params.toString()}`);
+    }
+
+    // Loading State
+    if (isLoading) {
+        return (
+            <div className="flex flex-col h-full bg-background border-r">
+                <div className="p-4 border-b space-y-3">
+                    <div className="h-8 bg-muted rounded animate-pulse" />
+                </div>
+                <div className="p-2 space-y-2">
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="h-24 bg-muted rounded animate-pulse" />
+                    ))}
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -44,34 +80,34 @@ export function EmailList() {
                 <div className="flex flex-col gap-1 p-2">
                     {filteredConversations.length === 0 ? (
                         <div className="p-8 text-center text-muted-foreground text-sm">
-                            No emails in {folder}.
+                            No emails found.
                         </div>
                     ) : filteredConversations.map((item) => (
                         <button
-                            key={item._id.toString()}
-                            onClick={() => handleSelect(item._id.toString())}
+                            key={item.id || item._id.toString()}
+                            onClick={() => handleSelect(item.id || item._id.toString())}
                             className={cn(
                                 "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                                selectedId === item._id.toString() && "bg-accent"
+                                selectedId === (item.id || item._id.toString()) && "bg-accent"
                             )}
                         >
                             <div className="flex w-full flex-col gap-1">
                                 <div className="flex items-center">
                                     <div className="flex items-center gap-2">
                                         <div className="font-semibold text-foreground">
-                                            {item.participants[0].name}
+                                            {item.participants?.[0]?.name || 'Unknown'}
                                         </div>
-                                        {!item.status || item.status === 'unread' && (
+                                        {!item.isRead && (
                                             <span className="flex h-2 w-2 rounded-full bg-blue-600" />
                                         )}
                                     </div>
                                     <div className={cn(
                                         "ml-auto text-xs",
-                                        selectedId === item._id.toString() ? "text-foreground" : "text-muted-foreground"
+                                        selectedId === (item.id || item._id.toString()) ? "text-foreground" : "text-muted-foreground"
                                     )}>
-                                        {isToday(new Date(item.lastMessageAt))
+                                        {item.lastMessageAt && (isToday(new Date(item.lastMessageAt))
                                             ? format(new Date(item.lastMessageAt), 'h:mm a')
-                                            : formatDistanceToNow(new Date(item.lastMessageAt), { addSuffix: true })
+                                            : formatDistanceToNow(new Date(item.lastMessageAt), { addSuffix: true }))
                                         }
                                     </div>
                                 </div>
@@ -80,12 +116,12 @@ export function EmailList() {
                                 </div>
                             </div>
                             <div className="line-clamp-2 text-xs text-muted-foreground w-full">
-                                {item.snippet.substring(0, 300)}
+                                {item.snippet?.substring(0, 100)}
                             </div>
                             {item.labels && item.labels.length > 0 && (
                                 <div className="flex items-center gap-2 w-full overflow-hidden mt-1">
-                                    {item.labels.map((label) => (
-                                        <Badge key={label} variant={getLabelVariant(label) as any} className="px-1 py-0 text-[10px] rounded-sm font-medium h-5">
+                                    {item.labels.map((label: string) => (
+                                        <Badge key={label} variant="secondary" className="px-1 py-0 text-[10px] rounded-sm font-medium h-5">
                                             {label}
                                         </Badge>
                                     ))}

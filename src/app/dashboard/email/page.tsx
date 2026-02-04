@@ -6,7 +6,7 @@ import { EmailAccountList } from '@/components/wabasimplify/email-account-list';
 import { PlusCircle, Activity, TrendingUp, BarChart3, AlertCircle, Send, Users, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { getEmailSettings, getEmailCampaigns } from '@/app/actions/email.actions';
+import { getEmailSettings, getEmailCampaigns, getEmailStats } from '@/app/actions/email.actions';
 import type { WithId, EmailSettings, EmailCampaign } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
@@ -37,12 +37,9 @@ function OverviewContent() {
                 const campaigns = await getEmailCampaigns(fromEmail);
                 setRecentCampaigns(campaigns.slice(0, 5));
 
-                // Calc stats (mock logic for now as campaign data might be limited)
-                setStats({
-                    sent: campaigns.length * 120, // Mock
-                    opened: Math.floor(campaigns.length * 120 * 0.45),
-                    clicks: Math.floor(campaigns.length * 120 * 0.12)
-                });
+                // Fetch real stats
+                const realStats = await getEmailStats(accountId);
+                setStats(realStats);
             }
 
             setIsLoading(false);

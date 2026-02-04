@@ -41,7 +41,8 @@ interface CrmAddClientDialogProps {
   defaultName?: string;
 }
 
-import { SmartLocationSelect } from '@/components/crm/smart-location-select';
+import { SmartLocationSelect } from '@/components/wabasimplify/smart-location-select';
+import { SmartIndustrySelect } from '@/components/crm/inventory/smart-industry-select';
 
 // ... imports
 
@@ -54,6 +55,8 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
   // Location State
   const [country, setCountry] = useState<string>('IN'); // Default India ISO
   const [countryName, setCountryName] = useState<string>('India');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [clientIndustry, setClientIndustry] = useState<string>('');
   const [selectedState, setSelectedState] = useState<string>('');
   const [selectedStateName, setSelectedStateName] = useState<string>('');
   const [cityName, setCityName] = useState<string>('');
@@ -119,7 +122,12 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="clientIndustry">Client Industry</Label>
-                      <Select name="clientIndustry"><SelectTrigger><SelectValue placeholder="-Select an Industry-" /></SelectTrigger><SelectContent><SelectItem value="tech">Technology</SelectItem><SelectItem value="retail">Retail</SelectItem></SelectContent></Select>
+                      {/* Hidden input to store value for form submission */}
+                      <input type="hidden" name="clientIndustry" value={clientIndustry} />
+                      <SmartIndustrySelect
+                        value={clientIndustry}
+                        onSelect={(val: string) => setClientIndustry(val)}
+                      />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
@@ -139,7 +147,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       <SmartLocationSelect
                         type="state"
                         selectedCountryCode={country}
-                        onSelect={(val, label) => {
+                        onSelect={(val: string, label: string) => {
                           setSelectedState(val);
                           setSelectedStateName(label);
                         }}
@@ -152,7 +160,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                         type="city"
                         selectedCountryCode={country}
                         selectedStateCode={selectedState}
-                        onSelect={(val, label) => setCityName(label)}
+                        onSelect={(val: string, label: string) => setCityName(label)}
                       />
                       <input type="hidden" name="city" value={cityName} />
                     </div>
