@@ -1,8 +1,7 @@
 'use server';
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { getDecodedSession } from "@/lib/auth";
-import { cookies } from "next/headers";
+import { getSession } from "@/app/actions/user.actions";
 import { ObjectId } from "mongodb";
 import { CrmSettings, WithId } from "@/lib/definitions";
 
@@ -40,13 +39,11 @@ const DEFAULT_SETTINGS = {
 };
 
 export async function getCrmSettings(): Promise<WithId<CrmSettings> | null> {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('session_token')?.value;
-    const session = await getDecodedSession(sessionToken || '');
-    if (!session?.userId) return null;
+    const session = await getSession();
+    if (!session?.user) return null;
 
     const { db } = await connectToDatabase();
-    const settings = await db.collection<CrmSettings>('crm_settings').findOne({ userId: new ObjectId(session.userId) });
+    const settings = await db.collection<CrmSettings>('crm_settings').findOne({ userId: new ObjectId(session.user._id) });
 
     if (settings) {
         return {
@@ -61,19 +58,17 @@ export async function getCrmSettings(): Promise<WithId<CrmSettings> | null> {
     return {
         ...DEFAULT_SETTINGS,
         _id: 'default', // Placeholder
-        userId: session.userId,
+        userId: session.user._id,
         updatedAt: new Date()
     } as any;
 }
 
 export async function saveCrmSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('session_token')?.value;
-    const session = await getDecodedSession(sessionToken || '');
-    if (!session?.userId) return { error: 'Unauthorized' };
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
 
     const { db } = await connectToDatabase();
-    const userObjectId = new ObjectId(session.userId);
+    const userObjectId = new ObjectId(session.user._id);
 
     const rawModules = {
         proforma: formData.get('module_proforma') === 'on',

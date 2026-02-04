@@ -277,31 +277,11 @@ export const emailMenuItems: MenuItem[] = [
 ];
 
 export const smsMenuItems: MenuItem[] = [
-    { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
-    {
-        href: "/dashboard/sms/dlt",
-        label: "DLT Management",
-        icon: Database, // Replaced React.Fragment with Database
-        subItems: [
-            { href: "/dashboard/sms/dlt", label: "Connect DLT Account" },
-            { href: "/dashboard/sms/entity-management", label: "Entity Management" },
-            { href: "/dashboard/sms/header-management", label: "Header Management" },
-            { href: "/dashboard/sms/template-management", label: "Template Management" },
-        ]
-    },
-    {
-        href: "/dashboard/sms/messaging",
-        label: "Messaging",
-        icon: MessageSquare,
-        subItems: [
-            { href: "/dashboard/sms/campaigns", label: "Send SMS" },
-            { href: "/dashboard/sms/message-history", label: "Message History" },
-            { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports" },
-        ]
-    },
-    { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
-    { href: '/dashboard/sms/integrations', label: 'Integrations', icon: Bolt },
-    { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard/sms', label: 'Overview', icon: LayoutDashboard }, // using LayoutDashboard as generic icon if LayoutGrid is not available, or I should check imports
+    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: MessageSquare },
+    { href: '/dashboard/sms/templates', label: 'DLT Templates', icon: BookCopy }, // Using BookCopy for templates
+    { href: '/dashboard/sms/config', label: 'Configuration', icon: Settings },
+    { href: '/dashboard/sms/developer', label: 'Developer API', icon: Server },
 ];
 
 export const apiMenuItems: MenuItem[] = [
