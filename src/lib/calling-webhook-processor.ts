@@ -23,23 +23,23 @@ export async function handleCallingSettingsUpdate(db: Db, project: Project, valu
         console.warn(`[CALLING-WEBHOOK] No phone_number_id found in payload for project ${project._id}`);
         return;
     }
-    
+
     // Find the specific phone number in the project's array and update its settings
     const updateResult = await db.collection('projects').updateOne(
-        { 
-            _id: project._id, 
-            'phoneNumbers.id': phoneNumberId 
+        {
+            _id: project._id,
+            'phoneNumbers.id': phoneNumberId
         },
-        { 
-            $set: { 
-                'phoneNumbers.$.callingSettings': callingSettings 
-            } 
+        {
+            $set: {
+                'phoneNumbers.$.callingSettings': callingSettings
+            }
         }
     );
 
     if (updateResult.modifiedCount > 0) {
         console.log(`[CALLING-WEBHOOK] Updated calling settings for phone number ${phoneNumberId} in project ${project._id}`);
-        
+
         // Create a notification for the user
         await db.collection('notifications').insertOne({
             projectId: project._id,
@@ -48,7 +48,8 @@ export async function handleCallingSettingsUpdate(db: Db, project: Project, valu
             link: '/dashboard/calls/settings',
             isRead: false,
             createdAt: new Date(),
-            eventType: 'account_settings_update'
+            eventType: 'account_settings_update',
+            sourceApp: 'wachat'
         });
     }
 }

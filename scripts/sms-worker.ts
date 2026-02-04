@@ -173,5 +173,7 @@ async function startSmsWorker(workerId: string) {
         } finally {
             busy = false;
         }
+    }, 5000);
+}
 
-        startSmsWorker('sms-worker-1');
+startSmsWorker('sms-worker-1');

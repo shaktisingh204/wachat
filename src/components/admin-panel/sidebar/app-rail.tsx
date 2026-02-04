@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { NotificationPopover } from '@/components/notifications/notification-popover';
 
 interface AppRailProps {
     activeApp: string;
@@ -59,12 +60,7 @@ export function AppRail({ activeApp }: AppRailProps) {
 
                         {/* 2. Notification */}
                         <div className="w-full flex justify-center">
-                            <RailItem
-                                icon={Bell}
-                                label="Notifications"
-                                href="#"
-                                className="text-muted-foreground/70 hover:text-foreground hover:bg-transparent"
-                            />
+                            <NotificationPopover />
                         </div>
 
                         {/* 3. Apps Label & List */}

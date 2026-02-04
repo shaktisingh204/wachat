@@ -1670,6 +1670,7 @@ export async function processOrderWebhook(db: Db, project: WithId<Project>, orde
         isRead: false,
         createdAt: new Date(),
         eventType: 'commerce_orders',
+        sourceApp: 'wachat',
     });
 
     revalidatePath('/dashboard/facebook/commerce/orders');
@@ -1689,6 +1690,7 @@ export async function processCatalogWebhook(db: Db, project: WithId<Project>, ca
         isRead: false,
         createdAt: new Date(),
         eventType: 'catalog_product_events',
+        sourceApp: 'wachat',
     });
 
     revalidatePath(`/dashboard/facebook/commerce/products/${catalogData.catalog_id}`);

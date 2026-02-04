@@ -1930,6 +1930,7 @@ export type Notification = {
     isRead: boolean;
     createdAt: Date;
     eventType: string;
+    sourceApp?: 'wachat' | 'crm' | 'ad-manager' | 'sabchat' | 'system';
 };
 
 export type NotificationWithProject = Notification & { projectName?: string };

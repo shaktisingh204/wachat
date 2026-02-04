@@ -59,8 +59,9 @@ export interface SmsCampaign {
     templateId: ObjectId;
     variableMapping?: Record<string, string>; // Position index -> value
     audienceConfig?: {
-        type: 'manual' | 'csv' | 'contact_group' | 'tags';
-        value: string | string[]; // CSV string, Group ID, or List of tags
+        type: 'manual' | 'csv' | 'contact_group' | 'tags' | 'group' | 'all';
+        value: any; // string | string[] | any
+        fileUrl?: string;
     };
     status: 'DRAFT' | 'QUEUED' | 'PROCESSING' | 'SENDING' | 'COMPLETED' | 'FAILED'; // Added SENDING
     stats: {

@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { BadgeCheck, Bell, BellRing, Eye, LoaderCircle, RefreshCw, Filter } from "lucide-react";
+import { BadgeCheck, Bell, BellRing, Eye, LoaderCircle, RefreshCw, Filter, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,7 @@ export default function NotificationsPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [filter, setFilter] = useState('');
+    const [appFilter, setAppFilter] = useState('ALL');
     const { toast } = useToast();
     const router = useRouter();
     const [projectId, setProjectId] = useState<string | null>(null);
@@ -63,7 +64,7 @@ export default function NotificationsPage() {
         setLoading(true);
         fetchNotifications(currentPage, filter).finally(() => setLoading(false));
     }, [currentPage, filter, fetchNotifications]);
-    
+
     const handleFilterChange = (newFilter: string) => {
         setFilter(newFilter === 'ALL' ? '' : newFilter);
         setCurrentPage(1);
@@ -71,20 +72,20 @@ export default function NotificationsPage() {
 
     const handleNotificationClick = async (notification: WithId<NotificationWithProject>) => {
         if (!notification.isRead) {
-          startRefreshTransition(async () => {
-            const result = await markNotificationAsRead(notification._id.toString());
-            if (result.success) {
-                setNotifications(prev => prev.map(n => n._id.toString() === notification._id.toString() ? {...n, isRead: true} : n));
-            } else {
-              toast({ title: "Error", description: "Failed to mark notification as read.", variant: "destructive" });
-            }
-          });
+            startRefreshTransition(async () => {
+                const result = await markNotificationAsRead(notification._id.toString());
+                if (result.success) {
+                    setNotifications(prev => prev.map(n => n._id.toString() === notification._id.toString() ? { ...n, isRead: true } : n));
+                } else {
+                    toast({ title: "Error", description: "Failed to mark notification as read.", variant: "destructive" });
+                }
+            });
         }
         if (notification.link) {
-          router.push(notification.link);
+            router.push(notification.link);
         }
     };
-    
+
     const humanizeEventType = (eventType: string = "general") => {
         return eventType
             .replace(/_/g, ' ')
@@ -95,13 +96,14 @@ export default function NotificationsPage() {
         startMarkingReadTransition(async () => {
             const result = await markAllNotificationsAsRead();
             if (result.success) {
+                const count = result.updatedCount || 0;
                 toast({
                     title: "Success",
-                    description: result.updatedCount > 0 
-                        ? `${result.updatedCount} notification(s) marked as read.`
+                    description: count > 0
+                        ? `${count} notification(s) marked as read.`
                         : 'No new notifications to mark as read.'
                 });
-                if (result.updatedCount > 0) {
+                if (count > 0) {
                     fetchNotifications(1, filter);
                     setCurrentPage(1);
                 }
@@ -115,6 +117,12 @@ export default function NotificationsPage() {
         });
     };
 
+    const filteredNotifications = notifications.filter(n => {
+        if (appFilter === 'ALL') return true;
+        if (appFilter === 'system') return !n.sourceApp || n.sourceApp === 'system';
+        return n.sourceApp === appFilter;
+    });
+
     return (
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -122,11 +130,26 @@ export default function NotificationsPage() {
                     <h1 className="text-3xl font-bold font-headline">All Notifications</h1>
                     <p className="text-muted-foreground">A complete history of all automated events and alerts.</p>
                 </div>
-                 <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                    <Select onValueChange={(val) => { setAppFilter(val); setCurrentPage(1); }} defaultValue="ALL">
+                        <SelectTrigger className="w-[140px] gap-2">
+                            <Globe className="h-4 w-4" />
+                            <SelectValue placeholder="App Source" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="ALL">All Apps</SelectItem>
+                            <SelectItem value="wachat">WaChat</SelectItem>
+                            <SelectItem value="crm">CRM</SelectItem>
+                            <SelectItem value="ad-manager">Ad Manager</SelectItem>
+                            <SelectItem value="sabchat">SabChat</SelectItem>
+                            <SelectItem value="system">System</SelectItem>
+                        </SelectContent>
+                    </Select>
+
                     <Select onValueChange={handleFilterChange} defaultValue="ALL">
-                        <SelectTrigger className="w-full sm:w-auto min-w-[180px] gap-2">
+                        <SelectTrigger className="w-[180px] gap-2">
                             <Filter className="h-4 w-4" />
-                            <SelectValue placeholder="Filter by event type..." />
+                            <SelectValue placeholder="Event Type" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="ALL">All Events</SelectItem>
@@ -157,8 +180,8 @@ export default function NotificationsPage() {
                                     <Skeleton className="h-12 w-full" />
                                 </div>
                             ))
-                        ) : notifications.length > 0 ? (
-                            notifications.map((notification) => (
+                        ) : filteredNotifications.length > 0 ? (
+                            filteredNotifications.map((notification) => (
                                 <div key={notification._id.toString()}
                                     className={cn("flex items-start gap-4 p-4", !notification.isRead && "bg-muted/50")}
                                 >
@@ -175,7 +198,10 @@ export default function NotificationsPage() {
                                             </p>
                                         </div>
                                         <p className="text-sm text-muted-foreground">{notification.message}</p>
-                                        <Badge variant="outline" className="font-mono text-xs">{humanizeEventType(notification.eventType)}</Badge>
+                                        <div className="flex gap-2">
+                                            <Badge variant="outline" className="font-mono text-xs">{humanizeEventType(notification.eventType)}</Badge>
+                                            <Badge variant="secondary" className="text-xs uppercase scale-90">{notification.sourceApp || 'System'}</Badge>
+                                        </div>
                                     </div>
                                     <Button variant="outline" size="sm" onClick={() => handleNotificationClick(notification)}>
                                         <Eye className="mr-2 h-4 w-4" /> View
