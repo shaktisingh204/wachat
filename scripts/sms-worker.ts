@@ -64,11 +64,30 @@ async function startSmsWorker(workerId: string) {
 
                 // 4. Resolve Audience
                 let recipients: string[] = [];
-                if (audienceConfig && audienceConfig.type === 'manual') {
-                    recipients = (Array.isArray(audienceConfig.value) ? audienceConfig.value : (audienceConfig.value as string).split(',')).map(s => s.trim()).filter(s => s);
-                } else {
-                    console.log("[SMS_WORKER] Non-manual audience not fully implemented in worker yet");
-                    recipients = [];
+                if (audienceConfig) {
+                    if (audienceConfig.type === 'manual') {
+                        const val = audienceConfig.value as string;
+                        recipients = val.split(',').map(s => s.trim()).filter(s => s);
+                    } else if (audienceConfig.type === 'csv') {
+                        // Value is CSV Content. Parse it.
+                        // Assuming simple one-column or comma-separated values.
+                        const val = audienceConfig.value as string;
+                        recipients = val.split(/[\r\n,]+/).map(s => s.trim()).filter(s => /^\+?\d+$/.test(s));
+                    } else if (audienceConfig.type === 'group') {
+                        // Value is Group ID (or Tag, let's support generic 'tags' or 'contact_groups')
+                        // Fetch from 'contacts' collection
+                        const groupId = audienceConfig.value;
+                        const contacts = await db.collection('contacts').find(
+                            { userId, $or: [{ tags: groupId }, { groupIds: groupId }] },
+                            { projection: { phone: 1 } }
+                        ).toArray();
+                        recipients = contacts.map(c => c.phone).filter(p => p);
+                    }
+                }
+
+                if (recipients.length === 0) {
+                    await db.collection('sms_campaigns').updateOne({ _id }, { $set: { status: 'FAILED', error: 'No valid recipients found' } });
+                    return;
                 }
 
                 // 5. Process Recipients

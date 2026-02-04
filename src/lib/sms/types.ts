@@ -88,6 +88,7 @@ export interface SmsLog {
     cost?: number; // If we track cost
     errorCode?: string;
     errorReason?: string;
+    sentAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }

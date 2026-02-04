@@ -2,10 +2,11 @@ import { getDecodedSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { cookies } from "next/headers";
 import { SmsCampaign } from "@/lib/sms/types";
-import { Activity, CreditCard, MessageSquare, Send, Users } from "lucide-react";
+import { Activity, CreditCard, MessageSquare, Send, Users, History, Code } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { QuickSendDialog } from "./quick-send-dialog";
 
 async function getStats(userId: string) {
     const { db } = await connectToDatabase();
@@ -35,8 +36,9 @@ export default async function SmsDashboardPage() {
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">SMS Overview</h1>
                 <div className="flex gap-2">
+                    <QuickSendDialog />
                     <Button asChild variant="outline">
-                        <Link href="/dashboard/sms/templates">Manage Templates</Link>
+                        <Link href="/dashboard/sms/templates">Templates</Link>
                     </Button>
                     <Button asChild>
                         <Link href="/dashboard/sms/campaigns/new">New Campaign</Link>
@@ -123,13 +125,23 @@ export default async function SmsDashboardPage() {
                     </CardHeader>
                     <CardContent className="grid gap-4">
                         <Button variant="secondary" asChild className="w-full justify-start">
-                            <Link href="/dashboard/sms/config">
-                                <Users className="mr-2 h-4 w-4" /> Provider Configuration
+                            <Link href="/dashboard/sms/logs">
+                                <History className="mr-2 h-4 w-4" /> Message Logs (OTP History)
                             </Link>
                         </Button>
                         <Button variant="secondary" asChild className="w-full justify-start">
-                            <Link href="/dashboard/sms/templates">
-                                <MessageSquare className="mr-2 h-4 w-4" /> DLT Templates
+                            <Link href="/dashboard/sms/campaigns">
+                                <MessageSquare className="mr-2 h-4 w-4" /> Manage Campaigns
+                            </Link>
+                        </Button>
+                        <Button variant="secondary" asChild className="w-full justify-start">
+                            <Link href="/dashboard/sms/config">
+                                <Users className="mr-2 h-4 w-4" /> Provider Config
+                            </Link>
+                        </Button>
+                        <Button variant="outline" asChild className="w-full justify-start">
+                            <Link href="/dashboard/sms/developer">
+                                <Code className="mr-2 h-4 w-4" /> Developer API
                             </Link>
                         </Button>
                     </CardContent>

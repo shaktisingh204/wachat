@@ -126,8 +126,8 @@ export default function SmsCampaignWizard({ templates }: { templates: any[] }) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="manual">Manual Input (Paste Numbers)</SelectItem>
-                                        <SelectItem value="csv">Upload CSV (Coming Soon)</SelectItem>
-                                        <SelectItem value="group">Contact Group (Coming Soon)</SelectItem>
+                                        <SelectItem value="csv">Paste CSV Content</SelectItem>
+                                        <SelectItem value="group">Contact Group / Tag</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -141,6 +141,29 @@ export default function SmsCampaignWizard({ templates }: { templates: any[] }) {
                                         className="h-32 font-mono text-sm"
                                     />
                                     <p className="text-xs text-muted-foreground">Comma separated, include country code.</p>
+                                </div>
+                            )}
+                            {formData.audienceType === 'csv' && (
+                                <div className="space-y-2 animate-in fade-in">
+                                    <Label>Paste CSV Content</Label>
+                                    <Textarea
+                                        placeholder="919876543210\n919988776655"
+                                        value={formData.manualNumbers}
+                                        onChange={e => setFormData({ ...formData, manualNumbers: e.target.value })}
+                                        className="h-32 font-mono text-sm"
+                                    />
+                                    <p className="text-xs text-muted-foreground">Paste your list of numbers (one per line or comma separated).</p>
+                                </div>
+                            )}
+                            {formData.audienceType === 'group' && (
+                                <div className="space-y-2 animate-in fade-in">
+                                    <Label>Group or Tag Name</Label>
+                                    <Input
+                                        placeholder="e.g. 'VIP Customers'"
+                                        value={formData.manualNumbers}
+                                        onChange={e => setFormData({ ...formData, manualNumbers: e.target.value })}
+                                    />
+                                    <p className="text-xs text-muted-foreground">Type the exact name of the Contact Group or Tag.</p>
                                 </div>
                             )}
                         </>

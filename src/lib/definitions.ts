@@ -2509,3 +2509,23 @@ export type MetaPhoneNumbersResponse = {
         previous?: string;
     };
 };
+
+export type CrmProformaInvoice = {
+    _id: ObjectId;
+    userId: ObjectId;
+    accountId: ObjectId;
+    proformaNumber: string;
+    proformaDate: Date;
+    validTillDate?: Date;
+    lineItems: QuotationLineItem[];
+    termsAndConditions: string[];
+    notes?: string;
+    attachments?: string[]; // URLs
+    additionalInfo?: { key: string; value: string }[];
+    status: 'Draft' | 'Sent' | 'Accepted' | 'Declined' | 'Expired' | 'Converted';
+    currency: string;
+    subtotal: number;
+    total: number;
+    createdAt: Date;
+    updatedAt: Date;
+};
