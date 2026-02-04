@@ -4037,3 +4037,80 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Failed to update tags.' };
     }
 }
+
+export async function getDashboardChartData(projectId: string): Promise<{ date: string; sent: number; delivered: number; read: number }[]> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
+    if (!ObjectId.isValid(projectId)) {
+        return [];
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const stats = await db.collection('broadcasts').aggregate([
+            {
+                $match: {
+                    projectId: new ObjectId(projectId),
+                    createdAt: { $gte: thirtyDaysAgo }
+                }
+            },
+            {
+                $project: {
+                    date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    sent: "$successCount",
+                    delivered: { $ifNull: ["$deliveredCount", 0] },
+                    read: { $ifNull: ["$readCount", 0] }
+                }
+            },
+            {
+                $group: {
+                    _id: "$date",
+                    sent: { $sum: "$sent" },
+                    delivered: { $sum: "$delivered" },
+                    read: { $sum: "$read" }
+                }
+            },
+            {
+                $sort: { _id: 1 }
+            }
+        ]).toArray();
+
+        // Fill in missing days
+        const chartData = [];
+        for (let i = 0; i < 30; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() - (29 - i));
+            const dateStr = d.toISOString().split('T')[0];
+
+            const dayStat = stats.find(s => s._id === dateStr);
+
+            // Format date for chart (e.g., "Jan 01")
+            const formattedDate = d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+
+            if (dayStat) {
+                chartData.push({
+                    date: formattedDate,
+                    sent: dayStat.sent || 0,
+                    delivered: dayStat.delivered || 0,
+                    read: dayStat.read || 0
+                });
+            } else {
+                chartData.push({
+                    date: formattedDate,
+                    sent: 0,
+                    delivered: 0,
+                    read: 0
+                });
+            }
+        }
+
+        return chartData;
+    } catch (error) {
+        console.error("Failed to fetch dashboard chart data:", error);
+        return [];
+    }
+}

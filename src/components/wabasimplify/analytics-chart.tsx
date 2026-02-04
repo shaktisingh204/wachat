@@ -3,14 +3,14 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { ChartTooltipContent, ChartTooltip, ChartContainer, ChartConfig } from '@/components/ui/chart';
 
-const chartData = [
-  { month: 'January', sent: 186, delivered: 180, read: 150 },
-  { month: 'February', sent: 305, delivered: 295, read: 220 },
-  { month: 'March', sent: 237, delivered: 230, read: 200 },
-  { month: 'April', sent: 273, delivered: 265, read: 230 },
-  { month: 'May', sent: 209, delivered: 200, read: 180 },
-  { month: 'June', sent: 214, delivered: 210, read: 195 },
-];
+export interface AnalyticsChartProps {
+  data: {
+    date: string;
+    sent: number;
+    delivered: number;
+    read: number;
+  }[];
+}
 
 const chartConfig = {
   sent: {
@@ -27,18 +27,18 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function AnalyticsChart() {
+export function AnalyticsChart({ data }: AnalyticsChartProps) {
   return (
     <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartData} accessibilityLayer>
+        <BarChart data={data} accessibilityLayer>
           <CartesianGrid vertical={false} />
           <XAxis
-            dataKey="month"
+            dataKey="date"
             tickLine={false}
             tickMargin={10}
             axisLine={false}
-            tickFormatter={(value) => value.slice(0, 3)}
+            tickFormatter={(value) => value}
           />
           <YAxis />
           <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
