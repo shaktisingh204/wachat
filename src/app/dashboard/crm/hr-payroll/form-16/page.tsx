@@ -1,24 +1,40 @@
-
-'use client';
+'use server';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { FileText } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { FileText, Download } from 'lucide-react';
 
-export default function Form16Page() {
+export default async function Form16Page() {
     return (
-        <div className="flex justify-center items-center h-full">
-            <Card className="text-center max-w-2xl">
+        <div className="space-y-6">
+            <div>
+                <h1 className="text-3xl font-bold font-headline flex items-center gap-2">
+                    <FileText className="h-8 w-8 text-primary" />
+                    Form 16 Generation
+                </h1>
+                <p className="text-muted-foreground">Download Annual Tax Statements (Part A & Part B) for your employees.</p>
+            </div>
+
+            <Card>
                 <CardHeader>
-                    <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                         <FileText className="h-12 w-12 text-primary" />
-                    </div>
-                    <CardTitle className="mt-4 text-2xl">Form 16 Generation</CardTitle>
-                    <CardDescription>
-                        Coming Soon: Generate and download Form 16 for your employees at the end of the financial year.
-                    </CardDescription>
+                    <CardTitle>Generate Form 16</CardTitle>
+                    <CardDescription>Select Financial Year to generate reports.</CardDescription>
                 </CardHeader>
-                 <CardContent>
-                    <p className="text-muted-foreground">This feature is under development.</p>
+                <CardContent className="space-y-4">
+                    <div className="flex gap-4 items-center p-4 border rounded bg-muted/50">
+                        <div className="flex-1">
+                            <h3 className="font-semibold">Financial Year 2024-2025</h3>
+                            <p className="text-sm text-muted-foreground">Period: April 2024 - March 2025</p>
+                        </div>
+                        <Button disabled>
+                            Generate All
+                        </Button>
+                    </div>
+
+                    <div className="text-center py-8 text-muted-foreground">
+                        <p>Payroll data must be finalized for the complete financial year to generate Form 16.</p>
+                        <p className="text-sm mt-2">Currently showing sample/placeholder as full FY data is pending.</p>
+                    </div>
                 </CardContent>
             </Card>
         </div>

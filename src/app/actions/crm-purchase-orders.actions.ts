@@ -37,7 +37,7 @@ async function getNextPurchaseOrderNumber(db: Db, userId: ObjectId): Promise<str
 export async function getPurchaseOrders(
     page: number = 1,
     limit: number = 20,
-    query?: string
+    filters?: { month?: number, year?: number }
 ): Promise<{ orders: WithId<CrmPurchaseOrder>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { orders: [], total: 0 };
@@ -47,6 +47,12 @@ export async function getPurchaseOrders(
         const userObjectId = new ObjectId(session.user._id);
 
         const filter: Filter<CrmPurchaseOrder> = { userId: userObjectId };
+
+        if (filters?.month && filters?.year) {
+            const start = new Date(filters.year, filters.month - 1, 1);
+            const end = new Date(filters.year, filters.month, 0, 23, 59, 59, 999);
+            filter.orderDate = { $gte: start, $lte: end };
+        }
 
         const skip = (page - 1) * limit;
 

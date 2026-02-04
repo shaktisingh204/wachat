@@ -26,22 +26,23 @@ export async function getCrmDepartments(): Promise<WithId<CrmDepartment>[]> {
     }
 }
 
-export async function saveCrmDepartment(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function saveCrmDepartment(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; newDepartment?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
-    
+
     const name = formData.get('name') as string;
     if (!name) return { error: 'Department name is required.' };
 
     try {
         const { db } = await connectToDatabase();
-        await db.collection('crm_departments').insertOne({
+        const data = {
             userId: new ObjectId(session.user._id),
             name,
             description: formData.get('description') as string | undefined,
-        });
+        };
+        const result = await db.collection('crm_departments').insertOne(data);
         revalidatePath('/dashboard/crm/hr-payroll/departments');
-        return { message: 'Department added successfully.' };
+        return { message: 'Department added successfully.', newDepartment: { ...data, _id: result.insertedId } };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -79,22 +80,23 @@ export async function getCrmDesignations(): Promise<WithId<CrmDesignation>[]> {
     }
 }
 
-export async function saveCrmDesignation(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function saveCrmDesignation(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; newDesignation?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
-    
+
     const name = formData.get('name') as string;
     if (!name) return { error: 'Designation name is required.' };
 
     try {
         const { db } = await connectToDatabase();
-        await db.collection('crm_designations').insertOne({
+        const data = {
             userId: new ObjectId(session.user._id),
             name,
             description: formData.get('description') as string | undefined,
-        });
+        };
+        const result = await db.collection('crm_designations').insertOne(data);
         revalidatePath('/dashboard/crm/hr-payroll/designations');
-        return { message: 'Designation added successfully.' };
+        return { message: 'Designation added successfully.', newDesignation: { ...data, _id: result.insertedId } };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -156,16 +158,19 @@ export async function saveCrmEmployee(prevState: any, formData: FormData): Promi
         dateOfJoining: new Date(formData.get('dateOfJoining') as string),
         departmentId: formData.get('departmentId') ? new ObjectId(formData.get('departmentId') as string) : undefined,
         designationId: formData.get('designationId') ? new ObjectId(formData.get('designationId') as string) : undefined,
+        workCountry: formData.get('workCountry') as string | undefined,
+        workState: formData.get('workState') as string | undefined,
+        workCity: formData.get('workCity') as string | undefined,
         salaryDetails: {
             grossSalary: Number(formData.get('grossSalary') || 0),
             salaryStructureId: formData.get('salaryStructureId') ? new ObjectId(formData.get('salaryStructureId') as string) : undefined,
         }
     };
-    
+
     if (!data.firstName || !data.lastName || !data.email || !data.employeeId || !data.dateOfJoining) {
         return { error: 'Please fill all required fields.' };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         if (isEditing) {

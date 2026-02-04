@@ -240,45 +240,6 @@ export type EmailSettings = {
     };
 }
 
-export type DltSmsTemplate = {
-    _id: ObjectId;
-    userId: ObjectId;
-    name: string;
-    dltTemplateId: string;
-    content: string;
-    type: 'Promotional' | 'Transactional' | 'Service';
-    variables: string[];
-    status: 'PENDING' | 'APPROVED' | 'REJECTED';
-    createdAt: Date;
-};
-
-export type SmsHeader = {
-    _id: ObjectId;
-    name: string; // The 6-character header
-    type: 'Transactional' | 'Promotional' | 'Service';
-    status: 'PENDING' | 'APPROVED' | 'REJECTED';
-    createdAt: Date;
-};
-
-export type DltAccount = {
-    _id: ObjectId;
-    provider: string;
-    principalEntityId: string;
-    apiKey: string;
-    entityName?: string;
-    status?: 'Active' | 'Pending' | 'Rejected';
-};
-
-export type SmsProviderSettings = {
-    twilio: {
-        accountSid: string;
-        authToken: string;
-        fromNumber: string;
-    },
-    dlt?: DltAccount[];
-    headers?: SmsHeader[];
-    dltTemplates?: DltSmsTemplate[];
-}
 
 export type CrmTask = {
     _id: ObjectId;
@@ -420,58 +381,13 @@ export type EmailCampaign = {
     clickRate?: number;
 };
 
-export type SmsTemplate = {
-    id: string;
-    name: string;
-    content: string;
-    status: 'Approved' | 'Pending' | 'Rejected';
-};
 
-export type SmsActivityLog = {
-    id: string;
-    type: 'Campaign' | 'Single Send';
-    name: string;
-    status: 'Completed' | 'In Progress' | 'Failed';
-    date: Date;
-};
 
-export type SmsContact = {
-    _id: ObjectId;
-    userId: ObjectId;
-    name: string;
-    phone: string;
-    createdAt: Date;
-};
 
-export type SmsMessage = {
-    _id: ObjectId;
-    userId: ObjectId;
-    smsSid: string;
-    campaignId?: ObjectId;
-    from: string;
-    to: string;
-    body: string;
-    status: 'queued' | 'sending' | 'sent' | 'failed' | 'delivered' | 'undelivered' | 'canceled';
-    dltTemplateId?: string;
-    senderId?: string;
-    createdAt: Date;
-    updatedAt: Date;
-    errorCode?: number;
-    errorMessage?: string;
-};
 
-export type SmsCampaign = {
-    _id: ObjectId;
-    userId: ObjectId;
-    name: string;
-    message: string;
-    sentAt: Date;
-    scheduledAt?: Date;
-    status?: 'scheduled' | 'sent';
-    recipientCount: number;
-    successCount: number;
-    failedCount: number;
-};
+
+
+
 
 export type EmailAttachment = {
     id: string;
@@ -861,6 +777,9 @@ export type CrmEmployee = {
     designationId?: ObjectId;
     reportingManagerId?: ObjectId;
     personalEmail?: string;
+    workCountry?: string; // ISO Code
+    workState?: string; // ISO Code
+    workCity?: string;
     address?: {
         street?: string;
         city?: string;
@@ -1742,7 +1661,7 @@ export type User = {
         permissions?: EmailPermissions;
         compliance?: EmailComplianceSettings;
     };
-    smsProviderSettings?: SmsProviderSettings;
+
     sabChatSettings?: SabChatSettings;
     sabFlowConnections?: {
         appId: string;

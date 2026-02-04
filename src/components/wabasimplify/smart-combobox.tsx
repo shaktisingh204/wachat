@@ -85,7 +85,8 @@ export function SmartCombobox({
                             {options.map((option) => (
                                 <CommandItem
                                     key={option.value}
-                                    value={option.label} // Use label for searching
+                                    value={option.value} // Use unique ID as value
+                                    keywords={[option.label]} // Search by label
                                     onSelect={() => {
                                         onSelect(option.value);
                                         setOpen(false);
