@@ -1,9 +1,9 @@
 
-import type { Template } from '@/app/dashboard/page';
+import type { Template } from '@/lib/definitions';
 
 // Note: This is a static library of templates. The `components` array is structured
 // to be compatible with the `handleCreateTemplate` action.
-export const premadeTemplates: Omit<Template, 'metaId' | 'status' | 'qualityScore'>[] = [
+export const premadeTemplates: Omit<Template, '_id' | 'metaId' | 'status' | 'qualityScore'>[] = [
   {
     name: 'order_confirmation_shipping',
     category: 'UTILITY',
@@ -38,28 +38,28 @@ export const premadeTemplates: Omit<Template, 'metaId' | 'status' | 'qualityScor
     language: 'en_US',
     body: 'Hi {{1}}, this is a reminder for your appointment tomorrow at {{2}}. Please reply YES to confirm or NO to reschedule.',
     components: [
-        {
-            type: 'BODY',
-            text: 'Hi {{1}}, this is a reminder for your appointment tomorrow at {{2}}. Please reply YES to confirm or NO to reschedule.',
-            example: {
-                body_text: [
-                    ['Maria', '10:30 AM']
-                ]
-            }
-        },
-        {
-            type: 'BUTTONS',
-            buttons: [
-                {
-                    type: 'QUICK_REPLY',
-                    text: 'Confirm'
-                },
-                {
-                    type: 'QUICK_REPLY',
-                    text: 'Reschedule'
-                }
-            ]
+      {
+        type: 'BODY',
+        text: 'Hi {{1}}, this is a reminder for your appointment tomorrow at {{2}}. Please reply YES to confirm or NO to reschedule.',
+        example: {
+          body_text: [
+            ['Maria', '10:30 AM']
+          ]
         }
+      },
+      {
+        type: 'BUTTONS',
+        buttons: [
+          {
+            type: 'QUICK_REPLY',
+            text: 'Confirm'
+          },
+          {
+            type: 'QUICK_REPLY',
+            text: 'Reschedule'
+          }
+        ]
+      }
     ]
   },
   {
@@ -69,27 +69,27 @@ export const premadeTemplates: Omit<Template, 'metaId' | 'status' | 'qualityScor
     body: '🚀 FLASH SALE! Get 25% off all items for the next 24 hours. Don\'t miss out on these amazing deals. Use code SALE25 at checkout!',
     headerSampleUrl: 'https://placehold.co/1024x512.png',
     components: [
-        {
-            type: 'HEADER',
-            format: 'IMAGE',
-        },
-        {
-            type: 'BODY',
-            text: '🚀 FLASH SALE! Get 25% off all items for the next 24 hours. Don\'t miss out on these amazing deals. Use code SALE25 at checkout!',
-        },
-        {
-            type: 'BUTTONS',
-            buttons: [
-                {
-                    type: 'URL',
-                    text: 'Shop Now',
-                    url: 'https://www.example.com/sale'
-                }
-            ]
-        }
+      {
+        type: 'HEADER',
+        format: 'IMAGE',
+      },
+      {
+        type: 'BODY',
+        text: '🚀 FLASH SALE! Get 25% off all items for the next 24 hours. Don\'t miss out on these amazing deals. Use code SALE25 at checkout!',
+      },
+      {
+        type: 'BUTTONS',
+        buttons: [
+          {
+            type: 'URL',
+            text: 'Shop Now',
+            url: 'https://www.example.com/sale'
+          }
+        ]
+      }
     ],
   },
-   {
+  {
     name: 'customer_feedback_survey',
     category: 'UTILITY',
     language: 'en_US',
@@ -98,10 +98,10 @@ export const premadeTemplates: Omit<Template, 'metaId' | 'status' | 'qualityScor
       {
         type: 'BODY',
         text: 'Hi {{1}}, thanks for your recent purchase! We\'d love to get your feedback. How would you rate your experience?',
-         example: {
-            body_text: [
-                ['David']
-            ]
+        example: {
+          body_text: [
+            ['David']
+          ]
         }
       },
       {

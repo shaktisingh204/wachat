@@ -7,10 +7,11 @@ import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/index';
 import { getPageDetails, getPageInsights, getFacebookPosts, getInstagramAccountForPage } from '@/app/actions/facebook.actions';
 import type { FacebookPageDetails, PageInsights, FacebookPost, FacebookComment, Project, WithId } from '@/lib/definitions';
 import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake, Star, Calendar, Search, SlidersHorizontal, Plus, MoreHorizontal, Share2, ArrowRight } from 'lucide-react';
+import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts"
 import { ChartContainer } from "@/components/ui/chart"
 import Image from 'next/image';

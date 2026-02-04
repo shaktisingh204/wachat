@@ -4,11 +4,11 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import type { QrCode, ShortUrl, QrCodeWithShortUrl } from '@/lib/definitions';
 import { nanoid } from 'nanoid';
 
-export async function createQrCode(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function createQrCode(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; qrCodeUrl?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };
 
@@ -22,7 +22,7 @@ export async function createQrCode(prevState: any, formData: FormData): Promise<
     if (!name || !dataType || !data) {
         return { error: 'Name and data are required.' };
     }
-    
+
     let shortUrlId: ObjectId | undefined = undefined;
 
     try {
@@ -53,11 +53,14 @@ export async function createQrCode(prevState: any, formData: FormData): Promise<
             ...(shortUrlId && { shortUrlId }),
             createdAt: new Date(),
         };
-        
+
         await db.collection('qr_codes').insertOne(newQrCode as any);
 
         revalidatePath('/dashboard/qr-code-maker');
-        return { message: 'QR Code saved successfully!' };
+        revalidatePath('/dashboard/qr-code-maker');
+        // Return the URL that was encoded or empty string if not applicable
+        const qrCodeUrl = dataType === 'url' && data.url ? data.url : '';
+        return { message: 'QR Code saved successfully!', qrCodeUrl };
     } catch (e: any) {
         return { error: e.message || 'An unexpected error occurred.' };
     }
@@ -88,7 +91,7 @@ export async function getQrCodes(): Promise<QrCodeWithShortUrl[]> {
                 }
             }
         ]).toArray();
-        
+
         return JSON.parse(JSON.stringify(qrCodes));
     } catch (e) {
         return [];
@@ -111,9 +114,9 @@ export async function deleteQrCode(id: string): Promise<{ success: boolean; erro
         if (qrCode.shortUrlId) {
             await db.collection('short_urls').deleteOne({ _id: qrCode.shortUrlId });
         }
-        
+
         await db.collection('qr_codes').deleteOne({ _id: new ObjectId(id) });
-        
+
         revalidatePath('/dashboard/qr-code-maker');
         return { success: true };
     } catch (e: any) {

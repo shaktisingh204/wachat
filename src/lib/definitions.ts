@@ -948,6 +948,7 @@ export type AbandonedCartSettings = {
     enabled: boolean;
     delayMinutes: number;
     flowId: string;
+    welcomeMessage?: string;
 };
 
 export type WhatsAppWidgetSettings = {
@@ -1109,6 +1110,7 @@ export type Project = {
     plan?: WithId<Plan> | null; // populated by aggregate
     ecommSettings?: {
         abandonedCart: AbandonedCartSettings;
+        welcomeMessage?: string;
     };
     razorpaySettings?: {
         keyId?: string;
@@ -1133,7 +1135,7 @@ export type Template = {
 
 export type FlowNode = {
     id: string;
-    type: 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'payment';
+    type: 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'payment' | 'sendSms' | 'sendEmail' | 'createCrmLead' | 'generateShortLink' | 'generateQrCode';
     data: any;
     position: { x: number; y: number };
 };
@@ -1520,7 +1522,7 @@ export type User = {
         permissions?: CrmPermissions;
         customRoles?: CrmCustomRole[];
     };
-    email?: {
+    emailSettings?: {
         permissions?: EmailPermissions;
         compliance?: EmailComplianceSettings;
     };
@@ -1550,6 +1552,7 @@ export type Invitation = {
     inviteeEmail: string;
     role: string;
     status: 'pending';
+    inviterName?: string;
     createdAt: Date;
 };
 
@@ -1625,6 +1628,8 @@ export type Contact = {
     tagIds?: ObjectId[];
     updatedAt?: Date;
     _id: ObjectId;
+    phone?: string;
+    email?: string;
 };
 
 export type InteractiveMessageContent = {
@@ -2361,5 +2366,34 @@ export type Backlink = {
 };
 
 // --- Security Types ---
-export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
+export type SessionPayload = { userId: string; email: string; jti: string; exp: number; name?: string; picture?: string; };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
+
+export type FacebookPaymentRequest = {
+    id: string;
+    amount: { currency: string; value: string; };
+    status: 'PENDING' | 'CANCELED' | 'DECLINED' | 'COMPLETED' | 'EXPIRED';
+    created_timestamp: string;
+    description?: string;
+    reference_id?: string;
+    recipient_id?: string;
+};
+
+export type CrmCustomRole = {
+    id: string;
+    name: string;
+};
+
+
+
+export type MetaPhoneNumbersResponse = {
+    data: MetaPhoneNumber[];
+    paging?: {
+        cursors: {
+            before: string;
+            after: string;
+        };
+        next?: string;
+        previous?: string;
+    };
+};

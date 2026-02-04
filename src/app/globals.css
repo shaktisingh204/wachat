@@ -1,4 +1,3 @@
-
 @import "./src/styles/sabflow-nodes.css";
 
 @tailwind base;
@@ -39,10 +38,10 @@
     --sidebar-foreground: 220 10% 40%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 215 89% 48%;
-    
+
     --sidebar-secondary-background: 0 0% 100%;
     --sidebar-secondary-foreground: 220 10% 25%;
-    
+
     --sidebar-active-background: 215 89% 48%;
     --sidebar-active-foreground: 0 0% 100%;
 
@@ -72,7 +71,7 @@
     --ring: 215 89% 48%;
 
     /* Dark mode sidebar variables */
-    --sidebar-background: 220 10% 12%; 
+    --sidebar-background: 220 10% 12%;
     --sidebar-foreground: 210 40% 80%;
     --sidebar-border: 220 10% 20%;
     --sidebar-ring: 215 89% 48%;
@@ -82,7 +81,7 @@
 
     --sidebar-active-background: 215 89% 48%;
     --sidebar-active-foreground: 0 0% 100%;
-    
+
     --sidebar-accent: hsl(var(--primary) / 0.1);
     --sidebar-accent-foreground: hsl(var(--primary));
   }
@@ -95,55 +94,59 @@
 }
 
 @layer components {
-    .card-gradient {
-      @apply relative overflow-hidden;
-    }
-    .card-gradient::before {
-      content: '';
-      @apply absolute inset-0 opacity-[0.15] z-0;
-    }
-    .card-gradient-blue::before {
-      @apply bg-gradient-to-br from-blue-400 via-blue-200 to-sky-100;
-    }
-    .card-gradient-purple::before {
-      @apply bg-gradient-to-br from-purple-400 via-purple-200 to-violet-100;
-    }
-    .card-gradient-green::before {
-      @apply bg-gradient-to-br from-green-400 via-green-200 to-emerald-100;
-    }
-    .card-gradient-orange::before {
-      @apply bg-gradient-to-br from-orange-400 via-orange-200 to-amber-100;
-    }
-    .card-gradient > * {
-      @apply relative z-10;
-    }
-    .dnd-placeholder {
-        @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
-    }
-    .active-app-border {
-      @apply relative;
-    }
-    .active-app-border::before {
-      content: '';
-      @apply absolute -inset-0.5 rounded-xl z-0;
-      background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)));
-    }
+  .card-gradient {
+    @apply relative overflow-hidden;
+  }
+
+  .card-gradient::before {
+    content: none;
+  }
+
+  .card-gradient-blue::before,
+  .card-gradient-purple::before,
+  .card-gradient-green::before,
+  .card-gradient-orange::before {
+    display: none;
+  }
+
+  .card-gradient>* {
+    @apply relative z-10;
+  }
+
+  .dnd-placeholder {
+    @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
+  }
+
+  .active-app-border {
+    @apply relative;
+  }
+
+  .active-app-border::before {
+    content: '';
+    @apply absolute -inset-0.5 rounded-xl z-0;
+    background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)));
+  }
 }
 
 
 .scroll-container {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-}
-.scroll-container::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Opera */
-}
-/* Also hide the custom Radix scrollbar used in the component */
-.scroll-container ~ [data-radix-scroll-area-scrollbar] {
-    display: none;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
 }
 
-.custom-css-shakti{
+.scroll-container::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari/Opera */
+}
+
+/* Also hide the custom Radix scrollbar used in the component */
+.scroll-container~[data-radix-scroll-area-scrollbar] {
+  display: none;
+}
+
+.custom-css-shakti {
   width: min-content;
   border-radius: 10px;
   position: absolute;
@@ -153,179 +156,201 @@
 }
 
 @layer utilities {
-    .has-tooltip [data-tooltip] {
-        @apply relative cursor-pointer;
-    }
-    .has-tooltip [data-tooltip]:after {
-        @apply absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background content-[attr(data-tooltip)];
-    }
-    .has-tooltip:hover [data-tooltip]:after {
-        @apply block;
-    }
+  .has-tooltip [data-tooltip] {
+    @apply relative cursor-pointer;
+  }
 
-    .bg-auth-texture {
-        background-color: #f0f2f5;
-    }
+  .has-tooltip [data-tooltip]:after {
+    @apply absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background content-[attr(data-tooltip)];
+  }
 
-    .dark .bg-auth-texture {
-        background-color: #111827;
-    }
-    
-    .bg-chat-texture {
-        background-color: #E5DDD5;
-    }
-    .dark .bg-chat-texture {
-        background-color: #0b141a;
-    }
-    .bg-instagram {
-        background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
-    }
-    .text-instagram {
-        color: hsl(var(--instagram));
-    }
-    .animate-fade-in-up {
-        animation: fade-in-up 0.6s ease-in-out forwards;
-        opacity: 0;
-    }
-    .animate-slide-in-up {
-        animation: slide-in-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    }
-    .animate-fade-in {
-        animation: fade-in 0.5s ease-in-out forwards;
-        opacity: 0;
-    }
-    .animate-draw {
-        animation: draw 2s ease-out forwards;
-        stroke-dasharray: 1000;
-        stroke-dashoffset: 1000;
-        opacity: 0;
-    }
-    .sabflow-edge-path {
-        animation: sabflow-dash 10s linear infinite;
-    }
-    .animate-draw-long {
-      animation: draw-long 3s ease-out forwards;
-      stroke-dasharray: 2000;
-      stroke-dashoffset: 2000;
+  .has-tooltip:hover [data-tooltip]:after {
+    @apply block;
+  }
+
+  .bg-auth-texture {
+    background-color: #f0f2f5;
+  }
+
+  .dark .bg-auth-texture {
+    background-color: #111827;
+  }
+
+  .bg-chat-texture {
+    background-color: #E5DDD5;
+  }
+
+  .dark .bg-chat-texture {
+    background-color: #0b141a;
+  }
+
+  .bg-instagram {
+    background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
+  }
+
+  .text-instagram {
+    color: hsl(var(--instagram));
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-in-out forwards;
+    opacity: 0;
+  }
+
+  .animate-slide-in-up {
+    animation: slide-in-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-in-out forwards;
+    opacity: 0;
+  }
+
+  .animate-draw {
+    animation: draw 2s ease-out forwards;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+
+  .sabflow-edge-path {
+    animation: sabflow-dash 10s linear infinite;
+  }
+
+  .animate-draw-long {
+    animation: draw-long 3s ease-out forwards;
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    opacity: 0;
+  }
+
+  .animate-kanban-drag {
+    animation: kanban-drag 7s ease-in-out infinite;
+    animation-delay: 2.5s;
+  }
+
+  .glossy-background {
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .glossy-background::before {
+    display: none;
+  }
+
+  /* Ensure children are above the pseudo-element */
+  .glossy-background>* {
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes fade-in {
+    from {
       opacity: 0;
     }
-    .animate-kanban-drag {
-        animation: kanban-drag 7s ease-in-out infinite;
-        animation-delay: 2.5s;
+
+    to {
+      opacity: 1;
     }
-    .glossy-background {
-      position: relative;
-      overflow-x: hidden;
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
     }
 
-    .glossy-background::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 15% 20%, hsla(210, 100%, 98%, 0.21), transparent 40%),
-                  radial-gradient(circle at 85% 30%, hsla(215, 89%, 48%, 0.21), transparent 40%);
-      filter: blur(120px);
-      z-index: 0;
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in-up {
+    from {
+      transform: translateY(100%);
     }
 
-    /* Ensure children are above the pseudo-element */
-    .glossy-background > * {
-      position: relative;
-      z-index: 1;
+    to {
+      transform: translateY(0);
     }
-    
-    @keyframes fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+      opacity: 1;
     }
-    @keyframes fade-in-up {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+  }
+
+  @keyframes draw-long {
+    to {
+      stroke-dashoffset: 0;
+      opacity: 1;
     }
-    @keyframes slide-in-up {
-        from {
-            transform: translateY(100%);
-        }
-        to {
-            transform: translateY(0);
-        }
-    }
-    @keyframes draw {
-      to {
-        stroke-dashoffset: 0;
-        opacity: 1;
-      }
-    }
-    @keyframes draw-long {
-      to {
-        stroke-dashoffset: 0;
-        opacity: 1;
-      }
-    }
-    @keyframes kanban-drag {
-        0%, 20% {
-            transform: translate(0, 0);
-            opacity: 1;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-        }
-        30% {
-            transform: translate(5px, -10px) rotate(-3deg);
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            opacity: 0.95;
-        }
-        80% {
-            transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            opacity: 0.95;
-        }
-        100% {
-            transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            opacity: 1;
-        }
-    }
-    @keyframes sabflow-dash {
-      from {
-        stroke-dashoffset: 200;
-      }
-      to {
-        stroke-dashoffset: 0;
-      }
+  }
+
+  @keyframes kanban-drag {
+
+    0%,
+    20% {
+      transform: translate(0, 0);
+      opacity: 1;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     }
 
-    /* Modern UI Utilities */
-    .glass-effect {
-        @apply backdrop-blur-xl bg-background/40 border border-white/20 shadow-lg dark:border-white/10 dark:bg-background/30;
+    30% {
+      transform: translate(5px, -10px) rotate(-3deg);
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+      opacity: 0.95;
     }
 
-    .shadow-glow {
-        box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.5);
+    80% {
+      transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+      opacity: 0.95;
     }
 
-    .shadow-glow-lg {
-        box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.6);
+    100% {
+      transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes sabflow-dash {
+    from {
+      stroke-dashoffset: 200;
     }
 
-    .card-elevated {
-        @apply shadow-xl shadow-black/5 hover:shadow-2xl hover:-translate-y-1 hover:shadow-black/10 transition-all duration-300;
+    to {
+      stroke-dashoffset: 0;
     }
+  }
 
-    .gradient-border {
-        @apply relative;
-        background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary))) border-box;
-        border: 2px solid transparent;
-    }
+  .glass-effect {
+    @apply bg-background/80 border border-border shadow-sm;
+  }
 
-    .text-gradient {
-        @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
-    }
+  .shadow-glow {
+    box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.5);
+  }
+
+  .shadow-glow-lg {
+    box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.6);
+  }
+
+  .card-elevated {
+    @apply shadow-xl shadow-black/5 hover:shadow-2xl hover:-translate-y-1 hover:shadow-black/10 transition-all duration-300;
+  }
+
+  .gradient-border {
+    @apply relative;
+    background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary))) border-box;
+    border: 2px solid transparent;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+  }
 }

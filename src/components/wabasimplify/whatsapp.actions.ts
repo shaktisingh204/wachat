@@ -6,11 +6,11 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/user.actions';
+import { getProjectById, getSession } from '@/lib/actions/user.actions';
 import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, Plan } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
-import FormData from 'form-data';
+import NodeFormData from 'form-data';
 
 const API_VERSION = 'v23.0';
 
@@ -36,16 +36,16 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
 
         const { wabaId, accessToken } = project;
         const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput,whatsapp_business_profile{about,address,description,email,profile_picture_url,websites,vertical}';
-        
+
         const allPhoneNumbers: MetaPhoneNumbersResponse['data'] = [];
         let nextUrl: string | undefined = `https://graph.facebook.com/${API_VERSION}/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
 
         while (nextUrl) {
             const response = await fetch(nextUrl, { method: 'GET' });
-            
+
             const responseText = await response.text();
             const responseData: MetaPhoneNumbersResponse = responseText ? JSON.parse(responseText) : {};
-            
+
             if (!response.ok) {
                 const errorMessage = (responseData as any)?.error?.message || 'Unknown error syncing phone numbers.';
                 return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
@@ -54,7 +54,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
             if (responseData.data && responseData.data.length > 0) {
                 allPhoneNumbers.push(...responseData.data);
             }
-            
+
             nextUrl = responseData.paging?.next;
         }
 
@@ -76,12 +76,12 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
             throughput: num.throughput,
             profile: num.whatsapp_business_profile,
         }));
-        
+
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
             { $set: { phoneNumbers: phoneNumbers } }
         );
-        
+
         revalidatePath('/dashboard/numbers');
 
         return { message: `Successfully synced ${phoneNumbers.length} phone number(s).`, count: phoneNumbers.length };
@@ -95,7 +95,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
 export async function handleUpdatePhoneNumberProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
-    
+
     if (!projectId || !phoneNumberId) {
         return { error: 'Project and Phone Number IDs are required.' };
     }
@@ -107,7 +107,7 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
     if (!appId) {
         return { error: 'App ID is not configured for this project.' };
     }
-    
+
     try {
         const profilePictureFile = formData.get('profilePicture') as File;
         if (profilePictureFile && profilePictureFile.size > 0) {
@@ -118,7 +118,7 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
 
             const sessionResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${appId}/uploads`, sessionFormData);
             const uploadSessionId = sessionResponse.data.id;
-            
+
             const fileData = await profilePictureFile.arrayBuffer();
             const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${uploadSessionId}`, Buffer.from(fileData), {
                 headers: { 'Authorization': `OAuth ${accessToken}`, 'Content-Type': profilePictureFile.type },
@@ -144,7 +144,7 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
                 hasTextFields = true;
             }
         });
-        
+
         const websites = (formData.getAll('websites') as string[]).map(w => w.trim()).filter(Boolean);
         if (websites.length > 0) {
             profilePayload.websites = websites;
@@ -158,8 +158,8 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
                 { headers: { 'Authorization': `Bearer ${accessToken}` } }
             );
         }
-        
-        await handleSyncPhoneNumbers(projectId); 
+
+        await handleSyncPhoneNumbers(projectId);
         revalidatePath('/dashboard/numbers');
         return { message: 'Phone number profile updated successfully!' };
 
@@ -175,17 +175,17 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
     if (!wabaId || !accessToken) {
         return { isActive: false, error: 'WABA ID or Access Token not provided.' };
     }
-    
+
     try {
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${wabaId}/subscribed_apps`, {
             params: { access_token: accessToken }
         });
-        
+
         const subscriptions = response.data.data;
         if (subscriptions && subscriptions.length > 0) {
             return { isActive: true };
         }
-        
+
         return { isActive: false, error: 'No active subscription found for this WABA.' };
     } catch (e: any) {
         const errorMessage = getErrorMessage(e);
@@ -215,7 +215,7 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
                 access_token: accessToken,
             }
         );
-        
+
         return { success: true };
 
     } catch (e: any) {
@@ -238,7 +238,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
     if (!contactId || !projectId || !waId || !phoneNumberId || (!messageText && (!mediaFile || mediaFile.size === 0))) {
         return { error: 'Required fields are missing to send message.' };
     }
-    
+
     const project = await getProjectById(projectId);
     if (!project) return { error: 'Project not found or you do not have access.' };
 
@@ -252,7 +252,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
         let messageType: OutgoingMessage['type'] = 'text';
 
         if (mediaFile && mediaFile.size > 0) {
-            const form = new FormData();
+            const form = new NodeFormData();
             form.append('file', Buffer.from(await mediaFile.arrayBuffer()), {
                 filename: mediaFile.name,
                 contentType: mediaFile.type,
@@ -264,7 +264,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
                 form,
                 { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${project.accessToken}` } }
             );
-            
+
             const mediaId = uploadResponse.data.id;
             if (!mediaId) {
                 return { error: 'Failed to upload media to Meta. No ID returned.' };
@@ -286,18 +286,18 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
                 messageType = 'document';
                 messagePayload.type = 'document';
                 messagePayload.document = { id: mediaId, filename: mediaFile.name };
-                 if (messageText) messagePayload.document.caption = messageText;
+                if (messageText) messagePayload.document.caption = messageText;
             }
         } else {
             messageType = 'text';
             messagePayload.type = 'text';
             messagePayload.text = { body: messageText, preview_url: true };
         }
-        
+
         const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
-        
+
         const now = new Date();
         await db.collection('outgoing_messages').insertOne({
             direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId), wamid, messageTimestamp: now, type: messageType,
@@ -306,7 +306,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
 
         const lastMessage = messageType === 'text' ? messageText : `[${messageType}]`;
         await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } });
-        
+
         revalidatePath('/dashboard/chat');
 
         return { message: 'Message sent successfully.' };
@@ -329,18 +329,18 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
     }
 
     const { db } = await connectToDatabase();
-    
+
     const [contact, template] = await Promise.all([
         db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) }),
         db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) }),
     ]);
-    
+
     if (!contact) return { error: 'Contact not found.' };
     const hasAccess = await getProjectById(contact.projectId.toString());
     if (!hasAccess) return { error: 'Access Denied.' };
     if (!template) return { error: 'Template not found.' };
     if (template.status !== 'APPROVED') return { error: 'Cannot send a template that is not approved.' };
-    
+
     const phoneNumberId = contact.phoneNumberId;
     const waId = contact.waId;
     const { accessToken, appId } = hasAccess;
@@ -350,19 +350,19 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
         const getVars = (text: string): number[] => {
             if (!text) return [];
             const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
-            return variableMatches 
-                ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] 
+            return variableMatches
+                ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))]
                 : [];
         };
 
         const payloadComponents: any[] = [];
-        
+
         const headerComponent = template.components?.find(c => c.type === 'HEADER');
         if (headerComponent) {
             let mediaId: string | null = null;
 
             if (mediaSource === 'file' && headerMediaFile && headerMediaFile.size > 0) {
-                 const form = new FormData();
+                const form = new NodeFormData();
                 form.append('file', Buffer.from(await headerMediaFile.arrayBuffer()), { filename: headerMediaFile.name, contentType: headerMediaFile.type });
                 form.append('messaging_product', 'whatsapp');
                 const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
@@ -380,18 +380,18 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
                 else if (format === 'VIDEO') parameter = { type: 'video', video: { link: headerMediaUrl } };
                 else if (format === 'DOCUMENT') parameter = { type: 'document', document: { link: headerMediaUrl } };
             }
-            
+
             if (parameter) {
                 payloadComponents.push({ type: 'header', parameters: [parameter] });
             }
         }
-        
+
         const bodyComponent = template.components?.find(c => c.type === 'BODY');
         const bodyText = bodyComponent?.text || template.body;
         if (bodyText) {
             const bodyVars = getVars(bodyText);
             if (bodyVars.length > 0) {
-                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => {
+                const parameters = bodyVars.sort((a, b) => a - b).map(varNum => {
                     const varValue = formData.get(`variable_${varNum}`) as string || '';
                     return { type: 'text', text: varValue };
                 });
@@ -409,7 +409,7 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
             }
         };
 
-        if(payloadComponents.length > 0) {
+        if (payloadComponents.length > 0) {
             payload.template.components = payloadComponents;
         }
 
@@ -422,7 +422,7 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
             direction: 'out', contactId: contact._id, projectId: hasAccess._id, wamid, messageTimestamp: now, type: 'template',
             content: payload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         });
-        
+
         const lastMessage = `[Template]: ${template.name}`;
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } });
 
@@ -445,8 +445,8 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
         const { db } = await connectToDatabase();
         const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
             { waId, projectId: new ObjectId(projectId) },
-            { 
-                $set: { phoneNumberId }, 
+            {
+                $set: { phoneNumberId },
                 $setOnInsert: {
                     waId,
                     projectId: new ObjectId(projectId),
@@ -458,7 +458,7 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
             },
             { upsert: true, returnDocument: 'after' }
         );
-        
+
         if (contactResult) {
             revalidatePath('/dashboard/chat');
             revalidatePath('/dashboard/contacts');
@@ -485,7 +485,7 @@ export async function handleCreatePaymentConfiguration(prevState: any, formData:
         configuration_name: formData.get('configuration_name'),
         purpose_code: formData.get('purpose_code'),
         merchant_category_code: formData.get('merchant_category_code'),
-        provider_name,
+        providerName,
     };
 
     if (providerName === 'upi_vpa') {
@@ -530,7 +530,7 @@ export async function handleUpdateDataEndpoint(prevState: any, formData: FormDat
     if (!configurationName || !dataEndpointUrl) {
         return { error: 'Configuration name and endpoint URL are required.' };
     }
-    
+
     try {
         const payload = { data_endpoint_url: dataEndpointUrl };
         const response = await axios.post(
@@ -542,7 +542,7 @@ export async function handleUpdateDataEndpoint(prevState: any, formData: FormDat
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
-        
+
         revalidatePath('/dashboard/whatsapp-pay/settings');
         return { message: "Data endpoint URL updated successfully!" };
 
@@ -592,7 +592,7 @@ export async function handleRegenerateOauthLink(prevState: any, formData: FormDa
 }
 
 export async function handleDeletePaymentConfiguration(
-    projectId: string, 
+    projectId: string,
     configurationName: string
 ): Promise<{ success: boolean; error?: string }> {
     const project = await getProjectById(projectId);
@@ -665,7 +665,7 @@ export async function handleRequestWhatsAppPayment(prevState: any, formData: For
         }
 
         const requestId = response.data.id;
-        
+
         await db.collection('outgoing_messages').insertOne({
             direction: 'out',
             contactId: contact._id,
@@ -750,7 +750,7 @@ export async function getPaymentConfigurations(projectId: string): Promise<{ con
                 access_token: project.accessToken,
             }
         });
-        
+
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
@@ -777,7 +777,7 @@ export async function getPaymentConfigurationByName(projectId: string, configura
                 access_token: project.accessToken,
             }
         });
-        
+
         if (response.data.error) {
             throw new Error(getErrorMessage({ response }));
         }
@@ -796,7 +796,7 @@ export async function getTransactionsForProject(projectId: string): Promise<With
 
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return [];
-    
+
     try {
         const { db } = await connectToDatabase();
         const transactions = await db.collection('transactions').find({
@@ -827,9 +827,9 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
     try {
         // We will now attempt to create the project first, and only then try to subscribe the webhook.
         // This prevents setup failure if the token is valid but lacks webhook permissions.
-        
+
         let businessId: string | undefined = undefined;
-        if(includeCatalog) {
+        if (includeCatalog) {
             try {
                 const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
                     params: { access_token: accessToken }
@@ -840,12 +840,12 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
                 } else {
                     console.warn("Could not find a Meta Business Account associated with this token to enable Catalog features.");
                 }
-            } catch(e) {
+            } catch (e) {
                 // Non-fatal, just means catalog features might not work
                 console.warn("Could not retrieve business ID for catalog features:", getErrorMessage(e));
             }
         }
-        
+
         const projectDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name&access_token=${accessToken}`);
         const projectData = await projectDetailsResponse.json();
 
@@ -854,14 +854,14 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
         }
 
         const { db } = await connectToDatabase();
-        
+
         const existingProject = await db.collection('projects').findOne({ wabaId: wabaId, userId: new ObjectId(session.user._id) });
-        if(existingProject) {
-            return { error: 'A project with this WABA ID already exists for your account.'};
+        if (existingProject) {
+            return { error: 'A project with this WABA ID already exists for your account.' };
         }
 
         const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
-        
+
         const newProject: Omit<Project, '_id'> = {
             userId: new ObjectId(session.user._id),
             name: projectData.name,
@@ -878,15 +878,15 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
         };
 
         const result = await db.collection('projects').insertOne(newProject as any);
-        
+
         // Attempt to subscribe to webhooks after creation, but don't fail the entire process if it doesn't work.
-        if(result.insertedId) {
+        if (result.insertedId) {
             await handleSyncPhoneNumbers(result.insertedId.toString());
             await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
         }
 
         revalidatePath('/dashboard');
-        
+
         return { message: `Project "${projectData.name}" created successfully!` };
 
     } catch (e: any) {
@@ -894,4 +894,4 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
-    
+

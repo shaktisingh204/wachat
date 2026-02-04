@@ -29,6 +29,7 @@ import { checkRateLimit } from '@/lib/rate-limiter';
 import { decodeJwt } from 'jose';
 
 
+import type { SessionPayload } from '@/lib/definitions';
 import type {
     Plan,
     User,
@@ -38,6 +39,8 @@ import type {
     Notification,
     NotificationWithProject,
     Contact,
+    ProjectGroup,
+    OutgoingMessage,
     AnyMessage,
     LibraryTemplate,
     TemplateCategory,
@@ -224,7 +227,7 @@ export async function getProjectCount(): Promise<number> {
             ]
         };
 
-        const count = await db.collection('projects').countDocuments(filter);
+        const count = await db.collection<Project>('projects').countDocuments(filter);
         return count;
     } catch (error) {
         console.error("Failed to fetch project count for user:", error);
@@ -281,7 +284,7 @@ export async function getAllProjectsForAdmin(
                     }
                 }
             ]).toArray(),
-            db.collection('projects').countDocuments(filter)
+            db.collection<Project>('projects').countDocuments(filter)
         ]);
 
         return { projects: JSON.parse(JSON.stringify(projects)), total };
@@ -359,7 +362,7 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
     }
 }
 
-export async function getProjectForBroadcast(projectId: string): Promise<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers' | 'tags' | 'optInOutSettings'>)> {
+export async function getProjectForBroadcast(projectId: string): Promise<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers' | 'tags' | 'optInOutSettings'>) | null> {
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return null;
 
@@ -1386,8 +1389,8 @@ export async function handleRunCron(): Promise<{ message?: string; error?: strin
     try {
         const result = await processBroadcastJob();
         if (result.jobs && result.jobs.length > 0) {
-            const successCount = result.jobs.reduce((acc, j) => acc + (j.success || 0), 0);
-            const failedCount = result.jobs.reduce((acc, j) => acc + (j.failed || 0), 0);
+            const successCount = result.jobs.reduce((acc: number, j: any) => acc + (j.success || 0), 0);
+            const failedCount = result.jobs.reduce((acc: number, j: any) => acc + (j.failed || 0), 0);
             return { message: `Cron run complete. Processed ${result.jobs.length} job(s). ${successCount} successful, ${failedCount} failed.` };
         }
         return { message: result.message || 'Cron run completed successfully. No new jobs to process.' };
@@ -1423,7 +1426,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                 userId: new ObjectId(session.user._id),
                 name: groupName,
                 createdAt: new Date(),
-            });
+            } as any);
             groupId = groupResult.insertedId;
         }
 
@@ -1435,7 +1438,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
             const response = await axios.get(nextUrl);
             const responseData: MetaWabasResponse = response.data;
 
-            if (responseData.error) {
+            if ((responseData as any).error) {
                 const errorMessage = (responseData as any)?.error?.message || 'Unknown error syncing WABAs.';
                 return { error: `API Error: ${errorMessage}` };
             }
@@ -1547,7 +1550,7 @@ export async function getWebhookLogs(
 
         const [fullLogs, total] = await Promise.all([
             db.collection<WithId<WebhookLog>>('webhook_logs').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
-            db.collection('webhook_logs').countDocuments(filter)
+            db.collection<WebhookLog>('webhook_logs').countDocuments(filter)
         ]);
 
         const logsForClient = fullLogs.map(log => ({
@@ -2216,14 +2219,14 @@ export async function getFlowLogs(
         const skip = (page - 1) * limit;
 
         const [logs, total] = await Promise.all([
-            db.collection('flow_logs')
+            db.collection<FlowLog>('flow_logs')
                 .find(filter)
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
                 .project({ entries: 0 })
                 .toArray(),
-            db.collection('flow_logs').countDocuments(filter)
+            db.collection<FlowLog>('flow_logs').countDocuments(filter)
         ]);
 
         return { logs: JSON.parse(JSON.stringify(logs)), total };
@@ -2254,7 +2257,7 @@ export async function getPaymentGatewaySettings(): Promise<WithId<PaymentGateway
 
     try {
         const { db } = await connectToDatabase();
-        const settings = await db.collection('system_settings').findOne({ _id: 'phonepe' });
+        const settings = await db.collection('system_settings').findOne({ _id: 'phonepe' as any });
         return settings ? JSON.parse(JSON.stringify(settings)) : null;
     } catch (error) {
         console.error('Failed to fetch payment gateway settings:', error);
@@ -2496,7 +2499,7 @@ export async function getTransactionStatus(transactionId: string): Promise<WithI
 }
 
 export async function handleLogin(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const headersList = headers();
+    const headersList = await headers();
     const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
 
     const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(ip, 5, 60 * 1000); // 5 requests per minute
@@ -2529,8 +2532,8 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
             return { error: 'Invalid credentials.' };
         }
 
-        const sessionToken = await createSessionToken({ userId: user._id.toString(), email: user.email });
-        cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        const sessionToken = await createSessionToken({ userId: user._id.toString(), email: user.email } as Omit<SessionPayload, 'expires' | 'jti'>);
+        (await cookies()).set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
     } catch (e: any) {
         console.error('Login failed:', e);
         return { error: 'An unexpected error occurred.' };
@@ -2540,7 +2543,7 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
 }
 
 export async function handleAdminLogin(prevState: any, formData: FormData): Promise<{ error?: string }> {
-    const headersList = headers();
+    const headersList = await headers();
     const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
 
     const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(`admin:${ip}`, 5, 60 * 1000); // 5 requests per minute
@@ -2556,7 +2559,7 @@ export async function handleAdminLogin(prevState: any, formData: FormData): Prom
 
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
         const adminSessionToken = await createAdminSessionToken();
-        cookies().set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        (await cookies()).set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
         redirect('/admin/dashboard');
     }
 
@@ -2596,7 +2599,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
 
         const hashedPassword = await hashPassword(password);
 
-        const newUser: Omit<User, '_id'> = {
+        const newUser = {
             name: trimmedName,
             email: email.toLowerCase(),
             password: hashedPassword,
@@ -3069,7 +3072,7 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
 
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
-            { $pull: { agents: { userId: new ObjectId(agentUserId) } } }
+            { $pull: { agents: { userId: new ObjectId(agentUserId) } } } as any
         );
 
         revalidatePath('/dashboard/settings');
@@ -3163,7 +3166,7 @@ export async function getAllNotifications(
             const projectFilter: Filter<Project> = {
                 $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
             };
-            const accessibleProjects = await db.collection('projects').find(projectFilter).project({ _id: 1 }).toArray();
+            const accessibleProjects = await db.collection<Project>('projects').find(projectFilter).project({ _id: 1 }).toArray();
             const accessibleProjectIds = accessibleProjects.map(p => p._id);
             filter.projectId = { $in: accessibleProjectIds };
         }
@@ -3200,7 +3203,7 @@ export async function getAllNotifications(
                     $project: { projectInfo: 0 }
                 }
             ]).toArray(),
-            db.collection('notifications').countDocuments(filter)
+            db.collection<Notification>('notifications').countDocuments(filter)
         ]);
 
         return { notifications: JSON.parse(JSON.stringify(notifications)), total };
@@ -3219,12 +3222,12 @@ export async function getNotifications(projectId?: string | null): Promise<WithI
         const projectFilter: Filter<Project> = {
             $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
         };
-        const accessibleProjects = await db.collection('projects').find(projectFilter).project({ _id: 1 }).toArray();
+        const accessibleProjects = await db.collection<Project>('projects').find(projectFilter).project({ _id: 1 }).toArray();
         const accessibleProjectIds = accessibleProjects.map(p => p._id);
 
         const filter: Filter<Notification> = { projectId: { $in: accessibleProjectIds } };
 
-        const notifications = await db.collection('notifications').aggregate<WithId<NotificationWithProject>>([
+        const notifications = await db.collection<Notification>('notifications').aggregate<WithId<NotificationWithProject>>([
             { $match: filter },
             { $sort: { createdAt: -1 } },
             { $limit: 20 },
@@ -3260,10 +3263,10 @@ export async function markAllNotificationsAsRead(): Promise<{ success: boolean, 
         const projectFilter: Filter<Project> = {
             $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
         };
-        const accessibleProjects = await db.collection('projects').find(projectFilter).project({ _id: 1 }).toArray();
+        const accessibleProjects = await db.collection<Project>('projects').find(projectFilter).project({ _id: 1 }).toArray();
         const accessibleProjectIds = accessibleProjects.map(p => p._id);
 
-        const result = await db.collection('notifications').updateMany(
+        const result = await db.collection<Notification>('notifications').updateMany(
             { projectId: { $in: accessibleProjectIds }, isRead: false },
             { $set: { isRead: true } }
         );
@@ -3645,14 +3648,14 @@ export async function getContactsPageData(
     }
 
     if (tags && tags.length > 0) {
-        filter.tagIds = { $in: tags };
+        filter.tagIds = { $in: tags.map(id => new ObjectId(id)) };
     }
 
     const skip = (page - 1) * 20;
 
     const [contacts, total] = await Promise.all([
-        db.collection('contacts').find(filter).sort({ lastMessageTimestamp: -1 }).skip(skip).limit(20).toArray(),
-        db.collection('contacts').countDocuments(filter)
+        db.collection<Contact>('contacts').find(filter).sort({ lastMessageTimestamp: -1 }).skip(skip).limit(20).toArray(),
+        db.collection<Contact>('contacts').countDocuments(filter)
     ]);
 
     return {
@@ -3825,7 +3828,7 @@ export async function getLibraryTemplates(): Promise<LibraryTemplate[]> {
         return JSON.parse(JSON.stringify(allTemplates));
     } catch (e) {
         console.error("Failed to fetch library templates:", e);
-        return premadeTemplates;
+        return premadeTemplates as any[];
     }
 }
 
@@ -3855,7 +3858,7 @@ export async function saveLibraryTemplate(prevState: any, formData: FormData): P
             components: JSON.parse(formData.get('components') as string),
             isCustom: true,
             createdAt: new Date(),
-        };
+        } as any;
 
         if (!templateData.category || !templateData.language || !templateData.body) {
             return { error: 'Category, language, and body are required.' };
@@ -3980,7 +3983,7 @@ export async function getUsersForAdmin(
 
         const [users, total] = await Promise.all([
             db.collection<User>('users').aggregate(usersPipeline).toArray(),
-            db.collection('users').countDocuments(filter)
+            db.collection<User>('users').countDocuments(filter)
         ]);
 
         return { users: JSON.parse(JSON.stringify(users)), total };

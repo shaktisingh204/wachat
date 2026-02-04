@@ -10,8 +10,8 @@ import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle, Mail, FileText, Settings, ShieldCheck, Zap } from 'lucide-react';
 import { getEmailSettings, saveEmailComplianceSettings } from '@/app/actions/email.actions';
-import { getSession } from '@/app/actions/index.ts';
-import type { CrmEmailSettings, User, WithId, EmailComplianceSettings } from '@/lib/definitions';
+import { getSession } from '@/app/actions/index';
+import type { EmailSettings as CrmEmailSettings, User, WithId, EmailComplianceSettings } from '@/lib/definitions';
 import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -29,8 +29,8 @@ import { LoaderCircle, Save } from 'lucide-react';
 function PageSkeleton() {
     return (
         <div className="flex flex-col gap-8">
-            <Skeleton className="h-10 w-64"/>
-            <Skeleton className="h-4 w-96"/>
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-4 w-96" />
             <Skeleton className="h-64 w-full" />
             <Skeleton className="h-48 w-full" />
         </div>
@@ -49,28 +49,28 @@ function ComplianceForm({ user }: { user: WithId<User> }) {
         if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }, [state, toast]);
 
-    const compliance = user.email?.compliance || { unsubscribeLink: true, physicalAddress: '' };
-    
+    const compliance = user.emailSettings?.compliance || { unsubscribeLink: true, physicalAddress: '' };
+
     return (
         <form action={formAction}>
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5"/>Compliance & Unsubscribe</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Compliance & Unsubscribe</CardTitle>
                     <CardDescription>Configure settings to comply with anti-spam laws like CAN-SPAM and GDPR.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                     <div className="flex items-center space-x-2 rounded-lg border p-4">
+                    <div className="flex items-center space-x-2 rounded-lg border p-4">
                         <Switch id="unsubscribeLink" name="unsubscribeLink" defaultChecked={compliance.unsubscribeLink} />
                         <Label htmlFor="unsubscribeLink" className="font-normal">Automatically include an unsubscribe link in email footers.</Label>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="physicalAddress">Physical Mailing Address</Label>
-                        <Textarea id="physicalAddress" name="physicalAddress" placeholder="e.g., 123 Main St, Anytown, USA 12345" defaultValue={compliance.physicalAddress}/>
+                        <Textarea id="physicalAddress" name="physicalAddress" placeholder="e.g., 123 Main St, Anytown, USA 12345" defaultValue={compliance.physicalAddress} />
                         <p className="text-xs text-muted-foreground">Required by CAN-SPAM for all commercial emails.</p>
                     </div>
                 </CardContent>
-                 <CardFooter>
-                     <Button type="submit" disabled={pending}>
+                <CardFooter>
+                    <Button type="submit" disabled={pending}>
                         {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Compliance Settings
                     </Button>
@@ -88,7 +88,7 @@ function DeliverabilityTab() {
         host: `sabnode._domainkey.${domain}`,
         value: 'v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC...your_long_dkim_key...IDAQAB'
     };
-    
+
     const spfRecord = {
         type: 'TXT',
         host: domain,
@@ -98,23 +98,23 @@ function DeliverabilityTab() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5"/>Domain Authentication</CardTitle>
+                <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Domain Authentication</CardTitle>
                 <CardDescription>Improve your email deliverability by adding DKIM and SPF records to your domain's DNS settings.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div>
                     <h3 className="font-semibold mb-2">DKIM Record</h3>
                     <p className="text-sm text-muted-foreground mb-4">DKIM adds a digital signature to your emails, allowing receiving servers to verify that the message was sent by you and was not altered in transit.</p>
-                     <CodeBlock language="text" code={`Type: ${dkimRecord.type}\nHost: ${dkimRecord.host}\nValue: ${dkimRecord.value}`} />
+                    <CodeBlock language="text" code={`Type: ${dkimRecord.type}\nHost: ${dkimRecord.host}\nValue: ${dkimRecord.value}`} />
                 </div>
                 <Separator />
-                 <div>
+                <div>
                     <h3 className="font-semibold mb-2">SPF Record</h3>
                     <p className="text-sm text-muted-foreground mb-4">SPF specifies which mail servers are permitted to send email on behalf of your domain. This helps prevent spoofing.</p>
                     <CodeBlock language="text" code={`Type: ${spfRecord.type}\nHost: ${spfRecord.host}\nValue: ${spfRecord.value}`} />
                     <p className="text-xs text-muted-foreground mt-2">If you already have an SPF record, add `include:sabnode.com` to it.</p>
                 </div>
-                 <Alert>
+                <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Note</AlertTitle>
                     <AlertDescription>
@@ -134,18 +134,18 @@ function IntegrationsTab({ userId }: { userId: string }) {
         <div className="space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5"/>API & Webhooks</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />API & Webhooks</CardTitle>
                     <CardDescription>Programmatically interact with your email data.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                     <div className="space-y-2">
+                    <div className="space-y-2">
                         <Label>API Key</Label>
                         <CodeBlock code={apiKey} />
-                     </div>
-                      <div className="space-y-2">
+                    </div>
+                    <div className="space-y-2">
                         <Label>Webhook URL for Incoming Events</Label>
                         <CodeBlock code={webhookUrl} />
-                     </div>
+                    </div>
                 </CardContent>
             </Card>
             <Card>
@@ -185,7 +185,7 @@ function EmailSettingsPageContent() {
     if (isLoading) {
         return <PageSkeleton />;
     }
-    
+
     if (!user) {
         return (
             <Alert variant="destructive">
@@ -195,7 +195,7 @@ function EmailSettingsPageContent() {
             </Alert>
         );
     }
-    
+
     return (
         <div className="flex flex-col gap-8">
             <Tabs defaultValue={initialTab} className="w-full">
@@ -208,20 +208,20 @@ function EmailSettingsPageContent() {
                 <TabsContent value="email" className="mt-6 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5"/>Connect Email Account</CardTitle>
+                            <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5" />Connect Email Account</CardTitle>
                             <CardDescription>Connect your email accounts to sync conversations and send emails from within the app.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <p className="text-sm text-muted-foreground">Connect a provider to get started. We recommend using a dedicated app password for security.</p>
                             <div className="flex flex-wrap gap-4 p-4 border rounded-lg justify-center bg-muted/50">
                                 <Button asChild className="w-full sm:w-auto" variant="outline">
-                                <Link href="/api/crm/auth/google/connect">
-                                        <GoogleIcon className="mr-2 h-5 w-5"/> Connect Gmail
-                                </Link>
+                                    <Link href="/api/crm/auth/google/connect">
+                                        <GoogleIcon className="mr-2 h-5 w-5" /> Connect Gmail
+                                    </Link>
                                 </Button>
                                 <Button asChild className="w-full sm:w-auto" variant="outline">
                                     <Link href="/api/crm/auth/outlook/connect">
-                                        <OutlookIcon className="mr-2 h-5 w-5"/> Connect Outlook
+                                        <OutlookIcon className="mr-2 h-5 w-5" /> Connect Outlook
                                     </Link>
                                 </Button>
                             </div>
@@ -246,8 +246,8 @@ function EmailSettingsPageContent() {
 
 export default function EmailSettingsPage() {
     return (
-        <Suspense fallback={<PageSkeleton/>}>
-            <EmailSettingsPageContent/>
+        <Suspense fallback={<PageSkeleton />}>
+            <EmailSettingsPageContent />
         </Suspense>
     )
 }

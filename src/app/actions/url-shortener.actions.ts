@@ -15,7 +15,7 @@ import * as XLSX from 'xlsx';
 
 const generateShortCode = (length = 7) => nanoid(length);
 
-export async function createShortUrl(prevState: any, formData: FormData): Promise<{ message?: string; error?: string, shortUrlId?: string }> {
+export async function createShortUrl(prevState: any, formData: FormData): Promise<{ message?: string; error?: string, shortUrlId?: string, shortCode?: string }> {
     const originalUrl = formData.get('originalUrl') as string;
     const alias = formData.get('alias') as string | null;
     const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
@@ -72,7 +72,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         const insertedId = result.insertedId;
 
         revalidatePath('/dashboard/url-shortener');
-        return { message: 'Short URL created successfully!', shortUrlId: insertedId.toString() };
+        return { message: 'Short URL created successfully!', shortUrlId: insertedId.toString(), shortCode };
 
     } catch (e: any) {
         if (e.code === 11000) {
@@ -234,7 +234,7 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
             return { originalUrl: null, error: 'This link has expired.' };
         }
 
-        const headerList = headers();
+        const headerList = await headers();
         const userAgent = headerList.get('user-agent');
         const referrer = headerList.get('referer');
         const ip = headerList.get('x-forwarded-for') || headerList.get('x-real-ip');
@@ -337,7 +337,7 @@ export async function addCustomDomain(prevState: any, formData: FormData): Promi
     try {
         const { db } = await connectToDatabase();
         const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
-        if (user?.customDomains?.some(d => d.hostname === hostname)) {
+        if (user?.customDomains?.some((d: any) => d.hostname === hostname)) {
             return { error: 'This domain has already been added.' };
         }
 
@@ -350,7 +350,7 @@ export async function addCustomDomain(prevState: any, formData: FormData): Promi
 
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user._id) },
-            { $push: { customDomains: newDomain } }
+            { $push: { customDomains: newDomain } } as any
         );
 
         revalidatePath('/dashboard/url-shortener/settings');
@@ -389,7 +389,7 @@ export async function deleteCustomDomain(domainId: string): Promise<{ success: b
         const { db } = await connectToDatabase();
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user._id) },
-            { $pull: { customDomains: { _id: new ObjectId(domainId) } } }
+            { $pull: { customDomains: { _id: new ObjectId(domainId) } } } as any
         );
         revalidatePath('/dashboard/url-shortener/settings');
         revalidatePath('/dashboard/facebook/custom-ecommerce/settings');

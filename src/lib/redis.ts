@@ -1,20 +1,20 @@
 
-const { createClient } = require('redis');
+import { createClient, RedisClientType } from 'redis';
 
-let client = null;
+let client: RedisClientType | null = null;
 
 async function getRedisClient() {
     if (client && client.isOpen) {
         return client;
     }
-    
+
     const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
         console.warn('REDIS_URL not set, some features may be unavailable. Defaulting to localhost.');
         // This allows local dev without Redis, but will fail in a clustered prod env
         return createClient({ url: 'redis://localhost:6379' });
     }
-    
+
     client = createClient({
         url: redisUrl
     });
@@ -24,7 +24,7 @@ async function getRedisClient() {
     try {
         await client.connect();
         return client;
-    } catch(err) {
+    } catch (err) {
         console.error("Failed to connect to Redis:", err);
         client = null; // Reset on connection failure
         throw err;
