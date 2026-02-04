@@ -86,14 +86,14 @@ export function AppRail({ activeApp }: AppRailProps) {
                                 <RailItem
                                     icon={WhatsAppIcon}
                                     label="WaChat"
-                                    active={pathname === '/dashboard'}
+                                    active={activeApp === 'whatsapp'}
                                     href="/dashboard"
                                 />
                                 <RailItem
                                     icon={MetaIcon}
                                     label="Meta Suite"
                                     active={activeApp === 'facebook'}
-                                    href="/dashboard/facebook"
+                                    href="/dashboard/facebook/all-projects"
                                 />
                                 <RailItem
                                     icon={Mic}

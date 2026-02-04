@@ -1,11 +1,13 @@
 import { headers } from 'next/headers';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/index';
 import { getRequiredPermissionForPath } from '@/lib/rbac-server';
 import { redirect } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { GlobalRolePermissions } from '@/lib/definitions';
+import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 function ForbiddenPage() {
     return (
@@ -54,7 +56,7 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
         return <>{children}</>;
     }
 
-    // Admins/Owners bypass all checks
+    // 1. Check Explicit Roles
     // Check both 'roles' array and legacy/singular 'role' string
     if (
         user.roles?.includes('owner') ||
@@ -65,23 +67,7 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
         return <>{children}</>;
     }
 
-    // Role Logic
-    // If user has a custom role (e.g., 'marketing_manager'), permissions are stored in 'agent' or custom keys?
-    // Current DB structure: user.crm.permissions.[roleId]
-    // And user.crm.roles contains the role IDs assigned to the user
-
-    // We need to fetch the user's assigned roles for the CRM/Team module
-    // This part depends on how you assign roles to users.
-    // Assuming 'agent' is the default role if no others are assigned, OR we check all assigned roles.
-
-    // Let's assume for now checks 'agent' permissions + any custom rules.
-    // In many systems, "Allow" takes precedence. If ANY assigned role allows it, we allow.
-
-    // For this implementation, I will check the user's PRIMARY role or iterate all.
-    // Since `user` object in session might not have the full permissions map populated if it's lite.
-    // We might need to refetch user or ensure session has it.
-    // `getSession` usually returns the user object from DB.
-
+    // 2. Check Permissions (for Agents)
     const userPermissions = user.crm?.permissions || {};
     // Default to 'agent' role if no specific role assignment logic found in user object yet, 
     // or if the user is just a basic member.
@@ -89,21 +75,14 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
     // This `assignedRoles` field might be missing in `User` type. I should check.
     // For now, I will check the 'agent' role permissions as the baseline for non-admins.
 
-    // TODO: Ideally, user stores `roles: ['role_id_1', 'role_id_2']`.
-    // Then we check `userPermissions[role_id][permissionKey].view`.
-
-    // Checking 'agent' permissions for now as valid fallback
     const agentPermissions = userPermissions['agent'] as GlobalRolePermissions | undefined;
     const hasAgentAccess = agentPermissions?.[permissionKey as keyof GlobalRolePermissions]?.view;
-
-    // If we had multiple roles, we'd loop.
-    // If ANY role grants access, we allow.
 
     if (hasAgentAccess) {
         return <>{children}</>;
     }
 
-    // Check custom roles if user has them (assuming user.roles contains IDs like '123-abc')
+    // 3. Check Custom Roles (for Agents)
     let hasCustomAccess = false;
     if (user.crm?.customRoles) {
         // This logic is tricky: users usually HAVE roles, they don't OWN role definitions.
@@ -120,9 +99,31 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
         }
     }
 
-    if (!hasCustomAccess && !hasAgentAccess) {
-        return <ForbiddenPage />;
+    if (hasCustomAccess) {
+        return <>{children}</>;
     }
 
-    return <>{children}</>;
+    // 4. Fallback: Check if User is a Project Owner (Main Account)
+    // This handles the case where "Main Accounts" don't have role='owner' set in DB.
+    try {
+        const { db } = await connectToDatabase();
+        // Check if user owns ANY project
+        const ownedProject = await db.collection('projects').findOne(
+            { userId: new ObjectId(user._id) },
+            { projection: { _id: 1 } }
+        );
+
+        if (ownedProject) {
+            // Self-Healing: Update user to have 'owner' role to avoid this DB call next time
+            await db.collection('users').updateOne(
+                { _id: new ObjectId(user._id) },
+                { $set: { role: 'owner' } } // Setting legacy role field for compatibility
+            );
+            return <>{children}</>;
+        }
+    } catch (e) {
+        console.error("RBAC Owner Check Failed:", e);
+    }
+
+    return <ForbiddenPage />;
 }
