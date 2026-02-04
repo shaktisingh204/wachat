@@ -3,7 +3,7 @@ import 'dotenv/config'; // Load .env
 import { connectToDatabase } from '../src/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import PQueue from 'p-queue';
-import { SmsService } from '../src/lib/sms/services/provider.factory';
+import { SmsProviderFactory } from '../src/lib/sms/providers/factory';
 import { SmsCampaign, SmsLog } from '../src/lib/sms/types';
 
 const LOG_PREFIX = '[SMS-WORKER]';
@@ -49,7 +49,7 @@ async function startSmsWorker(workerId: string) {
                 }
 
                 // 2. Get Provider
-                const provider = await SmsService.getProvider(userId.toString());
+                const provider = SmsProviderFactory.getProvider(config as any);
                 if (!provider) {
                     await db.collection('sms_campaigns').updateOne({ _id }, { $set: { status: 'FAILED', error: 'Provider instantiation failed' } });
                     return;
@@ -65,20 +65,33 @@ async function startSmsWorker(workerId: string) {
                 // 4. Resolve Audience
                 let recipients: string[] = [];
                 if (audienceConfig) {
-                    if (audienceConfig.type === 'manual') {
-                        const val = audienceConfig.value as string;
-                        recipients = val.split(',').map(s => s.trim()).filter(s => s);
+                    if (audienceConfig.type === 'tags') {
+                        // Tag IDs are stored in value. Query contacts.
+                        const tagIds = Array.isArray(audienceConfig.value) ? audienceConfig.value : [audienceConfig.value];
+                        const contacts = await db.collection('contacts').find(
+                            { userId, tags: { $in: tagIds } },
+                            { projection: { phone: 1 } }
+                        ).toArray();
+                        recipients = contacts.map(c => c.phone).filter(p => p);
                     } else if (audienceConfig.type === 'csv') {
-                        // Value is CSV Content. Parse it.
-                        // Assuming simple one-column or comma-separated values.
+                        // Value is CSV Content or File URL. If URL, fetch it? For now assume it's processed/stored content
+                        // In real app, we might stream. Here we trust the previous steps handled it or simple storage.
+                        // Implementation Plan said: "parse CSV". Let's assume value is simple list or check if fileUrl
                         const val = audienceConfig.value as string;
-                        recipients = val.split(/[\r\n,]+/).map(s => s.trim()).filter(s => /^\+?\d+$/.test(s));
-                    } else if ((audienceConfig.type as string) === 'group') {
-                        // Value is Group ID (or Tag, let's support generic 'tags' or 'contact_groups')
-                        // Fetch from 'contacts' collection
+                        if (val) {
+                            recipients = val.split(/[\r\n,]+/).map(s => s.trim()).filter(s => /^\+?\d+$/.test(s));
+                        }
+                    } else if (audienceConfig.type === 'group') {
+                        // Legacy support or if 'group' type is used
                         const groupId = audienceConfig.value;
                         const contacts = await db.collection('contacts').find(
-                            { userId, $or: [{ tags: groupId }, { groupIds: groupId }] },
+                            { userId, groupIds: groupId },
+                            { projection: { phone: 1 } }
+                        ).toArray();
+                        recipients = contacts.map(c => c.phone).filter(p => p);
+                    } else if (audienceConfig.type === 'all') {
+                        const contacts = await db.collection('contacts').find(
+                            { userId },
                             { projection: { phone: 1 } }
                         ).toArray();
                         recipients = contacts.map(c => c.phone).filter(p => p);
@@ -108,7 +121,7 @@ async function startSmsWorker(workerId: string) {
 
                     const dltParams = {
                         dltTemplateId: template.dltTemplateId,
-                        dltPrincipalEntityId: config.dlt?.principalEntityId || '',
+                        dltPrincipalEntityId: config.dltPeId || (config.dlt && config.dlt.principalEntityId) || '',
                         dltHeaderId: template.headerId
                     };
 
@@ -155,13 +168,10 @@ async function startSmsWorker(workerId: string) {
                     { $set: { status: 'FAILED', error: error.message } }
                 );
             }
-
         } catch (e: any) {
             console.error(LOG_PREFIX, e);
         } finally {
             busy = false;
         }
-    }, 5000);
-}
 
-startSmsWorker('sms-worker-1');
+        startSmsWorker('sms-worker-1');

@@ -19,8 +19,6 @@ import {
     Globe,
     Crosshair,
     MessageCircle,
-    Grip,
-    ArrowUpRight,
     Settings,
     Info,
     LogOut,
@@ -46,48 +44,30 @@ export function AppRail({ activeApp }: AppRailProps) {
                     </div>
                 </SidebarHeader>
 
-                {/* Notification Icon (Requested) */}
-                <div className="mb-4">
-                    <RailItem
-                        icon={Bell}
-                        label="Notifications"
-                        href="#"
-                        className="text-muted-foreground/70 hover:text-foreground hover:bg-transparent"
-                    />
-                </div>
-
                 <ScrollArea className="flex-1 w-full px-2">
                     <SidebarContent className="flex flex-col items-center gap-4 w-full overflow-visible">
 
-                        {/* Main Navigation */}
+                        {/* 1. Home */}
                         <SidebarMenu className="items-center gap-2 w-full">
                             <RailItem
                                 icon={Home}
                                 label="Home"
-                                active={pathname === '/dashboard' || pathname === '/dashboard/overview'}
-                                href="/dashboard"
-                            />
-                            <RailItem
-                                icon={Globe}
-                                label="SabChat"
-                                active={activeApp === 'sabchat'}
-                                href="/dashboard/sabchat"
-                            />
-                            <RailItem
-                                icon={Crosshair}
-                                label="Ad Manager"
-                                active={activeApp === 'ad-manager'}
-                                href="/dashboard/ad-manager/ad-accounts"
-                            />
-                            <RailItem
-                                icon={MessageCircle}
-                                label="Live Chat"
-                                active={pathname.startsWith('/dashboard/chat')}
-                                href="/dashboard/chat"
+                                active={pathname === '/dashboard/home'}
+                                href="/dashboard/home"
                             />
                         </SidebarMenu>
 
-                        {/* Apps Section */}
+                        {/* 2. Notification */}
+                        <div className="w-full flex justify-center">
+                            <RailItem
+                                icon={Bell}
+                                label="Notifications"
+                                href="#"
+                                className="text-muted-foreground/70 hover:text-foreground hover:bg-transparent"
+                            />
+                        </div>
+
+                        {/* 3. Apps Label & List */}
                         <div className="flex flex-col items-center gap-3 w-full mt-2">
                             <div className="bg-muted/50 rounded-xl px-2 py-1 text-[10px] font-medium text-muted-foreground w-full text-center">
                                 Apps
@@ -95,14 +75,22 @@ export function AppRail({ activeApp }: AppRailProps) {
 
                             <SidebarMenu className="items-center gap-2 w-full">
                                 <RailItem
-                                    icon={ArrowUpRight}
-                                    label="Open"
-                                    href="#"
+                                    icon={Globe}
+                                    label="SabChat"
+                                    active={activeApp === 'sabchat'}
+                                    href="/dashboard/sabchat"
                                 />
                                 <RailItem
-                                    icon={Grip}
-                                    label="All Apps"
-                                    href="/dashboard/apps"
+                                    icon={Crosshair}
+                                    label="Ad Manager"
+                                    active={activeApp === 'ad-manager'}
+                                    href="/dashboard/ad-manager/ad-accounts"
+                                />
+                                <RailItem
+                                    icon={MessageCircle}
+                                    label="Live Chat"
+                                    active={pathname.startsWith('/dashboard/chat')}
+                                    href="/dashboard/chat"
                                 />
                             </SidebarMenu>
                         </div>
@@ -116,8 +104,8 @@ export function AppRail({ activeApp }: AppRailProps) {
                         <RailItem
                             icon={Settings}
                             label="Settings"
-                            active={pathname.startsWith('/dashboard/settings') || pathname.startsWith('/dashboard/user/settings')}
-                            href="/dashboard/settings"
+                            active={pathname.startsWith('/dashboard/user/settings')}
+                            href="/dashboard/user/settings"
                         />
                         <RailItem
                             icon={Info}

@@ -1,11 +1,8 @@
-'use server';
-
 import { connectToDatabase } from "@/lib/mongodb";
-import { SmsProviderConfig, SmsProviderType } from "@/lib/sms/types";
+import { SmsProviderConfig } from "@/lib/definitions"; // Switch to definitions
 import { ObjectId } from "mongodb";
 import { getDecodedSession } from "@/lib/auth";
 import { cookies } from "next/headers";
-// Remove DltSmsTemplate import if unused, or keep
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -17,21 +14,18 @@ export async function saveSmsConfig(formData: FormData) {
     if (!session?.userId) throw new Error("Unauthorized");
     const userId = new ObjectId(session.userId);
 
-    const provider = formData.get('provider') as SmsProviderType;
-    if (!['twilio', 'msg91'].includes(provider)) throw new Error("Invalid provider");
+    const provider = formData.get('provider') as string;
+    const isActive = formData.get('isActive') === 'on';
 
-    // Generic extraction logic
-    // We iterate over the known keys or just dump entries?
-    // FormData can be iterated.
+    // Extract credentials dynamically
     const credentials: Record<string, string> = {};
+    const reservedKeys = ['provider', 'isActive', 'principalEntityId', '$ACTION_ID']; // Next.js internal key
 
-    // Explicit known keys for Typescript sanity, but we can capture all relevant ones.
-    const potentialKeys = ['accountSid', 'authToken', 'fromNumber', 'authKey', 'senderId', 'userId', 'password', 'authId', 'src', 'apiKey', 'baseUrl'];
-
-    potentialKeys.forEach(key => {
-        const val = formData.get(key);
-        if (val) credentials[key] = val as string;
-    });
+    for (const [key, value] of formData.entries()) {
+        if (!reservedKeys.includes(key) && typeof value === 'string' && value.trim() !== '') {
+            credentials[key] = value;
+        }
+    }
 
     // DLT
     const principalEntityId = formData.get('principalEntityId') as string;
@@ -41,14 +35,16 @@ export async function saveSmsConfig(formData: FormData) {
     const config: Partial<SmsProviderConfig> = {
         userId,
         provider,
-        isActive: true,
+        isActive,
         credentials: credentials,
-        dlt: {
-            principalEntityId,
-            entityName: '' // Optional
-        },
+        dltPeId: principalEntityId, // Changed to match schema field name
         updatedAt: new Date()
     };
+
+    // We can also store provider specific senderId if we want to normalize it
+    if (credentials.senderId) {
+        config.defaultSenderId = credentials.senderId;
+    }
 
     await db.collection('sms_configs').updateOne(
         { userId },

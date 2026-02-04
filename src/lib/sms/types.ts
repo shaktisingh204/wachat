@@ -4,36 +4,36 @@ import { ObjectId } from 'mongodb';
 export type SmsProviderType =
     | 'twilio'
     | 'msg91'
+    | 'aws-sns'
     | 'gupshup'
     | 'plivo'
     | 'vonage'
-    | 'clickatell'
-    | 'textlocal'
-    | 'karix'
-    | 'valuefirst'
-    | 'kaleyra'
-    | 'fast2sms'
-    | 'twofactor' // 2Factor
-    | 'sinch'
-    | 'infobip'
-    | 'aws_sns'
+    | 'clicksend'
     | 'messagebird'
-    | 'telesign'
+    | 'sinch'
+    | 'kaleyra'
+    | '2factor'
+    | 'fast2sms'
+    | 'infobip'
+    | 'termii'
+    | 'telnyx'
     | 'bandwidth'
-    | 'cm_com'
-    | 'routemobile'
+    | 'cm-com'
+    | 'textmagic'
+    | 'karix'
+    | 'textlocal'
+    | 'africastalking'
+    | 'bulksms'
     | 'generic'; // Fallback for custom HTTP APIs
 
 export interface SmsProviderConfig {
     _id: ObjectId;
     userId: ObjectId;
-    provider: SmsProviderType;
+    provider: SmsProviderType | string; // loose typing for now to match definitions
     isActive: boolean;
     credentials: Record<string, string | undefined>; // Flexible to support 20+ providers
-    dlt?: {
-        principalEntityId: string;
-        entityName?: string;
-    };
+    dltPeId?: string; // Principal Entity ID (India)
+    defaultSenderId?: string;
     createdAt: Date;
     updatedAt: Date;
 }

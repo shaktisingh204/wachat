@@ -2776,3 +2776,69 @@ export type CrmSettings = {
 
     updatedAt: Date;
 };
+
+// SMS Module Types
+
+export type SmsProviderConfig = {
+    _id: ObjectId;
+    userId: ObjectId;
+    provider: string; // 'twilio' | 'msg91' | 'aws-sns' | ...
+    isActive: boolean;
+    credentials: Record<string, any>; // Flexible to support 20+ authentications
+    dltPeId?: string; // Principal Entity ID (India)
+    defaultSenderId?: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type SmsTemplate = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    content: string; // "Your OTP is {#var#}"
+    dltTemplateId: string;
+    dltHeaderId?: string; // Sender ID
+    status: 'APPROVED' | 'PENDING' | 'REJECTED';
+    variableCount: number;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type SmsCampaign = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    templateId: ObjectId;
+    provider: string; // Provider used at time of sending
+    status: 'DRAFT' | 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+    variableMapping: Record<string, string>; // { "var1": "name", "var2": "otp" }
+    audienceConfig: {
+        type: 'tags' | 'csv' | 'group' | 'all';
+        value: any; // tagIds, csvFileUrl, groupId
+        fileUrl?: string; // For CSV
+    };
+    stats?: {
+        total: number;
+        sent: number;
+        delivered: number;
+        failed: number;
+    };
+    scheduledAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type SmsLog = {
+    _id: ObjectId;
+    userId: ObjectId;
+    campaignId?: ObjectId;
+    to: string;
+    content: string;
+    provider: string;
+    providerMessageId?: string;
+    status: 'SENT' | 'DELIVERED' | 'FAILED';
+    error?: string;
+    cost?: number; // If supported by provider
+    sentAt: Date;
+    createdAt: Date;
+};
