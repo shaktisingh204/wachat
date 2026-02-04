@@ -99,46 +99,8 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
     }
 }
 
-export async function getProjectsForAdmin(
-    page: number = 1,
-    limit: number = 10,
-    query?: string
-): Promise<{ projects: WithId<any>[], total: number }> {
-    try {
-        const { db } = await connectToDatabase();
-        const filter: Filter<Project> = {};
-        if (query) {
-            filter.name = { $regex: query, $options: 'i' };
-        }
+// getProjectsForAdmin moved to admin.actions.ts
 
-        const skip = (page - 1) * limit;
-
-        const [projects, total] = await Promise.all([
-            db.collection<Project>('projects').aggregate([
-                { $match: filter },
-                { $sort: { createdAt: -1 } },
-                { $skip: skip },
-                { $limit: limit },
-                {
-                    $lookup: {
-                        from: 'plans',
-                        localField: 'planId',
-                        foreignField: '_id',
-                        as: 'plan'
-                    }
-                },
-                {
-                    $unwind: { path: '$plan', preserveNullAndEmptyArrays: true }
-                }
-            ]).toArray(),
-            db.collection('projects').countDocuments(filter as any)
-        ]);
-
-        return { projects: JSON.parse(JSON.stringify(projects)), total };
-    } catch (e) {
-        return { projects: [], total: 0 };
-    }
-}
 
 export async function handleUpdateProjectSettings(
     prevState: any,
@@ -297,60 +259,11 @@ export async function saveKanbanStatuses(projectId: string, statuses: string[]):
     }
 }
 
-export async function handleUpdateContactStatus(contactId: string, status: string, assignedAgentId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid Contact ID' };
+// handleUpdateContactStatus moved to contact.actions.ts
 
-    const session = await getSession();
-    if (!session) return { success: false, error: 'Authentication required' };
 
-    try {
-        const { db } = await connectToDatabase();
-        const contact = await db.collection('contacts').findOne({ _id: new ObjectId(contactId) });
-        if (!contact) return { success: false, error: 'Contact not found' };
+// handleUpdateContactDetails moved to contact.actions.ts
 
-        const project = await getProjectById(contact.projectId.toString());
-        if (!project) return { success: false, error: 'Access denied' };
-
-        const update: any = { status };
-        if (assignedAgentId) {
-            update.assignedAgentId = assignedAgentId;
-        } else {
-            update.assignedAgentId = null;
-        }
-
-        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: update });
-
-        revalidatePath('/dashboard/chat');
-        revalidatePath('/dashboard/chat/kanban');
-        return { success: true };
-
-    } catch (e: any) {
-        return { success: false, error: 'Failed to update contact status.' };
-    }
-}
-
-export async function handleUpdateContactDetails(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
-    const contactId = formData.get('contactId') as string;
-    const variablesJSON = formData.get('variables') as string;
-
-    if (!ObjectId.isValid(contactId)) {
-        return { success: false, error: 'Invalid Contact ID' };
-    }
-
-    try {
-        const variables = JSON.parse(variablesJSON);
-        const { db } = await connectToDatabase();
-
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId) },
-            { $set: { variables } }
-        );
-        revalidatePath('/dashboard/chat');
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: 'Failed to update contact.' };
-    }
-}
 
 export async function handleBulkUpdateAppId(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();

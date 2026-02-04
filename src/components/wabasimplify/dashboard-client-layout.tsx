@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getProjects } from "@/app/actions/user.actions"
+import { getProjects } from "@/app/actions/project.actions"
 import { getSession } from '@/app/actions/index';
 import { ProjectProvider } from '@/context/project-context';
 import { AdManagerProvider } from '@/context/ad-manager-context';
@@ -35,7 +35,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                     router.push('/login');
                     return;
                 }
-                const { projects } = await getProjects() || { projects: [] };
+                const projects = await getProjects() || [];
                 setInitialData({ user: session.user, projects });
             } catch (error) {
                 console.error("Initialization failed:", error);
