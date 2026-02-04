@@ -2,7 +2,7 @@
 
 'use server';
 
-import { sendSingleSms } from '@/app/actions/sms.actions';
+import { sendQuickSms } from '@/app/actions/sms-quick.actions';
 import type { WithId, User } from '@/lib/definitions';
 
 
@@ -17,11 +17,11 @@ export async function executeSmsAction(actionName: string, inputs: any, user: Wi
 
         switch (actionName) {
             case 'sendSms': {
-                formData.append('recipient', inputs.to);
-                formData.append('message', inputs.message);
+                const recipient = inputs.to;
+                const message = inputs.message;
 
-                const result = await sendSingleSms(null, formData);
-                if (result.error) throw new Error(result.error);
+                const result = await sendQuickSms(recipient, message);
+                if (!result.success) throw new Error(result.error);
                 return { output: result };
             }
             default:

@@ -9,7 +9,7 @@ import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelli
 import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 import { createShortUrl } from '@/app/actions/url-shortener.actions';
 import { createQrCode } from '@/app/actions/qr-code.actions';
-import { sendSingleSms } from '@/app/actions/sms.actions';
+import { sendQuickSms } from '@/app/actions/sms-quick.actions';
 import { sendCrmEmail } from '@/app/actions/crm-email.actions';
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template, EcommFlow, EcommFlowNode, FacebookSubscriber, EcommFlowEdge } from './definitions';
 import { getErrorMessage } from './utils';
@@ -563,10 +563,24 @@ async function handleSmsAction(node: FlowNode, contact: WithId<Contact>, variabl
         logger.log('SMS action skipped: Missing recipient or message text.');
         return;
     }
-    const formData = new FormData();
-    formData.append('recipient', recipient);
-    formData.append('message', message);
-    await sendSingleSms(null, formData);
+    const recipient = interpolate(node.data.recipient || contact.phone, variables);
+    const message = interpolate(node.data.text, variables);
+    if (!recipient || !message) {
+        logger.log('SMS action skipped: Missing recipient or message text.');
+        return;
+    }
+    // sendSingleSms(null, formData) is legacy. 
+    // We use the new Quick Send action.
+    try {
+        const result = await sendQuickSms(recipient, message);
+        if (!result.success) {
+            logger.log(`SMS action failed: ${result.error}`);
+        } else {
+            logger.log(`SMS sent successfully. Message ID: ${result.messageId}`);
+        }
+    } catch (e: any) {
+        logger.log(`SMS action exception: ${e.message}`);
+    }
 }
 
 async function handleEmailAction(node: FlowNode, contact: WithId<Contact>, variables: Record<string, any>, logger: FlowLogger) {

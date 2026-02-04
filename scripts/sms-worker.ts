@@ -30,12 +30,12 @@ async function startSmsWorker(workerId: string) {
                 { returnDocument: 'after' }
             );
 
-            if (!job || !job.value) {
+            if (!job) {
                 busy = false;
                 return;
             }
 
-            const campaign = job.value as SmsCampaign;
+            const campaign = job as unknown as SmsCampaign;
             const { _id, userId, name, templateId, variableMapping, audienceConfig } = campaign;
 
             await log(db, _id, 'INFO', `Processing campaign: ${name}`);
@@ -73,7 +73,7 @@ async function startSmsWorker(workerId: string) {
                         // Assuming simple one-column or comma-separated values.
                         const val = audienceConfig.value as string;
                         recipients = val.split(/[\r\n,]+/).map(s => s.trim()).filter(s => /^\+?\d+$/.test(s));
-                    } else if (audienceConfig.type === 'group') {
+                    } else if ((audienceConfig.type as string) === 'group') {
                         // Value is Group ID (or Tag, let's support generic 'tags' or 'contact_groups')
                         // Fetch from 'contacts' collection
                         const groupId = audienceConfig.value;
