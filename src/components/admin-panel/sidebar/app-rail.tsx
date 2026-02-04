@@ -22,7 +22,7 @@ interface AppRailProps {
 
 export function AppRail({ activeApp }: AppRailProps) {
     return (
-        <Sidebar className="w-16 bg-sidebar-background flex !w-16 !block md:!flex z-20 m-2 rounded-2xl h-[calc(100%-1rem)] shadow-lg border-none">
+        <Sidebar className="w-16 bg-sidebar-background flex !w-16 !block md:!flex z-20 m-2 rounded-2xl h-[calc(100%-1rem)] shadow-lg border-none hover:!w-16 hover:!min-w-0">
             <div className="flex flex-col h-full">
                 <SidebarHeader className="h-16 flex items-center justify-center">
                     <SabNodeLogo className="w-8 h-8" />

@@ -32,10 +32,10 @@ export async function addEmailContact(prevState: any, formData: FormData): Promi
 
         const { db } = await connectToDatabase();
         await db.collection('email_contacts').insertOne(newContact as EmailContact);
-        
+
         revalidatePath('/dashboard/email/contacts');
         return { message: 'Contact added successfully.' };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -48,13 +48,13 @@ export async function importEmailContacts(prevState: any, formData: FormData): P
     if (!contactFile || contactFile.size === 0) {
         return { error: 'A file is required.' };
     }
-    
+
     const { db } = await connectToDatabase();
 
     const processContacts = (contacts: any[]): Promise<number> => {
         return new Promise<number>(async (resolve, reject) => {
             if (contacts.length === 0) return resolve(0);
-            
+
             const bulkOps = contacts.map(row => {
                 const email = String(row.email || '').trim().toLowerCase();
                 if (!email) return null;
@@ -95,13 +95,13 @@ export async function importEmailContacts(prevState: any, formData: FormData): P
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
             contactCount = await processContacts(jsonData);
         } else {
-             return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
+            return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
         }
-        
+
         if (contactCount === 0) {
             return { error: 'No valid contacts with emails found to import.' };
         }
-        
+
         revalidatePath('/dashboard/email/contacts');
         return { message: `Successfully imported ${contactCount} contact(s).` };
     } catch (e: any) {
@@ -120,7 +120,7 @@ export async function getEmailContacts(
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         const filter: Filter<EmailContact> = { userId: userObjectId };
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
@@ -184,7 +184,7 @@ export async function saveEmailTemplate(prevState: any, formData: FormData): Pro
         }
 
         const { db } = await connectToDatabase();
-        
+
         // Check for duplicate name
         const existingTemplateFilter: Filter<CrmEmailTemplate> = {
             name: templateData.name,
@@ -207,7 +207,7 @@ export async function saveEmailTemplate(prevState: any, formData: FormData): Pro
             templateData.createdAt = new Date();
             await db.collection('email_templates').insertOne(templateData as CrmEmailTemplate);
         }
-        
+
         revalidatePath('/dashboard/email/templates');
         return { message: 'Email template saved successfully.' };
 
@@ -224,15 +224,15 @@ export async function deleteEmailTemplate(templateId: string): Promise<{ success
 
     try {
         const { db } = await connectToDatabase();
-        const result = await db.collection('email_templates').deleteOne({ 
-            _id: new ObjectId(templateId), 
-            userId: new ObjectId(session.user._id) 
+        const result = await db.collection('email_templates').deleteOne({
+            _id: new ObjectId(templateId),
+            userId: new ObjectId(session.user._id)
         });
 
         if (result.deletedCount === 0) {
             return { success: false, error: 'Template not found or you do not have permission to delete it.' };
         }
-        
+
         revalidatePath('/dashboard/email/templates');
         return { success: true };
     } catch (e) {
@@ -252,7 +252,7 @@ export async function getEmailCampaigns(): Promise<WithId<EmailCampaign>[]> {
             .limit(50)
             .toArray();
         return JSON.parse(JSON.stringify(campaigns));
-    } catch(e) {
+    } catch (e) {
         return [];
     }
 }
@@ -268,18 +268,18 @@ export async function handleSendBulkEmail(prevState: any, formData: FormData): P
     const fromEmail = formData.get('fromEmail') as string;
     const contactFile = formData.get('contactFile') as File;
     const scheduledAt = formData.get('scheduledAt') as string;
-    
+
     if (!subject || !body || !contactFile || contactFile.size === 0 || !fromName || !fromEmail) {
         return { error: "From name, from email, subject, body, and a contact file are required." };
     }
 
     try {
         const { db } = await connectToDatabase();
-        
+
         const contacts: any[] = [];
         const csvText = await contactFile.text();
         await new Promise((resolve, reject) => {
-             Papa.parse(csvText, {
+            Papa.parse(csvText, {
                 header: true,
                 skipEmptyLines: true,
                 complete: (results) => {
@@ -290,8 +290,8 @@ export async function handleSendBulkEmail(prevState: any, formData: FormData): P
             });
         });
 
-        if(contacts.length === 0) {
-            return { error: 'No contacts found in the uploaded file.'};
+        if (contacts.length === 0) {
+            return { error: 'No contacts found in the uploaded file.' };
         }
 
         const campaignName = `Campaign - ${new Date().toLocaleString()}`;
@@ -305,30 +305,30 @@ export async function handleSendBulkEmail(prevState: any, formData: FormData): P
             createdAt: new Date(),
             ...(scheduledAt && { scheduledAt: new Date(scheduledAt) })
         };
-        
+
         const campaignResult = await db.collection('email_campaigns').insertOne(newCampaign as any);
-        
+
         if (!scheduledAt) {
             const campaignId = campaignResult.insertedId;
             const transporter = await getTransporter();
 
             for (const contact of contacts) {
-              const contactEmail = (contact as any).email;
-              if (!contactEmail) continue;
+                const contactEmail = (contact as any).email;
+                if (!contactEmail) continue;
 
-              const interpolatedSubject = subject.replace(/{{\s*(\w+)\s*}}/g, (match, key) => (contact as any)[key] || match);
-              const interpolatedBody = body.replace(/{{\s*(\w+)\s*}}/g, (match, key) => (contact as any)[key] || match);
+                const interpolatedSubject = subject.replace(/{{\s*(\w+)\s*}}/g, (match, key) => (contact as any)[key] || match);
+                const interpolatedBody = body.replace(/{{\s*(\w+)\s*}}/g, (match, key) => (contact as any)[key] || match);
 
-              try {
-                await transporter.sendMail({
-                    from: `"${fromName}" <${fromEmail}>`,
-                    to: contactEmail,
-                    subject: interpolatedSubject,
-                    html: interpolatedBody,
-                });
-              } catch (e) {
-                  console.error(`Failed to send email to ${contactEmail}:`, getErrorMessage(e));
-              }
+                try {
+                    await transporter.sendMail({
+                        from: `"${fromName}" <${fromEmail}>`,
+                        to: contactEmail,
+                        subject: interpolatedSubject,
+                        html: interpolatedBody,
+                    });
+                } catch (e) {
+                    console.error(`Failed to send email to ${contactEmail}:`, getErrorMessage(e));
+                }
             }
             await db.collection('email_campaigns').updateOne({ _id: campaignId }, { $set: { status: 'sent', sentAt: new Date() } });
             revalidatePath('/dashboard/email/campaigns');
@@ -337,7 +337,7 @@ export async function handleSendBulkEmail(prevState: any, formData: FormData): P
         revalidatePath('/dashboard/email/campaigns');
         return { message: scheduledAt ? 'Campaign scheduled successfully!' : 'Campaign is sending now!' };
 
-    } catch(e) {
+    } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -358,22 +358,22 @@ export async function getEmailConversations(): Promise<WithId<EmailConversation>
 }
 
 export async function sendReplyEmail(prevState: any, formData: FormData): Promise<{ success: boolean; message?: string, error?: string }> {
-     const session = await getSession();
+    const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied." };
 
     const to = formData.get('to') as string;
     const subject = formData.get('subject') as string;
     const body = formData.get('body') as string;
 
-     if (!to || !subject || !body) {
+    if (!to || !subject || !body) {
         return { success: false, error: "To, subject, and body are required." };
     }
 
     try {
         const transporter = await getTransporter();
-        
+
         // This is simplified. In a real app, you'd get the 'from' from settings.
-        const fromEmail = "user@example.com"; 
+        const fromEmail = "user@example.com";
         const fromName = session.user.name;
 
         await transporter.sendMail({
@@ -384,7 +384,7 @@ export async function sendReplyEmail(prevState: any, formData: FormData): Promis
         });
 
         // Here you would log the reply to the conversation thread in the database.
-        
+
         return { success: true, message: "Reply sent successfully!" };
     } catch (e: any) {
         console.error("Failed to send reply:", e);
@@ -403,11 +403,11 @@ export async function updateEmailConversationStatus(conversationId: string, stat
 export async function saveEmailPermissions(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
-    
+
     const modules = ['contacts', 'campaigns', 'templates'];
     const newPermissions: Partial<EmailPermissions> = { agent: {} };
 
-    for(const module of modules) {
+    for (const module of modules) {
         newPermissions.agent![module as keyof EmailPermissions['agent']] = {
             view: formData.get(`${module}_view`) === 'on',
             create: formData.get(`${module}_create`) === 'on',
@@ -425,7 +425,7 @@ export async function saveEmailPermissions(prevState: any, formData: FormData): 
 
         revalidatePath('/dashboard/email/settings');
         return { message: "Email permissions saved successfully." };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -438,7 +438,7 @@ export async function saveEmailComplianceSettings(prevState: any, formData: Form
         unsubscribeLink: formData.get('unsubscribeLink') === 'on',
         physicalAddress: formData.get('physicalAddress') as string,
     };
-    
+
     if (settings.unsubscribeLink && !settings.physicalAddress) {
         return { error: 'A physical address is required for CAN-SPAM compliance when sending commercial email.' };
     }
@@ -452,7 +452,7 @@ export async function saveEmailComplianceSettings(prevState: any, formData: Form
 
         revalidatePath('/dashboard/email/settings');
         return { message: "Compliance settings saved successfully." };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -468,7 +468,7 @@ export async function saveOAuthTokens(data: {
 }): Promise<void> {
     const { userId, provider, ...tokens } = data;
     const { db } = await connectToDatabase();
-    
+
     const updateData: Partial<EmailSettings> = {
         userId: new ObjectId(userId),
         provider,
@@ -509,7 +509,7 @@ export async function getEmailSettings(): Promise<WithId<EmailSettings>[]> {
             .find({ userId: new ObjectId(session.user._id) })
             .toArray();
         return JSON.parse(JSON.stringify(settings));
-    } catch(e) {
+    } catch (e) {
         return [];
     }
 }
@@ -520,4 +520,19 @@ export async function getSingleEmailSettings(userId: string): Promise<WithId<Ema
     const setting = await db.collection<EmailSettings>('email_settings')
         .findOne({ userId: new ObjectId(userId) });
     return setting ? JSON.parse(JSON.stringify(setting)) : null;
+}
+
+export async function disconnectEmailSettings(): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('email_settings').deleteMany({ userId: new ObjectId(session.user._id) });
+
+        revalidatePath('/dashboard/email/settings');
+        return { message: "Email account disconnected successfully." };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
 }

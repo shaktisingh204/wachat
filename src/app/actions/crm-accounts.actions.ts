@@ -19,7 +19,7 @@ export async function getCrmAccounts(
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         const filter: Filter<CrmAccount> = { userId: userObjectId };
         if (status === 'active') {
             filter.status = { $ne: 'archived' };
@@ -55,19 +55,19 @@ export async function getCrmAccounts(
 
 export async function getCrmAccountById(accountId: string): Promise<WithId<CrmAccount> | null> {
     if (!ObjectId.isValid(accountId)) return null;
-    
+
     const session = await getSession();
     if (!session?.user) return null;
 
     try {
         const { db } = await connectToDatabase();
-        const account = await db.collection<CrmAccount>('crm_accounts').findOne({ 
+        const account = await db.collection<CrmAccount>('crm_accounts').findOne({
             _id: new ObjectId(accountId),
-            userId: new ObjectId(session.user._id) 
+            userId: new ObjectId(session.user._id)
         });
 
         return account ? JSON.parse(JSON.stringify(account)) : null;
-    } catch(e) {
+    } catch (e) {
         return null;
     }
 }
@@ -83,6 +83,8 @@ export async function addCrmAccount(prevState: any, formData: FormData): Promise
             industry: formData.get('industry') as string | undefined,
             website: formData.get('website') as string | undefined,
             phone: formData.get('phone') as string | undefined,
+            country: formData.get('country') as string | undefined,
+            state: formData.get('state') as string | undefined,
             notes: [],
             createdAt: new Date(),
             status: 'active'
@@ -94,10 +96,10 @@ export async function addCrmAccount(prevState: any, formData: FormData): Promise
 
         const { db } = await connectToDatabase();
         await db.collection('crm_accounts').insertOne(newAccount as CrmAccount);
-        
+
         revalidatePath('/dashboard/crm/accounts');
         return { message: 'Account added successfully.' };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -105,7 +107,7 @@ export async function addCrmAccount(prevState: any, formData: FormData): Promise
 export async function updateCrmAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, accountId?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
-    
+
     const accountId = formData.get('accountId') as string;
     if (!accountId || !ObjectId.isValid(accountId)) {
         return { error: 'Invalid Account ID.' };
@@ -133,12 +135,12 @@ export async function updateCrmAccount(prevState: any, formData: FormData): Prom
         if (result.matchedCount === 0) {
             return { error: 'Account not found or access denied.' };
         }
-        
+
         revalidatePath(`/dashboard/crm/accounts/${accountId}`);
         revalidatePath('/dashboard/crm/accounts');
         revalidatePath('/dashboard/crm/sales/clients');
         return { message: 'Account updated successfully.', accountId };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -161,11 +163,11 @@ export async function archiveCrmAccount(accountId: string): Promise<{ success: b
         if (result.matchedCount === 0) {
             return { success: false, error: 'Account not found or access denied.' };
         }
-        
+
         revalidatePath('/dashboard/crm/accounts');
         revalidatePath('/dashboard/crm/sales/clients');
         return { success: true };
-    } catch(e: any) {
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
@@ -193,7 +195,7 @@ export async function unarchiveCrmAccount(accountId: string): Promise<{ success:
         revalidatePath('/dashboard/crm/accounts');
         revalidatePath('/dashboard/crm/sales/clients');
         return { success: true };
-    } catch(e: any) {
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }

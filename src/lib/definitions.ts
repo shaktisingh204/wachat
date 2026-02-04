@@ -330,6 +330,9 @@ export type CrmAccount = {
     website?: string;
     phone?: string;
     address?: string;
+    country?: string;
+    state?: string;
+    city?: string;
     notes?: {
         content: string;
         createdAt: Date;

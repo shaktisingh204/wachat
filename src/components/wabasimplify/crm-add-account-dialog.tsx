@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { LoaderCircle, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmAccount } from '@/app/actions/crm-accounts.actions';
+import { SmartCombobox } from './smart-combobox';
 
 const initialState = { message: undefined, error: undefined };
 
@@ -35,16 +36,55 @@ interface CrmAddAccountDialogProps {
   onAdded: () => void;
 }
 
+
+
+// ... imports
+
 export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addCrmAccount, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
+  // State for SmartComboboxes
+  const [industry, setIndustry] = useState('');
+  const [country, setCountry] = useState('');
+  const [addressState, setAddressState] = useState(''); // Avoid collision with 'state' formState
+
+  // Mock Data (Replace with real DB/API fetch later)
+  const industryOptions = [
+    { label: 'Technology', value: 'Technology' },
+    { label: 'Finance', value: 'Finance' },
+    { label: 'Healthcare', value: 'Healthcare' },
+    { label: 'Retail', value: 'Retail' },
+    { label: 'Manufacturing', value: 'Manufacturing' },
+  ];
+
+  const countryOptions = [
+    { label: 'India', value: 'India' },
+    { label: 'USA', value: 'USA' },
+    { label: 'UK', value: 'UK' },
+    { label: 'UAE', value: 'UAE' },
+    { label: 'Canada', value: 'Canada' },
+  ];
+
+  // TODO: Make states dynamic based on country
+  const stateOptions = [
+    { label: 'Maharashtra', value: 'Maharashtra' },
+    { label: 'Delhi', value: 'Delhi' },
+    { label: 'Karnataka', value: 'Karnataka' },
+    { label: 'New York', value: 'New York' },
+    { label: 'California', value: 'California' },
+    { label: 'Texas', value: 'Texas' },
+  ];
+
   useEffect(() => {
     if (state.message) {
       toast({ title: 'Success!', description: state.message });
       formRef.current?.reset();
+      setIndustry('');
+      setCountry('');
+      setAddressState('');
       setOpen(false);
       onAdded();
     }
@@ -74,17 +114,52 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
                 <Input id="name" name="name" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="industry">Industry (Optional)</Label>
-                <Input id="industry" name="industry" />
+                <Label>Industry</Label>
+                <input type="hidden" name="industry" value={industry} />
+                <SmartCombobox
+                  options={industryOptions}
+                  value={industry}
+                  onSelect={setIndustry}
+                  onCreate={setIndustry}
+                  placeholder="Select or create industry..."
+                  createLabel="Create Industry"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="website">Website (Optional)</Label>
+                  <Label htmlFor="website">Website</Label>
                   <Input id="website" name="website" type="url" placeholder="https://example.com" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone (Optional)</Label>
+                  <Label htmlFor="phone">Phone</Label>
                   <Input id="phone" name="phone" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Country</Label>
+                  <input type="hidden" name="country" value={country} />
+                  <SmartCombobox
+                    options={countryOptions}
+                    value={country}
+                    onSelect={setCountry}
+                    onCreate={setCountry}
+                    placeholder="Select country..."
+                    createLabel="Create Country"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>State</Label>
+                  <input type="hidden" name="state" value={addressState} />
+                  <SmartCombobox
+                    options={stateOptions}
+                    value={addressState}
+                    onSelect={setAddressState}
+                    onCreate={setAddressState}
+                    placeholder="Select state..."
+                    createLabel="Create State"
+                  />
                 </div>
               </div>
             </div>
