@@ -274,3 +274,153 @@ export async function deleteAdAccount(accountId: string): Promise<{ success: boo
         return { success: false, error: 'Failed to disconnect ad account.' };
     }
 }
+
+// --- Hierarchy Management ---
+
+export async function getAdSets(campaignId: string): Promise<{ adSets?: any[], error?: string }> {
+    console.log(`${LOG_PREFIX} getAdSets called for campaign: ${campaignId}`);
+    const session = await getSession();
+    if (!session?.user?.adManagerAccessToken) {
+        return { error: 'Authentication required' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${campaignId}/adsets`, {
+            params: {
+                fields: 'id,name,status,daily_budget,billing_event,optimization_goal,insights{impressions,clicks,spend,ctr}',
+                access_token: session.user.adManagerAccessToken
+            }
+        });
+
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        const adSets = response.data.data.map((adSet: any) => ({
+            ...adSet,
+            insights: adSet.insights?.data?.[0] || {}
+        }));
+
+        return { adSets };
+    } catch (e: any) {
+        console.error(`${LOG_PREFIX} Failed to get ad sets:`, getErrorMessage(e));
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getAds(adSetId: string): Promise<{ ads?: any[], error?: string }> {
+    console.log(`${LOG_PREFIX} getAds called for ad set: ${adSetId}`);
+    const session = await getSession();
+    if (!session?.user?.adManagerAccessToken) {
+        return { error: 'Authentication required' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${adSetId}/ads`, {
+            params: {
+                fields: 'id,name,status,creative{image_url,thumbnail_url,object_story_spec},insights{impressions,clicks,spend,ctr}',
+                access_token: session.user.adManagerAccessToken
+            }
+        });
+
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        const ads = response.data.data.map((ad: any) => ({
+            ...ad,
+            insights: ad.insights?.data?.[0] || {},
+            imageUrl: ad.creative?.image_url || ad.creative?.thumbnail_url || ad.creative?.object_story_spec?.link_data?.image_url
+        }));
+
+        return { ads };
+    } catch (e: any) {
+        console.error(`${LOG_PREFIX} Failed to get ads:`, getErrorMessage(e));
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function updateEntityStatus(id: string, type: 'campaign' | 'adset' | 'ad', status: 'ACTIVE' | 'PAUSED'): Promise<{ success: boolean; error?: string }> {
+    console.log(`${LOG_PREFIX} updateEntityStatus: ${type} ${id} -> ${status}`);
+    const session = await getSession();
+    if (!session?.user?.adManagerAccessToken) {
+        return { success: false, error: 'Authentication required' };
+    }
+
+    try {
+        // Optimistic update logic usually happens on client, but here we push to FB
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${id}`, {
+            status: status,
+            access_token: session.user.adManagerAccessToken
+        });
+
+        if (response.data.success) {
+            // Also update local DB for Campaigns if applicable
+            if (type === 'campaign') {
+                const { db } = await connectToDatabase();
+                await db.collection('ad_campaigns').updateOne(
+                    { metaCampaignId: id },
+                    { $set: { status: status } }
+                );
+            }
+
+            // Revalidate all relevant paths
+            revalidatePath('/dashboard/ad-manager/campaigns');
+
+            return { success: true };
+        } else {
+            throw new Error('Graph API returned unsuccessful response');
+        }
+
+    } catch (e: any) {
+        console.error(`${LOG_PREFIX} Failed to update status:`, getErrorMessage(e));
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+// --- Creation Helper ---
+
+export async function uploadAdImage(formData: FormData): Promise<{ imageHash?: string; imageUrl?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user?.adManagerAccessToken || !session?.user?.activeAdAccountAccountId) {
+        return { error: 'Authentication or Ad Account required' };
+    }
+
+    const file = formData.get('file') as File;
+    if (!file) return { error: 'No file provided' };
+
+    console.log(`${LOG_PREFIX} Uploading ad image: ${file.name}`);
+
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // This usually requires a different content type or specific formData structure for FB Graph API
+        const form = new FormData();
+        // We have to use 'fs' streams usually for standard node-fetch, but typically we can pass blob/buffer if supported
+        // However, axios + FormData in Node environment is tricky.
+        // Simplified approach: encoding as bytes and sending if possible, or using a library that handles multipart/form-data well in Node.
+        // For simplicity in this environment, let's assume standard FormData works or we mock the actual upload interaction if libraries are missing.
+
+        // Correct approach for Node.js file upload to FB Graph API:
+        const url = `https://graph.facebook.com/${API_VERSION}/${session.user.activeAdAccountAccountId}/adimages`;
+        const uploadData = new FormData();
+        uploadData.append('filename', new Blob([buffer as any]), file.name);
+        uploadData.append('access_token', session.user.adManagerAccessToken);
+
+        const response = await fetch(url, {
+            method: 'POST',
+            body: uploadData,
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            throw new Error(data.error.message);
+        }
+
+        // FB returns { images: { "filename": { hash: "...", url: "..." } } }
+        const imageInfo = Object.values(data.images)[0] as any;
+        return { imageHash: imageInfo.hash, imageUrl: imageInfo.url };
+
+    } catch (e: any) {
+        console.error(`${LOG_PREFIX} Failed to upload image:`, e.message);
+        return { error: e.message || 'Failed to upload image' };
+    }
+}
