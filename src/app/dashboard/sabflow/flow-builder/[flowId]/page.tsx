@@ -189,7 +189,7 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
             // It ONLY takes FormData. So we must append data to FormData.
 
             formData.append('flowId', flowData.flowId || '');
-            formData.append('flowName', flowData.name);
+            formData.append('name', flowData.name);
             formData.append('nodes', JSON.stringify(flowData.nodes));
             formData.append('edges', JSON.stringify(flowData.edges));
             formData.append('trigger', JSON.stringify(flowData.trigger));
@@ -342,7 +342,7 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
 
                 {/* Right Panel (Desktop) */}
                 {selectedNode && isPropsOpen && (
-                    <aside className="w-80 border-l bg-background hidden md:block overflow-y-auto shrink-0 z-10 shadow-[-5px_0_15px_-5px_hsl(var(--foreground)/0.05)]">
+                    <aside className="w-80 border-l bg-background hidden md:block overflow-hidden shrink-0 z-10 shadow-[-5px_0_15px_-5px_hsl(var(--foreground)/0.05)]">
                         <SabFlowPropertiesPanel
                             node={selectedNode}
                             onUpdate={onNodeUpdate}
