@@ -118,7 +118,7 @@
   }
 
   .active-app-border {
-    @apply relative bg-blue-200/200 dark:bg-blue-900/20;
+    @apply relative bg-blue-200/100 dark:bg-blue-900/20;
   }
 
   .active-app-border::before {
