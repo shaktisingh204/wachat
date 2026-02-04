@@ -18,7 +18,7 @@ export async function getProjectById(projectId?: string | null): Promise<WithId<
     try {
         const { db } = await connectToDatabase();
         const projectObjectId = new ObjectId(projectId);
-        
+
         const project = await db.collection('projects').aggregate([
             { $match: { _id: projectObjectId } },
             {
@@ -44,14 +44,14 @@ export async function getProjectById(projectId?: string | null): Promise<WithId<
         ]).next();
 
         if (!project) return null;
-        
+
         const isOwner = project.userId.toString() === session.user._id.toString();
         const isAgent = project.agents?.some((agent: any) => agent.userId.toString() === session.user._id.toString());
-        
+
         if (!isOwner && !isAgent) {
             return null;
         }
-        
+
         return JSON.parse(JSON.stringify(project));
     } catch (error) {
         console.error("Failed to fetch project:", error);
@@ -80,18 +80,18 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
         if (query) {
             projectFilter.name = { $regex: query, $options: 'i' };
         }
-        
+
         if (type === 'whatsapp') {
-            projectFilter.wabaId = { $exists: true, $ne: null };
+            projectFilter.wabaId = { $exists: true, $ne: null as any };
         } else if (type === 'facebook') {
-            projectFilter.facebookPageId = { $exists: true, $ne: null };
+            projectFilter.facebookPageId = { $exists: true, $ne: null as any };
         }
 
         const projects = await db.collection<Project>('projects')
             .find(projectFilter)
             .sort({ createdAt: -1 })
             .toArray();
-            
+
         return JSON.parse(JSON.stringify(projects));
     } catch (error) {
         console.error("Failed to fetch projects:", error);
@@ -104,17 +104,17 @@ export async function getProjectsForAdmin(
     limit: number = 10,
     query?: string
 ): Promise<{ projects: WithId<any>[], total: number }> {
-     try {
+    try {
         const { db } = await connectToDatabase();
         const filter: Filter<Project> = {};
         if (query) {
-             filter.name = { $regex: query, $options: 'i' };
+            filter.name = { $regex: query, $options: 'i' };
         }
-        
+
         const skip = (page - 1) * limit;
-        
+
         const [projects, total] = await Promise.all([
-             db.collection<Project>('projects').aggregate([
+            db.collection<Project>('projects').aggregate([
                 { $match: filter },
                 { $sort: { createdAt: -1 } },
                 { $skip: skip },
@@ -130,19 +130,19 @@ export async function getProjectsForAdmin(
                 {
                     $unwind: { path: '$plan', preserveNullAndEmptyArrays: true }
                 }
-             ]).toArray(),
-             db.collection('projects').countDocuments(filter)
+            ]).toArray(),
+            db.collection('projects').countDocuments(filter as any)
         ]);
 
         return { projects: JSON.parse(JSON.stringify(projects)), total };
-    } catch(e) {
+    } catch (e) {
         return { projects: [], total: 0 };
     }
 }
 
 export async function handleUpdateProjectSettings(
-  prevState: any,
-  formData: FormData
+    prevState: any,
+    formData: FormData
 ): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const messagesPerSecond = formData.get('messagesPerSecond') as string;
@@ -164,11 +164,11 @@ export async function handleUpdateProjectSettings(
             { _id: new ObjectId(projectId) },
             { $set: { messagesPerSecond: mps } }
         );
-        
+
         if (result.matchedCount === 0) {
             return { error: 'Project not found.' };
         }
-        
+
         revalidatePath('/dashboard/settings');
 
         return { message: 'Settings updated successfully!' };
@@ -212,8 +212,8 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
         const repliesJSON = formData.get('replies') as string;
         try {
             updatePayload.replies = repliesJSON ? JSON.parse(repliesJSON) : [];
-            delete updatePayload.message; 
-            delete updatePayload.context; 
+            delete updatePayload.message;
+            delete updatePayload.context;
         } catch (e) {
             return { error: 'Invalid format for replies data.' };
         }
@@ -232,7 +232,7 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
         updatePayload.autoTranslate = formData.get('autoTranslate') === 'on';
         delete updatePayload.message;
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
@@ -250,7 +250,7 @@ export async function getKanbanData(projectId: string): Promise<{ project: WithI
     const defaultData = { project: null, columns: [] };
     const project = await getProjectById(projectId);
     if (!project) return defaultData;
-    
+
     try {
         const { db } = await connectToDatabase();
         const contacts = await db.collection<Contact>('contacts')
@@ -285,7 +285,7 @@ export async function saveKanbanStatuses(projectId: string, statuses: string[]):
         const { db } = await connectToDatabase();
         const defaultStatuses = ['new', 'open', 'resolved'];
         const customStatuses = statuses.filter(s => !defaultStatuses.includes(s));
-        
+
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
             { $set: { kanbanStatuses: customStatuses } }
@@ -310,16 +310,16 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
 
         const project = await getProjectById(contact.projectId.toString());
         if (!project) return { success: false, error: 'Access denied' };
-        
+
         const update: any = { status };
         if (assignedAgentId) {
             update.assignedAgentId = assignedAgentId;
         } else {
             update.assignedAgentId = null;
         }
-        
+
         await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: update });
-        
+
         revalidatePath('/dashboard/chat');
         revalidatePath('/dashboard/chat/kanban');
         return { success: true };
@@ -336,11 +336,11 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
     if (!ObjectId.isValid(contactId)) {
         return { success: false, error: 'Invalid Contact ID' };
     }
-    
+
     try {
         const variables = JSON.parse(variablesJSON);
         const { db } = await connectToDatabase();
-        
+
         await db.collection('contacts').updateOne(
             { _id: new ObjectId(contactId) },
             { $set: { variables } }
@@ -362,13 +362,13 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
     if (!projectIdsString || !newAppId) {
         return { success: false, error: 'Project IDs and a new App ID are required.' };
     }
-    
+
     const projectIds = projectIdsString.split(',');
-    
+
     try {
         const { db } = await connectToDatabase();
         const objectIds = projectIds.map(id => new ObjectId(id));
-        
+
         const ownedProjectsCount = await db.collection('projects').countDocuments({
             _id: { $in: objectIds },
             userId: new ObjectId(session.user._id)
@@ -429,15 +429,15 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
 
     const projectId = formData.get('projectId') as string;
     const attributesJSON = formData.get('attributes') as string;
-    
+
     if (!projectId) return { error: 'Project ID is missing.' };
-    
+
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
-    
+
     try {
         const attributes = JSON.parse(attributesJSON);
-        
+
         const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
@@ -454,10 +454,10 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
 export async function saveCannedMessageAction(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };
-    
+
     const messageId = formData.get('_id') as string | null;
     const projectId = formData.get('projectId') as string;
-    
+
     if (!projectId) return { error: 'Project ID is missing.' };
 
     const cannedMessageData: Partial<Omit<CannedMessage, '_id'>> = {
@@ -504,7 +504,7 @@ export async function deleteCannedMessage(id: string): Promise<{ success: boolea
 }
 
 export async function getCannedMessages(projectId: string): Promise<WithId<CannedMessage>[]> {
-     const session = await getSession();
+    const session = await getSession();
     if (!session?.user) return [];
 
     if (!ObjectId.isValid(projectId)) return [];
@@ -515,4 +515,47 @@ export async function getCannedMessages(projectId: string): Promise<WithId<Canne
         return [];
     }
 }
-    
+
+export async function handleDeleteUserProject(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'Authentication required.' };
+    }
+
+    const projectId = formData.get('projectId') as string;
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid project ID.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+
+        const project = await db.collection('projects').findOne({
+            _id: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id)
+        });
+
+        if (!project) {
+            return { error: 'Project not found or you do not have permission to delete it.' };
+        }
+
+        await db.collection('projects').deleteOne({ _id: new ObjectId(projectId) });
+
+        const projectObjectId = new ObjectId(projectId);
+        await Promise.all([
+            db.collection('contacts').deleteMany({ projectId: projectObjectId }),
+            db.collection('flows').deleteMany({ projectId: projectObjectId }),
+            db.collection('canned_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('invitations').deleteMany({ projectId: projectObjectId }),
+        ]);
+
+        revalidatePath('/dashboard');
+
+        return { message: `Project "${project.name}" deleted successfully.` };
+
+    } catch (e: any) {
+        console.error('Delete project failed:', e);
+        return { error: getErrorMessage(e) || 'Failed to delete project.' };
+    }
+}
+

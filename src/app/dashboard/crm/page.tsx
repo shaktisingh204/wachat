@@ -2,11 +2,18 @@
 
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, UserPlus, Trophy, DollarSign, Handshake, LoaderCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, Trophy, DollarSign, Handshake } from 'lucide-react';
 import { getCrmDashboardStats } from '@/app/actions/crm.actions';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+    RecentDealsCard,
+    UpcomingTasksCard,
+    PipelineBreakdownCard,
+    RecentContactsCard,
+    InvoiceSummaryCard
+} from './_components/crm-dashboard-components';
 
 const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <Card>
@@ -46,6 +53,10 @@ export default function CrmDashboardPage() {
                     <Skeleton className="h-28 w-full" />
                     <Skeleton className="h-28 w-full" />
                 </div>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <Skeleton className="h-64 w-full md:col-span-2" />
+                    <Skeleton className="h-64 w-full" />
+                </div>
             </div>
         )
     }
@@ -57,21 +68,44 @@ export default function CrmDashboardPage() {
                 <p className="text-muted-foreground">An overview of your customer relationships, leads, and deals.</p>
             </div>
 
+            {/* Top Row: Key Stats */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Contacts" value={stats.contactCount.toLocaleString()} icon={Users} />
-                <StatCard title="Total Deals" value={stats.dealCount.toLocaleString()} icon={Handshake}/>
-                <StatCard title="Deals Won" value={stats.dealsWon.toLocaleString()} icon={Trophy} />
-                <StatCard title="Pipeline Revenue" value={new Intl.NumberFormat('en-US', { style: 'currency', currency: stats.currency || 'USD' }).format(stats.pipelineValue)} icon={DollarSign} />
+                <StatCard
+                    title="Total Contacts"
+                    value={stats.counts.contacts.toLocaleString()}
+                    icon={Users}
+                />
+                <StatCard
+                    title="Total Deals"
+                    value={stats.counts.dealCount.toLocaleString()}
+                    icon={Handshake}
+                />
+                <StatCard
+                    title="Deals Won"
+                    value={stats.counts.dealsWon.toLocaleString()}
+                    icon={Trophy}
+                />
+                <StatCard
+                    title="Pipeline Revenue"
+                    value={new Intl.NumberFormat('en-US', { style: 'currency', currency: stats.currency || 'USD' }).format(stats.counts.pipelineValue)}
+                    icon={DollarSign}
+                />
             </div>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>Coming Soon</CardTitle>
-                    <CardDescription>
-                        More detailed reports, deal pipelines, and contact management features are on their way to the CRM Suite!
-                    </CardDescription>
-                </CardHeader>
-            </Card>
+
+            {/* Middle Row: Pipeline & Invoices */}
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
+                <PipelineBreakdownCard stages={stats.pipelineStages} currency={stats.currency} />
+                <InvoiceSummaryCard stats={stats.invoiceStats} currency={stats.currency} />
+            </div>
+
+            {/* Bottom Row: Recent Activity */}
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-4">
+                <RecentDealsCard deals={stats.recentDeals} currency={stats.currency} />
+                <div className="space-y-4 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                    <UpcomingTasksCard tasks={stats.upcomingTasks} />
+                    <RecentContactsCard contacts={stats.recentContacts} />
+                </div>
+            </div>
         </div>
     );
 }

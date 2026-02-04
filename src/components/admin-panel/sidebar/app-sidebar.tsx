@@ -37,6 +37,7 @@ import {
     MenuGroup
 } from '@/config/dashboard-config';
 import { useAdManager } from '@/context/ad-manager-context';
+import { useProject } from '@/context/project-context';
 
 /* -------------------------------------------------------------------------------------------------
  * Helper Components
@@ -110,6 +111,7 @@ interface AppSidebarProps {
 export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
     const { isOpen } = useSidebar();
     const { activeAccount } = useAdManager();
+    const { activeProject } = useProject();
 
     // -- Render Logic based on active app --
 
@@ -144,6 +146,7 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
                 ));
 
             case 'instagram':
+                if (!activeProject?.facebookPageId || !activeProject?.accessToken) return null;
                 return instagramMenuGroups.flatMap(g => g.items).map(item => <SidebarItem key={item.href} item={item} />);
 
             case 'crm':

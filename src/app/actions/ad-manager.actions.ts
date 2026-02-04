@@ -129,12 +129,24 @@ export async function handleCreateAdCampaign(prevState: any, formData: FormData)
     const adMessage = formData.get('adMessage') as string;
     const destinationUrl = formData.get('destinationUrl') as string;
 
-    if (!adAccountId || !facebookPageId || !campaignName || isNaN(dailyBudget) || !adMessage || !destinationUrl) {
-        console.error(`${LOG_PREFIX} handleCreateAdCampaign: Missing required fields.`);
-        return { error: 'All fields are required.' };
+    const specialAdCategoriesRaw = formData.get('special_ad_categories') as string;
+    let specialAdCategories: string[] = [];
+    try {
+        specialAdCategories = specialAdCategoriesRaw ? JSON.parse(specialAdCategoriesRaw) : [];
+        if (!Array.isArray(specialAdCategories)) throw new Error('Invalid format');
+    } catch (e) {
+        return { error: 'Special Ad Categories must be a valid array.' };
     }
 
-    console.log(`${LOG_PREFIX} handleCreateAdCampaign: Data validated.`, { adAccountId, facebookPageId, campaignName });
+    const objective = formData.get('objective') as string;
+    const status = formData.get('status') as string;
+
+    if (!adAccountId || !facebookPageId || !campaignName || isNaN(dailyBudget) || !adMessage || !destinationUrl || !objective || !status) {
+        console.error(`${LOG_PREFIX} handleCreateAdCampaign: Missing required fields.`);
+        return { error: 'All fields are required, including Name, Objective, Status, and Budget.' };
+    }
+
+    console.log(`${LOG_PREFIX} handleCreateAdCampaign: Data validated.`, { adAccountId, facebookPageId, campaignName, objective, status });
     const { db } = await connectToDatabase();
 
     try {
