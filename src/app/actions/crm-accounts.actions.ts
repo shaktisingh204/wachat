@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter, Document } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmAccount } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 

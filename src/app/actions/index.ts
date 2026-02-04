@@ -36,6 +36,7 @@ export * from './crm-quotations.actions';
 export * from './crm-invoices.actions';
 export * from './crm-payment-receipts.actions';
 export * from './crm-sales-orders.actions';
+export * from './crm-purchase-orders.actions';
 export * from './crm-delivery-challans.actions';
 export * from './crm-credit-notes.actions';
 export * from './crm-forms.actions';

@@ -1,10 +1,9 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmSalesOrder } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -46,9 +45,9 @@ export async function getSalesOrders(
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         const filter: Filter<CrmSalesOrder> = { userId: userObjectId };
-        
+
         const skip = (page - 1) * limit;
 
         const [orders, total] = await Promise.all([
@@ -108,7 +107,7 @@ export async function saveSalesOrder(prevState: any, formData: FormData): Promis
 
         const existing = await db.collection('crm_sales_orders').findOne({ userId: userObjectId, orderNumber: orderData.orderNumber });
         if (existing) {
-             orderData.orderNumber = await getNextSalesOrderNumber(db, userObjectId);
+            orderData.orderNumber = await getNextSalesOrderNumber(db, userObjectId);
         }
 
         await db.collection('crm_sales_orders').insertOne({

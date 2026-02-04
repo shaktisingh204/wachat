@@ -1,11 +1,10 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmInvoice } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -20,9 +19,9 @@ export async function getInvoices(
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         const filter: Filter<CrmInvoice> = { userId: userObjectId };
-        
+
         const skip = (page - 1) * limit;
 
         const [invoices, total] = await Promise.all([
@@ -92,7 +91,7 @@ export async function getUnpaidInvoicesByAccount(accountId: string): Promise<Wit
     if (!session?.user) return [];
 
     if (!ObjectId.isValid(accountId)) return [];
-    
+
     try {
         const { db } = await connectToDatabase();
         const invoices = await db.collection('crm_invoices').find({
@@ -100,7 +99,7 @@ export async function getUnpaidInvoicesByAccount(accountId: string): Promise<Wit
             accountId: new ObjectId(accountId),
             status: { $in: ['Sent', 'Overdue', 'Partially Paid', 'Draft'] }
         }).toArray();
-        
+
         return JSON.parse(JSON.stringify(invoices));
     } catch (e) {
         return [];

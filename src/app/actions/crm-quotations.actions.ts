@@ -1,11 +1,10 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmQuotation } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -49,9 +48,9 @@ export async function getQuotations(
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         const filter: Filter<CrmQuotation> = { userId: userObjectId };
-        
+
         const skip = (page - 1) * limit;
 
         const [quotations, total] = await Promise.all([
@@ -81,7 +80,7 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         let quotationNumber = formData.get('quotationNumber') as string;
 
         // If the quotation number is empty, generate a new one.
@@ -111,7 +110,7 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
         if (!quotationData.accountId || lineItems.length === 0) {
             return { error: 'Client and at least one line item are required.' };
         }
-        
+
         // Final check for duplicates before inserting
         const existing = await db.collection('crm_quotations').findOne({ userId: userObjectId, quotationNumber: quotationData.quotationNumber });
         if (existing) {

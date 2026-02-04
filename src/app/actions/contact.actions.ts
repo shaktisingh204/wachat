@@ -5,7 +5,7 @@
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { Contact, Project, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { checkRateLimit } from '@/lib/rate-limiter';

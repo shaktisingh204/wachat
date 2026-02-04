@@ -1,10 +1,9 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmCreditNote } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -45,9 +44,9 @@ export async function getCreditNotes(
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         const filter: Filter<CrmCreditNote> = { userId: userObjectId };
-        
+
         const skip = (page - 1) * limit;
 
         const [notes, total] = await Promise.all([
@@ -77,15 +76,15 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         let creditNoteNumber = formData.get('creditNoteNumber') as string;
         if (!creditNoteNumber) {
             creditNoteNumber = await getNextCreditNoteNumber(db, userObjectId);
         }
-        
+
         const existing = await db.collection('crm_credit_notes').findOne({ userId: userObjectId, creditNoteNumber });
         if (existing) {
-             creditNoteNumber = await getNextCreditNoteNumber(db, userObjectId);
+            creditNoteNumber = await getNextCreditNoteNumber(db, userObjectId);
         }
 
         const lineItems = JSON.parse(formData.get('lineItems') as string || '[]');
