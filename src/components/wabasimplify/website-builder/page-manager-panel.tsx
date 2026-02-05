@@ -8,34 +8,34 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Home, Plus, Trash2, Check, Settings, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { WithId, WebsitePage } from '@/lib/definitions';
+import type { WithId, WebsitePage, EcommPage } from '@/lib/definitions';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { deleteWebsitePage, setAsHomepage, saveWebsitePage } from '@/app/actions/portfolio.actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface PageManagerPanelProps {
-  pages: WithId<WebsitePage>[];
-  activePageId: string | null;
-  shopId: string;
-  onSelectPage: (pageId: string) => void;
-  onPagesUpdate: () => void;
+    pages: WithId<WebsitePage | EcommPage>[];
+    activePageId: string | null;
+    shopId: string;
+    onSelectPage: (pageId: string) => void;
+    onPagesUpdate: () => void;
 }
 
 export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, onPagesUpdate }: PageManagerPanelProps) {
@@ -47,7 +47,7 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
         if (!newPageName.trim()) return;
 
         const slug = newPageName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-        
+
         const result = await saveWebsitePage({
             siteId: shopId,
             name: newPageName,
@@ -67,20 +67,20 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
         setNewPageName('');
         setIsCreating(false);
     }
-    
+
     const handleDeletePage = async (pageId: string) => {
         const result = await deleteWebsitePage(pageId);
-         if (result.error) {
+        if (result.error) {
             toast({ title: 'Error', description: result.error, variant: 'destructive' });
         } else {
             toast({ title: 'Success', description: 'Page deleted.' });
             onPagesUpdate();
         }
     }
-    
+
     const handleSetHomepage = async (pageId: string) => {
         const result = await setAsHomepage(pageId, shopId);
-         if (result.error) {
+        if (result.error) {
             toast({ title: 'Error', description: result.error, variant: 'destructive' });
         } else {
             toast({ title: 'Success', description: 'Homepage updated.' });
@@ -96,7 +96,7 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
                     <Plus className="h-4 w-4" />
                 </Button>
             </div>
-             {isCreating && (
+            {isCreating && (
                 <div className="space-y-2 p-2 border rounded-md">
                     <Input
                         placeholder="New page name..."
@@ -112,15 +112,15 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
             )}
             <div className="space-y-1">
                 {pages.map(page => (
-                    <div key={page._id.toString()} className={cn("flex items-center group rounded-md", activePageId === page._id.toString() && 'bg-muted')}>
+                    <div key={page._id.toString()} className={cn("flex items-center group rounded-md transaction-all duration-200", activePageId === page._id.toString() ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50')}>
                         <Button variant="ghost" className="flex-1 justify-start font-normal" onClick={() => onSelectPage(page._id.toString())}>
-                             {page.isHomepage && <Home className="mr-2 h-4 w-4 text-primary" />}
+                            {page.isHomepage && <Home className="mr-2 h-4 w-4 text-primary" />}
                             <span className="truncate">{page.name}</span>
                         </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
-                                    <MoreVertical className="h-4 w-4"/>
+                                    <MoreVertical className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>

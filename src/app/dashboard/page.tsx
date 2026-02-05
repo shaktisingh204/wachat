@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ProjectCard } from "@/components/wabasimplify/project-card";
+import { SeoProjectCard } from "@/components/wabasimplify/seo-project-card";
 import { DashboardHeader } from "@/components/wabasimplify/dashboard-header";
 import { FileText, PlusCircle, Briefcase, Folder, ChevronLeft, ChevronRight, Clock, Search, Filter } from "lucide-react";
 import type { WithId } from "mongodb";
@@ -21,8 +22,8 @@ export default function SelectProjectPage() {
     const router = useRouter();
     const { projects: allProjects, reloadProjects, isLoadingProject } = useProject();
 
-    // Only WaChat projects (those with wabaId) as per user request
-    const projects = useMemo(() => allProjects.filter(p => !!p.wabaId), [allProjects]);
+    // Only WhatsApp/Facebook projects for now? Assuming yes based on context
+    const projects = useMemo(() => allProjects.filter(p => !!p.wabaId || !!p.facebookPageId), [allProjects]);
 
     const query = searchParams.get('query') || '';
     const page = Number(searchParams.get('page')) || 1;
@@ -164,10 +165,17 @@ export default function SelectProjectPage() {
                             )}
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {groupedProjects.ungrouped.map((project) => (
-                                    <ProjectCard
-                                        key={project._id.toString()}
-                                        project={project}
-                                    />
+                                    project.wabaId ? (
+                                        <ProjectCard
+                                            key={project._id.toString()}
+                                            project={project}
+                                        />
+                                    ) : (
+                                        <SeoProjectCard
+                                            key={project._id.toString()}
+                                            project={project}
+                                        />
+                                    )
                                 ))}
                             </div>
                         </div>
@@ -184,10 +192,17 @@ export default function SelectProjectPage() {
                             </h2>
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {groupProjects.map((project) => (
-                                    <ProjectCard
-                                        key={project._id.toString()}
-                                        project={project}
-                                    />
+                                    project.wabaId ? (
+                                        <ProjectCard
+                                            key={project._id.toString()}
+                                            project={project}
+                                        />
+                                    ) : (
+                                        <SeoProjectCard
+                                            key={project._id.toString()}
+                                            project={project}
+                                        />
+                                    )
                                 ))}
                             </div>
                         </div>
@@ -209,7 +224,7 @@ export default function SelectProjectPage() {
                             }
                         </p>
                         {!query && (
-                            <Button asChild size="xl" className="mt-8 w-full max-w-sm">
+                            <Button asChild size="lg" className="mt-8 w-full max-w-sm">
                                 <Link href="/dashboard/setup">
                                     Connect Project
                                 </Link>

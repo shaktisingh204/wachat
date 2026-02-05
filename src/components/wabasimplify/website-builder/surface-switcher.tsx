@@ -4,22 +4,22 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuGroup,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    DropdownMenuGroup,
 } from '@/components/ui/dropdown-menu';
 import { ChevronsUpDown, Check, LayoutTemplate, File, ShoppingCart } from 'lucide-react';
-import type { WithId, EcommPage, EcommShop } from '@/lib/definitions';
+import type { WithId, EcommPage, EcommShop, Website, WebsitePage } from '@/lib/definitions';
 
 interface SurfaceSwitcherProps {
-  shop: WithId<EcommShop>;
-  pages: WithId<EcommPage>[];
-  activeSurface: string;
-  onSwitch: (surface: string) => void;
+    shop: WithId<EcommShop | Website>;
+    pages: WithId<EcommPage | WebsitePage>[];
+    activeSurface: string;
+    onSwitch: (surface: string) => void;
 }
 
 export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: SurfaceSwitcherProps) {
@@ -32,9 +32,9 @@ export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: Surfac
         { id: 'searchPage', name: 'Search Results Template' },
         { id: 'cartPage', name: 'Cart Page Template' },
     ];
-    
-    const allPages = pages.sort((a,b) => (b.isHomepage ? 1 : 0) - (a.isHomepage ? 1 : 0));
-    
+
+    const allPages = pages.sort((a, b) => (b.isHomepage ? 1 : 0) - (a.isHomepage ? 1 : 0));
+
     const activeSurfaceLabel =
         siteParts.find(p => p.id === activeSurface)?.name ||
         allPages.find(p => p._id.toString() === activeSurface)?.name ||
@@ -53,7 +53,7 @@ export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: Surfac
                 <DropdownMenuGroup>
                     {siteParts.map(part => (
                         <DropdownMenuItem key={part.id} onSelect={() => onSwitch(part.id)}>
-                             <LayoutTemplate className="mr-2 h-4 w-4" />
+                            <LayoutTemplate className="mr-2 h-4 w-4" />
                             <span>{part.name}</span>
                             {activeSurface === part.id && <Check className="ml-auto h-4 w-4" />}
                         </DropdownMenuItem>
@@ -61,12 +61,12 @@ export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: Surfac
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Pages</DropdownMenuLabel>
-                 <DropdownMenuGroup>
+                <DropdownMenuGroup>
                     {allPages.map(page => (
-                         <DropdownMenuItem key={page._id.toString()} onSelect={() => onSwitch(page._id.toString())}>
-                             <File className="mr-2 h-4 w-4" />
+                        <DropdownMenuItem key={page._id.toString()} onSelect={() => onSwitch(page._id.toString())}>
+                            <File className="mr-2 h-4 w-4" />
                             <span>{page.name}</span>
-                             {activeSurface === page._id.toString() && <Check className="ml-auto h-4 w-4" />}
+                            {activeSurface === page._id.toString() && <Check className="ml-auto h-4 w-4" />}
                         </DropdownMenuItem>
                     ))}
                 </DropdownMenuGroup>

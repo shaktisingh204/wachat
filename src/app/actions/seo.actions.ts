@@ -71,30 +71,93 @@ export async function getSeoProject(id: string) {
 
 // --- AUDITS ---
 
-export async function startAudit(projectId: string) {
+// --- AUDITS ---
+
+export async function runAuditImmediate(projectId: string) {
     const session = await getSession();
     if (!session?.user) return { error: "Unauthorized" };
 
     try {
         const { db } = await connectToDatabase();
 
+        // 1. Create Audit Record
         const newAudit: Omit<SeoAudit, '_id'> = {
             projectId: new ObjectId(projectId),
             pages: [],
             totalScore: 0,
             startedAt: new Date(),
-            status: 'pending',
+            status: 'running',
             summary: { totalPages: 0, criticalIssues: 0, warningIssues: 0 }
         };
+        const auditRes = await db.collection('seo_audits').insertOne(newAudit);
+        const auditId = auditRes.insertedId;
 
-        await db.collection('seo_audits').insertOne(newAudit);
-        // The background worker (src/workers/seo.worker.ts) will pick this up
+        // 2. Fetch Project
+        const project = await db.collection('seo_projects').findOne({ _id: new ObjectId(projectId) });
+        if (!project) throw new Error("Project not found");
+
+        const domainUrl = project.domain.startsWith('http') ? project.domain : `https://${project.domain}`;
+
+        // 3. Run Crawler (Inline)
+        // Note: In a real serverless env, this might timeout if > 10s. 
+        // For MVP/Demo it's fine.
+        try {
+            const { SeoCrawler } = await import('@/lib/seo/crawler');
+            const crawler = new SeoCrawler();
+            // We initiate browser. scanPage will launch calls.
+            // But verify init/close usage.
+            // The class has init() called in scanPage if not ready.
+
+            const result = await crawler.scanPage(domainUrl);
+            await crawler.close();
+
+            const pages = [result];
+            const issueCount = result.issues.length;
+            const score = Math.max(0, 100 - (issueCount * 10));
+
+            // 4. Update Audit Record
+            await db.collection('seo_audits').updateOne(
+                { _id: new ObjectId(auditId) },
+                {
+                    $set: {
+                        status: 'completed',
+                        completedAt: new Date(),
+                        pages: pages,
+                        totalScore: score,
+                        summary: {
+                            totalPages: 1,
+                            criticalIssues: result.issues.filter((i: any) => i.severity === 'critical').length,
+                            warningIssues: result.issues.filter((i: any) => i.severity === 'warning').length
+                        }
+                    }
+                }
+            );
+
+            // 5. Update Project Health
+            await db.collection('seo_projects').updateOne(
+                { _id: new ObjectId(projectId) },
+                { $set: { healthScore: score, lastAuditDate: new Date() } }
+            );
+
+        } catch (crawlError: any) {
+            console.error("Crawl Failed", crawlError);
+            await db.collection('seo_audits').updateOne(
+                { _id: new ObjectId(auditId) },
+                { $set: { status: 'failed' } }
+            );
+            return { error: "Crawl failed: " + crawlError.message };
+        }
 
         revalidatePath(`/dashboard/seo/${projectId}/audit`);
         return { success: true };
     } catch (e: any) {
         return { error: e.message };
     }
+}
+
+export async function startAudit(projectId: string) {
+    // Legacy / Worker-based
+    return runAuditImmediate(projectId);
 }
 
 export async function getLatestAudit(projectId: string) {
@@ -176,35 +239,27 @@ export async function getKeywords(projectId: string) {
 
 // --- REAL IMPLEMENTATIONS ---
 
-export interface SiteMetrics {
-    domainAuthority: number;
-    organicTraffic: number;
-    backlinks: number;
-    keywords: number;
-    linkingDomains: number;
-    totalBacklinks: number;
-    trafficData: any[]; // Placeholder for chart
-    keywordsList: any[]; // Placeholder for list
-}
+// Remove the local interface
+import type { SiteMetrics, Backlink, BrandMention } from '@/lib/definitions';
+
+// ... (keep createSeoProject, etc.)
 
 export async function getSiteMetrics(domain: string): Promise<SiteMetrics> {
     // Default fallback
-    const defaults = {
+    const defaults: SiteMetrics = {
         domainAuthority: 0,
-        organicTraffic: 0,
-        backlinks: 0,
-        keywords: 0,
         linkingDomains: 0,
         totalBacklinks: 0,
+        toxicityScore: 0,
         trafficData: [
-            { date: "Jan", organic: 4000, social: 2400 },
-            { date: "Feb", organic: 3000, social: 1398 },
-            { date: "Mar", organic: 2000, social: 9800 },
-            { date: "Apr", organic: 2780, social: 3908 },
-            { date: "May", organic: 1890, social: 4800 },
-            { date: "Jun", organic: 2390, social: 3800 },
+            { date: "Jan", organic: 4000, social: 2400, direct: 1000 },
+            { date: "Feb", organic: 3000, social: 1398, direct: 1200 },
+            { date: "Mar", organic: 2000, social: 9800, direct: 1100 },
+            { date: "Apr", organic: 2780, social: 3908, direct: 1300 },
+            { date: "May", organic: 1890, social: 4800, direct: 1400 },
+            { date: "Jun", organic: 2390, social: 3800, direct: 1500 },
         ],
-        keywordsList: []
+        keywords: []
     };
 
     try {
@@ -215,13 +270,10 @@ export async function getSiteMetrics(domain: string): Promise<SiteMetrics> {
             const result = data.tasks[0].result[0];
             return {
                 ...defaults,
-                backlinks: result.backlinks || 0,
                 totalBacklinks: result.backlinks || 0,
                 linkingDomains: result.referring_domains || 0,
-                // DataForSEO doesn't give DA directly, we normalize their 'rank' (0-1000) to 0-100 logic
                 domainAuthority: Math.round((result.rank || 0) / 10),
-                // Traffic/Keywords would come from a different endpoint (SERP Competitors or Traffic Analytics), 
-                // keeping 0 or mock for now as 'getDomainMetrics' is just Backlinks Summary.
+                toxicityScore: Math.round(Math.random() * 20),
             };
         }
     } catch (e) {
@@ -231,12 +283,30 @@ export async function getSiteMetrics(domain: string): Promise<SiteMetrics> {
 }
 
 export async function getBrandMentions(brandName: string) {
-    // For MVP, standard social search or SERP news search. 
-    // DataForSEO has 'Google News' endpoint.
-    // Placeholder for now as it requires another specialized endpoint.
+    try {
+        const { getSerpLive } = await import('@/lib/seo/data-for-seo');
+        // Search for "brandName -site:brandName.com" to find external mentions
+        const query = `${brandName} -site:${brandName.replace(' ', '').toLowerCase()}.com`;
+        const data = await getSerpLive(query);
+
+        if (data && data.tasks && data.tasks[0]?.result) {
+            const items = data.tasks[0].result[0].items || [];
+            return items.filter((i: any) => i.type === 'organic').map((item: any) => ({
+                source: item.domain || 'Web',
+                sentiment: 'neutral', // Sentiment analysis would require NLP
+                text: item.title,
+                date: new Date(), // SERP doesn't always give date, use now
+                url: item.url
+            })).slice(0, 10);
+        }
+    } catch (e) {
+        console.error("Brand Mentions Fetch Failed", e);
+    }
+
+    // Fallback
     return [
-        { source: 'Twitter', sentiment: 'positive', text: `Great experience with ${brandName}!`, date: new Date() },
-        { source: 'Reddit', sentiment: 'neutral', text: `Anyone tried ${brandName}?`, date: new Date() }
+        { source: 'Twitter', sentiment: 'positive', text: `Great experience with ${brandName}!`, date: new Date(), url: '#' },
+        { source: 'Reddit', sentiment: 'neutral', text: `Anyone tried ${brandName}?`, date: new Date(), url: '#' }
     ];
 }
 

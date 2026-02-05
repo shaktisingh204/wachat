@@ -2710,11 +2710,11 @@ export type CreditNoteLineItem = {
 // --- SEO Suite Types ---
 
 export type BrandMention = {
-    source: 'Reddit' | 'Twitter' | 'TechCrunch' | 'Google Alerts';
+    source: string;
     author: string;
     content: string;
     url: string;
-    sentiment: 'Positive' | 'Neutral' | 'Negative';
+    sentiment: 'Positive' | 'Neutral' | 'Negative' | 'neutral' | 'positive' | 'negative'; // Relaxed for case sensitivity
     date: Date;
 };
 
@@ -2744,7 +2744,7 @@ export type Backlink = {
     sourceUrl: string;
     anchorText: string;
     domainAuthority: number;
-    linkType: 'News' | 'Forum' | 'Blog' | 'Review';
+    linkType: string;
 };
 
 // --- Security Types ---

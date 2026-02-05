@@ -12,7 +12,15 @@ export class SeoCrawler {
         const puppeteer = (await import('puppeteer')).default;
         this.browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--ignore-certificate-errors',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--disable-gpu'
+            ],
+            ignoreHTTPSErrors: true
         });
     }
 

@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SurfaceSwitcher } from './surface-switcher';
 import { Eye, Save, ArrowLeft, LoaderCircle } from 'lucide-react';
-import type { WithId, Website, WebsitePage } from '@/lib/definitions';
+import type { WithId, Website, WebsitePage, EcommShop, EcommPage } from '@/lib/definitions';
 
 interface WebsiteBuilderHeaderProps {
-  site: WithId<Website>;
-  pages: WithId<WebsitePage>[];
+  site: WithId<Website | EcommShop>;
+  pages: WithId<WebsitePage | EcommPage>[];
   activeSurface: string;
   isSaving: boolean;
   onSwitchSurface: (surface: string) => void;
@@ -25,7 +25,7 @@ export function WebsiteBuilderHeader({
   onSave,
 }: WebsiteBuilderHeaderProps) {
   return (
-    <header className="flex-shrink-0 flex items-center justify-between gap-4 p-3 border-b bg-background">
+    <header className="flex-shrink-0 flex items-center justify-between gap-4 p-3 border-b bg-background/80 backdrop-blur-md sticky top-0 z-50">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" asChild>
           <Link href={`/dashboard/website-builder`}>

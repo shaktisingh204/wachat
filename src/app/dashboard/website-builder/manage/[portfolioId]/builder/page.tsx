@@ -7,10 +7,11 @@ import { CartProvider } from '@/context/cart-context';
 
 export const dynamic = 'force-dynamic';
 
-export default async function WebsiteBuilderPage({ params }: { params: { portfolioId: string } }) {
+export default async function WebsiteBuilderPage({ params }: { params: Promise<{ portfolioId: string }> }) {
+    const resolvedParams = await params;
     const [site, pages] = await Promise.all([
-        getSiteById(params.portfolioId),
-        getWebsitePages(params.portfolioId),
+        getSiteById(resolvedParams.portfolioId),
+        getWebsitePages(resolvedParams.portfolioId),
     ]);
 
     if (!site) {

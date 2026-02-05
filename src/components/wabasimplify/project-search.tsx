@@ -6,7 +6,9 @@ import { Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
-export function ProjectSearch({ placeholder }: { placeholder: string }) {
+import { cn } from '@/lib/utils';
+
+export function ProjectSearch({ placeholder, className }: { placeholder: string; className?: string }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -23,12 +25,12 @@ export function ProjectSearch({ placeholder }: { placeholder: string }) {
   }, 300);
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
         type="search"
         placeholder={placeholder}
-        className="pl-8 w-full"
+        className={cn("pl-8 w-full", className)}
         onChange={(e) => handleSearch(e.target.value)}
         defaultValue={searchParams.get('query')?.toString()}
       />

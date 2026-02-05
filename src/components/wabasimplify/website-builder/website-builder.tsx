@@ -3,8 +3,8 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
-import { saveWebsitePage } from '@/app/actions/portfolio.actions';
-import type { WithId, Website, WebsitePage, EcommProduct, WebsiteBlock, EcommShop } from '@/lib/definitions';
+import { saveWebsitePage, getWebsitePages } from '@/app/actions/portfolio.actions';
+import type { WithId, Website, WebsitePage, EcommProduct, WebsiteBlock, EcommShop, EcommPage } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { BlockPalette } from './block-palette';
@@ -42,8 +42,8 @@ const removeBlockById = (items: WebsiteBlock[], idToRemove: string): WebsiteBloc
     });
 };
 
-export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop: WithId<EcommShop | Website>, initialPages: WithId<WebsitePage>[], availableProducts: WithId<EcommProduct>[] }) {
-    const [pages, setPages] = useState<WithId<WebsitePage>[]>(initialPages);
+export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop: WithId<EcommShop | Website>, initialPages: WithId<WebsitePage | EcommPage>[], availableProducts: WithId<EcommProduct>[] }) {
+    const [pages, setPages] = useState<WithId<WebsitePage | EcommPage>[]>(initialPages);
     const [activeSurface, setActiveSurface] = useState<string>('');
     const [layout, setLayout] = useState<WebsiteBlock[]>([]);
     const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
@@ -56,26 +56,28 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
             setActiveSurface(homepage._id.toString());
             setLayout(homepage.layout || []);
         } else if (pages.length === 0) {
-            const newHomePage: WebsiteBlock[] = []; 
+            const newHomePage: WebsiteBlock[] = [];
             const newPage: WithId<WebsitePage> = {
                 _id: `temp_${uuidv4()}` as any,
                 name: 'Home', slug: 'home', isHomepage: true, layout: newHomePage,
-                siteId: shop._id, userId: shop.userId,
+                siteId: shop._id,
+                userId: 'userId' in shop ? shop.userId : (shop as any).projectId, // Fallback for ecomm
                 createdAt: new Date(), updatedAt: new Date()
             };
             setPages([newPage]);
             setActiveSurface(newPage._id.toString());
             setLayout(newHomePage);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const activePage = useMemo(() => pages.find(p => p._id.toString() === activeSurface), [pages, activeSurface]);
 
     const handleSave = async () => {
         setIsSaving(true);
         let result;
-        const saveAction = 'slug' in shop && (shop as WithId<EcommShop>).slug ? saveEcommPage : saveWebsitePage;
+        const isEcomm = !('userId' in shop);
+        const saveAction = isEcomm ? saveEcommPage : saveWebsitePage;
 
         const isSitePart = !pages.some(p => p._id.toString() === activeSurface);
 
@@ -85,7 +87,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
             formData.append(`${activeSurface}Layout`, JSON.stringify(layout));
             result = await updateEcommShopSettings({}, formData);
         } else if (activePage) {
-             result = await saveAction({
+            result = await saveAction({
                 pageId: activePage._id.toString().startsWith('temp_') ? undefined : activePage._id.toString(),
                 shopId: shop._id.toString(), // For Ecomm
                 siteId: shop._id.toString(), // For Portfolio
@@ -94,9 +96,9 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                 layout: layout,
             });
         } else {
-             toast({ title: 'Error', description: 'No active page to save.', variant: 'destructive'});
-             setIsSaving(false);
-             return;
+            toast({ title: 'Error', description: 'No active page to save.', variant: 'destructive' });
+            setIsSaving(false);
+            return;
         }
 
         if (result.error) {
@@ -107,14 +109,14 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         }
         setIsSaving(false);
     };
-    
+
     const fetchPages = async () => {
-        if ('slug' in shop) { // It's an EcommShop
-             const newPages = await getEcommPages(shop._id.toString());
-             setPages(newPages);
+        if (!('userId' in shop)) { // It's an EcommShop
+            const newPages = await getEcommPages(shop._id.toString());
+            setPages(newPages);
         } else { // It's a portfolio Website
-             const newPages = await getWebsitePages(shop._id.toString());
-             setPages(newPages);
+            const newPages = await getWebsitePages(shop._id.toString());
+            setPages(newPages);
         }
     };
 
@@ -123,7 +125,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
             id: uuidv4(), type, settings: {},
             ...(type === 'section' && { children: [] }),
         };
-        
+
         if (type === 'columns') {
             const columnCount = 2;
             newBlock.children = Array.from({ length: columnCount }, () => ({ id: uuidv4(), type: 'column', settings: {}, children: [] }));
@@ -167,7 +169,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         setLayout(prev => removeBlockById(prev, idToRemove));
         if (selectedBlockId === idToRemove) setSelectedBlockId(null);
     };
-    
+
     const onDragEnd = (result: DropResult) => {
         const { source, destination, type } = result;
         if (!destination) return;
@@ -180,7 +182,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
 
         const [removed] = sourceList.splice(source.index, 1);
         destList.splice(destination.index, 0, removed);
-        
+
         setLayout(layoutCopy);
     };
 
@@ -194,7 +196,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
             setLayout((shop as any)[`${surfaceId}Layout`] || []);
         }
     };
-    
+
     const selectedBlock = useMemo(() => {
         if (!selectedBlockId) return undefined;
         const findRecursively = (items: WebsiteBlock[]): WebsiteBlock | undefined => {
@@ -209,19 +211,19 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         };
         return findRecursively(layout);
     }, [selectedBlockId, layout]);
-    
+
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="h-screen w-screen bg-muted flex flex-col">
+            <div className="h-screen w-screen bg-muted/20 flex flex-col">
                 <WebsiteBuilderHeader site={shop} pages={pages} activeSurface={activeSurface} onSwitchSurface={handleSelectSurface} onSave={handleSave} isSaving={isSaving} />
                 <div className="flex-1 grid grid-cols-12 min-h-0">
-                    <div className="col-span-2 bg-background border-r p-4 overflow-y-auto">
+                    <div className="col-span-2 bg-background/50 backdrop-blur-sm border-r p-4 overflow-y-auto">
                         <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
-                        <Separator className="my-4"/>
+                        <Separator className="my-4" />
                         <BlockPalette onAddBlock={handleAddBlock} />
                     </div>
-                    <div className="col-span-7 bg-muted/50 overflow-y-auto p-4">
-                        <Canvas 
+                    <div className="col-span-7 bg-muted/10 overflow-y-auto p-4">
+                        <Canvas
                             layout={layout}
                             droppableId="canvas"
                             onBlockClick={setSelectedBlockId}
@@ -232,7 +234,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                             isEditable={true}
                         />
                     </div>
-                    <div className="col-span-3 bg-background border-l p-4 overflow-y-auto">
+                    <div className="col-span-3 bg-background/50 backdrop-blur-sm border-l p-4 overflow-y-auto">
                         <PropertiesPanel
                             selectedBlock={selectedBlock}
                             availableProducts={availableProducts}
