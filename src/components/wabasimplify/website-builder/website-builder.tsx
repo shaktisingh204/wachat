@@ -14,9 +14,15 @@ import { PageManagerPanel } from './page-manager-panel';
 import { Separator } from '@/components/ui/separator';
 import { WebsiteBuilderHeader } from './website-builder-header';
 import { saveEcommPage, getEcommPages, updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 function findList(items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | null {
     if (droppableId === 'canvas') return items;
@@ -215,8 +221,8 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         return findRecursively(layout);
     }, [selectedBlockId, layout]);
 
-    const [leftPanelOpen, setLeftPanelOpen] = useState(true);
-    const [rightPanelOpen, setRightPanelOpen] = useState(true);
+    const [rightPanelOpen, setRightPanelOpen] = useState(false);
+    const [isBlockPaletteOpen, setIsBlockPaletteOpen] = useState(false);
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
@@ -231,47 +237,12 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                 />
 
                 <div className="flex-1 flex overflow-hidden relative">
-                    {/* Left Panel - Blocks & Pages */}
-                    <div
-                        className={cn(
-                            "w-80 bg-background/80 backdrop-blur-xl border-r flex flex-col transition-all duration-300 ease-in-out absolute left-0 top-0 bottom-0 z-20 shadow-xl",
-                            !leftPanelOpen && "-translate-x-full opacity-0"
-                        )}
-                    >
-                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                            <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
-                            <Separator className="my-6 bg-border/50" />
-                            <BlockPalette onAddBlock={handleAddBlock} />
-                        </div>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="absolute -right-8 top-4 bg-background border border-l-0 rounded-l-none shadow-md h-8 w-8 z-30 hover:bg-muted"
-                            onClick={() => setLeftPanelOpen(!leftPanelOpen)}
-                        >
-                            {leftPanelOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        </Button>
-                    </div>
-
-                    {/* Toggle Button for Left Panel when closed */}
-                    {!leftPanelOpen && (
-                        <Button
-                            variant="secondary"
-                            size="icon"
-                            className="absolute left-4 top-4 z-10 shadow-lg rounded-full h-10 w-10 bg-background/80 backdrop-blur-md border hover:bg-background"
-                            onClick={() => setLeftPanelOpen(true)}
-                        >
-                            <ChevronRight className="h-5 w-5" />
-                        </Button>
-                    )}
-
                     {/* Main Canvas Area */}
                     <div className={cn(
-                        "flex-1 bg-muted/10 overflow-y-auto p-8 transition-all duration-300 relative",
-                        leftPanelOpen && "ml-80",
+                        "flex-1 bg-muted/10 overflow-y-auto w-full transition-all duration-300 relative custom-scrollbar",
                         rightPanelOpen && "mr-80"
                     )}>
-                        <div className="max-w-5xl mx-auto min-h-full pb-20">
+                        <div className="max-w-5xl mx-auto min-h-full pb-32 pt-8 px-8">
                             <Canvas
                                 layout={layout}
                                 droppableId="canvas"
@@ -285,27 +256,55 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                         </div>
                     </div>
 
+                    {/* FAB for Adding Blocks and Pages */}
+                    <DropdownMenu open={isBlockPaletteOpen} onOpenChange={setIsBlockPaletteOpen}>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                size="icon"
+                                className="absolute bottom-8 right-8 h-14 w-14 rounded-full shadow-2xl z-40 bg-primary hover:bg-primary/90 text-primary-foreground"
+                            >
+                                <Plus className="h-6 w-6" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-background/95 backdrop-blur-xl">
+                            <div className="p-4 border-b sticky top-0 bg-background/95 backdrop-blur-md z-10">
+                                <h3 className="font-semibold text-sm">Add Elements</h3>
+                            </div>
+                            <div className="p-4">
+                                <BlockPalette onAddBlock={(type) => { handleAddBlock(type); setIsBlockPaletteOpen(false); }} />
+                                <Separator className="my-4" />
+                                <div className="text-xs font-semibold text-muted-foreground mb-2">PAGES & LAYOUT</div>
+                                <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
+                            </div>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
                     {/* Right Panel - Properties */}
                     <div
                         className={cn(
                             "w-80 bg-background/80 backdrop-blur-xl border-l flex flex-col transition-all duration-300 ease-in-out absolute right-0 top-0 bottom-0 z-20 shadow-xl",
                             !rightPanelOpen && "translate-x-full opacity-0",
-                            !selectedBlockId && !rightPanelOpen && "translate-x-full"
                         )}
                     >
                         <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-md sticky top-0 z-10">
                             <h3 className="font-semibold text-sm">Properties</h3>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setRightPanelOpen(false)}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                            <PropertiesPanel
-                                selectedBlock={selectedBlock}
-                                availableProducts={availableProducts}
-                                onUpdate={handleUpdateBlock}
-                                onRemove={handleRemoveBlock}
-                            />
+                            {selectedBlock ? (
+                                <PropertiesPanel
+                                    selectedBlock={selectedBlock}
+                                    availableProducts={availableProducts}
+                                    onUpdate={handleUpdateBlock}
+                                    onRemove={handleRemoveBlock}
+                                />
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
+                                    <p className="text-sm">Select a block on the canvas to edit its properties.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
