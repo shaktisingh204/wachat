@@ -112,7 +112,7 @@ function MultiSelectCombobox({
     );
 }
 
-export function ContactInfoPanel({ project, contact, onContactUpdate }: ContactInfoPanelProps) {
+export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }: ContactInfoPanelProps) {
     const [variables, setVariables] = useState<Record<string, string>>({});
     const [status, setStatus] = useState(contact.status || 'new');
     const [assignedAgentId, setAssignedAgentId] = useState(contact.assignedAgentId || '');
