@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Key, LoaderCircle, Trash2, CheckCircle, Copy, BookOpen } from 'lucide-react';
+import { Key, LoaderCircle, Trash2, CheckCircle, Copy, BookOpen, AlertTriangle, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -33,20 +33,20 @@ function AddDomainButton() {
 function VerifyButton({ domainId, onActionComplete }: { domainId: string, onActionComplete: () => void }) {
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
-    
+
     const onVerify = () => {
         startTransition(async () => {
             const result = await verifyCustomDomain(domainId);
             if (result.success) {
-                toast({ title: "Domain Verified!", description: "You can now use this domain for your short links."});
+                toast({ title: "Domain Verified!", description: "You can now use this domain for your short links." });
                 onActionComplete();
             } else {
-                toast({ title: "Verification Failed", description: result.error, variant: 'destructive'});
+                toast({ title: "Verification Failed", description: result.error, variant: 'destructive' });
             }
         });
     };
 
-    return <Button onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify</Button>;
+    return <Button onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify DNS</Button>;
 }
 
 function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActionComplete: () => void }) {
@@ -57,15 +57,15 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActi
         startTransition(async () => {
             const result = await deleteCustomDomain(domainId);
             if (result.success) {
-                toast({ title: 'Success', description: 'Domain deleted.'});
+                toast({ title: 'Success', description: 'Domain deleted.' });
                 onActionComplete();
             } else {
-                toast({ title: "Error", description: result.error, variant: "destructive"});
+                toast({ title: "Error", description: result.error, variant: "destructive" });
             }
         });
     }
 
-    return <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}</Button>;
+    return <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-destructive" />}</Button>;
 }
 
 
@@ -77,14 +77,14 @@ export default function UrlShortenerSettingsPage() {
     const [addState, addAction] = useActionState(addCustomDomain, addDomainInitialState);
     const { copy } = useCopyToClipboard();
 
-     const fetchData = useCallback(() => {
+    const fetchData = useCallback(() => {
         startLoadingTransition(async () => {
             const data = await getCustomDomains();
             setDomains(data);
         });
     }, []);
 
-     useEffect(() => {
+    useEffect(() => {
         fetchData();
     }, []);
 
@@ -100,100 +100,102 @@ export default function UrlShortenerSettingsPage() {
     }, [addState, toast, fetchData]);
 
     return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8 max-w-5xl mx-auto">
             <div>
                 <h1 className="text-3xl font-bold font-headline">URL Shortener Settings</h1>
                 <p className="text-muted-foreground">Configure custom domains and developer settings for your short links.</p>
             </div>
-            
+
             <Card>
                 <CardHeader>
-                    <CardTitle>Custom Domains</CardTitle>
-                    <CardDescription>Use your own domain for branded short links (e.g., links.mybrand.com).</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" /> Custom Domains</CardTitle>
+                    <CardDescription>Use your own domain for branded short links (e.g., links.mybrand.com). You must own the domain and be able to configure its DNS records.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <form action={addAction} ref={addFormRef} className="space-y-2">
                         <Label htmlFor="hostname">Add New Domain</Label>
                         <div className="flex gap-2">
-                            <Input id="hostname" name="hostname" placeholder="e.g., links.mybrand.com" required />
+                            <Input id="hostname" name="hostname" placeholder="e.g., links.mybrand.com" required className="max-w-md" />
                             <AddDomainButton />
                         </div>
                     </form>
 
                     <Separator />
-                     <div className="space-y-4">
+                    <div className="space-y-4">
                         <h4 className="font-medium">Your Domains</h4>
                         {isLoading ? (
                             <Skeleton className="h-24 w-full" />
                         ) : domains.length > 0 ? (
                             domains.map(domain => (
-                                <div key={domain._id.toString()} className="p-4 border rounded-lg space-y-4">
+                                <div key={domain._id.toString()} className="p-4 border rounded-lg space-y-4 shadow-sm bg-card">
                                     <div className="flex justify-between items-start">
                                         <div className="flex items-center gap-2">
-                                            <p className="font-semibold">{domain.hostname}</p>
+                                            <p className="font-semibold text-lg">{domain.hostname}</p>
                                             {domain.verified ? (
-                                                <Badge><CheckCircle className="mr-1 h-3 w-3" /> Verified</Badge>
+                                                <Badge className="bg-green-600"><CheckCircle className="mr-1 h-3 w-3" /> Verified</Badge>
                                             ) : (
-                                                <Badge variant="secondary">Unverified</Badge>
+                                                <Badge variant="destructive">Unverified</Badge>
                                             )}
                                         </div>
                                         <DeleteButton domainId={domain._id.toString()} onActionComplete={fetchData} />
                                     </div>
-                                    {domain.verified ? (
-                                        <div className="p-3 bg-green-50 dark:bg-green-950 rounded-md text-sm space-y-3 border border-green-200 dark:border-green-800">
-                                            <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
-                                                <span className="text-muted-foreground">Type:</span> <span>CNAME</span>
-                                                <span className="text-muted-foreground">Host/Name:</span> <span>{domain.hostname}</span>
-                                                <span className="text-muted-foreground">Value/Target:</span>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="break-all">cname.sabnode.com</span>
-                                                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy('cname.sabnode.com')}><Copy className="h-3 w-3"/></Button>
+
+                                    {!domain.verified && (
+                                        <Alert variant="warning" className="bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800">
+                                            <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                                            <AlertTitle className="text-yellow-800 dark:text-yellow-300">Action Required: Verify Domain Ownership</AlertTitle>
+                                            <AlertDescription className="text-yellow-700 dark:text-yellow-400 mt-2">
+                                                Please add a <strong>TXT record</strong> to your DNS configuration to verify you own this domain.
+                                                <div className="mt-3 p-3 bg-white dark:bg-black/20 rounded border border-yellow-200 dark:border-yellow-800/50 flex items-center justify-between gap-4">
+                                                    <code className="font-mono text-xs">{domain.verificationCode}</code>
+                                                    <Button variant="ghost" size="sm" onClick={() => copy(domain.verificationCode)}><Copy className="h-3 w-3" /></Button>
                                                 </div>
+                                                <p className="text-xs mt-2">After adding the record, click 'Verify DNS'. Record propagation usually takes a few minutes.</p>
+                                            </AlertDescription>
+                                        </Alert>
+                                    )}
+
+                                    {domain.verified ? (
+                                        <div className="p-3 bg-green-50 dark:bg-green-950/30 rounded-md text-sm space-y-3 border border-green-200 dark:border-green-800">
+                                            <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
+                                                <span className="text-muted-foreground font-semibold">DNS Status:</span> <span className="text-green-600 dark:text-green-400">Active & Verified</span>
+                                                <span className="text-muted-foreground font-semibold">Usage:</span> <span>Use this domain when creating new short links.</span>
                                             </div>
-                                            <p className="text-xs text-muted-foreground pt-2">Note: DNS changes can take up to 24 hours to propagate. The 'Host' value may differ depending on your provider (e.g., 'links' instead of 'links.mybrand.com').</p>
                                         </div>
                                     ) : (
-                                        <div className="p-3 bg-muted/50 rounded-md text-sm space-y-3">
-                                            <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
-                                                <span className="text-muted-foreground">Type:</span> <span>TXT</span>
-                                                <span className="text-muted-foreground">Host:</span> <span>@ or {domain.hostname}</span>
-                                                <span className="text-muted-foreground">Value:</span>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="break-all">{domain.verificationCode}</span>
-                                                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy(domain.verificationCode)}><Key className="h-3 w-3"/></Button>
-                                                </div>
-                                            </div>
-                                             <div className="flex justify-end pt-2">
-                                                <VerifyButton domainId={domain._id.toString()} onActionComplete={fetchData} />
-                                             </div>
+                                        <div className="flex justify-end pt-2">
+                                            <VerifyButton domainId={domain._id.toString()} onActionComplete={fetchData} />
                                         </div>
                                     )}
                                 </div>
                             ))
                         ) : (
-                            <p className="text-sm text-center text-muted-foreground py-4">No custom domains added yet.</p>
+                            <div className="text-center py-8 bg-muted/30 rounded-lg border border-dashed">
+                                <Globe className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                                <p className="text-sm text-muted-foreground">No custom domains added yet.</p>
+                            </div>
                         )}
                     </div>
                 </CardContent>
             </Card>
-            
+
             <Card>
                 <CardHeader>
-                    <CardTitle>Developer Options</CardTitle>
-                    <CardDescription>For programmatic access and integrations.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><Key className="h-5 w-5" /> Developer Options</CardTitle>
+                    <CardDescription>Proprietary access for programmatic URL shortening.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="apiKey">API Key</Label>
+                        <Label htmlFor="apiKey">API Key (Read-only)</Label>
                         <div className="flex gap-2">
-                            <Input id="apiKey" name="apiKey" value="********************************" disabled />
+                            <Input id="apiKey" name="apiKey" value="sk_live_********************************" disabled />
                             <Button type="button" variant="secondary" disabled>Regenerate</Button>
                         </div>
-                        <p className="text-xs text-muted-foreground">Programmatic URL creation via API is coming soon.</p>
+                        <p className="text-xs text-muted-foreground">API access for creating short links is currently in closed beta.</p>
                     </div>
                 </CardContent>
-                 <CardFooter>
-                     <Button type="button" variant="outline" disabled>
+                <CardFooter>
+                    <Button type="button" variant="outline" disabled>
                         <BookOpen className="mr-2 h-4 w-4" /> View API Docs
                     </Button>
                 </CardFooter>

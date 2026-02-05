@@ -67,7 +67,8 @@ export async function createTeamTask(prevState: any, formData: FormData): Promis
             newTaskData.assignedTo = new ObjectId(assignedTo);
         }
 
-        const { db } = await connectToDatabase();
+        // reused db connection from above
+        // const { db } = await connectToDatabase();
         await db.collection('team_tasks').insertOne(newTaskData as any);
 
         revalidatePath('/dashboard/team/tasks');

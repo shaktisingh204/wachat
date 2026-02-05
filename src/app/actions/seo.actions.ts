@@ -1,56 +1,175 @@
-
 'use server';
 
-import type { BrandMention, SiteMetrics, Backlink } from "@/lib/definitions";
+import { getSession } from './user.actions';
+import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
+import { revalidatePath } from 'next/cache';
+import type { SeoProject, SeoAudit, SeoKeyword } from '@/lib/seo/definitions';
+import { getKeywordDataLive, getSerpLive, extractRankFromSerp } from '@/lib/seo/data-for-seo';
 
-export async function getBrandMentions(domain: string): Promise<BrandMention[]> {
-    console.log(`Fetching brand mentions for: ${domain}`);
-    // In a real app, you would call Google Alerts, Reddit, Twitter APIs here.
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-    return [
-        { source: 'Reddit', author: 'u/coolinvestor', content: 'Just tried SabNode for a campaign, the flow builder is a game-changer!', url: '#', sentiment: 'Positive', date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) },
-        { source: 'Twitter', author: '@devgal', content: 'Anyone have thoughts on SabNode vs other WhatsApp tools? The pricing seems competitive.', url: '#', sentiment: 'Neutral', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
-        { source: 'TechCrunch', author: 'TechCrunch Staff', content: 'Newcomer SabNode aims to simplify WhatsApp Business marketing with an all-in-one suite.', url: '#', sentiment: 'Positive', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
-        { source: 'Reddit', author: 'u/startups', content: 'Having a bit of trouble with the API integration on SabNode, any tips?', url: '#', sentiment: 'Negative', date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000) },
-    ];
+// --- PROJECTS ---
+
+export async function createSeoProject(domain: string, competitors: string[] = []) {
+    const session = await getSession();
+    if (!session?.user) return { error: "Unauthorized" };
+
+    try {
+        const { db } = await connectToDatabase();
+
+        const newProject: Omit<SeoProject, '_id'> = {
+            userId: new ObjectId(session.user._id),
+            domain,
+            competitors,
+            settings: {
+                crawlFrequency: 'weekly',
+                targetedKeywords: [],
+                locations: ['2840'] // Default US
+            },
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        await db.collection('seo_projects').insertOne(newProject);
+        revalidatePath('/dashboard/seo');
+        return { success: true };
+    } catch (e: any) {
+        return { error: e.message };
+    }
 }
 
-export async function getSiteMetrics(domain: string): Promise<SiteMetrics> {
-    console.log(`Fetching site metrics for: ${domain}`);
-    // In a real app, you'd call Semrush, Ahrefs, or Moz APIs here.
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return {
-        domainAuthority: 45,
-        linkingDomains: 850,
-        totalBacklinks: 5100,
-        toxicityScore: 2,
-        trafficData: [
-            { date: 'Jan 23', organic: 1200, social: 800, direct: 500 },
-            { date: 'Feb 23', organic: 1400, social: 900, direct: 600 },
-            { date: 'Mar 23', organic: 1800, social: 1100, direct: 700 },
-            { date: 'Apr 23', organic: 1700, social: 1200, direct: 800 },
-            { date: 'May 23', organic: 2100, social: 1300, direct: 900 },
-            { date: 'Jun 23', organic: 2400, social: 1500, direct: 1000 },
-        ],
-        keywords: [
-            { keyword: 'sabnode reviews', position: 3, volume: 1200 },
-            { keyword: 'whatsapp marketing tool', position: 5, volume: 8500 },
-            { keyword: 'how to create whatsapp ads', position: 2, volume: 4500 },
-            { keyword: 'best flow builder', position: 8, volume: 3200 },
-            { keyword: 'meta suite pricing', position: 12, volume: 900 },
-        ]
-    };
+export async function getSeoProjects() {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const projects = await db.collection('seo_projects')
+            .find({ userId: new ObjectId(session.user._id) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(projects));
+    } catch (e) {
+        return [];
+    }
 }
 
+export async function getSeoProject(id: string) {
+    const session = await getSession();
+    if (!session?.user) return null;
 
-export async function getBacklinks(domain: string): Promise<Backlink[]> {
-    console.log(`Fetching backlinks for: ${domain}`);
-    // In a real app, you'd call a backlink provider API here.
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    return [
-        { sourceUrl: 'https://techcrunch.com/sabnode-review', anchorText: 'SabNode', domainAuthority: 92, linkType: 'News' },
-        { sourceUrl: 'https://indiehackers.com/post/new-tool-for-whatsapp', anchorText: 'this new tool', domainAuthority: 78, linkType: 'Forum' },
-        { sourceUrl: 'https://marketingblog.com/top-5-whatsapp-tools', anchorText: 'SabNode', domainAuthority: 65, linkType: 'Blog' },
-        { sourceUrl: 'https://saasreviews.net/sabnode', anchorText: 'sabnode.com', domainAuthority: 55, linkType: 'Review' },
-    ];
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection('seo_projects').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id)
+        });
+        return project ? JSON.parse(JSON.stringify(project)) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+// --- AUDITS ---
+
+export async function startAudit(projectId: string) {
+    const session = await getSession();
+    if (!session?.user) return { error: "Unauthorized" };
+
+    try {
+        const { db } = await connectToDatabase();
+
+        const newAudit: Omit<SeoAudit, '_id'> = {
+            projectId: new ObjectId(projectId),
+            pages: [],
+            totalScore: 0,
+            startedAt: new Date(),
+            status: 'pending',
+            summary: { totalPages: 0, criticalIssues: 0, warningIssues: 0 }
+        };
+
+        await db.collection('seo_audits').insertOne(newAudit);
+        // The background worker (src/workers/seo.worker.ts) will pick this up
+
+        revalidatePath(`/dashboard/seo/${projectId}/audit`);
+        return { success: true };
+    } catch (e: any) {
+        return { error: e.message };
+    }
+}
+
+export async function getLatestAudit(projectId: string) {
+    try {
+        const { db } = await connectToDatabase();
+        const audit = await db.collection('seo_audits')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ startedAt: -1 })
+            .limit(1)
+            .next();
+        return audit ? JSON.parse(JSON.stringify(audit)) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+// --- KEYWORDS ---
+
+export async function addKeyword(projectId: string, keyword: string) {
+    const session = await getSession();
+    if (!session?.user) return { error: "Unauthorized" };
+
+    try {
+        const { db } = await connectToDatabase();
+
+        // 1. Fetch live data immediately (or schedule)
+        // For MVP, we fetch live.
+        let volume = 0;
+        let rank = 0;
+
+        try {
+            const volData = await getKeywordDataLive([keyword]);
+            // Parse volData... simplified for MVP
+            volume = volData?.tasks?.[0]?.result?.[0]?.search_volume || 0;
+
+            // Fetch Rank
+            const project = await db.collection('seo_projects').findOne({ _id: new ObjectId(projectId) });
+            if (project) {
+                const serpData = await getSerpLive(keyword);
+                rank = extractRankFromSerp(serpData, project.domain) || 0;
+            }
+
+        } catch (apiError) {
+            console.error("DataForSEO Fetch failed", apiError);
+            // Continue adding keyword even if API fails, just 0 data
+        }
+
+        const newKeyword: Omit<SeoKeyword, '_id'> = {
+            projectId: new ObjectId(projectId),
+            keyword,
+            location: '2840',
+            currentRank: rank,
+            currentVolume: volume,
+            history: [{ date: new Date(), rank, volume }],
+            lastUpdated: new Date(),
+            createdAt: new Date()
+        };
+
+        await db.collection('seo_keywords').insertOne(newKeyword);
+        revalidatePath(`/dashboard/seo/${projectId}/rankings`);
+        return { success: true };
+    } catch (e: any) {
+        return { error: e.message };
+    }
+}
+
+export async function getKeywords(projectId: string) {
+    try {
+        const { db } = await connectToDatabase();
+        const keywords = await db.collection('seo_keywords')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(keywords));
+    } catch (e) {
+        return [];
+    }
 }

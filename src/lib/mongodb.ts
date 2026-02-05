@@ -1,24 +1,25 @@
 
+import 'server-only';
 import { MongoClient, Db } from 'mongodb';
-
-if (!process.env.MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
-}
-
-if (!process.env.MONGODB_DB) {
-  throw new Error('Please define the MONGODB_DB environment variable inside .env.local');
-}
 
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
 
 export async function connectToDatabase() {
+  if (!process.env.MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  }
+
+  if (!process.env.MONGODB_DB) {
+    throw new Error('Please define the MONGODB_DB environment variable inside .env.local');
+  }
+
   if (cachedClient && cachedDb) {
     return { client: cachedClient, db: cachedDb };
   }
 
-  const client = new MongoClient(process.env.MONGODB_URI!, {
-     maxPoolSize: 90,
+  const client = new MongoClient(process.env.MONGODB_URI, {
+    maxPoolSize: 90,
   });
 
   await client.connect();
@@ -30,5 +31,3 @@ export async function connectToDatabase() {
 
   return { client, db };
 }
-
-    

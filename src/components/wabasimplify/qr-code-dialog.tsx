@@ -10,8 +10,8 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import QRCode from 'react-qr-code';
 import { Download } from 'lucide-react';
+import { QrCodeRenderer } from './qr-code-renderer';
 
 interface QrCodeDialogProps {
     open: boolean;
@@ -67,22 +67,14 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataU
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex-1 overflow-y-auto px-6 py-2">
-                    <div ref={qrCodeRef} className="flex justify-center items-center p-4 bg-white rounded-lg border">
-                        <QRCode
+                    <div ref={qrCodeRef} className="flex justify-center items-center p-4 bg-white rounded-lg">
+                        <QrCodeRenderer
                             value={dataString}
                             size={256}
                             fgColor={`#${config?.color || '000000'}`}
                             bgColor={`#${config?.bgColor || 'FFFFFF'}`}
                             level={(config?.eccLevel as any) || 'L'}
-                            style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                            {...(logoDataUri && {
-                                imageSettings: {
-                                    src: logoDataUri,
-                                    height: 40,
-                                    width: 40,
-                                    excavate: true,
-                                },
-                            })}
+                            logoDataUri={logoDataUri}
                         />
                     </div>
                 </div>

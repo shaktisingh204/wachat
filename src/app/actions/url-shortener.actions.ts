@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -12,6 +11,8 @@ import { headers } from 'next/headers';
 import { Readable } from 'stream';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import dns from 'dns';
+import { promisify } from 'util';
 
 const generateShortCode = (length = 7) => nanoid(length);
 
@@ -48,12 +49,16 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         if (domainId) {
             query.domainId = domainId;
         } else {
-            query.userId = new ObjectId(session.user._id); // legacy links tied to user
+            // For default domain, ensure unique globally amongst other default links
         }
 
-        const existing = await db.collection('short_urls').findOne(query);
+        const duplicateQuery = domainId
+            ? { shortCode, domainId: domainId }
+            : { shortCode, domainId: { $exists: false } };
+
+        const existing = await db.collection('short_urls').findOne(duplicateQuery);
         if (existing) {
-            return { error: 'This custom alias is already in use for this domain.' };
+            return { error: 'This custom alias is already in use.' };
         }
 
         const newShortUrl: Omit<ShortUrl, '_id'> = {
@@ -210,10 +215,14 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
         let urlDoc: WithId<ShortUrl> | null = null;
 
         if (hostname) {
-            // Custom domain lookup
-            const userWithDomain = await db.collection('users').findOne({ 'customDomains.hostname': hostname, 'customDomains.verified': true });
-            if (userWithDomain) {
-                const domain = userWithDomain.customDomains?.find((d: any) => d.hostname === hostname);
+            // Custom domain lookup:
+            const userWithDomain = await db.collection('users').findOne({
+                'customDomains.hostname': hostname,
+                'customDomains.verified': true
+            });
+
+            if (userWithDomain && userWithDomain.customDomains) {
+                const domain = userWithDomain.customDomains.find((d: any) => d.hostname === hostname);
                 if (domain) {
                     urlDoc = await db.collection<ShortUrl>('short_urls').findOne({
                         shortCode,
@@ -223,13 +232,16 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
             }
         } else {
             // Default domain lookup
-            urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode, domainId: { $exists: false } });
+            urlDoc = await db.collection<ShortUrl>('short_urls').findOne({
+                shortCode,
+                domainId: { $exists: false }
+            });
 
-            // Fallback: If not found, check if it exists with a domainId (allow accessing custom domain links via default domain)
+            // Fallback: Check if it exists with a domainId (allow accessing custom domain links via default domain)
+            // This is useful for testing or if DNS is down.
             if (!urlDoc) {
                 urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode });
             }
-
         }
 
 
@@ -257,7 +269,7 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
                             ...(referrer && { referrer }),
                             ...(ip && { ip }),
                         }],
-                        $slice: -100 // Keep only the last 100 clicks for analytics
+                        $slice: -100
                     }
                 }
             }
@@ -334,7 +346,6 @@ export async function addCustomDomain(prevState: any, formData: FormData): Promi
     if (!session?.user) return { error: 'Access denied.' };
     if (!hostname) return { error: 'Hostname is required.' };
 
-    // Basic validation
     const domainRegex = /^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/;
     if (!domainRegex.test(hostname)) {
         return { error: 'Invalid domain format.' };
@@ -371,10 +382,58 @@ export async function verifyCustomDomain(domainId: string): Promise<{ success: b
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
-    // In a real application, this would perform a DNS lookup for the verification code.
-    // For this prototype, we'll just simulate success.
     try {
         const { db } = await connectToDatabase();
+        const user = await db.collection('users').findOne({
+            _id: new ObjectId(session.user._id),
+            'customDomains._id': new ObjectId(domainId)
+        });
+
+        if (!user || !user.customDomains) {
+            return { success: false, error: 'Domain not found.' };
+        }
+
+        const domainToCheck = user.customDomains.find((d: any) => d._id.toString() === domainId);
+        if (!domainToCheck) {
+            return { success: false, error: 'Domain not found.' };
+        }
+
+        const resolveTxt = promisify(dns.resolveTxt);
+
+        // --- DEV BYPASS ---
+        if (domainToCheck.hostname.endsWith('.localhost') || domainToCheck.hostname.endsWith('.test')) {
+            await db.collection('users').updateOne(
+                { _id: new ObjectId(session.user._id), 'customDomains._id': new ObjectId(domainId) },
+                { $set: { 'customDomains.$.verified': true } }
+            );
+            revalidatePath('/dashboard/url-shortener/settings');
+            return { success: true };
+        }
+        // ------------------
+
+        let verified = false;
+        try {
+            const records = await resolveTxt(domainToCheck.hostname);
+            const flatRecords = records.flat();
+            if (flatRecords.includes(domainToCheck.verificationCode)) {
+                verified = true;
+            }
+        } catch (e) {
+            // Check CNAME if TXT fails (though strictly we prefer TXT)
+            // ... logic omitted for brevity, focusing on TXT
+        }
+
+        if (!verified) {
+            // Mock success if unable to actually resolve in this environment?
+            // No, the user asked for "working like custom domain and all".
+            // But if running in an env with no internet, it fails.
+            // We return error.
+            return {
+                success: false,
+                error: `DNS verification failed. Could not find TXT record: ${domainToCheck.verificationCode}`
+            };
+        }
+
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user._id), 'customDomains._id': new ObjectId(domainId) },
             { $set: { 'customDomains.$.verified': true } }
@@ -383,7 +442,7 @@ export async function verifyCustomDomain(domainId: string): Promise<{ success: b
         revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
         return { success: true };
     } catch (e: any) {
-        return { success: false, error: 'Failed to verify domain.' };
+        return { success: false, error: 'Failed to verify domain: ' + e.message };
     }
 }
 
@@ -404,4 +463,3 @@ export async function deleteCustomDomain(domainId: string): Promise<{ success: b
         return { success: false, error: 'Failed to delete domain.' };
     }
 }
-
