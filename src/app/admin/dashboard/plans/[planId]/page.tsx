@@ -20,7 +20,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, LoaderCircle, Save } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { planFeatureMap } from '@/lib/plans';
 import { PlanPermissionSelector } from '@/components/wabasimplify/plan-permission-selector';
 export const dynamic = 'force-dynamic';
 
@@ -184,7 +183,7 @@ export default function PlanEditorPage() {
                 </CardFooter>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 <Card>
                     <CardHeader><CardTitle>Feature Limits</CardTitle><CardDescription>Set to 0 for unlimited.</CardDescription></CardHeader>
                     <CardContent className="space-y-3">
@@ -198,31 +197,6 @@ export default function PlanEditorPage() {
                         <div className="space-y-2"><Label htmlFor="customRoleLimit">Custom Role Limit (Team)</Label><Input id="customRoleLimit" name="customRoleLimit" type="number" defaultValue={plan?.customRoleLimit ?? 3} required min="0" /></div>
                         <div className="space-y-2"><Label htmlFor="teamChannelLimit">Team Channel Limit</Label><Input id="teamChannelLimit" name="teamChannelLimit" type="number" defaultValue={plan?.teamChannelLimit ?? 10} required min="0" /></div>
                         <div className="space-y-2"><Label htmlFor="teamTaskLimit">Team Task Limit</Label><Input id="teamTaskLimit" name="teamTaskLimit" type="number" defaultValue={plan?.teamTaskLimit ?? 50} required min="0" /></div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Enabled Apps & Features</CardTitle>
-                        <CardDescription>Select which apps and major features are available on this plan.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
-                            {planFeatureMap.map(feature => (
-                                <div key={feature.id} className="flex items-center space-x-3 rounded-md border p-3 hover:bg-accent">
-                                    <Checkbox
-                                        id={feature.id}
-                                        name={feature.id}
-                                        defaultChecked={(plan?.features as any)?.[feature.id] ?? true}
-                                    />
-                                    <div className="space-y-1 leading-none">
-                                        <Label htmlFor={feature.id} className="font-normal flex items-center gap-2">
-                                            <feature.icon className="h-4 w-4" />
-                                            {feature.name}
-                                        </Label>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
                     </CardContent>
                 </Card>
             </div>
