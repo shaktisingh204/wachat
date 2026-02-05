@@ -502,7 +502,7 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
 
                                     {selectedAction && (selectedAction as any).isTrigger && (
                                         <div className="space-y-4">
-                                            <AppConnectionSetup app={selectedApp} flowId={flowId} onConnectionSaved={onConnectionSaved || (() => { })} />
+                                            <AppConnectionSetup app={selectedApp} flowId={flowId} onConnectionSaved={onConnectionSaved || (() => { })} isTrigger={true} />
                                             {selectedAction && (selectedAction as any).inputs && (selectedAction as any).inputs.map((input: any) => (
                                                 <div key={input.name} className="space-y-1.5">
                                                     <SabFlowNodeInput

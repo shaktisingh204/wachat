@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 
-export function GoogleSheetsConnection({ flowId, onConnectionSaved }: { flowId?: string, onConnectionSaved?: () => void }) {
+export function GoogleSheetsConnection({ flowId, onConnectionSaved, isTrigger = false }: { flowId?: string, onConnectionSaved?: () => void, isTrigger?: boolean }) {
     const { toast } = useToast();
     const [connections, setConnections] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -33,10 +33,14 @@ export function GoogleSheetsConnection({ flowId, onConnectionSaved }: { flowId?:
     // Create Form State
     const [isCreating, startCreation] = useTransition();
 
-    // Fetch connections on mount
+    // Fetch connections on mount only if NOT a trigger (or if we decide we need them later)
     useEffect(() => {
-        loadConnections();
-    }, []);
+        if (!isTrigger) {
+            loadConnections();
+        } else {
+            setLoading(false);
+        }
+    }, [isTrigger]);
 
     const loadConnections = async () => {
         try {
@@ -89,8 +93,8 @@ export function GoogleSheetsConnection({ flowId, onConnectionSaved }: { flowId?:
                 .instruction-list > li { margin-bottom: 0.75rem; }
             `}</style>
 
-            {/* View Switching Logic */}
-            {view === 'select' && connections.length > 0 && (
+            {/* View Switching Logic - HIDDEN FOR TRIGGERS */}
+            {!isTrigger && view === 'select' && connections.length > 0 && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-left-4">
                     <div className="space-y-2">
                         <Label>Select Connected Project</Label>
@@ -129,7 +133,8 @@ export function GoogleSheetsConnection({ flowId, onConnectionSaved }: { flowId?:
                 </div>
             )}
 
-            {view === 'create' && (
+            {/* Creation Form - HIDDEN FOR TRIGGERS */}
+            {!isTrigger && view === 'create' && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
                     <div className="flex items-center justify-between mb-2">
                         <h4 className="font-semibold flex items-center gap-2">
@@ -159,7 +164,7 @@ export function GoogleSheetsConnection({ flowId, onConnectionSaved }: { flowId?:
                 </div>
             )}
 
-            <Separator />
+            {!isTrigger && <Separator />}
 
             {/* Setup Instructions - Make it collapsible but open by default if no connection selected? */}
             <Accordion type="single" collapsible defaultValue="instructions" className="w-full">

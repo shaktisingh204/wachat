@@ -105,7 +105,7 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
                         </SelectContent>
                     </Select>
                 );
-            case 'project-selector':
+            case 'project-selector': {
                 const projectOptions = input.appType === 'facebook' ? dataOptions.facebookProjects : dataOptions.projects;
                 const isEmpty = !projectOptions || projectOptions.length === 0;
                 // Determine target URL based on appType
@@ -115,17 +115,15 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
 
                 return (
                     <div className="space-y-2">
-                        <Select value={value || undefined} onValueChange={onChange}>
-                            <SelectTrigger className={error ? "border-destructive" : ""}>
-                                <SelectValue placeholder="Select Project" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-[200px]">
-                                {projectOptions && projectOptions.map((opt: any) => (
-                                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                                ))}
-                                {isEmpty && <div className="p-2 text-xs text-muted-foreground text-center">No projects found</div>}
-                            </SelectContent>
-                        </Select>
+                        <SabFlowCombobox
+                            value={value || ""}
+                            onChange={onChange}
+                            options={projectOptions || []}
+                            placeholder="Select Project"
+                            searchPlaceholder="Search projects..."
+                            emptyText="No projects found"
+                            error={!!error}
+                        />
                         {isEmpty && (
                             <Button variant="outline" size="sm" className="w-full text-xs" asChild>
                                 <a href={connectUrl} target="_blank" rel="noopener noreferrer">
@@ -136,53 +134,51 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
                         )}
                     </div>
                 );
-            case 'template-selector':
+            }
+            case 'template-selector': {
                 const templateOptions = dataOptions.templates || [];
                 return (
-                    <Select value={value || undefined} onValueChange={onChange}>
-                        <SelectTrigger className={error ? "border-destructive" : ""}>
-                            <SelectValue placeholder="Select Template" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[200px]">
-                            {templateOptions.map((opt: any) => (
-                                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                            ))}
-                            {templateOptions.length === 0 && <div className="p-2 text-sm text-muted-foreground">No templates found for this project</div>}
-                        </SelectContent>
-                    </Select>
+                    <SabFlowCombobox
+                        value={value || ""}
+                        onChange={onChange}
+                        options={templateOptions}
+                        placeholder="Select Template"
+                        searchPlaceholder="Search templates..."
+                        emptyText="No templates found for this project"
+                        error={!!error}
+                    />
                 );
-            case 'tag-selector':
+            }
+            case 'tag-selector': {
                 const tagOptions = dataOptions.tags || [];
                 return (
-                    <Select value={value || undefined} onValueChange={onChange}>
-                        <SelectTrigger className={error ? "border-destructive" : ""}>
-                            <SelectValue placeholder="Select Tag" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[200px]">
-                            {tagOptions.map((opt: any) => (
-                                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                            ))}
-                            {tagOptions.length === 0 && <div className="p-2 text-sm text-muted-foreground">No tags found</div>}
-                        </SelectContent>
-                    </Select>
+                    <SabFlowCombobox
+                        value={value || ""}
+                        onChange={onChange}
+                        options={tagOptions}
+                        placeholder="Select Tag"
+                        searchPlaceholder="Search tags..."
+                        emptyText="No tags found"
+                        error={!!error}
+                    />
                 );
-            case 'dynamic-selector':
+            }
+            case 'dynamic-selector': {
                 // Keep fallback for other dynamic types if any, using DynamicSelector if available or Select
                 if (dataOptions[input.fetch]) {
                     return (
-                        <Select value={value || undefined} onValueChange={onChange}>
-                            <SelectTrigger className={error ? "border-destructive" : ""}>
-                                <SelectValue placeholder={`Select ${input.label}`} />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-[200px]">
-                                {dataOptions[input.fetch].map((opt: any) => (
-                                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <SabFlowCombobox
+                            value={value || ""}
+                            onChange={onChange}
+                            options={dataOptions[input.fetch]}
+                            placeholder={`Select ${input.label}`}
+                            searchPlaceholder={`Search ${input.label}...`}
+                            error={!!error}
+                        />
                     )
                 }
                 return <div className="text-sm text-muted-foreground">Dynamic Selector: {input.fetch} (Data not loaded)</div>;
+            }
             default:
                 return <Input value={value || ''} onChange={e => onChange(e.target.value)} className={error ? "border-destructive" : ""} />;
         }

@@ -20,7 +20,7 @@ function SubmitButton() {
     )
 }
 
-export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: any, onConnectionSaved: () => void, flowId?: string }) {
+export function AppConnectionSetup({ app, onConnectionSaved, flowId, isTrigger = false }: { app: any, onConnectionSaved: () => void, flowId?: string, isTrigger?: boolean }) {
     const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
     const [state, setState] = useState<any>(null);
@@ -47,7 +47,7 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
 
     if (app.connectionType === 'webhook') {
         if (app.appId === 'google_sheets') {
-            return <GoogleSheetsConnection flowId={flowId} onConnectionSaved={onConnectionSaved} />;
+            return <GoogleSheetsConnection flowId={flowId} onConnectionSaved={onConnectionSaved} isTrigger={isTrigger} />;
         }
         return <p className="text-sm text-muted-foreground">Webhook setup instructions for this app are not yet configured.</p>;
     }

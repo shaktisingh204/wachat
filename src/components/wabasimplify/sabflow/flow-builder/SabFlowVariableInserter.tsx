@@ -55,7 +55,8 @@ export function SabFlowVariableInserter({ onInsert, availableVariables, classNam
                                 {vars.map((variable) => (
                                     <CommandItem
                                         key={variable.id}
-                                        value={`${variable.label} ${variable.value}`} // Simplified value for matching
+                                        value={`${variable.label} ${variable.value}`} // Search matches both
+                                        keywords={[variable.label, variable.value]}
                                         onSelect={() => {
                                             onInsert(variable.value);
                                             setOpen(false);
