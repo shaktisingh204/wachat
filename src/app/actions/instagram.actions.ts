@@ -1,5 +1,7 @@
 
 
+"use server";
+
 import { getProjectById } from '@/app/actions/project.actions';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';

@@ -1,4 +1,6 @@
 
+
+import 'server-only';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { SmsService } from './provider.factory';

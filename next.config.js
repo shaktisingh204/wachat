@@ -124,15 +124,7 @@ const nextConfig = {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        dns: false,
-        tls: false,
-        'timers/promises': false,
-        timers: false,
-        child_process: false,
-        module: false,
-        crypto: false,
+        // fs, net, tls, crypto removed to enforce clean client bundle
       };
     }
 

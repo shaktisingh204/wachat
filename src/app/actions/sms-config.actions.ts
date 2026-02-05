@@ -1,3 +1,4 @@
+"use server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { SmsProviderConfig } from "@/lib/definitions"; // Switch to definitions
 import { ObjectId } from "mongodb";
