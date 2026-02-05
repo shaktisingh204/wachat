@@ -173,3 +173,38 @@ export async function getKeywords(projectId: string) {
         return [];
     }
 }
+
+// --- PLACEHOLDERS (To fix build errors in legacy components) ---
+
+export interface SiteMetrics {
+    domainAuthority: number;
+    organicTraffic: number;
+    backlinks: number;
+    keywords: number;
+}
+
+export async function getSiteMetrics(domain: string): Promise<SiteMetrics> {
+    // TODO: Implement using DataForSEO
+    return {
+        domainAuthority: 45,
+        organicTraffic: 12500,
+        backlinks: 3400,
+        keywords: 890
+    };
+}
+
+export async function getBrandMentions(brandName: string) {
+    // TODO: Implement using DataForSEO or a social search API
+    return [
+        { source: 'Twitter', sentiment: 'positive', text: `Great experience with ${brandName}!`, date: new Date() },
+        { source: 'Reddit', sentiment: 'neutral', text: `Anyone tried ${brandName}?`, date: new Date() }
+    ];
+}
+
+export async function getBacklinks(domain: string) {
+    // TODO: Implement using DataForSEO
+    return [
+        { url: 'https://example-blog.com/top-tools', da: 50, anchor: 'Best Tools' },
+        { url: 'https://tech-news.org/reviews', da: 65, anchor: domain }
+    ];
+}
