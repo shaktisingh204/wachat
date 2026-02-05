@@ -21,8 +21,8 @@ export default function SelectProjectPage() {
     const router = useRouter();
     const { projects: allProjects, reloadProjects, isLoadingProject } = useProject();
 
-    // Only WhatsApp/Facebook projects for now? Assuming yes based on context
-    const projects = useMemo(() => allProjects.filter(p => !!p.wabaId || !!p.facebookPageId), [allProjects]);
+    // Only WaChat projects (those with wabaId) as per user request
+    const projects = useMemo(() => allProjects.filter(p => !!p.wabaId), [allProjects]);
 
     const query = searchParams.get('query') || '';
     const page = Number(searchParams.get('page')) || 1;
