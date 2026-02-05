@@ -169,6 +169,18 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
             .sort((a, b) => (b.isFavourite ? 1 : 0) - (a.isFavourite ? 1 : 0))
         : [];
 
+    // Safety timeout to prevent stuck "Uploading" state
+    useEffect(() => {
+        let timeout: NodeJS.Timeout;
+        if (isUploading) {
+            timeout = setTimeout(() => {
+                setIsUploading(false);
+                toast({ title: 'Upload Timeout', description: 'The upload took too long and was reset.', variant: 'destructive' });
+            }, 30000); // 30 seconds timeout
+        }
+        return () => clearTimeout(timeout);
+    }, [isUploading, toast]);
+
     return (
         <>
             {templateToSend && (
@@ -230,11 +242,11 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
             <div className="flex w-full items-center gap-2 p-2 relative">
                 <ChatAttachmentMenu
                     disabled={disabled || isUploading}
-                    onMediaSelect={handleMediaClick}
-                    onTemplateSelect={() => setIsTemplateSelectorOpen(true)}
-                    onCatalogSelect={() => setIsCatalogOpen(true)}
-                    onRazorpaySelect={() => setIsRazorpayOpen(true)}
-                    onWaPaySelect={() => setIsWhatsAppPaymentOpen(true)}
+                    onMediaSelect={(type) => setTimeout(() => handleMediaClick(type), 0)}
+                    onTemplateSelect={() => setTimeout(() => setIsTemplateSelectorOpen(true), 0)}
+                    onCatalogSelect={() => setTimeout(() => setIsCatalogOpen(true), 0)}
+                    onRazorpaySelect={() => setTimeout(() => setIsRazorpayOpen(true), 0)}
+                    onWaPaySelect={() => setTimeout(() => setIsWhatsAppPaymentOpen(true), 0)}
                     project={project}
                 />
 

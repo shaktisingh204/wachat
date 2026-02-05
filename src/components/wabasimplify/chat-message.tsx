@@ -25,6 +25,7 @@ interface ChatMessageProps {
     onReply: (messageId: string) => void;
     phoneNumberId?: string;
     isOutgoing?: boolean;
+    isQuoted?: boolean;
 }
 
 function StatusTicks({ message }: { message: OutgoingMessage }) {
@@ -255,17 +256,17 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
         <div className="bg-black/5 dark:bg-white/5 p-2 rounded-md border-l-2 border-primary mb-2 text-xs">
             <p className="font-semibold text-primary">{senderName}</p>
             <div className="text-muted-foreground line-clamp-2">
-                <MessageBody message={message} isOutgoing={isOutgoing} conversation={[]} onReply={() => { }} />
+                <MessageBody message={message} isOutgoing={isOutgoing} conversation={[]} onReply={() => { }} isQuoted={true} />
             </div>
         </div>
     );
 };
 
 
-const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId }: ChatMessageProps) => {
+const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId, isQuoted = false }: ChatMessageProps) => {
     // Outgoing template message
     if (isOutgoing && message.type === 'template') {
-        return <TemplateMessageContent content={message.content.template} isOutgoing={isOutgoing} />;
+        return <TemplateMessageContent content={message.content.template} isOutgoing={isOutgoing} isQuoted={isQuoted} />;
     }
 
     // Incoming or Outgoing Interactive Message

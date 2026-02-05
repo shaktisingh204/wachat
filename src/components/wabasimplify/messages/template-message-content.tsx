@@ -10,7 +10,7 @@ import Image from "next/image";
 import CountdownTimer from "../countdown-timer";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function TemplateMessageContent({ content, isOutgoing = false }: { content: any, isOutgoing?: boolean }) {
+export function TemplateMessageContent({ content, isOutgoing = false, isQuoted = false }: { content: any, isOutgoing?: boolean, isQuoted?: boolean }) {
     const { name, original_components, sent_components } = content || {};
     const components = original_components || content.components || [];
 
@@ -76,9 +76,10 @@ export function TemplateMessageContent({ content, isOutgoing = false }: { conten
     }
 
     const isMarketingCarousel = carouselComp;
-    const mutedTextColor = isOutgoing ? "text-white/70" : "text-muted-foreground";
-    const borderColor = isOutgoing ? "border-white/20" : "border-black/10";
-    const cardTitleColor = isOutgoing ? "text-white/70" : "text-muted-foreground";
+    const shouldUseWhiteText = isOutgoing && !isQuoted;
+    const mutedTextColor = shouldUseWhiteText ? "text-white/70" : "text-muted-foreground";
+    const borderColor = shouldUseWhiteText ? "border-white/20" : "border-black/10";
+    const cardTitleColor = shouldUseWhiteText ? "text-white/70" : "text-muted-foreground";
 
     if (isMarketingCarousel) {
         return (
