@@ -1,4 +1,4 @@
-import { btoa } from "buffer";
+// Removed buffer import
 
 // You should set these in your .env
 const DATAFORSEO_LOGIN = process.env.DATAFORSEO_LOGIN;

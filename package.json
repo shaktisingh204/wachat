@@ -54,7 +54,6 @@
     "@radix-ui/react-toast": "^1.2.6",
     "@radix-ui/react-tooltip": "^1.1.8",
     "@tanstack/react-table": "^8.21.3",
-    "@types/puppeteer": "^5.4.7",
     "@types/react-split-pane": "^0.1.10",
     "@xyflow/react": "^12.10.0",
     "axios": "^1.7.2",
