@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { addKeyword, getKeywords } from '@/app/actions/seo.actions';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { SeoKeyword } from '@/lib/seo/definitions';
 

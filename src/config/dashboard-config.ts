@@ -1,11 +1,4 @@
-import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase,
-    Phone, Webhook, CreditCard, ShoppingBag,
-    Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake,
-    Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search,
-    Video, ShieldCheck, Key, BookCopy, Rss, TrendingUp, Calendar,
-    Newspaper, Clapperboard, BarChart2, Landmark, Users as UsersIcon,
-    LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database
+LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database, Layers
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import React from 'react';
@@ -314,6 +307,7 @@ export const seoMenuItems: MenuItem[] = [
     { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp, permissionKey: 'seo_dashboard' },
     { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, permissionKey: 'seo_brand_radar' },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, permissionKey: 'seo_site_explorer' },
+    { href: '/dashboard/seo/tools/clustering', label: 'Keyword Clustering', icon: Layers, permissionKey: 'seo_clustering' },
 ];
 
 export const userSettingsItems: MenuItem[] = [
