@@ -10,7 +10,7 @@ import Image from "next/image";
 import CountdownTimer from "../countdown-timer";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function TemplateMessageContent({ content }: { content: any }) {
+export function TemplateMessageContent({ content, isOutgoing = false }: { content: any, isOutgoing?: boolean }) {
     const { name, original_components, sent_components } = content || {};
     const components = original_components || content.components || [];
 
@@ -21,11 +21,11 @@ export function TemplateMessageContent({ content }: { content: any }) {
     const buttons = buttonsComp?.buttons || [];
     const carouselComp = components.find((c: any) => c.type === 'CAROUSEL');
     const ltoComp = components.find((c: any) => c.type === 'LIMITED_TIME_OFFER');
-    
+
     // Find the parameters that were actually sent from the payload
-    const sentHeader = sent_components?.find((c:any) => c.type === 'header');
-    const sentBody = sent_components?.find((c:any) => c.type === 'body');
-    const sentButtons = sent_components?.filter((c:any) => c.type === 'button') || [];
+    const sentHeader = sent_components?.find((c: any) => c.type === 'header');
+    const sentBody = sent_components?.find((c: any) => c.type === 'body');
+    const sentButtons = sent_components?.filter((c: any) => c.type === 'button') || [];
 
     const renderTextWithVariables = (text?: string, params?: { type: string, text: string }[]) => {
         if (!text) return null;
@@ -40,21 +40,21 @@ export function TemplateMessageContent({ content }: { content: any }) {
         });
         return replacedText;
     };
-    
+
     const bodyTextWithParams = body ? renderTextWithVariables(body.text, sentBody?.parameters) : '';
 
     const renderHeader = () => {
         if (!header) return null;
         if (header.format === 'TEXT') {
-             return <h3 className="font-bold text-lg mb-2">{renderTextWithVariables(header.text, sentHeader?.parameters)}</h3>;
+            return <h3 className="font-bold text-lg mb-2">{renderTextWithVariables(header.text, sentHeader?.parameters)}</h3>;
         }
-        
+
         const mediaParam = sentHeader?.parameters?.[0];
         let mediaUrl = '';
         if (mediaParam?.image?.link) mediaUrl = mediaParam.image.link;
         else if (mediaParam?.video?.link) mediaUrl = mediaParam.video.link;
         else if (mediaParam?.document?.link) mediaUrl = mediaParam.document.link;
-        
+
         if (header.format === 'IMAGE' && mediaUrl) {
             return (
                 <div className="relative aspect-video w-full bg-muted rounded-t-lg overflow-hidden">
@@ -68,7 +68,7 @@ export function TemplateMessageContent({ content }: { content: any }) {
         if (header.format === 'DOCUMENT' && mediaUrl) {
             return (
                 <a href={mediaUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-gray-200 rounded-t-lg flex items-center justify-center text-gray-500">
-                    <File className="h-10 w-10"/>
+                    <File className="h-10 w-10" />
                 </a>
             );
         }
@@ -76,12 +76,15 @@ export function TemplateMessageContent({ content }: { content: any }) {
     }
 
     const isMarketingCarousel = carouselComp;
+    const mutedTextColor = isOutgoing ? "text-white/70" : "text-muted-foreground";
+    const borderColor = isOutgoing ? "border-white/20" : "border-black/10";
+    const cardTitleColor = isOutgoing ? "text-white/70" : "text-muted-foreground";
 
     if (isMarketingCarousel) {
         return (
             <div className="w-64">
                 <Card className="shadow-none border-0 bg-transparent">
-                    <CardHeader className="p-2"><CardTitle className="text-xs text-muted-foreground flex items-center gap-2"><View className="h-4 w-4"/> Carousel Sent</CardTitle></CardHeader>
+                    <CardHeader className="p-2"><CardTitle className={`text-xs flex items-center gap-2 ${cardTitleColor}`}><View className="h-4 w-4" /> Carousel Sent</CardTitle></CardHeader>
                     <CardContent className="p-2">
                         <p className="text-sm italic">Sent a carousel with {carouselComp.cards.length} cards.</p>
                     </CardContent>
@@ -92,10 +95,10 @@ export function TemplateMessageContent({ content }: { content: any }) {
 
     if (ltoComp) {
         return (
-             <div className="w-64">
+            <div className="w-64">
                 <Card className="shadow-none border-0 bg-transparent">
                     <CardHeader className="p-2 flex flex-row items-center gap-2">
-                        <Gift className="h-5 w-5 text-primary"/>
+                        <Gift className="h-5 w-5 text-primary" />
                         <CardTitle className="text-base">Limited-Time Offer</CardTitle>
                     </CardHeader>
                     <CardContent className="p-2">
@@ -105,7 +108,7 @@ export function TemplateMessageContent({ content }: { content: any }) {
                             <p className="font-bold text-lg">Offer Ends In:</p>
                             <CountdownTimer targetDate={new Date(ltoComp.expiration.timestamp * 1000).toISOString()} />
                         </div>
-                         {ltoComp.coupon_code && <p className="text-center font-mono text-xs mt-2 bg-gray-200 p-1 rounded">Code: {ltoComp.coupon_code}</p>}
+                        {ltoComp.coupon_code && <p className="text-center font-mono text-xs mt-2 bg-gray-200 p-1 rounded">Code: {ltoComp.coupon_code}</p>}
                     </CardContent>
                 </Card>
             </div>
@@ -114,40 +117,40 @@ export function TemplateMessageContent({ content }: { content: any }) {
 
     return (
         <div className="space-y-2 w-64">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground italic">
+            <div className={`flex items-center gap-2 text-xs italic ${mutedTextColor}`}>
                 <FileText className="h-4 w-4" />
                 <span>Template: {name}</span>
             </div>
-            
+
             {renderHeader()}
-            
+
             {bodyTextWithParams && (
                 <p className="whitespace-pre-wrap">{bodyTextWithParams}</p>
             )}
-            
+
             {footer && (
-                <p className="text-xs text-muted-foreground pt-2 border-t border-black/10">{footer.text}</p>
+                <p className={`text-xs pt-2 border-t ${mutedTextColor} ${borderColor}`}>{footer.text}</p>
             )}
-            
+
             {buttons && buttons.length > 0 && (
-                 <div className="mt-2 pt-2 border-t border-black/10 space-y-1">
+                <div className={`mt-2 pt-2 border-t ${borderColor} space-y-1`}>
                     {buttons.map((button: any, index: number) => {
                         const getButtonIcon = () => {
                             if (button.type === 'URL') return <LinkIcon className="h-4 w-4 mr-2" />;
                             if (button.type === 'PHONE_NUMBER') return <Phone className="h-4 w-4 mr-2" />;
                             return null;
                         }
-                        
+
                         let finalUrl = button.url;
                         if (button.type === 'URL' && sentButtons.length > 0) {
-                            const sentButton = sentButtons.find(b => b.index === index.toString());
+                            const sentButton = sentButtons.find((b: any) => b.index === index.toString());
                             if (sentButton?.parameters?.[0]?.text) {
-                                finalUrl = button.url.replace('{{1}}', sentButton.parameters[0].text);
+                                (button.url || "").replace('{{1}}', sentButton.parameters[0].text);
                             }
                         }
 
                         return (
-                             <div key={index} className="text-center bg-white/80 dark:bg-muted/50 rounded-md py-1.5 text-sm font-medium text-blue-500 border flex items-center justify-center">
+                            <div key={index} className="text-center bg-white/80 dark:bg-muted/50 rounded-md py-1.5 text-sm font-medium text-blue-500 border flex items-center justify-center">
                                 {getButtonIcon()}
                                 {button.text}
                             </div>

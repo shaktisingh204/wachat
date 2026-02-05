@@ -114,7 +114,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
         setIsUploading(true); // Start upload state
         try {
             const base64String = await fileToBase64(file);
-            handleFormSubmit({
+            await handleFormSubmit({
                 contactId: contact._id.toString(),
                 projectId: contact.projectId.toString(),
                 phoneNumberId: contact.phoneNumberId,
@@ -129,6 +129,9 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
             console.error("File processing error:", error);
             setIsUploading(false);
             toast({ title: "Error", description: "Failed to process file.", variant: "destructive" });
+        } finally {
+            // Reset the file input so the same file can be selected again if needed
+            event.target.value = '';
         }
     };
 
@@ -224,7 +227,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                 </DialogContent>
             </Dialog>
 
-            <div className="flex w-full items-end gap-2 p-2 relative">
+            <div className="flex w-full items-center gap-2 p-2 relative">
                 <ChatAttachmentMenu
                     disabled={disabled || isUploading}
                     onMediaSelect={handleMediaClick}

@@ -23,6 +23,7 @@ interface ChatMessageProps {
     message: AnyMessage;
     conversation: AnyMessage[];
     onReply: (messageId: string) => void;
+    phoneNumberId?: string;
     isOutgoing?: boolean;
 }
 
@@ -32,15 +33,15 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
     const getIcon = () => {
         switch (status) {
             case 'failed':
-                return <XCircle className="h-4 w-4 text-red-500" />;
+                return <XCircle className="h-4 w-4 text-red-200" />;
             case 'read':
-                return <CheckCheck className="h-4 w-4 text-blue-500" />;
+                return <CheckCheck className="h-4 w-4 text-blue-200" />;
             case 'delivered':
-                return <CheckCheck className="h-4 w-4" />;
+                return <CheckCheck className="h-4 w-4 text-white/70" />;
             case 'sent':
-                return <Check className="h-4 w-4" />;
+                return <Check className="h-4 w-4 text-white/70" />;
             default:
-                return <Clock className="h-4 w-4" />; // for 'pending'
+                return <Clock className="h-4 w-4 text-white/70" />; // for 'pending'
         }
     };
 
@@ -53,7 +54,7 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <span className="text-muted-foreground">{getIcon()}</span>
+                    <span className="text-white/70 hover:text-white cursor-pointer">{getIcon()}</span>
                 </TooltipTrigger>
                 <TooltipContent side="top" align="end">
                     <div className="text-xs space-y-1 p-1">
@@ -165,14 +166,18 @@ function MediaContent({ message }: { message: AnyMessage }) {
     return <div className="text-sm text-muted-foreground italic">[{type} message]</div>;
 };
 
-const PaymentRequestContent = ({ message }: { message: OutgoingMessage }) => {
+const PaymentRequestContent = ({ message, phoneNumberId }: { message: OutgoingMessage, phoneNumberId?: string }) => {
     const { toast } = useToast();
     const [isChecking, startTransition] = useTransition();
     const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
     const checkStatus = async () => {
+        if (!phoneNumberId) {
+            toast({ title: 'Error', description: "Phone Number ID missing", variant: "destructive" });
+            return;
+        }
         startTransition(async () => {
-            const result = await getPaymentRequestStatus(message.projectId.toString(), message.content.payment_request.id);
+            const result = await getPaymentRequestStatus(message.projectId.toString(), phoneNumberId, message.content.payment_request.id);
             if (result.error) {
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
             } else if (result.status) {
@@ -180,6 +185,8 @@ const PaymentRequestContent = ({ message }: { message: OutgoingMessage }) => {
             }
         });
     };
+
+    // ... rest of component
 
     const statusToText = (status: string | null) => {
         if (!status) return 'Check Status';
@@ -255,10 +262,10 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
 };
 
 
-const MessageBody = ({ message, isOutgoing, conversation, onReply }: ChatMessageProps) => {
+const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId }: ChatMessageProps) => {
     // Outgoing template message
     if (isOutgoing && message.type === 'template') {
-        return <TemplateMessageContent content={message.content.template} />;
+        return <TemplateMessageContent content={message.content.template} isOutgoing={isOutgoing} />;
     }
 
     // Incoming or Outgoing Interactive Message
@@ -300,7 +307,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply }: ChatMessage
     }
 
     if (message.type === 'payment_request') {
-        return <PaymentRequestContent message={message as OutgoingMessage} />;
+        return <PaymentRequestContent message={message as OutgoingMessage} phoneNumberId={phoneNumberId} />;
     }
 
     // Media and other types
@@ -308,7 +315,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply }: ChatMessage
 };
 
 
-export const ChatMessage = React.memo(function ChatMessage({ message, conversation, onReply }: ChatMessageProps) {
+export const ChatMessage = React.memo(function ChatMessage({ message, conversation, onReply, phoneNumberId }: ChatMessageProps) {
     const isOutgoing = message.direction === 'out';
     const timestamp = message.messageTimestamp || message.createdAt;
 
@@ -383,7 +390,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
             >
                 {quotedMessage && <QuotedMessage message={quotedMessage} />}
 
-                <MessageBody message={message} isOutgoing={isOutgoing} conversation={conversation} onReply={onReply} />
+                <MessageBody message={message} isOutgoing={isOutgoing} conversation={conversation} onReply={onReply} phoneNumberId={phoneNumberId} />
 
                 {translatedText && (
                     <>
@@ -393,13 +400,13 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                 )}
 
                 {isOutgoing && message.status === 'failed' && (
-                    <p className="text-xs mt-1 pt-1 border-t border-black/10 text-red-600 dark:text-red-400">
+                    <p className="text-xs mt-1 pt-1 border-t border-white/20 text-red-200">
                         Failed: {message.error}
                     </p>
                 )}
 
                 <div className="flex items-center gap-1.5 self-end mt-1">
-                    <p className="text-xs text-muted-foreground/80">
+                    <p className={cn("text-xs", isOutgoing ? "text-white/70" : "text-muted-foreground/80")}>
                         {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                     {isOutgoing && <StatusTicks message={message as OutgoingMessage} />}

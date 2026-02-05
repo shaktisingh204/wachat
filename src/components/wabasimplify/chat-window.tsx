@@ -169,7 +169,7 @@ export function ChatWindow({
                 ) : (
                     <div className="p-4 space-y-4">
                         {processedConversation.map((msg) => (
-                            <ChatMessage key={msg._id.toString()} message={msg} conversation={conversation} onReply={handleReply} />
+                            <ChatMessage key={msg._id.toString()} message={msg} conversation={conversation} onReply={handleReply} phoneNumberId={contact.phoneNumberId} />
                         ))}
                     </div>
                 )}
