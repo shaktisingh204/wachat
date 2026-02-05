@@ -324,3 +324,24 @@ export async function testApiRequest(apiRequest: any) {
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function getSabFlowConnections(appId?: string): Promise<any[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
+
+        if (!user || !user.sabFlowConnections) return [];
+
+        let connections = user.sabFlowConnections;
+        if (appId) {
+            connections = connections.filter((c: any) => c.appId === appId);
+        }
+
+        return JSON.parse(JSON.stringify(connections));
+    } catch (e) {
+        return [];
+    }
+}

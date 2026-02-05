@@ -362,10 +362,6 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
                         <div className="space-y-4">
                             {requiredInputs.map((input: any) => (
                                 <div key={input.name} className="space-y-1.5">
-                                    <Label className="text-xs font-semibold flex items-center justify-between">
-                                        {input.label}
-                                        <span className="text-[10px] text-destructive/80 font-medium">*Required</span>
-                                    </Label>
                                     <SabFlowNodeInput
                                         input={input}
                                         value={selectedNodeData.inputs?.[input.name] || ''}
@@ -387,7 +383,6 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
                                     <AccordionContent className="space-y-4 pt-2 pb-4">
                                         {optionalInputs.map((input: any) => (
                                             <div key={input.name} className="space-y-1.5">
-                                                <Label className="text-xs text-muted-foreground">{input.label}</Label>
                                                 <SabFlowNodeInput
                                                     input={input}
                                                     value={selectedNodeData.inputs?.[input.name] || ''}

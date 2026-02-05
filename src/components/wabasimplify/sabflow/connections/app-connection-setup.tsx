@@ -25,7 +25,7 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
     const [isPending, startTransition] = useTransition();
     const [state, setState] = useState<any>(null);
     const formRef = useRef<HTMLFormElement>(null);
-    
+
     const action = (formData: FormData) => {
         startTransition(async () => {
             const result = await saveSabFlowConnection(null, formData);
@@ -47,11 +47,11 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
 
     if (app.connectionType === 'webhook') {
         if (app.appId === 'google_sheets') {
-            return <GoogleSheetsConnection flowId={flowId} />;
+            return <GoogleSheetsConnection flowId={flowId} onConnectionSaved={onConnectionSaved} />;
         }
         return <p className="text-sm text-muted-foreground">Webhook setup instructions for this app are not yet configured.</p>;
     }
-    
+
     if (app.connectionType === 'oauth') {
         return (
             <div className="text-center space-y-4">
@@ -60,7 +60,7 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
             </div>
         );
     }
-    
+
     if (app.connectionType === 'apikey') {
         return (
             <form action={action} ref={formRef} className="space-y-4">
@@ -72,15 +72,15 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
                     <Label htmlFor="connectionName">Connection Name</Label>
                     <Input id="connectionName" name="connectionName" defaultValue={`${app.name} Account`} required />
                 </div>
-                 {(app.credentials || []).map((cred: any) => (
+                {(app.credentials || []).map((cred: any) => (
                     <div className="space-y-2" key={cred.name}>
                         <Label htmlFor={cred.name}>{cred.label}</Label>
-                        <Input 
-                            id={cred.name} 
-                            name={cred.name} 
-                            type={cred.type || 'text'} 
-                            placeholder={cred.placeholder || ''} 
-                            required 
+                        <Input
+                            id={cred.name}
+                            name={cred.name}
+                            type={cred.type || 'text'}
+                            placeholder={cred.placeholder || ''}
+                            required
                         />
                     </div>
                 ))}
