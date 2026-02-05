@@ -37,7 +37,8 @@ import {
     Monitor,
     Grid,
     Mic,
-    Megaphone
+    Megaphone,
+    Workflow
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -53,10 +54,10 @@ export function AppRail({ activeApp }: AppRailProps) {
     const pathname = usePathname();
 
     return (
-        <Sidebar className="w-16 bg-sidebar-background flex !w-16 !block md:!flex z-20 m-2 rounded-2xl h-[calc(100%-1rem)] shadow-lg border-none hover:!w-16 hover:!min-w-0 pb-2">
+        <Sidebar className="w-16 bg-background/60 backdrop-blur-2xl flex !w-16 !block md:!flex z-20 m-2 rounded-2xl h-[calc(100%-1rem)] shadow-2xl border border-white/10 hover:!w-16 hover:!min-w-0 pb-2 transition-all duration-300">
             <div className="flex flex-col h-full items-center py-2">
                 {/* Logo Section */}
-                <SidebarHeader className="h-auto flex items-center justify-center p-0 mb-2 mt-2">
+                <SidebarHeader className="h-auto flex items-center justify-center p-0 mb-4 mt-2">
                     <div className="bg-[#1A2333] p-2 rounded-xl">
                         <SabNodeLogo className="w-6 h-6 text-white" />
                     </div>
@@ -84,6 +85,12 @@ export function AppRail({ activeApp }: AppRailProps) {
                         <div className="flex flex-col items-center gap-2 w-full mt-2">
                             <div className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[10px] font-medium">Apps</div>
                             <SidebarMenu className="items-center gap-2 w-full">
+                                <RailItem
+                                    icon={Workflow}
+                                    label="SabFlow"
+                                    active={activeApp === 'sabflow'}
+                                    href="/dashboard/sabflow"
+                                />
                                 <RailItem
                                     icon={WhatsAppIcon}
                                     label="WaChat"
@@ -197,8 +204,8 @@ function RailItem({
                         className={cn(
                             "h-10 w-10 flex items-center justify-center p-0 rounded-xl transition-all duration-200",
                             active
-                                ? "bg-[#E3F2FD] text-[#0288D1]"
-                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                                ? "bg-primary/10 text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)] ring-1 ring-primary/20 backdrop-blur-sm"
+                                : "text-muted-foreground/70 hover:bg-white/10 hover:text-foreground hover:backdrop-blur-md",
                             className
                         )}
                     >

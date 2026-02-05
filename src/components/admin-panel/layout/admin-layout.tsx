@@ -78,7 +78,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     {appRailPosition === 'left' && <AppRail activeApp={activeApp} />}
 
                     {showSidebar && (
-                        <div className="hidden md:flex m-2 ml-0 rounded-2xl h-[calc(100%-1rem)] shadow-lg border border-border bg-card/50 backdrop-blur-sm overflow-hidden">
+                        <div className="hidden md:flex m-2 ml-0 rounded-2xl h-[calc(100%-1rem)] shadow-2xl border border-white/10 bg-background/60 backdrop-blur-2xl overflow-hidden transition-all duration-300">
                             <AppSidebar activeApp={activeApp} currentUserRole={currentUserRole} />
                         </div>
                     )}
@@ -88,7 +88,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         {isChatPage || isBuilderPage ? (
                             children
                         ) : (
-                            <div className="h-full overflow-y-auto rounded-3xl bg-background/50 backdrop-blur-md shadow-sm border border-white/20 p-4 md:p-6">
+                            <div className="h-full overflow-y-auto rounded-3xl bg-background/60 backdrop-blur-2xl shadow-2xl border border-white/10 p-4 md:p-6">
                                 {children}
                             </div>
                         )}

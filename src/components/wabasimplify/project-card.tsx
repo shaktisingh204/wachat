@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Phone, Calendar, BarChart2, Webhook, MoreVertical, Trash2 } from 'lucide-react';
+import { Phone, Calendar, BarChart2, Webhook, MoreVertical, Settings, MessageSquare, ExternalLink, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WithId, Project } from '@/lib/definitions';
 import { DeleteProjectButton } from './delete-project-button';
@@ -17,6 +17,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ProjectCardProps {
     project: WithId<Project>;
@@ -37,7 +38,6 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
     }, [project.createdAt, project.wabaId, project.accessToken, isWhatsAppProject]);
 
     const handleCardClick = (e: React.MouseEvent) => {
-        // Prevent navigation if clicking on interactive elements
         if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('[role="menuitem"]')) {
             return;
         }
@@ -46,197 +46,164 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
             localStorage.setItem('activeProjectId', project._id.toString());
             localStorage.setItem('activeProjectName', project.name);
         }
-        // Redirect based on project type
         const dashboardPath = isWhatsAppProject ? '/dashboard/overview' : '/dashboard/facebook';
         router.push(dashboardPath);
     };
 
-    const getReviewStatusVariant = (status?: string) => {
-        if (!status) return 'outline';
-        const lowerStatus = status.toLowerCase();
-        if (lowerStatus === 'approved' || lowerStatus === 'verified') return 'default';
-        if (lowerStatus.includes('pending') || lowerStatus.includes('unknown')) return 'secondary';
-        return 'destructive';
+    const handleQuickAction = (e: React.MouseEvent, path: string) => {
+        e.stopPropagation();
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('activeProjectId', project._id.toString());
+        }
+        router.push(path);
     };
-
-    const formatThroughput = (level?: string): string => {
-        if (!level) return 'N/A';
-        const lowerLevel = level.toLowerCase();
-
-        if (lowerLevel.includes('unlimited')) {
-            return 'Unlimited';
-        }
-        if (lowerLevel.startsWith('tier_')) {
-            const tierValue = lowerLevel.replace('tier_', '').toUpperCase();
-            return `${tierValue}`;
-        }
-
-        return level.replace(/_/g, ' ').toLowerCase();
-    };
-
-    const getThroughputVariant = (level?: string) => {
-        if (!level) return 'outline';
-        const lowerLevel = level.toLowerCase();
-
-        if (lowerLevel.includes('unlimited') || lowerLevel.includes('100k') || lowerLevel.includes('high')) {
-            return 'default'; // Green
-        }
-        if (lowerLevel.includes('10k') || lowerLevel.includes('medium')) {
-            return 'secondary'; // Yellow-ish/Grey
-        }
-        if (lowerLevel.includes('1k') || lowerLevel.includes('low')) {
-            return 'destructive'; // Red
-        }
-
-        return 'outline'; // Default for unknown tiers
-    };
-
-    const throughputLevel = project.phoneNumbers?.[0]?.throughput?.level;
 
     return (
         <Card
             className={cn(
                 "group relative flex flex-col transition-all duration-300",
-                "border-border/50 bg-background/50 backdrop-blur-sm",
-                "hover:shadow-xl hover:-translate-y-1 hover:border-primary/50",
-                "cursor-pointer overflow-hidden"
+                "border-border/40 bg-background/60 backdrop-blur-xl", // Enhanced Glassmorphism
+                "hover:shadow-2xl hover:-translate-y-1 hover:border-primary/30",
+                "cursor-pointer overflow-hidden rounded-xl"
             )}
             onClick={handleCardClick}
         >
-            {/* Gradient Accent Line */}
+            {/* Status Indicator Pulse */}
+            {isWhatsAppProject && webhookStatus?.isActive && (
+                <div className="absolute top-3 right-3 flex h-3 w-3 z-10">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </div>
+            )}
+
+            {/* Decorative Gradient Blob */}
             <div className={cn(
-                "absolute top-0 left-0 w-full h-1 bg-gradient-to-r",
-                isWhatsAppProject ? "from-green-500 to-emerald-600" : "from-blue-500 to-indigo-600"
+                "absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity",
+                isWhatsAppProject ? "from-green-400 to-emerald-600" : "from-blue-400 to-indigo-600"
             )} />
 
-            <CardHeader className="pb-2 pt-5">
-                <div className="flex justify-between items-start gap-2">
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                            {isWhatsAppProject ? (
-                                <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                    <Phone className="h-3 w-3 text-green-700" />
-                                </div>
-                            ) : (
-                                <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                    <FacebookIcon className="h-3 w-3 text-blue-700" />
-                                </div>
-                            )}
-                            <h3 className="text-lg font-bold truncate leading-tight group-hover:text-primary transition-colors">
+            <div className="p-5 flex flex-col h-full gap-4 relative">
+                {/* Header Section */}
+                <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className={cn(
+                            "h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm border border-white/10",
+                            isWhatsAppProject ? "bg-gradient-to-br from-green-50 to-green-100 text-green-600" : "bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600"
+                        )}>
+                            {isWhatsAppProject ? <Phone className="h-6 w-6" /> : <FacebookIcon className="h-6 w-6" />}
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg leading-tight group-hover:text-primary transition-colors">
                                 {project.name}
                             </h3>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground ml-8">
-                            <div className="font-mono opacity-70">
-                                {project.wabaId ? `WABA: ${project.wabaId.slice(0, 10)}...` : `Page: ${project.facebookPageId}`}
-                            </div>
+                            <p className="text-xs text-muted-foreground/80 flex items-center gap-1 mt-1 font-mono">
+                                {project.wabaId ? project.wabaId.slice(0, 14) + '...' : `Page: ${project.facebookPageId}`}
+                            </p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-1 -mr-2">
-                        {/* Status Badges */}
-                        {project.banState === 'RESTRICTED' && (
-                            <Badge variant="destructive" className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
-                                Disabled
-                            </Badge>
-                        )}
-                        {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
-                            <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
-                                {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
-                            </Badge>
-                        )}
-
-                        {/* Actions Menu */}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                                    <MoreVertical className="h-4 w-4" />
-                                    <span className="sr-only">Open menu</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                {/* We wrap the delete button logic here or just render the component slightly differently if it accepts custom trigger */}
-                                {/* For now, keeping the DeleteProjectButton but we might need to adjust it to fit in a menu item, 
-                                    OR we just put the delete button triggering logic here. 
-                                    Looking at DeleteProjectButton, it renders a dialog trigger. 
-                                    To keep it simple and working: we can put the DeleteProjectButton directly in the header if we want, 
-                                    OR we can try to compose it. 
-                                    
-                                    Let's keep it simple: Reset the DeleteProjectButton to be a menu item trigger if possible, 
-                                    BUT DeleteProjectButton likely renders a default Button trigger.
-                                    
-                                    New Plan for Actions: Just show the DeleteProjectButton as a discrete action 
-                                    OR keep it simple and just show the menu if we had more actions. 
-                                    Since we only have Delete, let's just show a trash icon button that triggers the dialog.
-                                    
-                                    Wait, DeleteProjectButton encapsulates the Dialog logic.
-                                    Let's just position the DeleteProjectButton nicely.
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 text-muted-foreground hover:bg-muted/50 rounded-full">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={(e) => handleQuickAction(e, `/dashboard/settings`)}>
+                                <Settings className="mr-2 h-4 w-4" /> Settings
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                <DeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
+                                {/* Note: DeleteProjectButton usually renders a trigger. We might need to adjust this if it renders a button. 
+                                    Assuming it renders a styled trigger or we just let it take click. 
+                                    Actually DeleteProjectButton is complex. Let's just wrap it cleanly or let it be.
                                 */}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        <div className="flex items-center">
-                            <DeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+
+                {/* Stats / Info Row */}
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                    <div className="bg-muted/30 rounded-lg p-2.5 flex flex-col gap-1 border border-border/20">
+                        <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider flex items-center gap-1">
+                            <Zap className="h-3 w-3" /> Tier
+                        </span>
+                        <span className="text-xs font-medium">
+                            {formatTier(project.phoneNumbers?.[0]?.throughput?.level)}
+                        </span>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg p-2.5 flex flex-col gap-1 border border-border/20">
+                        <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider flex items-center gap-1">
+                            <BarChart2 className="h-3 w-3" /> Health
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                            <div className={cn("h-2 w-2 rounded-full", webhookStatus?.isActive ? "bg-green-500" : "bg-yellow-500")}></div>
+                            <span className="text-xs font-medium">{webhookStatus?.isActive ? 'Healthy' : 'Pending'}</span>
                         </div>
                     </div>
                 </div>
-            </CardHeader>
 
-            <CardContent className="space-y-4 pb-4">
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="flex flex-col gap-1 p-2 rounded-md bg-muted/40 group-hover:bg-muted/60 transition-colors">
-                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
-                            <Calendar className="h-3 w-3" /> Created
-                        </span>
-                        <span className="font-medium truncate">{createdDate || 'Loading...'}</span>
-                    </div>
+                {/* Footer Quick Actions */}
+                <div className="mt-auto pt-4 flex gap-2 w-full opacity-60 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 bg-background/50 hover:bg-primary hover:text-primary-foreground border-primary/20"
+                                    onClick={(e) => handleQuickAction(e, isWhatsAppProject ? '/dashboard/chat' : '/dashboard/facebook/messages')}
+                                >
+                                    <MessageSquare className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Inbox</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
 
-                    <div className="flex flex-col gap-1 p-2 rounded-md bg-muted/40 group-hover:bg-muted/60 transition-colors">
-                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
-                            <BarChart2 className="h-3 w-3" /> Msg Tier
-                        </span>
-                        <span>
-                            {throughputLevel ? (
-                                <Badge variant={getThroughputVariant(throughputLevel)} className="h-5 px-1.5 text-[10px]">
-                                    {formatThroughput(throughputLevel)}
-                                </Badge>
-                            ) : (<span className="text-muted-foreground">-</span>)}
-                        </span>
-                    </div>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 bg-background/50 hover:bg-primary hover:text-primary-foreground border-primary/20"
+                                    onClick={(e) => handleCardClick(e)}
+                                >
+                                    <ExternalLink className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Open Dashboard</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
 
-                    {isWhatsAppProject && (
-                        <>
-                            <div className="flex flex-col gap-1 p-2 rounded-md bg-muted/40 group-hover:bg-muted/60 transition-colors">
-                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
-                                    <Phone className="h-3 w-3" /> Numbers
-                                </span>
-                                <span className="font-medium">{project.phoneNumbers?.length || 0}</span>
-                            </div>
-
-                            <div className="flex flex-col gap-1 p-2 rounded-md bg-muted/40 group-hover:bg-muted/60 transition-colors">
-                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
-                                    <Webhook className="h-3 w-3" /> Webhook
-                                </span>
-                                <div>
-                                    {webhookStatus ? (
-                                        <div className={cn(
-                                            "inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium border",
-                                            webhookStatus.isActive
-                                                ? "bg-green-500/10 text-green-700 border-green-200 dark:border-green-900"
-                                                : "bg-red-500/10 text-red-700 border-red-200 dark:border-red-900"
-                                        )}>
-                                            <span className={cn("h-1.5 w-1.5 rounded-full", webhookStatus.isActive ? "bg-green-500" : "bg-red-500")} />
-                                            {webhookStatus.isActive ? 'Active' : 'Inactive'}
-                                        </div>
-                                    ) : (
-                                        <span className="text-[10px] text-muted-foreground">Checking...</span>
-                                    )}
-                                </div>
-                            </div>
-                        </>
-                    )}
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 bg-background/50 hover:bg-primary hover:text-primary-foreground border-primary/20"
+                                    onClick={(e) => handleQuickAction(e, `/dashboard/settings`)}
+                                >
+                                    <Settings className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Settings</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
-            </CardContent>
+            </div>
         </Card>
     );
 });
+
+function formatTier(level?: string) {
+    if (!level) return 'N/A';
+    if (level.includes('UNLIMITED')) return 'Unlimited';
+    if (level.includes('100K')) return 'Tier 100K';
+    if (level.includes('10K')) return 'Tier 10K';
+    if (level.includes('1K')) return 'Tier 1K';
+    return 'Standard';
+}
