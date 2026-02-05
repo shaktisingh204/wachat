@@ -240,7 +240,6 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                     {/* Main Canvas Area */}
                     <div className={cn(
                         "flex-1 bg-muted/10 overflow-y-auto w-full transition-all duration-300 relative custom-scrollbar",
-                        rightPanelOpen && "mr-80"
                     )}>
                         <div className="max-w-5xl mx-auto min-h-full pb-32 pt-8 px-8">
                             <Canvas
@@ -282,7 +281,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                     {/* Right Panel - Properties */}
                     <div
                         className={cn(
-                            "w-80 bg-background/80 backdrop-blur-xl border-l flex flex-col transition-all duration-300 ease-in-out absolute right-0 top-0 bottom-0 z-20 shadow-xl",
+                            "w-[40%] bg-background/80 backdrop-blur-xl border-l flex flex-col transition-all duration-300 ease-in-out absolute right-0 top-0 bottom-0 z-20 shadow-xl",
                             !rightPanelOpen && "translate-x-full opacity-0",
                         )}
                     >
