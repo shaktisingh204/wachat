@@ -8,7 +8,7 @@ import { ObjectId, type WithId } from 'mongodb';
 
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { AdCampaign, Project, CustomAudience, User, FacebookPage } from '@/lib/definitions';
 
 const API_VERSION = 'v23.0';

@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmEmailTemplate } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -55,7 +55,7 @@ export async function saveCrmEmailTemplate(prevState: any, formData: FormData): 
             templateData.createdAt = new Date();
             await db.collection('crm_email_templates').insertOne(templateData as CrmEmailTemplate);
         }
-        
+
         revalidatePath('/dashboard/crm/settings');
         return { message: 'Email template saved successfully.' };
 
@@ -72,15 +72,15 @@ export async function deleteCrmEmailTemplate(templateId: string): Promise<{ succ
 
     try {
         const { db } = await connectToDatabase();
-        const result = await db.collection('crm_email_templates').deleteOne({ 
-            _id: new ObjectId(templateId), 
-            userId: new ObjectId(session.user._id) 
+        const result = await db.collection('crm_email_templates').deleteOne({
+            _id: new ObjectId(templateId),
+            userId: new ObjectId(session.user._id)
         });
 
         if (result.deletedCount === 0) {
             return { success: false, error: 'Template not found or you do not have permission to delete it.' };
         }
-        
+
         revalidatePath('/dashboard/crm/settings');
         return { success: true };
     } catch (e) {

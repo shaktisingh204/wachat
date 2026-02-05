@@ -5,28 +5,28 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmLead, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { z } from 'zod';
 
 const leadSchema = z.object({
-  title: z.string().min(1, 'Lead Title is required.'),
-  contactName: z.string().min(1, 'Contact Name is required.'),
-  email: z.string().email('Invalid email address.').optional().or(z.literal('')),
-  phone: z.string().optional().nullable(),
-  company: z.string().optional().nullable(),
-  website: z.string().optional().nullable(),
-  country: z.string().optional().nullable(),
-  status: z.string().optional().nullable(),
-  source: z.string().optional().nullable(),
-  value: z.coerce.number().optional().default(0),
-  currency: z.string().optional().nullable(),
-  assignedTo: z.string().optional().nullable(),
-  pipelineId: z.string().optional().nullable(),
-  stage: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
-  nextFollowUp: z.date().optional().nullable(),
+    title: z.string().min(1, 'Lead Title is required.'),
+    contactName: z.string().min(1, 'Contact Name is required.'),
+    email: z.string().email('Invalid email address.').optional().or(z.literal('')),
+    phone: z.string().optional().nullable(),
+    company: z.string().optional().nullable(),
+    website: z.string().optional().nullable(),
+    country: z.string().optional().nullable(),
+    status: z.string().optional().nullable(),
+    source: z.string().optional().nullable(),
+    value: z.coerce.number().optional().default(0),
+    currency: z.string().optional().nullable(),
+    assignedTo: z.string().optional().nullable(),
+    pipelineId: z.string().optional().nullable(),
+    stage: z.string().optional().nullable(),
+    description: z.string().optional().nullable(),
+    nextFollowUp: z.date().optional().nullable(),
 });
 
 
@@ -41,7 +41,7 @@ export async function getCrmLeads(
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         const filter: Filter<CrmLead> = { userId: userObjectId };
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
@@ -59,7 +59,7 @@ export async function getCrmLeads(
             db.collection<CrmLead>('crm_leads').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
             db.collection('crm_leads').countDocuments(filter)
         ]);
-        
+
         return {
             leads: JSON.parse(JSON.stringify(leads)),
             total
@@ -91,9 +91,9 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
         description: formData.get('description'),
         nextFollowUp: formData.get('nextFollowUp') ? new Date(formData.get('nextFollowUp') as string) : undefined,
     };
-    
+
     const validatedFields = leadSchema.safeParse(rawData);
-    
+
     if (!validatedFields.success) {
         const flattenedErrors = validatedFields.error.flatten().fieldErrors;
         const errorString = Object.entries(flattenedErrors)
@@ -101,7 +101,7 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
             .join('; ');
         return { error: `Invalid data provided. Errors: ${errorString}` };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         const newLead: Omit<CrmLead, '_id'> = {
@@ -114,10 +114,10 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
         };
 
         const result = await db.collection('crm_leads').insertOne(newLead as CrmLead);
-        
+
         revalidatePath('/dashboard/crm/sales-crm/all-leads');
         return { message: 'Lead added successfully.', leadId: result.insertedId.toString() };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }

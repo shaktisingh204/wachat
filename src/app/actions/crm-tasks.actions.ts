@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmTask } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -24,7 +24,7 @@ export async function getCrmTasks(status?: 'To-Do' | 'In Progress' | 'Completed'
             .find(filter)
             .sort({ dueDate: 1 })
             .toArray();
-            
+
         return JSON.parse(JSON.stringify(tasks));
     } catch (e) {
         console.error("Failed to fetch CRM tasks:", e);
@@ -60,7 +60,7 @@ export async function createCrmTask(prevState: any, formData: FormData): Promise
 
         const { db } = await connectToDatabase();
         await db.collection('crm_tasks').insertOne(newTaskData as any);
-        
+
         revalidatePath('/dashboard/crm/tasks');
         revalidatePath(`/dashboard/crm/deals/${dealId}`);
         return { message: 'Task created successfully.' };
@@ -86,7 +86,7 @@ export async function updateCrmTaskStatus(taskId: string, status: CrmTask['statu
             { _id: new ObjectId(taskId) },
             { $set: { status, updatedAt: new Date() } }
         );
-        
+
         revalidatePath('/dashboard/crm/tasks');
         return { success: true };
     } catch (e: any) {

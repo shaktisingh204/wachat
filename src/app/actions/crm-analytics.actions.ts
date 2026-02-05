@@ -1,7 +1,7 @@
 'use server';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import { ObjectId } from 'mongodb';
 import { startOfYear, endOfYear, subMonths, startOfMonth, endOfMonth, format } from 'date-fns';
 

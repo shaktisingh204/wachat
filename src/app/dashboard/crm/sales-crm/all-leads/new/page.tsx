@@ -11,7 +11,7 @@ import { LoaderCircle, Save, ArrowLeft, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmLead } from '@/app/actions/crm-leads.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { WithId, CrmPipeline, User } from '@/lib/definitions';
 import { SmartPipelineSelect } from '@/components/crm/sales-crm/smart-pipeline-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

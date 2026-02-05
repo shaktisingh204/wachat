@@ -5,7 +5,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { getCatalogs, syncCatalogs } from '@/app/actions/catalog.actions';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { Catalog, Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Button } from '@/components/ui/button';
@@ -33,17 +33,17 @@ function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
                     ID: {catalog.metaCatalogId}
                 </CardDescription>
             </CardHeader>
-             <CardContent className="flex-grow">
+            <CardContent className="flex-grow">
                 <p className="text-xs text-muted-foreground">Created: {new Date(catalog.createdAt).toLocaleDateString()}</p>
-             </CardContent>
-             <CardFooter className="flex justify-end gap-2">
-                 <Button asChild size="sm" className="w-full">
+            </CardContent>
+            <CardFooter className="flex justify-end gap-2">
+                <Button asChild size="sm" className="w-full">
                     <Link href={`/dashboard/catalog/${catalog.metaCatalogId}`}>
-                        <ShoppingBag className="mr-2 h-4 w-4"/>
+                        <ShoppingBag className="mr-2 h-4 w-4" />
                         View Products
                     </Link>
                 </Button>
-             </CardFooter>
+            </CardFooter>
         </Card>
     );
 }
@@ -62,11 +62,11 @@ export default function CatalogPage() {
     }, [activeProjectId]);
 
     useEffect(() => {
-        if(activeProjectId) {
+        if (activeProjectId) {
             fetchData();
         }
     }, [activeProjectId, fetchData]);
-    
+
     const hasCatalogAccess = activeProject?.hasCatalogManagement === true;
     const isWhatsAppProject = !!activeProject?.wabaId;
 
@@ -79,13 +79,13 @@ export default function CatalogPage() {
     const configId = process.env.NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID;
 
     if (isLoadingProject) {
-         return <Skeleton className="h-full w-full" />;
+        return <Skeleton className="h-full w-full" />;
     }
-    
+
     if (!activeProjectId) {
-         return (
-             <div className="flex flex-col gap-8">
-                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Ecomm + Catalog</h1><p className="text-muted-foreground">Manage your product catalogs for WhatsApp interactive messages.</p></div>
+        return (
+            <div className="flex flex-col gap-8">
+                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Ecomm + Catalog</h1><p className="text-muted-foreground">Manage your product catalogs for WhatsApp interactive messages.</p></div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
@@ -94,11 +94,11 @@ export default function CatalogPage() {
             </div>
         );
     }
-    
+
     if (!isWhatsAppProject) {
-         return (
-             <div className="flex flex-col gap-8">
-                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Ecomm + Catalog</h1><p className="text-muted-foreground">Manage your product catalogs for WhatsApp interactive messages.</p></div>
+        return (
+            <div className="flex flex-col gap-8">
+                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Ecomm + Catalog</h1><p className="text-muted-foreground">Manage your product catalogs for WhatsApp interactive messages.</p></div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Invalid Project Type</AlertTitle>
@@ -112,16 +112,16 @@ export default function CatalogPage() {
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Ecomm + Catalog</h1>
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Ecomm + Catalog</h1>
                     <p className="text-muted-foreground">Manage your product catalogs to use in interactive messages.</p>
                 </div>
-                 {hasCatalogAccess && (
+                {hasCatalogAccess && (
                     <div className="flex items-center gap-2">
-                        <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData}/>
+                        <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
                     </div>
                 )}
             </div>
-             {!hasCatalogAccess ? (
+            {!hasCatalogAccess ? (
                 <Card className="text-center">
                     <CardHeader><div className="mx-auto bg-destructive text-destructive-foreground rounded-full h-16 w-16 flex items-center justify-center mb-4"><Lock className="h-8 w-8" /></div><CardTitle>Catalog Management Locked</CardTitle><CardDescription>This project was set up without catalog management permissions.</CardDescription></CardHeader>
                     <CardContent><p className="text-sm text-muted-foreground max-w-md mx-auto">To use product catalogs, you need to re-authorize the application and grant the 'catalog_management' and 'business_management' permissions.</p></CardContent>
@@ -146,7 +146,7 @@ export default function CatalogPage() {
             ) : (
                 <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><GitBranch className="h-5 w-5"/>Get Started with Catalogs</CardTitle>
+                        <CardTitle className="flex items-center gap-2"><GitBranch className="h-5 w-5" />Get Started with Catalogs</CardTitle>
                         <CardDescription>To begin, create a catalog in Meta Commerce Manager and then sync it here.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-12">
@@ -157,14 +157,14 @@ export default function CatalogPage() {
                             <div>
                                 <h3 className="font-semibold text-lg">Step 1: Create a Catalog</h3>
                                 <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
-                                    <li>Open the <Button variant="link" asChild className="p-0 h-auto"><a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer">Meta Commerce Manager <ExternalLink className="inline-block ml-1 h-3 w-3"/></a></Button>.</li>
+                                    <li>Open the <Button variant="link" asChild className="p-0 h-auto"><a href="https://business.facebook.com/commerce" target="_blank" rel="noopener noreferrer">Meta Commerce Manager <ExternalLink className="inline-block ml-1 h-3 w-3" /></a></Button>.</li>
                                     <li>Make sure you have selected the correct Business Manager account.</li>
                                     <li>Click "Add Catalog", choose "E-commerce" as the type, and follow the prompts.</li>
                                 </ol>
                             </div>
                         </div>
-                         <div className="grid md:grid-cols-2 gap-6 items-center">
-                              {catalogStep2Image && (
+                        <div className="grid md:grid-cols-2 gap-6 items-center">
+                            {catalogStep2Image && (
                                 <Image src={catalogStep2Image.imageUrl} alt={catalogStep2Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep2Image.imageHint} />
                             )}
                             <div>
@@ -177,8 +177,8 @@ export default function CatalogPage() {
                                 </ol>
                             </div>
                         </div>
-                         <div className="grid md:grid-cols-2 gap-6 items-center">
-                              {catalogStep2Image && (
+                        <div className="grid md:grid-cols-2 gap-6 items-center">
+                            {catalogStep2Image && (
                                 <Image src={catalogStep2Image.imageUrl} alt={catalogStep2Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep2Image.imageHint} />
                             )}
                             <div>
@@ -191,32 +191,32 @@ export default function CatalogPage() {
                                 </ol>
                             </div>
                         </div>
-                         <div className="grid md:grid-cols-2 gap-6 items-center">
+                        <div className="grid md:grid-cols-2 gap-6 items-center">
                             {catalogStep3Image && (
                                 <Image src={catalogStep3Image.imageUrl} alt={catalogStep3Image.description} width={600} height={400} className="rounded-lg shadow-md" data-ai-hint={catalogStep3Image.imageHint} />
                             )}
                             <div>
                                 <h3 className="font-semibold text-lg">Step 4: Assign to WABA</h3>
-                                 <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
-                                    <li>Navigate to <strong>WhatsApp Manager</strong> from your <Button variant="link" asChild className="p-0 h-auto"><a href="https://business.facebook.com/latest/home" target="_blank" rel="noopener noreferrer">Business Suite's "All tools" menu <ExternalLink className="inline-block ml-1 h-3 w-3"/></a></Button>.</li>
+                                <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground pl-4 mt-2">
+                                    <li>Navigate to <strong>WhatsApp Manager</strong> from your <Button variant="link" asChild className="p-0 h-auto"><a href="https://business.facebook.com/latest/home" target="_blank" rel="noopener noreferrer">Business Suite's "All tools" menu <ExternalLink className="inline-block ml-1 h-3 w-3" /></a></Button>.</li>
                                     <li>Go to <strong>Account tools</strong> &rarr; <strong>Catalog</strong>.</li>
                                     <li>Click <strong>Choose a catalog</strong>.</li>
                                     <li>Select the catalog you just created and click <strong>Connect catalog</strong>.</li>
                                 </ol>
                             </div>
                         </div>
-                         <div className="text-center space-y-4 pt-8 border-t">
+                        <div className="text-center space-y-4 pt-8 border-t">
                             <h3 className="font-semibold text-lg">Step 5: Sync Your Catalog</h3>
                             <p className="text-muted-foreground max-w-xl mx-auto">Once your catalog is created, has a product, and is connected to your WABA, return here and click the sync button to see it in your SabNode dashboard.</p>
                             <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
                         </div>
-                         <div className="grid md:grid-cols-2 gap-6 items-center pt-8 border-t">
-                             {catalogStep6Image && (
+                        <div className="grid md:grid-cols-2 gap-6 items-center pt-8 border-t">
+                            {catalogStep6Image && (
                                 <Image src={catalogStep6Image.imageUrl} alt={catalogStep6Image.description} width={600} height={400} className="rounded-lg shadow-md md:order-last" data-ai-hint={catalogStep6Image.imageHint} />
                             )}
                             <div>
                                 <h3 className="font-semibold text-lg">Step 6: Send WhatsApp Catalog Messages</h3>
-                                 <p className="text-sm text-muted-foreground mt-2">After a successful sync, you can reference your products in interactive messages like Multi-Product and Single Product Messages. Use the "Product Catalog" template type to start.</p>
+                                <p className="text-sm text-muted-foreground mt-2">After a successful sync, you can reference your products in interactive messages like Multi-Product and Single Product Messages. Use the "Product Catalog" template type to start.</p>
                             </div>
                         </div>
                     </CardContent>

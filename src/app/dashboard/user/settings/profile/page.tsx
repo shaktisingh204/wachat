@@ -4,7 +4,7 @@
 
 import { useEffect, useState, useRef, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { handleUpdateUserProfile, handleChangePassword, getSession } from '@/app/actions/index.ts';
+import { handleUpdateUserProfile, handleChangePassword, getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,23 +16,23 @@ import { AlertCircle, LoaderCircle, Save, KeyRound, User as UserIcon, Building }
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
-const profileInitialState = { message: null, error: null };
-const passwordInitialState = { message: null, error: null };
+const profileInitialState = { message: undefined, error: undefined };
+const passwordInitialState = { message: undefined, error: undefined };
 
 function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; icon: React.ElementType }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Icon className="mr-2 h-4 w-4" />}
-      {children}
-    </Button>
-  );
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Icon className="mr-2 h-4 w-4" />}
+            {children}
+        </Button>
+    );
 }
 
 function ProfileForm({ user }: { user: Omit<User, 'password'> }) {
     const [state, formAction] = useActionState(handleUpdateUserProfile, profileInitialState);
     const { toast } = useToast();
-    
+
     useEffect(() => {
         if (state?.message) toast({ title: 'Success!', description: state.message });
         if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -52,15 +52,15 @@ function ProfileForm({ user }: { user: Omit<User, 'password'> }) {
                 <CardDescription>Manage your name and view your account details.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                 <div className="space-y-2">
+                <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" name="name" defaultValue={user.name} required maxLength={50} pattern="^[a-zA-Z\s'-]+$" title="Name can only contain letters, spaces, apostrophes, and hyphens."/>
+                    <Input id="name" name="name" defaultValue={user.name} required maxLength={50} pattern="^[a-zA-Z\s'-]+$" title="Name can only contain letters, spaces, apostrophes, and hyphens." />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input id="email" name="email" value={user.email} disabled />
                 </div>
-                 <div className="space-y-2">
+                <div className="space-y-2">
                     <Label>Account Created</Label>
                     <Input value={new Date(user.createdAt).toLocaleString()} disabled />
                 </div>
@@ -75,7 +75,7 @@ function ProfileForm({ user }: { user: Omit<User, 'password'> }) {
 function BusinessProfileForm({ user }: { user: Omit<User, 'password'> }) {
     const [state, formAction] = useActionState(handleUpdateUserProfile, profileInitialState);
     const { toast } = useToast();
-    
+
     useEffect(() => {
         if (state?.message) toast({ title: 'Success!', description: state.message });
         if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -93,7 +93,7 @@ function BusinessProfileForm({ user }: { user: Omit<User, 'password'> }) {
                 <CardDescription>This information will be used in invoices, vouchers, and other accounting documents.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                 <div className="space-y-2">
+                <div className="space-y-2">
                     <Label htmlFor="businessName">Business Name</Label>
                     <Input id="businessName" name="businessName" defaultValue={user.businessProfile?.name} />
                 </div>
@@ -101,7 +101,7 @@ function BusinessProfileForm({ user }: { user: Omit<User, 'password'> }) {
                     <Label htmlFor="businessAddress">Address</Label>
                     <Textarea id="businessAddress" name="businessAddress" defaultValue={user.businessProfile?.address} />
                 </div>
-                 <div className="space-y-2">
+                <div className="space-y-2">
                     <Label htmlFor="businessGstin">GSTIN</Label>
                     <Input id="businessGstin" name="businessGstin" defaultValue={user.businessProfile?.gstin} />
                 </div>
@@ -184,12 +184,12 @@ function ProfilePageSkeleton() {
                         <Skeleton className="h-10 w-full" />
                         <Skeleton className="h-10 w-full" />
                     </CardContent>
-                     <CardFooter>
+                    <CardFooter>
                         <Skeleton className="h-10 w-36" />
                     </CardFooter>
                 </Card>
             </div>
-             <Card>
+            <Card>
                 <CardHeader>
                     <Skeleton className="h-6 w-1/3" />
                     <Skeleton className="h-4 w-2/3 mt-2" />
@@ -199,7 +199,7 @@ function ProfilePageSkeleton() {
                     <Skeleton className="h-20 w-full" />
                     <Skeleton className="h-10 w-full" />
                 </CardContent>
-                 <CardFooter>
+                <CardFooter>
                     <Skeleton className="h-10 w-48" />
                 </CardFooter>
             </Card>
@@ -228,7 +228,7 @@ export default function ProfilePage() {
 
     if (!user) {
         return (
-             <Card>
+            <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><AlertCircle /> Error</CardTitle>
                 </CardHeader>
@@ -241,7 +241,7 @@ export default function ProfilePage() {
 
     return (
         <div className="space-y-6">
-             <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div className="grid md:grid-cols-2 gap-8 items-start">
                 <Card><ProfileForm user={user} /></Card>
                 <Card><PasswordForm /></Card>
             </div>

@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter, Document } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation, EmailPermissions, EmailComplianceSettings, EmailSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
@@ -350,7 +350,7 @@ export async function handleSendBulkEmail(prevState: any, formData: FormData): P
                     contacts.push(...results.data);
                     resolve(true);
                 },
-                error: (error) => reject(error)
+                error: (error: any) => reject(error)
             });
         });
 
@@ -460,7 +460,7 @@ export async function getEmailConversations(accountId?: string, page: number = 1
         if (!targetAccount) return [];
 
         if (targetAccount.provider === 'google') {
-            const gmail = await getGmailClient(session.user._id, targetAccount.fromEmail);
+            const gmail = await getGmailClient(session.user._id, targetAccount.fromEmail || '');
 
             const response = await gmail.users.threads.list({
                 userId: 'me',
@@ -542,7 +542,7 @@ export async function getEmailThreadDetails(accountId: string, threadId: string)
         if (!account) return null;
 
         if (account.provider === 'google') {
-            const gmail = await getGmailClient(session.user._id, account.fromEmail);
+            const gmail = await getGmailClient(session.user._id, account.fromEmail || '');
             const response = await gmail.users.threads.get({
                 userId: 'me',
                 id: threadId,
@@ -564,7 +564,7 @@ export async function getEmailThreadDetails(accountId: string, threadId: string)
                     from,
                     date: date ? new Date(date) : new Date(),
                     body,
-                    isMe: from.includes(account.fromEmail)
+                    isMe: from.includes(account.fromEmail || '')
                 };
             }) || [];
 
@@ -653,7 +653,7 @@ export async function saveEmailPermissions(prevState: any, formData: FormData): 
     }
 }
 
-export async function saveEmailComplianceSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function saveEmailComplianceSettings(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
 

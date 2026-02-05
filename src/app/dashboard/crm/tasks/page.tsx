@@ -12,7 +12,7 @@ import { AlertCircle, FolderKanban, Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 
 function TasksPageSkeleton() {
     return (
@@ -44,11 +44,11 @@ export default function TasksPage() {
     if (isLoading && tasks.length === 0) {
         return <TasksPageSkeleton />;
     }
-    
+
     if (!user) {
         return <TasksPageSkeleton />;
     }
-    
+
     const todoTasks = tasks.filter(t => t.status === 'To-Do');
     const inProgressTasks = tasks.filter(t => t.status === 'In Progress');
     const completedTasks = tasks.filter(t => t.status === 'Completed');
@@ -60,9 +60,9 @@ export default function TasksPage() {
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><FolderKanban /> Tasks</h1>
                     <p className="text-muted-foreground">Organize and track your sales and support tasks.</p>
                 </div>
-                 <CreateTaskDialog onTaskCreated={fetchData} />
+                <CreateTaskDialog onTaskCreated={fetchData} />
             </div>
-            
+
             <Tabs defaultValue="todo" className="flex-1 flex flex-col">
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="todo">To-Do ({todoTasks.length})</TabsTrigger>
@@ -76,7 +76,7 @@ export default function TasksPage() {
                     <CrmTaskList tasks={inProgressTasks} onTaskUpdated={fetchData} />
                 </TabsContent>
                 <TabsContent value="completed" className="flex-1 mt-4">
-                     <CrmTaskList tasks={completedTasks} onTaskUpdated={fetchData} />
+                    <CrmTaskList tasks={completedTasks} onTaskUpdated={fetchData} />
                 </TabsContent>
             </Tabs>
         </div>

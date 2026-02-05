@@ -2,7 +2,7 @@
 
 'use server';
 
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { CallingSettings, WithId, Project, PhoneNumber } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
@@ -20,14 +20,14 @@ export async function getPhoneNumberCallingSettings(projectId: string, phoneNumb
             `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}?fields=calling`,
             { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
         );
-        
+
         if (response.data.error) {
             throw new Error(response.data.error.message);
         }
 
         return { settings: response.data.calling };
 
-    } catch(e) {
+    } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -48,11 +48,11 @@ export async function savePhoneNumberCallingSettings(prevState: any, formData: F
         const status = formData.get('status') as CallingSettings['status'];
         const call_icon_visibility = formData.get('call_icon_visibility') as CallingSettings['call_icon_visibility'];
         const restrict_to_user_countries = (formData.get('restrict_to_user_countries') as string)?.split(',').map(c => c.trim()).filter(Boolean);
-        
+
         if (status) {
             payload.calling = { status };
         } else {
-             payload.calling = {
+            payload.calling = {
                 status: formData.get('call_hours_status') || 'DISABLED',
                 call_icon_visibility,
                 ...(restrict_to_user_countries && restrict_to_user_countries.length > 0 && { call_icons: { restrict_to_user_countries } }),
@@ -83,7 +83,7 @@ export async function savePhoneNumberCallingSettings(prevState: any, formData: F
         if (response.data.error) {
             throw new Error(response.data.error.message);
         }
-        
+
         return { success: true };
 
     } catch (e: any) {
@@ -97,7 +97,7 @@ export async function getCallLogs(projectId: string) {
     try {
         const { db } = await connectToDatabase();
         return await db.collection('crm_call_logs').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).limit(100).toArray();
-    } catch(e) {
+    } catch (e) {
         return [];
     }
 }

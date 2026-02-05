@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId } from 'mongodb';
 import { getErrorMessage } from '@/lib/utils';
@@ -12,12 +12,12 @@ import { startOfMonth, endOfMonth, getDaysInMonth } from 'date-fns';
 export async function getSalaryStructures(): Promise<WithId<CrmSalaryStructure>[]> {
     const session = await getSession();
     if (!session?.user) return [];
-    
+
     const { db } = await connectToDatabase();
     const structures = await db.collection<CrmSalaryStructure>('crm_salary_structures')
         .find({ userId: new ObjectId(session.user._id) })
         .toArray();
-    
+
     return JSON.parse(JSON.stringify(structures));
 }
 
@@ -49,7 +49,7 @@ export async function saveSalaryStructure(prevState: any, formData: FormData): P
         } else {
             await db.collection('crm_salary_structures').insertOne({ ...payload, createdAt: new Date() } as CrmSalaryStructure);
         }
-        
+
         revalidatePath('/dashboard/crm/hr-payroll/salary-structure');
         return { success: true };
     } catch (e: any) {
@@ -91,10 +91,10 @@ export async function generatePayrollData(month: number, year: number): Promise<
         if (employees.length === 0) {
             return { payrollData: [] };
         }
-        
+
         const salaryStructures = await db.collection<CrmSalaryStructure>('crm_salary_structures').find({ userId }).toArray();
         const structureMap = new Map(salaryStructures.map(s => [s._id.toString(), s]));
-        
+
         const payPeriodStart = startOfMonth(new Date(year, month - 1));
         const payPeriodEnd = endOfMonth(new Date(year, month - 1));
         const daysInMonth = getDaysInMonth(payPeriodStart);
@@ -102,18 +102,18 @@ export async function generatePayrollData(month: number, year: number): Promise<
         const payrollData = employees.map(emp => {
             const grossSalary = emp.salaryDetails?.grossSalary || 0;
             const structure = emp.salaryDetails?.salaryStructureId ? structureMap.get(emp.salaryDetails.salaryStructureId.toString()) : undefined;
-            
+
             // Mock attendance data for now
             const presentDays = Math.floor(Math.random() * 5) + 20;
             const absentDays = daysInMonth - presentDays;
-            
+
             let earnings: { name: string, amount: number }[] = [];
             let deductions: { name: string, amount: number }[] = [];
-            
+
             if (structure) {
                 structure.components.forEach(comp => {
                     const amount = comp.calculationType === 'fixed' ? comp.value : (grossSalary * comp.value / 100);
-                    if(comp.type === 'earning') earnings.push({ name: comp.name, amount });
+                    if (comp.type === 'earning') earnings.push({ name: comp.name, amount });
                     else deductions.push({ name: comp.name, amount });
                 });
             } else {
@@ -124,7 +124,7 @@ export async function generatePayrollData(month: number, year: number): Promise<
                 deductions.push({ name: 'Professional Tax', amount: 200 });
                 deductions.push({ name: 'Provident Fund (PF)', amount: (grossSalary * 0.5) * 0.12 });
             }
-            
+
             const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
             const totalDeductions = deductions.reduce((sum, item) => sum + item.amount, 0);
             const netSalary = totalEarnings - totalDeductions;
@@ -141,7 +141,7 @@ export async function generatePayrollData(month: number, year: number): Promise<
                 netSalary,
             }
         });
-        
+
         return { payrollData: JSON.parse(JSON.stringify(payrollData)) };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -151,7 +151,7 @@ export async function generatePayrollData(month: number, year: number): Promise<
 export async function processPayroll(payrollData: any[], month: number, year: number): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Authentication required' };
-    
+
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
@@ -177,7 +177,7 @@ export async function processPayroll(payrollData: any[], month: number, year: nu
                 upsert: true,
             }
         }));
-        
+
         if (payslipsToUpsert.length > 0) {
             await db.collection('crm_payslips').bulkWrite(payslipsToUpsert);
         }
@@ -189,13 +189,13 @@ export async function processPayroll(payrollData: any[], month: number, year: nu
 }
 
 export async function getPayslips(payPeriod: Date): Promise<WithId<CrmPayslip>[]> {
-     const session = await getSession();
+    const session = await getSession();
     if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
         const payslips = await db.collection<CrmPayslip>('crm_payslips')
-            .find({ 
+            .find({
                 userId: new ObjectId(session.user._id),
                 payPeriodStart: payPeriod
             })

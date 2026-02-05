@@ -5,7 +5,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { getCatalogs, syncCatalogs } from '@/app/actions/catalog.actions';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { Catalog, Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Button } from '@/components/ui/button';
@@ -33,17 +33,17 @@ function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
                     ID: {catalog.metaCatalogId}
                 </CardDescription>
             </CardHeader>
-             <CardContent className="flex-grow">
+            <CardContent className="flex-grow">
                 <p className="text-xs text-muted-foreground">Created: {new Date(catalog.createdAt).toLocaleDateString()}</p>
-             </CardContent>
-             <CardFooter className="flex justify-end gap-2">
+            </CardContent>
+            <CardFooter className="flex justify-end gap-2">
                 <Button asChild size="sm" className="w-full">
                     <Link href={`/dashboard/facebook/commerce/products/${catalog.metaCatalogId}`}>
-                        <ShoppingBag className="mr-2 h-4 w-4"/>
+                        <ShoppingBag className="mr-2 h-4 w-4" />
                         View Products
                     </Link>
                 </Button>
-             </CardFooter>
+            </CardFooter>
         </Card>
     );
 }
@@ -63,11 +63,11 @@ export default function ProductsPage() {
     }, [activeProjectId]);
 
     useEffect(() => {
-        if(activeProjectId) {
+        if (activeProjectId) {
             fetchData();
         }
     }, [activeProjectId, fetchData]);
-    
+
     const hasCatalogAccess = activeProject?.hasCatalogManagement === true;
     const isFacebookProject = !!activeProject?.facebookPageId && !activeProject.wabaId;
 
@@ -77,13 +77,13 @@ export default function ProductsPage() {
     const catalogStep6Image = PlaceHolderImages.find(img => img.id === 'catalog-step-6');
 
     if (isLoadingProject) {
-         return <Skeleton className="h-full w-full" />;
+        return <Skeleton className="h-full w-full" />;
     }
-    
+
     if (!activeProjectId) {
-         return (
-             <div className="flex flex-col gap-8">
-                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Products & Catalogs</h1><p className="text-muted-foreground">Manage your product catalogs for your Facebook Shop.</p></div>
+        return (
+            <div className="flex flex-col gap-8">
+                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Products & Catalogs</h1><p className="text-muted-foreground">Manage your product catalogs for your Facebook Shop.</p></div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
@@ -92,11 +92,11 @@ export default function ProductsPage() {
             </div>
         );
     }
-    
+
     if (!isFacebookProject) {
-         return (
-             <div className="flex flex-col gap-8">
-                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Products & Catalogs</h1><p className="text-muted-foreground">Manage your product catalogs for your Facebook Shop.</p></div>
+        return (
+            <div className="flex flex-col gap-8">
+                <div><h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Products & Catalogs</h1><p className="text-muted-foreground">Manage your product catalogs for your Facebook Shop.</p></div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Invalid Project Type</AlertTitle>
@@ -105,21 +105,21 @@ export default function ProductsPage() {
             </div>
         );
     }
-    
+
     return (
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Products & Catalogs</h1>
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Products & Catalogs</h1>
                     <p className="text-muted-foreground">Manage your product catalogs for use in your Facebook Shop.</p>
                 </div>
-                 {hasCatalogAccess && (
+                {hasCatalogAccess && (
                     <div className="flex items-center gap-2">
-                        <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData}/>
+                        <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
                     </div>
                 )}
             </div>
-             {!hasCatalogAccess ? (
+            {!hasCatalogAccess ? (
                 <Card className="text-center">
                     <CardHeader><div className="mx-auto bg-destructive text-destructive-foreground rounded-full h-16 w-16 flex items-center justify-center mb-4"><Lock className="h-8 w-8" /></div><CardTitle>Catalog Management Locked</CardTitle><CardDescription>This project was set up without catalog management permissions.</CardDescription></CardHeader>
                     <CardContent><p className="text-sm text-muted-foreground max-w-md mx-auto">To use product catalogs, you need to re-authorize the application and grant the 'catalog_management' and 'business_management' permissions.</p></CardContent>

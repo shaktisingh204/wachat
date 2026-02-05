@@ -64,6 +64,8 @@ export default function InstagramConnectionsPage() {
     useEffect(() => {
         startLoading(async () => {
             const facebookProjects = await getProjects(undefined, 'facebook');
+            console.log(`[Instagram Connections] User has ${facebookProjects.length} Facebook projects available in DB (GB).`);
+
             const projectsWithIg = await Promise.all(
                 facebookProjects.map(async (p) => {
                     const { instagramAccount } = await getInstagramAccountForPage(p._id.toString());

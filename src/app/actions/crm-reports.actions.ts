@@ -2,7 +2,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
 import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote, CrmWarehouse, ProductBatch, CrmSalesOrder, CrmStockAdjustment } from '@/lib/definitions';
@@ -19,7 +19,7 @@ export async function generateClientReportData(): Promise<{ success: boolean; da
 
         const accounts = await db.collection<CrmAccount>('crm_accounts').find({ userId: userObjectId }).toArray();
         const contacts = await db.collection<CrmContact>('crm_contacts').find({ userId: userObjectId }).toArray();
-        
+
         const contactsByAccountId: { [key: string]: CrmContact[] } = {};
         for (const contact of contacts) {
             if (contact.accountId) {
@@ -44,7 +44,7 @@ export async function generateClientReportData(): Promise<{ success: boolean; da
                 'Account Created At': account.createdAt.toISOString(),
             };
         });
-        
+
         return { success: true, data: reportData };
     } catch (e: any) {
         console.error("Failed to generate client report:", e);
@@ -66,22 +66,22 @@ export async function getLeadsSummaryData(filters: {
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
-        
+
         const baseDealFilter: Filter<CrmDeal> = { userId };
         if (filters.leadSource) baseDealFilter.leadSource = filters.leadSource;
         if (filters.assigneeId) baseDealFilter.ownerId = new ObjectId(filters.assigneeId);
         if (filters.createdFrom && filters.createdTo) {
             baseDealFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
         }
-        
+
         const deals = await db.collection<CrmDeal>('crm_deals').find(baseDealFilter).toArray();
 
         const newLeads = deals.filter(d => d.stage === 'New' || d.stage === 'Open').length;
         const closedLeads = deals.filter(d => d.stage === 'Won' || d.stage === 'Lost').length;
-        const scheduledLeads = 0; 
+        const scheduledLeads = 0;
         const overdueLeads = 0;
 
-        const pipelines = session.user.crmPipelines || [{ id: 'default', name: 'Sales Pipeline', stages: [{id: '1', name:'Open', chance: 10}, {id: '2', name:'Contacted', chance: 20}, {id: '3', name:'Proposal Sent', chance: 50}, {id: '4', name:'Deal Done', chance: 100}, {id: '5', name:'Lost', chance: 0}, {id: '6', name:'Not Serviceable', chance: 0}] }];
+        const pipelines = session.user.crmPipelines || [{ id: 'default', name: 'Sales Pipeline', stages: [{ id: '1', name: 'Open', chance: 10 }, { id: '2', name: 'Contacted', chance: 20 }, { id: '3', name: 'Proposal Sent', chance: 50 }, { id: '4', name: 'Deal Done', chance: 100 }, { id: '5', name: 'Lost', chance: 0 }, { id: '6', name: 'Not Serviceable', chance: 0 }] }];
         const activePipeline = pipelines.find(p => p.id === (filters.pipelineId || pipelines[0].id)) || pipelines[0];
 
         const pipelineSummary = activePipeline.stages.map(stage => {
@@ -111,7 +111,7 @@ export async function getLeadsSummaryData(filters: {
             filtersData: {
                 pipelines,
                 leadSources,
-                assignees: allUsersUnderAccount.map(u => ({_id: u._id.toString(), name: u.name })),
+                assignees: allUsersUnderAccount.map(u => ({ _id: u._id.toString(), name: u.name })),
             }
         };
 
@@ -128,7 +128,7 @@ export async function generateTeamSalesReportData(filters: {
     pipelineId?: string;
     leadSource?: string;
     assigneeId?: string;
-}): Promise<{data: any[], users: any[]}> {
+}): Promise<{ data: any[], users: any[] }> {
     const session = await getSession();
     if (!session?.user) {
         return { data: [], users: [] };
@@ -148,7 +148,7 @@ export async function generateTeamSalesReportData(filters: {
         if (filters.assigneeId) {
             dealsFilter.ownerId = new ObjectId(filters.assigneeId);
         }
-        
+
         const deals = await db.collection<CrmDeal>('crm_deals').find(dealsFilter).toArray();
 
         const report = users.map(user => {
@@ -209,26 +209,26 @@ export async function generateClientPerformanceReportData(filters: {
         }
 
         const deals = await db.collection<CrmDeal>('crm_deals').find(dealsFilter).toArray();
-        
+
         const report = accounts.map(account => {
             const accountDeals = deals.filter(d => d.accountId?.equals(account._id));
-            
+
             const totalLeads = accountDeals.length;
             const openLeads = accountDeals.filter(d => !['Won', 'Lost', 'Not Serviceable'].includes(d.stage)).length;
             const closedLeads = accountDeals.filter(d => d.stage === 'Won').length;
             const lostLeads = accountDeals.filter(d => d.stage === 'Lost').length;
             const notServiceable = accountDeals.filter(d => d.stage === 'Not Serviceable').length;
-            
-            const totalRevenue = closedLeads > 0 
-                ? accountDeals.filter(d => d.stage === 'Won').reduce((sum, d) => sum + d.value, 0) 
+
+            const totalRevenue = closedLeads > 0
+                ? accountDeals.filter(d => d.stage === 'Won').reduce((sum, d) => sum + d.value, 0)
                 : 0;
 
             const conversionRate = (closedLeads + lostLeads) > 0 ? (closedLeads / (closedLeads + lostLeads)) * 100 : 0;
             const avgDealValue = closedLeads > 0 ? totalRevenue / closedLeads : 0;
-            const lastLeadActivityOn = accountDeals.length > 0 
-                ? new Date(Math.max(...accountDeals.map(d => new Date(d.updatedAt || d.createdAt).getTime()))) 
+            const lastLeadActivityOn = accountDeals.length > 0
+                ? new Date(Math.max(...accountDeals.map(d => new Date(d.updatedAt || d.createdAt).getTime())))
                 : null;
-            
+
             return {
                 clientId: account._id.toString(),
                 clientName: account.name,
@@ -274,7 +274,7 @@ export async function generateLeadSourceReportData(filters: {
         }
 
         const deals = await db.collection<CrmDeal>('crm_deals').find(dealsFilter).toArray();
-        
+
         const reportMap = new Map<string, any>();
 
         for (const deal of deals) {
@@ -321,10 +321,10 @@ export async function generateLeadSourceReportData(filters: {
     }
 }
 
-export async function generateProductPnlData(filters?: any): Promise<{data: any[], error?: string}> {
+export async function generateProductPnlData(filters?: any): Promise<{ data: any[], error?: string }> {
     const session = await getSession();
     if (!session?.user) return { data: [], error: 'Authentication required.' };
-    
+
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
@@ -334,22 +334,22 @@ export async function generateProductPnlData(filters?: any): Promise<{data: any[
             db.collection<CrmInvoice>('crm_invoices').find({ userId }).toArray(),
             db.collection<CrmCreditNote>('crm_credit_notes').find({ userId }).toArray(),
         ]);
-        
+
         const salesData: Record<string, { totalSoldQty: number; totalRevenue: number; }> = {};
-        for(const invoice of invoices) {
-            for(const item of invoice.lineItems) {
+        for (const invoice of invoices) {
+            for (const item of invoice.lineItems) {
                 // Assuming item.name is unique for now. A product ID would be better.
-                if(!salesData[item.name]) salesData[item.name] = { totalSoldQty: 0, totalRevenue: 0 };
+                if (!salesData[item.name]) salesData[item.name] = { totalSoldQty: 0, totalRevenue: 0 };
                 salesData[item.name].totalSoldQty += item.quantity;
                 salesData[item.name].totalRevenue += item.quantity * item.rate;
             }
         }
-        
+
         const returnData: Record<string, { totalReturnedQty: number }> = {};
-        for(const note of creditNotes) {
-            for(const item of note.lineItems) {
-                 if(!returnData[item.name]) returnData[item.name] = { totalReturnedQty: 0 };
-                 returnData[item.name].totalReturnedQty += item.quantity;
+        for (const note of creditNotes) {
+            for (const item of note.lineItems) {
+                if (!returnData[item.name]) returnData[item.name] = { totalReturnedQty: 0 };
+                returnData[item.name].totalReturnedQty += item.quantity;
             }
         }
 
@@ -359,7 +359,7 @@ export async function generateProductPnlData(filters?: any): Promise<{data: any[
             const netSoldQty = sale.totalSoldQty - returns.totalReturnedQty;
             const totalCogs = netSoldQty * (product.buyingPrice || 0);
             const grossProfit = sale.totalRevenue - totalCogs; // Simplified: ignores returns for now
-            
+
             return {
                 productId: product._id.toString(),
                 productName: product.name,
@@ -376,7 +376,7 @@ export async function generateProductPnlData(filters?: any): Promise<{data: any[
         }).filter(item => item.totalSoldQty > 0 || item.totalReturnedQty > 0);
 
         return { data: JSON.parse(JSON.stringify(report)) };
-    } catch(e: any) {
+    } catch (e: any) {
         console.error("Error generating product P&L report:", e);
         return { data: [], error: 'Failed to generate report.' };
     }
@@ -394,9 +394,9 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
             db.collection<EcommProduct>('crm_products').find({ userId, manageStock: true }).toArray(),
             db.collection<CrmWarehouse>('crm_warehouses').find({ userId }).toArray()
         ]);
-        
+
         const warehouseMap = new Map(warehouses.map(w => [w._id.toString(), w.name]));
-        
+
         const reportData: any[] = [];
         let totalValue = 0;
         let totalUnits = 0;
@@ -444,7 +444,7 @@ export async function generateStockValueReport(): Promise<{ data: any[], summary
                 uniqueProductCount++;
             }
         }
-        
+
         return {
             data: JSON.parse(JSON.stringify(reportData)),
             summary: {
@@ -476,7 +476,7 @@ export async function generateBatchExpiryReportData(): Promise<{ data?: any, err
         const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
         const sixtyDays = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
         const ninetyDays = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
-        
+
         const report = {
             expired: [] as any[],
             expiringIn30: [] as any[],
@@ -499,7 +499,7 @@ export async function generateBatchExpiryReportData(): Promise<{ data?: any, err
                     stock: batch.stock,
                     expiryDate: expiry,
                 };
-                
+
                 if (expiry < now) {
                     report.expired.push(baseInfo);
                 } else if (expiry <= thirtyDays) {
@@ -513,7 +513,7 @@ export async function generateBatchExpiryReportData(): Promise<{ data?: any, err
                 }
             }
         }
-        
+
         return { data: JSON.parse(JSON.stringify(report)) };
 
     } catch (e: any) {
@@ -522,7 +522,7 @@ export async function generateBatchExpiryReportData(): Promise<{ data?: any, err
     }
 }
 
-export async function getCrmAccountsForSelection(): Promise<{_id: string, name: string}[]> {
+export async function getCrmAccountsForSelection(): Promise<{ _id: string, name: string }[]> {
     const session = await getSession();
     if (!session?.user) return [];
     const { db } = await connectToDatabase();
@@ -530,7 +530,7 @@ export async function getCrmAccountsForSelection(): Promise<{_id: string, name: 
     return JSON.parse(JSON.stringify(accounts));
 }
 
-export async function getCrmVendorsForSelection(): Promise<{_id: string, name: string}[]> {
+export async function getCrmVendorsForSelection(): Promise<{ _id: string, name: string }[]> {
     const session = await getSession();
     if (!session?.user) return [];
     const { db } = await connectToDatabase();
@@ -538,7 +538,7 @@ export async function getCrmVendorsForSelection(): Promise<{_id: string, name: s
     return JSON.parse(JSON.stringify(vendors));
 }
 
-export async function generatePartyTransactionReport(partyId: string, partyType: 'customer' | 'vendor', startDate?: Date, endDate?: Date): Promise<{data: any[], error?: string}> {
+export async function generatePartyTransactionReport(partyId: string, partyType: 'customer' | 'vendor', startDate?: Date, endDate?: Date): Promise<{ data: any[], error?: string }> {
     const session = await getSession();
     if (!session?.user) return { data: [], error: 'Authentication required.' };
 
@@ -548,7 +548,7 @@ export async function generatePartyTransactionReport(partyId: string, partyType:
         const partyObjectId = new ObjectId(partyId);
 
         let transactions: any[] = [];
-        
+
         // Correct date query construction
         const dateQuery: any = {};
         if (startDate) {
@@ -559,7 +559,7 @@ export async function generatePartyTransactionReport(partyId: string, partyType:
             endOfDay.setHours(23, 59, 59, 999);
             dateQuery.$lte = endOfDay;
         }
-        
+
         const hasDateFilter = Object.keys(dateQuery).length > 0;
 
         if (partyType === 'customer') {
@@ -575,7 +575,7 @@ export async function generatePartyTransactionReport(partyId: string, partyType:
 
             const invoices = await db.collection<CrmInvoice>('crm_invoices').find(invoiceFilter).toArray();
             const creditNotes = await db.collection<CrmCreditNote>('crm_credit_notes').find(creditNoteFilter).toArray();
-            
+
             invoices.forEach(inv => {
                 inv.lineItems.forEach(item => {
                     transactions.push({ date: inv.invoiceDate, type: 'Sale', reference: inv.invoiceNumber, itemName: item.name, quantity: item.quantity, rate: item.rate });
@@ -592,7 +592,7 @@ export async function generatePartyTransactionReport(partyId: string, partyType:
         }
 
         transactions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        
+
         return { data: JSON.parse(JSON.stringify(transactions)) };
 
     } catch (e: any) {
@@ -605,7 +605,7 @@ export async function generateAllTransactionsReport(filters: {
     startDate?: Date;
     endDate?: Date;
     type?: string;
-}): Promise<{data: any[], error?: string}> {
+}): Promise<{ data: any[], error?: string }> {
     const session = await getSession();
     if (!session?.user) return { data: [], error: 'Authentication required.' };
 
@@ -628,7 +628,7 @@ export async function generateAllTransactionsReport(filters: {
             db.collection<CrmAccount>('crm_accounts').find({ userId }).project({ name: 1 }).toArray(),
             db.collection<CrmWarehouse>('crm_warehouses').find({ userId }).project({ name: 1 }).toArray(),
         ]);
-        
+
         const accountsMap = new Map(accounts.map(a => [a._id.toString(), a.name]));
         const warehouseMap = new Map(warehouses.map(w => [w._id.toString(), w.name]));
 
@@ -647,7 +647,7 @@ export async function generateAllTransactionsReport(filters: {
         if (!filters.type || filters.type === 'Stock Adjustment') {
             adjustments.forEach(adj => {
                 // We need to fetch the product name for the adjustment
-                transactions.push({ 
+                transactions.push({
                     date: adj.date,
                     type: 'Stock Adjustment',
                     itemName: `Product ID: ${adj.productId.toString()}`, // Placeholder
@@ -658,7 +658,7 @@ export async function generateAllTransactionsReport(filters: {
                 });
             });
         }
-        
+
         transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
         return { data: JSON.parse(JSON.stringify(transactions)) };
@@ -668,6 +668,6 @@ export async function generateAllTransactionsReport(filters: {
         return { data: [], error: 'Failed to generate report.' };
     }
 }
-    
 
-    
+
+

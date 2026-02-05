@@ -21,7 +21,7 @@ import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.action
 import { saveVoucherEntry, getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
 import type { WithId } from 'mongodb';
 import type { CrmChartOfAccount, CrmVoucherBook, CrmPaymentAccount } from '@/lib/definitions';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { SmartLedgerSelect } from '@/components/crm/accounting/smart-ledger-select';
 

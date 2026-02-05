@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
 import { revalidatePath } from 'next/cache';
@@ -14,7 +14,7 @@ const API_VERSION = 'v24.0';
 export async function syncCatalogs(projectId: string): Promise<{ catalogs: WithId<Catalog>[], error?: string }> {
     const project = await getProjectById(projectId);
     if (!project) return { catalogs: [], error: 'Project not found or access denied.' };
-    
+
     const accessToken = process.env.META_ADMIN_TOKEN;
     const { wabaId } = project;
 
@@ -28,7 +28,7 @@ export async function syncCatalogs(projectId: string): Promise<{ catalogs: WithI
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${wabaId}/product_catalogs`, {
             params: { access_token: accessToken }
         });
-        
+
         const fetchedCatalogs = response.data.data;
         if (!fetchedCatalogs || fetchedCatalogs.length === 0) {
             return { catalogs: [], error: "No catalogs found for this WABA." };
@@ -49,16 +49,16 @@ export async function syncCatalogs(projectId: string): Promise<{ catalogs: WithI
                 upsert: true,
             }
         }));
-        
+
         if (bulkOps.length > 0) {
             await db.collection('catalogs').bulkWrite(bulkOps);
         }
 
         const updatedCatalogs = await db.collection<Catalog>('catalogs').find({ projectId: new ObjectId(projectId) }).toArray();
-        
+
         // Auto-assign first catalog if none is connected
         if (updatedCatalogs.length > 0 && !project.connectedCatalogId) {
-             await db.collection('projects').updateOne(
+            await db.collection('projects').updateOne(
                 { _id: project._id },
                 { $set: { connectedCatalogId: updatedCatalogs[0].metaCatalogId } }
             );
@@ -66,7 +66,7 @@ export async function syncCatalogs(projectId: string): Promise<{ catalogs: WithI
 
         revalidatePath('/dashboard/catalog');
         revalidatePath('/dashboard/facebook/commerce/products');
-        
+
         return { catalogs: JSON.parse(JSON.stringify(updatedCatalogs)) };
     } catch (e: any) {
         console.error("Catalog sync error:", getErrorMessage(e));
@@ -119,7 +119,7 @@ export async function addProductToCatalog(prevState: any, formData: FormData): P
 
     const accessToken = process.env.META_ADMIN_TOKEN;
     if (!accessToken) return { success: false, error: 'Server configuration error.' };
-    
+
     const priceString = formData.get('price') as string;
     const [priceValue, currency] = priceString.split(' ');
 
@@ -166,8 +166,8 @@ export async function deleteProductFromCatalog(productId: string, projectId: str
 }
 
 export async function createCatalog(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string; message?: string }> {
-     const projectId = formData.get('projectId') as string;
-     const project = await getProjectById(projectId);
+    const projectId = formData.get('projectId') as string;
+    const project = await getProjectById(projectId);
     if (!project || !project.businessId) return { success: false, error: 'Project not found or business ID is missing.' };
 
     const accessToken = process.env.META_ADMIN_TOKEN;
@@ -176,15 +176,15 @@ export async function createCatalog(prevState: any, formData: FormData): Promise
     const payload = {
         name: formData.get('catalogName'),
     };
-    
+
     try {
         const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${project.businessId}/product_catalogs`, {
             ...payload,
             access_token: accessToken
         });
-        
+
         await syncCatalogs(projectId);
-        
+
         return { success: true, message: `Catalog "${payload.name}" created successfully with ID: ${response.data.id}` };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -210,8 +210,8 @@ export async function listProductSets(catalogId: string, projectId: string): Pro
 }
 
 export async function createProductSet(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string; message?: string }> {
-     const projectId = formData.get('projectId') as string;
-     const project = await getProjectById(projectId);
+    const projectId = formData.get('projectId') as string;
+    const project = await getProjectById(projectId);
     if (!project) return { success: false, error: 'Project not found.' };
 
     const accessToken = process.env.META_ADMIN_TOKEN;
@@ -219,7 +219,7 @@ export async function createProductSet(prevState: any, formData: FormData): Prom
 
     const catalogId = formData.get('catalogId') as string;
     const payload = { name: formData.get('name') };
-    
+
     try {
         await axios.post(`https://graph.facebook.com/${API_VERSION}/${catalogId}/product_sets`, {
             ...payload,
@@ -258,11 +258,11 @@ export async function getTaggedMediaForProduct(productId: string, projectId: str
     if (!accessToken) return { error: 'Server configuration error.' };
 
     try {
-         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${productId}/tagged_media`, {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${productId}/tagged_media`, {
             params: { access_token: accessToken, fields: 'id,media_url,permalink,thumbnail_url' }
         });
         return { media: response.data.data };
-    } catch(e) {
+    } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -275,7 +275,7 @@ export async function updateProductInCatalog(prevState: any, formData: FormData)
 
     const accessToken = process.env.META_ADMIN_TOKEN;
     if (!accessToken) return { success: false, error: 'Server configuration error.' };
-    
+
     const priceString = formData.get('price') as string;
     const [priceValue, currency] = priceString.split(' ');
 
@@ -290,7 +290,7 @@ export async function updateProductInCatalog(prevState: any, formData: FormData)
         image_url: formData.get('image_link'),
         brand: formData.get('brand'),
     };
-    
+
     // Clean up empty fields
     for (const key in payload) {
         if (payload[key] === undefined || payload[key] === null || payload[key] === '') {

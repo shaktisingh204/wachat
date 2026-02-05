@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmAccountGroup, CrmChartOfAccount } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -45,7 +45,7 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
         }
 
         const { db } = await connectToDatabase();
-        
+
         const existingFilter: Filter<CrmAccountGroup> = {
             userId: groupData.userId,
             name: groupData.name,
@@ -56,7 +56,7 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
         const existing = await db.collection('crm_account_groups').findOne(existingFilter);
 
         if (existing) {
-            return { error: `An account group named "${groupData.name}" already exists.`};
+            return { error: `An account group named "${groupData.name}" already exists.` };
         }
 
         if (isEditing && ObjectId.isValid(groupId)) {
@@ -70,10 +70,10 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
                 createdAt: new Date()
             } as CrmAccountGroup);
         }
-        
+
         revalidatePath('/dashboard/crm/accounting/groups');
         return { message: 'Account group saved successfully.' };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -159,7 +159,7 @@ export async function saveCrmChartOfAccount(prevState: any, formData: FormData):
         }
 
         const { db } = await connectToDatabase();
-        
+
         if (isEditing && ObjectId.isValid(accountId)) {
             await db.collection('crm_chart_of_accounts').updateOne(
                 { _id: new ObjectId(accountId!) },
@@ -171,10 +171,10 @@ export async function saveCrmChartOfAccount(prevState: any, formData: FormData):
                 createdAt: new Date()
             } as CrmChartOfAccount);
         }
-        
+
         revalidatePath('/dashboard/crm/accounting/charts');
         return { message: 'Account saved successfully.' };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }

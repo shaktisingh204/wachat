@@ -1,7 +1,7 @@
 
 'use client';
 
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import { SabChatWidgetGenerator } from '@/components/wabasimplify/sabchat-widget-generator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,7 +33,7 @@ export default function SabChatWidgetPage() {
 
     if (!user) {
         return (
-             <Alert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Authentication Error</AlertTitle>
                 <AlertDescription>
@@ -42,7 +42,7 @@ export default function SabChatWidgetPage() {
             </Alert>
         );
     }
-    
+
     return (
         <SabChatWidgetGenerator user={user} />
     )

@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getProjectById, getProjects } from '@/app/actions/index.ts';
+import { getProjectById, getProjects } from '@/app/actions/project.actions';
 import { getEcommShops } from '@/app/actions/custom-ecommerce.actions';
 import type { WithId, Project, EcommShop } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,7 +36,7 @@ function PageSkeleton() {
 
 function ShopCard({ project }: { project: WithId<Project> }) {
     const router = useRouter();
-    
+
     const handleManageShop = () => {
         // Since custom-ecommerce is part of the facebook suite, it uses the same project ID
         localStorage.setItem('activeProjectId', project._id.toString());
@@ -46,20 +46,20 @@ function ShopCard({ project }: { project: WithId<Project> }) {
     return (
         <Card className="flex flex-col">
             <CardHeader className="flex-row items-center gap-4">
-                 <div className="p-3 bg-muted rounded-full">
-                    <FacebookIcon className="h-6 w-6 text-primary"/>
-                 </div>
-                 <div>
+                <div className="p-3 bg-muted rounded-full">
+                    <FacebookIcon className="h-6 w-6 text-primary" />
+                </div>
+                <div>
                     <CardTitle>{project.name}</CardTitle>
                     <CardDescription>Page ID: {project.facebookPageId}</CardDescription>
-                 </div>
+                </div>
             </CardHeader>
             <CardContent className="flex-grow">
                 <p className="text-sm text-muted-foreground">Manage products, pages, and automation for this Facebook Page.</p>
             </CardContent>
             <CardFooter>
-                 <Button onClick={handleManageShop} className="w-full">
-                    Manage Shop <ArrowRight className="ml-2 h-4 w-4"/>
+                <Button onClick={handleManageShop} className="w-full">
+                    Manage Shop <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </CardFooter>
         </Card>
@@ -75,7 +75,7 @@ export default function CustomEcommerceDashboard() {
     const isAllowed = sessionUser?.plan?.features?.ecommerce ?? false;
 
     useEffect(() => {
-      setIsClient(true);
+        setIsClient(true);
     }, []);
 
     const fetchProjects = useCallback(() => {
@@ -86,15 +86,15 @@ export default function CustomEcommerceDashboard() {
     }, []);
 
     useEffect(() => {
-        if(isClient) {
+        if (isClient) {
             fetchProjects();
         }
     }, [isClient, fetchProjects]);
-    
+
     if (!isClient || isLoading) {
         return <PageSkeleton />;
     }
-    
+
     return (
         <div className="flex flex-col gap-8 relative">
             <FeatureLockOverlay isAllowed={isAllowed} featureName="Custom E-commerce" />

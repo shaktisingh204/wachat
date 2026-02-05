@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProjects } from "@/app/actions/project.actions"
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import { ProjectProvider } from '@/context/project-context';
 import { AdManagerProvider } from '@/context/ad-manager-context';
 import { AdminLayout } from '@/components/admin-panel/layout/admin-layout';

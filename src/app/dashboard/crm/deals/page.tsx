@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getCrmDeals, updateCrmDealStage } from '@/app/actions/crm-deals.actions';
 import { getCrmContacts } from '@/app/actions/crm.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { WithId, CrmDeal, CrmContact, CrmAccount, User, Plan, CrmPipeline } from '@/lib/definitions';
 import { Handshake, Plus, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';

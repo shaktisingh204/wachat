@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmVoucherEntry, BankStatement, BankStatementTransaction } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';

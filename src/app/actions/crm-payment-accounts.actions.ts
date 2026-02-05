@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmPaymentAccount, CrmVoucherEntry, BankAccountDetails } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -65,20 +65,20 @@ export async function saveCrmPaymentAccount(prevState: any, formData: FormData):
     try {
         const openingBalanceStr = formData.get('openingBalance') as string;
         const openingBalance = openingBalanceStr ? Number(openingBalanceStr) : 0;
-        
+
         const openingBalanceDateStr = formData.get('openingBalanceDate') as string;
         const openingBalanceDate = openingBalanceDateStr ? new Date(openingBalanceDateStr) : new Date();
 
         const bankDetailsString = formData.get('bankAccountDetails') as string | null;
         let bankDetails: Partial<BankAccountDetails> | undefined;
-        if(bankDetailsString) {
+        if (bankDetailsString) {
             try {
                 bankDetails = JSON.parse(bankDetailsString);
             } catch (e) {
                 console.warn("Could not parse bank account details.");
             }
         }
-        
+
         const accountData: Partial<Omit<CrmPaymentAccount, '_id'>> = {
             userId: new ObjectId(session.user._id),
             accountName: formData.get('accountName') as string,
@@ -89,19 +89,19 @@ export async function saveCrmPaymentAccount(prevState: any, formData: FormData):
             currency: formData.get('currency') as string,
             isDefault: formData.get('isDefault') === 'on',
         };
-        
+
         if (accountType === 'bank' && bankDetails) {
             accountData.bankDetails = bankDetails;
         }
-        
+
         if (!accountData.accountName || !accountData.accountType) {
             return { error: 'Account Name and Type are required.' };
         }
 
         const { db } = await connectToDatabase();
-        
+
         if (accountData.isDefault) {
-             await db.collection('crm_payment_accounts').updateMany({ userId: accountData.userId }, { $set: { isDefault: false } });
+            await db.collection('crm_payment_accounts').updateMany({ userId: accountData.userId }, { $set: { isDefault: false } });
         }
 
         if (isEditing && ObjectId.isValid(accountId)) {
@@ -116,10 +116,10 @@ export async function saveCrmPaymentAccount(prevState: any, formData: FormData):
                 updatedAt: new Date()
             } as CrmPaymentAccount);
         }
-        
+
         revalidatePath('/dashboard/crm/banking/all');
         return { message: `Account "${accountData.accountName}" saved successfully.` };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -134,9 +134,9 @@ export async function deleteCrmPaymentAccount(accountId: string): Promise<{ succ
 
     try {
         const { db } = await connectToDatabase();
-        
+
         // You might want to add a check here to prevent deletion if there are transactions associated with this account.
-        
+
         await db.collection('crm_payment_accounts').deleteOne({
             _id: new ObjectId(accountId),
             userId: new ObjectId(session.user._id)

@@ -11,7 +11,7 @@ import { logActivity } from '@/app/actions/activity.actions';
 
 import { globalModules } from '@/lib/permission-modules';
 
-export async function saveRolePermissions(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function saveRolePermissions(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access Denied' };
 

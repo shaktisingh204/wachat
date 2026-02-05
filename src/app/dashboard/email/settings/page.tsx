@@ -8,7 +8,7 @@ import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
 import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
 import { AlertCircle, Mail, FileText, Settings, ShieldCheck, Zap, BarChart3, Plus, ArrowLeft, Trash2, CheckCircle } from 'lucide-react';
 import { getEmailSettings, saveEmailComplianceSettings, disconnectEmailSettings } from '@/app/actions/email.actions';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { EmailSettings as CrmEmailSettings, User, WithId } from '@/lib/definitions';
 import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import Link from "next/link";
@@ -39,7 +39,7 @@ function PageSkeleton() {
     );
 }
 
-const complianceInitialState = { message: null, error: undefined };
+const complianceInitialState = { message: undefined, error: undefined };
 
 function ComplianceForm({ user }: { user: WithId<User> }) {
     const { toast } = useToast();
@@ -210,7 +210,7 @@ function EmailSettingsPageContent() {
     const [allSettings, setAllSettings] = useState<WithId<CrmEmailSettings>[]>([]);
 
     // We derive 'view' from params now
-    const view = viewParam === 'connect' ? 'connect' : 'manage';
+    const view = viewParam === 'connect' ? 'connect' : (viewParam === 'manage' ? 'manage' : 'list');
     const activeSettingsId = accountIdParam;
 
     const [isLoading, setIsLoading] = useState(true);

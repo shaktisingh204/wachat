@@ -2,7 +2,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
 import type { Transaction, Plan } from '@/lib/definitions';
@@ -32,7 +32,7 @@ export async function handleCreateRazorpayOrder(amount: number, currency: string
         };
 
         const order = await instance.orders.create(options);
-        
+
         const { db } = await connectToDatabase();
         await db.collection('transactions').insertOne({
             userId: new ObjectId(session.user._id),
@@ -46,15 +46,15 @@ export async function handleCreateRazorpayOrder(amount: number, currency: string
         } as Omit<Transaction, '_id'>);
 
 
-        return { 
-            success: true, 
-            orderId: order.id, 
+        return {
+            success: true,
+            orderId: order.id,
             amount: order.amount,
             currency: order.currency,
             apiKey: razorpayConfig.keyId,
             user: { name: session.user.name, email: session.user.email }
         };
-        
+
     } catch (e: any) {
         console.error('Razorpay order creation failed:', e);
         return { success: false, error: e.message || 'Failed to create Razorpay order.' };
@@ -66,7 +66,7 @@ export async function getTransactions(): Promise<WithId<Transaction>[]> {
     if (!session?.user) {
         return [];
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         const transactions = await db.collection<Transaction>('transactions')
@@ -76,7 +76,7 @@ export async function getTransactions(): Promise<WithId<Transaction>[]> {
             .toArray();
 
         return JSON.parse(JSON.stringify(transactions));
-    } catch(e) {
+    } catch (e) {
         console.error("Failed to fetch transactions:", e);
         return [];
     }

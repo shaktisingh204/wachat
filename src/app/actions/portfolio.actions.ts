@@ -2,7 +2,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Website, WebsitePage, WebsiteBlock } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';

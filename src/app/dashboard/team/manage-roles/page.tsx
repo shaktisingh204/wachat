@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LoaderCircle, Save, ShieldCheck, Plus, Trash2 } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
 import type { WithId, User } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 
-const initialState = { message: null, error: undefined };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -361,7 +361,7 @@ export default function ManageRolesPage() {
 
             <form action={formAction} className="flex-1 flex flex-col">
                 <Accordion type="single" collapsible className="w-full space-y-4" defaultValue={allRoles[0]?.id}>
-                    {allRoles.map(role => {
+                    {allRoles.map((role: any) => {
                         const permissions = role.permissions || {};
 
                         return (

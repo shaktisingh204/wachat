@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { Project } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -30,7 +30,7 @@ export default function RazorpayIntegrationPage() {
                 setProject(projectData);
             });
         } else {
-            startLoadingTransition(async () => {});
+            startLoadingTransition(async () => { });
         }
     }, []);
 
@@ -40,7 +40,7 @@ export default function RazorpayIntegrationPage() {
 
     if (!project) {
         return (
-             <Alert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Project Selected</AlertTitle>
                 <AlertDescription>

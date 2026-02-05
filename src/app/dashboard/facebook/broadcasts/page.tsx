@@ -4,7 +4,7 @@
 import { useState, useEffect, useTransition, useCallback, useRef, useActionState } from 'react';
 import type { WithId } from 'mongodb';
 import { getFacebookBroadcasts, handleSendFacebookBroadcast } from '@/app/actions/facebook.actions';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { Project, FacebookBroadcast } from '@/lib/definitions';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +22,7 @@ import { Progress } from '@/components/ui/progress';
 import { useProject } from '@/context/project-context';
 import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
 
-const initialState = { message: null, error: undefined };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -92,28 +92,28 @@ export default function FacebookBroadcastsPage() {
             </Alert>
         );
     }
-    
+
     const getStatusVariant = (status: string) => {
         const s = status.toLowerCase();
         if (s === 'completed') return 'default';
         if (s === 'processing' || s === 'queued') return 'secondary';
         return 'destructive';
     };
-    
+
     return (
         <div className="flex flex-col gap-8 relative">
             <FeatureLockOverlay isAllowed={isAllowed} featureName="Facebook Broadcasts" />
             <FeatureLock isAllowed={isAllowed}>
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Send className="h-8 w-8"/>
+                        <Send className="h-8 w-8" />
                         Facebook Broadcasts
                     </h1>
                     <p className="text-muted-foreground mt-2">
                         Send a message to all users who have previously messaged your page.
                     </p>
                 </div>
-                
+
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="projectId" value={activeProject._id.toString()} />
                     <Card className="card-gradient card-gradient-blue">
@@ -147,22 +147,22 @@ export default function FacebookBroadcastsPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {isLoading ? <TableRow><TableCell colSpan={4}><Skeleton className="h-10 w-full"/></TableCell></TableRow>
-                                    : broadcasts.length > 0 ? broadcasts.map(b => (
-                                        <TableRow key={b._id.toString()}>
-                                            <TableCell>{formatDistanceToNow(new Date(b.createdAt), { addSuffix: true })}</TableCell>
-                                            <TableCell><Badge variant={getStatusVariant(b.status)}>{b.status}</Badge></TableCell>
-                                            <TableCell className="max-w-sm truncate">{b.message}</TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col text-xs">
-                                                    <span>Sent: {b.successCount}/{b.totalRecipients}</span>
-                                                    <span className="text-destructive">Failed: {b.failedCount}</span>
-                                                    {b.status === 'PROCESSING' && <Progress value={(b.successCount + b.failedCount) / b.totalRecipients * 100} className="h-1 mt-1"/>}
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                    : <TableRow><TableCell colSpan={4} className="text-center h-24">No broadcasts sent yet.</TableCell></TableRow>}
+                                    {isLoading ? <TableRow><TableCell colSpan={4}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                                        : broadcasts.length > 0 ? broadcasts.map(b => (
+                                            <TableRow key={b._id.toString()}>
+                                                <TableCell>{formatDistanceToNow(new Date(b.createdAt), { addSuffix: true })}</TableCell>
+                                                <TableCell><Badge variant={getStatusVariant(b.status)}>{b.status}</Badge></TableCell>
+                                                <TableCell className="max-w-sm truncate">{b.message}</TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-col text-xs">
+                                                        <span>Sent: {b.successCount}/{b.totalRecipients}</span>
+                                                        <span className="text-destructive">Failed: {b.failedCount}</span>
+                                                        {b.status === 'PROCESSING' && <Progress value={(b.successCount + b.failedCount) / b.totalRecipients * 100} className="h-1 mt-1" />}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                            : <TableRow><TableCell colSpan={4} className="text-center h-24">No broadcasts sent yet.</TableCell></TableRow>}
                                 </TableBody>
                             </Table>
                         </div>

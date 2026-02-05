@@ -9,7 +9,8 @@ import axios from 'axios';
 import NodeFormData from 'form-data';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getAdminSession } from '@/app/actions/index';
+import { getProjectById } from '@/app/actions/project.actions';
+import { getAdminSession } from '@/app/actions/admin.actions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import type { Project, Template, CreateTemplateState, MetaTemplate, MetaTemplatesResponse, LibraryTemplate, TemplateCategory } from '@/lib/definitions';

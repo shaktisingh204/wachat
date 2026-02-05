@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { EmailSettings, CrmContact } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { getTransporter } from '@/lib/email-service';
@@ -25,7 +25,7 @@ export async function saveCrmEmailSettings(prevState: any, formData: FormData): 
     if (!smtpSettings.host || !smtpSettings.port || !smtpSettings.user || !smtpSettings.pass) {
         return { error: 'All SMTP fields are required.' };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
 
@@ -36,7 +36,7 @@ export async function saveCrmEmailSettings(prevState: any, formData: FormData): 
             fromEmail: formData.get('fromEmail') as string,
             smtp: smtpSettings,
         };
-        
+
         await db.collection('email_settings').updateOne(
             { userId: new ObjectId(session.user._id) },
             { $set: updateData },
@@ -45,7 +45,7 @@ export async function saveCrmEmailSettings(prevState: any, formData: FormData): 
 
         revalidatePath('/dashboard/crm/settings');
         return { message: 'SMTP settings saved successfully.' };
-    } catch(e: any) {
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
@@ -62,19 +62,19 @@ export async function sendCrmEmail(prevState: any, formData: FormData): Promise<
     if (!to || !subject || !body) {
         return { success: false, error: "To, subject, and body are required." };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         const settings = await db.collection<WithId<EmailSettings>>('email_settings').findOne({ userId: new ObjectId(session.user._id) });
         if (!settings) throw new Error("Email provider not configured.");
-        
+
         // --- Variable Interpolation ---
         const firstRecipient = to.split(',')[0].trim();
         const contact = await db.collection<CrmContact>('crm_contacts').findOne({ userId: new ObjectId(session.user._id), email: firstRecipient });
-        
+
         let interpolatedSubject = subject;
         let interpolatedBody = body;
-        
+
         if (contact) {
             const variables = {
                 'contact.name': contact.name,
@@ -99,7 +99,7 @@ export async function sendCrmEmail(prevState: any, formData: FormData): Promise<
 
         // Log the email as an activity (future step)
         // await addCrmNote(...)
-        
+
         return { success: true, message: "Email sent successfully!" };
     } catch (e: any) {
         console.error("Failed to send email:", e);

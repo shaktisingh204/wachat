@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import { saveRandomizerSettings, getRandomizerPosts, deleteRandomizerPost } from '@/app/actions/facebook.actions';
 import type { WithId, Project, RandomizerPost, PostRandomizerSettings } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,7 +37,7 @@ function RandomizerPostCard({ post, onDelete }: { post: WithId<RandomizerPost>, 
             <CardContent className="p-4 flex gap-4">
                 {post.imageUrl && (
                     <div className="relative w-24 h-24 flex-shrink-0">
-                        <Image src={post.imageUrl} alt="Post image" layout="fill" objectFit="cover" className="rounded-md" data-ai-hint="social media post"/>
+                        <Image src={post.imageUrl} alt="Post image" layout="fill" objectFit="cover" className="rounded-md" data-ai-hint="social media post" />
                     </div>
                 )}
                 <div className="flex-1 space-y-2">
@@ -90,7 +90,7 @@ export default function PostRandomizerPage() {
 
     const handleSaveSettings = () => {
         if (!activeProject) return;
-        
+
         const formData = new FormData();
         formData.append('projectId', activeProject._id.toString());
         formData.append('enabled', settings.enabled ? 'on' : 'off');
@@ -106,7 +106,7 @@ export default function PostRandomizerPage() {
             }
         });
     };
-    
+
     const handleDeletePost = (postId: string) => {
         if (!activeProject) return;
         startDeleting(async () => {
@@ -121,17 +121,17 @@ export default function PostRandomizerPage() {
     }
 
     if (isLoadingProject) return <PageSkeleton />;
-    
+
     if (!activeProject) {
         return (
-             <Alert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Project Selected</AlertTitle>
                 <AlertDescription>Please select a project to manage its Post Randomizer.</AlertDescription>
             </Alert>
         );
     }
-    
+
     return (
         <>
             {activeProject && <CreateRandomizerPostDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} project={activeProject} onPostAdded={fetchData} />}
@@ -182,11 +182,11 @@ export default function PostRandomizerPage() {
                                         <CardTitle>Content Pool</CardTitle>
                                         <CardDescription>Posts that will be randomly selected for publishing.</CardDescription>
                                     </div>
-                                    <Button onClick={() => setIsDialogOpen(true)}><PlusCircle className="mr-2 h-4 w-4"/>Add Post</Button>
+                                    <Button onClick={() => setIsDialogOpen(true)}><PlusCircle className="mr-2 h-4 w-4" />Add Post</Button>
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                {isLoading ? <Skeleton className="h-48 w-full"/> : (
+                                {isLoading ? <Skeleton className="h-48 w-full" /> : (
                                     <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                                         {posts.length > 0 ? (
                                             posts.map(post => <RandomizerPostCard key={post._id.toString()} post={post} onDelete={handleDeletePost} />)

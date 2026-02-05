@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { TeamChannel, TeamMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils'; // Assuming this util exists or I should use generic error handling
 

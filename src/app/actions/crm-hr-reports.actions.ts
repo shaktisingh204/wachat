@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
 import { CrmAttendance, CrmEmployee } from '@/lib/definitions';
@@ -32,7 +32,7 @@ export async function generateAttendanceReportData(filters: { startDate?: Date; 
         }
 
         const attendanceRecords = await db.collection<CrmAttendance>('crm_attendance').find(attendanceFilter).toArray();
-        
+
         const reportData = employees.map(emp => {
             const empAttendance = attendanceRecords.filter(a => a.employeeId.equals(emp._id));
             const present = empAttendance.filter(a => a.status === 'Present').length;
@@ -52,7 +52,7 @@ export async function generateAttendanceReportData(filters: { startDate?: Date; 
                 attendancePercentage: totalDays > 0 ? ((present + halfDay * 0.5) / totalDays) * 100 : 0
             };
         });
-        
+
         const totalEmployees = employees.length;
         const overallAttendance = reportData.reduce((acc, curr) => acc + curr.attendancePercentage, 0) / (reportData.length || 1);
 
@@ -74,7 +74,7 @@ export async function generateLeaveReportData(filters: {}): Promise<{ data?: any
     if (!session?.user) {
         return { error: 'Authentication required.' };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
@@ -112,7 +112,7 @@ export async function generateLeaveReportData(filters: {}): Promise<{ data?: any
             const duration = differenceInDays(new Date(req.endDate), new Date(req.startDate)) + 1;
             reportMap[req.employeeId].totalLeaveDays += duration;
         });
-        
+
         const reportData = Object.values(reportMap);
 
         return { data: JSON.parse(JSON.stringify(reportData)) };
@@ -123,11 +123,11 @@ export async function generateLeaveReportData(filters: {}): Promise<{ data?: any
 }
 
 export async function generatePayrollSummaryData(filters: {}): Promise<{ data?: any, error?: string }> {
-     const session = await getSession();
+    const session = await getSession();
     if (!session?.user) {
         return { error: 'Authentication required.' };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
@@ -147,7 +147,7 @@ export async function generatePayrollSummaryData(filters: {}): Promise<{ data?: 
                 cost: Math.round(totalPayroll * randomFactor),
             });
         }
-        
+
         return { data: { totalEmployees, totalPayroll, monthlyData } };
 
     } catch (e) {
@@ -176,11 +176,11 @@ export async function generateSalaryRegisterData(filters: {}): Promise<{ data?: 
             },
             { $unwind: { path: '$departmentInfo', preserveNullAndEmptyArrays: true } }
         ]).toArray();
-        
+
         const reportData = employees.map((emp: any) => {
             const grossSalary = emp.salaryDetails?.grossSalary || 0;
             // Mock deductions for now
-            const deductions = grossSalary * 0.12; 
+            const deductions = grossSalary * 0.12;
             const netSalary = grossSalary - deductions;
 
             return {
@@ -200,4 +200,3 @@ export async function generateSalaryRegisterData(filters: {}): Promise<{ data?: 
     }
 }
 
-    

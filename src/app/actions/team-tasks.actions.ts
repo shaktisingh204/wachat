@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { TeamTask } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { logActivity } from '@/app/actions/activity.actions';

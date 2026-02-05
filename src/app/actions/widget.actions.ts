@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/index';
+import { getProjectById } from '@/app/actions/project.actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { WhatsAppWidgetSettings } from '@/lib/definitions';
 

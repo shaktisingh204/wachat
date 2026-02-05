@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmAutomation, CrmAutomationNode, CrmAutomationEdge } from '@/lib/definitions';
 import { generateCrmAutomation as generateFlow } from '@/ai/flows/generate-crm-automation-flow';
 import { z } from 'zod';
@@ -28,14 +28,14 @@ export async function getCrmAutomations(): Promise<WithId<CrmAutomation>[]> {
 
 export async function getCrmAutomationById(automationId: string): Promise<WithId<CrmAutomation> | null> {
     if (!ObjectId.isValid(automationId)) return null;
-    
+
     const session = await getSession();
     if (!session?.user) return null;
 
     const { db } = await connectToDatabase();
-    const automation = await db.collection<CrmAutomation>('crm_automations').findOne({ 
+    const automation = await db.collection<CrmAutomation>('crm_automations').findOne({
         _id: new ObjectId(automationId),
-        userId: new ObjectId(session.user._id) 
+        userId: new ObjectId(session.user._id)
     });
 
     return automation ? JSON.parse(JSON.stringify(automation)) : null;
@@ -50,11 +50,11 @@ export async function saveCrmAutomation(data: {
     const { flowId, name, nodes, edges } = data;
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
-    
+
     if (!name) return { error: 'Automation Name is required.' };
-    
+
     const isNew = !flowId;
-    
+
     const automationData: Omit<CrmAutomation, '_id' | 'createdAt'> = {
         name,
         userId: new ObjectId(session.user._id),
@@ -84,7 +84,7 @@ export async function saveCrmAutomation(data: {
 
 export async function deleteCrmAutomation(automationId: string): Promise<{ message?: string; error?: string }> {
     if (!ObjectId.isValid(automationId)) return { error: 'Invalid Automation ID.' };
-    
+
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
@@ -102,7 +102,7 @@ export async function deleteCrmAutomation(automationId: string): Promise<{ messa
 }
 
 const GenerateCrmAutomationInputSchema = z.object({
-  prompt: z.string().describe("The user's description of the automation they want to create."),
+    prompt: z.string().describe("The user's description of the automation they want to create."),
 });
 
 export async function generateCrmAutomation(input: z.infer<typeof GenerateCrmAutomationInputSchema>) {

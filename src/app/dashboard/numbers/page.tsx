@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import { handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import type { Project, PhoneNumber } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
@@ -22,20 +22,20 @@ import { CallingToggleSwitch } from '@/components/wabasimplify/calling-toggle-sw
 import { RegisterPhoneButton } from '@/components/wabasimplify/register-phone-button';
 
 function NumbersPageSkeleton() {
-    return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <Skeleton className="h-8 w-64" />
-                    <Skeleton className="h-4 w-96 mt-2" />
-                </div>
-                <Skeleton className="h-10 w-48" />
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                 {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-60 w-full" />)}
-            </div>
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96 mt-2" />
         </div>
-    );
+        <Skeleton className="h-10 w-48" />
+      </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-60 w-full" />)}
+      </div>
+    </div>
+  );
 }
 
 export default function NumbersPage() {
@@ -45,26 +45,26 @@ export default function NumbersPage() {
   const [editingPhone, setEditingPhone] = useState<PhoneNumber | null>(null);
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
-  const [activeProjectId, setActiveProjectId] = useState<string|null>(null);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const router = useRouter();
 
 
   const fetchProjectData = useCallback(async (projectId: string) => {
     startLoadingTransition(async () => {
-        try {
-            const projectData = await getProjectById(projectId);
-            setProject(projectData || null);
-        } catch (error) {
-          console.error("Failed to fetch project data:", error);
-          toast({
-            title: "Error",
-            description: "Failed to load project numbers. Please try again later.",
-            variant: "destructive",
-          });
-        }
+      try {
+        const projectData = await getProjectById(projectId);
+        setProject(projectData || null);
+      } catch (error) {
+        console.error("Failed to fetch project data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load project numbers. Please try again later.",
+          variant: "destructive",
+        });
+      }
     });
   }, [toast, startLoadingTransition]);
-  
+
   useEffect(() => {
     setIsClient(true);
     const storedProjectId = localStorage.getItem('activeProjectId');
@@ -80,8 +80,8 @@ export default function NumbersPage() {
 
   const onSync = () => {
     if (!activeProjectId) {
-        toast({ title: "Error", description: "No active project selected.", variant: "destructive" });
-        return;
+      toast({ title: "Error", description: "No active project selected.", variant: "destructive" });
+      return;
     }
     startSyncTransition(async () => {
       const result = await handleSyncPhoneNumbers(activeProjectId);
@@ -110,18 +110,18 @@ export default function NumbersPage() {
     if (lowerQuality === 'unknown') return 'secondary';
     return 'destructive';
   }
-  
+
   const phoneNumbers: PhoneNumber[] = project?.phoneNumbers || [];
-    
+
   return (
     <>
       {editingPhone && project && (
         <EditPhoneNumberDialog
-            isOpen={!!editingPhone}
-            onOpenChange={() => setEditingPhone(null)}
-            phone={editingPhone}
-            project={project}
-            onUpdateSuccess={() => fetchProjectData(project._id.toString())}
+          isOpen={!!editingPhone}
+          onOpenChange={() => setEditingPhone(null)}
+          phone={editingPhone}
+          project={project}
+          onUpdateSuccess={() => fetchProjectData(project._id.toString())}
         />
       )}
       <div className="flex flex-col gap-8">
@@ -130,7 +130,7 @@ export default function NumbersPage() {
             <h1 className="text-3xl font-bold font-headline">Phone Number Management</h1>
             <p className="text-muted-foreground">
               {project ? `Your registered WhatsApp phone numbers for project "${project.name}".` : 'Manage your project\'s WhatsApp phone numbers.'}
-              </p>
+            </p>
           </div>
           <Button onClick={onSync} disabled={isSyncing || !project || isLoading} variant="outline">
             {isSyncing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
@@ -142,76 +142,76 @@ export default function NumbersPage() {
           <NumbersPageSkeleton />
         ) : !project ? (
           <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>No Project Selected</AlertTitle>
-              <AlertDescription>
-                  Please select a project from the main dashboard page to see its phone numbers.
-              </AlertDescription>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No Project Selected</AlertTitle>
+            <AlertDescription>
+              Please select a project from the main dashboard page to see its phone numbers.
+            </AlertDescription>
           </Alert>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {phoneNumbers.length > 0 ? (
-                  phoneNumbers.map((phone, index) => (
-                      <Card key={phone.id} className={cn("flex flex-col card-gradient transition-transform hover:-translate-y-1", ['card-gradient-blue', 'card-gradient-green', 'card-gradient-purple'][index % 3])}>
-                          <CardHeader className="flex-row items-center gap-4">
-                              <div className="relative flex-shrink-0">
-                                  {phone.profile?.profile_picture_url ? (
-                                      <Image 
-                                          src={phone.profile.profile_picture_url} 
-                                          alt={phone.verified_name} 
-                                          width={56} 
-                                          height={56} 
-                                          className="rounded-full border"
-                                          data-ai-hint="business logo" 
-                                      />
-                                  ) : (
-                                      <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center">
-                                          <UserCircle className="h-8 w-8 text-muted-foreground"/>
-                                      </div>
-                                  )}
-                              </div>
-                              <div className="flex-1">
-                                  <CardTitle className="text-base">{phone.verified_name}</CardTitle>
-                                  <p className="text-sm font-mono text-muted-foreground">{phone.display_phone_number}</p>
-                              </div>
-                          </CardHeader>
-                          <CardContent className="space-y-3 text-sm flex-grow">
-                              <div className="flex justify-between items-center">
-                                  <span className="text-muted-foreground">Status</span>
-                                  <Badge variant={getStatusVariant(phone.code_verification_status)} className="capitalize">
-                                      {phone.code_verification_status ? phone.code_verification_status.replace(/_/g, ' ').toLowerCase() : 'N/A'}
-                                  </Badge>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                  <span className="text-muted-foreground">Quality</span>
-                                  <Badge variant={getQualityVariant(phone.quality_rating)} className="capitalize">
-                                      {phone.quality_rating || 'N/A'}
-                                  </Badge>
-                              </div>
-                               <div className="flex justify-between items-center">
-                                  <span className="text-muted-foreground">About</span>
-                                  <p className="truncate w-40 text-right">{phone.profile?.about || 'Not set'}</p>
-                              </div>
-                          </CardContent>
-                          <CardFooter className="mt-auto flex-col items-stretch gap-2">
-                              <Button variant="secondary" className="w-full" onClick={() => setEditingPhone(phone)}>
-                                  <Edit className="mr-2 h-4 w-4"/>
-                                  Edit Profile & Settings
-                              </Button>
-                                {phone.code_verification_status === 'VERIFIED' && (
-                                    <RegisterPhoneButton projectId={project._id.toString()} phoneNumberId={phone.id} />
-                                )}
-                          </CardFooter>
-                      </Card>
-                  ))
-              ) : (
-                   <Card className="md:col-span-2 lg:col-span-3">
-                       <CardContent className="h-48 flex flex-col items-center justify-center text-center">
-                           <p className="text-lg font-semibold">No Phone Numbers Found</p>
-                           <p className="text-muted-foreground">Click "Sync Phone Numbers" to fetch them from your Meta Business Account.</p>
-                       </CardContent>
-                   </Card>
-              )}
+            {phoneNumbers.length > 0 ? (
+              phoneNumbers.map((phone, index) => (
+                <Card key={phone.id} className={cn("flex flex-col card-gradient transition-transform hover:-translate-y-1", ['card-gradient-blue', 'card-gradient-green', 'card-gradient-purple'][index % 3])}>
+                  <CardHeader className="flex-row items-center gap-4">
+                    <div className="relative flex-shrink-0">
+                      {phone.profile?.profile_picture_url ? (
+                        <Image
+                          src={phone.profile.profile_picture_url}
+                          alt={phone.verified_name}
+                          width={56}
+                          height={56}
+                          className="rounded-full border"
+                          data-ai-hint="business logo"
+                        />
+                      ) : (
+                        <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center">
+                          <UserCircle className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-base">{phone.verified_name}</CardTitle>
+                      <p className="text-sm font-mono text-muted-foreground">{phone.display_phone_number}</p>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm flex-grow">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Status</span>
+                      <Badge variant={getStatusVariant(phone.code_verification_status)} className="capitalize">
+                        {phone.code_verification_status ? phone.code_verification_status.replace(/_/g, ' ').toLowerCase() : 'N/A'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Quality</span>
+                      <Badge variant={getQualityVariant(phone.quality_rating)} className="capitalize">
+                        {phone.quality_rating || 'N/A'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">About</span>
+                      <p className="truncate w-40 text-right">{phone.profile?.about || 'Not set'}</p>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="mt-auto flex-col items-stretch gap-2">
+                    <Button variant="secondary" className="w-full" onClick={() => setEditingPhone(phone)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Profile & Settings
+                    </Button>
+                    {phone.code_verification_status === 'VERIFIED' && (
+                      <RegisterPhoneButton projectId={project._id.toString()} phoneNumberId={phone.id} />
+                    )}
+                  </CardFooter>
+                </Card>
+              ))
+            ) : (
+              <Card className="md:col-span-2 lg:col-span-3">
+                <CardContent className="h-48 flex flex-col items-center justify-center text-center">
+                  <p className="text-lg font-semibold">No Phone Numbers Found</p>
+                  <p className="text-muted-foreground">Click "Sync Phone Numbers" to fetch them from your Meta Business Account.</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
       </div>

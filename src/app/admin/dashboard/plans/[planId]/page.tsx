@@ -193,15 +193,28 @@ export default function PlanEditorPage() {
                     </div>
                 </CardContent>
                 <CardHeader>
-                    <CardTitle>Credit Rates</CardTitle>
-                    <CardDescription>Cost in credits per unit.</CardDescription>
+                    <CardTitle>Credit Rates (Credits per Unit)</CardTitle>
+                    <CardDescription>Define how many credits are deducted per message type.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid md:grid-cols-4 gap-4">
+                    <div className="grid md:grid-cols-3 gap-4 border p-3 rounded-lg mb-4">
+                        <div className="col-span-3 font-semibold text-sm text-green-600 mb-1">WhatsApp (WaChat) Rates</div>
                         <div className="space-y-2">
-                            <Label htmlFor="rate_broadcast">Broadcast Rate</Label>
-                            <Input id="rate_broadcast" name="rate_broadcast" type="number" defaultValue={plan?.rates?.broadcast ?? 1} required min="0" step="0.1" />
+                            <Label htmlFor="rate_whatsapp_marketing">Marketing Rate</Label>
+                            <Input id="rate_whatsapp_marketing" name="rate_whatsapp_marketing" type="number" defaultValue={plan?.rates?.whatsapp_marketing ?? 1} required min="0" step="0.1" />
                         </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="rate_whatsapp_utility">Utility Rate</Label>
+                            <Input id="rate_whatsapp_utility" name="rate_whatsapp_utility" type="number" defaultValue={plan?.rates?.whatsapp_utility ?? 1} required min="0" step="0.1" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="rate_whatsapp_authentication">Authentication Rate</Label>
+                            <Input id="rate_whatsapp_authentication" name="rate_whatsapp_authentication" type="number" defaultValue={plan?.rates?.whatsapp_authentication ?? 1} required min="0" step="0.1" />
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-4 border p-3 rounded-lg">
+                        <div className="col-span-3 font-semibold text-sm text-blue-600 mb-1">Other Channel Rates</div>
                         <div className="space-y-2">
                             <Label htmlFor="rate_sms">SMS Rate</Label>
                             <Input id="rate_sms" name="rate_sms" type="number" defaultValue={plan?.rates?.sms ?? 1} required min="0" step="0.1" />
@@ -215,6 +228,126 @@ export default function PlanEditorPage() {
                             <Input id="rate_email" name="rate_email" type="number" defaultValue={plan?.rates?.email ?? 1} required min="0" step="0.1" />
                         </div>
                     </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Feature Limits</CardTitle>
+                    <CardDescription>Set resource limits for each application.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {/* WaChat Limits */}
+                    <div>
+                        <h3 className="font-semibold text-sm mb-3 text-green-600">WaChat</h3>
+                        <div className="grid md:grid-cols-4 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_wachat_templates">Templates</Label>
+                                <Input id="limit_wachat_templates" name="limit_wachat_templates" type="number" defaultValue={plan?.appLimits?.wachat?.templates ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_wachat_flows">Flows</Label>
+                                <Input id="limit_wachat_flows" name="limit_wachat_flows" type="number" defaultValue={plan?.appLimits?.wachat?.flows ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_wachat_metaFlows">Meta Flows</Label>
+                                <Input id="limit_wachat_metaFlows" name="limit_wachat_metaFlows" type="number" defaultValue={plan?.appLimits?.wachat?.metaFlows ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_wachat_cannedMessages">Canned Messages</Label>
+                                <Input id="limit_wachat_cannedMessages" name="limit_wachat_cannedMessages" type="number" defaultValue={plan?.appLimits?.wachat?.cannedMessages ?? 0} min="0" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* CRM Limits */}
+                    <div>
+                        <h3 className="font-semibold text-sm mb-3 text-blue-600">CRM</h3>
+                        <div className="grid md:grid-cols-5 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_crm_products">Products</Label>
+                                <Input id="limit_crm_products" name="limit_crm_products" type="number" defaultValue={plan?.appLimits?.crm?.products ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_crm_customers">Customers</Label>
+                                <Input id="limit_crm_customers" name="limit_crm_customers" type="number" defaultValue={plan?.appLimits?.crm?.customers ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_crm_vendors">Vendors</Label>
+                                <Input id="limit_crm_vendors" name="limit_crm_vendors" type="number" defaultValue={plan?.appLimits?.crm?.vendors ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_crm_warehouses">Warehouses</Label>
+                                <Input id="limit_crm_warehouses" name="limit_crm_warehouses" type="number" defaultValue={plan?.appLimits?.crm?.warehouses ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_crm_pipelines">Pipelines</Label>
+                                <Input id="limit_crm_pipelines" name="limit_crm_pipelines" type="number" defaultValue={plan?.appLimits?.crm?.pipelines ?? 0} min="0" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Meta Limits */}
+                    <div>
+                        <h3 className="font-semibold text-sm mb-3 text-indigo-600">Meta Suite</h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_meta_adAccounts">Ad Accounts</Label>
+                                <Input id="limit_meta_adAccounts" name="limit_meta_adAccounts" type="number" defaultValue={plan?.appLimits?.meta?.adAccounts ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_meta_pages">Facebook Pages</Label>
+                                <Input id="limit_meta_pages" name="limit_meta_pages" type="number" defaultValue={plan?.appLimits?.meta?.pages ?? 0} min="0" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Email Limits */}
+                    <div>
+                        <h3 className="font-semibold text-sm mb-3 text-orange-600">Email</h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_email_connectedAccounts">Connected Accounts</Label>
+                                <Input id="limit_email_connectedAccounts" name="limit_email_connectedAccounts" type="number" defaultValue={plan?.appLimits?.email?.connectedAccounts ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_email_dailyLimit">Daily Sending Limit</Label>
+                                <Input id="limit_email_dailyLimit" name="limit_email_dailyLimit" type="number" defaultValue={plan?.appLimits?.email?.dailyLimit ?? 0} min="0" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Other Limits */}
+                    <div>
+                        <h3 className="font-semibold text-sm mb-3">Other Tools</h3>
+                        <div className="grid md:grid-cols-4 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_sms_dailyLimit">SMS Daily Limit</Label>
+                                <Input id="limit_sms_dailyLimit" name="limit_sms_dailyLimit" type="number" defaultValue={plan?.appLimits?.sms?.dailyLimit ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_url_links">URL Shortener Links</Label>
+                                <Input id="limit_url_links" name="limit_url_links" type="number" defaultValue={plan?.appLimits?.urlShortener?.links ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_url_domains">URL Custom Domains</Label>
+                                <Input id="limit_url_domains" name="limit_url_domains" type="number" defaultValue={plan?.appLimits?.urlShortener?.domains ?? 0} min="0" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="limit_qrcode_limit">QR Codes</Label>
+                                <Input id="limit_qrcode_limit" name="limit_qrcode_limit" type="number" defaultValue={plan?.appLimits?.qrCode?.limit ?? 0} min="0" />
+                            </div>
+                        </div>
+                    </div>
+
                 </CardContent>
                 <CardFooter className="flex flex-wrap gap-x-8 gap-y-4">
                     <div className="flex items-center space-x-2">

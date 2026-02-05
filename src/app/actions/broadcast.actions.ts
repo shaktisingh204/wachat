@@ -208,7 +208,7 @@ async function createBroadcastContacts(db: Db, broadcastId: ObjectId, contacts: 
 
 
 export async function handleStartBroadcast(
-    prevState: any,
+    prevState: { message?: string; error?: string },
     formData: FormData
 ): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
@@ -314,7 +314,7 @@ export async function handleStartBroadcast(
 }
 
 export async function handleBulkBroadcast(
-    prevState: any,
+    prevState: { message?: string; error?: string },
     formData: FormData
 ): Promise<{ message?: string; error?: string }> {
     const projectIdsString = formData.get('projectIds') as string;
@@ -445,7 +445,7 @@ export async function handleStartApiBroadcast(data: {
 }
 
 
-export async function handleRequeueBroadcast(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleRequeueBroadcast(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
     const broadcastId = formData.get('broadcastId') as string;
     const requeueScope = formData.get('requeueScope') as 'ALL' | 'FAILED';
     const newTemplateId = formData.get('templateId') as string;

@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -29,7 +29,7 @@ export default function WhatsappLinkGeneratorPage() {
                 setProject(projectData);
             });
         } else {
-            startLoadingTransition(async () => {});
+            startLoadingTransition(async () => { });
         }
     }, []);
 
@@ -39,7 +39,7 @@ export default function WhatsappLinkGeneratorPage() {
 
     if (!project) {
         return (
-             <Alert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Project Selected</AlertTitle>
                 <AlertDescription>

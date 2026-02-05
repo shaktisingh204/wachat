@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId } from 'mongodb';
 import { nanoid } from 'nanoid';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import { ApiKey, User } from '@/lib/definitions';
 import { hashPassword, comparePassword } from '@/lib/auth';
 

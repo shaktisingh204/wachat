@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { QrCode, ShortUrl, QrCodeWithShortUrl } from '@/lib/definitions';
 import { nanoid } from 'nanoid';
 

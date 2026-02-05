@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import type { ActivityLog, ActivityAction, WithId } from '@/lib/definitions';

@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { getTeamTasks } from '@/app/actions/team-tasks.actions';
 import { getInvitedUsers } from '@/app/actions/team.actions';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { WithId, TeamTask, User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';

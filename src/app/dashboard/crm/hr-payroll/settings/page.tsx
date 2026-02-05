@@ -8,8 +8,8 @@ import { ModuleLayout } from '@/components/wabasimplify/module-layout';
 import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
 import { ListChecks, CalendarDays, Percent, Bell, Shield, Settings, ShieldCheck } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { saveCrmPermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
-import { getSession } from '@/app/actions/index.ts';
+import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
+import { getSession } from '@/app/actions/user.actions';
 import type { User, WithId } from '@/lib/definitions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -167,7 +167,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
 function AccessControlTab() {
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [isLoading, startLoading] = useTransition();
-    const [state, formAction] = useActionState(saveCrmPermissions, initialState);
+    const [state, formAction] = useActionState(saveRolePermissions, initialState);
     const { toast } = useToast();
 
     const fetchUser = useCallback(() => {

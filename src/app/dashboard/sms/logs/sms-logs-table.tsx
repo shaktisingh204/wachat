@@ -67,7 +67,7 @@ export default function SmsLogsTable() {
                     </div>
                     <Button variant="outline" size="sm" onClick={fetchLogs}>
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    </CardHeader>
+                    </Button>
                 </div>
             </CardHeader>
             <CardContent>

@@ -9,24 +9,24 @@ import { AlertCircle, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import { handleCreateTemplate } from '@/app/actions/template.actions';
 import { saveLibraryTemplate, getTemplateCategories } from '@/app/actions/plan.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/lib/definitions';
 
 const LoadingSkeleton = () => (
-    <div className="flex flex-col gap-8">
-      <div>
-        <Skeleton className="h-10 w-48 mb-4" />
-        <Skeleton className="h-8 w-1/3" />
-        <Skeleton className="h-4 w-2/3 mt-2" />
-      </div>
-      <div className="space-y-6">
-        <Skeleton className="h-48 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+  <div className="flex flex-col gap-8">
+    <div>
+      <Skeleton className="h-10 w-48 mb-4" />
+      <Skeleton className="h-8 w-1/3" />
+      <Skeleton className="h-4 w-2/3 mt-2" />
     </div>
+    <div className="space-y-6">
+      <Skeleton className="h-48 w-full" />
+      <Skeleton className="h-64 w-full" />
+    </div>
+  </div>
 );
 
 const CreateTemplateForm = dynamic(
@@ -50,15 +50,15 @@ function CreateTemplatePageContent() {
   useEffect(() => {
     if (isClient) {
       document.title = `${action === 'edit' ? 'Edit' : action === 'clone' ? 'Clone' : 'Create'} Template | SabNode`;
-      
+
       const storedProjectId = localStorage.getItem('activeProjectId');
-      
+
       const templateJson = localStorage.getItem('templateToAction');
       if (templateJson) {
         try {
           const templateData = JSON.parse(templateJson);
-           if (action === 'clone' && templateData.headerSampleUrl?.includes('graph.facebook.com')) {
-              delete templateData.headerSampleUrl;
+          if (action === 'clone' && templateData.headerSampleUrl?.includes('graph.facebook.com')) {
+            delete templateData.headerSampleUrl;
           }
           setInitialTemplate(templateData);
         } catch (e) {
@@ -97,14 +97,14 @@ function CreateTemplatePageContent() {
         <h1 className="text-3xl font-bold font-headline">{pageTitle}</h1>
         <p className="text-muted-foreground">{pageDescription}</p>
       </div>
-      
+
       {!loading && !project && (
         <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>No Project Selected</AlertTitle>
-            <AlertDescription>
-                Please select a project from the main dashboard before creating a template.
-            </AlertDescription>
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>No Project Selected</AlertTitle>
+          <AlertDescription>
+            Please select a project from the main dashboard before creating a template.
+          </AlertDescription>
         </Alert>
       )}
 
@@ -115,9 +115,9 @@ function CreateTemplatePageContent() {
 }
 
 export default function CreateTemplatePage() {
-    return (
-        <Suspense fallback={<LoadingSkeleton />}>
-            <CreateTemplatePageContent />
-        </Suspense>
-    )
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <CreateTemplatePageContent />
+    </Suspense>
+  )
 }

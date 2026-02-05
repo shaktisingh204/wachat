@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 import type { CrmForm, CrmContact, CrmDeal, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -19,7 +19,7 @@ export async function getCrmForms(
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
-        
+
         const filter: Filter<CrmForm> = { userId: userObjectId };
         if (query) {
             filter.name = { $regex: query, $options: 'i' };
@@ -28,8 +28,8 @@ export async function getCrmForms(
         const skip = (page - 1) * limit;
 
         const [forms, total] = await Promise.all([
-            db.collection<CrmForm>('crm_forms').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
-            db.collection('crm_forms').countDocuments(filter)
+            db.collection<CrmForm>('crm_forms').find(filter as any).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection('crm_forms').countDocuments(filter as any)
         ]);
 
         return {
@@ -50,11 +50,11 @@ export async function saveCrmForm(data: {
 }): Promise<{ message?: string; error?: string; formId?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
-    
+
     if (!data.name) return { error: 'Form Name is required.' };
-    
+
     const isNew = !data.formId || data.formId.startsWith('temp_');
-    
+
     const formData: Omit<CrmForm, '_id' | 'createdAt'> = {
         name: data.name,
         userId: new ObjectId(session.user._id),
@@ -102,15 +102,15 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
     if (!ObjectId.isValid(formId)) {
         return { success: false, error: 'Invalid Form ID.', message: '' };
     }
-    
+
     try {
         const { db } = await connectToDatabase();
-        
+
         const form = await db.collection<WithId<CrmForm>>('crm_forms').findOne({ _id: new ObjectId(formId) });
         if (!form) {
             return { success: false, error: 'Form not found.', message: '' };
         }
-        
+
         const user = await db.collection<WithId<User>>('users').findOne({ _id: form.userId });
         if (!user) {
             return { success: false, error: 'Form owner not found.', message: '' };
@@ -123,17 +123,17 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
             data: formData,
             submittedAt: new Date(),
         });
-        
+
         // Find or create account
         let accountId: ObjectId | undefined;
         if (formData.organisation) {
-             let account = await db.collection('crm_accounts').findOne({ name: formData.organisation, userId: form.userId });
+            let account = await db.collection('crm_accounts').findOne({ name: formData.organisation, userId: form.userId });
             if (!account) {
                 const newAccount = { userId: form.userId, name: formData.organisation, createdAt: new Date(), status: 'active' };
                 const result = await db.collection('crm_accounts').insertOne(newAccount as any);
                 accountId = result.insertedId;
             } else {
-                 accountId = account._id;
+                accountId = account._id;
             }
         }
 
@@ -184,7 +184,7 @@ export async function handleFormSubmission(formId: string, formData: Record<stri
 
         await db.collection('crm_deals').insertOne(newDeal as any);
         await db.collection('crm_forms').updateOne({ _id: form._id }, { $inc: { submissionCount: 1 } });
-        
+
         revalidatePath('/dashboard/crm/sales-crm/all-leads');
         revalidatePath('/dashboard/crm/deals');
 

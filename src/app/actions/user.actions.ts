@@ -174,7 +174,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
 }
 
 
-export async function handleForgotPassword(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleForgotPassword(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
     // This is a placeholder. In a real app, you would generate a secure token,
     // save it to the user's record with an expiration, and send an email.
     return { message: "If an account with this email exists, a password reset link has been sent." };
@@ -318,7 +318,7 @@ export async function getUsersForAdmin(
     }
 }
 
-export async function handleUpdateUserProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleUpdateUserProfile(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };
 
@@ -381,7 +381,7 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
     }
 }
 
-export async function handleChangePassword(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleChangePassword(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };
 

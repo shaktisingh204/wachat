@@ -1834,10 +1834,45 @@ export type Plan = {
     };
     messageCosts: PlanMessageCosts;
     rates?: {
-        broadcast: number;
+        whatsapp_marketing: number;
+        whatsapp_utility: number;
+        whatsapp_authentication: number;
         sms: number;
         meta: number;
         email: number;
+    };
+    appLimits?: {
+        wachat: {
+            templates: number;
+            flows: number;
+            metaFlows: number;
+            cannedMessages: number;
+        };
+        crm: {
+            products: number;
+            customers: number;
+            vendors: number;
+            warehouses: number;
+            pipelines: number;
+        };
+        meta: {
+            adAccounts: number;
+            pages: number;
+        };
+        email: {
+            connectedAccounts: number;
+            dailyLimit: number;
+        };
+        sms: {
+            dailyLimit: number;
+        };
+        urlShortener: {
+            links: number;
+            domains: number;
+        };
+        qrCode: {
+            limit: number;
+        };
     };
     features: PlanFeaturePermissions;
     permissions?: GlobalPermissions; // Master permission controls (Team-like structure)

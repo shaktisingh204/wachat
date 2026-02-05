@@ -10,7 +10,8 @@ import { cookies } from 'next/headers';
 
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getSession } from '@/app/actions/index';
+import { getProjectById } from '@/app/actions/project.actions';
+import { getSession } from '@/app/actions/user.actions';
 import { getEcommShopById } from './custom-ecommerce.actions';
 import type { Project, FacebookPage, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
@@ -238,7 +239,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
 }
 
 
-export async function handleManualFacebookPageSetup(prevState: any, formData: FormData): Promise<{ success?: boolean; error?: string }> {
+export async function handleManualFacebookPageSetup(prevState: { success?: boolean; error?: string }, formData: FormData): Promise<{ success?: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied." };
 
@@ -378,7 +379,7 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
 }
 
 
-export async function handleCreateFacebookPost(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleCreateFacebookPost(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const postType = formData.get('postType') as 'text' | 'image' | 'video';
     const message = formData.get('message') as string;
@@ -479,7 +480,7 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
     }
 }
 
-export async function handleUpdatePost(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function handleUpdatePost(prevState: { success: boolean; error?: string }, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const postId = formData.get('postId') as string;
     const message = formData.get('message') as string;
@@ -529,7 +530,7 @@ export async function handleDeletePost(postId: string, projectId: string): Promi
     }
 }
 
-export async function handleAddVideoThumbnail(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function handleAddVideoThumbnail(prevState: { success: boolean; error?: string }, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const videoId = formData.get('videoId') as string;
     const thumbnailFile = formData.get('thumbnailFile') as File;
@@ -577,7 +578,7 @@ export async function getEligibleCrosspostPages(postId: string, projectId: strin
 }
 
 
-export async function handleCrosspostVideo(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function handleCrosspostVideo(prevState: { success: boolean; error?: string }, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const postId = formData.get('postId') as string;
     const targetPageIds = formData.getAll('targetPageIds') as string[];
@@ -603,7 +604,7 @@ export async function handleCrosspostVideo(prevState: any, formData: FormData): 
     }
 }
 
-export async function handleUpdatePageDetails(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function handleUpdatePageDetails(prevState: { success: boolean; error?: string }, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const pageId = formData.get('pageId') as string;
 
@@ -684,7 +685,7 @@ export async function getPageInsights(projectId: string): Promise<{ insights?: P
     }
 }
 
-export async function handlePostComment(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function handlePostComment(prevState: { success: boolean; error?: string }, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const objectId = formData.get('objectId') as string; // Post or Video or Comment ID
     const message = formData.get('message') as string;

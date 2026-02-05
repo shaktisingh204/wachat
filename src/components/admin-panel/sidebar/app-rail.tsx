@@ -106,7 +106,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                                     icon={Instagram}
                                     label="Instagram"
                                     active={activeApp === 'instagram'}
-                                    href="/dashboard/instagram"
+                                    href="/dashboard/instagram/connections"
                                 />
                                 <RailItem
                                     icon={Briefcase}

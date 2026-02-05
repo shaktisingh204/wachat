@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ export default function FacebookSettingsPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
-    const [activeProjectId, setActiveProjectId] = useState<string|null>(null);
+    const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
     useEffect(() => {
         setIsClient(true);
@@ -49,7 +49,7 @@ export default function FacebookSettingsPage() {
             </div>
         );
     }
-    
+
     if (!project) {
         return (
             <Alert variant="destructive">
@@ -65,17 +65,17 @@ export default function FacebookSettingsPage() {
     const hasMarketingSetup = !!(project.adAccountId && project.facebookPageId);
 
     return (
-         <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8">
             <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Facebook/> Facebook Connection</h1>
+                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Facebook /> Facebook Connection</h1>
                 <p className="text-muted-foreground">Review your connected Facebook Page and Ad Account for project "{project.name}".</p>
             </div>
-            
+
             <Card>
                 <CardHeader>
                     <CardTitle>Connected Accounts</CardTitle>
                     <CardDescription>
-                       These IDs were retrieved automatically via Embedded Signup.
+                        These IDs were retrieved automatically via Embedded Signup.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -83,11 +83,11 @@ export default function FacebookSettingsPage() {
                         <dl className="space-y-1">
                             <InfoRow label="Facebook Page ID" value={project.facebookPageId} />
                             <InfoRow label="Ad Account ID" value={project.adAccountId} />
-                             <InfoRow label="Connected App ID" value={project.appId || 'Not Set'} />
+                            <InfoRow label="Connected App ID" value={project.appId || 'Not Set'} />
                             <InfoRow label="Access Token" value={<span className="font-mono text-sm">••••••••••••••••••••</span>} />
                         </dl>
                     ) : (
-                         <Alert variant="destructive">
+                        <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
                             <AlertTitle>Not Connected</AlertTitle>
                             <AlertDescription>
@@ -96,10 +96,10 @@ export default function FacebookSettingsPage() {
                         </Alert>
                     )}
                 </CardContent>
-                 <CardFooter>
+                <CardFooter>
                     <Button asChild>
                         <Link href="/dashboard/facebook/all-projects">
-                             {hasMarketingSetup ? 'Reconnect / Change Account' : 'Connect Account'}
+                            {hasMarketingSetup ? 'Reconnect / Change Account' : 'Connect Account'}
                         </Link>
                     </Button>
                 </CardFooter>

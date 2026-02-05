@@ -4,7 +4,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CreateTemplateForm } from '@/components/wabasimplify/create-template-form';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Database, AlertCircle } from 'lucide-react';
@@ -29,7 +29,7 @@ function BulkTemplatePageContent() {
     useEffect(() => {
         const storedProjectIds = JSON.parse(localStorage.getItem('bulkProjectIds') || '[]');
         setProjectIds(storedProjectIds);
-        
+
         async function fetchProjects() {
             if (storedProjectIds.length > 0) {
                 const fetchedProjects = await Promise.all(
@@ -39,7 +39,7 @@ function BulkTemplatePageContent() {
             }
             setIsLoading(false);
         }
-        
+
         fetchProjects();
     }, []);
 
@@ -49,7 +49,7 @@ function BulkTemplatePageContent() {
 
     if (projectIds.length === 0) {
         return (
-             <Alert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Projects Selected</AlertTitle>
                 <AlertDescription>
@@ -62,7 +62,7 @@ function BulkTemplatePageContent() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                 <Button variant="ghost" asChild className="mb-2 -ml-4">
+                <Button variant="ghost" asChild className="mb-2 -ml-4">
                     <Link href="/dashboard/bulk">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Bulk Actions
@@ -71,15 +71,15 @@ function BulkTemplatePageContent() {
                 <h1 className="text-3xl font-bold font-headline">Create Bulk Template</h1>
                 <p className="text-muted-foreground">This template will be created for all {projects.length} selected projects.</p>
             </div>
-             <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2">
                 {projects.map(p => (
                     <div key={p._id.toString()} className="flex items-center gap-2 p-2 text-xs border rounded-md bg-muted/50">
-                        <Database className="h-4 w-4 text-muted-foreground"/>
+                        <Database className="h-4 w-4 text-muted-foreground" />
                         <span className="font-semibold">{p.name}</span>
                     </div>
                 ))}
             </div>
-            <CreateTemplateForm 
+            <CreateTemplateForm
                 isBulkForm={true}
                 bulkProjectIds={projectIds}
             />

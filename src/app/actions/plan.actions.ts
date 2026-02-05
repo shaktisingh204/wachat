@@ -74,10 +74,45 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
                 authentication: Number(formData.get('cost_authentication')),
             },
             rates: {
-                broadcast: Number(formData.get('rate_broadcast') ?? 1),
+                whatsapp_marketing: Number(formData.get('rate_whatsapp_marketing') ?? 1),
+                whatsapp_utility: Number(formData.get('rate_whatsapp_utility') ?? 1),
+                whatsapp_authentication: Number(formData.get('rate_whatsapp_authentication') ?? 1),
                 sms: Number(formData.get('rate_sms') ?? 1),
                 meta: Number(formData.get('rate_meta') ?? 1),
                 email: Number(formData.get('rate_email') ?? 1),
+            },
+            appLimits: {
+                wachat: {
+                    templates: Number(formData.get('limit_wachat_templates') ?? 0),
+                    flows: Number(formData.get('limit_wachat_flows') ?? 0),
+                    metaFlows: Number(formData.get('limit_wachat_metaFlows') ?? 0),
+                    cannedMessages: Number(formData.get('limit_wachat_cannedMessages') ?? 0),
+                },
+                crm: {
+                    products: Number(formData.get('limit_crm_products') ?? 0),
+                    customers: Number(formData.get('limit_crm_customers') ?? 0),
+                    vendors: Number(formData.get('limit_crm_vendors') ?? 0),
+                    warehouses: Number(formData.get('limit_crm_warehouses') ?? 0),
+                    pipelines: Number(formData.get('limit_crm_pipelines') ?? 0),
+                },
+                meta: {
+                    adAccounts: Number(formData.get('limit_meta_adAccounts') ?? 0),
+                    pages: Number(formData.get('limit_meta_pages') ?? 0),
+                },
+                email: {
+                    connectedAccounts: Number(formData.get('limit_email_connectedAccounts') ?? 0),
+                    dailyLimit: Number(formData.get('limit_email_dailyLimit') ?? 0),
+                },
+                sms: {
+                    dailyLimit: Number(formData.get('limit_sms_dailyLimit') ?? 0),
+                },
+                urlShortener: {
+                    links: Number(formData.get('limit_url_links') ?? 0),
+                    domains: Number(formData.get('limit_url_domains') ?? 0),
+                },
+                qrCode: {
+                    limit: Number(formData.get('limit_qrcode_limit') ?? 0),
+                },
             },
             features: features as PlanFeaturePermissions,
             permissions: { agent: {} }, // Will populate below

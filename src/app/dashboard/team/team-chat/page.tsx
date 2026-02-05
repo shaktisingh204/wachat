@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 import { getInvitedUsers } from '@/app/actions/team.actions';
 import { getErrorMessage } from '@/lib/utils';
 import { getOrCreateDmChannel, getChannelMessages, sendTeamMessage } from '@/app/actions/team-chat.actions';
-import { getSession } from '@/app/actions/index';
+import { getSession } from '@/app/actions/user.actions';
 import type { WithId, User, TeamMessage, TeamChannel } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';

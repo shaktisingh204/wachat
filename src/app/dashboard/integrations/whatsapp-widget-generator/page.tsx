@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, Project } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -40,8 +40,8 @@ export default function WhatsappWidgetGeneratorPage() {
     const [isLoading, startLoadingTransition] = useTransition();
 
     const fetchProjectData = async () => {
-         const storedProjectId = localStorage.getItem('activeProjectId');
-         if (storedProjectId) {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        if (storedProjectId) {
             const data = await getProjectById(storedProjectId);
             setProject(data);
         }
@@ -59,7 +59,7 @@ export default function WhatsappWidgetGeneratorPage() {
 
     if (!project) {
         return (
-             <Alert variant="destructive">
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Project Selected</AlertTitle>
                 <AlertDescription>
@@ -68,17 +68,17 @@ export default function WhatsappWidgetGeneratorPage() {
             </Alert>
         );
     }
-    
+
     const stats = project.widgetSettings?.stats || { loads: 0, opens: 0, clicks: 0 };
 
     return (
         <div className="space-y-6">
-             <Card>
+            <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
-                        <CardTitle className="flex items-center gap-2"><BarChart className="h-5 w-5"/>Widget Analytics</CardTitle>
-                         <Button onClick={() => fetchProjectData()} variant="outline" size="sm">
-                            <RefreshCw className="mr-2 h-4 w-4"/>
+                        <CardTitle className="flex items-center gap-2"><BarChart className="h-5 w-5" />Widget Analytics</CardTitle>
+                        <Button onClick={() => fetchProjectData()} variant="outline" size="sm">
+                            <RefreshCw className="mr-2 h-4 w-4" />
                             Refresh Stats
                         </Button>
                     </div>

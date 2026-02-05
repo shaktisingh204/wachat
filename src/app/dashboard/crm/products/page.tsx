@@ -8,16 +8,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, PlusCircle, ShoppingBag } from 'lucide-react';
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
-import type { WithId, EcommProduct, User, Plan } from '@/lib/definitions';
+import type { WithId, EcommProduct, CrmProduct, User, Plan } from '@/lib/definitions';
 import { CrmProductDialog } from '@/components/wabasimplify/crm-product-dialog';
 import { CrmProductCard } from '@/components/wabasimplify/crm-product-card';
-import { getSession } from '@/app/actions/index.ts';
+import { getSession } from '@/app/actions/user.actions';
 
 function PageSkeleton() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center"><Skeleton className="h-10 w-64" /><Skeleton className="h-10 w-32" /></div>
-            <Skeleton className="h-4 w-96"/>
+            <Skeleton className="h-4 w-96" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
             </div>
@@ -27,10 +27,10 @@ function PageSkeleton() {
 
 export default function CrmProductsPage() {
     const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null>(null);
-    const [products, setProducts] = useState<WithId<EcommProduct>[]>([]);
+    const [products, setProducts] = useState<WithId<CrmProduct>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [editingProduct, setEditingProduct] = useState<WithId<EcommProduct> | null>(null);
+    const [editingProduct, setEditingProduct] = useState<WithId<CrmProduct> | null>(null);
 
     const fetchData = () => {
         startLoading(async () => {
@@ -39,7 +39,7 @@ export default function CrmProductsPage() {
                 getCrmProducts()
             ]);
             setUser(sessionData?.user as any);
-            setProducts(productsData);
+            setProducts(productsData.products);
         });
     };
 
@@ -47,7 +47,7 @@ export default function CrmProductsPage() {
         fetchData();
     }, []);
 
-    const handleOpenDialog = (product: WithId<EcommProduct> | null) => {
+    const handleOpenDialog = (product: WithId<CrmProduct> | null) => {
         setEditingProduct(product);
         setIsDialogOpen(true);
     };
@@ -55,7 +55,7 @@ export default function CrmProductsPage() {
     if (isLoading) {
         return <PageSkeleton />;
     }
-    
+
     if (!user) {
         return (
             <Alert variant="destructive">
@@ -65,7 +65,7 @@ export default function CrmProductsPage() {
             </Alert>
         );
     }
-    
+
     return (
         <>
             <CrmProductDialog
@@ -92,8 +92,8 @@ export default function CrmProductsPage() {
                 {products.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {products.map(product => (
-                            <CrmProductCard 
-                                key={product._id.toString()} 
+                            <CrmProductCard
+                                key={product._id.toString()}
                                 product={product}
                                 currency={user.plan?.currency || 'USD'}
                                 onEdit={() => handleOpenDialog(product)}
@@ -102,7 +102,7 @@ export default function CrmProductsPage() {
                         ))}
                     </div>
                 ) : (
-                     <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
+                    <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
                         <ShoppingBag className="mx-auto h-12 w-12" />
                         <h3 className="mt-4 text-lg font-semibold">No Products Yet</h3>
                         <p className="mt-1 text-sm">Click "Add Product" to get started.</p>

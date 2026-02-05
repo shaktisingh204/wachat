@@ -6,7 +6,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useRouter, usePathname } from 'next/navigation';
 import type { WithId } from 'mongodb';
 import type { Project, User, Plan } from '@/lib/definitions';
-import { getProjectById, getProjects } from '@/app/actions/index';
+import { getProjectById, getProjects } from '@/app/actions/project.actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProjectContextType {
@@ -49,7 +49,7 @@ export function ProjectProvider({
 
     const reloadProjects = useCallback(async () => {
         try {
-            const { projects: freshProjects } = await getProjects() || { projects: [] };
+            const freshProjects = await getProjects() || [];
             setProjects(freshProjects);
         } catch (error) {
             console.error("Failed to reload projects:", error);
