@@ -1,5 +1,11 @@
 import {
-    LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database, Layers
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase,
+    Phone, Webhook, CreditCard, ShoppingBag,
+    Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake,
+    Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search,
+    Video, ShieldCheck, Key, BookCopy, Rss, TrendingUp, Calendar,
+    Newspaper, Clapperboard, BarChart2, Landmark, Users as UsersIcon,
+    LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import React from 'react';
