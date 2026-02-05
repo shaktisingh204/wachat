@@ -9,15 +9,19 @@ import type { CannedMessage, Template, Contact, Project } from '@/lib/definition
 import type { WithId } from 'mongodb';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Paperclip, Send, LoaderCircle, Star, ClipboardList, File as FileIcon, Image as ImageIcon, IndianRupee, ShoppingBag } from 'lucide-react';
+import { Send, LoaderCircle, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SendTemplateDialog } from './send-template-dialog';
 import { RequestPaymentDialog } from './request-payment-dialog';
 import { RequestWhatsAppPaymentDialog } from './request-whatsapp-payment-dialog';
-import { WaPayIcon } from './custom-sidebar-components';
 import { SendCatalogDialog } from './send-catalog-dialog';
+import { ChatAttachmentMenu } from './chat-attachment-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ChatMessageInputProps {
     project: WithId<Project>;
@@ -58,9 +62,9 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
     const [inputValue, setInputValue] = useState('');
     const [cannedMessages, setCannedMessages] = useState<WithId<CannedMessage>[]>([]);
     const [cannedPopoverOpen, setCannedPopoverOpen] = useState(false);
-    const [attachmentPopoverOpen, setAttachmentPopoverOpen] = useState(false);
 
     const [templateToSend, setTemplateToSend] = useState<WithId<Template> | null>(null);
+    const [isTemplateSelectorOpen, setIsTemplateSelectorOpen] = useState(false);
     const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
     const [isWhatsAppPaymentOpen, setIsWhatsAppPaymentOpen] = useState(false);
     const [isCatalogOpen, setIsCatalogOpen] = useState(false);
@@ -78,9 +82,13 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
         }
     }, [sendState, toast]);
 
+
+    const [isUploading, setIsUploading] = useState(false);
+
     const handleFormSubmit = async (data?: { [key: string]: any }) => {
         const result = await handleSendMessage(null, data || {});
         setSendState(result);
+        setIsUploading(false); // Reset upload state
     };
 
     const handleTextSend = () => {
@@ -103,18 +111,25 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
         const file = event.target.files?.[0];
         if (!file) return;
 
-        const base64String = await fileToBase64(file);
-        handleFormSubmit({
-            contactId: contact._id.toString(),
-            projectId: contact.projectId.toString(),
-            phoneNumberId: contact.phoneNumberId,
-            waId: contact.waId,
-            mediaFile: {
-                content: base64String.split(',')[1],
-                name: file.name,
-                type: file.type,
-            }
-        });
+        setIsUploading(true); // Start upload state
+        try {
+            const base64String = await fileToBase64(file);
+            handleFormSubmit({
+                contactId: contact._id.toString(),
+                projectId: contact.projectId.toString(),
+                phoneNumberId: contact.phoneNumberId,
+                waId: contact.waId,
+                mediaFile: {
+                    content: base64String.split(',')[1],
+                    name: file.name,
+                    type: file.type,
+                }
+            });
+        } catch (error) {
+            console.error("File processing error:", error);
+            setIsUploading(false);
+            toast({ title: "Error", description: "Failed to process file.", variant: "destructive" });
+        }
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,21 +166,6 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
             .sort((a, b) => (b.isFavourite ? 1 : 0) - (a.isFavourite ? 1 : 0))
         : [];
 
-    const TemplatePopoverContent = (
-        <PopoverContent side="top" align="start" className="p-1 w-56">
-            <ScrollArea className="max-h-60">
-                <div className="p-1 space-y-1">
-                    {templates.length > 0 ? templates.map(template => (
-                        <button key={template._id.toString()} type="button" className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm" onClick={() => setTemplateToSend(template)}>
-                            <ClipboardList className="h-4 w-4 mr-2" />
-                            {template.name}
-                        </button>
-                    )) : <p className="text-xs text-center p-2 text-muted-foreground">No approved templates found.</p>}
-                </div>
-            </ScrollArea>
-        </PopoverContent>
-    );
-
     return (
         <>
             {templateToSend && (
@@ -194,22 +194,71 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                     project={project}
                 />
             )}
-            <div className="flex w-full items-center gap-2">
+
+            <Dialog open={isTemplateSelectorOpen} onOpenChange={setIsTemplateSelectorOpen}>
+                <DialogContent className="p-0">
+                    <DialogHeader className="px-4 pt-4 pb-2">
+                        <DialogTitle>Select a Template</DialogTitle>
+                    </DialogHeader>
+                    <Command>
+                        <CommandInput placeholder="Search templates..." />
+                        <CommandList>
+                            <CommandEmpty>No templates found.</CommandEmpty>
+                            <CommandGroup>
+                                {templates.map((template) => (
+                                    <CommandItem
+                                        key={template._id.toString()}
+                                        value={template.name}
+                                        onSelect={() => {
+                                            setTemplateToSend(template);
+                                            setIsTemplateSelectorOpen(false);
+                                        }}
+                                    >
+                                        <Check className={cn("mr-2 h-4 w-4 opacity-0")} />
+                                        {template.name}
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </DialogContent>
+            </Dialog>
+
+            <div className="flex w-full items-end gap-2 p-2 relative">
+                <ChatAttachmentMenu
+                    disabled={disabled || isUploading}
+                    onMediaSelect={handleMediaClick}
+                    onTemplateSelect={() => setIsTemplateSelectorOpen(true)}
+                    onCatalogSelect={() => setIsCatalogOpen(true)}
+                    onRazorpaySelect={() => setIsRazorpayOpen(true)}
+                    onWaPaySelect={() => setIsWhatsAppPaymentOpen(true)}
+                    project={project}
+                />
+
+                {/* Template Selection Dialog (Quick Fix: Reuse the popover logic but in a dialog or just a command palette?) */}
+                {/* For now, I will use a simple logical trick:
+                    If the user clicks "Template", I'll show a CommandDialog to pick a template.
+                    Then clicking one sets `templateToSend`.
+                */}
+
                 <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
                     <PopoverAnchor asChild>
-                        <Input
-                            name="messageText"
-                            placeholder="Type a message or / for canned replies"
-                            autoComplete="off"
-                            className="flex-1 border-none shadow-none focus-visible:ring-0 bg-transparent"
-                            value={inputValue}
-                            onChange={handleInputChange}
-                            onKeyDown={(e) => { if (e.key === 'Enter') handleTextSend(); }}
-                            disabled={disabled}
-                        />
+                        <div className="flex-1 bg-secondary/50 focus-within:bg-secondary rounded-2xl transition-colors border border-transparent focus-within:border-primary/20">
+                            <Input
+                                name="messageText"
+                                placeholder={isUploading ? "Uploading..." : "Type a message"}
+                                autoComplete="off"
+                                className="border-none shadow-none focus-visible:ring-0 bg-transparent min-h-[44px] py-3"
+                                value={inputValue}
+                                onChange={handleInputChange}
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleTextSend(); }}
+                                disabled={disabled || isUploading}
+                            />
+                        </div>
                     </PopoverAnchor>
                     {/* Hidden file input */}
                     <input type="file" id="media-file-input" className="hidden" onChange={handleFileChange} />
+
                     <PopoverContent
                         className="w-[--radix-popover-trigger-width] p-0"
                         onOpenAutoFocus={(e) => e.preventDefault()}
@@ -242,34 +291,9 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                     </PopoverContent>
                 </Popover>
 
-                {/* Desktop Buttons */}
-                <div className="hidden md:flex items-center gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => handleMediaClick('image/*,video/*')} disabled={disabled}><ImageIcon className="h-4 w-4" /><span className="sr-only">Send Image or Video</span></Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleMediaClick('application/pdf')} disabled={disabled}><FileIcon className="h-4 w-4" /><span className="sr-only">Send Document</span></Button>
-                    <Button variant="ghost" size="icon" onClick={() => setIsRazorpayOpen(true)} disabled={disabled}><IndianRupee className="h-4 w-4" /><span className="sr-only">Request Payment</span></Button>
-                    <Button variant="ghost" size="icon" onClick={() => setIsWhatsAppPaymentOpen(true)} disabled={disabled}><WaPayIcon className="h-4 w-4" /><span className="sr-only">Request WhatsApp Payment</span></Button>
-                    {project && project.catalogs && project.catalogs.length > 0 && <Button variant="ghost" size="icon" onClick={() => setIsCatalogOpen(true)} disabled={disabled}><ShoppingBag className="h-4 w-4" /><span className="sr-only">Send Catalog</span></Button>}
-                    <Popover><PopoverTrigger asChild><Button variant="ghost" size="icon"><ClipboardList className="h-4 w-4" /><span className="sr-only">Send Template</span></Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
+                <div className="flex-shrink-0">
+                    <SubmitButton onClick={handleTextSend} disabled={!inputValue.trim() || disabled || isUploading} />
                 </div>
-
-                {/* Mobile Popover */}
-                <div className="md:hidden">
-                    <Popover open={attachmentPopoverOpen} onOpenChange={setAttachmentPopoverOpen}>
-                        <PopoverTrigger asChild><Button variant="ghost" size="icon" disabled={disabled}><Paperclip className="h-4 w-4" /></Button></PopoverTrigger>
-                        <PopoverContent align="end" className="w-56 p-1">
-                            <div className="grid gap-1">
-                                <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('image/*,video/*'); setAttachmentPopoverOpen(false); }}><ImageIcon className="mr-2 h-4 w-4" /> Media (Image/Video)</Button>
-                                <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('application/pdf'); setAttachmentPopoverOpen(false); }}><FileIcon className="mr-2 h-4 w-4" /> Document</Button>
-                                <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsRazorpayOpen(true); setAttachmentPopoverOpen(false); }}><IndianRupee className="mr-2 h-4 w-4" /> Razorpay Payment</Button>
-                                <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsWhatsAppPaymentOpen(true); setAttachmentPopoverOpen(false); }}><WaPayIcon className="mr-2 h-4 w-4" /> WhatsApp Pay</Button>
-                                {project && project.catalogs && project.catalogs.length > 0 && <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsCatalogOpen(true); setAttachmentPopoverOpen(false); }}><ShoppingBag className="mr-2 h-4 w-4" /> Send Catalog</Button>}
-                                <Popover><PopoverTrigger asChild><Button variant="ghost" className="w-full justify-start"><ClipboardList className="mr-2 h-4 w-4" /> Template</Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
-                </div>
-
-                <SubmitButton onClick={handleTextSend} disabled={!inputValue.trim() || disabled} />
             </div>
         </>
     );

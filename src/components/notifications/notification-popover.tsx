@@ -51,6 +51,18 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
     };
 
     useEffect(() => {
+        // Initial fetch on mount
+        fetchNotifications();
+
+        // Poll every 60 seconds
+        const interval = setInterval(() => {
+            fetchNotifications();
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
         if (open) {
             fetchNotifications();
         }
