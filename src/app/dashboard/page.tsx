@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { SeoProjectCard } from "@/components/wabasimplify/seo-project-card";
-import { DashboardHeader } from "@/components/wabasimplify/dashboard-header";
+
 import { FileText, PlusCircle, Briefcase, Folder, ChevronLeft, ChevronRight, Clock, Search, Filter } from "lucide-react";
 import type { WithId } from "mongodb";
 import { ProjectSearch } from "@/components/wabasimplify/project-search";
@@ -105,7 +105,7 @@ export default function SelectProjectPage() {
     return (
         <div className="flex flex-col gap-8 max-w-[1600px] mx-auto pb-20">
             {/* 1. Header with Greeting */}
-            <DashboardHeader />
+
 
             {/* 2. Recent Projects Row (if any) */}
             {recentProjects.length > 0 && !query && (

@@ -6,12 +6,13 @@ import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 import { Trash2, GripVertical, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { BlockRenderer } from './block-renderer';
 import React from 'react';
 
 interface CanvasProps {
     layout: WebsiteBlock[];
-    droppableId?: string; 
+    droppableId?: string;
     products: WithId<EcommProduct>[];
     onBlockClick?: (id: string) => void;
     onRemoveBlock?: (id: string) => void;
@@ -26,7 +27,7 @@ const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveB
     return (
         <Droppable droppableId={droppableId} type="BLOCK">
             {(provided, snapshot) => (
-                <div 
+                <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                     className={cn(
@@ -45,7 +46,7 @@ const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveB
                                     className={cn("relative group/block", snapshot.isDragging && "shadow-2xl opacity-90 z-50")}
                                     onClick={(e) => { e.stopPropagation(); onBlockClick(block.id); }}
                                 >
-                                    <div 
+                                    <div
                                         className={cn(
                                             "absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-0.5 p-0.5 bg-background border rounded-full shadow-md transition-opacity",
                                             selectedBlockId === block.id ? 'opacity-100' : 'opacity-0 group-hover/block:opacity-100'
@@ -53,11 +54,11 @@ const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveB
                                         onClick={e => e.stopPropagation()}
                                     >
                                         <div {...provided.dragHandleProps} className="p-1 cursor-grab rounded-full hover:bg-muted">
-                                            <GripVertical className="h-4 w-4 text-muted-foreground"/>
+                                            <GripVertical className="h-4 w-4 text-muted-foreground" />
                                         </div>
                                         <Separator orientation="vertical" className="h-4" />
                                         <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onRemoveBlock(block.id)}>
-                                            <Trash2 className="h-4 w-4 text-destructive"/>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
                                         </Button>
                                     </div>
                                     <div className={cn("outline-dashed outline-1 outline-transparent group-hover/block:outline-primary transition-all rounded-lg p-1", selectedBlockId === block.id && "outline-solid outline-2 outline-primary")}>
@@ -69,8 +70,8 @@ const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveB
                     ))}
                     {provided.placeholder}
                     {layout.length === 0 && !snapshot.isDraggingOver && (
-                         <div className="text-center text-muted-foreground py-10 border-2 border-dashed rounded-lg">
-                            <LayoutGrid className="mx-auto h-8 w-8 text-muted-foreground/50"/>
+                        <div className="text-center text-muted-foreground py-10 border-2 border-dashed rounded-lg">
+                            <LayoutGrid className="mx-auto h-8 w-8 text-muted-foreground/50" />
                             <p className="mt-2 text-sm">Drop blocks here</p>
                         </div>
                     )}

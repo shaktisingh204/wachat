@@ -14,6 +14,9 @@ import { PageManagerPanel } from './page-manager-panel';
 import { Separator } from '@/components/ui/separator';
 import { WebsiteBuilderHeader } from './website-builder-header';
 import { saveEcommPage, getEcommPages, updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 function findList(items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | null {
     if (droppableId === 'canvas') return items;
@@ -212,35 +215,98 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         return findRecursively(layout);
     }, [selectedBlockId, layout]);
 
+    const [leftPanelOpen, setLeftPanelOpen] = useState(true);
+    const [rightPanelOpen, setRightPanelOpen] = useState(true);
+
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="h-screen w-screen bg-muted/20 flex flex-col">
-                <WebsiteBuilderHeader site={shop} pages={pages} activeSurface={activeSurface} onSwitchSurface={handleSelectSurface} onSave={handleSave} isSaving={isSaving} />
-                <div className="flex-1 grid grid-cols-12 min-h-0">
-                    <div className="col-span-2 bg-background/50 backdrop-blur-sm border-r p-4 overflow-y-auto">
-                        <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
-                        <Separator className="my-4" />
-                        <BlockPalette onAddBlock={handleAddBlock} />
+            <div className="h-screen w-screen bg-muted/20 flex flex-col overflow-hidden">
+                <WebsiteBuilderHeader
+                    site={shop}
+                    pages={pages}
+                    activeSurface={activeSurface}
+                    onSwitchSurface={handleSelectSurface}
+                    onSave={handleSave}
+                    isSaving={isSaving}
+                />
+
+                <div className="flex-1 flex overflow-hidden relative">
+                    {/* Left Panel - Blocks & Pages */}
+                    <div
+                        className={cn(
+                            "w-80 bg-background/80 backdrop-blur-xl border-r flex flex-col transition-all duration-300 ease-in-out absolute left-0 top-0 bottom-0 z-20 shadow-xl",
+                            !leftPanelOpen && "-translate-x-full opacity-0"
+                        )}
+                    >
+                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                            <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
+                            <Separator className="my-6 bg-border/50" />
+                            <BlockPalette onAddBlock={handleAddBlock} />
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute -right-8 top-4 bg-background border border-l-0 rounded-l-none shadow-md h-8 w-8 z-30 hover:bg-muted"
+                            onClick={() => setLeftPanelOpen(!leftPanelOpen)}
+                        >
+                            {leftPanelOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </Button>
                     </div>
-                    <div className="col-span-7 bg-muted/10 overflow-y-auto p-4">
-                        <Canvas
-                            layout={layout}
-                            droppableId="canvas"
-                            onBlockClick={setSelectedBlockId}
-                            selectedBlockId={selectedBlockId}
-                            onRemoveBlock={handleRemoveBlock}
-                            products={availableProducts}
-                            shopSlug={(shop as WithId<EcommShop>).slug}
-                            isEditable={true}
-                        />
+
+                    {/* Toggle Button for Left Panel when closed */}
+                    {!leftPanelOpen && (
+                        <Button
+                            variant="secondary"
+                            size="icon"
+                            className="absolute left-4 top-4 z-10 shadow-lg rounded-full h-10 w-10 bg-background/80 backdrop-blur-md border hover:bg-background"
+                            onClick={() => setLeftPanelOpen(true)}
+                        >
+                            <ChevronRight className="h-5 w-5" />
+                        </Button>
+                    )}
+
+                    {/* Main Canvas Area */}
+                    <div className={cn(
+                        "flex-1 bg-muted/10 overflow-y-auto p-8 transition-all duration-300 relative",
+                        leftPanelOpen && "ml-80",
+                        rightPanelOpen && "mr-80"
+                    )}>
+                        <div className="max-w-5xl mx-auto min-h-full pb-20">
+                            <Canvas
+                                layout={layout}
+                                droppableId="canvas"
+                                onBlockClick={(id) => { setSelectedBlockId(id); setRightPanelOpen(true); }}
+                                selectedBlockId={selectedBlockId}
+                                onRemoveBlock={handleRemoveBlock}
+                                products={availableProducts}
+                                shopSlug={(shop as WithId<EcommShop>).slug}
+                                isEditable={true}
+                            />
+                        </div>
                     </div>
-                    <div className="col-span-3 bg-background/50 backdrop-blur-sm border-l p-4 overflow-y-auto">
-                        <PropertiesPanel
-                            selectedBlock={selectedBlock}
-                            availableProducts={availableProducts}
-                            onUpdate={handleUpdateBlock}
-                            onRemove={handleRemoveBlock}
-                        />
+
+                    {/* Right Panel - Properties */}
+                    <div
+                        className={cn(
+                            "w-80 bg-background/80 backdrop-blur-xl border-l flex flex-col transition-all duration-300 ease-in-out absolute right-0 top-0 bottom-0 z-20 shadow-xl",
+                            !rightPanelOpen && "translate-x-full opacity-0",
+                            !selectedBlockId && !rightPanelOpen && "translate-x-full"
+                        )}
+                    >
+                        <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-md sticky top-0 z-10">
+                            <h3 className="font-semibold text-sm">Properties</h3>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setRightPanelOpen(false)}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                            <PropertiesPanel
+                                selectedBlock={selectedBlock}
+                                availableProducts={availableProducts}
+                                onUpdate={handleUpdateBlock}
+                                onRemove={handleRemoveBlock}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
