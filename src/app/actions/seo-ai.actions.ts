@@ -1,52 +1,24 @@
 'use server';
 
-import { runFlow } from 'genkit/beta/client';
-import { seoSchemaGenerator } from '@/ai/flows/seo-schema-generator';
 import { seoMetaOptimizer } from '@/ai/flows/seo-meta-optimizer';
-import { getSession } from './user.actions';
 
-// Wrapper to call Genkit Flows from Server Actions
-// Note: In production, you might call the flow directly if in same process, 
-// or via HTTP if Genkit is a microservice. Here we assume direct import execution 
-// or using 'runFlow' if configured. 
-// For simplicity in this mono-repo structure, we will INVOKE them directly as functions if possible, 
-// OR use the 'runFlow' client if using the reflection API.
-// Based on typical Next.js + Genkit setup:
-
-export async function generateSchemaAction(url: string, pageTitle?: string, contentSummary?: string) {
-    const session = await getSession();
-    if (!session?.user) return { error: "Unauthorized" };
-
+export async function generateMetaTagsAction(url: string, currentTitle: string, currentDesc: string, keyword: string) {
     try {
-        // Direct invocation (if flows are exported as functions/callables)
-        // Or using runFlow
-        const result = await seoSchemaGenerator({
-            url,
-            pageTitle: pageTitle || '',
-            contentSummary: contentSummary || '',
-            businessType: "Organization" // Default, could be param
-        });
-        return { success: true, data: result };
-    } catch (e: any) {
-        console.error("AI Schema Gen Error:", e);
-        return { error: e.message };
-    }
-}
+        // In a real crawl, we'd fetch the page content here or pass it in.
+        // For now, we'll pass a placeholder or let the AI hallucinate/use what it knows if it had search tool
+        // But the prompt expects 'pageContent'. 
+        // Let's at least pass a dummy if missing.
 
-export async function optimizeMetaAction(url: string, keyword: string, currentTitle?: string, currentDesc?: string) {
-    const session = await getSession();
-    if (!session?.user) return { error: "Unauthorized" };
-
-    try {
         const result = await seoMetaOptimizer({
             targetKeyword: keyword,
             currentTitle: currentTitle || '',
             currentDesc: currentDesc || '',
-            pageContent: `Page content for ${url}` // Shim for now
+            pageContent: `Content for ${url} targeting ${keyword}.`
         });
+
         return { success: true, data: result };
     } catch (e: any) {
-        console.error("AI Meta Opt Error:", e);
-        return { error: e.message };
+        console.error("AI Generation Failed:", e);
+        return { error: "Failed to generate AI suggestions. Ensure API keys are set." };
     }
 }

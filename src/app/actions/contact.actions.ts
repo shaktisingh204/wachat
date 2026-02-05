@@ -167,6 +167,7 @@ export async function handleImportContacts(prevState: any, formData: FormData): 
 
 export async function getContactsPageData(
     projectId: string,
+    phoneNumberId?: string,
     page: number = 1,
     searchQuery: string = '',
     tagIds?: string[]
@@ -180,6 +181,15 @@ export async function getContactsPageData(
         const projectObjectId = new ObjectId(projectId);
 
         const filter: Filter<Contact> = { projectId: projectObjectId };
+
+        if (phoneNumberId) {
+            filter.phoneNumberId = phoneNumberId;
+        }
+
+        // Filter by phoneNumberId if provided (it should be, but for robustness)
+        if (phoneNumberId) {
+            filter.phoneNumberId = phoneNumberId;
+        }
 
         if (searchQuery) {
             const queryRegex = { $regex: searchQuery, $options: 'i' };
@@ -315,13 +325,33 @@ export async function deleteContact(contactId: string): Promise<{ success: boole
     try {
         const { db } = await connectToDatabase();
 
+        // 1. Get the contact to identify the project
+        const contact = await db.collection<WithId<Contact>>('contacts').findOne({ _id: new ObjectId(contactId) });
+
+        if (!contact) {
+            return { success: false, error: 'Contact not found.' };
+        }
+
+        // 2. Verify project permissions (User must be Owner or Agent of the project)
+        const project = await db.collection<WithId<Project>>('projects').findOne({
+            _id: new ObjectId(contact.projectId),
+            $or: [
+                { userId: new ObjectId(session.user._id) },
+                { 'agents.userId': new ObjectId(session.user._id) }
+            ]
+        });
+
+        if (!project) {
+            return { success: false, error: 'You do not have permission to delete this contact.' };
+        }
+
+        // 3. Delete the contact
         const result = await db.collection('contacts').deleteOne({
-            _id: new ObjectId(contactId),
-            userId: new ObjectId(session.user._id)
+            _id: new ObjectId(contactId)
         });
 
         if (result.deletedCount === 0) {
-            return { success: false, error: 'Contact not found or you do not have permission to delete it.' };
+            return { success: false, error: 'Failed to delete contact.' };
         }
 
         revalidatePath('/dashboard/contacts');

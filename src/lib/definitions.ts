@@ -1927,6 +1927,7 @@ export type User = {
         sms: number;
         meta: number;
         email: number;
+        seo: number; // SEO Credits
     };
     wallet?: {
         balance: number; // in smallest currency unit (e.g., paisa)

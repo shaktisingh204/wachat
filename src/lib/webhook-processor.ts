@@ -1251,27 +1251,33 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
     const contact = contactResult;
     if (!contact) throw new Error(`Failed to find or create contact for WA ID ${senderWaId}`);
 
-    await db.collection('incoming_messages').insertOne({
-        direction: 'in', projectId: project._id, contactId: contact._id,
-        wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
-        type: message.type, content: message, isRead: false, createdAt: new Date(),
-    });
-
-    // Create notification for the new message
-    try {
-        await db.collection('notifications').insertOne({
-            projectId: project._id,
-            wabaId: project.wabaId || '', // Fallback if wabaId is missing
-            message: `New WhatsApp message from ${senderName}`,
-            link: `/dashboard/chat?contactId=${contact._id.toString()}`,
-            isRead: false,
-            eventType: 'whatsapp_message',
-            sourceApp: 'wachat',
-            createdAt: new Date(),
+    // Check for duplicate message (idempotency)
+    const existingMessage = await db.collection('incoming_messages').findOne({ wamid: message.id }, { projection: { _id: 1 } });
+    if (!existingMessage) {
+        await db.collection('incoming_messages').insertOne({
+            direction: 'in', projectId: project._id, contactId: contact._id,
+            wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+            type: message.type, content: message, isRead: false, createdAt: new Date(),
         });
-    } catch (e) {
-        console.error(`Failed to create notification for message from ${senderWaId}:`, e);
-        // Do not block flow execution if notification fails
+
+        // Create notification for the new message
+        try {
+            await db.collection('notifications').insertOne({
+                projectId: project._id,
+                wabaId: project.wabaId || '', // Fallback if wabaId is missing
+                message: `New WhatsApp message from ${senderName}`,
+                link: `/dashboard/chat?contactId=${contact._id.toString()}`,
+                isRead: false,
+                eventType: 'whatsapp_message',
+                sourceApp: 'wachat',
+                createdAt: new Date(),
+            });
+        } catch (e) {
+            console.error(`Failed to create notification for message from ${senderWaId}:`, e);
+            // Do not block flow execution if notification fails
+        }
+    } else {
+        console.log(`[Webhook] Duplicate message detected: ${message.id}. Skipping insertion.`);
     }
 
     const wasOptInOut = await handleOptInOut(db, project, contact, message, phoneNumberId);
@@ -1333,7 +1339,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
                 break;
             case 'message_template_status_update':
             case 'template_status_update':
-                message = `Template '${value.message_template_name}' was ${value.event === 'approved' ? 'approved' : 'rejected'}. Reason: ${value.reason || 'N/A'}`;
+                message = `Template '${value.message_template_name}' was ${value.event.toLowerCase() === 'approved' ? 'approved' : 'rejected'}. Reason: ${value.reason || 'N/A'}`;
                 link = '/dashboard/templates';
                 await db.collection('templates').updateOne({ name: value.message_template_name, projectId: project._id }, { $set: { status: value.event.toUpperCase() } });
                 break;

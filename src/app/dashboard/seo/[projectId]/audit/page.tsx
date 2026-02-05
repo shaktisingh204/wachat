@@ -3,134 +3,118 @@
 import { useEffect, useState, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { AlertCircle, CheckCircle, Bot, Play, RefreshCw, ChevronDown, ChevronRight } from 'lucide-react';
-import { startAudit, getLatestAudit } from '@/app/actions/seo.actions';
+import { AlertCircle, Play, RefreshCw, Loader2 } from 'lucide-react';
+import { startAudit, getAuditStatus } from '@/app/actions/seo-audit.actions';
+import { getLatestAudit } from '@/app/actions/seo.actions';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-
-type Issue = {
-    code: string;
-    message: string;
-    severity: 'critical' | 'warning' | 'info';
-};
-
-// Mock AI Fix function
-import { generateSchemaAction, optimizeMetaAction } from '@/app/actions/seo-ai.actions';
-
-// Real AI Fix function
-const generateAiFix = async (issueCode: string, context: any) => {
-    let result;
-
-    if (issueCode === 'missing_description' || issueCode === 'missing_title') {
-        const keyword = "brand"; // In real usage, pass target keyword from project settings
-        const resp = await optimizeMetaAction(context.url || '', keyword, context.title, '');
-        if (resp.success) {
-            const data = resp.data;
-            return `
-<!-- Optimized Meta Tags -->
-<title>${data.optimizedTitle}</title>
-<meta name="description" content="${data.optimizedDesc}" />
-
-<!-- AI Reasoning -->
-<!-- ${data.reasoning} -->
-             `.trim();
-        }
-        return "Failed to generate meta tags.";
-    }
-
-    if (issueCode === 'missing_h1') {
-        // Simple H1 generation, or use the meta optimizer for headlines too
-        return `<h1>${context.title || 'Welcome'}</h1>`;
-    }
-
-    // Default to Schema Generation for unknown or specific schema issues
-    // Example: if issue is 'missing_schema'
-    if (issueCode.includes('schema') || true) {
-        // Fallback: Try to generate schema for the page
-        const resp = await generateSchemaAction(context.url || '', context.title, '');
-        if (resp.success) {
-            return `
-<!-- JSON-LD Schema -->
-<script type="application/ld+json">
-${JSON.stringify(resp.data.jsonLd, null, 2)}
-</script>
-
-<!-- Type: ${resp.data.schemaType} -->
-            `.trim();
-        }
-    }
-
-    return "AI suggestion not available for this issue type.";
-};
+import { AuditTable } from '@/components/wabasimplify/seo/audit-table';
 
 export default function AuditPage({ params }: { params: Promise<{ projectId: string }> }) {
     const { projectId } = use(params);
-    const [audit, setAudit] = useState<any>(null);
+
+    // State
+    const [audit, setAudit] = useState<any>(null); // The Audit Object
+    const [pages, setPages] = useState<any[]>([]); // The Crawled Pages
     const [loading, setLoading] = useState(true);
-    const [runningAudit, setRunningAudit] = useState(false);
+    const [status, setStatus] = useState<'idle' | 'running' | 'completed' | 'failed'>('idle');
+    const [progress, setProgress] = useState({ crawled: 0, total: 0 });
 
-    // AI Fix State
-    const [fixingIssue, setFixingIssue] = useState<string | null>(null);
-    const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
-
-    const loadAudit = async () => {
+    const loadInitialData = async () => {
         setLoading(true);
         const data = await getLatestAudit(projectId);
-        setAudit(data);
+        if (data) {
+            setAudit(data);
+            setPages(data.pages || []); // Backwards compat for MVP inline array
+            // TODO: Fetch from audit_snapshots in Phase 1.5 if we move away from 'pages' array
+            if (data.status === 'running' || data.status === 'pending') {
+                setStatus('running');
+            } else {
+                setStatus('completed');
+            }
+        }
         setLoading(false);
     };
 
     useEffect(() => {
-        loadAudit();
+        loadInitialData();
     }, [projectId]);
 
+    // Polling Effect
+    useEffect(() => {
+        if (status !== 'running' || !audit?._id) return;
+
+        const interval = setInterval(async () => {
+            const res = await getAuditStatus(audit._id);
+            if (res) {
+                // Update stats
+                setProgress({ crawled: res.crawledCount, total: 0 }); // Total Unknown for crawling
+
+                if (res.status === 'completed' || res.status === 'failed') {
+                    setStatus(res.status as any);
+                    // Reload full data
+                    loadInitialData();
+                    toast({ title: "Audit Finished", description: `Processed ${res.crawledCount} pages.` });
+                }
+            }
+        }, 2000);
+
+        return () => clearInterval(interval);
+    }, [status, audit?._id]);
+
     const handleStartAudit = async () => {
-        setRunningAudit(true);
-        toast({ title: "Audit Started", description: "Crawler is running in background..." });
-        await startAudit(projectId);
-
-        // Poll for completion - Simplified for MVP
-        setTimeout(() => {
-            loadAudit();
-            setRunningAudit(false);
-            toast({ title: "Audit Completed", description: "Fresh data loaded." });
-        }, 5000);
-    };
-
-    const handleAiFix = async (issue: Issue, pageData: any) => {
-        setFixingIssue(issue.code);
-        setAiSuggestion(null);
+        setStatus('running');
+        toast({ title: "Starting Audit", description: "Queuing crawler jobs..." });
 
         try {
-            const suggestion = await generateAiFix(issue.code, { title: pageData.title });
-            setAiSuggestion(suggestion);
-        } finally {
-            setFixingIssue(null);
+            const result = await startAudit(projectId);
+            if (result.auditId) {
+                // Set temporary audit object so polling starts
+                setAudit({ _id: result.auditId, status: 'running', summary: {} });
+                setPages([]);
+            }
+        } catch (e: any) {
+            toast({ title: "Error", description: e.message, variant: "destructive" });
+            setStatus('idle');
         }
     };
 
-    if (loading && !audit) return <Skeleton className="h-[400px] w-full" />;
+    if (loading && !audit && status === 'idle') return <Skeleton className="h-[400px] w-full" />;
 
     return (
         <div className="flex flex-col gap-6 p-6">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <RefreshCw className="h-8 w-8 text-primary" />
+                        <RefreshCw className={`h-8 w-8 text-primary ${status === 'running' ? 'animate-spin' : ''}`} />
                         Technical Audit
                     </h1>
                     <p className="text-muted-foreground mt-1">
-                        Identify and fix technical SEO issues with Active AI.
+                        Deep crawl analysis using distributed cloud workers.
                     </p>
                 </div>
-                <Button onClick={handleStartAudit} disabled={runningAudit}>
-                    {runningAudit ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
-                    {runningAudit ? 'Crawling...' : 'Run New Audit'}
+                <Button onClick={handleStartAudit} disabled={status === 'running'}>
+                    {status === 'running' ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
+                    {status === 'running' ? 'Crawling...' : 'Start New Audit'}
                 </Button>
             </div>
+
+            {status === 'running' && (
+                <Card className="bg-blue-50 border-blue-100">
+                    <CardContent className="p-6 flex items-center gap-4">
+                        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+                        <div className="flex-1">
+                            <div className="flex justify-between mb-2">
+                                <span className="font-semibold text-blue-900">Audit in Progress</span>
+                                <span className="text-blue-700">{progress.crawled} Pages Crawled</span>
+                            </div>
+                            <Progress value={30} className="h-2 bg-blue-200 [&>div]:bg-blue-500" />
+                            {/* Indeterminate or estimated progress */}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             {!audit ? (
                 <Card className="border-dashed py-12 flex flex-col items-center justify-center text-center">
@@ -150,8 +134,7 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
                                     <span className="text-4xl font-bold">{audit.totalScore || 0}</span>
                                     <span className="text-muted-foreground">/ 100</span>
                                 </div>
-                                <Progress value={audit.totalScore || 0} className={`h-2 ${(audit.totalScore || 0) > 80 ? 'bg-green-100 [&>div]:bg-green-500' : 'bg-red-100 [&>div]:bg-red-500'
-                                    }`} />
+                                <Progress value={audit.totalScore || 0} className={`h-2 ${(audit.totalScore || 0) > 80 ? 'bg-green-100 [&>div]:bg-green-500' : 'bg-red-100 [&>div]:bg-red-500'}`} />
                             </CardContent>
                         </Card>
 
@@ -165,7 +148,7 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
                                 </div>
                                 <div>
                                     <div className="text-2xl font-bold">{audit.summary?.criticalIssues || 0}</div>
-                                    <p className="text-xs text-muted-foreground">Require immediate attention</p>
+                                    <p className="text-xs text-muted-foreground">Require attention</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -180,94 +163,24 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
                                 </div>
                                 <div>
                                     <div className="text-2xl font-bold">{audit.summary?.warningIssues || 0}</div>
-                                    <p className="text-xs text-muted-foreground">Optimization opportunities</p>
+                                    <p className="text-xs text-muted-foreground">Optimization tips</p>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* Issues List */}
+                    {/* Detailed Results */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Identified Issues</CardTitle>
-                            <CardDescription>Issues found on {audit.pages?.length || 0} crawled pages.</CardDescription>
+                            <CardTitle>Crawled Pages</CardTitle>
+                            <CardDescription>Results from the latest crawl.</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            {audit.pages?.map((page: any, i: number) => (
-                                <Collapsible key={i} className="border rounded-md p-4">
-                                    <CollapsibleTrigger className="flex items-center justify-between w-full hover:bg-muted/50 p-2 rounded transition-colors group">
-                                        <div className="flex items-center gap-3">
-                                            <GlobeStatus status={page.status} />
-                                            <span className="font-medium truncate max-w-[300px]">{page.url}</span>
-                                            <Badge variant="outline">{page.issues.length} Issues</Badge>
-                                        </div>
-                                        <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[state=open]:rotate-180 transition-transform" />
-                                    </CollapsibleTrigger>
-
-                                    <CollapsibleContent className="mt-4 space-y-3 pl-11">
-                                        {page.issues.length === 0 ? (
-                                            <div className="text-sm text-green-600 flex items-center gap-2">
-                                                <CheckCircle className="h-4 w-4" /> No issues found.
-                                            </div>
-                                        ) : (
-                                            page.issues.map((issue: Issue, j: number) => (
-                                                <div key={j} className="flex items-start justify-between bg-muted/30 p-3 rounded text-sm">
-                                                    <div className="flex gap-2">
-                                                        <IssueIcon severity={issue.severity} />
-                                                        <div>
-                                                            <p className="font-medium">{issue.message}</p>
-                                                            <p className="text-xs text-muted-foreground uppercase mt-1">{issue.code}</p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex flex-col items-end gap-2">
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            className="gap-2 border-primary/20 hover:bg-primary/5 text-primary"
-                                                            onClick={() => handleAiFix(issue, page)}
-                                                        >
-                                                            <Bot className="h-3 w-3" /> Fix with AI
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        )}
-
-                                        {/* AI Suggestion Display Area (Global per page for demo simplicity) */}
-                                        {aiSuggestion && (
-                                            <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-md animate-in fade-in slide-in-from-top-2">
-                                                <div className="flex items-center gap-2 mb-2 text-blue-700 font-semibold">
-                                                    <Bot className="h-4 w-4" /> AI Suggestion
-                                                </div>
-                                                <pre className="bg-white p-3 rounded border text-xs overflow-x-auto text-slate-700 font-mono">
-                                                    {aiSuggestion}
-                                                </pre>
-                                                <div className="flex gap-2 mt-3">
-                                                    <Button size="sm">Apply to CMS</Button>
-                                                    <Button size="sm" variant="ghost" onClick={() => setAiSuggestion(null)}>Dismiss</Button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </CollapsibleContent>
-                                </Collapsible>
-                            ))}
+                        <CardContent>
+                            <AuditTable pages={pages} />
                         </CardContent>
                     </Card>
                 </>
             )}
         </div>
     );
-}
-
-function GlobeStatus({ status }: { status: number }) {
-    if (status >= 200 && status < 300) return <div className="h-3 w-3 rounded-full bg-green-500" title="200 OK" />;
-    if (status >= 300 && status < 400) return <div className="h-3 w-3 rounded-full bg-blue-500" title="Redirect" />;
-    return <div className="h-3 w-3 rounded-full bg-red-500" title="Error" />;
-}
-
-function IssueIcon({ severity }: { severity: string }) {
-    if (severity === 'critical') return <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />;
-    if (severity === 'warning') return <AlertCircle className="h-4 w-4 text-yellow-500 mt-0.5" />;
-    return <AlertCircle className="h-4 w-4 text-blue-500 mt-0.5" />;
 }

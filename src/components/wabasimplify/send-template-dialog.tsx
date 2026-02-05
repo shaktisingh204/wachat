@@ -20,7 +20,7 @@ import type { WithId } from 'mongodb';
 import type { Contact, Template } from '@/lib/definitions';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
-const initialState = {
+const initialState: { message?: string; error?: string } = {
   message: undefined,
   error: undefined,
 };
@@ -62,8 +62,8 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
 
   const hasMediaHeader = template.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
 
-  const bodyVariables = (template.components?.find(c => c.type === 'BODY')?.text || template.body || '').match(/{{\s*(\d+)\s*}}/g)?.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))) || [];
-  const uniqueBodyVars = [...new Set(bodyVariables)].sort((a: number, b: number) => a - b);
+  const bodyVariables: number[] = (template.components?.find(c => c.type === 'BODY')?.text || template.body || '').match(/{{\s*(\d+)\s*}}/g)?.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))) || [];
+  const uniqueBodyVars: number[] = Array.from(new Set(bodyVariables)).sort((a: number, b: number) => a - b);
 
   const defaultUrl = template.headerSampleUrl && !template.headerSampleUrl.includes('graph.facebook.com') ? template.headerSampleUrl : '';
 
@@ -95,7 +95,7 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
       };
 
       if (hasMediaHeader) {
-        data.mediaSource = formData.get('mediaSource');
+        data.mediaSource = mediaSource;
         if (data.mediaSource === 'url') {
           data.headerMediaUrl = formData.get('headerMediaUrl');
         } else {
@@ -112,11 +112,15 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
       }
 
       uniqueBodyVars.forEach(varNum => {
-        data[`variable_${varNum}`] = formData.get(`variable_${varNum}`);
+        data[`variable_body_${varNum}`] = formData.get(`variable_body_${varNum}`);
       });
 
-      const result = await handleSendTemplateMessage(null, data);
-      setState(result);
+      try {
+        const result = await handleSendTemplateMessage(null, data);
+        setState(result);
+      } catch (error: any) {
+        toast({ title: 'Error', description: error.message || 'Failed to send template', variant: 'destructive' });
+      }
     });
   };
 
@@ -161,12 +165,12 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
                 </div>
               )}
 
-              {uniqueBodyVars.length > 0 && uniqueBodyVars.map(varNum => (
+              {uniqueBodyVars.length > 0 && uniqueBodyVars.map((varNum: number) => (
                 <div key={varNum} className="space-y-2">
-                  <Label htmlFor={`variable_${varNum}`}>Variable {'{{'}{varNum}{'}}'}</Label>
+                  <Label htmlFor={`variable_body_${varNum}`}>Variable {'{{'}{varNum}{'}}'}</Label>
                   <Input
-                    id={`variable_${varNum}`}
-                    name={`variable_${varNum}`}
+                    id={`variable_body_${varNum}`}
+                    name={`variable_body_${varNum}`}
                     placeholder={`Enter value for variable ${varNum}`}
                     required
                   />

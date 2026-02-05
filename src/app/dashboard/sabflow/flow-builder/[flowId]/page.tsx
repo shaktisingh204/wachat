@@ -37,6 +37,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { validateFlow } from '@/lib/sabflow/validation';
 
 const nodeTypes: NodeTypes = {
     action: SabFlowCustomNode,
@@ -166,6 +167,19 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
     const handleSave = async () => {
         if (!flowName) {
             toast({ title: 'Error', description: 'Flow name is required', variant: 'destructive' });
+            return;
+        }
+
+        const validation = validateFlow(nodes, edges);
+        if (!validation.isValid) {
+            const errorCount = validation.errors.filter(e => e.type === 'error').length;
+            const warningCount = validation.errors.filter(e => e.type === 'warning').length;
+
+            toast({
+                title: 'Validation Failed',
+                description: `Found ${errorCount} error(s). Please resolve them before saving.`,
+                variant: 'destructive'
+            });
             return;
         }
 

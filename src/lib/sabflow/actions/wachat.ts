@@ -7,6 +7,7 @@ import {
     findOrCreateContact,
     getConversation,
     markConversationAsRead,
+    markConversationAsUnread,
 } from '@/app/actions/whatsapp.actions';
 import { handleAddNewContact, updateContactTags, handleUpdateContactDetails, handleUpdateContactStatus } from '@/app/actions/contact.actions';
 // import { handleUpdateContactDetails, handleUpdateContactStatus } from '@/app/actions/project.actions'; // REMOVED
@@ -142,6 +143,81 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                 if (!result.success) throw new Error(result.error);
                 return { output: result };
             }
+            case 'sendListMessage': {
+                if (!inputs.body || !inputs.buttonText || !inputs.sections) throw new Error('Body, Button Text, and Sections are required.');
+
+                let sections = [];
+                try {
+                    sections = typeof inputs.sections === 'string' ? JSON.parse(inputs.sections) : inputs.sections;
+                } catch (e) {
+                    throw new Error('Invalid JSON format for Sections.');
+                }
+
+                const payload = {
+                    messaging_product: 'whatsapp',
+                    to: to,
+                    type: 'interactive',
+                    interactive: {
+                        type: 'list',
+                        header: inputs.header ? { type: 'text', text: inputs.header } : undefined,
+                        body: { text: inputs.body },
+                        footer: inputs.footer ? { text: inputs.footer } : undefined,
+                        action: {
+                            button: inputs.buttonText,
+                            sections: sections
+                        }
+                    }
+                };
+
+                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true, wamid: response.data.messages?.[0]?.id } };
+            }
+            case 'sendButtonMessage': {
+                if (!inputs.body || !inputs.buttons) throw new Error('Body and Buttons are required.');
+
+                let buttons = [];
+                try {
+                    buttons = typeof inputs.buttons === 'string' ? JSON.parse(inputs.buttons) : inputs.buttons;
+                } catch (e) {
+                    throw new Error('Invalid JSON format for Buttons.');
+                }
+
+                if (buttons.length > 3) throw new Error('Maximum 3 buttons allowed.');
+
+                const payload = {
+                    messaging_product: 'whatsapp',
+                    to: to,
+                    type: 'interactive',
+                    interactive: {
+                        type: 'button',
+                        header: inputs.header ? { type: 'text', text: inputs.header } : undefined,
+                        body: { text: inputs.body },
+                        footer: inputs.footer ? { text: inputs.footer } : undefined,
+                        action: {
+                            buttons: buttons
+                        }
+                    }
+                };
+
+                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true, wamid: response.data.messages?.[0]?.id } };
+            }
+            case 'reactToMessage': {
+                if (!inputs.messageId || !inputs.emoji) throw new Error('Message ID and Emoji are required.');
+
+                const payload = {
+                    messaging_product: 'whatsapp',
+                    to: to,
+                    type: 'reaction',
+                    reaction: {
+                        message_id: inputs.messageId,
+                        emoji: inputs.emoji
+                    }
+                };
+
+                await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true } };
+            }
             case 'addContactTag':
             case 'removeContactTag': {
                 if (!inputs.tagId) throw new Error('Tag ID is required.');
@@ -199,6 +275,88 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                 const result = await handleRequestWhatsAppPayment(null, paymentFormData);
                 if (result.error) throw new Error(result.error);
                 return { output: result };
+            }
+            case 'sendProduct': {
+                if (!inputs.catalogId || !inputs.productRetailerId) throw new Error('Catalog ID and Product SKU are required.');
+                const payload = {
+                    messaging_product: 'whatsapp',
+                    to: to,
+                    type: 'interactive',
+                    interactive: {
+                        type: 'product',
+                        body: inputs.body ? { text: inputs.body } : undefined,
+                        footer: inputs.footer ? { text: inputs.footer } : undefined,
+                        action: {
+                            catalog_id: inputs.catalogId,
+                            product_retailer_id: inputs.productRetailerId
+                        }
+                    }
+                };
+                await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true } };
+            }
+            case 'sendProductList': {
+                if (!inputs.header || !inputs.body || !inputs.catalogId || !inputs.sections) throw new Error('Header, Body, Catalog ID, and Sections are required.');
+                let sections = [];
+                try {
+                    sections = typeof inputs.sections === 'string' ? JSON.parse(inputs.sections) : inputs.sections;
+                } catch (e) { throw new Error('Invalid JSON for sections'); }
+
+                const payload = {
+                    messaging_product: 'whatsapp',
+                    to: to,
+                    type: 'interactive',
+                    interactive: {
+                        type: 'product_list',
+                        header: { type: 'text', text: inputs.header },
+                        body: { text: inputs.body },
+                        footer: inputs.footer ? { text: inputs.footer } : undefined,
+                        action: {
+                            catalog_id: inputs.catalogId,
+                            sections: sections
+                        }
+                    }
+                };
+                await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true } };
+            }
+            case 'sendCatalog': {
+                if (!inputs.body || !inputs.thumbnailProductRetailerId) throw new Error('Body and Thumbnail Product SKU are required.');
+                const payload = {
+                    messaging_product: 'whatsapp',
+                    to: to,
+                    type: 'interactive',
+                    interactive: {
+                        type: 'catalog_message',
+                        body: { text: inputs.body },
+                        footer: inputs.footer ? { text: inputs.footer } : undefined,
+                        action: {
+                            name: 'catalog_message',
+                            parameters: {
+                                thumbnail_product_retailer_id: inputs.thumbnailProductRetailerId
+                            }
+                        }
+                    }
+                };
+                await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true } };
+            }
+            case 'replyToMessage': {
+                if (!inputs.message || !inputs.contextMessageId) throw new Error('Message and Context ID are required.');
+                const payload = {
+                    messaging_product: 'whatsapp',
+                    to: to,
+                    context: { message_id: inputs.contextMessageId },
+                    type: 'text',
+                    text: { body: inputs.message }
+                };
+                await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true } };
+            }
+            case 'markAsUnread': {
+                const result = await markConversationAsUnread(contact._id.toString());
+                if (!result.success) throw new Error('Failed to mark as unread.');
+                return { output: { success: true } };
             }
             default:
                 throw new Error(`Wachat action "${actionName}" is not implemented.`);

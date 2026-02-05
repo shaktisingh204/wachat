@@ -94,7 +94,7 @@ export async function deleteSabChatFaq(faqId: string) {
         const { db } = await connectToDatabase();
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user._id) },
-            { $pull: { 'sabChatSettings.faqs': { _id: new ObjectId(faqId) } } }
+            { $pull: { 'sabChatSettings.faqs': { _id: new ObjectId(faqId) } } as any }
         );
         revalidatePath('/dashboard/sabchat/faq');
         return { success: true };
@@ -149,7 +149,7 @@ export async function deleteSabChatQuickReply(replyId: string) {
         const { db } = await connectToDatabase();
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user._id) },
-            { $pull: { 'sabChatSettings.quickReplies': { _id: new ObjectId(replyId) } } }
+            { $pull: { 'sabChatSettings.quickReplies': { _id: new ObjectId(replyId) } } as any }
         );
         revalidatePath('/dashboard/sabchat/quick-replies');
         return { success: true };
@@ -227,7 +227,7 @@ export async function getOrCreateChatSession(userId: string, email: string, name
 
 
         const result = await db.collection<SabChatSession>('sabchat_sessions').findOneAndUpdate(
-            { userId: new ObjectId(userId), visitorId: validVisitorId },
+            { userId: new ObjectId(userId), visitorId: validVisitorId.toString() } as any,
             {
                 $set: {
                     updatedAt: now,
@@ -239,7 +239,7 @@ export async function getOrCreateChatSession(userId: string, email: string, name
                 },
                 $setOnInsert: {
                     userId: new ObjectId(userId),
-                    visitorId: validVisitorId,
+                    visitorId: validVisitorId.toString(),
                     status: 'open',
                     createdAt: now,
                     history: [],
@@ -376,10 +376,32 @@ export async function closeChatSession(sessionId: string): Promise<{ success: bo
 }
 
 export async function addTagToSession(sessionId: string, tagName: string): Promise<{ success: boolean, error?: string }> {
-    // Placeholder
-    console.log(`Adding tag "${tagName}" to session ${sessionId}`);
-    await new Promise(res => setTimeout(res, 500));
-    return { success: true };
+    if (!sessionId || !ObjectId.isValid(sessionId)) return { success: false, error: 'Invalid session ID' };
+    if (!tagName || !tagName.trim()) return { success: false, error: 'Tag name is required' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('sabchat_sessions').updateOne(
+            { _id: new ObjectId(sessionId) },
+            { $addToSet: { tags: tagName.trim() } as any, $set: { updatedAt: new Date() } }
+        );
+        revalidatePath('/dashboard/sabchat/inbox');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to add tag.' };
+    }
+}
+
+export async function getSabChatUniqueTags(): Promise<string[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const tags = await db.collection('sabchat_sessions').distinct('tags', { userId: new ObjectId(session.user._id) });
+        return tags || [];
+    } catch (e) {
+        return [];
+    }
 }
 
 export async function postChatMessageAction(prevState: any, formData: FormData) {
@@ -392,5 +414,120 @@ export async function postChatMessageAction(prevState: any, formData: FormData) 
     }
 
     return postChatMessage(sessionId, sender, content);
+}
+
+export async function assignAgent(sessionId: string, agentId: string) {
+    if (!sessionId || !ObjectId.isValid(sessionId)) return { success: false, error: 'Invalid session ID' };
+    if (!agentId) return { success: false, error: 'Agent ID is required' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('sabchat_sessions').updateOne(
+            { _id: new ObjectId(sessionId) },
+            { $set: { assignedTo: agentId, updatedAt: new Date() } }
+        );
+        revalidatePath('/dashboard/sabchat/inbox');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to assign agent.' };
+    }
+}
+
+export async function updateVisitorInfo(sessionId: string, name?: string, email?: string, phone?: string) {
+    if (!sessionId || !ObjectId.isValid(sessionId)) return { success: false, error: 'Invalid session ID' };
+
+    const updates: any = {};
+    if (name) updates['visitorInfo.name'] = name;
+    if (email) updates['visitorInfo.email'] = email;
+    if (phone) updates['visitorInfo.phone'] = phone;
+
+    if (Object.keys(updates).length === 0) return { success: true };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('sabchat_sessions').updateOne(
+            { _id: new ObjectId(sessionId) },
+            { $set: { ...updates, updatedAt: new Date() } }
+        );
+        revalidatePath('/dashboard/sabchat/inbox');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to update visitor info.' };
+    }
+}
+
+export async function getSabChatQuickReplies(): Promise<{ value: string, label: string }[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
+        const replies = user?.sabChatSettings?.quickReplies || [];
+        return replies.map((r: any) => ({ value: r._id.toString(), label: r.shortcut }));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function getSabChatFaqs(): Promise<{ value: string, label: string }[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
+        const faqs = user?.sabChatSettings?.faqs || [];
+        return faqs.map((f: any) => ({ value: f._id.toString(), label: f.question }));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function sendQuickReply(sessionId: string, replyId: string) {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
+        const reply = user?.sabChatSettings?.quickReplies?.find((r: any) => r._id.toString() === replyId);
+
+        if (!reply) return { success: false, error: 'Quick reply not found' };
+
+        return await postChatMessage(sessionId, 'agent', reply.message);
+    } catch (e) {
+        return { success: false, error: 'Failed to send quick reply' };
+    }
+}
+
+export async function sendFaq(sessionId: string, faqId: string) {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
+        const faq = user?.sabChatSettings?.faqs?.find((f: any) => f._id.toString() === faqId);
+
+        if (!faq) return { success: false, error: 'FAQ not found' };
+
+        return await postChatMessage(sessionId, 'agent', faq.answer);
+    } catch (e) {
+        return { success: false, error: 'Failed to send FAQ' };
+    }
+}
+
+export async function blockVisitor(sessionId: string) {
+    if (!sessionId || !ObjectId.isValid(sessionId)) return { success: false, error: 'Invalid session ID' };
+    // Placeholder for blocking logic (e.g., adding IP to blacklist or flagging visitor)
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('sabchat_sessions').updateOne(
+            { _id: new ObjectId(sessionId) },
+            { $set: { blocked: true, status: 'closed', updatedAt: new Date() } }
+        );
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: 'Failed to block visitor' };
+    }
 }
 

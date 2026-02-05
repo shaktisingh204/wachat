@@ -58,7 +58,7 @@ export function TemplateMessageContent({ content, isOutgoing = false, isQuoted =
         if (header.format === 'IMAGE' && mediaUrl) {
             return (
                 <div className="relative aspect-video w-full bg-muted rounded-t-lg overflow-hidden">
-                    <Image src={mediaUrl} alt="Template Header" layout="fill" objectFit="cover" />
+                    <img src={mediaUrl} alt="Template Header" className="w-full h-full object-cover" />
                 </div>
             );
         }
@@ -146,7 +146,7 @@ export function TemplateMessageContent({ content, isOutgoing = false, isQuoted =
                         if (button.type === 'URL' && sentButtons.length > 0) {
                             const sentButton = sentButtons.find((b: any) => b.index === index.toString());
                             if (sentButton?.parameters?.[0]?.text) {
-                                (button.url || "").replace('{{1}}', sentButton.parameters[0].text);
+                                finalUrl = (button.url || "").replace('{{1}}', sentButton.parameters[0].text);
                             }
                         }
 

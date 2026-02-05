@@ -10,6 +10,11 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const nextConfig = {
 
   output: 'standalone',
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
   turbopack: {},
 
   typescript: {

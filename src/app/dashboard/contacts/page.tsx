@@ -168,7 +168,7 @@ export default function ContactsPage() {
         if (!activeProjectId) return;
         startTransition(async () => {
             try {
-                const data = await getContactsPageData(activeProjectId, currentPage, searchQuery, selectedTags);
+                const data = await getContactsPageData(activeProjectId, undefined, currentPage, searchQuery, selectedTags);
                 setContacts(data.contacts);
                 setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
             } catch (error) {
@@ -299,9 +299,9 @@ export default function ContactsPage() {
                                                 <TableCell>
                                                     <div className="flex flex-wrap gap-1">
                                                         {(contact.tagIds || []).map(tagId => {
-                                                            const tag = activeProject?.tags?.find(t => t._id === tagId);
+                                                            const tag = activeProject?.tags?.find(t => t._id === tagId.toString());
                                                             return tag ? (
-                                                                <Badge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
+                                                                <Badge key={tagId.toString()} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
                                                                     {tag.name}
                                                                 </Badge>
                                                             ) : null;

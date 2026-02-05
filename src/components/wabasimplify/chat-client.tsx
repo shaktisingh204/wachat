@@ -3,13 +3,14 @@
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getInitialChatData, getConversation, markConversationAsRead } from '@/app/actions/index.ts';
+import { getInitialChatData, getConversation, markConversationAsRead, findOrCreateContact } from '@/app/actions/index';
 import { getContactsPageData } from '@/app/actions/contact.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, AnyMessage, Template, User, Plan } from '@/lib/definitions';
 import { ChatContactList } from './chat-contact-list';
 import { ChatWindow } from './chat-window';
 import { ContactInfoPanel } from './contact-info-panel';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, MessageSquare } from 'lucide-react';
@@ -106,7 +107,7 @@ export function ChatClient() {
         setIsFetchingMore(true);
         try {
             const nextPage = contactPage + 1;
-            const { contacts: newContacts, total } = await getContactsPageData(activeProject._id.toString(), selectedPhoneNumberId, nextPage, '', undefined);
+            const { contacts: newContacts, total } = await getContactsPageData(activeProject._id.toString(), selectedPhoneNumberId, nextPage, '');
 
             if (newContacts.length > 0) {
                 setContacts(prev => [...prev, ...newContacts]);
@@ -156,7 +157,7 @@ export function ChatClient() {
         const interval = setInterval(() => {
             startPollingTransition(async () => {
                 if (activeProject && selectedPhoneNumberId) {
-                    const { contacts: updatedContacts, total } = await getContactsPageData(activeProject._id.toString(), selectedPhoneNumberId, 1, '', undefined);
+                    const { contacts: updatedContacts, total } = await getContactsPageData(activeProject._id.toString(), selectedPhoneNumberId, 1, '');
                     setContacts(prev => {
                         const updatedMap = new Map(updatedContacts.map(c => [c._id.toString(), c]));
                         const mergedContacts = prev.map(old => updatedMap.get(old._id.toString()) || old);
@@ -181,7 +182,7 @@ export function ChatClient() {
             toast({ title: 'Error', description: 'Project and phone number must be selected.', variant: 'destructive' });
             return;
         }
-        const { contact, error } = await getInitialChatData(activeProjectId!, selectedPhoneNumberId, undefined, waId);
+        const { contact, error } = await findOrCreateContact(activeProjectId!, selectedPhoneNumberId, waId);
         if (error || !contact) {
             toast({ title: 'Error', description: error || 'Could not find or create contact.', variant: 'destructive' });
         }
@@ -281,6 +282,12 @@ export function ChatClient() {
                                 </div>
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p className="max-w-xs text-sm">Choose a contact from the list or start a new chat to begin messaging.</p>
+                                <Button
+                                    onClick={() => setIsNewChatDialogOpen(true)}
+                                    className="mt-4"
+                                >
+                                    Start New Conversation
+                                </Button>
                             </div>
                         )}
                     </div>

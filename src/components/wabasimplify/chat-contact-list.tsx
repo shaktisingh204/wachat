@@ -94,7 +94,17 @@ export function ChatContactList({
                         <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16" /></div>
                     </div>
                 )}
-                <Button variant="ghost" size="icon" onClick={onNewChat} className="h-8 w-8">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("New Chat button clicked in Contact List");
+                        onNewChat();
+                    }}
+                    className="h-8 w-8"
+                >
                     <MessageSquarePlus className="h-5 w-5" />
                     <span className="sr-only">New Chat</span>
                 </Button>

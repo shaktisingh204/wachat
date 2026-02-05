@@ -226,22 +226,28 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="h-screen bg-muted/20 flex flex-col overflow-hidden">
-                <WebsiteBuilderHeader
-                    site={shop}
-                    pages={pages}
-                    activeSurface={activeSurface}
-                    onSwitchSurface={handleSelectSurface}
-                    onSave={handleSave}
-                    isSaving={isSaving}
-                />
+            {/* Root Container: Full Viewport, Fixed Layout */}
+            <div className="flex flex-col h-screen w-full bg-[#FAFAFA] dark:bg-zinc-950 overflow-hidden relative">
+                <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
 
-                <div className="flex-1 flex overflow-hidden relative">
-                    {/* Main Canvas Area */}
-                    <div className={cn(
-                        "flex-1 bg-muted/10 overflow-y-auto w-full transition-all duration-300 relative custom-scrollbar",
-                    )}>
-                        <div className="max-w-5xl mx-auto min-h-full pb-32 pt-8 px-8">
+                {/* 1. Header (Fixed at top) */}
+                <div className="flex-none z-50 bg-background/70 backdrop-blur-md border-b sticky top-0 supports-[backdrop-filter]:bg-background/60">
+                    <WebsiteBuilderHeader
+                        site={shop}
+                        pages={pages}
+                        activeSurface={activeSurface}
+                        onSwitchSurface={handleSelectSurface}
+                        onSave={handleSave}
+                        isSaving={isSaving}
+                    />
+                </div>
+
+                {/* 2. Main Content Area (Fills remaining height) */}
+                <div className="flex-1 relative flex overflow-hidden z-10">
+
+                    {/* A. Canvas Scroll Container (The ONLY thing that scrolls) */}
+                    <div className="flex-1 h-full w-full overflow-y-auto overflow-x-hidden relative custom-scrollbar bg-transparent">
+                        <div className="min-h-full w-full max-w-[1200px] mx-auto p-8 pb-32 flex flex-col items-center">
                             <Canvas
                                 layout={layout}
                                 droppableId="canvas"
@@ -255,18 +261,18 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                         </div>
                     </div>
 
-                    {/* FAB for Adding Blocks and Pages */}
+                    {/* B. FAB (Floating Action Button) - Absolute Overlay */}
                     <DropdownMenu open={isBlockPaletteOpen} onOpenChange={setIsBlockPaletteOpen}>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 size="icon"
-                                className="absolute bottom-8 right-8 h-14 w-14 rounded-full shadow-2xl z-40 bg-primary hover:bg-primary/90 text-primary-foreground"
+                                className="absolute bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl z-50 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:shadow-primary/25 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/10"
                             >
-                                <Plus className="h-6 w-6" />
+                                <Plus className="h-7 w-7" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-background/95 backdrop-blur-xl">
-                            <div className="p-4 border-b sticky top-0 bg-background/95 backdrop-blur-md z-10">
+                        <DropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+                            <div className="p-4 border-b sticky top-0 bg-background/80 backdrop-blur-md z-10">
                                 <h3 className="font-semibold text-sm">Add Elements</h3>
                             </div>
                             <div className="p-4">
@@ -278,16 +284,18 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Right Panel - Properties */}
+                    {/* C. Properties Panel (Overlay Sidebar) */}
+                    {/* Fixed position relative to Main Content Area, high Z-index */}
                     <div
                         className={cn(
-                            "w-[40%] bg-background/80 backdrop-blur-xl border-l flex flex-col transition-all duration-300 ease-in-out absolute right-0 top-0 bottom-0 z-20 shadow-xl",
-                            !rightPanelOpen && "translate-x-full opacity-0",
+                            "absolute top-0 right-0 bottom-0 z-40 bg-background/80 backdrop-blur-2xl border-l shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-cubic-bezier(0.4, 0, 0.2, 1) flex flex-col",
+                            "w-[400px] lg:w-[40%]", // Responsive width: fixed on small, % on large
+                            !rightPanelOpen && "translate-x-full pointer-events-none"
                         )}
                     >
-                        <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-md sticky top-0 z-10">
+                        <div className="flex items-center justify-between p-4 border-b bg-transparent sticky top-0 z-10">
                             <h3 className="font-semibold text-sm">Properties</h3>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
@@ -306,6 +314,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                             )}
                         </div>
                     </div>
+
                 </div>
             </div>
         </DragDropContext>

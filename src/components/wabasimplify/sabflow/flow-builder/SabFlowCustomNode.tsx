@@ -1,6 +1,7 @@
 
 import React, { memo, useMemo } from 'react';
-import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Handle, Position, NodeProps, useEdges } from '@xyflow/react';
+import { validateNode, ValidationError } from '@/lib/sabflow/validation';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import {
@@ -24,7 +25,18 @@ const triggers = [
     { id: 'app', name: 'App Trigger', icon: Zap },
 ];
 
-const SabFlowCustomNode = ({ data, type, selected }: NodeProps) => {
+const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
+    const edges = useEdges();
+
+    const validationErrors = useMemo(() => {
+        // We need to construct a partial node object that matches what validateNode expects
+        const nodeForValidation = { id, type, data };
+        // @ts-ignore - validateNode handles the structural typing
+        return validateNode(nodeForValidation, edges);
+    }, [id, data, type, edges]);
+
+    const hasError = validationErrors.some(e => e.type === 'error');
+    const hasWarning = validationErrors.some(e => e.type === 'warning');
 
     const nodeInfo = useMemo(() => {
         if (type === 'trigger') {
@@ -73,17 +85,42 @@ const SabFlowCustomNode = ({ data, type, selected }: NodeProps) => {
     const Icon = nodeInfo.icon;
 
     return (
-        <div className="relative">
+        <div className="relative group/node">
             {type === 'trigger' && (
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">
                     Start of Flow
                 </div>
             )}
 
+            {(hasError || hasWarning) && (
+                <div className={cn(
+                    "absolute -top-2 -right-2 z-10 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm ring-2 ring-background",
+                    hasError ? "bg-destructive" : "bg-orange-500"
+                )}>
+                    {hasError ? "!" : "?"}
+                </div>
+            )}
+
+            {/* Tooltip for errors */}
+            {(hasError || hasWarning) && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded shadow-md opacity-0 group-hover/node:opacity-100 transition-opacity pointer-events-none z-20 border">
+                    <p className="font-semibold mb-1">{hasError ? 'Errors' : 'Warnings'}:</p>
+                    <ul className="list-disc pl-3 space-y-0.5">
+                        {validationErrors.map((e: ValidationError, i: number) => (
+                            <li key={i} className={e.type === 'error' ? 'text-destructive' : 'text-orange-500'}>
+                                {e.message}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             <Card
                 className={cn(
                     'w-64 shadow-md transition-all duration-200 border-2',
-                    selected ? 'ring-2 ring-primary border-primary shadow-lg' : 'border-border hover:shadow-lg'
+                    selected ? 'ring-2 ring-primary border-primary shadow-lg' : 'border-border hover:shadow-lg',
+                    !selected && hasError && 'border-destructive/50',
+                    !selected && hasWarning && !hasError && 'border-orange-400/50'
                 )}
             >
                 <CardHeader className="flex flex-row items-center gap-3 p-3 space-y-0">

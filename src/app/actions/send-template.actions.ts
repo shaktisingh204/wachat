@@ -69,16 +69,41 @@ export async function handleSendTemplateMessage(
             const fileData = headerMediaFile as { content: string, name: string, type: string };
 
             if (mediaSource === 'file' && fileData?.content) {
-                const form = new FormData();
-                const buffer = Buffer.from(fileData.content, 'base64');
-                form.append('file', buffer, { filename: fileData.name, contentType: fileData.type });
-                form.append('messaging_product', 'whatsapp');
-                const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
-                const mediaId = uploadResponse.data.id;
-                if (mediaId) {
-                    if (format === 'IMAGE') parameter = { type: 'image', image: { id: mediaId } };
-                    else if (format === 'VIDEO') parameter = { type: 'video', video: { id: mediaId } };
-                    else if (format === 'DOCUMENT') parameter = { type: 'document', document: { id: mediaId } };
+                try {
+                    const form = new FormData();
+                    const buffer = Buffer.from(fileData.content, 'base64');
+                    form.append('file', buffer, {
+                        filename: fileData.name,
+                        contentType: fileData.type,
+                        knownLength: buffer.length
+                    });
+                    form.append('messaging_product', 'whatsapp');
+
+                    console.log('Uploading media to Meta...', { size: buffer.length, type: fileData.type, name: fileData.name });
+
+                    const uploadResponse = await axios.post(
+                        `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
+                        form,
+                        {
+                            headers: {
+                                ...form.getHeaders(),
+                                'Authorization': `Bearer ${accessToken}`
+                            },
+                            maxContentLength: Infinity,
+                            maxBodyLength: Infinity
+                        }
+                    );
+
+                    const mediaId = uploadResponse.data.id;
+
+                    if (mediaId) {
+                        if (format === 'IMAGE') parameter = { type: 'image', image: { id: mediaId } };
+                        else if (format === 'VIDEO') parameter = { type: 'video', video: { id: mediaId } };
+                        else if (format === 'DOCUMENT') parameter = { type: 'document', document: { id: mediaId } };
+                    }
+                } catch (uploadError: any) {
+                    console.error('Meta Media Upload Error:', uploadError.response?.data || uploadError.message);
+                    throw new Error(`Failed to upload media: ${uploadError.response?.data?.error?.message || uploadError.message}`);
                 }
             } else if (headerMediaUrl) {
                 if (format === 'IMAGE') parameter = { type: 'image', image: { link: headerMediaUrl } };

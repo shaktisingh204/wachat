@@ -185,6 +185,23 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
     } else if (templateType === 'MARKETING_CAROUSEL') {
       rawData.templateType = 'MARKETING_CAROUSEL';
       rawData.carouselCards = carouselCards;
+
+      // Validate Carousel Media
+      for (let i = 0; i < carouselCards.length; i++) {
+        const card = carouselCards[i];
+        if (['IMAGE', 'VIDEO'].includes(card.headerFormat)) {
+          const fileInputName = `card_${i}_headerSampleFile`;
+          const file = formData.get(fileInputName) as File;
+          // Check if file exists and has size OR if using API we might allow URL but carousel form only supports file upload currently in UI for cards?
+          // Looking at UI: <Input name={`card_${cardIndex}_headerSampleFile`} type="file" required />
+          // It has 'required' attribute, but let's double check manually.
+          if ((!file || file.size === 0) && !card.headerSampleUrl) {
+            setState({ ...createTemplateInitialState, error: `Card ${i + 1}: Please upload a sample media file.` });
+            return;
+          }
+        }
+      }
+
     } else {
       // Standard
       rawData.templateType = 'STANDARD';
@@ -193,6 +210,17 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
       rawData.headerFormat = headerFormat;
       rawData.headerText = headerText;
       rawData.buttons = buttons;
+
+      // Validate Standard Header Media
+      if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat) && !isAdminForm) {
+        const file = formData.get('headerSampleFile') as File;
+        const url = formData.get('headerSampleUrl') as string;
+
+        if ((!file || file.size === 0) && (!url || !url.trim())) {
+          setState({ ...createTemplateInitialState, error: `Please provide a sample file or URL for the ${headerFormat.toLowerCase()} header.` });
+          return;
+        }
+      }
     }
 
     const validationResult = createTemplateSchema.safeParse(rawData);

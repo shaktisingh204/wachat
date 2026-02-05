@@ -469,7 +469,7 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
     try {
         const { db } = await connectToDatabase();
         const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
-            { waId, projectId: new ObjectId(projectId) },
+            { waId, projectId: new ObjectId(projectId), phoneNumberId },
             {
                 $set: { phoneNumberId },
                 $setOnInsert: {
@@ -569,6 +569,18 @@ export async function markConversationAsRead(contactId: string): Promise<{ succe
         const { db } = await connectToDatabase();
         await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { unreadCount: 0 } });
         await db.collection('incoming_messages').updateMany({ contactId: new ObjectId(contactId), isRead: false }, { $set: { isRead: true } });
+        revalidatePath('/dashboard/chat');
+        return { success: true };
+    } catch (e) {
+        return { success: false };
+    }
+}
+
+export async function markConversationAsUnread(contactId: string): Promise<{ success: boolean }> {
+    if (!contactId || !ObjectId.isValid(contactId)) return { success: false };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { unreadCount: 1 } });
         revalidatePath('/dashboard/chat');
         return { success: true };
     } catch (e) {

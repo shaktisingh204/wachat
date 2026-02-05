@@ -4,6 +4,8 @@ export type SeoProjectSettings = {
     crawlFrequency: 'daily' | 'weekly' | 'manual';
     targetedKeywords: string[];
     locations: string[]; // e.g. ["us", "in"]
+    maxPages?: number;
+    crawlDepth?: number;
 };
 
 export type SeoProject = {
@@ -35,6 +37,7 @@ export type SeoPageAudit = {
     loadTime?: number; // ms
     issues: SeoPageIssue[];
     crawledAt: Date;
+    links?: string[];
 };
 
 export type SeoAudit = {
@@ -50,6 +53,7 @@ export type SeoAudit = {
         criticalIssues: number;
         warningIssues: number;
     };
+    visitedPages?: boolean;
 };
 
 export type SeoKeywordHistory = {
@@ -63,7 +67,7 @@ export type SeoKeyword = {
     _id: ObjectId;
     projectId: ObjectId;
     keyword: string;
-    location: string; // e.g. "2840" for US (DataForSEO code) or iso code
+    location: string; // e.g. "2840" for US (DataForSEO code)
     currentRank?: number;
     currentVolume?: number;
     currentDifficulty?: number;
@@ -71,4 +75,48 @@ export type SeoKeyword = {
     tags?: string[];
     lastUpdated: Date;
     createdAt: Date;
+};
+
+export type SeoGscIntegration = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    credentials: {
+        access_token: string;
+        refresh_token: string;
+        expiry_date: number;
+        token_type: string;
+        scope: string;
+    };
+    connectedAt: Date;
+    lastSyncAt?: Date;
+    sites?: string[]; // List of GSC verified sites
+    selectedSite?: string; // The one currently active
+};
+
+export type AuditSnapshot = {
+    _id?: ObjectId;
+    auditId: ObjectId;
+    projectId: ObjectId;
+    url: string;
+    status: number;
+    title?: string;
+    metaDescription?: string;
+    h1?: string;
+    wordCount?: number;
+    loadTime?: number;
+    issues: SeoPageIssue[];
+    crawledAt: Date;
+    depth: number;
+    outboundLinks?: string[];
+    content?: string;
+};
+
+export type SeoContentEmbedding = {
+    _id?: ObjectId;
+    projectId: ObjectId;
+    url: string;
+    contentHash: string; // To check if content changed
+    embedding: number[]; // 1536 dimensions
+    title: string;
+    updatedAt: Date;
 };

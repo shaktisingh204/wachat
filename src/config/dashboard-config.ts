@@ -5,7 +5,7 @@ import {
     Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search,
     Video, ShieldCheck, Key, BookCopy, Rss, TrendingUp, Calendar,
     Newspaper, Clapperboard, BarChart2, Landmark, Users as UsersIcon,
-    LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database, Layers
+    LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database, Layers, FileText
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import React from 'react';
@@ -312,9 +312,12 @@ export const portfolioMenuItems: MenuItem[] = [
 
 export const seoMenuItems: MenuItem[] = [
     { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp, permissionKey: 'seo_dashboard' },
-    { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, permissionKey: 'seo_brand_radar' },
+    { href: '/dashboard/seo/rankings', label: 'Rank Tracker', icon: BarChart2, permissionKey: 'seo_rankings' },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, permissionKey: 'seo_site_explorer' },
-    { href: '/dashboard/seo/tools/clustering', label: 'Keyword Clustering', icon: Layers, permissionKey: 'seo_clustering' },
+    { href: '/dashboard/seo/competitors', label: 'Competitor Gap', icon: UsersIcon, permissionKey: 'seo_competitors' }, // New
+    { href: '/dashboard/seo/pseo', label: 'pSEO Clusters', icon: Layers, permissionKey: 'seo_pseo' }, // New
+    { href: '/dashboard/seo/brand', label: 'Brand Radar', icon: Rss, permissionKey: 'seo_brand_radar' }, // Updated Path
+    { href: '/dashboard/seo/logs', label: 'Log Forensics', icon: FileText, permissionKey: 'seo_logs' }, // New
 ];
 
 export const userSettingsItems: MenuItem[] = [

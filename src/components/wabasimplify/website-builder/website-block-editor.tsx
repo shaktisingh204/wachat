@@ -41,21 +41,56 @@ interface PropertiesPanelProps {
     onRemove: (id: string) => void;
 }
 
+class BlockEditorErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(_: Error) {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+        console.error("BlockEditor Error:", error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="p-4 rounded-md bg-destructive/10 text-destructive text-sm">
+                    <p className="font-semibold">Something went wrong.</p>
+                    <p>This block editor crashed. Try removing and re-adding the block.</p>
+                    <Button variant="outline" size="sm" className="mt-2" onClick={() => this.setState({ hasError: false })}>
+                        Try Again
+                    </Button>
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
+}
+
 export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate, onRemove }: PropertiesPanelProps) {
     if (!selectedBlock) {
         return (
-            <div className="text-center text-muted-foreground p-8 h-full flex flex-col items-center justify-center">
-                <p>Select a block on the canvas to edit its properties.</p>
+            <div className="text-center text-muted-foreground p-8 h-full flex flex-col items-center justify-center animate-in fade-in duration-500">
+                <div className="h-20 w-20 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+                    <Trash2 className="h-8 w-8 text-muted-foreground/30" />
+                </div>
+                <h3 className="font-medium text-lg text-foreground">No Block Selected</h3>
+                <p className="text-sm max-w-[200px] mt-2">Select a block on the canvas to edit its properties here.</p>
             </div>
         );
     }
-    
+
     const renderEditor = () => {
         const props = {
             settings: selectedBlock.settings,
             onUpdate: (newSettings: any) => onUpdate(selectedBlock.id, newSettings),
         };
-        
+
         const productProps = {
             ...props,
             availableProducts: availableProducts,
@@ -95,18 +130,20 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
             default: return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>;
         }
     };
-    
+
     return (
-        <Card className="h-full flex flex-col">
-            <CardHeader>
-                <CardTitle>Block Properties</CardTitle>
-                <CardDescription>Editing: <span className="font-semibold capitalize">{selectedBlock.type}</span></CardDescription>
+        <Card className="h-full flex flex-col border-0 shadow-none bg-transparent">
+            <CardHeader className="pb-4 border-b">
+                <CardTitle className="text-lg">Block Properties</CardTitle>
+                <CardDescription>Editing: <span className="font-semibold text-primary capitalize">{selectedBlock.type?.replace(/([A-Z])/g, ' $1').trim()}</span></CardDescription>
             </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto">
-                 {renderEditor()}
+            <CardContent className="flex-1 overflow-y-auto pt-6 px-1">
+                <BlockEditorErrorBoundary key={selectedBlock.id}>
+                    {renderEditor()}
+                </BlockEditorErrorBoundary>
             </CardContent>
-            <CardFooter className="border-t pt-4">
-                <Button variant="destructive" className="w-full" onClick={() => onRemove(selectedBlock.id)}>
+            <CardFooter className="border-t pt-4 mt-auto">
+                <Button variant="destructive" className="w-full shadow-sm hover:shadow-md transition-all" onClick={() => onRemove(selectedBlock.id)}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Block
                 </Button>

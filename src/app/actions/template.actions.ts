@@ -129,10 +129,20 @@ async function getMediaHandleForTemplate(file: File | null, url: string | null, 
             fileType = file.type;
             fileLength = file.size;
         } else if (url) {
-            const mediaResponse = await axios.get(url, { responseType: 'arraybuffer' });
-            mediaData = Buffer.from(mediaResponse.data);
-            fileType = mediaResponse.headers['content-type'] || 'application/octet-stream';
-            fileLength = mediaData.length;
+            try {
+                const mediaResponse = await axios.get(url, { responseType: 'arraybuffer' });
+                const contentType = mediaResponse.headers['content-type'] || '';
+
+                if (contentType.includes('text/html') || contentType.includes('application/json')) {
+                    return { handle: null, error: `The provided URL returned ${contentType} instead of a valid media file. Please provide a direct link to the image or video.` };
+                }
+
+                mediaData = Buffer.from(mediaResponse.data);
+                fileType = mediaResponse.headers['content-type'] || 'application/octet-stream';
+                fileLength = mediaData.length;
+            } catch (urlError: any) {
+                return { handle: null, error: `Failed to fetch media from URL: ${getErrorMessage(urlError)}` };
+            }
         } else {
             return { handle: null, error: undefined };
         }
@@ -298,8 +308,11 @@ export async function handleCreateTemplate(
             const mediaUploadResults = await Promise.all(
                 cardsData.map(async (card: any, index: number) => {
                     const file = formData.get(`card_${index}_headerSampleFile`) as File;
-                    if (card.headerFormat !== 'NONE' && file && file.size > 0) {
+                    if (card.headerFormat !== 'NONE' && (file && file.size > 0)) {
                         return await getMediaHandleForTemplate(file, null, accessToken, appId);
+                    }
+                    if (['IMAGE', 'VIDEO'].includes(card.headerFormat)) {
+                        return { handle: null, error: `Card ${index + 1}: Sample media file is required for ${card.headerFormat} header.` };
                     }
                     return { handle: null, error: null };
                 })
@@ -318,7 +331,7 @@ export async function handleCreateTemplate(
                 }
                 cardComponents.push({ type: 'BODY', text: card.body });
                 if (card.buttons && card.buttons.length > 0) {
-                    const formattedButtons = card.buttons.map((b: any) => ({ type: b.type, text: b.text, ...(b.url && { url: b.url }) }));
+                    const formattedButtons = card.buttons.map((b: any) => ({ type: b.type, text: b.text, ...(b.url && { url: b.url }), ...(b.phone_number && { phone_number: b.phone_number }) }));
                     cardComponents.push({ type: 'BUTTONS', buttons: formattedButtons });
                 }
                 finalCards.push({ components: cardComponents });
@@ -365,7 +378,11 @@ export async function handleCreateTemplate(
                         if (!headerExample) return { error: 'Example for header variable is required.' };
                         headerComponent.example = { header_text: [headerExample] };
                     }
-                } else {
+                } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
+                    if ((!headerSampleFile || headerSampleFile.size === 0) && (!headerSampleUrl || !headerSampleUrl.trim())) {
+                        return { error: `A sample file or URL is required for ${headerFormat} headers.` };
+                    }
+
                     const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, headerSampleUrl, accessToken, appId);
                     if (error) return { error };
                     if (handle) headerComponent.example = { header_handle: [handle] };

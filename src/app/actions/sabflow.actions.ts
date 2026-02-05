@@ -8,6 +8,7 @@ import { getSession } from '@/app/actions/user.actions';
 import type { SabFlow, SabFlowNode, SabFlowEdge, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { executeSabFlowAction } from '@/lib/sabflow/actions';
+import axios from 'axios';
 
 
 async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, execution: WithId<any>, logger: any): Promise<string | null> {
@@ -15,29 +16,29 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
     const node = flow.nodes.find(n => n.id === currentNodeId);
     if (!node) {
         logger.log(`Error: Node ${currentNodeId} not found. Terminating.`);
-        await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { status: 'FAILED', error: 'Node not found', finishedAt: new Date() }});
+        await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { status: 'FAILED', error: 'Node not found', finishedAt: new Date() } });
         return null;
     }
 
     logger.log(`Executing node "${node.data.name}" (Type: ${node.type})`);
-    
+
     let nextNodeId: string | null = flow.edges.find(e => e.source === currentNodeId && (e.sourceHandle === `${node.id}-output-main` || !e.sourceHandle))?.target || null;
 
     if (node.type === 'action') {
         const result = await executeSabFlowAction(execution._id, node, user, logger);
-        
+
         const stepName = node.data.name.replace(/\s+/g, '_');
-        
+
         if (result.error) {
             logger.log(`Action failed. Stopping flow.`, { error: result.error });
-            await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { status: 'FAILED', error: result.error, finishedAt: new Date(), [`history.${stepName}`]: result  }});
+            await db.collection('sabflow_executions').updateOne({ _id: execution._id }, { $set: { status: 'FAILED', error: result.error, finishedAt: new Date(), [`history.${stepName}`]: result } });
             return null; // Stop execution on error
         }
-        
+
         // Correctly update the context by merging the output
         const newContext = { ...execution.context, [stepName]: result };
         await db.collection('sabflow_executions').updateOne(
-            { _id: execution._id }, 
+            { _id: execution._id },
             { $set: { context: newContext, [`history.${stepName}`]: result } }
         );
         logger.log(`Saved action output to context under "${stepName}"`);
@@ -57,7 +58,7 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
                     if (value && typeof value === 'object' && k in value) {
                         value = value[k];
                     } else {
-                        return match; 
+                        return match;
                     }
                 }
                 return value !== undefined && value !== null ? String(value) : match;
@@ -68,7 +69,7 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
             const leftValue = interpolateCondition(rule.field, execution.context);
             const rightValue = interpolateCondition(rule.value, execution.context);
             let ruleResult = false;
-            switch(rule.operator) {
+            switch (rule.operator) {
                 case 'equals': ruleResult = leftValue === rightValue; break;
                 case 'not_equals': ruleResult = leftValue !== rightValue; break;
                 case 'contains': ruleResult = String(leftValue).includes(String(rightValue)); break;
@@ -82,19 +83,19 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
                 break;
             }
         }
-        
+
         logger.log(`Condition result: ${finalResult ? 'Yes' : 'No'}`);
         const sourceHandle = finalResult ? `${node.id}-output-yes` : `${node.id}-output-no`;
         const edge = flow.edges.find(e => e.sourceHandle === sourceHandle);
         nextNodeId = edge ? edge.target : null;
     }
-    
+
     return nextNodeId;
 }
 
 export async function runSabFlow(flowId: string, triggerPayload: any) {
     const { db } = await connectToDatabase();
-    
+
     const logger = { log: (msg: string, data?: any) => console.log(`[SabFlow:${flowId}] ${msg}`, data ? JSON.stringify(data, null, 2) : '') };
 
     logger.log(`Starting flow execution.`);
@@ -102,15 +103,15 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
     const flow = await db.collection<SabFlow>('sabflows').findOne({ _id: new ObjectId(flowId) });
     if (!flow) {
         logger.log(`Error: Flow ${flowId} not found.`);
-        return { error: `Flow with ID ${flowId} not found.`};
+        return { error: `Flow with ID ${flowId} not found.` };
     }
 
     const user = await db.collection<User>('users').findOne({ _id: flow.userId });
     if (!user) {
         logger.log(`Error: User ${flow.userId} for flow not found.`);
-        return { error: `User for flow ${flowId} not found.`};
+        return { error: `User for flow ${flowId} not found.` };
     }
-    
+
     const startNode = flow.nodes.find(n => n.type === 'trigger');
     if (!startNode) {
         return { error: `Flow has no trigger node.` };
@@ -126,7 +127,7 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         currentNodeId: startNode.id,
     });
     const executionId = executionResult.insertedId;
-    
+
     let currentNodeId: string | null = startNode.id;
     let executionCount = 0;
     const maxSteps = 50;
@@ -140,18 +141,18 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         }
 
         const nextNodeId = await executeNode(db, user, flow, executionDoc, logger);
-        
+
         if (nextNodeId) {
             await db.collection('sabflow_executions').updateOne({ _id: executionId }, { $set: { currentNodeId: nextNodeId } });
         }
         currentNodeId = nextNodeId;
     }
-    
+
     await db.collection('sabflow_executions').updateOne(
-        { _id: executionId, status: 'RUNNING' }, 
+        { _id: executionId, status: 'RUNNING' },
         { $set: { status: 'COMPLETED', finishedAt: new Date() } }
     );
-    
+
     logger.log(`Flow execution finished.`);
     return { success: true, message: 'Flow executed.' };
 }
@@ -176,9 +177,9 @@ export async function getSabFlows(): Promise<WithId<SabFlow>[]> {
 export async function getSabFlowById(flowId: string): Promise<WithId<SabFlow> | null> {
     const session = await getSession();
     if (!session?.user || !ObjectId.isValid(flowId)) return null;
-    
+
     const { db } = await connectToDatabase();
-    const flow = await db.collection<SabFlow>('sabflows').findOne({ 
+    const flow = await db.collection<SabFlow>('sabflows').findOne({
         _id: new ObjectId(flowId),
         userId: new ObjectId(session.user._id)
     });
@@ -186,10 +187,12 @@ export async function getSabFlowById(flowId: string): Promise<WithId<SabFlow> | 
     return flow ? JSON.parse(JSON.stringify(flow)) : null;
 }
 
+import { validateFlow } from '@/lib/sabflow/validation';
+
 export async function saveSabFlow(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, flowId?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
-    
+
     const flowId = formData.get('flowId') as string | undefined;
     const name = formData.get('name') as string;
     const trigger = JSON.parse(formData.get('trigger') as string);
@@ -197,9 +200,16 @@ export async function saveSabFlow(prevState: any, formData: FormData): Promise<{
     const edges = JSON.parse(formData.get('edges') as string);
 
     if (!name) return { error: 'Flow Name is required.' };
-    
+
+    // Server-side validation
+    const validation = validateFlow(nodes, edges);
+    if (!validation.isValid) {
+        const errors = validation.errors.filter(e => e.type === 'error').map(e => e.message).join(', ');
+        return { error: `Flow validation failed: ${errors}` };
+    }
+
     const isNew = !flowId || flowId === 'new-flow';
-    
+
     const flowData: Omit<SabFlow, '_id' | 'createdAt'> = {
         name,
         userId: new ObjectId(session.user._id),
@@ -233,11 +243,11 @@ export async function deleteSabFlow(flowId: string): Promise<{ message?: string;
     if (!session?.user || !ObjectId.isValid(flowId)) return { error: 'Invalid request.' };
 
     const { db } = await connectToDatabase();
-    const flow = await db.collection('sabflows').findOne({ 
+    const flow = await db.collection('sabflows').findOne({
         _id: new ObjectId(flowId),
         userId: new ObjectId(session.user._id)
     });
-    
+
     if (!flow) return { error: 'Flow not found or access denied.' };
 
     try {
@@ -257,13 +267,13 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
         const appId = formData.get('appId') as string;
         const appName = formData.get('appName') as string;
         const connectionName = formData.get('connectionName') as string;
-        
+
         let credentials: Record<string, any> = {};
-        
+
         const credentialKeysStr = formData.get('credentialKeys') as string | null;
-        if(credentialKeysStr) {
-             const credentialKeys = credentialKeysStr.split(',');
-             for (const key of credentialKeys) {
+        if (credentialKeysStr) {
+            const credentialKeys = credentialKeysStr.split(',');
+            for (const key of credentialKeys) {
                 if (formData.has(key)) {
                     credentials[key] = formData.get(key) as string;
                 }
@@ -288,7 +298,7 @@ export async function saveSabFlowConnection(prevState: any, formData: FormData):
             { _id: new ObjectId(session.user._id) },
             { $push: { sabFlowConnections: connectionData as any } }
         );
-        
+
         revalidatePath('/dashboard/sabflow/connections');
         return { message: `${connectionData.appName} account connected successfully.` };
     } catch (e) {
@@ -301,14 +311,14 @@ export async function testApiRequest(apiRequest: any) {
         if (!apiRequest || !apiRequest.url) {
             throw new Error("API Request node is not configured with a URL.");
         }
-        
+
         const requestConfig: any = {
             method: apiRequest.method || 'GET',
             url: apiRequest.url,
         };
-        
+
         const response = await axios(requestConfig);
-        
+
         return { data: { status: response.status, headers: response.headers, data: response.data } };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
