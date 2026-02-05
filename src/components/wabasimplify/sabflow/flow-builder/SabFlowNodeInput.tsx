@@ -5,11 +5,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useMemo, useRef } from "react";
 import { SabFlowVariableInserter, SabFlowVariable } from "./SabFlowVariableInserter";
 import { DynamicSelector } from '@/components/wabasimplify/sabflow/dynamic-selector';
 import { SabFlowCombobox } from "./SabFlowCombobox";
+import { Plus } from "lucide-react";
 
 interface SabFlowNodeInputProps {
     input: any;
@@ -105,18 +107,34 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
                 );
             case 'project-selector':
                 const projectOptions = input.appType === 'facebook' ? dataOptions.facebookProjects : dataOptions.projects;
+                const isEmpty = !projectOptions || projectOptions.length === 0;
+                // Determine target URL based on appType
+                const connectUrl = input.appType === 'facebook'
+                    ? '/dashboard/facebook/all-projects'
+                    : '/dashboard';
+
                 return (
-                    <Select value={value} onValueChange={onChange}>
-                        <SelectTrigger className={error ? "border-destructive" : ""}>
-                            <SelectValue placeholder="Select Project" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {projectOptions && projectOptions.map((opt: any) => (
-                                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                            ))}
-                            {(!projectOptions || projectOptions.length === 0) && <div className="p-2 text-sm text-muted-foreground">No projects found</div>}
-                        </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                        <Select value={value} onValueChange={onChange}>
+                            <SelectTrigger className={error ? "border-destructive" : ""}>
+                                <SelectValue placeholder="Select Project" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {projectOptions && projectOptions.map((opt: any) => (
+                                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                ))}
+                                {isEmpty && <div className="p-2 text-xs text-muted-foreground text-center">No projects found</div>}
+                            </SelectContent>
+                        </Select>
+                        {isEmpty && (
+                            <Button variant="outline" size="sm" className="w-full text-xs" asChild>
+                                <a href={connectUrl} target="_blank" rel="noopener noreferrer">
+                                    <Plus className="mr-2 h-3 w-3" />
+                                    Connect New Project
+                                </a>
+                            </Button>
+                        )}
+                    </div>
                 );
             case 'template-selector':
                 const templateOptions = dataOptions.templates || [];
