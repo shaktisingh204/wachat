@@ -11,9 +11,10 @@ interface CodeBlockProps {
   code: string;
   language?: string;
   className?: string;
+  wrap?: boolean;
 }
 
-export function CodeBlock({ code, language, className }: CodeBlockProps) {
+export function CodeBlock({ code, language, className, wrap }: CodeBlockProps) {
   const [hasCopied, setHasCopied] = useState(false);
   const { toast } = useToast();
 
@@ -36,8 +37,14 @@ export function CodeBlock({ code, language, className }: CodeBlockProps) {
         {hasCopied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
         <span className="sr-only">Copy code</span>
       </Button>
-      <pre>
-        <code className={language ? `language-${language}` : ''}>
+      <pre className={cn("overflow-hidden", wrap && "whitespace-pre-wrap break-all")}>
+        <code
+          className={cn(
+            language ? `language-${language}` : '',
+            wrap && "whitespace-pre-wrap break-all block"
+          )}
+          style={wrap ? { overflowWrap: 'anywhere' } : {}}
+        >
           {code.trim()}
         </code>
       </pre>

@@ -175,7 +175,7 @@ export function GoogleSheetsConnection({ flowId, onConnectionSaved }: { flowId?:
                             <div className="space-y-2">
                                 <Label className="text-xs font-semibold">Step 1: Copy Webhook URL</Label>
                                 <div style={{ overflow: 'scroll' }}>
-                                    <CodeBlock code={webhookUrl} />
+                                    <CodeBlock wrap code={webhookUrl} />
                                 </div>
                             </div>
 

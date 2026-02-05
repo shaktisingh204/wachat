@@ -94,11 +94,11 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
                 return <Switch checked={!!value} onCheckedChange={onChange} />;
             case 'select':
                 return (
-                    <Select value={value} onValueChange={onChange}>
+                    <Select value={value || undefined} onValueChange={onChange}>
                         <SelectTrigger className={error ? "border-destructive" : ""}>
                             <SelectValue placeholder="Select..." />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[200px]">
                             {input.options?.map((opt: any) => (
                                 <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                             ))}
@@ -115,11 +115,11 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
 
                 return (
                     <div className="space-y-2">
-                        <Select value={value} onValueChange={onChange}>
+                        <Select value={value || undefined} onValueChange={onChange}>
                             <SelectTrigger className={error ? "border-destructive" : ""}>
                                 <SelectValue placeholder="Select Project" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="max-h-[200px]">
                                 {projectOptions && projectOptions.map((opt: any) => (
                                     <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                                 ))}
@@ -139,11 +139,11 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
             case 'template-selector':
                 const templateOptions = dataOptions.templates || [];
                 return (
-                    <Select value={value} onValueChange={onChange}>
+                    <Select value={value || undefined} onValueChange={onChange}>
                         <SelectTrigger className={error ? "border-destructive" : ""}>
                             <SelectValue placeholder="Select Template" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[200px]">
                             {templateOptions.map((opt: any) => (
                                 <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                             ))}
@@ -154,11 +154,11 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
             case 'tag-selector':
                 const tagOptions = dataOptions.tags || [];
                 return (
-                    <Select value={value} onValueChange={onChange}>
+                    <Select value={value || undefined} onValueChange={onChange}>
                         <SelectTrigger className={error ? "border-destructive" : ""}>
                             <SelectValue placeholder="Select Tag" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[200px]">
                             {tagOptions.map((opt: any) => (
                                 <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                             ))}
@@ -170,11 +170,11 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
                 // Keep fallback for other dynamic types if any, using DynamicSelector if available or Select
                 if (dataOptions[input.fetch]) {
                     return (
-                        <Select value={value} onValueChange={onChange}>
+                        <Select value={value || undefined} onValueChange={onChange}>
                             <SelectTrigger className={error ? "border-destructive" : ""}>
                                 <SelectValue placeholder={`Select ${input.label}`} />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="max-h-[200px]">
                                 {dataOptions[input.fetch].map((opt: any) => (
                                     <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                                 ))}

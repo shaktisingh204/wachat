@@ -46,36 +46,31 @@ export function SabFlowVariableInserter({ onInsert, availableVariables, classNam
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-64 p-0" align="end">
-                <Command filter={(value, search) => {
-                    if (value.toLowerCase().includes(search.toLowerCase())) return 1;
-                    return 0;
-                }}>
+                <Command>
                     <CommandInput placeholder="Search variables..." className="h-9" />
-                    <CommandList>
+                    <CommandList className="max-h-[300px] overflow-y-auto custom-scrollbar">
                         <CommandEmpty>No variables found.</CommandEmpty>
-                        <ScrollArea className="h-64">
-                            {Object.entries(groupedVariables).map(([group, vars]) => (
-                                <CommandGroup key={group} heading={group}>
-                                    {vars.map((variable) => (
-                                        <CommandItem
-                                            key={variable.id}
-                                            value={`${variable.group} - ${variable.label} ${variable.value}`}
-                                            onSelect={() => {
-                                                onInsert(variable.value);
-                                                setOpen(false);
-                                            }}
-                                            className="flex items-center gap-2 cursor-pointer"
-                                        >
-                                            <Variable className="h-3 w-3 text-muted-foreground opacity-70" />
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-medium leading-none">{variable.label}</span>
-                                                <span className="text-[10px] text-muted-foreground font-mono mt-0.5">{variable.value}</span>
-                                            </div>
-                                        </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                            ))}
-                        </ScrollArea>
+                        {Object.entries(groupedVariables).map(([group, vars]) => (
+                            <CommandGroup key={group} heading={group}>
+                                {vars.map((variable) => (
+                                    <CommandItem
+                                        key={variable.id}
+                                        value={`${variable.label} ${variable.value}`} // Simplified value for matching
+                                        onSelect={() => {
+                                            onInsert(variable.value);
+                                            setOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground"
+                                    >
+                                        <Variable className="h-3 w-3 text-muted-foreground opacity-70" />
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-medium leading-none">{variable.label}</span>
+                                            <span className="text-[10px] text-muted-foreground font-mono mt-0.5">{variable.value}</span>
+                                        </div>
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        ))}
                     </CommandList>
                 </Command>
             </PopoverContent>

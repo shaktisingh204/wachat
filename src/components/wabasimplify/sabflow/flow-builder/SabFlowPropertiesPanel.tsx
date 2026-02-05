@@ -440,7 +440,7 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
                     {triggerType === 'webhook' && (
                         <div className="space-y-3">
                             <Label>Webhook URL</Label>
-                            <CodeBlock code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${flowId}`} />
+                            <CodeBlock wrap code={`${process.env.NEXT_PUBLIC_APP_URL}/api/sabflow/trigger/${flowId}`} />
                             <p className="text-[10px] text-muted-foreground flex items-center gap-1">
                                 <AlertCircle className="h-3 w-3" />
                                 Send a POST request to this URL with any JSON body.
