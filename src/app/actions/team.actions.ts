@@ -10,9 +10,37 @@ import { ObjectId, type WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { logActivity } from '@/app/actions/activity.actions';
 
+import crypto from 'crypto';
+import { getTransporter } from '@/lib/email-service';
+
 async function findUserByEmail(email: string) {
     const { db } = await connectToDatabase();
     return await db.collection('users').findOne({ email: email.toLowerCase() });
+}
+
+async function sendInvitationEmail(email: string, inviteLink: string, inviterName: string, projectName: string) {
+    const htmlTemplate = `
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: #2563eb;">You've been invited!</h2>
+            </div>
+            <p>Hello,</p>
+            <p><strong>${inviterName}</strong> has invited you to join the <strong>${projectName}</strong> team on WaChat.</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="${inviteLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Accept Invitation</a>
+            </div>
+            <p>If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style="color: #666; font-size: 14px;">${inviteLink}</p>
+            <p>This link will expire in 7 days.</p>
+        </div>
+    </body>
+    </html>
+    `;
+
+    return htmlTemplate;
 }
 
 export async function getInvitedUsers(): Promise<WithId<User & { roles: Record<string, string> }>[]> {
@@ -68,8 +96,68 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
     if (!email || !role) return { error: 'Missing required fields.' };
 
     const invitee = await findUserByEmail(email);
+
+    // Logic for non-registered users (Invitation Flow)
     if (!invitee) {
-        return { error: `No user found with the email "${email}". Please ask them to sign up first.` };
+        try {
+            const { db } = await connectToDatabase();
+
+            // Check for existing pending invitation
+            const existingInvite = await db.collection('invitations').findOne({ inviteeEmail: email, status: 'pending' });
+            if (existingInvite) {
+                return { error: `An invitation is already pending for ${email}.` };
+            }
+
+            const token = crypto.randomBytes(32).toString('hex');
+            const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+            const invitation: any = { // Using any to bypass strict type checks for now, but following Invitation type
+                inviterId: new ObjectId(session.user._id),
+                inviterName: session.user.name,
+                inviteeEmail: email,
+                role: role,
+                token: token,
+                status: 'pending',
+                expiresAt: expiresAt,
+                createdAt: new Date(),
+            };
+
+            let projectName = 'WaChat Team';
+
+            if (projectId && ObjectId.isValid(projectId)) {
+                const project = await db.collection<WithId<Project>>('projects').findOne({ _id: new ObjectId(projectId) });
+                if (!project) return { error: "Project not found." };
+                invitation.projectId = new ObjectId(projectId);
+                invitation.projectName = project.name;
+                projectName = project.name;
+            }
+
+            await db.collection('invitations').insertOne(invitation);
+
+            // Send Email
+            try {
+                const transporter = await getTransporter(session.user._id);
+                const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/signup?token=${token}`;
+                const emailHtml = await sendInvitationEmail(email, inviteLink, session.user.name, projectName);
+
+                await transporter.sendMail({
+                    from: `"WaChat Team" <${process.env.EMAIL_FROM || 'noreply@wachat.com'}>`,
+                    to: email,
+                    subject: `You have been invited to join ${projectName}`,
+                    html: emailHtml
+                });
+
+                await logActivity('MEMBER_INVITED', { email, role, type: 'Email Invite', project: projectName }, projectId || undefined);
+                return { message: `Invitation sent to ${email}.` };
+            } catch (emailError: any) {
+                console.error("Email sending failed", emailError);
+                // We might want to rollback the invitation or just warn
+                return { error: `Invitation created, but email failed: ${emailError.message || 'Check Email Settings'}` };
+            }
+        } catch (e: any) {
+            console.error("Invitation error:", e);
+            return { error: "Failed to create invitation." };
+        }
     }
     if (invitee._id.toString() === session.user._id.toString()) {
         return { error: "You cannot invite yourself." };
@@ -110,7 +198,7 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
             let updatedCount = 0;
             for (const project of userProjects) {
                 if (project.agents?.some((agent: any) => agent.userId.equals(invitee._id))) {
-                    console.log(`User ${email} is already an agent on project ${project.name}. Skipping.`);
+                    console.log(`User ${email} is already an agent on project ${project.name}.Skipping.`);
                     continue;
                 }
 

@@ -33,20 +33,16 @@ async function startSeoWorker() {
         try {
             // Find a pending audit
             // We use 'seo_audits' collection
-            const job = await db.collection<SeoAudit>('seo_audits').findOneAndUpdate(
-                { status: 'running', completedAt: { $exists: false } } as any,
-                // Wait, typically we mark it as 'running' when picked up if it was 'pending'.
-                // But simplified: Find 'pending', set to 'running'.
-                // Let's assume the UI creates it as 'pending'.
-                // Query:
-                // { status: 'pending' },
-                // { $set: { status: 'running', startedAt: new Date() } }
-            );
+            // Find a pending audit
+            // We use 'seo_audits' collection
+            // (Removed redundant incomplete call)
 
             // Adjust query to find Pending jobs
-            const pendingJob = await db.collection('seo_audits').findOneAndUpdate(
-                { status: 'pending' },
-                { $set: { status: 'running', startedAt: new Date() } },
+            // Find a pending audit
+            // We use 'seo_audits' collection
+            const pendingJob = await db.collection<SeoAudit>('seo_audits').findOneAndUpdate(
+                { status: 'pending' } as any,
+                { $set: { status: 'running', startedAt: new Date() } } as any,
                 { returnDocument: 'after' }
             );
 
@@ -55,8 +51,17 @@ async function startSeoWorker() {
                 return;
             }
 
-            const auditId = pendingJob._id;
-            const projectId = pendingJob.projectId;
+            // value is the document in older driver versions, or the result itself in newer ones depending on options
+            // In mongodb v6+, findOneAndUpdate returns the document or null directly if includeResultMetadata is false (default)
+            const auditDoc = pendingJob;
+
+            if (!auditDoc) {
+                busy = false;
+                return;
+            }
+
+            const auditId = auditDoc._id;
+            const projectId = auditDoc.projectId;
 
             // Fetch Project to get Domain
             const project = await db.collection('seo_projects').findOne({ _id: new ObjectId(projectId) });

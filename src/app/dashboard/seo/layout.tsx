@@ -30,6 +30,7 @@ export default function SeoLayout({ children }: { children: React.ReactNode }) {
                                 { href: '/dashboard/seo', label: 'Dashboard', icon: ChartBar },
                                 { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Radio },
                                 { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe },
+                                { href: '/dashboard/seo/tools/clustering', label: 'Keyword Clustering', icon: Layers },
                             ]}
                         />
                     }
@@ -41,6 +42,6 @@ export default function SeoLayout({ children }: { children: React.ReactNode }) {
     );
 }
 
-import { ChartBar, Radio, Globe } from 'lucide-react';
+import { ChartBar, Radio, Globe, Layers } from 'lucide-react';
 import { ModuleLayout } from '@/components/wabasimplify/module-layout';
 import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';

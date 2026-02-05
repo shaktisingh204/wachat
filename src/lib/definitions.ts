@@ -1938,13 +1938,15 @@ export type User = {
 
 export type Invitation = {
     _id: ObjectId;
-    projectId: ObjectId;
-    projectName: string;
+    projectId?: ObjectId; // Optional for global invites
+    projectName?: string;
     inviterId: ObjectId;
     inviteeEmail: string;
     role: string;
-    status: 'pending';
+    token: string;
+    status: 'pending' | 'accepted' | 'expired';
     inviterName?: string;
+    expiresAt: Date;
     createdAt: Date;
 };
 

@@ -49,7 +49,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         if (domainId) {
             query.domainId = domainId;
         } else {
-            // For default domain, ensure unique globally amongst other default links
+            // For default domain
         }
 
         const duplicateQuery = domainId
@@ -230,6 +230,12 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
                     });
                 }
             }
+
+            // Fallback: If strict custom domain lookup failed, check if this is effectively a "default" access 
+            // (e.g. user accessing specific custom domain link via localhost or misconfigured local environment)
+            if (!urlDoc) {
+                urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode });
+            }
         } else {
             // Default domain lookup
             urlDoc = await db.collection<ShortUrl>('short_urls').findOne({
@@ -237,8 +243,7 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
                 domainId: { $exists: false }
             });
 
-            // Fallback: Check if it exists with a domainId (allow accessing custom domain links via default domain)
-            // This is useful for testing or if DNS is down.
+            // Fallback: Check if it exists with Any domainId
             if (!urlDoc) {
                 urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode });
             }
@@ -419,15 +424,10 @@ export async function verifyCustomDomain(domainId: string): Promise<{ success: b
                 verified = true;
             }
         } catch (e) {
-            // Check CNAME if TXT fails (though strictly we prefer TXT)
-            // ... logic omitted for brevity, focusing on TXT
+            // TXT lookup failed
         }
 
         if (!verified) {
-            // Mock success if unable to actually resolve in this environment?
-            // No, the user asked for "working like custom domain and all".
-            // But if running in an env with no internet, it fails.
-            // We return error.
             return {
                 success: false,
                 error: `DNS verification failed. Could not find TXT record: ${domainToCheck.verificationCode}`

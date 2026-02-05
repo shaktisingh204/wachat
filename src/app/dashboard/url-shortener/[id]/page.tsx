@@ -12,16 +12,17 @@ import type { WithId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ShortUrlAnalyticsPage({ params }: { params: { id: string } }) {
+export default async function ShortUrlAnalyticsPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     const [url, domains] = await Promise.all([
-        getShortUrlById(params.id),
+        getShortUrlById(id),
         getCustomDomains(),
     ]);
 
     if (!url) {
         notFound();
     }
-    
+
     const getShortUrl = (shortUrlDoc: WithId<ShortUrl>) => {
         if (shortUrlDoc.domainId) {
             const domain = domains.find(d => d._id.toString() === shortUrlDoc.domainId);
@@ -38,10 +39,10 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: { id: 
     return (
         <div className="space-y-6">
             <div>
-                 <Button variant="ghost" asChild className="mb-4 -ml-4">
+                <Button variant="ghost" asChild className="mb-4 -ml-4">
                     <Link href="/dashboard/url-shortener"><ArrowLeft className="mr-2 h-4 w-4" />Back to All Links</Link>
                 </Button>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><BarChart2/> Analytics</h1>
+                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><BarChart2 /> Analytics</h1>
                 <a href={getShortUrl(url)} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
                     {getShortUrl(url)}
                 </a>
@@ -49,15 +50,15 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: { id: 
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Card>
-                    <CardHeader><CardTitle className="text-sm font-medium flex items-center justify-between">Destination URL <LinkIcon className="h-4 w-4 text-muted-foreground"/></CardTitle></CardHeader>
+                    <CardHeader><CardTitle className="text-sm font-medium flex items-center justify-between">Destination URL <LinkIcon className="h-4 w-4 text-muted-foreground" /></CardTitle></CardHeader>
                     <CardContent><p className="text-lg font-semibold truncate">{url.originalUrl}</p></CardContent>
                 </Card>
-                 <Card>
-                    <CardHeader><CardTitle className="text-sm font-medium flex items-center justify-between">Total Clicks <NotebookPen className="h-4 w-4 text-muted-foreground"/></CardTitle></CardHeader>
+                <Card>
+                    <CardHeader><CardTitle className="text-sm font-medium flex items-center justify-between">Total Clicks <NotebookPen className="h-4 w-4 text-muted-foreground" /></CardTitle></CardHeader>
                     <CardContent><p className="text-3xl font-bold">{url.clickCount.toLocaleString()}</p></CardContent>
                 </Card>
-                 <Card>
-                    <CardHeader><CardTitle className="text-sm font-medium flex items-center justify-between">Created / Expires <Calendar className="h-4 w-4 text-muted-foreground"/></CardTitle></CardHeader>
+                <Card>
+                    <CardHeader><CardTitle className="text-sm font-medium flex items-center justify-between">Created / Expires <Calendar className="h-4 w-4 text-muted-foreground" /></CardTitle></CardHeader>
                     <CardContent><p className="text-lg font-semibold">{new Date(url.createdAt).toLocaleDateString()} / {url.expiresAt ? new Date(url.expiresAt).toLocaleDateString() : 'Never'}</p></CardContent>
                 </Card>
             </div>

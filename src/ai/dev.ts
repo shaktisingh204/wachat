@@ -7,3 +7,5 @@ if (process.env.NODE_ENV === "production") {
 
 import '@/ai/flows/generate-post-suggestions.ts';
 import '@/ai/flows/generate-promo-video.ts';
+import '@/ai/flows/seo-schema-generator.ts';
+import '@/ai/flows/seo-meta-optimizer.ts';

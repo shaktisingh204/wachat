@@ -44,7 +44,7 @@ export type SeoAudit = {
     totalScore: number;
     startedAt: Date;
     completedAt?: Date;
-    status: 'running' | 'completed' | 'failed';
+    status: 'running' | 'completed' | 'failed' | 'pending';
     summary: {
         totalPages: number;
         criticalIssues: number;

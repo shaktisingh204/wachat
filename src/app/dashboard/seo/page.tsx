@@ -1,144 +1,123 @@
-
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Star, Users, Link as LinkIcon, BarChart, Globe, TrendingUp } from 'lucide-react';
-import dynamic from 'next/dynamic';
+import { BarChart, ExternalLink, ArrowRight, TrendingUp } from 'lucide-react';
+import { getSeoProjects } from '@/app/actions/seo.actions';
+import { CreateSeoProjectDialog } from '@/components/wabasimplify/seo/create-project-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getSiteMetrics } from '@/app/actions/seo.actions';
-import type { SiteMetrics } from '@/lib/definitions';
+import Link from 'next/link';
+import { formatDistanceToNow } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import type { SeoProject } from '@/lib/seo/definitions';
 
-const ChartContainer = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> });
-const ChartTooltip = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltip), { ssr: false });
-const ChartTooltipContent = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltipContent), { ssr: false });
-import { Bar, CartesianGrid, XAxis, YAxis, ComposedChart } from 'recharts';
-
-const chartConfig = {
-  organic: { label: "Organic", color: "hsl(var(--chart-1))" },
-  social: { label: "Social", color: "hsl(var(--chart-2))" },
-  direct: { label: "Direct", color: "hsl(var(--chart-3))" },
-};
-
-const StatCard = ({ title, value, icon: Icon, gradient }: { title: string, value: string | number, icon: React.ElementType, gradient?: string }) => (
-    <Card className={`card-gradient ${gradient}`}>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            <Icon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-            <div className="text-2xl font-bold">{typeof value === 'number' ? value.toLocaleString() : value}</div>
-        </CardContent>
-    </Card>
-);
-
-export default function SeoDashboardPage() {
-    const [metrics, setMetrics] = useState<SiteMetrics | null>(null);
-    const [isLoading, startTransition] = useTransition();
+export default function SeoProjectsPage() {
+    const [projects, setProjects] = useState<SeoProject[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        startTransition(async () => {
-            const data = await getSiteMetrics('sabnode.com');
-            setMetrics(data);
+        getSeoProjects().then(data => {
+            setProjects(data);
+            setLoading(false);
         });
     }, []);
 
-    if (isLoading || !metrics) {
-        return <Skeleton className="h-full w-full" />;
-    }
+    if (loading) return <Skeleton className="h-[400px] w-full" />;
 
     return (
-        <div className="flex flex-col gap-8">
-             <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col gap-8 w-full p-6">
+            <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <BarChart className="h-8 w-8"/>
-                        SEO Dashboard
+                        <BarChart className="h-8 w-8 text-primary" />
+                        SEO Projects
                     </h1>
                     <p className="text-muted-foreground mt-2">
-                        Your central hub for search engine optimization tools and analytics.
+                        Manage your website rankings, audits, and competitors.
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Select defaultValue="sabnode.com">
-                        <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder="Select a project" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="sabnode.com">sabnode.com</SelectItem>
-                            <SelectItem value="example.com">example.com</SelectItem>
-                        </SelectContent>
-                    </Select>
-                     <Select defaultValue="30d">
-                        <SelectTrigger className="w-[120px]">
-                            <SelectValue placeholder="Select period" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="7d">Last 7 days</SelectItem>
-                            <SelectItem value="30d">Last 30 days</SelectItem>
-                            <SelectItem value="90d">Last 90 days</SelectItem>
-                        </SelectContent>
-                    </Select>
+                <CreateSeoProjectDialog />
+            </div>
+
+            {projects.length === 0 ? (
+                <Card className="border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center p-12 text-center">
+                        <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                            <BarChart className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+                        <p className="text-muted-foreground mb-6 max-w-md">
+                            Start tracking your website's SEO performance by creating your first project.
+                        </p>
+                        <CreateSeoProjectDialog />
+                    </CardContent>
+                </Card>
+            ) : (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {projects.map((project: any) => (
+                        <Card key={project._id} className="group hover:border-primary/50 transition-colors">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="font-bold text-xl truncate">
+                                    {project.domain}
+                                </CardTitle>
+                                <Link href={`/dashboard/seo/${project._id}`} passHref>
+                                    <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <ArrowRight className="h-4 w-4" />
+                                    </Button>
+                                </Link>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-2 gap-4 my-4">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-xs text-muted-foreground">Health Score</span>
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                                                <div
+                                                    className={`h-full ${project.healthScore >= 90 ? 'bg-green-500' : project.healthScore >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                                    style={{ width: `${project.healthScore || 0}%` }}
+                                                />
+                                            </div>
+                                            <span className="font-bold">{project.healthScore || 'N/A'}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-xs text-muted-foreground">Last Audit</span>
+                                        <span className="font-medium text-sm">
+                                            {project.lastAuditDate ? formatDistanceToNow(new Date(project.lastAuditDate), { addSuffix: true }) : 'Never'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-2 mt-4">
+                                    <span className="text-xs text-muted-foreground">Competitors</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {project.competitors && project.competitors.length > 0 ? (
+                                            project.competitors.slice(0, 3).map((comp: string) => (
+                                                <Badge key={comp} variant="outline" className="text-xs font-normal">
+                                                    {comp}
+                                                </Badge>
+                                            ))
+                                        ) : (
+                                            <span className="text-xs text-muted-foreground italic">None added</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="mt-6">
+                                    <Link href={`/dashboard/seo/${project._id}`} className="w-full">
+                                        <Button className="w-full" variant="secondary">
+                                            View Dashboard
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Domain Authority" value={metrics.domainAuthority} icon={BarChart} gradient="card-gradient-purple" />
-                <StatCard title="Linking Domains" value={metrics.linkingDomains} icon={Globe} gradient="card-gradient-green" />
-                <StatCard title="Total Backlinks" value={metrics.totalBacklinks} icon={LinkIcon} gradient="card-gradient-blue" />
-                <StatCard title="Top Keywords" value={metrics.keywords.filter(k => k.position <= 3).length} icon={Star} gradient="card-gradient-orange" />
-            </div>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Traffic Overview</CardTitle>
-                    <CardDescription>Organic vs. Social vs. Direct traffic over the last 6 months.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ChartContainer config={chartConfig} className="h-64 w-full">
-                         <ComposedChart data={metrics.trafficData}>
-                            <CartesianGrid vertical={false} />
-                            <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
-                            <YAxis />
-                            <ChartTooltip content={<ChartTooltipContent />} />
-                            <Bar dataKey="direct" stackId="a" fill="var(--color-direct)" radius={[0, 0, 4, 4]} />
-                            <Bar dataKey="social" stackId="a" fill="var(--color-social)" />
-                            <Bar dataKey="organic" stackId="a" fill="var(--color-organic)" radius={[4, 4, 0, 0]} />
-                        </ComposedChart>
-                    </ChartContainer>
-                </CardContent>
-            </Card>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>Top Keyword Positions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="border-b">
-                                    <th className="text-left p-3 font-medium">Keyword</th>
-                                    <th className="text-right p-3 font-medium">Position</th>
-                                    <th className="text-right p-3 font-medium">Monthly Volume</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {metrics.keywords.map(kw => (
-                                    <tr key={kw.keyword} className="border-b last:border-0">
-                                        <td className="p-3">{kw.keyword}</td>
-                                        <td className="p-3 text-right">{kw.position}</td>
-                                        <td className="p-3 text-right">{kw.volume.toLocaleString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </CardContent>
-            </Card>
-
+            )}
         </div>
     );
 }
+
