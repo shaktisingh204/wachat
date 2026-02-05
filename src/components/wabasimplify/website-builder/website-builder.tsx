@@ -226,7 +226,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="h-screen w-screen bg-muted/20 flex flex-col overflow-hidden">
+            <div className="h-screen bg-muted/20 flex flex-col overflow-hidden">
                 <WebsiteBuilderHeader
                     site={shop}
                     pages={pages}
