@@ -8,7 +8,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig = {
-  
+
   output: 'standalone',
   turbopack: {},
 
@@ -56,7 +56,7 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
-       {
+      {
         protocol: 'https',
         hostname: 'scontent.*.fbcdn.net',
         port: '',
@@ -68,7 +68,7 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
-       {
+      {
         protocol: 'https',
         hostname: 'lookaside.whatsapp.com',
         port: '',
@@ -98,7 +98,7 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
-       {
+      {
         protocol: 'https',
         hostname: 'pub-76bc986b137b4ea49e6d08aad5b37200.r2.dev',
         port: '',
@@ -132,6 +132,7 @@ const nextConfig = {
         timers: false,
         child_process: false,
         module: false,
+        crypto: false,
       };
     }
 
@@ -151,4 +152,3 @@ const nextConfig = {
 
 module.exports = withBundleAnalyzer(nextConfig);
 
-    
