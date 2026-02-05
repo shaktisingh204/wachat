@@ -168,8 +168,8 @@ export default function SiteExplorerPage() {
                     <CardHeader><CardTitle>Anchor Text Distribution</CardTitle></CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {anchorTextData.map(item => (
-                                <div key={item.text} className="space-y-1">
+                            {anchorTextData.map((item, index) => (
+                                <div key={`${item.text}-${index}`} className="space-y-1">
                                     <div className="flex justify-between items-baseline">
                                         <p className="text-sm font-medium truncate">{item.text}</p>
                                         <p className="text-xs text-muted-foreground">{item.percentage.toFixed(0)}%</p>
@@ -192,8 +192,8 @@ export default function SiteExplorerPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {backlinks.map(item => (
-                                        <tr key={item.sourceUrl} className="border-b last:border-0">
+                                    {backlinks.map((item, index) => (
+                                        <tr key={`${item.sourceUrl}-${index}`} className="border-b last:border-0">
                                             <td className="p-3 truncate max-w-xs">
                                                 {(() => {
                                                     try {
