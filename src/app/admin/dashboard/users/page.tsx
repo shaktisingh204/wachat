@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Metadata } from 'next';
-import { getUsersForAdmin, getPlans } from '@/app/actions/index.ts';
+import { getUsersForAdmin, getPlans } from '@/app/actions/index';
 import {
   Table,
   TableBody,
@@ -19,6 +19,8 @@ import { WithId, User, Plan } from '@/lib/definitions';
 import { ApproveUserButton } from '@/components/wabasimplify/approve-user-button';
 import { Badge } from '@/components/ui/badge';
 import { AdminAssignUserPlanDialog } from '@/components/wabasimplify/admin-assign-user-plan-dialog';
+import { ImpersonateUserButton } from '@/components/wabasimplify/impersonate-user-button';
+import { AdminUserPermissionsDialog } from '@/components/wabasimplify/admin-user-permissions-dialog';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
 const USERS_PER_PAGE = 10;
 
 export default async function AdminUsersPage({
-    searchParams,
+  searchParams,
 }: {
   searchParams?: Promise<{
     query?: string;
@@ -52,20 +54,20 @@ export default async function AdminUsersPage({
   let allPlans: WithId<Plan>[] = [];
 
   try {
-      const [userData, plansData] = await Promise.all([
-          getUsersForAdmin(currentPage, USERS_PER_PAGE, query),
-          getPlans()
-      ]);
-      users = userData.users;
-      total = userData.total;
-      allPlans = plansData;
+    const [userData, plansData] = await Promise.all([
+      getUsersForAdmin(currentPage, USERS_PER_PAGE, query),
+      getPlans()
+    ]);
+    users = userData.users;
+    total = userData.total;
+    allPlans = plansData;
   } catch (error) {
-      console.error("Failed to fetch admin users:", error);
+    console.error("Failed to fetch admin users:", error);
   }
 
   const totalPages = Math.ceil(total / USERS_PER_PAGE);
 
-  const plainUsers = JSON.parse(JSON.stringify(users)) as (WithId<User> & { plan?: WithId<Plan>, isApproved?: boolean })[];
+  const plainUsers = JSON.parse(JSON.stringify(users)) as (WithId<User> & { plan?: WithId<Plan>, isApproved?: boolean, customPermissions?: any })[];
 
 
   return (
@@ -86,84 +88,90 @@ export default async function AdminUsersPage({
           </div>
           <div className="border rounded-md">
             <Table>
-                <TableHeader>
+              <TableHeader>
                 <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Plan</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead>Plan</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-                </TableHeader>
-                <TableBody>
+              </TableHeader>
+              <TableBody>
                 {plainUsers.length > 0 ? (
-                    plainUsers.map((user) => (
+                  plainUsers.map((user) => (
                     <TableRow key={user._id.toString()}>
-                        <TableCell>
-                            <div className="flex items-center gap-3">
-                                <Avatar><AvatarFallback>{user.name.charAt(0)}</AvatarFallback></Avatar>
-                                <div>
-                                    <div className="font-medium">{user.name}</div>
-                                    <div className="text-sm text-muted-foreground">{user.email}</div>
-                                </div>
-                            </div>
-                        </TableCell>
-                        <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                            <Badge variant="outline">{user.plan?.name || 'N/A'}</Badge>
-                        </TableCell>
-                        <TableCell>
-                            {user.isApproved ? (
-                                <Badge>Approved</Badge>
-                            ) : (
-                                <Badge variant="secondary">Pending</Badge>
-                            )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                           <div className="flex justify-end gap-2">
-                                <AdminAssignUserPlanDialog 
-                                    userId={user._id.toString()}
-                                    userName={user.name}
-                                    currentPlanId={user.planId?.toString()}
-                                    allPlans={allPlans}
-                                />
-                                {!user.isApproved && (
-                                    <ApproveUserButton userId={user._id.toString()} />
-                                )}
-                           </div>
-                        </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar><AvatarFallback>{user.name.charAt(0)}</AvatarFallback></Avatar>
+                          <div>
+                            <div className="font-medium">{user.name}</div>
+                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{user.plan?.name || 'N/A'}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {user.isApproved ? (
+                          <Badge>Approved</Badge>
+                        ) : (
+                          <Badge variant="secondary">Pending</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <ImpersonateUserButton userId={user._id.toString()} userName={user.name} />
+                          <AdminUserPermissionsDialog
+                            userId={user._id.toString()}
+                            userName={user.name}
+                            initialPermissions={user.customPermissions}
+                          />
+                          <AdminAssignUserPlanDialog
+                            userId={user._id.toString()}
+                            userName={user.name}
+                            currentPlanId={user.planId?.toString()}
+                            allPlans={allPlans}
+                          />
+                          {!user.isApproved && (
+                            <ApproveUserButton userId={user._id.toString()} />
+                          )}
+                        </div>
+                      </TableCell>
                     </TableRow>
-                    ))
+                  ))
                 ) : (
-                    <TableRow>
+                  <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                        No users found.
+                      No users found.
                     </TableCell>
-                    </TableRow>
+                  </TableRow>
                 )}
-                </TableBody>
+              </TableBody>
             </Table>
           </div>
-           <div className="flex items-center justify-end space-x-2 py-4">
-              <span className="text-sm text-muted-foreground">
-                  Page {currentPage} of {totalPages > 0 ? totalPages : 1}
-              </span>
-              <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  disabled={currentPage <= 1}
-              >
-                  <Link href={`/admin/dashboard/users?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>Previous</Link>
-              </Button>
-              <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  disabled={currentPage >= totalPages}
-              >
-                  <Link href={`/admin/dashboard/users?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>Next</Link>
-              </Button>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <span className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              disabled={currentPage <= 1}
+            >
+              <Link href={`/admin/dashboard/users?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>Previous</Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              disabled={currentPage >= totalPages}
+            >
+              <Link href={`/admin/dashboard/users?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>Next</Link>
+            </Button>
           </div>
         </CardContent>
       </Card>

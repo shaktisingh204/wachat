@@ -8,14 +8,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { CheckCircle, Edit, PlusCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { AdminDeletePlanButton } from '@/components/wabasimplify/admin-delete-plan-button';
+import { AdminPlanPermissionsDialog } from '@/components/wabasimplify/admin-plan-permissions-dialog';
+import { Plan, WithId } from '@/lib/definitions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PlansManagementPage() {
-    let plans = [];
+    let plans: WithId<Plan>[] = [];
     try {
         plans = await getPlans();
-    } catch(e) {
+    } catch (e) {
         console.error("Failed to load plans:", e);
     }
 
@@ -66,13 +68,18 @@ export default async function PlansManagementPage() {
                                             <TableCell>{plan.agentLimit}</TableCell>
                                             <TableCell>{plan.templateLimit}</TableCell>
                                             <TableCell>{plan.flowLimit}</TableCell>
-                                            <TableCell>{plan.isPublic ? <CheckCircle className="text-primary"/> : <XCircle className="text-muted"/>}</TableCell>
-                                            <TableCell>{plan.isDefault ? <CheckCircle className="text-primary"/> : <XCircle className="text-muted"/>}</TableCell>
+                                            <TableCell>{plan.isPublic ? <CheckCircle className="text-primary" /> : <XCircle className="text-muted" />}</TableCell>
+                                            <TableCell>{plan.isDefault ? <CheckCircle className="text-primary" /> : <XCircle className="text-muted" />}</TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Button asChild variant="ghost" size="icon">
                                                         <Link href={`/admin/dashboard/plans/${plan._id.toString()}`}><Edit className="h-4 w-4" /></Link>
                                                     </Button>
+                                                    <AdminPlanPermissionsDialog
+                                                        planId={plan._id.toString()}
+                                                        planName={plan.name}
+                                                        initialPermissions={plan.permissions}
+                                                    />
                                                     <AdminDeletePlanButton planId={plan._id.toString()} planName={plan.name} />
                                                 </div>
                                             </TableCell>

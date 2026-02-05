@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { ChevronsUpDown, Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '../ui/avatar';
@@ -26,6 +26,7 @@ interface ContactInfoPanelProps {
     project: WithId<Project>;
     contact: WithId<Contact>;
     onContactUpdate: (updatedContact: WithId<Contact>) => void;
+    onClose: () => void;
 }
 
 function MultiSelectCombobox({
@@ -225,49 +226,50 @@ export function ContactInfoPanel({ project, contact, onContactUpdate }: ContactI
     }, [project.tags]);
 
     return (
-        <div className="flex flex-col h-full bg-background">
-            <div className="p-4 border-b flex flex-col items-center flex-shrink-0">
-                <Avatar className="h-16 w-16 mb-2">
-                    <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
-
-                {isEditingName ? (
-                    <div className="flex items-center gap-2 mb-1 w-full max-w-[200px]">
-                        <Input
-                            value={editedName}
-                            onChange={(e) => setEditedName(e.target.value)}
-                            className="h-8 text-center"
-                            autoFocus
-                        />
-                        <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={handleSaveName} disabled={isPending}>
-                            <Check className="h-4 w-4 text-green-600" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={() => { setIsEditingName(false); setEditedName(contact.name); }}>
-                            <X className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2 group mb-1">
-                        <p className="font-semibold">{contact.name}</p>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setIsEditingName(true)}>
-                            <Pencil className="h-3 w-3 text-muted-foreground" />
-                        </Button>
-                    </div>
-                )}
-
-                <p className="text-sm text-muted-foreground">{contact.waId}</p>
-                <div className="flex gap-2 mt-3">
-                    <Button variant="outline" size="icon" disabled><Phone className="h-4 w-4" /></Button>
-                    <Button variant="outline" size="icon" disabled><Mail className="h-4 w-4" /></Button>
-                </div>
+        <div className="flex flex-col h-full bg-background border-l">
+            <div className="px-4 py-3 border-b flex items-center justify-between bg-muted/20 flex-shrink-0">
+                <h3 className="font-semibold text-lg">Contact Info</h3>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
+                    <X className="h-4 w-4" />
+                </Button>
             </div>
+
             <ScrollArea className="flex-1">
-                <div className="p-4 space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="status">Status</Label>
+                <div className="p-4 flex flex-col items-center border-b">
+                    <Avatar className="h-20 w-20 mb-3 shadow-sm border">
+                        <AvatarFallback className="text-xl">{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+
+                    {isEditingName ? (
+                        <div className="flex items-center gap-2 mb-1 w-full max-w-[240px] justify-center">
+                            <Input
+                                value={editedName}
+                                onChange={(e) => setEditedName(e.target.value)}
+                                className="h-8 text-center font-medium"
+                                autoFocus
+                            />
+                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={handleSaveName} disabled={isPending}>
+                                <Check className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-muted-foreground" onClick={() => { setIsEditingName(false); setEditedName(contact.name); }}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2 group mb-1 justify-center">
+                            <h2 className="text-xl font-semibold">{contact.name}</h2>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setIsEditingName(true)}>
+                                <Pencil className="h-3 w-3 text-muted-foreground" />
+                            </Button>
+                        </div>
+                    )}
+                    <p className="text-sm text-muted-foreground mb-4">{contact.waId}</p>
+
+                    <div className="grid grid-cols-2 gap-4 w-full">
+                        <div className="space-y-1.5">
+                            <Label className="text-xs text-muted-foreground">Status</Label>
                             <Select value={status} onValueChange={handleStatusChange} disabled={isPending}>
-                                <SelectTrigger id="status"><SelectValue /></SelectTrigger>
+                                <SelectTrigger id="status" className="h-9"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="new">New</SelectItem>
                                     <SelectItem value="open">Open</SelectItem>
@@ -275,10 +277,10 @@ export function ContactInfoPanel({ project, contact, onContactUpdate }: ContactI
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="agent">Assigned Agent</Label>
+                        <div className="space-y-1.5">
+                            <Label className="text-xs text-muted-foreground">Agent</Label>
                             <Select value={assignedAgentId || 'unassigned'} onValueChange={handleAgentChange} disabled={isPending}>
-                                <SelectTrigger id="agent"><SelectValue /></SelectTrigger>
+                                <SelectTrigger id="agent" className="h-9"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="unassigned">Unassigned</SelectItem>
                                     {project.agents?.map((agent: Agent) => (
@@ -288,6 +290,9 @@ export function ContactInfoPanel({ project, contact, onContactUpdate }: ContactI
                             </Select>
                         </div>
                     </div>
+                </div>
+
+                <div className="p-4 space-y-6">
                     <div className="space-y-2">
                         <Label>Tags</Label>
                         <MultiSelectCombobox
@@ -299,41 +304,41 @@ export function ContactInfoPanel({ project, contact, onContactUpdate }: ContactI
                     </div>
 
                     <Separator />
+
                     <Tabs defaultValue="attributes" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 h-auto">
+                        <TabsList className="grid w-full grid-cols-2 h-9">
                             <TabsTrigger value="attributes">Attributes</TabsTrigger>
-                            <TabsTrigger value="files">Shared Files</TabsTrigger>
+                            <TabsTrigger value="files">Files</TabsTrigger>
                         </TabsList>
-                        <TabsContent value="attributes" className="mt-4">
-                            <div className="space-y-4">
-                                {userAttributes.length > 0 ? (
-                                    userAttributes.map(attr => (
-                                        <div key={attr.id} className="space-y-2">
-                                            <Label htmlFor={`attr-${attr.id}`}>{attr.name}</Label>
+                        <TabsContent value="attributes" className="mt-4 space-y-4">
+                            {userAttributes.length > 0 ? (
+                                <div className="space-y-3">
+                                    {userAttributes.map(attr => (
+                                        <div key={attr.id} className="space-y-1.5">
+                                            <Label htmlFor={`attr-${attr.id}`} className="text-xs">{attr.name}</Label>
                                             <Input
                                                 id={`attr-${attr.id}`}
                                                 value={variables[attr.name] || ''}
                                                 onChange={(e) => handleVariableChange(attr.name, e.target.value)}
-                                                placeholder={`Enter value for ${attr.name}`}
+                                                placeholder={`Value`}
+                                                className="h-9"
                                             />
                                         </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center text-sm text-muted-foreground py-8">
-                                        No custom attributes defined for this project.
-                                    </div>
-                                )}
-                                {userAttributes.length > 0 && (
-                                    <Button onClick={handleSaveVariables} disabled={isPending} className="w-full">
+                                    ))}
+                                    <Button onClick={handleSaveVariables} disabled={isPending} className="w-full mt-2" size="sm">
                                         {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                        Save Attributes
+                                        Save Changes
                                     </Button>
-                                )}
-                            </div>
+                                </div>
+                            ) : (
+                                <div className="text-center text-sm text-muted-foreground py-8 bg-muted/30 rounded-lg border border-dashed">
+                                    No custom attributes found
+                                </div>
+                            )}
                         </TabsContent>
                         <TabsContent value="files" className="mt-4">
-                            <div className="text-center text-sm text-muted-foreground py-8">
-                                No files have been shared in this conversation yet.
+                            <div className="text-center text-sm text-muted-foreground py-8 bg-muted/30 rounded-lg border border-dashed">
+                                No shared files
                             </div>
                         </TabsContent>
                     </Tabs>

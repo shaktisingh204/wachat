@@ -1,6 +1,7 @@
 
 'use client';
 
+
 import { useState } from 'react';
 import {
   Dialog,
@@ -13,7 +14,22 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Check, ChevronsUpDown } from 'lucide-react';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { countryCodes } from '@/lib/country-codes';
+import { cn } from '@/lib/utils';
 
 interface NewChatDialogProps {
   open: boolean;
@@ -22,17 +38,24 @@ interface NewChatDialogProps {
 }
 
 export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialogProps) {
-  const [waId, setWaId] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [selectedCountryCode, setSelectedCountryCode] = useState('91'); // Default to India
+  const [openCombobox, setOpenCombobox] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!waId) return;
+    if (!phoneNumber) return;
     setLoading(true);
-    await onStartChat(waId);
-    setWaId('');
+    // Combine country code and phone number, stripping any non-numeric chars from phone number
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    const fullWaId = `${selectedCountryCode}${cleanPhone}`;
+    await onStartChat(fullWaId);
+    setPhoneNumber('');
     setLoading(false);
   };
+
+  const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -41,27 +64,76 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
           <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle>Start New Conversation</DialogTitle>
             <DialogDescription>
-              Enter the WhatsApp ID (phone number with country code) to start a new chat or reply to a number not in your contact list.
+              Select the country code and enter the phone number to start a new chat.
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="waId">WhatsApp ID</Label>
-                <Input
-                  id="waId"
-                  name="waId"
-                  placeholder="e.g. 15551234567"
-                  value={waId}
-                  onChange={(e) => setWaId(e.target.value)}
-                  required
-                />
+                <Label>Phone Number</Label>
+                <div className="flex gap-2">
+                  <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openCombobox}
+                        className="w-[140px] justify-between"
+                      >
+                        {selectedCountry ? `+${selectedCountry.code}` : "Select..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search country..." />
+                        <CommandList>
+                          <CommandEmpty>No country found.</CommandEmpty>
+                          <CommandGroup>
+                            {countryCodes.map((country) => (
+                              <CommandItem
+                                key={`${country.code}-${country.name}`}
+                                value={`${country.name} +${country.code}`}
+                                onSelect={() => {
+                                  setSelectedCountryCode(country.code);
+                                  setOpenCombobox(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCountryCode === country.code ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <span className="flex-1 truncate">{country.name}</span>
+                                <span className="text-muted-foreground ml-2">+{country.code}</span>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <Input
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    placeholder="e.g. 9876543210"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="flex-1"
+                    required
+                    type="tel"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Format: {selectedCountry ? `+${selectedCountry.code} 9876543210` : 'Select country code first'}
+                </p>
               </div>
             </div>
           </div>
           <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
-            <Button type="submit" disabled={loading || !waId}>
+            <Button type="submit" disabled={loading || !phoneNumber}>
               {loading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Start Chat
             </Button>

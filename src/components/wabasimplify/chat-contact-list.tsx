@@ -129,43 +129,51 @@ export function ChatContactList({
                     </div>
                 ) : filteredContacts.length > 0 ? (
                     <>
-                        {filteredContacts.map(contact => (
-                            <button
-                                key={contact._id.toString()}
-                                onClick={() => onSelectContact(contact)}
-                                className={cn(
-                                    "flex w-full items-start gap-3 p-3 text-left transition-all duration-200 rounded-xl mx-2 mb-1 w-[calc(100%-16px)] hover:bg-accent/50",
-                                    selectedContactId === contact._id.toString() && "bg-accent shadow-sm"
-                                )}
-                            >
-                                <Avatar>
-                                    <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 overflow-hidden">
-                                    <div className="flex items-center justify-between">
-                                        <p className="font-semibold truncate">{contact.name}</p>
-                                        {contact.lastMessageTimestamp && (
-                                            <p className="text-xs text-muted-foreground whitespace-nowrap">
-                                                {format(new Date(contact.lastMessageTimestamp), 'p')}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="flex items-start justify-between">
-                                        <p className="text-sm text-muted-foreground truncate">{contact.lastMessage || 'No messages yet.'}</p>
-                                        <div className="flex items-center gap-1 flex-shrink-0">
-                                            {contact.status && (
-                                                <Badge variant={getStatusVariant(contact.status)} className="capitalize h-4 px-1.5 text-[10px]">
-                                                    {contact.status}
-                                                </Badge>
+                        {filteredContacts.map(contact => {
+                            const unreadCount = contact.unreadCount || 0;
+                            const lastMsgTime = contact.lastMessageTimestamp;
+                            const lastMsgContent = contact.lastMessage || 'No messages yet.';
+
+                            return (
+                                <button
+                                    key={contact._id.toString()}
+                                    onClick={() => onSelectContact(contact)}
+                                    className={cn(
+                                        "flex w-full items-start gap-3 p-3 text-left transition-all duration-200 rounded-xl mx-2 mb-1 w-[calc(100%-16px)] hover:bg-accent/50",
+                                        selectedContactId === contact._id.toString() && "bg-accent shadow-sm"
+                                    )}
+                                >
+                                    <Avatar>
+                                        <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 min-w-0 pt-0.5">
+                                        <div className="flex justify-between items-start">
+                                            <span className={cn(
+                                                "font-medium truncate pr-2",
+                                                unreadCount > 0 ? "text-foreground" : "text-foreground/80"
+                                            )}>
+                                                {contact.name || contact.waId}
+                                            </span>
+                                            {lastMsgTime && (
+                                                <span className="text-[10px] text-muted-foreground whitespace-nowrap flex-shrink-0 mt-0.5">
+                                                    {format(new Date(lastMsgTime), 'HH:mm')}
+                                                </span>
                                             )}
-                                            {contact.unreadCount && contact.unreadCount > 0 && (
-                                                <Badge className="h-5 w-5 flex items-center justify-center p-0 rounded-full bg-primary text-primary-foreground">{contact.unreadCount}</Badge>
+                                        </div>
+                                        <div className="flex justify-between items-center mt-0.5">
+                                            <span className="text-xs text-muted-foreground truncate block max-w-[180px]">
+                                                {lastMsgContent}
+                                            </span>
+                                            {unreadCount > 0 && (
+                                                <Badge variant="default" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] flex-shrink-0 ml-1.5">
+                                                    {unreadCount}
+                                                </Badge>
                                             )}
                                         </div>
                                     </div>
-                                </div>
-                            </button>
-                        ))}
+                                </button>
+                            );
+                        })}
                         <div ref={loadMoreRef} className="flex justify-center items-center p-4">
                             {hasMoreContacts && <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />}
                         </div>

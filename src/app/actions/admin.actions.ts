@@ -33,7 +33,7 @@ export async function setWebhookProcessingStatus(enabled: boolean) {
     try {
         cache.set('webhook_processing_enabled', enabled);
         return { success: true };
-    } catch(e: any) {
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
@@ -72,9 +72,9 @@ export async function handleAdminLogin(prevState: any, formData: FormData) {
         if (!isMatch) {
             return { success: false, error: "Invalid credentials." };
         }
-        
+
         const token = await createAdminSessionToken();
-        
+
         return { success: true, token };
     } catch (e: any) {
         console.error('[ADMIN_LOGIN] FATAL:', e);
@@ -89,11 +89,11 @@ export async function getProjectsForAdmin(
 ): Promise<{ projects: WithId<Project>[], total: number }> {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { projects: [], total: 0 };
-    
+
     try {
         const { db } = await connectToDatabase();
         const skip = (page - 1) * limit;
-        
+
         const filter: any = {};
         if (query) {
             filter.name = { $regex: query, $options: 'i' };
@@ -107,7 +107,7 @@ export async function getProjectsForAdmin(
                     { $skip: skip },
                     { $limit: limit },
                     {
-                       $lookup: {
+                        $lookup: {
                             from: 'plans',
                             localField: 'planId',
                             foreignField: '_id',
@@ -115,7 +115,7 @@ export async function getProjectsForAdmin(
                         }
                     },
                     { $unwind: { path: '$planInfo', preserveNullAndEmptyArrays: true } },
-                     { $addFields: { 'plan': '$planInfo' } },
+                    { $addFields: { 'plan': '$planInfo' } },
                     { $project: { planInfo: 0 } }
                 ])
                 .toArray(),
@@ -137,7 +137,7 @@ export async function getProjectsForAdmin(
 export async function handleDeleteProjectByAdmin(prevState: any, formData: FormData) {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { error: "Permission denied." };
-    
+
     const projectId = formData.get('projectId') as string;
     if (!projectId || !ObjectId.isValid(projectId)) {
         return { error: 'Invalid Project ID.' };
@@ -146,11 +146,11 @@ export async function handleDeleteProjectByAdmin(prevState: any, formData: FormD
     try {
         const { db } = await connectToDatabase();
         const projectObjectId = new ObjectId(projectId);
-        
+
         // This is a simplified deletion. A real-world scenario would also delete
         // associated contacts, messages, broadcasts, etc. in a transaction.
         await db.collection('projects').deleteOne({ _id: projectObjectId });
-        
+
         revalidatePath('/admin/dashboard');
         return { message: 'Project deleted successfully.' };
 
@@ -264,9 +264,9 @@ export async function getAdminDashboardStats() {
 }
 
 export async function setAppLogo(prevState: any, formData: FormData) {
-     const { isAdmin } = await getAdminSession();
+    const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { error: "Permission denied." };
-    
+
     const logoFile = formData.get('logoFile') as File;
     const logoUrl = formData.get('logoUrl') as string;
 
@@ -352,7 +352,7 @@ export async function setDiwaliThemeStatus(enabled: boolean): Promise<{ success:
         );
         revalidatePath('/', 'layout');
         return { success: true };
-    } catch(e: any) {
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
@@ -371,6 +371,99 @@ export async function getDiwaliThemeStatus(): Promise<{ enabled: boolean }> {
     }
 }
 
-    
 
-    
+
+
+export async function impersonateUser(userId: string): Promise<{ success: boolean; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { success: false, error: "Permission denied." };
+
+    if (!userId || !ObjectId.isValid(userId)) {
+        return { success: false, error: "Invalid user ID." };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(userId) });
+
+        if (!user) {
+            return { success: false, error: "User not found." };
+        }
+
+        // Generate a session token for this user
+        // We'll use the existing session payload structure
+        const sessionPayload = {
+            userId: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            role: 'user', // Basic role, permissions handle the rest
+            planId: user.planId?.toString(),
+            projectLimit: 0, // Will be fetched from plan
+            exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days expiration
+        };
+
+        const { createSessionToken } = await import('@/lib/auth');
+        const token = await createSessionToken(sessionPayload);
+
+        // Set the session cookie
+        const cookieStore = await cookies();
+        cookieStore.set('session', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 7 * 24 * 60 * 60 // 7 days
+        });
+
+        // Redirect is handled on client side usually, but we can return success
+        return { success: true };
+
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function updateUserPermissions(userId: string, permissions: any): Promise<{ success: boolean; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { success: false, error: "Permission denied." };
+
+    if (!userId || !ObjectId.isValid(userId)) return { success: false, error: "Invalid user ID." };
+
+    try {
+        const { db } = await connectToDatabase();
+
+        // Ensure permissions object is clean (maybe validate with a schema in a real app)
+        // For now we trust the admin input but ensure it's stored as customPermissions
+
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { customPermissions: permissions } }
+        );
+
+        revalidatePath('/admin/dashboard/users');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function updatePlanPermissions(planId: string, permissions: any): Promise<{ success: boolean; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { success: false, error: "Permission denied." };
+
+    if (!planId || !ObjectId.isValid(planId)) return { success: false, error: "Invalid plan ID." };
+
+    try {
+        const { db } = await connectToDatabase();
+
+        await db.collection('plans').updateOne(
+            { _id: new ObjectId(planId) },
+            { $set: { permissions: permissions } }
+        );
+
+        revalidatePath('/admin/dashboard/plans');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

@@ -224,6 +224,28 @@ export async function getSession() {
         // Sanitize dbUser to ensure all ObjectIds and Dates are stringified (especially nested ones like apiKeys)
         const serializedUser = JSON.parse(JSON.stringify(dbUser));
 
+        // Merge permissions: customPermissions override plan permissions
+        const userPermissions: any = dbUser.customPermissions || {};
+        const planPermissions: any = plan?.permissions || {};
+
+        let finalPermissions: any = { ...planPermissions };
+
+        if (userPermissions) {
+            // For each role in userPermissions (e.g. 'agent', 'admin'), merge with plan
+            for (const [key, value] of Object.entries(userPermissions)) {
+                if (['agent', 'admin', 'owner', 'member'].includes(key)) {
+                    finalPermissions[key] = { ...(finalPermissions[key] || {}), ...(value as any) };
+                }
+            }
+        }
+
+        // Also if plan is null, but user has custom permissions, they should apply.
+        // However, plan structure expects 'permissions' field.
+
+        if (plan) {
+            plan.permissions = finalPermissions;
+        }
+
         return {
             user: {
                 ...serializedUser,
@@ -232,6 +254,8 @@ export async function getSession() {
                 name: dbUser.name || decoded.name,
                 image: dbUser.image || decoded.picture,
                 plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
+                // We also pass customPermissions directly if needed, but the plan override is key
+                // customPermissions: userPermissions, 
             },
         };
     } catch (error) {

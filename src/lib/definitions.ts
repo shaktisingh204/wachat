@@ -1881,6 +1881,7 @@ export type User = {
         currency: string;
         transactions: WalletTransaction[];
     };
+    customPermissions?: GlobalPermissions;
 };
 
 export type Invitation = {

@@ -290,6 +290,7 @@ export function ChatClient() {
                                 project={activeProject}
                                 contact={selectedContact}
                                 onContactUpdate={handleContactUpdate}
+                                onClose={() => setIsInfoPanelOpen(false)}
                             />
                         </div>
                     )}
