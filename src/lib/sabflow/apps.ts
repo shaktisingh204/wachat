@@ -30,6 +30,7 @@ import {
   Handshake,
   Repeat,
   Zap,
+  Users,
 } from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
@@ -106,6 +107,39 @@ const sabChatActions = [
 
 const metaActions = [
   {
+    name: 'onLeadGen',
+    label: 'New Lead (Instant Form)',
+    description: 'Triggers when a lead is submitted via Facebook Instant Form.',
+    isTrigger: true,
+    outputs: [
+      { name: 'leadId', label: 'Lead ID', type: 'text' },
+      { name: 'formName', label: 'Form Name', type: 'text' },
+      { name: 'fullName', label: 'Full Name', type: 'text' },
+      { name: 'phoneNumber', label: 'Phone Number', type: 'text' },
+      { name: 'email', label: 'Email', type: 'text' },
+      { name: 'customFields', label: 'Custom Fields (JSON)', type: 'text' }
+    ],
+    inputs: [
+      { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
+    ]
+  },
+  {
+    name: 'onPageComment',
+    label: 'New Page Comment',
+    description: 'Triggers when a user comments on a post.',
+    isTrigger: true,
+    outputs: [
+      { name: 'commentId', label: 'Comment ID', type: 'text' },
+      { name: 'postId', label: 'Post ID', type: 'text' },
+      { name: 'commentText', label: 'Comment', type: 'text' },
+      { name: 'senderName', label: 'Sender Name', type: 'text' },
+      { name: 'senderId', label: 'Sender ID', type: 'text' }
+    ],
+    inputs: [
+      { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
+    ]
+  },
+  {
     name: 'onMessengerMessage',
     label: 'Incoming Messenger Message',
     description: 'Triggers when a Messenger message is received.',
@@ -113,6 +147,9 @@ const metaActions = [
     outputs: [
       { name: 'senderId', label: 'Sender ID', type: 'text' },
       { name: 'messageText', label: 'Message Text', type: 'text' }
+    ],
+    inputs: [
+      { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
     ]
   },
   { name: 'createPost', label: 'Create Post', description: 'Create a new post on your Facebook Page.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook' }, { name: 'message', label: 'Message', type: 'textarea' }, { name: 'imageUrl', label: 'Image URL (Optional)', type: 'text' }, { name: 'imageBase64', label: 'Image (Base64)', type: 'textarea' }] },
@@ -137,6 +174,37 @@ const metaActions = [
 ];
 
 const crmActions = [
+  {
+    name: 'onLeadCreated',
+    label: 'New CRM Lead',
+    description: 'Triggers when a new lead is created.',
+    isTrigger: true,
+    outputs: [
+      { name: 'leadId', label: 'Lead ID', type: 'text' },
+      { name: 'name', label: 'Name', type: 'text' },
+      { name: 'status', label: 'Status', type: 'text' },
+      { name: 'source', label: 'Source', type: 'text' }
+    ],
+    inputs: [
+      { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
+    ]
+  },
+  {
+    name: 'onDealStageUpdated',
+    label: 'Deal Stage Updated',
+    description: 'Triggers when a deal stage changes.',
+    isTrigger: true,
+    outputs: [
+      { name: 'dealId', label: 'Deal ID', type: 'text' },
+      { name: 'dealName', label: 'Deal Name', type: 'text' },
+      { name: 'amount', label: 'Deal Value', type: 'number' },
+      { name: 'newStage', label: 'New Stage', type: 'text' },
+      { name: 'oldStage', label: 'Old Stage', type: 'text' }
+    ],
+    inputs: [
+      { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
+    ]
+  },
   { name: 'createLead', label: 'Create Lead and Deal', description: 'Create a new contact and an associated sales deal.', inputs: [{ name: 'contactName', label: 'Contact Name', type: 'text' }, { name: 'email', label: 'Email', type: 'text' }, { name: 'phone', label: 'Phone', type: 'text' }, { name: 'company', label: 'Company', type: 'text' }, { name: 'dealName', label: 'Deal Name', type: 'text' }, { name: 'dealValue', label: 'Deal Value', type: 'number' }, { name: 'stage', label: 'Stage', type: 'text' }] },
   { name: 'addNote', label: 'Add Note', description: 'Add a note to a contact, account, or deal.', inputs: [{ name: 'recordId', label: 'Record ID', type: 'text' }, { name: 'recordType', label: 'Record Type (contact, account, or deal)', type: 'text' }, { name: 'noteContent', label: 'Note Content', type: 'textarea' }] },
 ];
@@ -200,16 +268,29 @@ const googleSheetsActions = [
     isTrigger: true,
     setupGuide: `
 **How to Connect Google Sheets:**
-1. Create a new Google Sheet.
-2. Go to **Extensions > Apps Script**.
-3. Paste the SabFlow Webhook Script (see documentation).
-4. Set up a trigger for "On Change".
+
+1. **Create Webhook Link**:
+   - Copy the Webhook URL shown below.
+   - This URL is unique to this flow.
+
+2. **Configure Google Sheet**:
+   - Open your Google Sheet.
+   - Go to **Extensions > Apps Script**.
+   - Paste the provided SabFlow Script (from docs).
+   - In the script, replace \`WEBHOOK_URL\` with the URL you copied.
+
+3. **Set Trigger**:
+   - In Apps Script, add a trigger for "On Change".
+   - Now, any edit in the sheet will send data here!
 `,
     outputs: [
-      { name: 'spreadsheetId', label: 'Spreadsheet ID', type: 'text' },
       { name: 'sheetName', label: 'Sheet Name', type: 'text' },
       { name: 'rowNumber', label: 'Row Number', type: 'number' },
-      { name: 'newValues', label: 'Row Values (JSON)', type: 'text' }
+      // Single Letter Columns (A-Z)
+      ...Array.from({ length: 26 }, (_, i) => ({ name: String.fromCharCode(65 + i), label: `Column ${String.fromCharCode(65 + i)}`, type: 'text' })),
+      // Double Letter Columns (AA-AZ)
+      ...Array.from({ length: 26 }, (_, i) => ({ name: `A${String.fromCharCode(65 + i)}`, label: `Column A${String.fromCharCode(65 + i)}`, type: 'text' })),
+      { name: 'newValues', label: 'Raw Row Values (JSON)', type: 'text' }
     ],
     inputs: []
   },
@@ -230,6 +311,24 @@ const arrayFunctionActions = [
   { name: 'getCount', label: 'Get Count', description: 'Get the number of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: 'e.g., {{trigger.data.items}}' }], outputs: [{ name: 'count', description: 'The number of items in the array.' }] },
   { name: 'arrayReverse', label: 'Array Reverse', description: 'Reverse the order of items in an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: 'e.g., {{trigger.data.items}}' }], outputs: [{ name: 'reversedArray', description: 'The array in reverse order.' }] },
   { name: 'getValueByIndex', label: 'Get Value By Index', description: 'Retrieves a value at a specified index of an array.', inputs: [{ name: 'array', label: 'Array', type: 'textarea', placeholder: 'e.g., {{trigger.data.items}}' }, { name: 'index', label: 'Index', type: 'number', placeholder: '0' }], outputs: [{ name: 'value', description: 'The value at the specified index.' }] },
+];
+
+const teamActions = [
+  {
+    name: 'onTaskAssigned',
+    label: 'Task Assigned',
+    description: 'Triggers when a task is assigned to a user.',
+    isTrigger: true,
+    outputs: [
+      { name: 'taskId', label: 'Task ID', type: 'text' },
+      { name: 'taskTitle', label: 'Task Title', type: 'text' },
+      { name: 'assignedTo', label: 'Assigned User', type: 'text' },
+      { name: 'dueDate', label: 'Due Date', type: 'text' }
+    ],
+    inputs: [
+      { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
+    ]
+  }
 ];
 
 export const sabnodeAppActions = [
@@ -257,13 +356,57 @@ export const sabnodeAppActions = [
     actions: metaActions,
     connectionType: 'internal',
     iconColor: 'text-sabflow-meta-icon',
+    setupGuide: `
+**How it Works:**
+Select the **Project** associated with your Facebook Page.
+This trigger will automatically listen for events (Lead Forms, Comments) from the Facebook assets connected to that project.
+`,
   },
   {
     appId: 'instagram',
     name: 'Instagram Suite',
     icon: InstagramIcon,
     iconColor: 'text-sabflow-instagram-icon',
+    setupGuide: `
+**How it Works:**
+Select the **Project** with a connected Instagram Account.
+The automation will trigger when:
+- A user comments on your post.
+- You are mentioned in a Story/Post.
+- A Direct Message is received.
+`,
     actions: [
+      {
+        name: 'onComment',
+        label: 'New Post Comment',
+        description: 'Triggers on new post comments.',
+        isTrigger: true,
+        outputs: [
+          { name: 'commentId', label: 'Comment ID', type: 'text' },
+          { name: 'mediaId', label: 'Media ID', type: 'text' },
+          { name: 'text', label: 'Comment Text', type: 'text' },
+          { name: 'username', label: 'Username', type: 'text' },
+          { name: 'permalink', label: 'Post Link', type: 'text' }
+        ],
+        inputs: [
+          { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
+        ]
+      },
+      {
+        name: 'onMention',
+        label: 'New Mention',
+        description: 'Triggers when you are mentioned in a Story/Post.',
+        isTrigger: true,
+        outputs: [
+          { name: 'mediaId', label: 'Media ID', type: 'text' },
+          { name: 'mediaType', label: 'Type (Story/Post)', type: 'text' },
+          { name: 'username', label: 'Username', type: 'text' },
+          { name: 'url', label: 'Media URL', type: 'text' }
+        ],
+        inputs: [
+          { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
+        ]
+      },
       {
         name: 'onDirectMessage',
         label: 'Incoming Direct Message',
@@ -272,6 +415,9 @@ export const sabnodeAppActions = [
         outputs: [
           { name: 'senderId', label: 'Sender ID', type: 'text' },
           { name: 'messageText', label: 'Message Text', type: 'text' }
+        ],
+        inputs: [
+          { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
         ]
       }
     ],
@@ -283,6 +429,26 @@ export const sabnodeAppActions = [
     actions: crmActions,
     connectionType: 'internal',
     iconColor: 'text-sabflow-crm-icon',
+    setupGuide: `
+**How it Works:**
+Select the **Project** to monitor.
+This trigger connects directly to the CRM module for that project and fires whenever:
+- A new Lead is created.
+- A Deal moves to a new Stage.
+`,
+  },
+  {
+    appId: 'team',
+    name: 'Team Module',
+    icon: Users,
+    actions: teamActions,
+    connectionType: 'internal',
+    iconColor: 'text-sabflow-team-icon',
+    setupGuide: `
+**How it Works:**
+Select the **Project** where you manage tasks.
+This trigger fires when a new task is assigned to any team member in that project.
+`,
   },
   {
     appId: 'email',
@@ -299,6 +465,11 @@ export const sabnodeAppActions = [
     actions: smsActions,
     connectionType: 'internal',
     iconColor: 'text-sabflow-sms-icon',
+    setupGuide: `
+**SMS Automation:**
+1. Go to **Settings > SMS** to configure your provider (Twilio, Kaleyra, etc.).
+2. Once verified, incoming SMS will trigger this flow.
+`,
   },
   { appId: 'url-shortener', name: 'URL Shortener', icon: LinkIcon, actions: urlShortenerActions, connectionType: 'internal', iconColor: 'text-sabflow-url-shortener-icon' },
   { appId: 'qr-code-maker', name: 'QR Code Maker', icon: QrCode, actions: qrCodeMakerActions, connectionType: 'internal', iconColor: 'text-sabflow-qr-code-maker-icon' },

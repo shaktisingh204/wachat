@@ -510,7 +510,6 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
                                             <AppConnectionSetup app={selectedApp} flowId={flowId} onConnectionSaved={onConnectionSaved || (() => { })} />
                                             {selectedAction && (selectedAction as any).inputs && (selectedAction as any).inputs.map((input: any) => (
                                                 <div key={input.name} className="space-y-1.5">
-                                                    <Label className="text-xs">{input.label}</Label>
                                                     <SabFlowNodeInput
                                                         input={input}
                                                         value={selectedNodeData.inputs?.[input.name] || ''}

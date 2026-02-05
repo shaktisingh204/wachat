@@ -46,7 +46,10 @@ export function SabFlowVariableInserter({ onInsert, availableVariables, classNam
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-64 p-0" align="end">
-                <Command>
+                <Command filter={(value, search) => {
+                    if (value.toLowerCase().includes(search.toLowerCase())) return 1;
+                    return 0;
+                }}>
                     <CommandInput placeholder="Search variables..." className="h-9" />
                     <CommandList>
                         <CommandEmpty>No variables found.</CommandEmpty>
@@ -56,7 +59,7 @@ export function SabFlowVariableInserter({ onInsert, availableVariables, classNam
                                     {vars.map((variable) => (
                                         <CommandItem
                                             key={variable.id}
-                                            value={`${variable.group} ${variable.label}`}
+                                            value={`${variable.group} - ${variable.label} ${variable.value}`}
                                             onSelect={() => {
                                                 onInsert(variable.value);
                                                 setOpen(false);
