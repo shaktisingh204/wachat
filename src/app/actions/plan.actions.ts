@@ -59,6 +59,12 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
             metaFlowLimit: Number(formData.get('metaFlowLimit')),
             cannedMessageLimit: Number(formData.get('cannedMessageLimit')),
             signupCredits: Number(formData.get('signupCredits') || 0),
+            initialCredits: {
+                broadcast: Number(formData.get('init_broadcast') ?? 0),
+                sms: Number(formData.get('init_sms') ?? 0),
+                meta: Number(formData.get('init_meta') ?? 0),
+                email: Number(formData.get('init_email') ?? 0),
+            },
             customRoleLimit: Number(formData.get('customRoleLimit') ?? 3),
             teamChannelLimit: Number(formData.get('teamChannelLimit') ?? 10),
             teamTaskLimit: Number(formData.get('teamTaskLimit') ?? 50),
@@ -66,6 +72,12 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
                 marketing: Number(formData.get('cost_marketing')),
                 utility: Number(formData.get('cost_utility')),
                 authentication: Number(formData.get('cost_authentication')),
+            },
+            rates: {
+                broadcast: Number(formData.get('rate_broadcast') ?? 1),
+                sms: Number(formData.get('rate_sms') ?? 1),
+                meta: Number(formData.get('rate_meta') ?? 1),
+                email: Number(formData.get('rate_email') ?? 1),
             },
             features: features as PlanFeaturePermissions,
             permissions: { agent: {} }, // Will populate below

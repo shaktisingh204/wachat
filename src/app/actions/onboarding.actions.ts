@@ -37,11 +37,11 @@ export async function handleWabaOnboarding(data: {
         error: 'Onboarding session expired or invalid. Please try again.',
       };
     }
-    
+
     const stateCookie = JSON.parse(stateCookieJSON);
 
     if (state !== stateCookie.state) {
-        return { success: false, error: 'Invalid onboarding state. CSRF check failed.' };
+      return { success: false, error: 'Invalid onboarding state. CSRF check failed.' };
     }
 
     cookieStore.delete('onboarding_state');
@@ -159,7 +159,6 @@ export async function handleWabaOnboarding(data: {
       phoneNumbers: [],
       messagesPerSecond: 80,
       planId: defaultPlan?._id,
-      credits: defaultPlan?.signupCredits || 0,
       businessCapabilities: businessCaps,
       hasCatalogManagement: includeCatalog && !!businessId,
     };
@@ -233,10 +232,10 @@ export async function handleMetaConnection(data: {
     const cookieStore = await cookies();
     const stateCookieJSON = cookieStore.get('onboarding_state')?.value;
     if (!stateCookieJSON) return { success: false, error: 'Onboarding session expired.' };
-    
+
     const stateCookie = JSON.parse(stateCookieJSON);
     if (state !== stateCookie.state) {
-        return { success: false, error: 'Invalid onboarding state. CSRF check failed.' };
+      return { success: false, error: 'Invalid onboarding state. CSRF check failed.' };
     }
 
     cookieStore.delete('onboarding_state');
@@ -254,72 +253,72 @@ export async function handleMetaConnection(data: {
     const tokenResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, tokenParams);
     const userAccessToken = tokenResponse.data?.access_token;
     if (!userAccessToken) throw new Error('Meta did not return an access token.');
-    
+
     console.log(`${LOG_PREFIX_META} Step 2: Getting user accounts (pages)`);
     const accountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/accounts`, {
-        params: {
-            fields: 'id,name,access_token,tasks',
-            access_token: userAccessToken
-        }
+      params: {
+        fields: 'id,name,access_token,tasks',
+        access_token: userAccessToken
+      }
     });
     const pages = accountsResponse.data.data;
     if (!pages || pages.length === 0) throw new Error('No Facebook pages found for this user.');
 
     const { db } = await connectToDatabase();
-    
+
     const userUpdateData: any = {
-        facebookUserAccessToken: userAccessToken
+      facebookUserAccessToken: userAccessToken
     };
-    
+
     if (includeAds) {
-        console.log(`${LOG_PREFIX_META} Step 3: Getting Ad Accounts`);
-        try {
-            const adAccountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/adaccounts`, {
-                params: {
-                    fields: 'id,name,account_id',
-                    access_token: userAccessToken
-                }
-            });
-            const adAccounts = adAccountsResponse.data?.data || [];
-            if (adAccounts.length > 0) {
-                userUpdateData.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
-            }
-        } catch(adError) {
-             console.warn(`${LOG_PREFIX_META} Could not fetch ad accounts. User may not have granted 'ads_management' permission.`);
+      console.log(`${LOG_PREFIX_META} Step 3: Getting Ad Accounts`);
+      try {
+        const adAccountsResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/adaccounts`, {
+          params: {
+            fields: 'id,name,account_id',
+            access_token: userAccessToken
+          }
+        });
+        const adAccounts = adAccountsResponse.data?.data || [];
+        if (adAccounts.length > 0) {
+          userUpdateData.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
         }
+      } catch (adError) {
+        console.warn(`${LOG_PREFIX_META} Could not fetch ad accounts. User may not have granted 'ads_management' permission.`);
+      }
     }
-    
+
     await db.collection('users').updateOne(
-        { _id: new ObjectId(userId) },
-        { $set: userUpdateData }
+      { _id: new ObjectId(userId) },
+      { $set: userUpdateData }
     );
-    
+
     const bulkOps = pages.map((page: any) => {
       // Create a separate project for each Facebook Page
       const projectData = {
-          name: page.name,
-          userId: new ObjectId(userId),
-          facebookPageId: page.id,
-          accessToken: process.env.META_ADMIN_TOKEN!,
-          appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!,
+        name: page.name,
+        userId: new ObjectId(userId),
+        facebookPageId: page.id,
+        accessToken: process.env.META_ADMIN_TOKEN!,
+        appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!,
       };
-      
+
       return {
-          updateOne: {
-              filter: { userId: projectData.userId, facebookPageId: projectData.facebookPageId },
-              update: {
-                  $set: projectData,
-                  $setOnInsert: { createdAt: new Date() }
-              },
-              upsert: true
-          }
+        updateOne: {
+          filter: { userId: projectData.userId, facebookPageId: projectData.facebookPageId },
+          update: {
+            $set: projectData,
+            $setOnInsert: { createdAt: new Date() }
+          },
+          upsert: true
+        }
       };
     });
 
     if (bulkOps.length > 0) {
-        await db.collection('projects').bulkWrite(bulkOps);
+      await db.collection('projects').bulkWrite(bulkOps);
     }
-    
+
     console.log(`${LOG_PREFIX_META} Step 4: Finished upserting ${pages.length} page(s) as projects.`);
 
     return { success: true };
@@ -329,4 +328,4 @@ export async function handleMetaConnection(data: {
     return { success: false, error: errorMsg };
   }
 }
-    
+

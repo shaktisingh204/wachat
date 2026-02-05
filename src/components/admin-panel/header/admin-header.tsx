@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { PanelLeft, LogOut } from 'lucide-react';
+import { PanelLeft, LogOut, PlusCircle } from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import { appIcons } from '@/config/dashboard-config';
 
@@ -59,6 +59,29 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
             <div className="flex items-center gap-3">
                 <div className="font-medium text-sm hidden md:block text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-full border border-white/10">
                     {activeProjectName}
+                </div>
+
+                <div className="hidden md:flex items-center gap-2 bg-muted/40 px-3 py-1.5 rounded-full border border-white/10">
+                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Credits</span>
+                    <div className="flex items-center gap-3 text-sm font-semibold">
+                        <div title="Broadcast Credits" className="flex items-center gap-1">
+                            <span className="text-blue-500">B:</span> {sessionUser?.credits?.broadcast?.toLocaleString() ?? 0}
+                        </div>
+                        <div title="SMS Credits" className="flex items-center gap-1">
+                            <span className="text-green-500">S:</span> {sessionUser?.credits?.sms?.toLocaleString() ?? 0}
+                        </div>
+                        <div title="Meta Credits" className="flex items-center gap-1">
+                            <span className="text-indigo-500">M:</span> {sessionUser?.credits?.meta?.toLocaleString() ?? 0}
+                        </div>
+                        <div title="Email Credits" className="flex items-center gap-1">
+                            <span className="text-orange-500">E:</span> {sessionUser?.credits?.email?.toLocaleString() ?? 0}
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-5 w-5 ml-1 hover:bg-white/10 rounded-full" asChild>
+                            <Link href="/dashboard/user/billing">
+                                <PlusCircle className="h-3.5 w-3.5 text-primary" />
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
 
                 <DropdownMenu>

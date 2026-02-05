@@ -82,3 +82,53 @@ export async function deleteDltTemplate(id: string) {
 
     revalidatePath('/dashboard/sms/templates');
 }
+
+import { sendTemplateSms } from '@/lib/sms/services/messaging.service';
+
+export async function sendSmsTemplate(prevState: any, formData: FormData) {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('session_token')?.value;
+    const session = await getDecodedSession(sessionToken || '');
+    if (!session?.userId) return { error: "Unauthorized" };
+
+    const recipient = formData.get('recipient') as string;
+    const dltTemplateId = formData.get('dltTemplateId') as string;
+    // Extract variables. Usually they come as dynamic fields. 
+    // We'll look for fields starting with 'var_' or just assume all other fields are vars? 
+    // Given the previous usage in route was appending form entries, let's look for specific pattern or collect all unknown keys.
+    // OR, we can expect a JSON string for variables if the UI sends it that way.
+    // For now, let's implement a simple collection of "variable_0", "variable_1" etc. which is common.
+
+    // Fallback: If the simple previous logic passed everything, we'll try to extract known fields and treat rest as variables.
+    // But since this is a new implementation, we can dictate the contract.
+    // We'll collect all FormData entries that look like variables. e.g. keys created by the UI form.
+
+    const allKeys = Array.from(formData.keys());
+    const variableValues: string[] = [];
+
+    // Sort keys to maintain order? 
+    // If the UI sends 'variable_0', 'variable_1' etc.
+    const varKeys = allKeys.filter(k => k.startsWith('variable_')).sort();
+    varKeys.forEach(k => {
+        variableValues.push(formData.get(k) as string);
+    });
+
+    // If no explicit variable_ keys but 'variables' is passed (API style mapped to form)
+    if (varKeys.length === 0) {
+        // Just empty?
+    }
+
+    try {
+        const result = await sendTemplateSms({
+            userId: session.userId,
+            recipient,
+            dltTemplateId,
+            headerId: formData.get('headerId') as string,
+            variableValues
+        });
+
+        return { message: result.message };
+    } catch (e: any) {
+        return { error: e.message || "Failed to send SMS" };
+    }
+}

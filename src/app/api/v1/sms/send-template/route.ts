@@ -1,8 +1,7 @@
 
-
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/app/actions/api-keys.actions';
-import { sendSmsTemplate } from '@/app/actions/sms.actions';
+import { sendTemplateSms } from '@/lib/sms/services/messaging.service';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { ObjectId } from 'mongodb';
 
@@ -28,27 +27,32 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { recipient, dltTemplateId, headerId, variables } = body;
 
-        if (!recipient || !dltTemplateId || !headerId) {
-            return NextResponse.json({ error: 'recipient, dltTemplateId, and headerId are required.' }, { status: 400 });
+        if (!recipient || !dltTemplateId) {
+            return NextResponse.json({ error: 'recipient and dltTemplateId are required.' }, { status: 400 });
         }
 
-        const formData = new FormData();
-        formData.append('recipient', recipient);
-        formData.append('dltTemplateId', dltTemplateId);
-        formData.append('headerId', headerId);
-        if (variables) {
-            Object.entries(variables).forEach(([key, value]) => {
-                formData.append(key, value as string);
-            });
-        }
-        
-        const result = await sendSmsTemplate(null, formData);
+        // Convert variables object to array if needed, or pass as is if service handles it.
+        // The service I wrote expects string[].
+        // If the body has "variables": { "0": "val", "1": "val" } or similar?
+        // Let's assume the API consumer sends an object or array. 
+        // Logic: Extract values from variables object or assume it's an array.
 
-        if (result.error) {
-            return NextResponse.json({ error: result.error }, { status: 500 });
+        let variableValues: string[] = [];
+        if (Array.isArray(variables)) {
+            variableValues = variables.map(String);
+        } else if (typeof variables === 'object' && variables !== null) {
+            variableValues = Object.values(variables).map(v => String(v));
         }
 
-        return NextResponse.json({ success: true, message: result.message });
+        const result = await sendTemplateSms({
+            userId: user._id, // User from API key authn
+            recipient,
+            dltTemplateId,
+            headerId,
+            variableValues
+        });
+
+        return NextResponse.json({ success: true, message: result.message, messageId: result.messageId });
     } catch (e: any) {
         return NextResponse.json({ error: e.message || 'An unexpected error occurred.' }, { status: 500 });
     }

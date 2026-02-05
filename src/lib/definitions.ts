@@ -1826,7 +1826,19 @@ export type Plan = {
     teamChannelLimit: number;
     teamTaskLimit: number;
     signupCredits?: number;
+    initialCredits?: {
+        broadcast: number;
+        sms: number;
+        meta: number;
+        email: number;
+    };
     messageCosts: PlanMessageCosts;
+    rates?: {
+        broadcast: number;
+        sms: number;
+        meta: number;
+        email: number;
+    };
     features: PlanFeaturePermissions;
     permissions?: GlobalPermissions; // Master permission controls (Team-like structure)
     createdAt: Date;
@@ -1875,7 +1887,12 @@ export type User = {
         createdAt: Date;
     }[];
     planId?: ObjectId;
-    credits?: number;
+    credits?: {
+        broadcast: number;
+        sms: number;
+        meta: number;
+        email: number;
+    };
     wallet?: {
         balance: number; // in smallest currency unit (e.g., paisa)
         currency: string;

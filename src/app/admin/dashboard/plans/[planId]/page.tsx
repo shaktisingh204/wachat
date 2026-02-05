@@ -148,9 +148,30 @@ export default function PlanEditorPage() {
                     </div>
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="signupCredits">Signup Credits</Label>
+                            <Label htmlFor="signupCredits">Signup Credits (Legacy)</Label>
                             <Input id="signupCredits" name="signupCredits" type="number" defaultValue={plan?.signupCredits ?? 0} required min="0" step="1" />
                             <p className="text-xs text-muted-foreground">Credits new users get on this plan.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <Label className="text-base font-medium">Initial Credits (User Balance on Signup)</Label>
+                        <div className="grid md:grid-cols-4 gap-4 mt-2 border p-3 rounded-lg">
+                            <div className="space-y-2">
+                                <Label htmlFor="init_broadcast" className="text-sm">Broadcast</Label>
+                                <Input id="init_broadcast" name="init_broadcast" type="number" defaultValue={plan?.initialCredits?.broadcast ?? 0} min="0" step="1" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="init_sms" className="text-sm">SMS</Label>
+                                <Input id="init_sms" name="init_sms" type="number" defaultValue={plan?.initialCredits?.sms ?? 0} min="0" step="1" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="init_meta" className="text-sm">Meta Suite</Label>
+                                <Input id="init_meta" name="init_meta" type="number" defaultValue={plan?.initialCredits?.meta ?? 0} min="0" step="1" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="init_email" className="text-sm">Email</Label>
+                                <Input id="init_email" name="init_email" type="number" defaultValue={plan?.initialCredits?.email ?? 0} min="0" step="1" />
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -168,6 +189,30 @@ export default function PlanEditorPage() {
                                 <Label htmlFor="cost_authentication" className="text-sm">Authentication</Label>
                                 <Input id="cost_authentication" name="cost_authentication" type="number" defaultValue={plan?.messageCosts?.authentication ?? 0.02} required min="0" step="0.001" />
                             </div>
+                        </div>
+                    </div>
+                </CardContent>
+                <CardHeader>
+                    <CardTitle>Credit Rates</CardTitle>
+                    <CardDescription>Cost in credits per unit.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid md:grid-cols-4 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="rate_broadcast">Broadcast Rate</Label>
+                            <Input id="rate_broadcast" name="rate_broadcast" type="number" defaultValue={plan?.rates?.broadcast ?? 1} required min="0" step="0.1" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="rate_sms">SMS Rate</Label>
+                            <Input id="rate_sms" name="rate_sms" type="number" defaultValue={plan?.rates?.sms ?? 1} required min="0" step="0.1" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="rate_meta">Meta Suite Rate</Label>
+                            <Input id="rate_meta" name="rate_meta" type="number" defaultValue={plan?.rates?.meta ?? 1} required min="0" step="0.1" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="rate_email">Email Rate</Label>
+                            <Input id="rate_email" name="rate_email" type="number" defaultValue={plan?.rates?.email ?? 1} required min="0" step="0.1" />
                         </div>
                     </div>
                 </CardContent>

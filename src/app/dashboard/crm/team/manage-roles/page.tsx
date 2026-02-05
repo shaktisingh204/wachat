@@ -10,34 +10,34 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LoaderCircle, Save, ShieldCheck, Settings, Plus, Trash2 } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
-import { getSession } from '@/app/actions/index.ts';
-import { saveCrmPermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
 import type { WithId, User } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 
-const initialState = { message: null, error: undefined };
+const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -94,14 +94,14 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 onRoleAdded();
                 setOpen(false);
             } else {
-                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
             }
         });
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4"/>Add Role</Button></DialogTrigger>
+            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" />Add Role</Button></DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create New Role</DialogTitle>
@@ -114,7 +114,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                     <Button onClick={handleAddRole} disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Create Role
                     </Button>
                 </DialogFooter>
@@ -126,7 +126,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
 function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: () => void }) {
     const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
-    
+
     if (role.id === 'agent') return null;
 
     const handleDelete = () => {
@@ -142,9 +142,9 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
     }
 
     return (
-         <AlertDialog>
+        <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive" /></Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -154,7 +154,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDelete} disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Delete
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -165,7 +165,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
 export default function ManageRolesPage() {
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [isLoading, startLoading] = useTransition();
-    const [state, formAction] = useActionState(saveCrmPermissions, initialState);
+    const [state, formAction] = useActionState(saveRolePermissions, initialState);
     const { toast } = useToast();
 
     const fetchUser = useCallback(() => {
@@ -188,12 +188,17 @@ export default function ManageRolesPage() {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, fetchUser]);
-    
+
     if (isLoading || !user) {
         return <PageSkeleton />;
     }
 
-    const allRoles = [{ id: 'agent', name: 'Agent', permissions: user.crm?.permissions?.agent }, ...(user.crm?.customRoles || [])];
+    const customRolesWithPermissions = (user.crm?.customRoles || []).map(role => ({
+        ...role,
+        permissions: user.crm?.permissions?.[role.id]
+    }));
+
+    const allRoles = [{ id: 'agent', name: 'Agent', permissions: user.crm?.permissions?.agent }, ...customRolesWithPermissions];
 
     return (
         <div className="flex flex-col gap-8">
@@ -209,13 +214,13 @@ export default function ManageRolesPage() {
                 </div>
                 <AddRoleDialog onRoleAdded={fetchUser} />
             </div>
-            
-            <form action={formAction}>
-                 <Accordion type="single" collapsible className="w-full space-y-4">
-                     {allRoles.map(role => {
-                         const crmPermissions = role.permissions || {};
 
-                         return (
+            <form action={formAction}>
+                <Accordion type="single" collapsible className="w-full space-y-4">
+                    {allRoles.map(role => {
+                        const crmPermissions = role.permissions || {};
+
+                        return (
                             <AccordionItem key={role.id} value={role.id} className="border rounded-lg bg-card">
                                 <AccordionTrigger className="p-4 font-semibold text-lg hover:no-underline">
                                     <div className="flex items-center gap-2">
@@ -224,7 +229,7 @@ export default function ManageRolesPage() {
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent className="p-4 pt-0">
-                                     <input type="hidden" name={`roleId`} value={role.id} />
+                                    <input type="hidden" name={`roleId`} value={role.id} />
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
@@ -250,15 +255,15 @@ export default function ManageRolesPage() {
                                     </Table>
                                 </AccordionContent>
                             </AccordionItem>
-                         )
-                     })}
-                 </Accordion>
-                 <div className="flex justify-end mt-6">
-                     <Button type="submit">
+                        )
+                    })}
+                </Accordion>
+                <div className="flex justify-end mt-6">
+                    <Button type="submit">
                         <Save className="mr-2 h-4 w-4" />
                         Save Permissions
                     </Button>
-                 </div>
+                </div>
             </form>
         </div>
     );

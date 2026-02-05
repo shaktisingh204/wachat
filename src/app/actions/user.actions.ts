@@ -224,6 +224,30 @@ export async function getSession() {
         // Sanitize dbUser to ensure all ObjectIds and Dates are stringified (especially nested ones like apiKeys)
         const serializedUser = JSON.parse(JSON.stringify(dbUser));
 
+        // Initialize credits if missing
+        if (!dbUser.credits && plan) {
+            const initialCredits = plan.initialCredits || {
+                broadcast: 0,
+                sms: 0,
+                meta: 0,
+                email: 0
+            };
+
+            // If legacy signupCredits exists and initialCredits doesn't, we might want to map it?
+            // For now, we rely on the specific initialCredits object or defaults to 0.
+            // If we wanted to use signupCredits as a fallback for 'broadcast' or all, we could:
+            if (!plan.initialCredits && plan.signupCredits) {
+                initialCredits.broadcast = plan.signupCredits; // Default legacy behavior assumption
+            }
+
+            await db.collection('users').updateOne(
+                { _id: dbUser._id },
+                { $set: { credits: initialCredits } }
+            );
+            serializedUser.credits = initialCredits;
+        }
+
+
         // Merge permissions: customPermissions override plan permissions
         const userPermissions: any = dbUser.customPermissions || {};
         const planPermissions: any = plan?.permissions || {};
@@ -239,9 +263,6 @@ export async function getSession() {
             }
         }
 
-        // Also if plan is null, but user has custom permissions, they should apply.
-        // However, plan structure expects 'permissions' field.
-
         if (plan) {
             plan.permissions = finalPermissions;
         }
@@ -254,8 +275,6 @@ export async function getSession() {
                 name: dbUser.name || decoded.name,
                 image: dbUser.image || decoded.picture,
                 plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
-                // We also pass customPermissions directly if needed, but the plan override is key
-                // customPermissions: userPermissions, 
             },
         };
     } catch (error) {
