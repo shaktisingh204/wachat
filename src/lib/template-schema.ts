@@ -101,8 +101,14 @@ export const createTemplateSchema = z.object({
         if (!data.carouselBody) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Body text is required.", path: ["carouselBody"] });
         if (!data.section1Title) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Section 1 Title is required.", path: ["section1Title"] });
         if (!data.section1ProductIDs) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Section 1 Product IDs are required.", path: ["section1ProductIDs"] });
-        if (!data.section2Title) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Section 2 Title is required.", path: ["section2Title"] });
-        if (!data.section2ProductIDs) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Section 2 Product IDs are required.", path: ["section2ProductIDs"] });
+
+        // Section 2 is optional, but if Title is provided, IDs must be too, and vice versa
+        if (data.section2Title && !data.section2ProductIDs) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Section 2 Product IDs are required if a title is set.", path: ["section2ProductIDs"] });
+        }
+        if (data.section2ProductIDs && !data.section2Title) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Section 2 Title is required if products are selected.", path: ["section2Title"] });
+        }
     }
 });
 

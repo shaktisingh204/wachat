@@ -1239,7 +1239,7 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
     }
 
     const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
-        { waId: senderWaId, projectId: project._id },
+        { waId: senderWaId, projectId: project._id, phoneNumberId: phoneNumberId }, // Fixed: Strict segregation by phone number
         {
             $set: { name: senderName, phoneNumberId: phoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
             $inc: { unreadCount: 1 },
@@ -1458,7 +1458,7 @@ export async function processIncomingMessageBatch(db: Db, project: WithId<Projec
 
         return {
             updateOne: {
-                filter: { waId: senderWaId, projectId: project._id },
+                filter: { waId: senderWaId, projectId: project._id, phoneNumberId: phoneNumberId }, // Fixed: Strict phone number segregation
                 update: {
                     $set: { name: senderName, phoneNumberId: phoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
                     $inc: { unreadCount: 1 },

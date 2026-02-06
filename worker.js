@@ -54,9 +54,11 @@ async function addBroadcastLog(db, broadcastId, projectId, level, message) {
 
 function interpolateText(text, vars) {
   if (!text || !vars) return text;
-  return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (_, k) =>
-    vars[k] !== undefined ? String(vars[k]) : _
-  );
+  return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (_, k) => {
+    const val = vars[k];
+    // FALBACK FIX: If variable is empty, return zero-width space to prevent (#100) error
+    return (val !== undefined && val !== null && String(val).trim() !== '') ? String(val) : '\u200B';
+  });
 }
 
 /* ================= META SEND ================= */
@@ -69,7 +71,8 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
       templateName,
       language = 'en_US',
       components,
-      headerMediaFile,
+      headerMediaId, // Injected by worker loop
+      headerMediaType, // Injected by worker loop
       broadcastType,
       flowMetaId,
       flowConfig
@@ -105,7 +108,7 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
       };
     } else {
       // Template Logic
-      const finalComponents = (components || [])
+      let finalComponents = (components || [])
         .map(c => {
           if (c.type === 'BUTTONS') return { ...c, type: 'BUTTON' };
           return c;
@@ -115,12 +118,43 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
           return allowedTypes.includes(c.type?.toUpperCase());
         });
 
+      // Inject Media Header if available
+      if (headerMediaId && headerMediaType) {
+        // Remove existing header component if any (to replace with media one)
+        // actually standard templates usually define the header type. 
+        // We need to Find the header component and inject the parameter.
+        const headerCompIndex = finalComponents.findIndex(c => c.type === 'HEADER');
+
+        const mediaParam = {
+          type: headerMediaType.toLowerCase(), // image, video, document
+          [headerMediaType.toLowerCase()]: { id: headerMediaId }
+        };
+
+        if (headerCompIndex > -1) {
+          // Modify existing header definition to include the parameter
+          // The template definition might say format: IMAGE, we just need to provide parameters.
+          finalComponents[headerCompIndex] = {
+            type: 'header',
+            parameters: [mediaParam]
+          };
+        } else {
+          // If strictly missing, force add it (though usually it should be in components list)
+          finalComponents.unshift({
+            type: 'header',
+            parameters: [mediaParam]
+          });
+        }
+      }
+
       for (const c of finalComponents) {
+        // Cleanup template keys that aren't API valid
         delete c.format;
         delete c.text;
         delete c.example;
         delete c.buttons;
 
+        // Interpolate only if parameters exist (for text params)
+        // Media params are already set above if media header exists.
         for (const p of c.parameters || []) {
           if (p.type === 'text') {
             p.text = interpolateText(p.text, contact.variables);
@@ -216,6 +250,80 @@ async function startBroadcastWorker(workerId) {
       }
 
       const { _id, projectId, messagesPerSecond = 80 } = job;
+
+      // --- MEDIA UPLOAD LOGIC ---
+      if (job.headerMediaFile && !job.headerMediaId) {
+        try {
+          await addBroadcastLog(db, _id, projectId, 'INFO', `Uploading media header to Meta...`);
+          const { buffer, name, type } = job.headerMediaFile;
+
+          // Undici FormData for file upload
+          const form = new FormData();
+          form.append('messaging_product', 'whatsapp');
+          form.append('file', Buffer.from(buffer.buffer), { filename: name, contentType: type });
+
+          // Need to use axios or undici for upload. Undici is tricky with FormData streams sometimes, 
+          // but here we can try standard fetch-like behavior if environment supports it, or raw undici. 
+          // Since we have FormData required at top, let's use it.
+
+          // NOTE: We need to recreate Agent for this single request or reused? 
+          // We can just use a one-off request.
+
+          // Construct headers manually for undici or use getHeaders() from form-data package
+
+          // Using basic node fetch/axios might be easier here but we want to stick to dependencies.
+          // worker.js has 'undici' and 'form-data'.
+
+          // Let's use undici.request with the form.
+          // We need to read the stream from form-data.
+
+          // ALTERNATIVE: Just use the form-data submit method? No, returns stream.
+
+          // Let's assume standard form-data usage.
+          // Actually, `worker.js` imports `FormData` from `form-data`.
+
+          // IMPORTANT: We need to get the length for Content-Length header if possible, 
+          // otherwise transfer-encoding: chunked. Undici handles this well usually.
+
+          // We'll use a helper to do the upload to ensure it works. 
+          // Since this is a critical section, I will impl simple upload logic using the form.submit style or buffer.
+
+          const mediaUploadRes = await undici.request(`https://graph.facebook.com/${API_VERSION}/${job.phoneNumberId}/media`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${job.accessToken}`,
+              ...form.getHeaders()
+            },
+            body: form.getBuffer() // form-data supports getBuffer()
+          });
+
+          const mediaBody = await mediaUploadRes.body.json();
+
+          if (mediaBody.id) {
+            job.headerMediaId = mediaBody.id;
+            job.headerMediaType = type.startsWith('video') ? 'VIDEO' : type.startsWith('image') ? 'IMAGE' : 'DOCUMENT';
+
+            // Update DB so we don't re-upload on crash/restart
+            await db.collection('broadcasts').updateOne(
+              { _id },
+              { $set: { headerMediaId: job.headerMediaId, headerMediaType: job.headerMediaType, headerMediaUploadedAt: new Date() } }
+            );
+
+            await addBroadcastLog(db, _id, projectId, 'INFO', `Media uploaded successfully. ID: ${job.headerMediaId}`);
+          } else {
+            throw new Error(JSON.stringify(mediaBody));
+          }
+
+        } catch (uploadErr) {
+          console.error(`${LOG_PREFIX} Media upload failed`, uploadErr);
+          await addBroadcastLog(db, _id, projectId, 'ERROR', `Failed to upload media header: ${getErrorMessage(uploadErr)}`);
+          // Fail the job immediately if media upload fails?
+          // Yes, because all messages will fail without the header.
+          await db.collection('broadcasts').updateOne({ _id }, { $set: { status: 'FAILED_PROCESSING', error: `Media Upload Failed: ${getErrorMessage(uploadErr)}` } });
+          busy = false;
+          return;
+        }
+      }
 
       await addBroadcastLog(db, _id, projectId, 'INFO', `Worker ${workerId} picked up job.`);
 

@@ -534,3 +534,45 @@ export async function handleDeleteUserProject(prevState: any, formData: FormData
     }
 }
 
+
+export async function handleUpdateProjectTags(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    const projectId = formData.get('projectId') as string;
+    const tagsJSON = formData.get('tags') as string | null;
+
+    if (!projectId) return { error: 'Project ID is missing.' };
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+
+    try {
+        const { db } = await connectToDatabase();
+
+        let updateData: any = {};
+        if (tagsJSON) {
+            const parsedTags = JSON.parse(tagsJSON).map((tag: any) => ({
+                _id: tag._id && !tag._id.startsWith('temp_') ? new ObjectId(tag._id) : new ObjectId(),
+                name: tag.name,
+                color: tag.color
+            }));
+            updateData.tags = parsedTags;
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return { error: 'No data provided to update.' };
+        }
+
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: updateData }
+        );
+
+        revalidatePath('/dashboard/chat');
+        return { message: 'Tags updated successfully.' };
+    } catch (e: any) {
+        console.error("Failed to update tags:", e);
+        return { error: 'An error occurred while updating tags.' };
+    }
+}

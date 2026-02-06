@@ -14,7 +14,7 @@ import NodeFormData from 'form-data';
 import { getSession } from './user.actions';
 import { handleSendTemplateMessage } from './send-template.actions';
 
-const API_VERSION = 'v24.0';
+const API_VERSION = 'v23.0';
 
 export async function getPublicProjectById(projectId: string): Promise<WithId<Project> | null> {
     try {

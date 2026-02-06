@@ -25,9 +25,10 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
     let nextNodeId: string | null = flow.edges.find(e => e.source === currentNodeId && (e.sourceHandle === `${node.id}-output-main` || !e.sourceHandle))?.target || null;
 
     if (node.type === 'action') {
-        const result = await executeSabFlowAction(execution._id, node, user, logger);
+        const result: any = await executeSabFlowAction(execution._id, node, user, logger);
 
         const stepName = node.data.name.replace(/\s+/g, '_');
+
 
         if (result.error) {
             logger.log(`Action failed. Stopping flow.`, { error: result.error });
@@ -36,12 +37,35 @@ async function executeNode(db: Db, user: WithId<User>, flow: WithId<SabFlow>, ex
         }
 
         // Correctly update the context by merging the output
+        // Handle control flow signals
+        if (result && result.control) {
+            if (result.control.stop) {
+                logger.log(`Flow execution stopped by action "${node.data.name}". Reason: ${result.control.reason}`);
+                const finalContext = { ...execution.context, [stepName]: result };
+                await db.collection('sabflow_executions').updateOne(
+                    { _id: execution._id },
+                    {
+                        $set: {
+                            status: 'COMPLETED',
+                            context: finalContext,
+                            [`history.${stepName}`]: result,
+                            finishedAt: new Date(),
+                            stopReason: result.control.reason
+                        }
+                    }
+                );
+                return null; // Stop execution gracefully
+            }
+            // Delay is handled synchronously in the action for now, but we could handle it here if we wanted async suspension.
+        }
+
         const newContext = { ...execution.context, [stepName]: result };
         await db.collection('sabflow_executions').updateOne(
             { _id: execution._id },
             { $set: { context: newContext, [`history.${stepName}`]: result } }
         );
         logger.log(`Saved action output to context under "${stepName}"`);
+
 
     } else if (node.type === 'condition') {
         const rules = node.data.rules || [];

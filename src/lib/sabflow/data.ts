@@ -309,6 +309,62 @@ const teamActions = [
   }
 ];
 
+// Core App Action Definitions
+
+const codeActions = [
+  { name: 'runJavascript', label: 'Run JavaScript', description: 'Execute custom JavaScript code within a sandbox. Use `input` variable to access data.', inputs: [{ name: 'code', label: 'Code', type: 'code-editor', language: 'javascript', placeholder: 'return "Hello " + input.name;' }] }
+];
+
+const dataForwarderActions = [
+  { name: 'forwardData', label: 'Forward Data', description: 'Passes data through to the next step unchanged.', inputs: [] }
+];
+
+const dataTransformerActions = [
+  { name: 'transformData', label: 'Transform Data', description: 'Transform input data using a predefined schema.', inputs: [{ name: 'schema', label: 'Schema (JSON)', type: 'json-editor' }] }
+];
+
+const datetimeFormatterActions = [
+  { name: 'formatDate', label: 'Format Date', description: 'Format a date string.', inputs: [{ name: 'date', label: 'Date', type: 'text' }, { name: 'format', label: 'Format', type: 'text', placeholder: 'YYYY-MM-DD' }] },
+  { name: 'addToDate', label: 'Add to Date', description: 'Add time to a date.', inputs: [{ name: 'date', label: 'Date', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }, { name: 'unit', label: 'Unit', type: 'text', placeholder: 'days, hours, minutes' }] },
+  { name: 'subtractFromDate', label: 'Subtract from Date', description: 'Subtract time from a date.', inputs: [{ name: 'date', label: 'Date', type: 'text' }, { name: 'amount', label: 'Amount', type: 'number' }, { name: 'unit', label: 'Unit', type: 'text', placeholder: 'days, hours, minutes' }] },
+];
+
+const delayActions = [
+  { name: 'waitFor', label: 'Wait For', description: 'Pause execution for a specific duration.', inputs: [{ name: 'value', label: 'Duration', type: 'number' }, { name: 'unit', label: 'Unit', type: 'text', placeholder: 'seconds, minutes, hours' }] }
+];
+
+const filterActions = [
+  { name: 'continueIf', label: 'Continue If', description: 'Continue execution only if a condition is met.', inputs: [{ name: 'field', label: 'Value A', type: 'text' }, { name: 'operator', label: 'Operator', type: 'text' }, { name: 'value', label: 'Value B', type: 'text' }] },
+  { name: 'stopIf', label: 'Stop If', description: 'Stop execution if a condition is met.', inputs: [{ name: 'field', label: 'Value A', type: 'text' }, { name: 'operator', label: 'Operator', type: 'text' }, { name: 'value', label: 'Value B', type: 'text' }] }
+];
+
+const iteratorActions = [
+  { name: 'forEach', label: 'For Each', description: 'Iterate over an array of items.', inputs: [{ name: 'array', label: 'Array', type: 'textarea' }] }
+];
+
+const jsonExtractorActions = [
+  { name: 'parseJson', label: 'Parse JSON', description: 'Parse a JSON string into an object.', inputs: [{ name: 'jsonString', label: 'JSON String', type: 'textarea' }] }
+];
+
+const numberFormatterActions = [
+  { name: 'formatCurrency', label: 'Format Currency', description: 'Format a number as currency.', inputs: [{ name: 'amount', label: 'Amount', type: 'number' }, { name: 'currency', label: 'Currency', type: 'text', placeholder: 'USD, EUR' }] },
+  { name: 'calculateMath', label: 'Math Operation', description: 'Perform a math operation.', inputs: [{ name: 'expression', label: 'Expression', type: 'text', placeholder: '{{value}} * 2' }] }
+];
+
+const routerActions = [
+  { name: 'route', label: 'Route', description: 'Route execution based on conditions.', inputs: [{ name: 'routes', label: 'Routes (JSON)', type: 'json-editor' }] }
+];
+
+const textFormatterActions = [
+  { name: 'capitalize', label: 'Capitalize', description: 'Capitalize the first letter of a string.', inputs: [{ name: 'text', label: 'Text', type: 'textarea' }] },
+  { name: 'lowercase', label: 'Lowercase', description: 'Convert string to lowercase.', inputs: [{ name: 'text', label: 'Text', type: 'textarea' }] },
+  { name: 'uppercase', label: 'Uppercase', description: 'Convert string to uppercase.', inputs: [{ name: 'text', label: 'Text', type: 'textarea' }] },
+  { name: 'trim', label: 'Trim', description: 'Remove whitespace from ends of a string.', inputs: [{ name: 'text', label: 'Text', type: 'textarea' }] },
+  { name: 'split', label: 'Split', description: 'Split a string into an array.', inputs: [{ name: 'text', label: 'Text', type: 'textarea' }, { name: 'separator', label: 'Separator', type: 'text' }] }
+];
+
+
+
 export const sabnodeAppData = [
   // SabNode Internal Apps
   {
@@ -445,28 +501,31 @@ This trigger fires when a new task is assigned to any team member in that projec
   { appId: 'qr-code-maker', name: 'QR Code Maker', actions: qrCodeMakerActions, connectionType: 'internal', iconColor: 'text-sabflow-qr-code-maker-icon' },
   { appId: 'seo-suite', name: 'SEO Suite', actions: [], connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon' },
 
+
+
+
   // Core Apps
   { appId: 'api', name: 'API Request', actions: apiActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-api-icon' },
   { appId: 'api_file_processor', name: 'API File Processor', actions: apiFileProcessorActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-api_file_processor-icon' },
   { appId: 'array_function', name: 'Array Function', actions: arrayFunctionActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-array_function-icon' },
-  { appId: 'code', name: 'Code', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-code-icon' },
-  { appId: 'data_forwarder', name: 'Data Forwarder', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_forwarder-icon' },
-  { appId: 'data_transformer', name: 'Data Transformer', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_transformer-icon' },
-  { appId: 'datetime_formatter', name: 'DateTime Formatter', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-datetime_formatter-icon' },
-  { appId: 'delay', name: 'Delay', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-delay-icon' },
+  { appId: 'code', name: 'Code', actions: codeActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-code-icon' },
+  { appId: 'data_forwarder', name: 'Data Forwarder', actions: dataForwarderActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_forwarder-icon' },
+  { appId: 'data_transformer', name: 'Data Transformer', actions: dataTransformerActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_transformer-icon' },
+  { appId: 'datetime_formatter', name: 'DateTime Formatter', actions: datetimeFormatterActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-datetime_formatter-icon' },
+  { appId: 'delay', name: 'Delay', actions: delayActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-delay-icon' },
   { appId: 'dynamic_web_page', name: 'Dynamic Web Page', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-dynamic_web_page-icon' },
   { appId: 'file_uploader', name: 'File Uploader', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-file_uploader-icon' },
-  { appId: 'filter', name: 'Filter', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-filter-icon' },
-  { appId: 'iterator', name: 'Iterator', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-iterator-icon' },
-  { appId: 'json_extractor', name: 'JSON Extractor', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-json_extractor-icon' },
+  { appId: 'filter', name: 'Filter', actions: filterActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-filter-icon' },
+  { appId: 'iterator', name: 'Iterator', actions: iteratorActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-iterator-icon' },
+  { appId: 'json_extractor', name: 'JSON Extractor', actions: jsonExtractorActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-json_extractor-icon' },
   { appId: 'lookup_table', name: 'Lookup Table', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-lookup_table-icon' },
-  { appId: 'number_formatter', name: 'Number Formatter', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-number_formatter-icon' },
+  { appId: 'number_formatter', name: 'Number Formatter', actions: numberFormatterActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-number_formatter-icon' },
   { appId: 'connect_manager', name: 'Connect Manager', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-connect_manager-icon' },
   { appId: 'hook', name: 'Hook', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-hook-icon' },
   { appId: 'subscription_billing', name: 'Subscription Billing', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-subscription_billing-icon' },
-  { appId: 'router', name: 'Router', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-router-icon' },
+  { appId: 'router', name: 'Router', actions: routerActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-router-icon' },
   { appId: 'select_transform_json', name: 'Select Transform JSON', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-select_transform_json-icon' },
-  { appId: 'text_formatter', name: 'Text Formatter', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-text_formatter-icon' },
+  { appId: 'text_formatter', name: 'Text Formatter', actions: textFormatterActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-text_formatter-icon' },
 
   // External Apps
   {
@@ -507,7 +566,8 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'customerEmail', label: 'Customer Email', type: 'text' },
           { name: 'paymentIntentId', label: 'Payment Intent ID', type: 'text' }
         ]
-      }
+      },
+      { name: 'createCustomer', label: 'Create Customer', description: 'Creates a new customer in Stripe.', inputs: [{ name: 'email', label: 'Email', type: 'text', required: true }, { name: 'name', label: 'Name', type: 'text' }] }
     ]
   },
   {
@@ -540,7 +600,8 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'totalPrice', label: 'Total Price', type: 'number' },
           { name: 'customerEmail', label: 'Customer Email', type: 'text' }
         ]
-      }
+      },
+      { name: 'createProduct', label: 'Create Product', description: 'Creates a new product in Shopify.', inputs: [{ name: 'title', label: 'Title', type: 'text', required: true }, { name: 'price', label: 'Price', type: 'number', required: true }] }
     ]
   },
   {
@@ -629,7 +690,8 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'lastname', label: 'Last Name', type: 'text' },
           { name: 'email', label: 'Email', type: 'text' }
         ]
-      }
+      },
+      { name: 'createContact', label: 'Create Contact', description: 'Creates a new contact in HubSpot.', inputs: [{ name: 'email', label: 'Email', type: 'text', required: true }, { name: 'firstname', label: 'First Name', type: 'text' }, { name: 'lastname', label: 'Last Name', type: 'text' }] }
     ]
   },
   {

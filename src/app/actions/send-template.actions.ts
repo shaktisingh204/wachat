@@ -109,9 +109,14 @@ export async function handleSendTemplateMessage(
                 if (format === 'IMAGE') parameter = { type: 'image', image: { link: headerMediaUrl } };
                 else if (format === 'VIDEO') parameter = { type: 'video', video: { link: headerMediaUrl } };
                 else if (format === 'DOCUMENT') parameter = { type: 'document', document: { link: headerMediaUrl } };
-            } else if (format === 'TEXT' && variables['variable_header_1']) {
-                const headerVar = (variables['variable_header_1'] as string || '').trim();
-                parameter = { type: 'text', text: headerVar === '' ? '\u200B' : headerVar };
+            } else if (format === 'TEXT') {
+                // Check if the header text definition actually contains a variable {{1}}
+                // We need to check headerComponentDef.text for "{{1}}"
+                if (headerComponentDef.text && headerComponentDef.text.includes('{{1}}')) {
+                    const headerVar = (variables['variable_header_1'] as string || '').trim();
+                    // Always send parameter if variable exists in template, default to zero-width space
+                    parameter = { type: 'text', text: headerVar === '' ? '\u200B' : headerVar };
+                }
             }
 
             if (parameter) {
@@ -129,7 +134,7 @@ export async function handleSendTemplateMessage(
                     const varValue = (variables[`variable_body_${varNum}`] as string || '').trim();
                     return { type: 'text', text: varValue === '' ? '\u200B' : varValue };
                 });
-                if (parameters.some(p => p.text !== '\u200B')) {
+                if (parameters.length > 0) {
                     payloadComponents.push({ type: 'body', parameters });
                 }
             }

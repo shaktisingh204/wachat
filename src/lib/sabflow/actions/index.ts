@@ -2,21 +2,36 @@
 'use server';
 
 import type { SabFlowNode, User } from '@/lib/definitions';
+import type { WithId, ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getErrorMessage } from '@/lib/utils';
+
+// Core App Processors
+import { executeFilterAction, executeDelayAction, executeRouterAction } from './core/logic';
+import { executeTextAction, executeNumberAction, executeDateAction, executeJsonAction, executeDataTransformerAction, executeDataForwarderAction } from './core/transform';
+import { executeCodeAction } from './core/code';
+
+// SabNode Internal Apps
 import { executeWachatAction } from './wachat';
+import { executeSabChatAction } from './sabchat';
 import { executeCrmAction } from './crm';
 import { executeApiAction } from './api';
 import { executeSmsAction } from './sms';
 import { executeEmailAction } from './email';
 import { executeUrlShortenerAction } from './url-shortener';
 import { executeQrCodeAction } from './qr-code';
-import { executeSabChatAction } from './sabchat';
 import { executeMetaAction } from './meta';
 import { executeGoogleSheetsAction } from './google-sheets';
 import { executeArrayFunctionAction } from './array-function';
 import { executeApiFileProcessorAction } from './api-file-processor';
-import type { WithId, ObjectId } from 'mongodb';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getErrorMessage } from '@/lib/utils';
+
+// External App Processors
+import { executeStripeAction } from './stripe';
+import { executeShopifyAction } from './shopify';
+import { executeSlackAction } from './slack';
+import { executeHubSpotAction } from './hubspot';
+import { executeDiscordAction } from './discord';
+import { executeNotionAction } from './notion';
 
 
 function getValueFromPath(obj: any, path: string): any {
@@ -34,16 +49,16 @@ function interpolate(text: string | undefined, context: any): any {
     let interpolatedText = text;
     // Using a global regex to find ALL occurrences, not just the first one.
     const regex = /{{\s*([^}]+)\s*}}/g;
-    
+
     let maxIterations = 10;
     let i = 0;
-    
+
     while (i < maxIterations) {
         let matchFound = false;
         interpolatedText = interpolatedText.replace(regex, (fullMatch, varName) => {
             const trimmedVarName = varName.trim();
             const value = getValueFromPath(context, trimmedVarName);
-            
+
             if (value !== undefined && value !== null) {
                 matchFound = true;
                 // If the entire string is just a single variable, return the raw value (e.g., for arrays/objects)
@@ -77,12 +92,12 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         logger.log(`Error: Could not find execution document with ID ${executionId}`);
         return { error: 'Execution context not found.' };
     }
-    
+
     const context = execution.context || {};
     const rawInputs = node.data.inputs || {};
-    
+
     logger.log(`Preparing to execute action: ${node.data.actionName} for app: ${node.data.appId}`, { inputs: rawInputs });
-    
+
     const interpolatedInputs: Record<string, any> = {};
     for (const key in rawInputs) {
         if (Object.prototype.hasOwnProperty.call(rawInputs, key)) {
@@ -95,7 +110,60 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
     const appId = node.data.appId;
     const actionName = node.data.actionName;
 
-    switch(appId) {
+    switch (appId) {
+        // Core Apps: Logic
+        case 'filter':
+            return await executeFilterAction(actionName, interpolatedInputs);
+        case 'delay':
+            return await executeDelayAction(actionName, interpolatedInputs);
+        case 'router':
+            return await executeRouterAction(actionName, interpolatedInputs);
+
+        // Core Apps: Transform
+        case 'text_formatter':
+            return await executeTextAction(actionName, interpolatedInputs);
+        case 'number_formatter':
+            return await executeNumberAction(actionName, interpolatedInputs);
+        case 'datetime_formatter':
+            return await executeDateAction(actionName, interpolatedInputs);
+        case 'json_extractor':
+            return await executeJsonAction(actionName, interpolatedInputs);
+        case 'data_transformer':
+            return await executeDataTransformerAction(actionName, interpolatedInputs);
+        case 'data_forwarder':
+            return await executeDataForwarderAction(actionName, interpolatedInputs);
+
+        // Core Apps: Code
+        case 'code':
+            return await executeCodeAction(actionName, interpolatedInputs, context);
+
+        // Core Apps (Placeholders or Unimplemented in this phase)
+        case 'iterator':
+        case 'dynamic_web_page':
+        case 'file_uploader':
+        case 'lookup_table':
+        case 'connect_manager':
+        case 'hook':
+        case 'subscription_billing':
+        case 'select_transform_json':
+            logger.log(`Warning: Action app "${appId}" is not yet fully implemented or registered.`);
+            return { error: `Action app "${appId}" is not yet implemented.` };
+
+        // External Apps
+        case 'stripe':
+            return await executeStripeAction(actionName, interpolatedInputs, user, logger);
+        case 'shopify':
+            return await executeShopifyAction(actionName, interpolatedInputs, user, logger);
+        case 'slack':
+            return await executeSlackAction(actionName, interpolatedInputs, user, logger);
+        case 'hubspot':
+            return await executeHubSpotAction(actionName, interpolatedInputs, user, logger);
+        case 'discord':
+            return await executeDiscordAction(actionName, interpolatedInputs, user, logger);
+        case 'notion':
+            return await executeNotionAction(actionName, interpolatedInputs, user, logger);
+
+        // SabNode Internal Apps
         case 'wachat':
             return await executeWachatAction(actionName, interpolatedInputs, user, logger);
         case 'sabchat':

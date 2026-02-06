@@ -206,12 +206,20 @@ export async function handleCreateTemplate(
                 carouselFooter: footerText,
                 section1Title,
                 section1ProductIDs: formData.get('section1ProductIDs') as string, // Pass raw string to schema if we want, but schema expects string. Wait, schema is string.
-                section2Title,
-                section2ProductIDs: formData.get('section2ProductIDs') as string,
+                section2Title: section2Title || undefined,
+                section2ProductIDs: formData.get('section2ProductIDs') as string || undefined,
             });
 
             if (!validationResult.success) {
                 return { error: validationResult.error.errors.map(e => e.message).join('\n') };
+            }
+
+            const sections = [
+                { title: section1Title, products: section1ProductIDs.map(id => ({ product_retailer_id: id })) }
+            ];
+
+            if (section2Title && section2ProductIDs.length > 0) {
+                sections.push({ title: section2Title, products: section2ProductIDs.map(id => ({ product_retailer_id: id })) });
             }
 
             const carouselTemplateData = {
@@ -228,14 +236,12 @@ export async function handleCreateTemplate(
                         headerText,
                         footerText,
                         catalogId,
-                        sections: [
-                            { title: section1Title, products: section1ProductIDs.map(id => ({ product_retailer_id: id })) },
-                            { title: section2Title, products: section2ProductIDs.map(id => ({ product_retailer_id: id })) }
-                        ]
+                        sections
                     }
                 ],
                 createdAt: new Date(),
             };
+
 
             await db.collection('templates').insertOne(carouselTemplateData as any);
             revalidatePath('/dashboard/templates');
@@ -329,7 +335,22 @@ export async function handleCreateTemplate(
                 if (uploadResult.handle && card.headerFormat !== 'NONE') {
                     cardComponents.push({ type: 'HEADER', format: card.headerFormat, example: { header_handle: [uploadResult.handle] } });
                 }
-                cardComponents.push({ type: 'BODY', text: card.body });
+
+                const bodyComponent: any = { type: 'BODY', text: card.body };
+                // Handle Carousel Body Variables
+                const bodyVarMatches = card.body.match(/{{\s*(\d+)\s*}}/g);
+                if (bodyVarMatches) {
+                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a: number, b: number) => a - b);
+                    const bodyExamples = [];
+                    for (const varNum of bodyVarNumbers) {
+                        const exVal = card.exampleValues?.[varNum];
+                        if (!exVal) return { error: `Card ${i + 1}: Example required for variable {{${varNum}}}.` };
+                        bodyExamples.push(exVal);
+                    }
+                    // Meta expects array of arrays: [ ["val1", "val2"] ]
+                    bodyComponent.example = { body_text: [bodyExamples] };
+                }
+                cardComponents.push(bodyComponent);
                 if (card.buttons && card.buttons.length > 0) {
                     const formattedButtons = card.buttons.map((b: any) => ({ type: b.type, text: b.text, ...(b.url && { url: b.url }), ...(b.phone_number && { phone_number: b.phone_number }) }));
                     cardComponents.push({ type: 'BUTTONS', buttons: formattedButtons });

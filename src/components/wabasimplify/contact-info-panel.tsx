@@ -15,11 +15,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { ChevronsUpDown, Check } from 'lucide-react';
+import { ChevronsUpDown, Check, Settings } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ProjectTagsManagerDialog } from './project-tags-manager-dialog';
+import { useProject } from '@/context/project-context';
 
 
 interface ContactInfoPanelProps {
@@ -119,9 +121,11 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
     const [tagIds, setTagIds] = useState<string[]>([]);
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(contact.name);
+    const [isTagsManagerOpen, setIsTagsManagerOpen] = useState(false);
 
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
+    const { reloadProject } = useProject();
     const userAttributes = project.userAttributes || [];
 
     useEffect(() => {
@@ -294,7 +298,13 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
 
                 <div className="p-4 space-y-6">
                     <div className="space-y-2">
-                        <Label>Tags</Label>
+                        <div className="flex items-center justify-between">
+                            <Label>Tags</Label>
+                            <Button variant="ghost" size="sm" className="h-6 gap-1 text-[10px] text-muted-foreground" onClick={() => setIsTagsManagerOpen(true)}>
+                                <Settings className="h-3 w-3" />
+                                Manage
+                            </Button>
+                        </div>
                         <MultiSelectCombobox
                             options={tagOptions}
                             selected={tagIds}
@@ -302,6 +312,15 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                             placeholder="Select tags..."
                         />
                     </div>
+
+                    <ProjectTagsManagerDialog
+                        isOpen={isTagsManagerOpen}
+                        onOpenChange={setIsTagsManagerOpen}
+                        project={project}
+                        onTagsUpdated={() => {
+                            reloadProject();
+                        }}
+                    />
 
                     <Separator />
 
