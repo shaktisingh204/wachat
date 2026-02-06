@@ -272,6 +272,9 @@ export async function handleCreateTemplate(
             } catch (e) {
                 return { error: "Invalid carousel cards data." };
             }
+            // Carousel also needs a main body
+            validationData.body = cleanText(formData.get('body') as string);
+            if (!validationData.body) return { error: "Intro Body text is required for Carousel templates." };
         } else {
             // Standard template fields
             validationData.body = cleanText(formData.get('body') as string);
@@ -358,6 +361,26 @@ export async function handleCreateTemplate(
                 }
                 finalCards.push({ components: cardComponents });
             }
+
+            // Add Top-Level Body Component (Required for Marketing Carousel)
+            const mainBodyText = cleanText(formData.get('body') as string);
+            if (!mainBodyText) return { error: 'Intro Body Text is required for Carousel templates.' };
+
+            const mainBodyComponent: any = { type: 'BODY', text: mainBodyText };
+
+            // Handle Main Body Variables (same logic as standard)
+            const mainBodyVarMatches = mainBodyText.match(/{{\s*(\d+)\s*}}/g);
+            if (mainBodyVarMatches) {
+                const vars = [...new Set(mainBodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a: number, b: number) => a - b);
+                const mainBodyExamples = [];
+                for (const varNum of vars) {
+                    const val = formData.get(`body_example_${varNum}`) as string;
+                    if (!val) return { error: `Example required for Intro Body variable {{${varNum}}}.` };
+                    mainBodyExamples.push(val);
+                }
+                mainBodyComponent.example = { body_text: [mainBodyExamples] };
+            }
+            payload.components.push(mainBodyComponent);
 
             payload.components.push({ type: 'CAROUSEL', cards: finalCards });
 

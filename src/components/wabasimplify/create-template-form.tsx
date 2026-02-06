@@ -366,250 +366,255 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
           {/* --- EDITOR CONTENT BY TYPE --- */}
 
-          {templateType === 'STANDARD' && (
+          {(templateType === 'STANDARD' || templateType === 'MARKETING_CAROUSEL') && (
             <Card>
-              <CardHeader><CardTitle>Message Content</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{templateType === 'MARKETING_CAROUSEL' ? 'Carousel Introduction' : 'Message Content'}</CardTitle></CardHeader>
               <CardContent className="space-y-6">
-                {/* Header */}
-                <div className="space-y-3">
-                  <Label>Header</Label>
-                  <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="flex flex-wrap gap-2">
-                    {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(f => (
-                      <div key={f} className="flex items-center space-x-2 border p-2 rounded cursor-pointer hover:bg-accent">
-                        <RadioGroupItem value={f} id={`h-${f}`} />
-                        <Label htmlFor={`h-${f}`} className="cursor-pointer">{f}</Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                  <input type="hidden" name="headerFormat" value={headerFormat} />
-
-                  {headerFormat === 'TEXT' && (
-                    <div className="space-y-2">
-                      <Input name="headerText" placeholder="Header Text (e.g. Welcome {{1}})" value={headerText} onChange={e => setHeaderText(e.target.value)} />
-                      {headerText.match(/{{\s*(\d+)\s*}}/g) && (
-                        <div className="mt-2 text-sm bg-muted/30 p-2 rounded">
-                          <Label className="text-xs font-semibold mb-1 block">Header Variable Example</Label>
-                          <Input name="headerExample" placeholder="e.g. Discount" className="h-8" required />
+                {/* Header - Only for Standard */}
+                {templateType === 'STANDARD' && (
+                  <div className="space-y-3">
+                    <Label>Header</Label>
+                    <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="flex flex-wrap gap-2">
+                      {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(f => (
+                        <div key={f} className="flex items-center space-x-2 border p-2 rounded cursor-pointer hover:bg-accent">
+                          <RadioGroupItem value={f} id={`h-${f}`} />
+                          <Label htmlFor={`h-${f}`} className="cursor-pointer">{f}</Label>
                         </div>
-                      )}
-                    </div>
-                  )}
-                  {(headerFormat === 'IMAGE' || headerFormat === 'VIDEO' || headerFormat === 'DOCUMENT') && (
-                    <div className="space-y-2">
-                      <Input type="file" name="headerSampleFile" />
-                      <div className="text-xs text-muted-foreground">OR</div>
-                      <Input name="headerSampleUrl" placeholder="https://..." value={headerSampleUrl} onChange={e => setHeaderSampleUrl(e.target.value)} />
-                    </div>
-                  )}
-                </div>
+                      ))}
+                    </RadioGroup>
+                    <input type="hidden" name="headerFormat" value={headerFormat} />
 
-                <div className="space-y-2">
-                  <Label>Body</Label>
-                  <Textarea name="body" value={body} onChange={e => setBody(e.target.value)} placeholder="Hello {{1}}..." className="min-h-[120px]" required />
-                  <AiSuggestions onSuggestionSelect={setBody} />
-
-                  {/* Variable Examples for Standard Body */}
-                  {(() => {
-                    const matches = body.match(/{{\s*(\d+)\s*}}/g);
-                    if (matches && matches.length > 0) {
-                      const vars = [...new Set(matches.map(m => {
-                        const num = m.match(/\d+/);
-                        return num ? parseInt(num[0]) : 0;
-                      }))].sort((a, b) => a - b).filter(n => n > 0);
-
-                      if (vars.length > 0) {
-                        return (
-                          <div className="space-y-2 p-3 bg-muted/30 rounded border mt-2">
-                            <Label className="text-xs font-semibold">Variable Examples (Required)</Label>
-                            <div className="grid gap-2">
-                              {vars.map(v => (
-                                <div key={v} className="flex items-center gap-2">
-                                  <span className="text-xs text-muted-foreground w-8 font-mono">{`{{${v}}}`}</span>
-                                  <Input
-                                    name={`body_example_${v}`}
-                                    placeholder={`e.g. John`}
-                                    className="h-8 text-sm"
-                                    required
-                                  />
-                                </div>
-                              ))}
-                            </div>
+                    {headerFormat === 'TEXT' && (
+                      <div className="space-y-2">
+                        <Input name="headerText" placeholder="Header Text (e.g. Welcome {{1}})" value={headerText} onChange={e => setHeaderText(e.target.value)} />
+                        {headerText.match(/{{\s*(\d+)\s*}}/g) && (
+                          <div className="mt-2 text-sm bg-muted/30 p-2 rounded">
+                            <Label className="text-xs font-semibold mb-1 block">Header Variable Example</Label>
+                            <Input name="headerExample" placeholder="e.g. Discount" className="h-8" required />
                           </div>
-                        );
-                      }
-                    }
-                    return null;
-                  })()}
-                </div>
-
-                {/* Footer */}
-                <div className="space-y-2">
-                  <Label>Footer (Optional)</Label>
-                  <Input name="footer" value={footer} onChange={e => setFooter(e.target.value)} />
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {templateType === 'MARKETING_CAROUSEL' && (
-            <CarouselBuilder cards={carouselCards} onChange={setCarouselCards} />
-          )}
-
-          {templateType === 'CATALOG_MESSAGE' && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Catalog Configuration</CardTitle>
-                  <CardDescription>Select a catalog and define your sections.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Select Catalog</Label>
-                    <Select value={catalogId} onValueChange={setCatalogId} required>
-                      <SelectTrigger><SelectValue placeholder="Choose a catalog..." /></SelectTrigger>
-                      <SelectContent>
-                        {catalogs.map(c => <SelectItem key={c.id} value={c.id}>{c.name} ({c.id})</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Header Text (Optional)</Label>
-                    <Input value={catalogHeader} onChange={e => setCatalogHeader(e.target.value)} placeholder="Our Collection" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Body Text</Label>
-                    <Textarea value={catalogBody} onChange={e => setCatalogBody(e.target.value)} placeholder="Check out these items..." required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Footer Text (Optional)</Label>
-                    <Input value={catalogFooter} onChange={e => setCatalogFooter(e.target.value)} placeholder="Prices incl. VAT" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Section 1 */}
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-base">Section 1</CardTitle>
-                  <ProductPicker
-                    projectId={project?._id.toString() || ''}
-                    catalogId={catalogId}
-                    selectedIds={catalogSection1Ids}
-                    onSelectionChange={setCatalogSection1Ids}
-                  />
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Section Title</Label>
-                    <Input value={catalogSection1Title} onChange={e => setCatalogSection1Title(e.target.value)} />
-                  </div>
-                  <div className="p-4 border rounded-md bg-muted/20 text-sm">
-                    {catalogSection1Ids.length === 0 ? (
-                      <span className="text-muted-foreground">No products selected. Click "Select Products" above.</span>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-2">
-                        {catalogSection1Ids.map(id => (
-                          <div key={id} className="bg-background border p-2 rounded flex justify-between items-center">
-                            <span className="truncate flex-1" title={id}>{id}</span>
-                            <Button type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection1Ids(ids => ids.filter(x => x !== id))}>
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))}
+                        )}
+                      </div>
+                    )}
+                    {(headerFormat === 'IMAGE' || headerFormat === 'VIDEO' || headerFormat === 'DOCUMENT') && (
+                      <div className="space-y-2">
+                        <Input type="file" name="headerSampleFile" />
+                        <div className="text-xs text-muted-foreground">OR</div>
+                        <Input name="headerSampleUrl" placeholder="https://..." value={headerSampleUrl} onChange={e => setHeaderSampleUrl(e.target.value)} />
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                )}
 
-              {/* Section 2 */}
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-base">Section 2 (Optional)</CardTitle>
-                  <ProductPicker
-                    projectId={project?._id.toString() || ''}
-                    catalogId={catalogId}
-                    selectedIds={catalogSection2Ids}
-                    onSelectionChange={setCatalogSection2Ids}
-                  />
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Section Title</Label>
-                    <Input value={catalogSection2Title} onChange={e => setCatalogSection2Title(e.target.value)} />
-                  </div>
-                  {catalogSection2Ids.length > 0 && (
-                    <div className="p-4 border rounded-md bg-muted/20 text-sm">
-                      <div className="grid grid-cols-2 gap-2">
-                        {catalogSection2Ids.map(id => (
-                          <div key={id} className="bg-background border p-2 rounded flex justify-between items-center">
-                            <span className="truncate flex-1" title={id}>{id}</span>
-                            <Button type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection2Ids(ids => ids.filter(x => x !== id))}>
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   )}
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </div>
+              </div>
 
-        {/* Action Column */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card className="sticky top-6">
-            <CardHeader><CardTitle>Publish</CardTitle></CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                {templateType === 'STANDARD' && "Submitting will send this template to Meta for review. Approval usually takes 1 minute."}
-                {templateType === 'MARKETING_CAROUSEL' && "Carousels are validated by Meta. Ensure all images are high quality."}
-                {templateType === 'CATALOG_MESSAGE' && "Product messages are saved locally and do NOT require Meta approval."}
-              </p>
-              <SubmitButton templateType={templateType} isAdminForm={isAdminForm} isBulkForm={isBulkForm} />
+              <div className="space-y-2">
+                <Label>{templateType === 'MARKETING_CAROUSEL' ? 'Carousel Intro Body' : 'Body'}</Label>
+                <Textarea name="body" value={body} onChange={e => setBody(e.target.value)} placeholder={templateType === 'MARKETING_CAROUSEL' ? "Check out our latest collection..." : "Hello {{1}}..."} className="min-h-[120px]" required />
+                <AiSuggestions onSuggestionSelect={setBody} />
+
+                {/* Variable Examples for Body */}
+                {(() => {
+                  const matches = body.match(/{{\s*(\d+)\s*}}/g);
+                  if (matches && matches.length > 0) {
+                    const vars = [...new Set(matches.map(m => {
+                      const num = m.match(/\d+/);
+                      return num ? parseInt(num[0]) : 0;
+                    }))].sort((a, b) => a - b).filter(n => n > 0);
+
+                    if (vars.length > 0) {
+                      return (
+                        <div className="space-y-2 p-3 bg-muted/30 rounded border mt-2">
+                          <Label className="text-xs font-semibold">Variable Examples (Required)</Label>
+                          <div className="grid gap-2">
+                            {vars.map(v => (
+                              <div key={v} className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground w-8 font-mono">{`{{${v}}}`}</span>
+                                <Input
+                                  name={`body_example_${v}`}
+                                  placeholder={`e.g. John`}
+                                  className="h-8 text-sm"
+                                  required
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
+              </div>
+
+              {/* Footer */}
+              <div className="space-y-2">
+                <Label>Footer (Optional)</Label>
+                <Input name="footer" value={footer} onChange={e => setFooter(e.target.value)} />
+              </div>
             </CardContent>
-          </Card>
+            </Card>
+          )}
 
-          {/* Buttons Editor for Standard */}
-          {templateType === 'STANDARD' && (
+        {templateType === 'MARKETING_CAROUSEL' && (
+          <CarouselBuilder cards={carouselCards} onChange={setCarouselCards} />
+        )}
+
+        {templateType === 'CATALOG_MESSAGE' && (
+          <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Buttons ({buttons.length})</CardTitle>
+                <CardTitle>Catalog Configuration</CardTitle>
+                <CardDescription>Select a catalog and define your sections.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {buttons.map((b, i) => (
-                  <div key={i} className="p-3 border rounded relative">
-                    <div className="font-semibold text-xs mb-1">{b.type}</div>
-                    <Input
-                      placeholder="Label"
-                      value={b.text}
-                      onChange={(e) => {
-                        const newBtns = [...buttons];
-                        newBtns[i] = { ...b, text: e.target.value };
-                        setButtons(newBtns);
-                      }}
-                      className="mb-2"
-                    />
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-5 w-5" onClick={() => setButtons(btns => btns.filter((_, idx) => idx !== i))}>
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
-                {buttons.length < 3 && (
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'QUICK_REPLY', text: '' }])}>Quick Reply</Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'URL', text: '', url: '' }])}>URL</Button>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Select Catalog</Label>
+                  <Select value={catalogId} onValueChange={setCatalogId} required>
+                    <SelectTrigger><SelectValue placeholder="Choose a catalog..." /></SelectTrigger>
+                    <SelectContent>
+                      {catalogs.map(c => <SelectItem key={c.id} value={c.id}>{c.name} ({c.id})</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Header Text (Optional)</Label>
+                  <Input value={catalogHeader} onChange={e => setCatalogHeader(e.target.value)} placeholder="Our Collection" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Body Text</Label>
+                  <Textarea value={catalogBody} onChange={e => setCatalogBody(e.target.value)} placeholder="Check out these items..." required />
+                </div>
+                <div className="space-y-2">
+                  <Label>Footer Text (Optional)</Label>
+                  <Input value={catalogFooter} onChange={e => setCatalogFooter(e.target.value)} placeholder="Prices incl. VAT" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Section 1 */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-base">Section 1</CardTitle>
+                <ProductPicker
+                  projectId={project?._id.toString() || ''}
+                  catalogId={catalogId}
+                  selectedIds={catalogSection1Ids}
+                  onSelectionChange={setCatalogSection1Ids}
+                />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Section Title</Label>
+                  <Input value={catalogSection1Title} onChange={e => setCatalogSection1Title(e.target.value)} />
+                </div>
+                <div className="p-4 border rounded-md bg-muted/20 text-sm">
+                  {catalogSection1Ids.length === 0 ? (
+                    <span className="text-muted-foreground">No products selected. Click "Select Products" above.</span>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {catalogSection1Ids.map(id => (
+                        <div key={id} className="bg-background border p-2 rounded flex justify-between items-center">
+                          <span className="truncate flex-1" title={id}>{id}</span>
+                          <Button type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection1Ids(ids => ids.filter(x => x !== id))}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Section 2 */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-base">Section 2 (Optional)</CardTitle>
+                <ProductPicker
+                  projectId={project?._id.toString() || ''}
+                  catalogId={catalogId}
+                  selectedIds={catalogSection2Ids}
+                  onSelectionChange={setCatalogSection2Ids}
+                />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Section Title</Label>
+                  <Input value={catalogSection2Title} onChange={e => setCatalogSection2Title(e.target.value)} />
+                </div>
+                {catalogSection2Ids.length > 0 && (
+                  <div className="p-4 border rounded-md bg-muted/20 text-sm">
+                    <div className="grid grid-cols-2 gap-2">
+                      {catalogSection2Ids.map(id => (
+                        <div key={id} className="bg-background border p-2 rounded flex justify-between items-center">
+                          <span className="truncate flex-1" title={id}>{id}</span>
+                          <Button type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection2Ids(ids => ids.filter(x => x !== id))}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </CardContent>
             </Card>
-          )}
-        </div>
-
+          </div>
+        )}
       </div>
-    </form>
+
+      {/* Action Column */}
+      <div className="lg:col-span-1 space-y-6">
+        <Card className="sticky top-6">
+          <CardHeader><CardTitle>Publish</CardTitle></CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              {templateType === 'STANDARD' && "Submitting will send this template to Meta for review. Approval usually takes 1 minute."}
+              {templateType === 'MARKETING_CAROUSEL' && "Carousels are validated by Meta. Ensure all images are high quality."}
+              {templateType === 'CATALOG_MESSAGE' && "Product messages are saved locally and do NOT require Meta approval."}
+            </p>
+            <SubmitButton templateType={templateType} isAdminForm={isAdminForm} isBulkForm={isBulkForm} />
+          </CardContent>
+        </Card>
+
+        {/* Buttons Editor for Standard */}
+        {templateType === 'STANDARD' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Buttons ({buttons.length})</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {buttons.map((b, i) => (
+                <div key={i} className="p-3 border rounded relative">
+                  <div className="font-semibold text-xs mb-1">{b.type}</div>
+                  <Input
+                    placeholder="Label"
+                    value={b.text}
+                    onChange={(e) => {
+                      const newBtns = [...buttons];
+                      newBtns[i] = { ...b, text: e.target.value };
+                      setButtons(newBtns);
+                    }}
+                    className="mb-2"
+                  />
+                  <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-5 w-5" onClick={() => setButtons(btns => btns.filter((_, idx) => idx !== i))}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+              {buttons.length < 3 && (
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'QUICK_REPLY', text: '' }])}>Quick Reply</Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'URL', text: '', url: '' }])}>URL</Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+    </div>
+    </form >
   );
 }
