@@ -23,10 +23,11 @@ export const buttonSchema = z.object({
 });
 
 export const carouselCardSchema = z.object({
-    id: z.number().optional(), // Client-side ID mainly
+    id: z.string().optional(), // Client-side ID mainly
     headerFormat: z.enum(['IMAGE', 'VIDEO', 'NONE']),
     headerSampleUrl: z.string().optional(),
     body: z.string().min(1, "Card body text is required"),
+    exampleValues: z.record(z.string(), z.string()).optional(),
     buttons: z.array(buttonSchema).max(2, "Each carousel card can have a maximum of 2 buttons.")
 });
 

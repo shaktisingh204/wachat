@@ -246,20 +246,40 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                             {(activeCard.headerFormat === 'IMAGE' || activeCard.headerFormat === 'VIDEO') && (
                                 <div className="space-y-2 max-w-lg">
                                     <Label>Upload Sample {activeCard.headerFormat === 'IMAGE' ? 'Image' : 'Video'}</Label>
-                                    <Input
-                                        type="file"
-                                        accept={activeCard.headerFormat === 'IMAGE' ? "image/jpeg,image/png" : "video/mp4"}
-                                        onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (file) {
-                                                updateActiveCard('headerFile', file);
-                                                // Create local preview URL
-                                                const url = URL.createObjectURL(file);
-                                                updateActiveCard('headerSampleUrl', url);
-                                            }
-                                        }}
-                                    />
-                                    <p className="text-xs text-muted-foreground">This file is for approval only. Dynamic media will be sent in broadcasts.</p>
+                                    <div className="flex flex-col gap-2">
+                                        <Input
+                                            key={`${activeCard.id}-${activeCard.headerFormat}`} // Force re-mount on card switch to clear browser's internal file state
+                                            type="file"
+                                            accept={activeCard.headerFormat === 'IMAGE' ? "image/jpeg,image/png" : "video/mp4"}
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    updateActiveCard('headerFile', file);
+                                                    const url = URL.createObjectURL(file);
+                                                    updateActiveCard('headerSampleUrl', url);
+                                                }
+                                            }}
+                                        />
+                                        {activeCard.headerFile && (
+                                            <div className="text-xs text-muted-foreground flex items-center gap-2 bg-muted/50 p-2 rounded">
+                                                <span className="font-semibold text-primary">Selected:</span>
+                                                <span className="truncate">{activeCard.headerFile.name}</span>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-4 w-4 ml-auto"
+                                                    onClick={() => {
+                                                        updateActiveCard('headerFile', undefined);
+                                                        updateActiveCard('headerSampleUrl', '');
+                                                    }}
+                                                >
+                                                    <Trash2 className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                        )}
+                                        <p className="text-xs text-muted-foreground">This file is for approval only. Dynamic media will be sent in broadcasts.</p>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -275,33 +295,44 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                             />
                             <p className="text-xs text-muted-foreground text-right">{activeCard.body.length} chars</p>
 
-                            {/* Variable Examples for Carousel Body */}
+
+                            {/* Variable Examples via helper */}
                             {(() => {
                                 const matches = activeCard.body.match(/{{\s*(\d+)\s*}}/g);
-                                if (!matches) return null;
-                                const vars = [...new Set(matches.map(m => parseInt(m.replace(/[^\d]/g, ''))))].sort((a, b) => a - b);
+                                if (matches && matches.length > 0) {
+                                    const vars = [...new Set(matches.map(m => {
+                                        const num = m.match(/\d+/);
+                                        return num ? parseInt(num[0]) : 0;
+                                    }))].sort((a, b) => a - b).filter(n => n > 0);
 
-                                return (
-                                    <div className="space-y-2 p-3 bg-muted/30 rounded border">
-                                        <Label className="text-xs font-semibold">Variable Examples (Required)</Label>
-                                        <div className="grid gap-2">
-                                            {vars.map(v => (
-                                                <div key={v} className="flex items-center gap-2">
-                                                    <span className="text-xs text-muted-foreground w-8">{`{{${v}}}`}</span>
-                                                    <Input
-                                                        placeholder={`Example for {{${v}}}`}
-                                                        className="h-8 text-sm"
-                                                        value={activeCard.exampleValues?.[v] || ''}
-                                                        onChange={(e) => {
-                                                            const newExamples = { ...(activeCard.exampleValues || {}), [v]: e.target.value };
-                                                            updateActiveCard('exampleValues', newExamples);
-                                                        }}
-                                                    />
+                                    if (vars.length > 0) {
+                                        return (
+                                            <div className="space-y-2 p-3 bg-muted/30 rounded border mt-4">
+                                                <Label className="text-xs font-semibold flex items-center gap-2">
+                                                    <AlertCircle className="h-3 w-3 text-amber-500" />
+                                                    Variable Values (Required)
+                                                </Label>
+                                                <div className="grid gap-2">
+                                                    {vars.map(v => (
+                                                        <div key={v} className="flex items-center gap-2">
+                                                            <span className="text-xs text-muted-foreground w-8 font-mono">{`{{${v}}}`}</span>
+                                                            <Input
+                                                                placeholder={`e.g. John`}
+                                                                className="h-8 text-sm"
+                                                                value={activeCard.exampleValues?.[String(v)] || ''}
+                                                                onChange={(e) => {
+                                                                    const newExamples = { ...(activeCard.exampleValues || {}), [String(v)]: e.target.value };
+                                                                    updateActiveCard('exampleValues', newExamples);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                );
+                                            </div>
+                                        );
+                                    }
+                                }
+                                return null;
                             })()}
                         </div>
 

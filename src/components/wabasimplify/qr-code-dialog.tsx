@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { QrCodeRenderer } from './qr-code-renderer';
+import { downloadQrCode, normalizeHex } from '@/lib/qr-utils';
 
 interface QrCodeDialogProps {
     open: boolean;
@@ -25,35 +26,16 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataU
     const qrCodeRef = useRef<HTMLDivElement>(null);
     if (!dataString) return null;
 
-    const handleDownload = () => {
+    const handleDownload = async () => {
         const svg = qrCodeRef.current?.querySelector('svg');
         if (svg) {
-            const svgData = new XMLSerializer().serializeToString(svg);
-            const canvas = document.createElement("canvas");
-            // To ensure high quality, render at a larger size
-            const scale = 3;
-            const svgSize = svg.getBoundingClientRect();
-            canvas.width = svgSize.width * scale;
-            canvas.height = svgSize.height * scale;
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return;
-
-            // Fill background
-            ctx.fillStyle = `#${config?.bgColor || 'FFFFFF'}`;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const img = new Image();
-            img.onload = () => {
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                const pngFile = canvas.toDataURL("image/png");
-                const downloadLink = document.createElement("a");
-                downloadLink.download = "qrcode.png";
-                downloadLink.href = pngFile;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-            };
-            img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+            await downloadQrCode(svg, {
+                filename: 'qrcode',
+                format: 'png',
+                bgColor: config?.bgColor,
+                logoDataUri,
+                size: 256
+            });
         }
     };
 
@@ -71,8 +53,8 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataU
                         <QrCodeRenderer
                             value={dataString}
                             size={256}
-                            fgColor={`#${config?.color || '000000'}`}
-                            bgColor={`#${config?.bgColor || 'FFFFFF'}`}
+                            fgColor={normalizeHex(config?.color || '000000')}
+                            bgColor={normalizeHex(config?.bgColor || 'FFFFFF')}
                             level={(config?.eccLevel as any) || 'L'}
                             logoDataUri={logoDataUri}
                         />

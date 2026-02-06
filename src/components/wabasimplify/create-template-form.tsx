@@ -384,7 +384,15 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                   <input type="hidden" name="headerFormat" value={headerFormat} />
 
                   {headerFormat === 'TEXT' && (
-                    <Input name="headerText" placeholder="Header Text" value={headerText} onChange={e => setHeaderText(e.target.value)} />
+                    <div className="space-y-2">
+                      <Input name="headerText" placeholder="Header Text (e.g. Welcome {{1}})" value={headerText} onChange={e => setHeaderText(e.target.value)} />
+                      {headerText.match(/{{\s*(\d+)\s*}}/g) && (
+                        <div className="mt-2 text-sm bg-muted/30 p-2 rounded">
+                          <Label className="text-xs font-semibold mb-1 block">Header Variable Example</Label>
+                          <Input name="headerExample" placeholder="e.g. Discount" className="h-8" required />
+                        </div>
+                      )}
+                    </div>
                   )}
                   {(headerFormat === 'IMAGE' || headerFormat === 'VIDEO' || headerFormat === 'DOCUMENT') && (
                     <div className="space-y-2">
@@ -395,11 +403,43 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                   )}
                 </div>
 
-                {/* Body */}
                 <div className="space-y-2">
                   <Label>Body</Label>
                   <Textarea name="body" value={body} onChange={e => setBody(e.target.value)} placeholder="Hello {{1}}..." className="min-h-[120px]" required />
                   <AiSuggestions onSuggestionSelect={setBody} />
+
+                  {/* Variable Examples for Standard Body */}
+                  {(() => {
+                    const matches = body.match(/{{\s*(\d+)\s*}}/g);
+                    if (matches && matches.length > 0) {
+                      const vars = [...new Set(matches.map(m => {
+                        const num = m.match(/\d+/);
+                        return num ? parseInt(num[0]) : 0;
+                      }))].sort((a, b) => a - b).filter(n => n > 0);
+
+                      if (vars.length > 0) {
+                        return (
+                          <div className="space-y-2 p-3 bg-muted/30 rounded border mt-2">
+                            <Label className="text-xs font-semibold">Variable Examples (Required)</Label>
+                            <div className="grid gap-2">
+                              {vars.map(v => (
+                                <div key={v} className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground w-8 font-mono">{`{{${v}}}`}</span>
+                                  <Input
+                                    name={`body_example_${v}`}
+                                    placeholder={`e.g. John`}
+                                    className="h-8 text-sm"
+                                    required
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 {/* Footer */}

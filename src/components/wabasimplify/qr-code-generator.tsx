@@ -20,6 +20,7 @@ import type { User, Tag } from '@/lib/definitions';
 import { MultiSelectCombobox } from './multi-select-combobox'; // Assuming this exists from previous file
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { downloadQrCode } from '@/lib/qr-utils';
 
 const DATA_TYPES = [
     { value: 'url', label: 'Website', icon: LinkIcon },
@@ -91,45 +92,18 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
         }
     };
 
-    const handleDownload = (format: 'png' | 'svg') => {
+    const handleDownload = async (format: 'png' | 'svg') => {
         const svg = qrWrapperRef.current?.querySelector('svg');
         if (!svg) return;
 
-        if (format === 'svg') {
-            const svgData = new XMLSerializer().serializeToString(svg);
-            const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `qrcode-${name || 'untitled'}.svg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } else {
-            const svgData = new XMLSerializer().serializeToString(svg);
-            const canvas = document.createElement("canvas");
-            const scale = 5; // High res
-            const svgSize = svg.getBoundingClientRect();
-            canvas.width = svgSize.width * scale;
-            canvas.height = svgSize.height * scale;
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return;
-
-            const img = new Image();
-            img.onload = () => {
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                const pngUrl = canvas.toDataURL("image/png");
-                const link = document.createElement("a");
-                link.href = pngUrl;
-                link.download = `qrcode-${name || 'untitled'}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            };
-            img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
-        }
+        // Use shared utility
+        await downloadQrCode(svg, {
+            filename: `qrcode-${name || 'untitled'}`,
+            format,
+            bgColor,
+            logoDataUri,
+            size: 256 // Matches the visual size logic mostly, will be scaled up by utility
+        });
     };
 
     const handleSave = async () => {

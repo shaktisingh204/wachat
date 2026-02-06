@@ -289,7 +289,8 @@ export async function handleCreateTemplate(
 
         const validationResult = createTemplateSchema.safeParse(validationData);
         if (!validationResult.success) {
-            return { error: validationResult.error.errors.map(e => e.message).join('\n') };
+            console.error("Zod Validation Error:", JSON.stringify(validationResult.error.format(), null, 2));
+            return { error: validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ') };
         }
 
         const { wabaId, accessToken } = project;
@@ -340,7 +341,7 @@ export async function handleCreateTemplate(
                 // Handle Carousel Body Variables
                 const bodyVarMatches = card.body.match(/{{\s*(\d+)\s*}}/g);
                 if (bodyVarMatches) {
-                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a, b) => a - b);
+                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a: number, b: number) => a - b);
                     const bodyExamples = [];
                     for (const varNum of bodyVarNumbers) {
                         const exVal = card.exampleValues?.[String(varNum)];
