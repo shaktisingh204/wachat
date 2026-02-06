@@ -106,12 +106,18 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
                     </Select>
                 );
             case 'project-selector': {
-                const projectOptions = input.appType === 'facebook' ? dataOptions.facebookProjects : dataOptions.projects;
+                let projectOptions = dataOptions.projects;
+                let connectUrl = '/dashboard';
+
+                if (input.appType === 'facebook') {
+                    projectOptions = dataOptions.facebookProjects;
+                    connectUrl = '/dashboard/facebook/all-projects';
+                } else if (input.appType === 'wachat') {
+                    projectOptions = dataOptions.wachatProjects;
+                    connectUrl = '/dashboard/settings';
+                }
+
                 const isEmpty = !projectOptions || projectOptions.length === 0;
-                // Determine target URL based on appType
-                const connectUrl = input.appType === 'facebook'
-                    ? '/dashboard/facebook/all-projects'
-                    : '/dashboard';
 
                 return (
                     <div className="space-y-2">

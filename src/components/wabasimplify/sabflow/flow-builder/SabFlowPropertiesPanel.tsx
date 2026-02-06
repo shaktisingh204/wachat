@@ -70,7 +70,8 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
     const { getNodes, getEdges } = useReactFlow();
 
     const [dynamicData, setDynamicData] = useState<any>({
-        projects: wachatProjects.map(p => ({ value: p._id, label: p.name })),
+        projects: projects.map(p => ({ value: p._id, label: p.name })), // Default to ALL projects
+        wachatProjects: wachatProjects.map(p => ({ value: p._id, label: p.name })),
         facebookProjects: facebookProjects.map(p => ({ value: p._id, label: p.name })),
         agents: [],
         sabChatSessions: [],

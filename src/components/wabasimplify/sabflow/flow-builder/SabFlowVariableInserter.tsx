@@ -33,13 +33,14 @@ export function SabFlowVariableInserter({ onInsert, availableVariables, classNam
     }, {} as Record<string, SabFlowVariable[]>);
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen} modal={true}>
             <PopoverTrigger asChild>
                 <Button
                     variant="ghost"
                     size="icon"
-                    className={cn("h-6 w-6 text-muted-foreground hover:text-primary transition-colors", className)}
+                    className={cn("h-6 w-6 text-muted-foreground hover:text-primary transition-colors cursor-pointer z-50", className)}
                     title="Insert Variable"
+                    type="button" // explicit type to prevent form submission
                 >
                     <Sparkles className="h-3.5 w-3.5" />
                     <span className="sr-only">Insert Variable</span>
