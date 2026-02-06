@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { LoaderCircle, FileUp, Plus, Trash2, Copy, Save, ShoppingBag, LayoutGrid, MessageSquare } from 'lucide-react';
 import { handleCreateTemplate, saveLibraryTemplate, handleBulkCreateTemplate } from '@/app/actions/template.actions';
 import { getTemplateCategories } from '@/app/actions/plan.actions';
-import { getOwnedCatalogs, type Catalog } from '@/app/actions/catalog.actions';
+import { getCatalogs, type Catalog } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, Template, CreateTemplateState } from '@/lib/definitions';
@@ -199,7 +199,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
     if (project && !isAdminForm && !isBulkForm) {
       // Load catalogs for product picker
-      getOwnedCatalogs(project._id.toString()).then(res => {
+      getCatalogs(project._id.toString()).then(res => {
         if (res.catalogs) setCatalogs(res.catalogs);
       });
     }

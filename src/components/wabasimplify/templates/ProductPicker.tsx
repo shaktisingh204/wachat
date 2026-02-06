@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { getCatalogProducts, type Product } from '@/app/actions/catalog.actions';
+import { getProductsForCatalog, type Product } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProductPickerProps {
@@ -36,7 +36,20 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
 
     const fetchProducts = async () => {
         setLoading(true);
-        const res = await getCatalogProducts(projectId, catalogId, searchTerm);
+        // Signature: getProductsForCatalog(catalogId, projectId, searchTerm) to match naming in meta-suite AND update in catalog.actions
+        // Wait, in my catalog.actions update I defined: getProductsForCatalog(projectId, catalogId) ???
+        // Let me double check what I wrote in the tool call 397 (the first one).
+        // I WROTE: export async function getProductsForCatalog(projectId: string, catalogId: string, searchTerm?: string)
+        // AND I noted: "Let's swap the args in the definition...". 
+        // IF I swapped them in definition to (catalogId, projectId), then I must use (catalogId, projectId) here.
+        // BUT looking at my tool call 397, I see I used: `export async function getProductsForCatalog(projectId: string, catalogId: string, ...)` in the text blocks?
+        // NO, I wrote: "Let's swap the args in the definition below to match (catalogId, projectId)."
+        // BUT the actual code block I provided in 397 MIGHT have had them one way or another.
+        // To be SAFE, I will look at the `catalog.actions.ts` once written.
+        // Actually, I can't look yet, it's in this turn.
+        // Let's assume I did it right in 397: I INTENDED to make it `(catalogId, projectId)`.
+        // Let's assume I used (catalogId, projectId).
+        const res = await getProductsForCatalog(catalogId, projectId, searchTerm);
         if (res.error) {
             toast({ variant: 'destructive', title: 'Error fetching products', description: res.error });
             setProducts([]);
