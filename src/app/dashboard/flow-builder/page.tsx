@@ -121,6 +121,7 @@ export default function FlowBuilderListPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-[300px]">Flow Name</TableHead>
+                                    <TableHead>Status</TableHead>
                                     <TableHead>Trigger Keywords</TableHead>
                                     <TableHead>Last Updated</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
@@ -131,6 +132,7 @@ export default function FlowBuilderListPage() {
                                     [...Array(5)].map((_, i) => (
                                         <TableRow key={i}>
                                             <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                            <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                                             <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                                             <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                             <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
@@ -143,6 +145,11 @@ export default function FlowBuilderListPage() {
                                                 <Link href={`/dashboard/flow-builder/${flow._id.toString()}`} className="hover:underline">
                                                     {flow.name}
                                                 </Link>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant={(flow.status === 'PAUSED') ? 'outline' : 'default'} className={(flow.status === 'PAUSED') ? 'text-amber-500 border-amber-500' : 'bg-green-500 hover:bg-green-600'}>
+                                                    {flow.status || 'ACTIVE'}
+                                                </Badge>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-wrap gap-1">

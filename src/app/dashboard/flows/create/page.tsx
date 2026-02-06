@@ -21,7 +21,7 @@ import { Project } from '@/lib/definitions';
 import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
 import { WithId } from 'mongodb';
 
-const createFlowInitialState = { message: null, error: null, payload: null, debugInfo: null };
+const createFlowInitialState = { message: undefined, error: undefined, payload: undefined, debugInfo: undefined };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
@@ -74,6 +74,13 @@ function CreateMetaFlowPageContent() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [showFlowsDialog, setShowFlowsDialog] = useState(false);
 
+    const refreshProject = async () => {
+        if (!projectId) return;
+        const p = await getProjectById(projectId);
+        // @ts-ignore
+        if (p) setProject(p);
+    };
+
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
@@ -113,7 +120,12 @@ function CreateMetaFlowPageContent() {
         if (state.error) {
             // Check for WhatsApp Flows Encryption Error (139002)
             if (state.error.includes('139002') || (state.error.includes('flows') && state.error.includes('public key'))) {
-                setShowFlowsDialog(true);
+                const isUploaded = project?.phoneNumbers?.[0]?.flowsEncryptionConfig?.metaStatus === 'UPLOADED';
+                if (isUploaded) {
+                    toast({ title: 'Encryption Key Uploaded', description: 'Meta is still propagating the key. Please wait 1-2 minutes and try again.', duration: 5000 });
+                } else {
+                    setShowFlowsDialog(true);
+                }
             } else {
                 toast({ title: 'Error', description: state.error, variant: 'destructive' });
             }
@@ -186,6 +198,10 @@ function CreateMetaFlowPageContent() {
                     open={showFlowsDialog}
                     onOpenChange={setShowFlowsDialog}
                     trigger={<></>}
+                    onSuccess={() => {
+                        refreshProject();
+                        setShowFlowsDialog(false);
+                    }}
                 />
             )}
         </Suspense >

@@ -18,7 +18,7 @@ export async function getFlowsForProject(projectId: string): Promise<WithId<Flow
         const { db } = await connectToDatabase();
         const flows = await db.collection<Flow>('flows')
             .find({ projectId: new ObjectId(projectId) })
-            .project({ name: 1, triggerKeywords: 1, updatedAt: 1 })
+            .project({ name: 1, triggerKeywords: 1, updatedAt: 1, status: 1 })
             .sort({ updatedAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(flows));

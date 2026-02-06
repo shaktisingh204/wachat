@@ -1,5 +1,7 @@
 'use server';
 
+export const dynamic = 'force-dynamic';
+
 import { getAutoLeadRules, saveAutoLeadRule, deleteAutoLeadRule } from '@/app/actions/crm-auto-leads.actions';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

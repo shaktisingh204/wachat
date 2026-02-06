@@ -1,5 +1,7 @@
 'use server';
 
+export const dynamic = 'force-dynamic';
+
 import { getCrmAppraisalReviews } from '@/app/actions/crm-hr-appraisals.actions';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';

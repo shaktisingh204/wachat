@@ -4,20 +4,21 @@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Zap, GitFork, Plus, LoaderCircle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useEffect, useState, useTransition } from "react";
 import { getSabFlows, deleteSabFlow } from "@/app/actions/sabflow.actions";
 import type { WithId, SabFlow } from "@/lib/definitions";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
@@ -44,7 +45,7 @@ function DeleteFlowButton({ flow, onDeleted }: { flow: WithId<SabFlow>, onDelete
         <AlertDialog>
             <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" disabled={isPending}>
-                    {isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}
+                    {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-destructive" />}
                 </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -77,7 +78,7 @@ export default function SabFlowBuilderPage() {
     }, []);
 
     if (isLoading && flows.length === 0) {
-        return <div className="text-center p-8"><LoaderCircle className="h-8 w-8 animate-spin mx-auto"/></div>
+        return <div className="text-center p-8"><LoaderCircle className="h-8 w-8 animate-spin mx-auto" /></div>
     }
 
     if (flows.length === 0) {
@@ -86,20 +87,20 @@ export default function SabFlowBuilderPage() {
                 <Card className="text-center max-w-2xl animate-fade-in-up">
                     <CardHeader>
                         <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                             <GitFork className="h-12 w-12 text-primary" />
+                            <GitFork className="h-12 w-12 text-primary" />
                         </div>
                         <CardTitle className="mt-4 text-2xl">Create Your First SabFlow</CardTitle>
                         <CardDescription>
                             Automate tasks by connecting your favorite apps.
                         </CardDescription>
                     </CardHeader>
-                     <CardContent>
+                    <CardContent>
                         <p className="text-muted-foreground">
                             Start by creating a new workflow.
                         </p>
                     </CardContent>
                     <CardFooter className="justify-center">
-                         <CreateSabFlowDialog onSuccess={fetchData} />
+                        <CreateSabFlowDialog onSuccess={fetchData} />
                     </CardFooter>
                 </Card>
             </div>
@@ -112,11 +113,12 @@ export default function SabFlowBuilderPage() {
                 <h2 className="text-2xl font-bold">Your Flows</h2>
                 <CreateSabFlowDialog onSuccess={fetchData} />
             </div>
-             <div className="border rounded-md">
+            <div className="border rounded-md">
                 <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Flow Name</TableHead>
+                            <TableHead>Status</TableHead>
                             <TableHead>Trigger</TableHead>
                             <TableHead>Last Updated</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
@@ -126,6 +128,11 @@ export default function SabFlowBuilderPage() {
                         {flows.map(flow => (
                             <TableRow key={flow._id.toString()}>
                                 <TableCell className="font-medium">{flow.name}</TableCell>
+                                <TableCell>
+                                    <Badge variant={(flow.status === 'PAUSED') ? 'outline' : 'default'} className={(flow.status === 'PAUSED') ? 'text-amber-500 border-amber-500' : 'bg-green-500 hover:bg-green-600'}>
+                                        {flow.status || 'ACTIVE'}
+                                    </Badge>
+                                </TableCell>
                                 <TableCell>{flow.trigger?.type || 'Manual'}</TableCell>
                                 <TableCell>{format(new Date(flow.updatedAt), 'PPP')}</TableCell>
                                 <TableCell className="text-right">

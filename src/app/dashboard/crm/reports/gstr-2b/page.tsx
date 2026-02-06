@@ -1,5 +1,7 @@
 'use server';
 
+export const dynamic = 'force-dynamic';
+
 import { getPurchaseOrders } from '@/app/actions/crm-purchase-orders.actions';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';

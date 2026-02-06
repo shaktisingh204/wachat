@@ -1,6 +1,8 @@
 
 'use server';
 
+export const dynamic = 'force-dynamic';
+
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Zap, Mail, Bot, ShoppingCart, CheckCircle, MessageSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";

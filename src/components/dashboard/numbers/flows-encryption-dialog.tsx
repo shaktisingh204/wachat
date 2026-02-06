@@ -24,9 +24,10 @@ interface FlowsEncryptionDialogProps {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     trigger?: React.ReactNode;
+    onSuccess?: () => void;
 }
 
-export function FlowsEncryptionDialog({ project, phone, trigger, open: controlledOpen, onOpenChange: setControlledOpen }: FlowsEncryptionDialogProps) {
+export function FlowsEncryptionDialog({ project, phone, trigger, open: controlledOpen, onOpenChange: setControlledOpen, onSuccess }: FlowsEncryptionDialogProps) {
     const [internalOpen, setInternalOpen] = useState(false);
     const isControlled = controlledOpen !== undefined;
     const open = isControlled ? controlledOpen : internalOpen;
@@ -55,6 +56,7 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
             const result = await uploadPublicKeyToMeta(project._id.toString(), phone.id);
             if (result.success) {
                 toast({ title: "Success", description: result.message });
+                if (onSuccess) onSuccess();
             } else {
                 toast({ title: "Upload Failed", description: result.error, variant: "destructive" });
             }

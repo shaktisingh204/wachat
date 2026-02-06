@@ -199,7 +199,7 @@ export async function getSabFlows(): Promise<WithId<SabFlow>[]> {
         const { db } = await connectToDatabase();
         const flows = await db.collection<SabFlow>('sabflows')
             .find({ userId: new ObjectId(session.user._id) })
-            .project({ name: 1, trigger: 1, updatedAt: 1 })
+            .project({ name: 1, trigger: 1, updatedAt: 1, status: 1 })
             .sort({ updatedAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(flows));

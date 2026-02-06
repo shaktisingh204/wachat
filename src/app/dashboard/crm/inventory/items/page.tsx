@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";

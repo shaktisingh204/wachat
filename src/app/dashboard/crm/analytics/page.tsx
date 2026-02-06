@@ -1,5 +1,7 @@
 'use server';
 
+export const dynamic = 'force-dynamic';
+
 import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
 import { BarChart } from 'lucide-react';

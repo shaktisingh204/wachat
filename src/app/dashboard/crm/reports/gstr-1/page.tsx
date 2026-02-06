@@ -1,5 +1,7 @@
 'use server';
 
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from 'react';
 import { getInvoices } from '@/app/actions/crm-invoices.actions';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
