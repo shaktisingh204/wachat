@@ -15,6 +15,7 @@ import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNo
 import { getErrorMessage } from './utils';
 import { processFacebookComment } from '@/ai/flows/facebook-comment-flow';
 import { handlePaymentRequest } from '@/app/actions/integrations.actions';
+import { executeDelayAction } from '@/lib/sabflow/actions/core/logic';
 
 const BATCH_SIZE = 1000;
 const API_VERSION = 'v23.0';
@@ -641,8 +642,17 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
 
         case 'delay': {
             const showTyping = node.data.showTyping === true;
-            const delayMs = (node.data.delaySeconds || 1) * 1000;
-            logger.log(`Delaying for ${delayMs}ms.`, { showTyping });
+
+            // Resolve value from inputs (new) or fallback to data.delaySeconds (legacy)
+            const rawValue = node.data.inputs?.value !== undefined ? node.data.inputs.value : (node.data.delaySeconds || 1);
+            const unit = node.data.inputs?.unit || 'seconds';
+
+            // Interpolate the value in case it's a variable "{{var}}"
+            const interpolatedValue = interpolate(String(rawValue), contact.activeFlow.variables);
+
+            // Calculate formatted delay for logging (approximate)
+            logger.log(`Delay Node: Value="${interpolatedValue}" Unit="${unit}" (Typing: ${showTyping})`);
+
             if (showTyping) {
                 try {
                     axios.post(
@@ -654,7 +664,12 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                     logger.log("Flow: Error constructing typing indicator request.", { error: e.message });
                 }
             }
-            if (delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs));
+
+            // Execute the delay using the core logic action
+            // logic.ts handles the unit conversion and wait
+            const delayInputs = { value: interpolatedValue, unit: unit };
+            await executeDelayAction('waitFor', delayInputs);
+
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
@@ -976,6 +991,14 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
             return { handled: false };
         }
 
+        if (flow.status === 'PAUSED') {
+            const logger = new FlowLogger(db, flow, currentContact);
+            logger.log("Flow execution stopped because flow is PAUSED.");
+            await logger.save();
+            await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { activeFlow: "" } });
+            return { handled: true, flowStatus: 'finished' };
+        }
+
         const logger = new FlowLogger(db, flow, currentContact);
         logger.log("Continuing existing flow execution.");
 
@@ -1041,7 +1064,8 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
 
     const flows = await db.collection<Flow>('flows').find({
         projectId: project._id,
-        triggerKeywords: { $exists: true, $ne: [] }
+        triggerKeywords: { $exists: true, $ne: [] },
+        status: { $ne: 'PAUSED' }
     }).toArray();
 
     const triggeredFlows = flows.filter(flow =>
@@ -1739,7 +1763,8 @@ export async function handleEcommFlowLogic(db: Db, project: WithId<Project>, con
 
     const flows = await db.collection<EcommFlow>('ecomm_flows').find({
         projectId: project._id,
-        triggerKeywords: { $exists: true, $ne: [] }
+        triggerKeywords: { $exists: true, $ne: [] },
+        status: { $ne: 'PAUSED' }
     }).toArray();
 
     const triggeredFlow = flows.find(flow =>

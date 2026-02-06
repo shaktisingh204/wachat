@@ -36,6 +36,8 @@ import { SabFlowPropertiesPanel } from '@/components/wabasimplify/sabflow/flow-b
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { validateFlow } from '@/lib/sabflow/validation';
 
@@ -207,6 +209,7 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
             formData.append('nodes', JSON.stringify(flowData.nodes));
             formData.append('edges', JSON.stringify(flowData.edges));
             formData.append('trigger', JSON.stringify(flowData.trigger));
+            formData.append('status', currentFlow?.status || 'ACTIVE');
 
             const result = await saveSabFlow({ message: null, error: null }, formData);
 
@@ -270,13 +273,22 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
                         placeholder="Flow Name"
                     />
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" asChild>
                         <Link href="/dashboard/sabflow/docs" target="_blank">
                             <BookOpen className="mr-2 h-4 w-4" />
                             Docs
                         </Link>
                     </Button>
+                    <div className="flex items-center gap-2 border px-3 py-1.5 rounded-md bg-muted/50">
+                        <span className={cn("text-xs font-medium uppercase tracking-wider", currentFlow?.status === 'PAUSED' ? "text-amber-500" : "text-green-500")}>
+                            {currentFlow?.status === 'PAUSED' ? 'Paused' : 'Active'}
+                        </span>
+                        <Switch
+                            checked={currentFlow?.status !== 'PAUSED'}
+                            onCheckedChange={(checked) => setCurrentFlow({ ...currentFlow, status: checked ? 'ACTIVE' : 'PAUSED' })}
+                        />
+                    </div>
                     <Button size="sm" onClick={handleSave} disabled={isSaving}>
                         {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Flow

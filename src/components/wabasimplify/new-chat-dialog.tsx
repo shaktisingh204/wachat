@@ -76,13 +76,14 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
               <div className="space-y-2">
                 <Label>Phone Number</Label>
                 <div className="flex gap-2">
-                  <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                  <Popover open={openCombobox} onOpenChange={setOpenCombobox} modal={true}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         role="combobox"
                         aria-expanded={openCombobox}
                         className="w-[140px] justify-between"
+                        type="button"
                       >
                         {selectedCountry ? `+${selectedCountry.code}` : "Select..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

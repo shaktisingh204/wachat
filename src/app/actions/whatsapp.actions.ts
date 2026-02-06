@@ -434,6 +434,8 @@ export async function handleSendMessage(
             messagePayload.text = { body: messageText, preview_url: true };
         }
 
+        console.log('Sending WhatsApp Message Payload:', JSON.stringify(messagePayload, null, 2));
+
         const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
@@ -453,6 +455,9 @@ export async function handleSendMessage(
 
     } catch (e: any) {
         console.error('Failed to send message:', getErrorMessage(e));
+        if (e.response && e.response.data) {
+            console.error('Meta API Error Details:', JSON.stringify(e.response.data, null, 2));
+        }
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }

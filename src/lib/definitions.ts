@@ -1490,6 +1490,7 @@ export type Flow = {
     nodes: FlowNode[];
     edges: FlowEdge[];
     triggerKeywords: string[];
+    status?: 'ACTIVE' | 'PAUSED' | 'ARCHIVED'; // Default is ACTIVE
     createdAt: Date;
     updatedAt: Date;
 };
@@ -1510,11 +1511,13 @@ export type SabFlowEdge = {
 };
 
 export type SabFlow = {
-    name: string;
+    _id: ObjectId;
     userId: ObjectId;
+    name: string;
+    trigger: any;
     nodes: SabFlowNode[];
     edges: SabFlowEdge[];
-    trigger: any;
+    status?: 'ACTIVE' | 'PAUSED' | 'ARCHIVED'; // Default is ACTIVE
     createdAt: Date;
     updatedAt: Date;
 };

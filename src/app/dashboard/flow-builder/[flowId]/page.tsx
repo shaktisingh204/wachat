@@ -39,6 +39,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 import { Label } from "@/components/ui/label";
 
 const nodeTypes = {
@@ -207,6 +209,7 @@ const FlowBuilder = ({ flowId }: { flowId: string }) => {
                 nodes: nodes as any,
                 edges: edges as any,
                 triggerKeywords,
+                status: currentFlow?.status || 'ACTIVE'
             };
 
             const result = await saveFlow(flowData);
@@ -276,13 +279,24 @@ const FlowBuilder = ({ flowId }: { flowId: string }) => {
                         placeholder="Flow Name"
                     />
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" asChild>
                         <Link href="/dashboard/flow-builder/docs" target="_blank">
                             <BookOpen className="mr-2 h-4 w-4" />
                             Docs
                         </Link>
                     </Button>
+                    {currentFlow && (
+                        <div className="flex items-center gap-2 border px-3 py-1.5 rounded-md bg-muted/50">
+                            <span className={cn("text-xs font-medium uppercase tracking-wider", currentFlow.status === 'PAUSED' ? "text-amber-500" : "text-green-500")}>
+                                {currentFlow.status === 'PAUSED' ? 'Paused' : 'Active'}
+                            </span>
+                            <Switch
+                                checked={currentFlow.status !== 'PAUSED'}
+                                onCheckedChange={(checked) => setCurrentFlow({ ...currentFlow, status: checked ? 'ACTIVE' : 'PAUSED' })}
+                            />
+                        </div>
+                    )}
                     <Button size="sm" onClick={handleSave} disabled={isSaving}>
                         {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Flow

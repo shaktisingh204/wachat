@@ -16,14 +16,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LoaderCircle, FileUp } from 'lucide-react';
+import { LoaderCircle, FileUp, AlertCircle } from 'lucide-react';
 import { handleCreatePaymentConfiguration } from '@/app/actions/whatsapp-pay.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import Link from 'next/link';
 import { ScrollArea } from '../ui/scroll-area';
 
-const initialState = { message: null, error: undefined, oauth_url: undefined };
+
+type State = {
+  message?: string | null;
+  error?: string;
+  oauth_url?: string | null;
+};
+
+const initialState: State = { message: null, error: undefined, oauth_url: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -41,7 +48,8 @@ interface CreatePaymentConfigDialogProps {
 }
 
 export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: CreatePaymentConfigDialogProps) {
-  const [state, formAction] = useActionState(handleCreatePaymentConfiguration, initialState);
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const [state, formAction] = useActionState(handleCreatePaymentConfiguration as any, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [providerType, setProviderType] = useState('gateway');
@@ -52,88 +60,92 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
       onSuccess();
       onOpenChange(false);
     }
-    if (state.error) {
-      toast({ title: 'Error Creating Configuration', description: state.error, variant: 'destructive' });
-    }
+    // Removed the error toast to prevent loop and because we show it inline now.
   }, [state, toast, onSuccess, onOpenChange]);
 
   const handleOpenChange = (open: boolean) => {
-      if(!open) {
-          formRef.current?.reset();
-          setProviderType('gateway');
-      }
-      onOpenChange(open);
+    if (!open) {
+      formRef.current?.reset();
+      setProviderType('gateway');
+    }
+    onOpenChange(open);
   }
 
   if (state.oauth_url) {
-      return (
-          <DialogContent>
-              <DialogHeader>
-                  <DialogTitle>Complete Onboarding</DialogTitle>
-                  <DialogDescription>
-                      Your payment configuration has been created. Please complete the setup with your payment provider.
-                  </DialogDescription>
-              </DialogHeader>
-              <Alert>
-                  <AlertTitle>Action Required</AlertTitle>
-                  <AlertDescription>
-                      Click the button below to go to the provider's site and authorize the connection.
-                  </AlertDescription>
-              </Alert>
-              <DialogFooter>
-                   <Button asChild>
-                        <a href={state.oauth_url} target="_blank" rel="noopener noreferrer" onClick={() => handleOpenChange(false)}>
-                            Complete Onboarding
-                        </a>
-                    </Button>
-              </DialogFooter>
-          </DialogContent>
-      )
+    return (
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Complete Onboarding</DialogTitle>
+          <DialogDescription>
+            Your payment configuration has been created. Please complete the setup with your payment provider.
+          </DialogDescription>
+        </DialogHeader>
+        <Alert>
+          <AlertTitle>Action Required</AlertTitle>
+          <AlertDescription>
+            Click the button below to go to the provider's site and authorize the connection.
+          </AlertDescription>
+        </Alert>
+        <DialogFooter>
+          <Button asChild>
+            <a href={state.oauth_url} target="_blank" rel="noopener noreferrer" onClick={() => handleOpenChange(false)}>
+              Complete Onboarding
+            </a>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    )
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-            <input type="hidden" name="projectId" value={typeof window !== 'undefined' ? localStorage.getItem('activeProjectId') || '' : ''} />
+          <input type="hidden" name="projectId" value={typeof window !== 'undefined' ? localStorage.getItem('activeProjectId') || '' : ''} />
           <DialogHeader>
             <DialogTitle>Create Payment Configuration</DialogTitle>
             <DialogDescription>
               This information should match the details in your Meta Commerce Manager account.
             </DialogDescription>
           </DialogHeader>
+          {state.error && (
+            <Alert variant="destructive" className="mx-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{state.error}</AlertDescription>
+            </Alert>
+          )}
           <ScrollArea className="max-h-[60vh] -mx-6 my-4 px-6">
             <div className="grid gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="configuration_name">Configuration Name</Label>
                 <Input id="configuration_name" name="configuration_name" placeholder="e.g., my-razorpay-setup" required />
               </div>
-               <div className="space-y-2">
+              <div className="space-y-2">
                 <Label htmlFor="provider_name">Provider</Label>
                 <Select name="provider_name" onValueChange={setProviderType} defaultValue="gateway" required>
-                  <SelectTrigger><SelectValue placeholder="Select provider type..."/></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select provider type..." /></SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="razorpay">Razorpay</SelectItem>
-                      <SelectItem value="payu">PayU</SelectItem>
-                      <SelectItem value="zaakpay">Zaakpay</SelectItem>
-                      <SelectItem value="upi_vpa">UPI VPA</SelectItem>
+                    <SelectItem value="razorpay">Razorpay</SelectItem>
+                    <SelectItem value="payu">PayU</SelectItem>
+                    <SelectItem value="zaakpay">Zaakpay</SelectItem>
+                    <SelectItem value="upi_vpa">UPI VPA</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               {providerType !== 'upi_vpa' ? (
-                  <>
-                      <div className="space-y-2">
-                          <Label htmlFor="redirect_url">Redirect URL</Label>
-                          <Input id="redirect_url" name="redirect_url" type="url" placeholder="https://your-site.com/payment/callback" required />
-                      </div>
-                  </>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="redirect_url">Redirect URL</Label>
+                    <Input id="redirect_url" name="redirect_url" type="url" placeholder="https://your-site.com/payment/callback" required />
+                  </div>
+                </>
               ) : (
-                  <>
-                       <div className="space-y-2">
-                          <Label htmlFor="merchant_vpa">Merchant VPA</Label>
-                          <Input id="merchant_vpa" name="merchant_vpa" placeholder="your-business@okhdfcbank" required />
-                      </div>
-                  </>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="merchant_vpa">Merchant VPA</Label>
+                    <Input id="merchant_vpa" name="merchant_vpa" placeholder="your-business@okhdfcbank" required />
+                  </div>
+                </>
               )}
               <div className="space-y-2">
                 <Label htmlFor="purpose_code">Purpose Code</Label>

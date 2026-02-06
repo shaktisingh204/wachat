@@ -3,6 +3,8 @@
 
 import Split from "react-split";
 import { MetaFlowNavigator } from "./meta-flow-navigator";
+import { Button } from "@/components/ui/button";
+import { Plus, Layers } from "lucide-react";
 import { MetaFlowProperties } from "./meta-flow-properties";
 import { MetaFlowCanvas } from "./meta-flow-canvas";
 import { useState } from "react";
@@ -296,55 +298,73 @@ export function MetaFlowBuilderLayout({
                 }
             `}</style>
 
-            <Split
-                className="flex h-full"
-                sizes={[20, 50, 30]}
-                minSize={200}
-                expandToMin={false}
-                gutterSize={6}
-                gutterAlign="center"
-                snapOffset={30}
-                dragInterval={1}
-                direction="horizontal"
-                cursor="col-resize"
-            >
-                {/* Left Pane (Navigator) */}
-                <div className="h-full overflow-hidden bg-background">
-                    <MetaFlowNavigator
-                        screens={flowData.screens || []}
-                        selectedScreenId={selectedScreenId}
-                        onSelectScreen={(id) => { setSelectedScreenId(id); setSelectedComponent(null); }}
-                        onAddScreen={handleAddScreen}
-                        onDeleteScreen={handleDeleteScreen}
-                        selectedComponent={selectedComponent}
-                        onSelectComponent={setSelectedComponent}
-                        onDeleteComponent={handleDeleteComponent}
-                        onAddComponent={handleAddComponent}
-                    />
+            {(!flowData.screens || flowData.screens.length === 0) ? (
+                <div className="flex flex-col items-center justify-center h-full bg-muted/20">
+                    <div className="text-center space-y-4">
+                        <div className="p-4 bg-background rounded-full shadow-sm inline-block mb-4">
+                            <Layers className="h-10 w-10 text-primary" />
+                        </div>
+                        <h2 className="text-2xl font-bold">Start building your Flow</h2>
+                        <p className="text-muted-foreground max-w-sm mx-auto">
+                            Add your first screen to get started. Screens are the individual pages of your flow.
+                        </p>
+                        <Button size="lg" onClick={handleAddScreen} className="mt-4">
+                            <Plus className="mr-2 h-5 w-5" />
+                            Add Screen
+                        </Button>
+                    </div>
                 </div>
+            ) : (
+                <Split
+                    className="flex h-full"
+                    sizes={[20, 50, 30]}
+                    minSize={200}
+                    expandToMin={false}
+                    gutterSize={6}
+                    gutterAlign="center"
+                    snapOffset={30}
+                    dragInterval={1}
+                    direction="horizontal"
+                    cursor="col-resize"
+                >
+                    {/* Left Pane (Navigator) */}
+                    <div className="h-full overflow-hidden bg-background">
+                        <MetaFlowNavigator
+                            screens={flowData.screens || []}
+                            selectedScreenId={selectedScreenId}
+                            onSelectScreen={(id) => { setSelectedScreenId(id); setSelectedComponent(null); }}
+                            onAddScreen={handleAddScreen}
+                            onDeleteScreen={handleDeleteScreen}
+                            selectedComponent={selectedComponent}
+                            onSelectComponent={setSelectedComponent}
+                            onDeleteComponent={handleDeleteComponent}
+                            onAddComponent={handleAddComponent}
+                        />
+                    </div>
 
-                {/* Center Pane (Canvas) */}
-                <div className="h-full bg-background overflow-hidden border-l border-r relative">
-                    <MetaFlowCanvas
-                        flowData={flowData}
-                        setFlowData={setFlowData}
-                        selectedScreenId={selectedScreenId}
-                    />
-                </div>
+                    {/* Center Pane (Canvas) */}
+                    <div className="h-full bg-background overflow-hidden border-l border-r relative">
+                        <MetaFlowCanvas
+                            flowData={flowData}
+                            setFlowData={setFlowData}
+                            selectedScreenId={selectedScreenId}
+                        />
+                    </div>
 
-                {/* Right Pane (Properties) */}
-                <div className="h-full bg-background overflow-hidden relative">
-                    <MetaFlowProperties
-                        selectedScreen={currentScreen}
-                        onUpdateScreen={handleUpdateScreen}
-                        onDeleteScreen={handleDeleteScreen}
-                        selectedComponent={selectedComponent}
-                        onUpdateComponent={handleUpdateComponent}
-                        onDeleteComponent={handleDeleteComponent}
-                        allScreens={flowData.screens || []}
-                    />
-                </div>
-            </Split>
+                    {/* Right Pane (Properties) */}
+                    <div className="h-full bg-background overflow-hidden relative">
+                        <MetaFlowProperties
+                            selectedScreen={currentScreen}
+                            onUpdateScreen={handleUpdateScreen}
+                            onDeleteScreen={handleDeleteScreen}
+                            selectedComponent={selectedComponent}
+                            onUpdateComponent={handleUpdateComponent}
+                            onDeleteComponent={handleDeleteComponent}
+                            allScreens={flowData.screens || []}
+                        />
+                    </div>
+                </Split>
+            )}
         </div>
     );
 }

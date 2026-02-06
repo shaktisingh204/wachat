@@ -73,9 +73,9 @@ export async function uploadPublicKeyToMeta(projectId: string, phoneNumberId: st
         const formattedPublicKey = formatPublicKeyForMeta(config.publicKey);
 
         // Upload to Meta
-        const url = `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_flows_public_key`;
+        const url = `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_business_encryption`;
         await axios.post(url, {
-            public_key: formattedPublicKey
+            business_public_key: formattedPublicKey
         }, {
             headers: {
                 'Authorization': `Bearer ${project.accessToken}`,

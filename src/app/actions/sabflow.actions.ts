@@ -141,6 +141,11 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         return { error: `Flow has no trigger node.` };
     }
 
+    if (flow.status === 'PAUSED') {
+        logger.log(`Flow execution skipped because status is PAUSED.`);
+        return { success: false, message: 'Flow is paused.' };
+    }
+
     const executionResult = await db.collection('sabflow_executions').insertOne({
         flowId: flow._id,
         userId: user._id,
@@ -161,6 +166,11 @@ export async function runSabFlow(flowId: string, triggerPayload: any) {
         const executionDoc = await db.collection('sabflow_executions').findOne({ _id: executionId });
         if (!executionDoc) {
             logger.log("Execution document not found. Terminating.");
+            break;
+        }
+
+        if (executionDoc.status !== 'RUNNING') {
+            logger.log(`Execution status is ${executionDoc.status}. Stopping loop.`);
             break;
         }
 
@@ -234,12 +244,15 @@ export async function saveSabFlow(prevState: any, formData: FormData): Promise<{
 
     const isNew = !flowId || flowId === 'new-flow';
 
+    const status = formData.get('status') as 'ACTIVE' | 'PAUSED' | 'ARCHIVED' | undefined;
+
     const flowData: Omit<SabFlow, '_id' | 'createdAt'> = {
         name,
         userId: new ObjectId(session.user._id),
         trigger,
         nodes,
         edges,
+        status: status || 'ACTIVE',
         updatedAt: new Date(),
     };
 
@@ -275,6 +288,18 @@ export async function deleteSabFlow(flowId: string): Promise<{ message?: string;
     if (!flow) return { error: 'Flow not found or access denied.' };
 
     try {
+        // Stop any running executions
+        await db.collection('sabflow_executions').updateMany(
+            { flowId: new ObjectId(flowId), status: 'RUNNING' },
+            {
+                $set: {
+                    status: 'TERMINATED',
+                    finishedAt: new Date(),
+                    stopReason: 'Flow deleted by user'
+                }
+            }
+        );
+
         await db.collection('sabflows').deleteOne({ _id: new ObjectId(flowId) });
         revalidatePath('/dashboard/sabflow/flow-builder');
         return { message: 'Flow deleted.' };

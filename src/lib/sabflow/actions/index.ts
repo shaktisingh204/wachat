@@ -115,6 +115,12 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'filter':
             return await executeFilterAction(actionName, interpolatedInputs);
         case 'delay':
+            // Backward compatibility for legacy Delay nodes storing data in node.data
+            if ((!interpolatedInputs.value) && node.data.delaySeconds) {
+                interpolatedInputs.value = node.data.delaySeconds;
+                interpolatedInputs.unit = 'seconds';
+                logger.log('Applied backward compatibility for Delay node', { delaySeconds: node.data.delaySeconds });
+            }
             return await executeDelayAction(actionName, interpolatedInputs);
         case 'router':
             return await executeRouterAction(actionName, interpolatedInputs);

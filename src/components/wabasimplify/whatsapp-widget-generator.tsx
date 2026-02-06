@@ -25,7 +25,7 @@ interface WhatsAppWidgetGeneratorProps {
     project: WithId<Project>;
 }
 
-const initialState = { message: null, error: undefined };
+const initialState: { message?: string; error?: string } = { message: undefined, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -156,7 +156,15 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                             <Label>Live Preview</Label>
                             <div className="relative h-[500px] bg-muted rounded-lg overflow-hidden flex items-end" style={{ [settings.position.includes('right') ? 'justifyContent' : '']: settings.position.includes('right') ? 'flex-end' : 'flex-start', padding: '20px' }}>
                                 <div id="sabnode-widget-container-preview" className="static">
-                                    <Button id="sabnode-widget-button-preview" style={{ backgroundColor: settings.buttonColor }} onClick={() => setShowWidget(!showWidget)} className="relative h-16 w-16">
+                                    <Button
+                                        id="sabnode-widget-button-preview"
+                                        style={{ backgroundColor: settings.buttonColor }}
+                                        onClick={() => {
+                                            setShowWidget(!showWidget);
+                                            toast({ title: 'Preview Interaction', description: 'Widget toggled (Live Preview)' });
+                                        }}
+                                        className="relative h-16 w-16"
+                                    >
                                         <WhatsAppIcon className="h-8 w-8" style={{ color: settings.buttonTextColor }} />
                                     </Button>
                                     {showWidget && (
@@ -172,7 +180,11 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                                 <div className="sabnode-welcome-msg" style={{ background: 'white', color: settings.textColor, padding: '12px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>{settings.welcomeMessage}</div>
                                             </div>
                                             <div className="sabnode-chat-footer" style={{ padding: `${settings.padding}px`, background: '#f9f9f9', borderTop: '1px solid #eee' }}>
-                                                <Button className="sabnode-cta-button w-full h-12 rounded-full" style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor }}>
+                                                <Button
+                                                    className="sabnode-cta-button w-full h-12 rounded-full"
+                                                    style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor }}
+                                                    onClick={() => toast({ title: 'Widget Saved', description: 'This is a preview of the success action.' })}
+                                                >
                                                     <WhatsAppIcon className="h-4 w-4 mr-2" />
                                                     {settings.ctaText}
                                                 </Button>

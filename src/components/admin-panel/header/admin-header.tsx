@@ -2,21 +2,9 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { PanelLeft, LogOut, PlusCircle } from 'lucide-react';
-import { useProject } from '@/context/project-context';
-import { appIcons } from '@/config/dashboard-config';
+import { PanelLeft } from 'lucide-react';
 
 interface AdminHeaderProps {
     appRailPosition: 'left' | 'top';
@@ -24,8 +12,6 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
-    const { activeProjectName, sessionUser } = useProject();
-
     return (
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 px-4 bg-transparent backdrop-blur-md">
             <div className="flex items-center gap-2">
@@ -38,75 +24,6 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
                 <Link href="/dashboard" className="hidden font-bold sm:inline-block ml-2 text-lg tracking-tight">
                     SabNode
                 </Link>
-
-                {appRailPosition === 'top' && (
-                    <>
-                        <Separator orientation="vertical" className="h-6 mx-2 hidden md:block" />
-                        <nav className="hidden items-center gap-1 md:flex">
-                            {appIcons.map(app => (
-                                <Button key={app.id} asChild variant={activeApp === app.id ? 'secondary' : 'ghost'} size="sm" className="h-8">
-                                    <Link href={app.href} className="flex items-center gap-2">
-                                        <app.icon className="h-4 w-4" />
-                                        {app.label}
-                                    </Link>
-                                </Button>
-                            ))}
-                        </nav>
-                    </>
-                )}
-            </div>
-
-            <div className="flex items-center gap-3">
-                <div className="font-medium text-sm hidden md:block text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-full border border-white/10">
-                    {activeProjectName}
-                </div>
-
-                <div className="hidden md:flex items-center gap-2 bg-muted/40 px-3 py-1.5 rounded-full border border-white/10">
-                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Credits</span>
-                    <div className="flex items-center gap-3 text-sm font-semibold">
-                        <div title="Broadcast Credits" className="flex items-center gap-1">
-                            <span className="text-blue-500">B:</span> {sessionUser?.credits?.broadcast?.toLocaleString() ?? 0}
-                        </div>
-                        <div title="SMS Credits" className="flex items-center gap-1">
-                            <span className="text-green-500">S:</span> {sessionUser?.credits?.sms?.toLocaleString() ?? 0}
-                        </div>
-                        <div title="Meta Credits" className="flex items-center gap-1">
-                            <span className="text-indigo-500">M:</span> {sessionUser?.credits?.meta?.toLocaleString() ?? 0}
-                        </div>
-                        <div title="Email Credits" className="flex items-center gap-1">
-                            <span className="text-orange-500">E:</span> {sessionUser?.credits?.email?.toLocaleString() ?? 0}
-                        </div>
-                        <Button variant="ghost" size="icon" className="h-5 w-5 ml-1 hover:bg-white/10 rounded-full" asChild>
-                            <Link href="/dashboard/user/billing">
-                                <PlusCircle className="h-3.5 w-3.5 text-primary" />
-                            </Link>
-                        </Button>
-                    </div>
-                </div>
-
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-white/20 hover:ring-white/40 transition-all">
-                            <Avatar>
-                                <AvatarImage src={sessionUser?.image || `https://i.pravatar.cc/150?u=${sessionUser?.email}`} />
-                                <AvatarFallback>{sessionUser?.name?.charAt(0) || 'U'}</AvatarFallback>
-                            </Avatar>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
-                        <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                            <Link href="/api/auth/logout" className="text-red-500 focus:text-red-500">
-                                <LogOut className="mr-2 h-4 w-4" />
-                                Logout
-                            </Link>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
             </div>
         </header>
     );

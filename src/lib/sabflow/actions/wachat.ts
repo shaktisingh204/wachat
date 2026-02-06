@@ -363,6 +363,10 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
         }
     } catch (e: any) {
         logger.log(`Wachat Action Failed: ${e.message}`, { actionName, inputs, error: e.stack });
+        if (e.response && e.response.data) {
+            logger.log('Meta API Error Details (SabFlow):', { errorData: e.response.data });
+            console.error('Meta API Error Details (SabFlow):', JSON.stringify(e.response.data, null, 2));
+        }
         return { error: e.message };
     }
 }

@@ -173,6 +173,8 @@ export async function handleSendTemplateMessage(
             payload.template.components = payloadComponents;
         }
 
+        console.log('Sending Template Payload:', JSON.stringify(payload, null, 2));
+
         const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
@@ -196,6 +198,9 @@ export async function handleSendTemplateMessage(
         revalidatePath('/dashboard/chat');
         return { message: `Template "${template.name}" sent successfully.` };
     } catch (e: any) {
+        if (e.response && e.response.data) {
+            console.error('Meta Template Send Error Details:', JSON.stringify(e.response.data, null, 2));
+        }
         return { error: getErrorMessage(e) || 'An unexpected error occurred while sending the template.' };
     }
 }

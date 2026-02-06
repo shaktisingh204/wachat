@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition, useCallback } from 'react';
 import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
-import { getProjectById } from '@/app/actions/index.ts';
+import { getProjectById } from '@/app/actions/index';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, PlusCircle, Settings, Link as LinkIcon } from 'lucide-react';
@@ -46,7 +46,7 @@ export default function WhatsAppPaySetupPage() {
     const { toast } = useToast();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-    const fetchData = (showToast = false) => {
+    const fetchData = useCallback((showToast = false) => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
             startLoading(async () => {
@@ -64,15 +64,15 @@ export default function WhatsAppPaySetupPage() {
         } else {
             setError("No active project selected.");
         }
-    };
-    
+    }, [toast]);
+
     useEffect(() => {
         fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const commerceManagerUrl = `https://business.facebook.com/commerce/`;
-    
+
     const getStatusVariant = (status: string) => {
         if (!status) return 'outline';
         const lowerStatus = status.toLowerCase();
@@ -94,89 +94,89 @@ export default function WhatsAppPaySetupPage() {
             </Alert>
         );
     }
-    
+
     return (
         <>
-        <CreatePaymentConfigDialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} onSuccess={fetchData} />
-        <div className="space-y-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle>WhatsApp Pay Setup</CardTitle>
-                    <CardDescription>To enable WhatsApp Pay, you need to configure a payment provider (like Stripe or Razorpay) within your Meta Commerce Manager.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ol className="list-decimal list-inside space-y-2">
-                        <li>Navigate to your Meta Commerce Manager.</li>
-                        <li>Go to the **Settings** tab.</li>
-                        <li>Select **Payment Method** and add your preferred payment provider.</li>
-                        <li>Once configured, click "Refresh Configurations" below to see your setup.</li>
-                    </ol>
-                </CardContent>
-                <CardFooter>
-                    <Button asChild>
-                        <a href={commerceManagerUrl} target="_blank" rel="noopener noreferrer">
-                            Go to Commerce Manager
-                            <ExternalLink className="ml-2 h-4 w-4" />
-                        </a>
-                    </Button>
-                </CardFooter>
-            </Card>
+            {isCreateOpen && <CreatePaymentConfigDialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} onSuccess={fetchData} />}
+            <div className="space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>WhatsApp Pay Setup</CardTitle>
+                        <CardDescription>To enable WhatsApp Pay, you need to configure a payment provider (like Stripe or Razorpay) within your Meta Commerce Manager.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ol className="list-decimal list-inside space-y-2">
+                            <li>Navigate to your Meta Commerce Manager.</li>
+                            <li>Go to the **Settings** tab.</li>
+                            <li>Select **Payment Method** and add your preferred payment provider.</li>
+                            <li>Once configured, click "Refresh Configurations" below to see your setup.</li>
+                        </ol>
+                    </CardContent>
+                    <CardFooter>
+                        <Button asChild>
+                            <a href={commerceManagerUrl} target="_blank" rel="noopener noreferrer">
+                                Go to Commerce Manager
+                                <ExternalLink className="ml-2 h-4 w-4" />
+                            </a>
+                        </Button>
+                    </CardFooter>
+                </Card>
 
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle>Your Payment Configurations</CardTitle>
-                        <CardDescription>A list of payment providers linked to your WABA.</CardDescription>
-                    </div>
-                     <div className="flex items-center gap-2">
-                        <Button onClick={() => fetchData(true)} variant="outline" size="sm" disabled={isLoading}>
-                            {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <RefreshCw className="mr-2 h-4 w-4"/>}
-                            Refresh
-                        </Button>
-                        <Button onClick={() => setIsCreateOpen(true)} size="sm">
-                            <PlusCircle className="mr-2 h-4 w-4"/>
-                            Create Configuration
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {error ? (
-                        <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>Error</AlertTitle>
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    ) : configs.length > 0 ? (
-                         <div className="grid md:grid-cols-2 gap-4">
-                            {configs.map(config => (
-                                <Card key={config.configuration_name}>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2 text-base">
-                                            <WaPayIcon className="h-5 w-5"/>
-                                            {config.configuration_name}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <InfoRow label="Provider" value={<span className="capitalize">{config.provider_name}</span>} />
-                                        <InfoRow label="Status" value={<Badge variant={getStatusVariant(config.status)}>{config.status}</Badge>} />
-                                        <InfoRow label="Provider MID" value={<span className="font-mono text-xs">{config.provider_mid}</span>} />
-                                    </CardContent>
-                                    <CardFooter className="flex-wrap justify-end gap-2">
-                                        <UpdateDataEndpointDialog project={project} config={config} onSuccess={fetchData} />
-                                        {config.status === 'Needs_Connecting' && (
-                                            <RegenerateOauthDialog project={project} config={config} onSuccess={fetchData} />
-                                        )}
-                                         <DeletePaymentConfigButton projectId={project._id.toString()} configName={config.configuration_name} onSuccess={fetchData} />
-                                    </CardFooter>
-                                </Card>
-                            ))}
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                            <CardTitle>Your Payment Configurations</CardTitle>
+                            <CardDescription>A list of payment providers linked to your WABA.</CardDescription>
                         </div>
-                    ) : (
-                        <p className="text-muted-foreground text-center py-8">No payment configurations found for this WABA.</p>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+                        <div className="flex items-center gap-2">
+                            <Button onClick={() => fetchData(true)} variant="outline" size="sm" disabled={isLoading}>
+                                {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                                Refresh
+                            </Button>
+                            <Button onClick={() => setIsCreateOpen(true)} size="sm">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Create Configuration
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {error ? (
+                            <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Error</AlertTitle>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        ) : configs.length > 0 ? (
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {configs.map(config => (
+                                    <Card key={config.configuration_name}>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-2 text-base">
+                                                <WaPayIcon className="h-5 w-5" />
+                                                {config.configuration_name}
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <InfoRow label="Provider" value={<span className="capitalize">{config.provider_name}</span>} />
+                                            <InfoRow label="Status" value={<Badge variant={getStatusVariant(config.status)}>{config.status}</Badge>} />
+                                            <InfoRow label="Provider MID" value={<span className="font-mono text-xs">{config.provider_mid}</span>} />
+                                        </CardContent>
+                                        <CardFooter className="flex-wrap justify-end gap-2">
+                                            <UpdateDataEndpointDialog project={project} config={config} onSuccess={fetchData} />
+                                            {config.status === 'Needs_Connecting' && (
+                                                <RegenerateOauthDialog project={project} config={config} onSuccess={fetchData} />
+                                            )}
+                                            <DeletePaymentConfigButton projectId={project._id.toString()} configName={config.configuration_name} onSuccess={fetchData} />
+                                        </CardFooter>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-muted-foreground text-center py-8">No payment configurations found for this WABA.</p>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
         </>
     );
 }

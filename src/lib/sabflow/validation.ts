@@ -116,6 +116,59 @@ export const validateNode = (node: Node | any, connectedEdges: Edge[] = []): Val
 };
 
 /**
+ * Detects cycles in the flow graph using DFS.
+ */
+export function detectCycle(nodes: Node[], edges: Edge[]): { hasCycle: boolean; path?: string[] } {
+    const adj = new Map<string, string[]>();
+
+    // Build adjacency list
+    for (const edge of edges) {
+        if (!adj.has(edge.source)) {
+            adj.set(edge.source, []);
+        }
+        adj.get(edge.source)?.push(edge.target);
+    }
+
+    const visited = new Set<string>();
+    const recursionStack = new Set<string>();
+    let cyclePath: string[] = [];
+
+    function dfs(nodeId: string, currentPath: string[]): boolean {
+        visited.add(nodeId);
+        recursionStack.add(nodeId);
+
+        const neighbors = adj.get(nodeId);
+
+        if (neighbors) {
+            for (const neighbor of neighbors) {
+                if (!visited.has(neighbor)) {
+                    if (dfs(neighbor, [...currentPath, neighbor])) {
+                        return true;
+                    }
+                } else if (recursionStack.has(neighbor)) {
+                    // Cycle detected
+                    cyclePath = [...currentPath, neighbor];
+                    return true;
+                }
+            }
+        }
+
+        recursionStack.delete(nodeId);
+        return false;
+    }
+
+    for (const node of nodes) {
+        if (!visited.has(node.id)) {
+            if (dfs(node.id, [node.id])) {
+                return { hasCycle: true, path: cyclePath };
+            }
+        }
+    }
+
+    return { hasCycle: false };
+}
+
+/**
  * Validates the entire flow
  */
 export const validateFlow = (nodes: Node[], edges: Edge[]): FlowValidationResult => {
@@ -138,6 +191,22 @@ export const validateFlow = (nodes: Node[], edges: Edge[]): FlowValidationResult
         allErrors = [...allErrors, ...nodeErrors];
     });
 
+    // Check for loops
+    const cycleCheck = detectCycle(nodes, edges);
+    if (cycleCheck.hasCycle) {
+        // Map path IDs to names for better error message if possible
+        const pathNames = cycleCheck.path?.map(id => {
+            const n = nodes.find(node => node.id === id);
+            return n?.data?.name || id;
+        }).join(' → ');
+
+        allErrors.push({
+            nodeId: 'root',
+            message: `Infinite loop detected in flow logic: ${pathNames}`,
+            type: 'error'
+        });
+    }
+
     const hasErrors = allErrors.some(e => e.type === 'error');
 
     return {
@@ -145,3 +214,4 @@ export const validateFlow = (nodes: Node[], edges: Edge[]): FlowValidationResult
         errors: allErrors
     };
 };
+

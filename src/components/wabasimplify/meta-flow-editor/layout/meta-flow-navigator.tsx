@@ -2,7 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { ChevronRight, FileJson, Layers, Layout, Plus, Trash2, MoreHorizontal, MousePointerClick } from "lucide-react";
+import { ChevronRight, FileJson, Layers, Layout, Plus, Trash2, MoreHorizontal, MousePointerClick, BadgeX } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
     Accordion,
     AccordionContent,
@@ -42,6 +43,7 @@ export function MetaFlowNavigator({
     onDeleteComponent,
     onAddComponent
 }: MetaFlowNavigatorProps) {
+    const { toast } = useToast();
 
     return (
         <div className="flex flex-col h-full border-r bg-muted/10">
@@ -78,10 +80,20 @@ export function MetaFlowNavigator({
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="h-6 w-6">
-                                                    <Plus className="h-3 w-3" />
+                                                    <MoreHorizontal className="h-3 w-3" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-48">
+                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuItem onClick={() => {
+                                                    toast({
+                                                        title: "Flow submitted",
+                                                        description: "Your flow has been submitted for verification.",
+                                                    });
+                                                }}>
+                                                    Submit for verification
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
                                                 <DropdownMenuLabel>Add Component</DropdownMenuLabel>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem onClick={() => onAddComponent(screen.id, 'Text')}>
@@ -134,8 +146,9 @@ export function MetaFlowNavigator({
                                                 e.stopPropagation();
                                                 onDeleteScreen(screen.id);
                                             }}
+                                            title="Delete Screen"
                                         >
-                                            <Trash2 className="h-3 w-3" />
+                                            <BadgeX className="h-3 w-3" />
                                         </Button>
                                     </div>
                                 </div>
