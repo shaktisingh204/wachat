@@ -24,11 +24,13 @@ export const buttonSchema = z.object({
 
 export const carouselCardSchema = z.object({
     id: z.string().optional(), // Client-side ID mainly
-    headerFormat: z.enum(['IMAGE', 'VIDEO', 'NONE']),
+    headerFormat: z.enum(['IMAGE', 'VIDEO']),
     headerSampleUrl: z.string().optional(),
     body: z.string().min(1, "Card body text is required"),
     exampleValues: z.record(z.string(), z.string()).optional(),
-    buttons: z.array(buttonSchema).max(2, "Each carousel card can have a maximum of 2 buttons.")
+    buttons: z.array(buttonSchema)
+        .min(1, "Each carousel card must have at least one button.")
+        .max(2, "Each carousel card can have a maximum of 2 buttons.")
 });
 
 export const createTemplateSchema = z.object({
