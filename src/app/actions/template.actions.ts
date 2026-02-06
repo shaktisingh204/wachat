@@ -435,6 +435,8 @@ export async function handleCreateTemplate(
             }
         }
 
+        console.log("Submitting Template Payload to Meta:", JSON.stringify(payload, null, 2));
+
         const response = await fetch(
             `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
             {
