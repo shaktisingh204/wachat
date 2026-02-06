@@ -25,8 +25,29 @@ export async function getCatalogs(projectId: string): Promise<{ catalogs?: Catal
         if (!project) return { error: 'Project not found' };
 
         const { wabaId, accessToken } = project;
+        let businessId = project.businessId;
+
+        // Fallback: If businessId is not on the project, fetch it from the WABA
+        if (!businessId && wabaId) {
+            try {
+                const businessRes = await fetch(`https://graph.facebook.com/${API_VERSION}/${wabaId}?fields=business&access_token=${accessToken}`);
+                const businessData = await businessRes.json();
+                if (businessData?.business?.id) {
+                    businessId = businessData.business.id;
+                    // Optional: We could update the project here to cache it, but let's stick to reading API for now
+                    // await updateProject(projectId, { businessId }); 
+                }
+            } catch (e) {
+                console.warn('Failed to fetch business ID from WABA', e);
+            }
+        }
+
+        if (!businessId) {
+            return { error: 'Business ID not found for this project. Please ensure your WABA is linked to a Business Manager.' };
+        }
+
         // Specifically fetch catalogs owned by the business
-        const url = `https://graph.facebook.com/${API_VERSION}/${wabaId}/owned_product_catalogs?access_token=${accessToken}`;
+        const url = `https://graph.facebook.com/${API_VERSION}/${businessId}/owned_product_catalogs?access_token=${accessToken}`;
 
         const response = await fetch(url);
         const data = await response.json();
@@ -163,5 +184,22 @@ export async function deleteProductFromCatalog(productId: string, projectId: str
     } catch (error) {
         console.error('deleteProductFromCatalog Error:', error);
         return { error: 'Failed to delete product' };
+    }
+}
+
+export async function syncCatalogs(projectId: string) {
+    try {
+        const result = await getCatalogs(projectId);
+        if (result.error) {
+            return { error: result.error };
+        }
+
+        // In the future, we can save these to the database here if needed.
+        // For now, we just verify we can fetch them from Meta.
+
+        return { message: 'Catalogs synced successfully', success: true };
+    } catch (error) {
+        console.error('syncCatalogs Error:', error);
+        return { error: 'Failed to sync catalogs' };
     }
 }

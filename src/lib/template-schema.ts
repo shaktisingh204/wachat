@@ -94,6 +94,14 @@ export const createTemplateSchema = z.object({
                 path: ["carouselCards"]
             });
         }
+        // Meta requires a top-level Body component for Carousels
+        if (!data.body || data.body.trim().length === 0) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Intro Body text is required for Carousel templates.",
+                path: ["body"]
+            });
+        }
     }
 
     // CATALOG_MESSAGE validation

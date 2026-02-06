@@ -16,7 +16,7 @@ import { premadeTemplates } from '@/lib/premade-templates';
 import type { Project, Template, CreateTemplateState, MetaTemplate, MetaTemplatesResponse, LibraryTemplate, TemplateCategory } from '@/lib/definitions';
 import { createTemplateSchema } from '@/lib/template-schema';
 
-const API_VERSION = 'v23.0';
+const API_VERSION = 'v22.0';
 
 export async function getTemplates(projectId: string): Promise<WithId<Template>[]> {
     if (!projectId || !ObjectId.isValid(projectId)) {
@@ -344,7 +344,7 @@ export async function handleCreateTemplate(
                 // Handle Carousel Body Variables
                 const bodyVarMatches = card.body.match(/{{\s*(\d+)\s*}}/g);
                 if (bodyVarMatches) {
-                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a: number, b: number) => a - b);
+                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a, b) => a - b);
                     const bodyExamples = [];
                     for (const varNum of bodyVarNumbers) {
                         const exVal = card.exampleValues?.[String(varNum)];
