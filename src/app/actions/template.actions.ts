@@ -340,10 +340,10 @@ export async function handleCreateTemplate(
                 // Handle Carousel Body Variables
                 const bodyVarMatches = card.body.match(/{{\s*(\d+)\s*}}/g);
                 if (bodyVarMatches) {
-                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a: number, b: number) => a - b);
+                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a, b) => a - b);
                     const bodyExamples = [];
                     for (const varNum of bodyVarNumbers) {
-                        const exVal = card.exampleValues?.[varNum];
+                        const exVal = card.exampleValues?.[String(varNum)];
                         if (!exVal) return { error: `Card ${i + 1}: Example required for variable {{${varNum}}}.` };
                         bodyExamples.push(exVal);
                     }

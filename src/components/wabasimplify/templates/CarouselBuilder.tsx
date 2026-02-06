@@ -287,7 +287,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                         <div className="grid gap-2">
                                             {vars.map(v => (
                                                 <div key={v} className="flex items-center gap-2">
-                                                    <span className="text-xs text-muted-foreground w-8">{{{v}}}</span>
+                                                    <span className="text-xs text-muted-foreground w-8">{`{{${v}}}`}</span>
                                                     <Input
                                                         placeholder={`Example for {{${v}}}`}
                                                         className="h-8 text-sm"
