@@ -60,7 +60,8 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
   const formRef = useRef<HTMLFormElement>(null);
   const [mediaSource, setMediaSource] = useState<'url' | 'file'>('url');
 
-  const hasMediaHeader = template.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
+  const isMarketingCarousel = template.type === 'MARKETING_CAROUSEL';
+  const hasMediaHeader = !isMarketingCarousel && template.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
 
   const bodyVariables: number[] = (template.components?.find(c => c.type === 'BODY')?.text || template.body || '').match(/{{\s*(\d+)\s*}}/g)?.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))) || [];
   const uniqueBodyVars: number[] = Array.from(new Set(bodyVariables)).sort((a: number, b: number) => a - b);

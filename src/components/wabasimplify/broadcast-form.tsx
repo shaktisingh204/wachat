@@ -290,7 +290,7 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
         setSelectedFlow(flow || null);
     };
 
-    const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
+    const showImageUpload = selectedTemplate?.type !== 'MARKETING_CAROUSEL' && selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
 
     const approvedTemplates = templates.filter(t => t.status?.toUpperCase() === 'APPROVED');
 

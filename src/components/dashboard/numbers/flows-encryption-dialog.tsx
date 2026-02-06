@@ -21,11 +21,16 @@ import { useToast } from '@/hooks/use-toast';
 interface FlowsEncryptionDialogProps {
     project: Project;
     phone: PhoneNumber;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
     trigger?: React.ReactNode;
 }
 
-export function FlowsEncryptionDialog({ project, phone, trigger }: FlowsEncryptionDialogProps) {
-    const [open, setOpen] = useState(false);
+export function FlowsEncryptionDialog({ project, phone, trigger, open: controlledOpen, onOpenChange: setControlledOpen }: FlowsEncryptionDialogProps) {
+    const [internalOpen, setInternalOpen] = useState(false);
+    const isControlled = controlledOpen !== undefined;
+    const open = isControlled ? controlledOpen : internalOpen;
+    const setOpen = isControlled ? setControlledOpen! : setInternalOpen;
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
 

@@ -25,6 +25,8 @@ import { createTemplateSchema } from '@/lib/template-schema';
 import { CarouselBuilder, type CarouselCardData } from './templates/CarouselBuilder';
 import { ProductPicker } from './templates/ProductPicker';
 
+import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
+
 const MAX_FILE_SIZE_IMAGE = 5 * 1024 * 1024; // 5MB
 const MAX_FILE_SIZE_VIDEO = 16 * 1024 * 1024; // 16MB
 const MAX_FILE_SIZE_DOC = 16 * 1024 * 1024; // 16MB
@@ -153,6 +155,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
   const [isPending, startTransition] = useTransition();
   const [state, setState] = useState(createTemplateInitialState);
+  const [showFlowsDialog, setShowFlowsDialog] = useState(false);
 
   const [templateType, setTemplateType] = useState<'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL'>('STANDARD');
 
@@ -281,12 +284,29 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
       else router.push('/dashboard/templates');
     }
     if (state?.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      // Check for WhatsApp Flows Encryption Error (139002)
+      if (state.error.includes('139002') || (state.error.includes('flows') && state.error.includes('public key'))) {
+        // Do not show error toast immediately, instead show the configuration dialog
+        setShowFlowsDialog(true);
+      } else {
+        toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      }
     }
   }, [state, router, toast]);
 
+  const activePhoneNumber = project?.phoneNumbers?.find(p => p.id === project.phoneNumbers?.[0]?.id); // Assuming first number or logic to pick active
+
   return (
     <form action={formAction}>
+      {project && activePhoneNumber && (
+        <FlowsEncryptionDialog
+          project={project}
+          phone={activePhoneNumber}
+          open={showFlowsDialog}
+          onOpenChange={setShowFlowsDialog}
+          trigger={<></>} // Hidden trigger
+        />
+      )}
       {project && <input type="hidden" name="projectId" value={project._id.toString()} />}
       {isBulkForm && <input type="hidden" name="projectIds" value={bulkProjectIds.join(',')} />}
       <input type="hidden" name="templateType" value={templateType} />

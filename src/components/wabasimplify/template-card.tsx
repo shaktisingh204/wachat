@@ -51,7 +51,7 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
 
   const renderComponentContent = (component: any) => {
     if (component.type === 'CAROUSEL' && Array.isArray(component.cards)) {
-        return `Contains ${component.cards.length} card(s).`;
+      return `Contains ${component.cards.length} card(s).`;
     }
     if (component.text) return component.text;
     if (component.format) return `Format: ${component.format}`;
@@ -73,10 +73,10 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
     }
     return "No text content";
   };
-  
+
   const isMarketingCarousel = template.type === 'MARKETING_CAROUSEL';
   const isProductCarousel = template.type === 'CATALOG_MESSAGE';
-  
+
   return (
     <>
       <Card className={cn("flex flex-col transition-transform hover:-translate-y-1", gradientClass)}>
@@ -84,39 +84,37 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg font-headline break-all">{template.name}</CardTitle>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
-               {isProductCarousel ? (
+              {isProductCarousel ? (
                 <Badge variant="secondary" className="capitalize">
-                    <ShoppingCart className="mr-2 h-3 w-3"/>
-                    Product Catalog
+                  <ShoppingCart className="mr-2 h-3 w-3" />
+                  Product Catalog
                 </Badge>
-               ) : isMarketingCarousel ? (
+              ) : isMarketingCarousel ? (
                 <Badge variant="secondary" className="capitalize">
-                    <View className="mr-2 h-3 w-3"/>
-                    Marketing Carousel
+                  <View className="mr-2 h-3 w-3" />
+                  Marketing Carousel
                 </Badge>
-               ) : (
-                <>
-                    <Badge variant={getStatusVariant(template.status)} className="capitalize">
-                        {template.status?.replace(/_/g, ' ') || 'Unknown'}
-                    </Badge>
-                    {template.qualityScore && template.qualityScore !== 'UNKNOWN' && (
-                        <Badge variant={getQualityVariant(template.qualityScore)} className="capitalize">
-                        Quality: {template.qualityScore.toLowerCase()}
-                        </Badge>
-                    )}
-                </>
-               )}
+              ) : null}
+
+              <Badge variant={getStatusVariant(template.status)} className="capitalize">
+                {template.status?.replace(/_/g, ' ') || 'Unknown'}
+              </Badge>
+              {template.qualityScore && template.qualityScore !== 'UNKNOWN' && (
+                <Badge variant={getQualityVariant(template.qualityScore)} className="capitalize">
+                  Quality: {template.qualityScore.toLowerCase()}
+                </Badge>
+              )}
             </div>
           </div>
           <CardDescription className="flex items-center pt-2 text-xs">
             {isProductCarousel ? (
-                 <ShoppingCart className="h-4 w-4 mr-2"/>
+              <ShoppingCart className="h-4 w-4 mr-2" />
             ) : isMarketingCarousel ? (
-                 <View className="h-4 w-4 mr-2"/>
+              <View className="h-4 w-4 mr-2" />
             ) : (
-                 <FileText className="h-4 w-4 mr-2"/>
+              <FileText className="h-4 w-4 mr-2" />
             )}
-            
+
             {isProductCarousel ? 'Interactive Product Message' : isMarketingCarousel ? 'Marketing Carousel' : `Category: ${template.category}`}
           </CardDescription>
         </CardHeader>

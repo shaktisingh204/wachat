@@ -16,6 +16,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { MetaFlowBuilderLayout } from '@/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout';
 import { cleanMetaFlowData } from '@/lib/meta-flow-utils';
+import { getProjectById } from '@/app/actions/project.actions';
+import { Project } from '@/lib/definitions';
+import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
+import { WithId } from 'mongodb';
 
 const createFlowInitialState = { message: null, error: null, payload: null, debugInfo: null };
 
@@ -67,9 +71,18 @@ function CreateMetaFlowPageContent() {
 
     const isEditing = !!flowId;
 
+    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const [showFlowsDialog, setShowFlowsDialog] = useState(false);
+
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
+        if (storedProjectId) {
+            getProjectById(storedProjectId).then(p => {
+                // @ts-ignore
+                if (p) setProject(p);
+            });
+        }
 
         const flowIdParam = searchParams.get('flowId');
         if (flowIdParam) {
@@ -98,7 +111,12 @@ function CreateMetaFlowPageContent() {
             router.push('/dashboard/flows');
         }
         if (state.error) {
-            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+            // Check for WhatsApp Flows Encryption Error (139002)
+            if (state.error.includes('139002') || (state.error.includes('flows') && state.error.includes('public key'))) {
+                setShowFlowsDialog(true);
+            } else {
+                toast({ title: 'Error', description: state.error, variant: 'destructive' });
+            }
         }
     }, [state, router, toast]);
 
@@ -161,7 +179,16 @@ function CreateMetaFlowPageContent() {
                     />
                 </div>
             </form>
-        </Suspense>
+            {project && project.phoneNumbers && project.phoneNumbers.length > 0 && (
+                <FlowsEncryptionDialog
+                    project={project as Project}
+                    phone={project.phoneNumbers[0]}
+                    open={showFlowsDialog}
+                    onOpenChange={setShowFlowsDialog}
+                    trigger={<></>}
+                />
+            )}
+        </Suspense >
     );
 }
 
