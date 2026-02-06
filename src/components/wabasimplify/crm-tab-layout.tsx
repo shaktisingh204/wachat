@@ -568,8 +568,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout"><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></DropdownMenuItem>
-                                <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4" />Logout</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/api/auth/logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Logout</Link></DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>

@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { SeoProjectCard } from "@/components/wabasimplify/seo-project-card";
+import { NotificationsWidget } from "@/components/dashboard/notifications-widget";
 
 import { FileText, PlusCircle, Briefcase, Folder, ChevronLeft, ChevronRight, Clock, Search, Filter } from "lucide-react";
 import type { WithId } from "mongodb";
@@ -106,6 +107,10 @@ export default function SelectProjectPage() {
         <div className="flex flex-col gap-8 max-w-[1600px] mx-auto pb-20">
             {/* 1. Header with Greeting */}
 
+            {/* 1.5 Notification Section */}
+            <div className="w-full">
+                <NotificationsWidget />
+            </div>
 
             {/* 2. Recent Projects Row (if any) */}
             {recentProjects.length > 0 && !query && (

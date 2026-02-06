@@ -174,6 +174,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                             label="Logout"
                             href="/logout"
                             className="text-muted-foreground hover:text-destructive"
+                            prefetch={false}
                         />
                     </SidebarMenu>
                 </SidebarFooter>
@@ -187,13 +188,15 @@ function RailItem({
     label,
     active,
     href,
-    className
+    className,
+    prefetch
 }: {
     icon: any;
     label: string;
     active?: boolean;
     href: string;
     className?: string;
+    prefetch?: boolean;
 }) {
     return (
         <SidebarMenuItem className="w-full flex justify-center">
@@ -201,6 +204,7 @@ function RailItem({
                 <TooltipTrigger asChild>
                     <Link
                         href={href}
+                        prefetch={prefetch}
                         className={cn(
                             "h-10 w-10 flex items-center justify-center p-0 rounded-xl transition-all duration-200",
                             active
