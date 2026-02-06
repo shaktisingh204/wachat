@@ -130,7 +130,7 @@ function CreateMetaFlowPageContent() {
                 toast({ title: 'Error', description: state.error, variant: 'destructive' });
             }
         }
-    }, [state, router, toast]);
+    }, [state, router, toast, project]);
 
     if (isLoading) {
         return <PageSkeleton />;

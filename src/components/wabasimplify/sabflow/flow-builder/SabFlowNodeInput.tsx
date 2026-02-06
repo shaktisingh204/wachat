@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { useMemo, useRef } from "react";
 import { SabFlowVariableInserter, SabFlowVariable } from "./SabFlowVariableInserter";
 import { DynamicSelector } from '@/components/wabasimplify/sabflow/dynamic-selector';
-import { SabFlowCombobox } from "./SabFlowCombobox";
+import { SmartCombobox } from "@/components/wabasimplify/smart-combobox";
 import { Plus } from "lucide-react";
 
 interface SabFlowNodeInputProps {
@@ -121,14 +121,13 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
 
                 return (
                     <div className="space-y-2">
-                        <SabFlowCombobox
+                        <SmartCombobox
                             value={value || ""}
-                            onChange={onChange}
+                            onSelect={onChange}
                             options={projectOptions || []}
                             placeholder="Select Project"
                             searchPlaceholder="Search projects..."
-                            emptyText="No projects found"
-                            error={!!error}
+                            className={error ? "border-destructive" : ""}
                         />
                         {isEmpty && (
                             <Button variant="outline" size="sm" className="w-full text-xs" asChild>
@@ -144,28 +143,26 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
             case 'template-selector': {
                 const templateOptions = dataOptions.templates || [];
                 return (
-                    <SabFlowCombobox
+                    <SmartCombobox
                         value={value || ""}
-                        onChange={onChange}
+                        onSelect={onChange}
                         options={templateOptions}
                         placeholder="Select Template"
                         searchPlaceholder="Search templates..."
-                        emptyText="No templates found for this project"
-                        error={!!error}
+                        className={error ? "border-destructive" : ""}
                     />
                 );
             }
             case 'tag-selector': {
                 const tagOptions = dataOptions.tags || [];
                 return (
-                    <SabFlowCombobox
+                    <SmartCombobox
                         value={value || ""}
-                        onChange={onChange}
+                        onSelect={onChange}
                         options={tagOptions}
                         placeholder="Select Tag"
                         searchPlaceholder="Search tags..."
-                        emptyText="No tags found"
-                        error={!!error}
+                        className={error ? "border-destructive" : ""}
                     />
                 );
             }
@@ -173,13 +170,13 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
                 // Keep fallback for other dynamic types if any, using DynamicSelector if available or Select
                 if (dataOptions[input.fetch]) {
                     return (
-                        <SabFlowCombobox
+                        <SmartCombobox
                             value={value || ""}
-                            onChange={onChange}
+                            onSelect={onChange}
                             options={dataOptions[input.fetch]}
                             placeholder={`Select ${input.label}`}
                             searchPlaceholder={`Search ${input.label}...`}
-                            error={!!error}
+                            className={error ? "border-destructive" : ""}
                         />
                     )
                 }

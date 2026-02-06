@@ -2,7 +2,7 @@
 'use client';
 
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SmartCombobox } from '@/components/wabasimplify/smart-combobox';
 import { getTemplates } from '@/app/actions';
 import { useProject } from '@/context/project-context';
 import type { Template } from '@/lib/definitions';
@@ -11,8 +11,8 @@ import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 
 interface EditorProps {
-  node: any;
-  onUpdate: (data: any) => void;
+    node: any;
+    onUpdate: (data: any) => void;
 }
 
 export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
@@ -46,16 +46,16 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
 
     const getTemplateVariables = (template: WithId<Template> | null) => {
         if (!template) return [];
-        
+
         let allText = template.body || '';
         if (template.components) {
             allText += template.components.map(c => c.text || '').join(' ');
         }
-        
+
         const regex = /{{\s*(\d+)\s*}}/g;
         const matches = allText.match(regex);
         if (!matches) return [];
-        
+
         const varNumbers = matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, '')));
         return [...new Set(varNumbers)].sort((a, b) => a - b);
     };
@@ -66,12 +66,13 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
         <div className="space-y-4">
             <div className="space-y-2">
                 <Label>Template</Label>
-                <Select value={node.data.templateId || ''} onValueChange={handleTemplateChange}>
-                    <SelectTrigger><SelectValue placeholder="Select a template..."/></SelectTrigger>
-                    <SelectContent>
-                        {templates.map(t => <SelectItem key={t._id.toString()} value={t._id.toString()}>{t.name}</SelectItem>)}
-                    </SelectContent>
-                </Select>
+                <SmartCombobox
+                    value={node.data.templateId || ''}
+                    onSelect={handleTemplateChange}
+                    options={templates.map(t => ({ label: t.name, value: t._id.toString() }))}
+                    placeholder="Select a template..."
+                    searchPlaceholder="Search templates..."
+                />
             </div>
 
             {selectedTemplate && variables.length > 0 && (

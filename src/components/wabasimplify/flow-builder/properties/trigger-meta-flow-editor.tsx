@@ -2,7 +2,7 @@
 'use client';
 
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SmartCombobox } from '@/components/wabasimplify/smart-combobox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
@@ -12,8 +12,8 @@ import type { WithId } from 'mongodb';
 import { useEffect, useState } from 'react';
 
 interface EditorProps {
-  node: any;
-  onUpdate: (data: any) => void;
+    node: any;
+    onUpdate: (data: any) => void;
 }
 
 export function TriggerMetaFlowEditor({ node, onUpdate }: EditorProps) {
@@ -28,16 +28,19 @@ export function TriggerMetaFlowEditor({ node, onUpdate }: EditorProps) {
 
     return (
         <div className="space-y-4">
-             <div className="space-y-2">
+            <div className="space-y-2">
                 <Label>Meta Flow to Trigger</Label>
-                <Select value={node.data.metaFlowId || ''} onValueChange={(val) => onUpdate({ metaFlowId: val })}>
-                    <SelectTrigger><SelectValue placeholder="Select a Meta Flow..."/></SelectTrigger>
-                    <SelectContent>{metaFlows.map(f => <SelectItem key={f._id.toString()} value={f.metaId}>{f.name}</SelectItem>)}</SelectContent>
-                </Select>
+                <SmartCombobox
+                    value={node.data.metaFlowId || ''}
+                    onSelect={(val: string) => onUpdate({ metaFlowId: val })}
+                    options={metaFlows.map(f => ({ label: f.name, value: f.metaId }))}
+                    placeholder="Select a Meta Flow..."
+                    searchPlaceholder="Search meta flows..."
+                />
             </div>
-             <div className="space-y-2"><Label>Header</Label><Input value={node.data.header || ''} onChange={e => onUpdate({ header: e.target.value })} /></div>
-             <div className="space-y-2"><Label>Body</Label><Textarea value={node.data.body || ''} onChange={e => onUpdate({ body: e.target.value })} /></div>
-             <div className="space-y-2"><Label>Footer</Label><Input value={node.data.footer || ''} onChange={e => onUpdate({ footer: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Header</Label><Input value={node.data.header || ''} onChange={e => onUpdate({ header: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Body</Label><Textarea value={node.data.body || ''} onChange={e => onUpdate({ body: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Footer</Label><Input value={node.data.footer || ''} onChange={e => onUpdate({ footer: e.target.value })} /></div>
         </div>
     );
 }
