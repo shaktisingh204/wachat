@@ -46,6 +46,9 @@ const wachatActions = [
       { name: 'messageBody', label: 'Message Text', type: 'text' },
       { name: 'messageId', label: 'Message ID', type: 'text' },
       { name: 'messageType', label: 'Message Type', type: 'text' }
+    ],
+    inputs: [
+      { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
     ]
   },
   { name: 'sendMessage', label: 'Send Text Message', description: 'Sends a simple text message.', inputs: [{ name: 'projectId', label: 'Project', type: 'project-selector', required: true }, { name: 'to', label: 'To (WA ID)', type: 'text', placeholder: 'e.g. 919876543210', required: true }, { name: 'message', label: 'Message', type: 'textarea', placeholder: 'Hello {{name}}!' }] },

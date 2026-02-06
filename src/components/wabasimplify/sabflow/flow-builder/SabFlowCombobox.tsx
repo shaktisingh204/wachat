@@ -48,7 +48,7 @@ export function SabFlowCombobox({
     const [open, setOpen] = React.useState(false)
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen} modal={true}>
             <PopoverTrigger asChild>
                 <Button
                     variant="outline"
@@ -62,7 +62,7 @@ export function SabFlowCombobox({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0 z-50" align="start">
                 <Command>
                     <CommandInput placeholder={searchPlaceholder} />
                     <CommandList className="max-h-[200px] overflow-y-auto custom-scrollbar">
@@ -72,11 +72,8 @@ export function SabFlowCombobox({
                                 <CommandItem
                                     key={option.value}
                                     value={option.label} // Search by label
-                                    onSelect={(currentValue) => {
-                                        // Start transition to avoid UI lock on heavy updates? No, usually fine.
-                                        // currentValue here is the lowercased label from CommandItem
-                                        // We need the ID (value)
-                                        onChange(option.value === value ? "" : option.value)
+                                    onSelect={() => {
+                                        onChange(option.value)
                                         setOpen(false)
                                     }}
                                 >

@@ -92,6 +92,10 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId, isTrigger =
         );
     }
 
+    if (app.connectionType === 'internal') {
+        return null;
+    }
+
     return (
         <p className="text-sm text-muted-foreground">This app does not require any special connection setup.</p>
     );

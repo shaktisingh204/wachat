@@ -185,7 +185,7 @@ export function SabFlowNodeInput({ input, value, onChange, error, dataOptions = 
     };
 
     return (
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 nodrag">
             <div className="flex justify-between items-center">
                 <Label className={cn("text-xs font-medium", error ? "text-destructive" : "text-foreground")}>
                     {input.label} {input.required && <span className="text-destructive">*</span>}

@@ -65,7 +65,7 @@ interface SabFlowPropertiesPanelProps {
 export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowId, onConnectionSaved }: SabFlowPropertiesPanelProps) {
     const { projects } = useProject();
     const wachatProjects = projects.filter(p => p.wabaId);
-    const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
+    const facebookProjects = projects.filter(p => p.facebookPageId);
 
     const { getNodes, getEdges } = useReactFlow();
 
