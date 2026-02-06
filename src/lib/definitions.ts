@@ -1173,6 +1173,12 @@ export type PhoneNumber = {
         level: string;
     };
     profile?: PhoneNumberProfile;
+    flowsEncryptionConfig?: {
+        privateKey: string;
+        publicKey: string;
+        metaStatus: 'NOT_UPLOADED' | 'UPLOADED' | 'FAILED';
+        uploadedAt?: Date;
+    };
     callingSettings?: CallingSettings;
     userId?: string; // Corrected: This should be here, not on the contact
 };
@@ -2170,6 +2176,12 @@ export type MetaPhoneNumber = {
         level: string;
     };
     whatsapp_business_profile?: PhoneNumberProfile;
+    flowsEncryptionConfig?: {
+        privateKey: string;
+        publicKey: string;
+        metaStatus: 'NOT_UPLOADED' | 'UPLOADED' | 'FAILED';
+        uploadedAt?: Date;
+    };
 };
 
 export type MetaTemplate = {

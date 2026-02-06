@@ -20,6 +20,7 @@ import { EditPhoneNumberDialog } from '@/components/wabasimplify/edit-phone-numb
 import { cn } from '@/lib/utils';
 import { CallingToggleSwitch } from '@/components/wabasimplify/calling-toggle-switch';
 import { RegisterPhoneButton } from '@/components/wabasimplify/register-phone-button';
+import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
 
 function NumbersPageSkeleton() {
   return (
@@ -198,6 +199,7 @@ export default function NumbersPage() {
                       <Edit className="mr-2 h-4 w-4" />
                       Edit Profile & Settings
                     </Button>
+                    <FlowsEncryptionDialog project={project} phone={phone} />
                     {phone.code_verification_status === 'VERIFIED' && (
                       <RegisterPhoneButton projectId={project._id.toString()} phoneNumberId={phone.id} />
                     )}

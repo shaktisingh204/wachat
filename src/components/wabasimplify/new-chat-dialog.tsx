@@ -39,23 +39,27 @@ interface NewChatDialogProps {
 
 export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialogProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [selectedCountryCode, setSelectedCountryCode] = useState('91'); // Default to India
+  const [selectedCountryName, setSelectedCountryName] = useState<string>('India'); // Default to India by name
   const [openCombobox, setOpenCombobox] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneNumber) return;
+
+    const country = countryCodes.find(c => c.name === selectedCountryName);
+    if (!country) return;
+
     setLoading(true);
     // Combine country code and phone number, stripping any non-numeric chars from phone number
     const cleanPhone = phoneNumber.replace(/\D/g, '');
-    const fullWaId = `${selectedCountryCode}${cleanPhone}`;
+    const fullWaId = `${country.code}${cleanPhone}`;
     await onStartChat(fullWaId);
     setPhoneNumber('');
     setLoading(false);
   };
 
-  const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
+  const selectedCountry = countryCodes.find(c => c.name === selectedCountryName);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -87,7 +91,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
                     <PopoverContent className="w-[300px] p-0" align="start">
                       <Command>
                         <CommandInput placeholder="Search country..." />
-                        <CommandList>
+                        <CommandList className="max-h-[300px] overflow-y-auto">
                           <CommandEmpty>No country found.</CommandEmpty>
                           <CommandGroup>
                             {countryCodes.map((country) => (
@@ -95,14 +99,14 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
                                 key={`${country.code}-${country.name}`}
                                 value={`${country.name} +${country.code}`}
                                 onSelect={() => {
-                                  setSelectedCountryCode(country.code);
+                                  setSelectedCountryName(country.name);
                                   setOpenCombobox(false);
                                 }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    selectedCountryCode === country.code ? "opacity-100" : "opacity-0"
+                                    selectedCountryName === country.name ? "opacity-100" : "opacity-0"
                                   )}
                                 />
                                 <span className="flex-1 truncate">{country.name}</span>

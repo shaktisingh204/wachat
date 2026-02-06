@@ -254,9 +254,14 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                             onChange={(e) => {
                                                 const file = e.target.files?.[0];
                                                 if (file) {
-                                                    updateActiveCard('headerFile', file);
                                                     const url = URL.createObjectURL(file);
-                                                    updateActiveCard('headerSampleUrl', url);
+                                                    // Merge updates to avoid stale state closure race condition
+                                                    const updatedCards = cards.map(c =>
+                                                        c.id === activeCardId
+                                                            ? { ...c, headerFile: file, headerSampleUrl: url }
+                                                            : c
+                                                    );
+                                                    onChange(updatedCards);
                                                 }
                                             }}
                                         />
