@@ -1,6 +1,6 @@
 
 import { Edge, Node } from '@xyflow/react';
-import { sabnodeAppActions } from './apps';
+import { sabnodeAppData } from './data';
 
 export interface ValidationError {
     nodeId: string;
@@ -57,7 +57,7 @@ export const validateNode = (node: Node | any, connectedEdges: Edge[] = []): Val
         }
 
         // Find the app and action definition to check required fields
-        const app = sabnodeAppActions.find(a => a.appId === data.appId);
+        const app = sabnodeAppData.find(a => a.appId === data.appId);
         if (app) {
             let action = app.actions?.find(a => a.name === data.actionName);
 

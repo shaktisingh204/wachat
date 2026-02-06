@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { LoaderCircle, Send, AlertCircle, UploadCloud, Link as LinkIcon, Check, ChevronsUpDown, Download } from 'lucide-react';
+import Papa from 'papaparse';
+import * as xlsx from 'xlsx';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import type { Project, Template, Tag, MetaFlow } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
@@ -48,6 +50,100 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
     );
 }
 
+
+const extractRequiredVariables = (template: WithId<Template>): string[] => {
+    const variableIndices = new Set<number>();
+    const regex = /{{(\d+)}}/g;
+
+    const templateString = JSON.stringify(template);
+    let match;
+    while ((match = regex.exec(templateString)) !== null) {
+        variableIndices.add(parseInt(match[1], 10));
+    }
+
+    return Array.from(variableIndices).sort((a, b) => a - b).map(i => `variable${i}`);
+};
+
+const validateFileContent = async (file: File, requiredVars: string[]): Promise<string[]> => {
+    const errors: string[] = [];
+    let rows: any[] = [];
+
+    try {
+        const buffer = await file.arrayBuffer();
+
+        if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+            const text = new TextDecoder("utf-8").decode(buffer);
+            const result = Papa.parse(text, { header: true, skipEmptyLines: true });
+            rows = result.data;
+            if (result.errors && result.errors.length > 0) {
+                errors.push(`CSV Parse Error: ${result.errors[0].message}`);
+                return errors;
+            }
+        } else {
+            const data = new Uint8Array(buffer);
+            const workbook = xlsx.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+
+            if (rows.length > 0) {
+                const header = rows[0] as string[];
+                // Convert array of arrays to array of objects
+                rows = rows.slice(1).map((row: any) => {
+                    const rowData: any = {};
+                    header.forEach((h: string, i: number) => {
+                        rowData[h] = row[i];
+                    });
+                    return rowData;
+                });
+            }
+        }
+
+        if (rows.length === 0) {
+            errors.push("The file is empty.");
+            return errors;
+        }
+
+        // Validate Headers
+        const firstRow = rows[0];
+        const headers = Object.keys(firstRow).map(h => h.toLowerCase().trim());
+
+        if (!headers.includes('phone')) {
+            errors.push("Missing required column: 'phone'");
+        }
+
+        const missingVars = requiredVars.filter(v => !headers.includes(v.toLowerCase()));
+        if (missingVars.length > 0) {
+            errors.push(`Missing variable columns: ${missingVars.join(', ')}`);
+        }
+
+        // If headers are missing, stop here to avoid row spam
+        if (errors.length > 0) return errors;
+
+        // Validate Rows
+        rows.forEach((row, index) => {
+            if (errors.length >= 5) return; // Limit error count
+
+            if (!row.phone && !row.Phone && !row.PHONE) {
+                errors.push(`Row ${index + 2}: Missing phone number.`);
+            }
+
+            requiredVars.forEach(v => {
+                // Case-insensitive lookup for the variable value
+                const key = Object.keys(row).find(k => k.toLowerCase() === v.toLowerCase());
+                const val = key ? row[key] : undefined;
+
+                if (!val || String(val).trim() === '') {
+                    errors.push(`Row ${index + 2}: Missing value for ${v}`);
+                }
+            });
+        });
+
+    } catch (e: any) {
+        errors.push(`Failed to validate file: ${e.message}`);
+    }
+
+    return errors;
+};
 interface BroadcastFormProps {
     templates: WithId<Template>[];
     metaFlows: WithId<MetaFlow>[];
@@ -68,6 +164,57 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
     const [fileInputKey, setFileInputKey] = useState(Date.now());
     const [headerMediaSource, setHeaderMediaSource] = useState<'url' | 'file'>('url');
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+
+    // Validation State
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [validationErrors, setValidationErrors] = useState<string[]>([]);
+    const [isValidating, setIsValidating] = useState(false);
+
+    useEffect(() => {
+        const validate = async () => {
+            if (!selectedFile) {
+                setValidationErrors([]);
+                return;
+            }
+
+            if (broadcastType === 'template' && !selectedTemplate) {
+                // If template mode but no template selected, we can't fully validate variables, 
+                // but we can check for 'phone' at least? 
+                // Let's verify 'phone' exists regardless.
+                setIsValidating(true);
+                const errors = await validateFileContent(selectedFile, []);
+                setValidationErrors(errors);
+                setIsValidating(false);
+                return;
+            }
+
+            if (broadcastType === 'template' && selectedTemplate) {
+                setIsValidating(true);
+                const requiredVars = extractRequiredVariables(selectedTemplate);
+                const errors = await validateFileContent(selectedFile, requiredVars);
+                setValidationErrors(errors);
+                setIsValidating(false);
+            } else {
+                // For Flow, usually just phone is needed unless flow has input data mapping?
+                // For now, strict validation is mainly for Template variables as per user request.
+                setIsValidating(true);
+                const errors = await validateFileContent(selectedFile, []);
+                setValidationErrors(errors);
+                setIsValidating(false);
+            }
+        };
+
+        validate();
+    }, [selectedFile, selectedTemplate, broadcastType]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setSelectedFile(e.target.files[0]);
+        } else {
+            setSelectedFile(null);
+            setValidationErrors([]);
+        }
+    };
 
     const handleDownloadSample = () => {
         const csvContent = "data:text/csv;charset=utf-8,"
@@ -93,6 +240,8 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
                 description: state.message,
             });
             setFileInputKey(Date.now()); // Resets both file inputs
+            setSelectedFile(null);
+            setValidationErrors([]);
             formRef.current?.reset();
             setSelectedTemplate(null);
             setSelectedFlow(null);
@@ -268,11 +417,27 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
                                     type="file"
                                     accept=".csv,.xlsx"
                                     required
+                                    onChange={handleFileChange}
                                     className="file:text-primary file:font-medium"
                                 />
                                 <p className="text-xs text-muted-foreground">
                                     For variables, use column names that match your template (e.g., 'variable1').
                                 </p>
+                                {isValidating && <p className="text-xs text-muted-foreground animate-pulse text-blue-500">Validating file...</p>}
+                                {validationErrors.length > 0 && (
+                                    <Alert variant="destructive" className="mt-2">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertTitle>File Error</AlertTitle>
+                                        <AlertDescription>
+                                            <ul className="list-disc pl-4 space-y-1">
+                                                {validationErrors.slice(0, 5).map((err, i) => (
+                                                    <li key={i}>{err}</li>
+                                                ))}
+                                                {validationErrors.length > 5 && <li>...and {validationErrors.length - 5} more issues.</li>}
+                                            </ul>
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
                             </div>
                         ) : (
                             <div className="space-y-2">
@@ -358,7 +523,7 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
 
                 </CardContent>
                 <CardFooter className="flex justify-end">
-                    <SubmitButton disabled={!selectedPhoneNumber || (broadcastType === 'template' ? !selectedTemplate : !selectedFlow)} />
+                    <SubmitButton disabled={!selectedPhoneNumber || (broadcastType === 'template' ? !selectedTemplate : !selectedFlow) || validationErrors.length > 0 || isValidating} />
                 </CardFooter>
             </form>
         </Card >
