@@ -4,6 +4,7 @@
 import { useFormStatus } from 'react-dom';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { handleStartBroadcast } from '@/app/actions/broadcast.actions';
+import { TemplateInputRenderer } from './template-input-renderer';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
@@ -64,9 +65,10 @@ const extractRequiredVariables = (template: WithId<Template>): string[] => {
     return Array.from(variableIndices).sort((a, b) => a - b).map(i => `variable${i}`);
 };
 
-const validateFileContent = async (file: File, requiredVars: string[]): Promise<string[]> => {
+const validateFileContent = async (file: File, requiredVars: string[]): Promise<{ errors: string[], headers: string[] }> => {
     const errors: string[] = [];
     let rows: any[] = [];
+    let headers: string[] = [];
 
     try {
         const buffer = await file.arrayBuffer();
@@ -77,7 +79,10 @@ const validateFileContent = async (file: File, requiredVars: string[]): Promise<
             rows = result.data;
             if (result.errors && result.errors.length > 0) {
                 errors.push(`CSV Parse Error: ${result.errors[0].message}`);
-                return errors;
+                return { errors, headers };
+            }
+            if (result.meta.fields) {
+                headers = result.meta.fields;
             }
         } else {
             const data = new Uint8Array(buffer);
@@ -86,11 +91,12 @@ const validateFileContent = async (file: File, requiredVars: string[]): Promise<
             rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
 
             if (rows.length > 0) {
-                const header = rows[0] as string[];
+                headers = (rows[0] as string[]).map(h => String(h));
                 // Convert array of arrays to array of objects
+                const headerRow = rows[0] as string[];
                 rows = rows.slice(1).map((row: any) => {
                     const rowData: any = {};
-                    header.forEach((h: string, i: number) => {
+                    headerRow.forEach((h: string, i: number) => {
                         rowData[h] = row[i];
                     });
                     return rowData;
@@ -100,24 +106,23 @@ const validateFileContent = async (file: File, requiredVars: string[]): Promise<
 
         if (rows.length === 0) {
             errors.push("The file is empty.");
-            return errors;
+            return { errors, headers };
         }
 
         // Validate Headers
-        const firstRow = rows[0];
-        const headers = Object.keys(firstRow).map(h => h.toLowerCase().trim());
+        const lowerHeaders = headers.map(h => h.toLowerCase().trim());
 
-        if (!headers.includes('phone')) {
+        if (!lowerHeaders.includes('phone')) {
             errors.push("Missing required column: 'phone'");
         }
 
-        const missingVars = requiredVars.filter(v => !headers.includes(v.toLowerCase()));
+        const missingVars = requiredVars.filter(v => !lowerHeaders.includes(v.toLowerCase()));
         if (missingVars.length > 0) {
             errors.push(`Missing variable columns: ${missingVars.join(', ')}`);
         }
 
         // If headers are missing, stop here to avoid row spam
-        if (errors.length > 0) return errors;
+        if (errors.length > 0) return { errors, headers };
 
         // Validate Rows
         rows.forEach((row, index) => {
@@ -142,7 +147,7 @@ const validateFileContent = async (file: File, requiredVars: string[]): Promise<
         errors.push(`Failed to validate file: ${e.message}`);
     }
 
-    return errors;
+    return { errors, headers };
 };
 interface BroadcastFormProps {
     templates: WithId<Template>[];
@@ -170,42 +175,40 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
     const [validationErrors, setValidationErrors] = useState<string[]>([]);
     const [isValidating, setIsValidating] = useState(false);
 
+    // Variable Options for Autocomplete
+    const [variableOptions, setVariableOptions] = useState<string[]>([]);
+
     useEffect(() => {
-        const validate = async () => {
-            if (!selectedFile) {
+        const validateAndExtract = async () => {
+            if (audienceType === 'tags') {
+                // Default variables available for tagged contacts + custom fields
+                setVariableOptions(['name', 'phone', 'email', 'custom_field_1', 'custom_field_2', 'custom_field_3']);
                 setValidationErrors([]);
                 return;
             }
 
-            if (broadcastType === 'template' && !selectedTemplate) {
-                // If template mode but no template selected, we can't fully validate variables, 
-                // but we can check for 'phone' at least? 
-                // Let's verify 'phone' exists regardless.
-                setIsValidating(true);
-                const errors = await validateFileContent(selectedFile, []);
-                setValidationErrors(errors);
-                setIsValidating(false);
+            if (!selectedFile) {
+                setValidationErrors([]);
+                setVariableOptions([]);
                 return;
             }
 
+            let requiredVars: string[] = [];
             if (broadcastType === 'template' && selectedTemplate) {
-                setIsValidating(true);
-                const requiredVars = extractRequiredVariables(selectedTemplate);
-                const errors = await validateFileContent(selectedFile, requiredVars);
-                setValidationErrors(errors);
-                setIsValidating(false);
-            } else {
-                // For Flow, usually just phone is needed unless flow has input data mapping?
-                // For now, strict validation is mainly for Template variables as per user request.
-                setIsValidating(true);
-                const errors = await validateFileContent(selectedFile, []);
-                setValidationErrors(errors);
-                setIsValidating(false);
+                requiredVars = extractRequiredVariables(selectedTemplate);
             }
+
+            setIsValidating(true);
+            // Now validateFileContent returns { errors, headers }
+            const { errors, headers } = await validateFileContent(selectedFile, requiredVars);
+
+            setValidationErrors(errors);
+            setVariableOptions(headers || []);
+            setIsValidating(false);
         };
 
-        validate();
-    }, [selectedFile, selectedTemplate, broadcastType]);
+        validateAndExtract();
+    }, [selectedFile, selectedTemplate, broadcastType, audienceType]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -213,6 +216,7 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
         } else {
             setSelectedFile(null);
             setValidationErrors([]);
+            setVariableOptions([]);
         }
     };
 
@@ -232,54 +236,6 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
         toast({ title: "Sample file downloading..." });
     };
 
-
-    useEffect(() => {
-        if (state?.message) {
-            toast({
-                title: 'Success!',
-                description: state.message,
-            });
-            setFileInputKey(Date.now()); // Resets both file inputs
-            setSelectedFile(null);
-            setValidationErrors([]);
-            formRef.current?.reset();
-            setSelectedTemplate(null);
-            setSelectedFlow(null);
-            setBroadcastType('template');
-            setSelectedPhoneNumber('');
-            setSelectedTagIds([]);
-            setAudienceType('file');
-            onSuccess();
-        }
-        if (state?.error) {
-            toast({
-                title: 'Broadcast Error',
-                description: state.error,
-                variant: 'destructive',
-            });
-        }
-    }, [state, toast, onSuccess]);
-
-
-    if (!activeProject) {
-        return (
-            <Card className="card-gradient card-gradient-green">
-                <CardHeader>
-                    <CardTitle>No Project Selected</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Action Required</AlertTitle>
-                        <AlertDescription>
-                            Please select a project from the main dashboard page before sending a broadcast.
-                        </AlertDescription>
-                    </Alert>
-                </CardContent>
-            </Card>
-        )
-    }
-
     const handleTemplateChange = (templateId: string) => {
         const template = templates.find(t => t._id.toString() === templateId);
         setSelectedTemplate(template || null);
@@ -290,14 +246,12 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
         setSelectedFlow(flow || null);
     };
 
-    const showImageUpload = selectedTemplate?.type !== 'MARKETING_CAROUSEL' && selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
-
     const approvedTemplates = templates.filter(t => t.status?.toUpperCase() === 'APPROVED');
 
     return (
         <Card className="card-gradient card-gradient-green">
             <form ref={formRef} action={formAction}>
-                <input type="hidden" name="projectId" value={activeProject._id.toString()} />
+                <input type="hidden" name="projectId" value={activeProject?._id?.toString()} />
                 <input type="hidden" name="broadcastType" value={broadcastType} />
                 {selectedTagIds.map(id => <input key={id} type="hidden" name="tagIds" value={id} />)}
                 <CardHeader>
@@ -487,36 +441,13 @@ export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastForm
 
 
 
-                    {broadcastType === 'template' && showImageUpload && (
+                    {broadcastType === 'template' && selectedTemplate && (
                         <>
                             <div className="md:col-span-2">
                                 <Separator className="my-2" />
                             </div>
-                            <div className="md:col-span-2 space-y-4">
-                                <Label>Header Media (Required)</Label>
-                                <RadioGroup name="mediaSource" value={headerMediaSource} onValueChange={(val) => setHeaderMediaSource(val as any)} className="flex gap-4 pt-1">
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="source-url" /><Label htmlFor="source-url" className="flex items-center gap-2"><LinkIcon className="h-4 w-4" />Use public URL</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="file" id="source-file" /><Label htmlFor="source-file" className="flex items-center gap-2"><UploadCloud className="h-4 w-4" />Upload file</Label></div>
-                                </RadioGroup>
-
-                                {headerMediaSource === 'url' ? (
-                                    <Input
-                                        id="headerImageUrl"
-                                        name="headerImageUrl"
-                                        type="url"
-                                        placeholder="https://example.com/image.png"
-                                        required
-                                    />
-                                ) : (
-                                    <Input
-                                        id="headerImageFile"
-                                        name="headerImageFile"
-                                        type="file"
-                                        accept="image/*,video/*,application/pdf"
-                                        required
-                                        className="file:text-primary file:font-medium"
-                                    />
-                                )}
+                            <div className="md:col-span-2">
+                                <TemplateInputRenderer template={selectedTemplate} variableOptions={variableOptions} />
                             </div>
                         </>
                     )}

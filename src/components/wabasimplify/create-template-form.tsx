@@ -18,7 +18,6 @@ import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, Template, CreateTemplateState } from '@/lib/definitions';
 import { Separator } from '../ui/separator';
-import { AiSuggestions } from './ai-suggestions';
 import { createTemplateSchema } from '@/lib/template-schema';
 
 // New Components
@@ -314,7 +313,32 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
       {/* Header / Type Selector */}
       <div className="mb-8">
         <Label className="text-base mb-2 block">Choose Template Type</Label>
-        <RadioGroup value={templateType} onValueChange={(v) => setTemplateType(v as any)} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <RadioGroup
+          value={templateType}
+          onValueChange={(v) => {
+            const newType = v as any;
+            setTemplateType(newType);
+            // Reset content state on type switch to prevent cross-contamination
+            setTemplateName('');
+            setBody('');
+            setFooter('');
+            setHeaderFormat('NONE');
+            setHeaderText('');
+            setHeaderSampleUrl('');
+            setButtons([]);
+            setCarouselCards([{ id: '1', headerFormat: 'IMAGE', headerSampleUrl: '', body: '', buttons: [] }]);
+            // Catalog state
+            setCatalogId('');
+            setCatalogHeader('');
+            setCatalogBody('Check out our catalog!');
+            setCatalogFooter('');
+            setCatalogSection1Title('Featured Items');
+            setCatalogSection1Ids([]);
+            setCatalogSection2Title('More Products');
+            setCatalogSection2Ids([]);
+          }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
           <div className="relative">
             <RadioGroupItem value="STANDARD" id="t-standard" className="peer sr-only" />
             <Label htmlFor="t-standard" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary cursor-pointer h-full">
@@ -417,7 +441,15 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                     )}
                     {(headerFormat === 'IMAGE' || headerFormat === 'VIDEO' || headerFormat === 'DOCUMENT') && (
                       <div className="space-y-2">
-                        <Input type="file" name="headerSampleFile" />
+                        <Input
+                          type="file"
+                          name="headerSampleFile"
+                          accept={
+                            headerFormat === 'IMAGE' ? "image/jpeg,image/png" :
+                              headerFormat === 'VIDEO' ? "video/mp4" :
+                                headerFormat === 'DOCUMENT' ? "application/pdf" : undefined
+                          }
+                        />
                         <div className="text-xs text-muted-foreground">OR</div>
                         <Input name="headerSampleUrl" placeholder="https://..." value={headerSampleUrl} onChange={e => setHeaderSampleUrl(e.target.value)} />
                       </div>
@@ -428,7 +460,6 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                 <div className="space-y-2">
                   <Label>{templateType === 'MARKETING_CAROUSEL' ? 'Carousel Intro Body' : 'Body'}</Label>
                   <Textarea name="body" value={body} onChange={e => setBody(e.target.value)} placeholder={templateType === 'MARKETING_CAROUSEL' ? "Check out our latest collection..." : "Hello {{1}}..."} className="min-h-[120px]" required />
-                  <AiSuggestions onSuggestionSelect={setBody} />
 
                   {/* Variable Examples for Body */}
                   {(() => {
@@ -469,6 +500,64 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                   <Label>Footer (Optional)</Label>
                   <Input name="footer" value={footer} onChange={e => setFooter(e.target.value)} />
                 </div>
+              </CardContent>
+
+              {/* Buttons Editor for Standard - Moved inside main card to avoid overlap issues */}
+              <CardContent className="space-y-3 pt-0">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-semibold">Buttons ({buttons.length})</Label>
+                </div>
+
+                {buttons.map((b, i) => (
+                  <div key={i} className="p-3 border rounded relative bg-muted/20">
+                    <div className="font-semibold text-xs mb-1">{b.type}</div>
+                    <Input
+                      placeholder="Label"
+                      value={b.text}
+                      onChange={(e) => {
+                        const newBtns = [...buttons];
+                        newBtns[i] = { ...b, text: e.target.value };
+                        setButtons(newBtns);
+                      }}
+                      className="mb-2"
+                    />
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-5 w-5" onClick={() => setButtons(btns => btns.filter((_, idx) => idx !== i))}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+
+                    {b.type === 'URL' && (
+                      <Input
+                        placeholder="https://website.com"
+                        value={b.url || ''}
+                        onChange={(e) => {
+                          const newBtns = [...buttons];
+                          newBtns[i] = { ...b, url: e.target.value };
+                          setButtons(newBtns);
+                        }}
+                        className="mb-2"
+                      />
+                    )}
+
+                    {b.type === 'PHONE_NUMBER' && (
+                      <Input
+                        placeholder="+1234567890"
+                        value={b.phone_number || ''}
+                        onChange={(e) => {
+                          const newBtns = [...buttons];
+                          newBtns[i] = { ...b, phone_number: e.target.value };
+                          setButtons(newBtns);
+                        }}
+                        className="mb-2"
+                      />
+                    )}
+                  </div>
+                ))}
+                {buttons.length < 3 && (
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'QUICK_REPLY', text: '' }])}>Quick Reply</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'URL', text: '', url: '' }])}>URL</Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -595,42 +684,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
             </CardContent>
           </Card>
 
-          {/* Buttons Editor for Standard */}
-          {templateType === 'STANDARD' && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Buttons ({buttons.length})</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {buttons.map((b, i) => (
-                  <div key={i} className="p-3 border rounded relative">
-                    <div className="font-semibold text-xs mb-1">{b.type}</div>
-                    <Input
-                      placeholder="Label"
-                      value={b.text}
-                      onChange={(e) => {
-                        const newBtns = [...buttons];
-                        newBtns[i] = { ...b, text: e.target.value };
-                        setButtons(newBtns);
-                      }}
-                      className="mb-2"
-                    />
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-5 w-5" onClick={() => setButtons(btns => btns.filter((_, idx) => idx !== i))}>
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
-                {buttons.length < 3 && (
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'QUICK_REPLY', text: '' }])}>Quick Reply</Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'URL', text: '', url: '' }])}>URL</Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
         </div>
-
       </div>
     </form >
   );

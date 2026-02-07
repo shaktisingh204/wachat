@@ -16,6 +16,7 @@ import { getErrorMessage } from './utils';
 import { processFacebookComment } from '@/ai/flows/facebook-comment-flow';
 import { handlePaymentRequest } from '@/app/actions/integrations.actions';
 import { executeDelayAction } from '@/lib/sabflow/actions/core/logic';
+import NodeFormData from 'form-data';
 
 const BATCH_SIZE = 1000;
 const API_VERSION = 'v23.0';
@@ -153,21 +154,70 @@ async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId
 
 async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<Contact | FacebookSubscriber>, phoneNumberId: string, node: FlowNode | EcommFlowNode, variables: Record<string, any>) {
     const imageUrl = interpolate(node.data.imageUrl, variables);
+    const imageBase64 = node.data.imageBase64;
     const caption = node.data.caption || '';
-    if (!imageUrl) {
-        console.error(`Flow: Image URL is missing or invalid after interpolation for node ${node.id}.`);
+
+    if (!imageUrl && !imageBase64) {
+        console.error(`Flow: Image URL and Base64 data are missing for node ${node.id}.`);
         return;
     }
+
     try {
         const translatedCaption = await maybeTranslate(caption, variables);
         const interpolatedCaption = interpolate(translatedCaption, variables);
         const waId = (contact as WithId<Contact>).waId || (contact as WithId<FacebookSubscriber>).psid;
 
-        const messagePayload: any = {
+        let messagePayload: any = {
             messaging_product: 'whatsapp', to: waId, type: 'image',
-            image: { link: imageUrl },
         };
+
+        let mediaId: string | undefined;
+
+        if (imageBase64) {
+            try {
+                const matches = imageBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+                if (matches && matches.length === 3) {
+                    const type = matches[1];
+                    const content = matches[2];
+                    const buffer = Buffer.from(content, 'base64');
+                    const extension = type.split('/')[1] || 'png';
+                    const filename = `image-${Date.now()}.${extension}`;
+
+                    const form = new NodeFormData();
+                    const blob = new Blob([buffer], { type });
+                    form.append('file', blob, filename);
+                    form.append('messaging_product', 'whatsapp');
+
+                    // Need to include headers from form-data to set boundary correctly
+                    const formHeaders = form.getHeaders();
+
+                    const uploadResponse = await axios.post(
+                        `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
+                        form,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${project.accessToken}`,
+                                ...formHeaders
+                            }
+                        }
+                    );
+                    mediaId = uploadResponse.data.id;
+                }
+            } catch (uploadError: any) {
+                console.error(`Flow: Failed to upload image for node ${node.id}:`, getErrorMessage(uploadError));
+            }
+        }
+
+        if (mediaId) {
+            messagePayload.image = { id: mediaId };
+        } else if (imageUrl) {
+            messagePayload.image = { link: imageUrl };
+        } else {
+            throw new Error('Could not process image: Upload failed and no valid URL provided.');
+        }
+
         if (interpolatedCaption) messagePayload.image.caption = interpolatedCaption;
+
         const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');

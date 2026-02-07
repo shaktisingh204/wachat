@@ -30,16 +30,15 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, PlusCircle, ServerCog, Trash2, Edit, MoreHorizontal, Search, RefreshCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { useProject } from '@/context/project-context';
-import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
+import { SmartCombobox } from '@/components/wabasimplify/smart-combobox';
 
 export default function FlowBuilderListPage() {
+    const router = useRouter();
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
     const { activeProjectId } = useProject();
     const { toast } = useToast();
-    const [searchQuery, setSearchQuery] = useState('');
 
     const fetchFlows = useCallback(() => {
         if (!activeProjectId) return;
@@ -67,13 +66,6 @@ export default function FlowBuilderListPage() {
         }
     }
 
-    const filteredFlows = useMemo(() => {
-        return flows.filter(flow =>
-            flow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (flow.triggerKeywords || []).join(', ').toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    }, [flows, searchQuery]);
-
     return (
         <div className="flex flex-col gap-8 h-full p-4 md:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -99,15 +91,13 @@ export default function FlowBuilderListPage() {
                 </Alert>
             ) : (
                 <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <div className="relative w-full max-w-sm">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                type="search"
-                                placeholder="Search flows..."
-                                className="pl-8"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="w-full max-w-sm">
+                            <SmartCombobox
+                                placeholder="Search and select flow..."
+                                searchPlaceholder="Search flows..."
+                                options={flows.map(f => ({ label: f.name, value: f._id.toString() }))}
+                                onSelect={(id) => router.push(`/dashboard/flow-builder/${id}`)}
                             />
                         </div>
                         <Button variant="ghost" size="sm" onClick={fetchFlows} disabled={isLoading}>
@@ -138,8 +128,8 @@ export default function FlowBuilderListPage() {
                                             <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                                         </TableRow>
                                     ))
-                                ) : filteredFlows.length > 0 ? (
-                                    filteredFlows.map((flow) => (
+                                ) : flows.length > 0 ? (
+                                    flows.map((flow) => (
                                         <TableRow key={flow._id.toString()}>
                                             <TableCell className="font-medium">
                                                 <Link href={`/dashboard/flow-builder/${flow._id.toString()}`} className="hover:underline">
@@ -193,17 +183,11 @@ export default function FlowBuilderListPage() {
                                     <TableRow>
                                         <TableCell colSpan={4} className="h-24 text-center">
                                             <div className="flex flex-col items-center justify-center text-muted-foreground py-8">
-                                                {searchQuery ? (
-                                                    <p>No flows found matching "{searchQuery}"</p>
-                                                ) : (
-                                                    <>
-                                                        <ServerCog className="h-10 w-10 mb-2 opacity-20" />
-                                                        <p>No Bot Flows found.</p>
-                                                        <Button variant="link" asChild className="mt-2">
-                                                            <Link href="/dashboard/flow-builder/new">Create your first flow</Link>
-                                                        </Button>
-                                                    </>
-                                                )}
+                                                <ServerCog className="h-10 w-10 mb-2 opacity-20" />
+                                                <p>No Bot Flows found.</p>
+                                                <Button variant="link" asChild className="mt-2">
+                                                    <Link href="/dashboard/flow-builder/new">Create your first flow</Link>
+                                                </Button>
                                             </div>
                                         </TableCell>
                                     </TableRow>

@@ -11,6 +11,11 @@ import type { Project, Template, BroadcastJob, Contact } from '@/lib/definitions
 import Papa from 'papaparse';
 import * as xlsx from 'xlsx';
 import { nanoid } from 'nanoid';
+import axios from 'axios';
+import NodeFormData from 'form-data';
+
+const API_VERSION = 'v21.0';
+
 
 export async function getAllBroadcasts(
     page: number = 1,
@@ -235,8 +240,9 @@ export async function handleStartBroadcast(
     }
 
     // Header variables
-    const headerImageUrl = formData.get('headerImageUrl') as string | null;
-    const headerMediaFile = formData.get('headerImageFile') as File | null;
+    const headerImageUrl = formData.get('headerMediaUrl') as string | null;
+    const headerMediaFile = formData.get('headerMediaFile') as File | null;
+    const baseMediaSource = formData.get('mediaSource') as string | null;
 
     let contacts: any[] = [];
 
@@ -277,15 +283,305 @@ export async function handleStartBroadcast(
         broadcastData.name = `${template.name} - ${new Date().toLocaleString()}`;
         broadcastData.templateName = template.name;
         broadcastData.templateId = template._id;
-        broadcastData.language = template.language;
-        broadcastData.components = template.components || [];
-        broadcastData.headerImageUrl = headerImageUrl || undefined;
-        if (headerMediaFile && headerMediaFile.size > 0) {
-            broadcastData.headerMediaFile = {
-                buffer: Buffer.from(await headerMediaFile.arrayBuffer()),
-                name: headerMediaFile.name,
-                type: headerMediaFile.type,
-            };
+        // --- HEADER ---
+        const headerComponentDef = template.components?.find(c => c.type === 'HEADER');
+        if (headerComponentDef) {
+            const format = headerComponentDef.format?.toUpperCase();
+
+            // Text Header with Variables
+            if (format === 'TEXT') {
+                const matches = headerComponentDef.text?.match(/{{\s*(\d+)\s*}}/g);
+                if (matches && matches.length > 0) {
+                    const varNum = matches[0].replace(/\D/g, ''); // Get first variable number
+                    const headerVar = formData.get(`variable_header_${varNum}`) as string;
+
+                    if (headerVar) {
+                        const headerIndex = broadcastData.components.findIndex((c: any) => c.type === 'HEADER');
+                        if (headerIndex !== -1) {
+                            broadcastData.components[headerIndex] = {
+                                type: 'header',
+                                parameters: [{ type: 'text', text: headerVar }]
+                            };
+                        }
+                    }
+                }
+            }
+            // Location Header
+            else if (format === 'LOCATION') {
+                const locName = formData.get('header_location_name') as string;
+                const locAddress = formData.get('header_location_address') as string;
+                const locLat = formData.get('header_location_latitude') as string;
+                const locLong = formData.get('header_location_longitude') as string;
+
+                if (locLat && locLong) {
+                    const headerIndex = broadcastData.components.findIndex((c: any) => c.type === 'HEADER');
+                    if (headerIndex !== -1) {
+                        broadcastData.components[headerIndex] = {
+                            type: 'header',
+                            parameters: [{
+                                type: 'location',
+                                location: {
+                                    latitude: locLat,
+                                    longitude: locLong,
+                                    name: locName || undefined,
+                                    address: locAddress || undefined
+                                }
+                            }]
+                        };
+                    }
+                }
+            }
+        }
+
+        // --- BODY ---
+        // For Broadcasts, body variables are usually per-contact (from file/tags). 
+        // IF the variable is NOT in the file (e.g. valid hardcoded value?), we might need to handle it?
+        // Current logic expects body vars to be in the contact object (from file/tags).
+        // However, if the user inputs a static value for a body variable in the form (which TemplateInputRenderer allows),
+        // we should probably use that as a fallback or default?
+        // actually, TemplateInputRenderer outputs `variable_body_${i}`.
+        // But `createBroadcastContacts` maps file columns to variables. 
+        // If we want to support "static" body values from the form that apply to EVERYONE, we should extract them here
+        // and merge them into the contact's variables during creation, OR update the component parameters here?
+        // 
+        // Standard Broadcast behavior usually implies variables come from the Audience list.
+        // But if `TemplateInputRenderer` allows typing a value, it acts as a constant for the whole batch.
+        // Let's support that:
+
+        const bodyComponent = template.components?.find(c => c.type === 'BODY');
+        if (bodyComponent && bodyComponent.text) {
+            const bodyParams: any[] = [];
+            // Count variables
+            const matches = bodyComponent.text.match(/{{(\d+)}}/g);
+            if (matches) {
+                const uniqueVars = new Set(matches) as Set<string>;
+                // We can't pre-fill parameters here because they differ per contact (usually).
+                // BUT if the user provided a value in the form, it should override/be used.
+                // The `worker` or sending logic needs to know about these "Global" variables.
+                // 
+                // Strategy: Store these "global" body values in `broadcastData` so the worker can use them 
+                // if the contact specific variable is missing.
+
+                const globalBodyVars: Record<string, string> = {};
+                uniqueVars.forEach((v) => {
+                    const varNum = v.replace(/\D/g, '');
+                    const formValue = formData.get(`variable_body_${varNum}`) as string;
+                    if (formValue) {
+                        globalBodyVars[`variable_body_${varNum}`] = formValue;
+                    }
+                });
+
+                if (Object.keys(globalBodyVars).length > 0) {
+                    broadcastData.globalBodyVars = globalBodyVars;
+                }
+            }
+        }
+
+        // --- BUTTONS ---
+        const buttons = template.components?.find(c => c.type === 'BUTTONS')?.buttons;
+        if (buttons) {
+            const buttonComponents: any[] = [];
+            buttons.forEach((btn: any, index: number) => {
+                if (btn.type === 'URL' && btn.url?.includes('{{1}}')) {
+                    const suffix = formData.get(`button_url_suffix_${index}`) as string;
+                    if (suffix) {
+                        buttonComponents.push({
+                            type: 'button',
+                            sub_type: 'url',
+                            index: index,
+                            parameters: [{ type: 'text', text: suffix }]
+                        });
+                    }
+                } else if (btn.type === 'COPY_CODE') {
+                    const code = formData.get(`button_copy_code_${index}`) as string;
+                    if (code) {
+                        buttonComponents.push({
+                            type: 'button',
+                            sub_type: 'copy_code',
+                            index: index,
+                            parameters: [{ type: 'coupon_code', coupon_code: code }]
+                        });
+                    }
+                }
+            });
+
+            if (buttonComponents.length > 0) {
+                // Add to broadcast components. 
+                // NOTE: Broadcast components array structure is flat for header/body etc, but buttons are separate?
+                // No, standard `components` payload is an array of objects.
+                // We don't replace the BUTTONS definition from the template, we append the button parameter objects.
+                // WAIT: `broadcastData.components` currently holds the Template Definition (with types and formats).
+                // The WASAPI message payload structure (parameters) is DIFFERENT from Template Definition.
+                // 
+                // For Broadcasts, we act as a definitions storage. The `worker` constructs the actual message payload.
+                // So we should store these values in `broadcastData` (e.g. `presets` or `staticParameters`) 
+                // OR we modify `broadcastData.components` to act as the "Preset" configuration?
+                // 
+                // The `worker.js` (or broadcasting service) iterates through contacts and constructs the call.
+                // It likely looks at `broadcastData.components`.
+                // If we change `broadcastData.components` to look like the MESSAGE payload (components with parameters),
+                // then the worker might break if it expects the TEMPLATE definition.
+                // 
+                // Let's look at how the worker uses `broadcastData.components`.
+                // (I can't see the worker code right now, but assuming standard behavior or how I treated Header Media).
+                // 
+                // I treated Header Media by REPLACING the component in `broadcastData.components` with the Message Payload version:
+                // `{ type: 'header', parameters: [...] }`
+                // This implies `broadcastData.components` is expected to optionally contain PRE-FILLED component payloads.
+
+                buttonComponents.forEach(bc => {
+                    broadcastData.components.push(bc);
+                });
+            }
+        }
+
+        // Handle Header Media (Standard)
+        if (baseMediaSource === 'file' && headerMediaFile && headerMediaFile.size > 0) {
+            try {
+                const form = new NodeFormData();
+                const buffer = Buffer.from(await headerMediaFile.arrayBuffer());
+                form.append('file', buffer, {
+                    filename: headerMediaFile.name,
+                    contentType: headerMediaFile.type,
+                    knownLength: buffer.length
+                });
+                form.append('messaging_product', 'whatsapp');
+
+                console.log('Uploading broadcast header media to Meta...', { size: buffer.length, type: headerMediaFile.type });
+
+                const uploadResponse = await axios.post(
+                    `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
+                    form,
+                    {
+                        headers: {
+                            ...form.getHeaders(),
+                            'Authorization': `Bearer ${project.accessToken}`
+                        }
+                    }
+                );
+                const mediaId = uploadResponse.data.id;
+
+                // Update the HEADER component in broadcastData.components
+                const headerIndex = broadcastData.components.findIndex((c: any) => c.type === 'HEADER');
+                if (headerIndex !== -1) {
+                    const format = broadcastData.components[headerIndex].format;
+                    if (format === 'IMAGE') {
+                        broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'image', image: { id: mediaId } }] };
+                    } else if (format === 'VIDEO') {
+                        broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'video', video: { id: mediaId } }] };
+                    } else if (format === 'DOCUMENT') {
+                        broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'document', document: { id: mediaId } }] };
+                    }
+                }
+
+            } catch (uploadError: any) {
+                console.error('Meta Header Media Upload Error:', uploadError.response?.data || uploadError.message);
+                return { error: `Failed to upload header media: ${uploadError.message}` };
+            }
+        } else if (headerImageUrl) {
+            // Handle URL based header media by updating the component parameters
+            const headerIndex = broadcastData.components.findIndex((c: any) => c.type === 'HEADER');
+            if (headerIndex !== -1) {
+                const format = broadcastData.components[headerIndex].format;
+                if (format === 'IMAGE') {
+                    broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'image', image: { link: headerImageUrl } }] };
+                } else if (format === 'VIDEO') {
+                    broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'video', video: { link: headerImageUrl } }] };
+                } else if (format === 'DOCUMENT') {
+                    broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'document', document: { link: headerImageUrl } }] };
+                }
+            }
+        }
+
+        // Handle Carousel Media
+        if (template.type === 'MARKETING_CAROUSEL') {
+            const carouselComponent = broadcastData.components.find((c: any) => c.type === 'CAROUSEL');
+
+            if (carouselComponent && Array.isArray(carouselComponent.cards)) {
+                console.log('Processing Marketing Carousel for Broadcast...');
+                const cardsPayload: any[] = [];
+
+                // Process cards in order
+                for (let i = 0; i < carouselComponent.cards.length; i++) {
+                    const cardDef = carouselComponent.cards[i];
+                    const cardHeader = cardDef.components?.find((c: any) => c.type === 'HEADER');
+                    const cardComponents: any[] = [];
+
+                    // 1. Handle Header Media Upload
+                    if (cardHeader && ['IMAGE', 'VIDEO'].includes(cardHeader.format)) {
+                        const fileKey = `card_${i}_media_file`;
+                        const file = formData.get(fileKey) as File;
+
+                        let mediaId: string | null = null;
+
+                        if (file && file.size > 0) {
+                            try {
+                                const form = new NodeFormData();
+                                const buffer = Buffer.from(await file.arrayBuffer());
+                                form.append('file', buffer, {
+                                    filename: file.name,
+                                    contentType: file.type,
+                                    knownLength: buffer.length
+                                });
+                                form.append('messaging_product', 'whatsapp');
+
+                                console.log(`Uploading broadcast carousel card ${i} media to Meta...`, { size: buffer.length, type: file.type });
+
+                                const uploadResponse = await axios.post(
+                                    `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
+                                    form,
+                                    {
+                                        headers: {
+                                            ...form.getHeaders(),
+                                            'Authorization': `Bearer ${project.accessToken}`
+                                        }
+                                    }
+                                );
+                                mediaId = uploadResponse.data.id;
+                                console.log(`Uploaded media ID for card ${i}: ${mediaId}`);
+                            } catch (uploadError: any) {
+                                console.error(`Meta Media Upload Error (Card ${i}):`, uploadError.response?.data || uploadError.message);
+                                return { error: `Failed to upload media for card ${i + 1}: ${uploadError.message}` };
+                            }
+                        }
+
+                        if (mediaId) {
+                            if (cardHeader.format === 'IMAGE') {
+                                cardComponents.push({
+                                    type: 'header',
+                                    parameters: [{ type: 'image', image: { id: mediaId } }]
+                                });
+                            } else if (cardHeader.format === 'VIDEO') {
+                                cardComponents.push({
+                                    type: 'header',
+                                    parameters: [{ type: 'video', video: { id: mediaId } }]
+                                });
+                            }
+                        }
+                    }
+
+                    if (cardComponents.length > 0) {
+                        cardsPayload.push({
+                            card_index: i,
+                            components: cardComponents
+                        });
+                    }
+                }
+
+                if (cardsPayload.length > 0) {
+                    // Replace the CAROUSEL component definition with the constructed payload
+                    const newCarouselComponent = {
+                        type: 'CAROUSEL',
+                        cards: cardsPayload
+                    };
+
+                    // Replace in components array
+                    const carouselIndex = broadcastData.components.findIndex((c: any) => c.type === 'CAROUSEL');
+                    if (carouselIndex !== -1) {
+                        broadcastData.components[carouselIndex] = newCarouselComponent;
+                    }
+                }
+            }
         }
     } else if (broadcastType === 'flow' && flow) {
         broadcastData.name = `Flow: ${flow.name} - ${new Date().toLocaleString()}`;

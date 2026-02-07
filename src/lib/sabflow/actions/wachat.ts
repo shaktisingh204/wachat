@@ -86,15 +86,40 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
             case 'sendDocument':
             case 'sendAudio':
             case 'sendSticker': {
-                const mediaUrl = inputs.mediaUrl;
-                if (!mediaUrl) throw new Error('Media URL is required.');
+                let mediaFile: { content: string; name: string; type: string };
 
-                const mediaResponse = await axios.get(mediaUrl, { responseType: 'arraybuffer' });
-                const buffer = Buffer.from(mediaResponse.data);
-                const contentType = mediaResponse.headers['content-type'] || 'application/octet-stream';
+                if (inputs.imageBase64) {
+                    const matches = inputs.imageBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+                    if (matches && matches.length === 3) {
+                        mediaFile = {
+                            type: matches[1],
+                            content: matches[2],
+                            name: inputs.filename || 'media',
+                        };
+                    } else {
+                        // Assume raw base64 if no data URI scheme, default to png/generic if unknown
+                        mediaFile = {
+                            type: 'image/png',
+                            content: inputs.imageBase64,
+                            name: inputs.filename || 'media',
+                        };
+                    }
+                } else if (inputs.mediaUrl) {
+                    const mediaResponse = await axios.get(inputs.mediaUrl, { responseType: 'arraybuffer' });
+                    const contentType = mediaResponse.headers['content-type'] || 'application/octet-stream';
+                    const base64Content = Buffer.from(mediaResponse.data).toString('base64');
+
+                    mediaFile = {
+                        content: base64Content,
+                        name: inputs.filename || 'media',
+                        type: contentType
+                    };
+                } else {
+                    throw new Error('Media URL or Base64 data is required.');
+                }
 
                 const data = {
-                    mediaFile: new File([buffer], inputs.filename || 'media', { type: contentType }),
+                    mediaFile,
                     messageText: inputs.caption || '',
                     contactId: contact._id.toString(),
                     projectId: projectId,

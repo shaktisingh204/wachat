@@ -29,7 +29,6 @@ export const carouselCardSchema = z.object({
     body: z.string().min(1, "Card body text is required"),
     exampleValues: z.record(z.string(), z.string()).optional(),
     buttons: z.array(buttonSchema)
-        .min(1, "Each carousel card must have at least one button.")
         .max(2, "Each carousel card can have a maximum of 2 buttons.")
 });
 
@@ -96,6 +95,20 @@ export const createTemplateSchema = z.object({
                 path: ["carouselCards"]
             });
         }
+
+        // Check for consistent header format
+        if (data.carouselCards && data.carouselCards.length > 1) {
+            const firstFormat = data.carouselCards[0].headerFormat;
+            const hasInconsistentFormat = data.carouselCards.some(card => card.headerFormat !== firstFormat);
+            if (hasInconsistentFormat) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "All carousel cards must have the same header format (e.g., all images or all videos).",
+                    path: ["carouselCards"]
+                });
+            }
+        }
+
         // Meta requires a top-level Body component for Carousels
         if (!data.body || data.body.trim().length === 0) {
             ctx.addIssue({

@@ -128,9 +128,10 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
 
     const addCard = () => {
         if (cards.length >= 10) return;
+        const currentFormat = cards[0]?.headerFormat || 'IMAGE';
         const newCard: CarouselCardData = {
             id: crypto.randomUUID(),
-            headerFormat: 'IMAGE', // Default to image as it's most common
+            headerFormat: currentFormat,
             headerSampleUrl: '',
             body: '',
             buttons: []
@@ -225,19 +226,27 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
 
                         {/* Header Config */}
                         <div className="space-y-4">
-                            <Label>Header Media</Label>
+                            <Label>Header Media (Applies to all cards)</Label>
                             <div className="flex gap-4">
                                 <div className={`
                                     flex cursor-pointer items-center justify-center p-4 border rounded-lg hover:bg-accent w-24 h-24 flex-col gap-2 transition-all
                                     ${activeCard.headerFormat === 'IMAGE' ? 'border-primary bg-primary/5' : 'border-muted'}
-                                `} onClick={() => updateActiveCard('headerFormat', 'IMAGE')}>
+                                `} onClick={() => {
+                                        // Update ALL cards to have IMAGE format
+                                        const updated = cards.map(c => ({ ...c, headerFormat: 'IMAGE' as const }));
+                                        onChange(updated);
+                                    }}>
                                     <ImageIcon className="h-6 w-6" />
                                     <span className="text-xs">Image</span>
                                 </div>
                                 <div className={`
                                     flex cursor-pointer items-center justify-center p-4 border rounded-lg hover:bg-accent w-24 h-24 flex-col gap-2 transition-all
                                     ${activeCard.headerFormat === 'VIDEO' ? 'border-primary bg-primary/5' : 'border-muted'}
-                                `} onClick={() => updateActiveCard('headerFormat', 'VIDEO')}>
+                                `} onClick={() => {
+                                        // Update ALL cards to have VIDEO format
+                                        const updated = cards.map(c => ({ ...c, headerFormat: 'VIDEO' as const }));
+                                        onChange(updated);
+                                    }}>
                                     <Video className="h-6 w-6" />
                                     <span className="text-xs">Video</span>
                                 </div>

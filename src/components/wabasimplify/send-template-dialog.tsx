@@ -1,5 +1,5 @@
-'use client';
 
+import { TemplateInputRenderer } from './template-input-renderer';
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
@@ -58,15 +58,7 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-  const [mediaSource, setMediaSource] = useState<'url' | 'file'>('url');
 
-  const isMarketingCarousel = template.type === 'MARKETING_CAROUSEL';
-  const hasMediaHeader = !isMarketingCarousel && template.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
-
-  const bodyVariables: number[] = (template.components?.find(c => c.type === 'BODY')?.text || template.body || '').match(/{{\s*(\d+)\s*}}/g)?.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))) || [];
-  const uniqueBodyVars: number[] = Array.from(new Set(bodyVariables)).sort((a: number, b: number) => a - b);
-
-  const defaultUrl = template.headerSampleUrl && !template.headerSampleUrl.includes('graph.facebook.com') ? template.headerSampleUrl : '';
 
   useEffect(() => {
     if (state.message) {
@@ -81,7 +73,6 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
   useEffect(() => {
     if (!isOpen) {
       formRef.current?.reset();
-      setMediaSource('url');
       setState(initialState);
     }
   }, [isOpen]);
@@ -95,26 +86,26 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
         templateId: template._id.toString(),
       };
 
-      if (hasMediaHeader) {
-        data.mediaSource = mediaSource;
-        if (data.mediaSource === 'url') {
-          data.headerMediaUrl = formData.get('headerMediaUrl');
+      // Extract all form data into the data object
+      const filePromises: Promise<void>[] = [];
+
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File && value.size > 0) {
+          filePromises.push(
+            fileToBase64(value).then(base64 => {
+              data[key] = {
+                content: base64.split(',')[1],
+                name: value.name,
+                type: value.type
+              };
+            })
+          );
         } else {
-          const file = formData.get('headerMediaFile') as File;
-          if (file && file.size > 0) {
-            const base64String = await fileToBase64(file);
-            data.headerMediaFile = {
-              content: base64String.split(',')[1],
-              name: file.name,
-              type: file.type,
-            };
-          }
+          data[key] = value;
         }
       }
 
-      uniqueBodyVars.forEach(varNum => {
-        data[`variable_body_${varNum}`] = formData.get(`variable_body_${varNum}`);
-      });
+      await Promise.all(filePromises);
 
       try {
         const result = await handleSendTemplateMessage(null, data);
@@ -124,6 +115,12 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
       }
     });
   };
+
+  const variableOptions = [
+    'name',
+    'phone',
+    ...Object.keys(contact.variables || {})
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -137,47 +134,7 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-2">
-            <div className="space-y-4">
-              {hasMediaHeader && (
-                <div className="space-y-3 p-3 border rounded-md">
-                  <Label>Header Media</Label>
-                  <RadioGroup name="mediaSource" value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="source-url" /><Label htmlFor="source-url" className="font-normal flex items-center gap-1"><LinkIcon className="h-4 w-4" />Use URL</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="file" id="source-file" /><Label htmlFor="source-file" className="font-normal flex items-center gap-1"><UploadCloud className="h-4 w-4" />Upload File</Label></div>
-                  </RadioGroup>
-                  {mediaSource === 'url' ? (
-                    <Input
-                      id="headerMediaUrl"
-                      name="headerMediaUrl"
-                      type="url"
-                      placeholder="https://example.com/image.png"
-                      defaultValue={defaultUrl}
-                      required
-                    />
-                  ) : (
-                    <Input
-                      id="headerMediaFile"
-                      name="headerMediaFile"
-                      type="file"
-                      accept="image/*,video/*,application/pdf"
-                      required
-                    />
-                  )}
-                </div>
-              )}
-
-              {uniqueBodyVars.length > 0 && uniqueBodyVars.map((varNum: number) => (
-                <div key={varNum} className="space-y-2">
-                  <Label htmlFor={`variable_body_${varNum}`}>Variable {'{{'}{varNum}{'}}'}</Label>
-                  <Input
-                    id={`variable_body_${varNum}`}
-                    name={`variable_body_${varNum}`}
-                    placeholder={`Enter value for variable ${varNum}`}
-                    required
-                  />
-                </div>
-              ))}
-            </div>
+            <TemplateInputRenderer template={template} variableOptions={variableOptions} />
           </div>
 
           <DialogFooter className="px-6 pb-6 pt-2">

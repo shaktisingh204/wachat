@@ -114,7 +114,7 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
           return c;
         })
         .filter(c => {
-          const allowedTypes = ['HEADER', 'BODY', 'FOOTER', 'BUTTON'];
+          const allowedTypes = ['HEADER', 'BODY', 'FOOTER', 'BUTTON', 'CAROUSEL'];
           return allowedTypes.includes(c.type?.toUpperCase());
         });
 
@@ -155,9 +155,11 @@ async function sendWhatsAppMessage(db, job, contact, agent) {
 
         // Interpolate only if parameters exist (for text params)
         // Media params are already set above if media header exists.
+        const effectiveVars = { ...(job.globalBodyVars || {}), ...contact.variables };
+
         for (const p of c.parameters || []) {
           if (p.type === 'text') {
-            p.text = interpolateText(p.text, contact.variables);
+            p.text = interpolateText(p.text, effectiveVars);
           }
         }
       }

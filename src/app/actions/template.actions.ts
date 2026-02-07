@@ -292,7 +292,7 @@ export async function handleCreateTemplate(
 
         const validationResult = createTemplateSchema.safeParse(validationData);
         if (!validationResult.success) {
-            console.error("Zod Validation Error:", JSON.stringify(validationResult.error.format(), null, 2));
+            console.error("Zod Validation Error:", JSON.stringify(validationResult.error.format(), null, 2), "FormData:", JSON.stringify(validationData, null, 2));
             return { error: validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ') };
         }
 
@@ -501,6 +501,9 @@ export async function handleCreateTemplate(
 
     } catch (e: any) {
         console.error('Error in handleCreateTemplate:', e);
+        if (e.response && e.response.data) {
+            console.error('Meta API Error Response:', JSON.stringify(e.response.data, null, 2));
+        }
         return { error: e.message || 'An unexpected error occurred.' };
     }
 }
