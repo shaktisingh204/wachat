@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useActionState, useEffect, useState, useTransition } from 'react';
+import { Suspense, useActionState, useEffect, useState, useTransition, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -74,12 +74,27 @@ function CreateMetaFlowPageContent() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [showFlowsDialog, setShowFlowsDialog] = useState(false);
 
+    const submitButtonRef = useRef<HTMLButtonElement>(null);
+
     const refreshProject = async () => {
         if (!projectId) return;
         const p = await getProjectById(projectId);
         // @ts-ignore
         if (p) setProject(p);
     };
+
+    const handlePublish = () => {
+        setPublishOnSave(true);
+        // We need to wait for state update to propagate? 
+        // Actually state updates are batched, but the form input value depends on it.
+        // A safer way is to ensure the input hidden field is correct at submit time or use FormData append in a different way.
+        // But since we are using form action, let's just trigger the click after a timeout or use requestSubmit.
+        setTimeout(() => {
+            if (submitButtonRef.current) {
+                submitButtonRef.current.click();
+            }
+        }, 0);
+    }
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -145,6 +160,9 @@ function CreateMetaFlowPageContent() {
                 <input type="hidden" name="flow_data" value={JSON.stringify(cleanMetaFlowData(flowData), null, 2)} />
                 <input type="hidden" name="publish" value={publishOnSave ? 'on' : 'off'} />
 
+                {/* Hidden submit button for programmatic submission */}
+                <button type="submit" className="hidden" ref={submitButtonRef}></button>
+
                 {/* Header */}
                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
                     <div className="flex items-center gap-4">
@@ -188,6 +206,7 @@ function CreateMetaFlowPageContent() {
                         setSelectedScreenId={setSelectedScreenId}
                         selectedComponent={selectedComponent}
                         setSelectedComponent={setSelectedComponent}
+                        onPublish={handlePublish}
                     />
                 </div>
             </form>

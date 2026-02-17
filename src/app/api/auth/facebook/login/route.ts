@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   if (!session?.user?._id) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
-  
+
   const searchParams = request.nextUrl.searchParams;
   const includeCatalog = searchParams.get('includeCatalog') === 'true';
   const reauthorize = searchParams.get('reauthorize') === 'true';

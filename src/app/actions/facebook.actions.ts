@@ -143,13 +143,18 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
 
         if (state === 'whatsapp') {
             await db.collection('users').updateOne({ _id: new ObjectId(session.user._id) }, { $set: userUpdate });
-            const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
-                params: { access_token: longLivedToken }
-            });
-            const businesses = businessesResponse.data.data;
+            let businesses: any[] = [];
+            try {
+                const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
+                    params: { access_token: longLivedToken }
+                });
+                businesses = businessesResponse.data.data;
+            } catch (e) {
+                console.warn("Failed to fetch businesses (likely missing permissions):", getErrorMessage(e));
+            }
 
             if (!businesses || businesses.length === 0) {
-                return { success: false, error: "No Meta Business Accounts found for your user. Please ensure your account is connected to a business in Meta Business Suite." };
+                return { success: false, error: "Could not discover any WhatsApp Business Accounts. This is likely because the 'business_management' permission was not granted. Please try the 'Manual Setup' option to connect your WABA using its ID." };
             }
 
             let allWabas: any[] = [];

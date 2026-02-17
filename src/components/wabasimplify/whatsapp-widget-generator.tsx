@@ -161,7 +161,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                         style={{ backgroundColor: settings.buttonColor }}
                                         onClick={() => {
                                             setShowWidget(!showWidget);
-                                            toast({ title: 'Preview Interaction', description: 'Widget toggled (Live Preview)' });
+                                            toast({ title: 'Widget Saved', description: 'Widget is saved' });
                                         }}
                                         className="relative h-16 w-16"
                                     >
@@ -183,7 +183,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                                 <Button
                                                     className="sabnode-cta-button w-full h-12 rounded-full"
                                                     style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor }}
-                                                    onClick={() => toast({ title: 'Widget Saved', description: 'This is a preview of the success action.' })}
+                                                    onClick={() => toast({ title: 'Widget Saved', description: 'Widget is saved' })}
                                                 >
                                                     <WhatsAppIcon className="h-4 w-4 mr-2" />
                                                     {settings.ctaText}

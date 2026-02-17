@@ -21,6 +21,9 @@ interface MetaFlowBuilderLayoutProps {
 
     selectedComponent: any | null;
     setSelectedComponent: (comp: any | null) => void;
+
+    // Actions
+    onPublish?: () => void;
 }
 
 export function MetaFlowBuilderLayout({
@@ -29,7 +32,8 @@ export function MetaFlowBuilderLayout({
     selectedScreenId,
     setSelectedScreenId,
     selectedComponent,
-    setSelectedComponent
+    setSelectedComponent,
+    onPublish
 }: MetaFlowBuilderLayoutProps) {
 
     // -- Handlers --
@@ -339,6 +343,7 @@ export function MetaFlowBuilderLayout({
                             onSelectComponent={setSelectedComponent}
                             onDeleteComponent={handleDeleteComponent}
                             onAddComponent={handleAddComponent}
+                            onPublish={onPublish}
                         />
                     </div>
 

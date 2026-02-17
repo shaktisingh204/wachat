@@ -9,6 +9,7 @@ import type { Template } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface EditorProps {
     node: any;
@@ -47,20 +48,78 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
     const getTemplateVariables = (template: WithId<Template> | null) => {
         if (!template) return [];
 
-        let allText = template.body || '';
+        const varNumbers: number[] = [];
+        const regex = /{{\s*(\d+)\s*}}/g;
+
+        // Helper to extract matches
+        const extract = (str: string) => {
+            if (!str) return;
+            const matches = str.match(regex);
+            if (matches) {
+                matches.forEach(m => {
+                    varNumbers.push(parseInt(m.replace(/{{\s*|\s*}}/g, '')));
+                });
+            }
+        };
+
         if (template.components) {
-            allText += template.components.map(c => c.text || '').join(' ');
+            template.components.forEach(c => {
+                if (c.type === 'HEADER' && c.format === 'TEXT') extract(c.text);
+                if (c.type === 'BODY') extract(c.text);
+                if (c.type === 'BUTTONS' && c.buttons) {
+                    c.buttons.forEach((b: any) => {
+                        if (b.type === 'URL') extract(b.url);
+                    });
+                }
+            });
         }
 
-        const regex = /{{\s*(\d+)\s*}}/g;
-        const matches = allText.match(regex);
-        if (!matches) return [];
-
-        const varNumbers = matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, '')));
         return [...new Set(varNumbers)].sort((a, b) => a - b);
     };
 
+
     const variables = getTemplateVariables(selectedTemplate);
+
+    const headerComponent = selectedTemplate?.components?.find(c => c.type === 'HEADER');
+    const hasMediaHeader = headerComponent?.format === 'IMAGE' || headerComponent?.format === 'VIDEO' || headerComponent?.format === 'DOCUMENT';
+    const mediaType = headerComponent?.format?.toLowerCase();
+
+    const [mediaSource, setMediaSource] = useState<'url' | 'upload'>('url');
+
+    useEffect(() => {
+        if (node.data.headerMedia?.base64) {
+            setMediaSource('upload');
+        } else {
+            setMediaSource('url');
+        }
+    }, [node.data.headerMedia]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                onUpdate({
+                    headerMedia: {
+                        type: mediaType,
+                        url: '',
+                        base64: reader.result as string
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleUrlChange = (url: string) => {
+        onUpdate({
+            headerMedia: {
+                type: mediaType,
+                url: url,
+                base64: ''
+            }
+        });
+    }
 
     return (
         <div className="space-y-4">
@@ -74,6 +133,41 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
                     searchPlaceholder="Search templates..."
                 />
             </div>
+
+            {selectedTemplate && hasMediaHeader && (
+                <div className="space-y-4 pt-2 border-t">
+                    <Label>Header Media ({mediaType})</Label>
+                    <RadioGroup value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="t-media-url" /><Label htmlFor="t-media-url">From URL</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="upload" id="t-media-upload" /><Label htmlFor="t-media-upload">Upload</Label></div>
+                    </RadioGroup>
+
+                    {mediaSource === 'url' ? (
+                        <div className="space-y-2">
+                            <Label htmlFor="t-media-url-input">Media URL</Label>
+                            <Input
+                                id="t-media-url-input"
+                                placeholder={`https://example.com/media.${mediaType === 'image' ? 'png' : 'mp4'}`}
+                                value={node.data.headerMedia?.url || ''}
+                                onChange={(e) => handleUrlChange(e.target.value)}
+                            />
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            <Label htmlFor="t-media-file">Upload Media</Label>
+                            <Input
+                                id="t-media-file"
+                                type="file"
+                                accept={mediaType === 'image' ? "image/*" : mediaType === 'video' ? "video/*" : "*/*"}
+                                onChange={handleFileChange}
+                            />
+                            {node.data.headerMedia?.base64 && (
+                                <p className="text-xs text-green-600 truncate">Media uploaded</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {selectedTemplate && variables.length > 0 && (
                 <div className="space-y-3 pt-2 border-t">

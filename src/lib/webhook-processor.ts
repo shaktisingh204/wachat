@@ -152,6 +152,8 @@ async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId
     }
 }
 
+import { uploadMediaToMeta } from '@/lib/meta-upload';
+
 async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<Contact | FacebookSubscriber>, phoneNumberId: string, node: FlowNode | EcommFlowNode, variables: Record<string, any>) {
     const imageUrl = interpolate(node.data.imageUrl, variables);
     const imageBase64 = node.data.imageBase64;
@@ -174,37 +176,11 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
         let mediaId: string | undefined;
 
         if (imageBase64) {
-            try {
-                const matches = imageBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-                if (matches && matches.length === 3) {
-                    const type = matches[1];
-                    const content = matches[2];
-                    const buffer = Buffer.from(content, 'base64');
-                    const extension = type.split('/')[1] || 'png';
-                    const filename = `image-${Date.now()}.${extension}`;
-
-                    const form = new NodeFormData();
-                    const blob = new Blob([buffer], { type });
-                    form.append('file', blob, filename);
-                    form.append('messaging_product', 'whatsapp');
-
-                    // Need to include headers from form-data to set boundary correctly
-                    const formHeaders = form.getHeaders();
-
-                    const uploadResponse = await axios.post(
-                        `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
-                        form,
-                        {
-                            headers: {
-                                'Authorization': `Bearer ${project.accessToken}`,
-                                ...formHeaders
-                            }
-                        }
-                    );
-                    mediaId = uploadResponse.data.id;
-                }
-            } catch (uploadError: any) {
-                console.error(`Flow: Failed to upload image for node ${node.id}:`, getErrorMessage(uploadError));
+            const uploadResult = await uploadMediaToMeta(project.accessToken, phoneNumberId, imageBase64);
+            if (uploadResult.id) {
+                mediaId = uploadResult.id;
+            } else {
+                console.error(`Flow: Failed to upload image for node ${node.id}:`, uploadResult.error);
             }
         }
 
@@ -232,6 +208,7 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
         console.error(`Flow: Failed to send image message to ${(contact as WithId<Contact>).waId} for project ${project._id}:`, getErrorMessage(e));
     }
 }
+
 
 async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
     const text = node.data.text || '';
@@ -467,6 +444,7 @@ async function sendFlowCarousel(db: Db, project: WithId<Project>, contact: WithI
     }
 }
 
+
 async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, templateVars: Record<string, any>, logger: FlowLogger) {
     const templateId = node.data.templateId;
     if (!templateId) {
@@ -488,7 +466,41 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
 
         const payloadComponents: any[] = [];
         const headerComponent = template.components.find(c => c.type === 'HEADER');
-        if (headerComponent?.format === 'TEXT' && headerComponent.text) {
+
+        // Handle Media Header
+        if (headerComponent && (headerComponent.format === 'IMAGE' || headerComponent.format === 'VIDEO' || headerComponent.format === 'DOCUMENT')) {
+            const mediaType = headerComponent.format.toLowerCase();
+            const headerMedia = node.data.headerMedia;
+
+            let mediaObject: any = {};
+
+            if (headerMedia?.base64) {
+                const uploadResult = await uploadMediaToMeta(project.accessToken, phoneNumberId, headerMedia.base64);
+                if (uploadResult.id) {
+                    mediaObject = { id: uploadResult.id };
+                } else {
+                    logger.log(`Error uploading template header media: ${uploadResult.error}`);
+                    // Fallback to URL if available, otherwise error out?
+                    if (headerMedia.url) mediaObject = { link: interpolate(headerMedia.url, templateVars) };
+                }
+            } else if (headerMedia?.url) {
+                mediaObject = { link: interpolate(headerMedia.url, templateVars) };
+            }
+
+            if (Object.keys(mediaObject).length > 0) {
+                payloadComponents.push({
+                    type: 'header',
+                    parameters: [{
+                        type: mediaType,
+                        [mediaType]: mediaObject
+                    }]
+                });
+            } else {
+                logger.log(`Warning: Template has ${mediaType} header but no media provided in node.`);
+            }
+        }
+        // Handle Text Header variables (existing code)
+        else if (headerComponent?.format === 'TEXT' && headerComponent.text) {
             const headerVars = getVars(headerComponent.text);
             if (headerVars.length > 0) {
                 const parameters = headerVars.sort((a, b) => a - b).map(varNum => {
@@ -509,6 +521,30 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
                 });
                 payloadComponents.push({ type: 'body', parameters });
             }
+        }
+
+        const buttonsComponent = template.components.find(c => c.type === 'BUTTONS');
+        if (buttonsComponent?.buttons) {
+            buttonsComponent.buttons.forEach((btn: any, index: number) => {
+                if (btn.type === 'URL' && btn.url) {
+                    const btnVars = getVars(btn.url);
+                    if (btnVars.length > 0) {
+                        // For URL buttons, the parameter type is 'text' but it fills the {{1}} in the URL
+                        const parameters = btnVars.sort((a, b) => a - b).map(varNum => {
+                            const varValue = (templateVars[`variable${varNum}`] || '').trim();
+                            return { type: 'text', text: varValue === '' ? ' ' : varValue };
+                            // Note: Meta might reject empty strings for URL params, but let's try ' ' or the value.
+                        });
+
+                        payloadComponents.push({
+                            type: 'button',
+                            sub_type: 'url',
+                            index: index,
+                            parameters: parameters
+                        });
+                    }
+                }
+            });
         }
 
         const messageData = {

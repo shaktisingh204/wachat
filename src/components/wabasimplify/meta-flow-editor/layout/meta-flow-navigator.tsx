@@ -30,6 +30,7 @@ interface MetaFlowNavigatorProps {
     onSelectComponent: (component: any) => void;
     onDeleteComponent: (componentName: string) => void;
     onAddComponent: (screenId: string, type: string) => void;
+    onPublish?: () => void;
 }
 
 export function MetaFlowNavigator({
@@ -41,7 +42,8 @@ export function MetaFlowNavigator({
     selectedComponent,
     onSelectComponent,
     onDeleteComponent,
-    onAddComponent
+    onAddComponent,
+    onPublish
 }: MetaFlowNavigatorProps) {
     const { toast } = useToast();
 
@@ -86,10 +88,14 @@ export function MetaFlowNavigator({
                                             <DropdownMenuContent align="end" className="w-48">
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                 <DropdownMenuItem onClick={() => {
-                                                    toast({
-                                                        title: "Flow submitted",
-                                                        description: "Your flow has been submitted for verification.",
-                                                    });
+                                                    if (onPublish) {
+                                                        onPublish();
+                                                    } else {
+                                                        toast({
+                                                            title: "Flow submitted",
+                                                            description: "Your flow has been submitted for verification.",
+                                                        });
+                                                    }
                                                 }}>
                                                     Submit for verification
                                                 </DropdownMenuItem>
