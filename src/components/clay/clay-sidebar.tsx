@@ -66,56 +66,61 @@ export function ClaySidebar({
       }}
       {...props}
     >
-      {brand ? <div className="px-2 pb-5">{brand}</div> : null}
+      {brand ? <div className="px-2 pb-5 shrink-0">{brand}</div> : null}
 
-      {/* Primary group title */}
-      <div className="px-2">
-        <h2 className="text-[17px] font-semibold tracking-tight text-clay-ink leading-none">
-          {groupTitle}
-        </h2>
-      </div>
-      {primary ? (
-        <nav
-          className="mt-3 flex flex-col gap-[3px] px-0"
-          aria-label={groupTitle}
-        >
-          {primary.items.map((item) => (
-            <NavItem key={item.key} item={item} />
-          ))}
-        </nav>
-      ) : null}
+      {/* Scrollable nav area — primary group + sub-groups scroll
+          together when the sidebar overflows, while brand stays
+          pinned at top and footer stays pinned at bottom. */}
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1">
+        {/* Primary group title */}
+        <div className="px-2">
+          <h2 className="text-[17px] font-semibold tracking-tight text-clay-ink leading-none">
+            {groupTitle}
+          </h2>
+        </div>
+        {primary ? (
+          <nav
+            className="mt-3 flex flex-col gap-[3px] px-0"
+            aria-label={groupTitle}
+          >
+            {primary.items.map((item) => (
+              <NavItem key={item.key} item={item} />
+            ))}
+          </nav>
+        ) : null}
 
-      {/* Sub-groups */}
-      <div className="mt-7 flex flex-col gap-5">
-        {rest.map((group, i) => (
-          <div key={i}>
-            {group.title ? (
-              <div className="flex items-center justify-between px-2.5 pb-2">
-                <span className="clay-section-label">{group.title}</span>
-                {group.addable ? (
-                  <button
-                    type="button"
-                    onClick={group.onAdd}
-                    aria-label={`Add ${group.title}`}
-                    className="flex h-5 w-5 items-center justify-center rounded-md text-clay-ink-soft hover:bg-clay-surface hover:text-clay-ink transition-colors"
-                  >
-                    <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
-                  </button>
-                ) : null}
+        {/* Sub-groups */}
+        <div className="mt-7 flex flex-col gap-5 pb-2">
+          {rest.map((group, i) => (
+            <div key={i}>
+              {group.title ? (
+                <div className="flex items-center justify-between px-2.5 pb-2">
+                  <span className="clay-section-label">{group.title}</span>
+                  {group.addable ? (
+                    <button
+                      type="button"
+                      onClick={group.onAdd}
+                      aria-label={`Add ${group.title}`}
+                      className="flex h-5 w-5 items-center justify-center rounded-md text-clay-ink-soft hover:bg-clay-surface hover:text-clay-ink transition-colors"
+                    >
+                      <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+              <div className="flex flex-col gap-[3px]">
+                {group.items.map((item) => (
+                  <NavItem key={item.key} item={item} />
+                ))}
               </div>
-            ) : null}
-            <div className="flex flex-col gap-[3px]">
-              {group.items.map((item) => (
-                <NavItem key={item.key} item={item} />
-              ))}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Footer — promo + user card sit flush at the bottom of the column */}
       {footer ? (
-        <div className="mt-auto flex flex-col gap-3 pt-6">{footer}</div>
+        <div className="shrink-0 flex flex-col gap-3 pt-4">{footer}</div>
       ) : null}
     </aside>
   );

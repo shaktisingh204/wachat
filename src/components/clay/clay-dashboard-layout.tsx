@@ -700,7 +700,7 @@ export function ClayDashboardLayout({
       </CommandDialog>
 
       {/* ── BODY ── */}
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <ClaySidebar
           groupTitle={context === 'wachat' ? 'Wachat' : 'SabNode'}
           brand={context === 'wachat' ? <ClayWachatBrand /> : undefined}
@@ -780,11 +780,11 @@ export function ClayDashboardLayout({
               {children}
             </div>
           ) : context === 'wachat' ? (
-            // Wachat pages: full width, min-full-height so cards can grow
-            // and footers hit the panel bottom even when content is short.
-            // Each page's root <div> owns its own clay-enter animation
-            // cascade so staggered child reveals keep working.
-            <div className="flex min-h-full w-full flex-col">{children}</div>
+            // Wachat pages: full width AND full height — pages can fill
+            // the entire available space. Each page's root <div> owns
+            // its own clay-enter animation cascade so staggered child
+            // reveals keep working.
+            <div className="flex h-full w-full flex-col">{children}</div>
           ) : (
             children
           )}

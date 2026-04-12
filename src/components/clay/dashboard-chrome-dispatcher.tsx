@@ -92,6 +92,8 @@ const WACHAT_PREFIXES = [
   '/dashboard/webhooks',
   '/dashboard/auto-reply',
   '/dashboard/whatsapp-pay',
+  '/dashboard/integrations',
+  '/dashboard/setup',
   '/dashboard/wachat',
 ];
 

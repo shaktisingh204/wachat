@@ -2,7 +2,7 @@
 
 'use client';
 
-import { Check, X, History, Lock, IndianRupee } from 'lucide-react';
+import { Check, X, History, Lock, IndianRupee, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getPlans } from '@/app/actions/plan.actions';
@@ -12,11 +12,13 @@ import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-butt
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { Plan, WithId, User } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { WalletCard } from '@/components/wabasimplify/wallet-card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
@@ -75,6 +77,9 @@ export default function BillingPage() {
     const [isClient, setIsClient] = useState(false);
     const { sessionUser, activeProjectId } = useProject();
     const [plans, setPlans] = useState<WithId<Plan>[]>([]);
+    const searchParams = useSearchParams();
+    const paymentStatus = searchParams.get('payment');
+    const paymentTxn = searchParams.get('txn');
 
     useEffect(() => {
         setIsClient(true);
@@ -152,6 +157,26 @@ export default function BillingPage() {
 
     return (
         <div className="flex flex-col gap-8">
+            {/* Payment result banners */}
+            {paymentStatus === 'success' && (
+                <Alert>
+                    <CheckCircle2 className="h-4 w-4" />
+                    <AlertTitle>Payment successful</AlertTitle>
+                    <AlertDescription>
+                        Your plan has been activated. Transaction: {paymentTxn}
+                    </AlertDescription>
+                </Alert>
+            )}
+            {paymentStatus === 'failed' && (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Payment failed</AlertTitle>
+                    <AlertDescription>
+                        Your payment could not be processed. No money was deducted. Please try again.
+                    </AlertDescription>
+                </Alert>
+            )}
+
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Billing & Plans</h1>

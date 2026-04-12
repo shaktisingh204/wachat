@@ -26,6 +26,119 @@ export interface PayuCheckoutResult {
 }
 
 /**
+ * Shared helper that builds PayU form payload for any plan purchase.
+ * Both onboarding and billing flows call this.
+ */
+async function buildPlanCheckout(
+    planId: string,
+    source: 'onboarding' | 'billing',
+): Promise<PayuCheckoutResult> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, error: 'Authentication required.' };
+    }
+
+    if (!ObjectId.isValid(planId)) {
+        return { success: false, error: 'Invalid plan.' };
+    }
+
+    const payu = getPayuConfig();
+    if (!payu) {
+        return {
+            success: false,
+            error: 'Payments are not configured. Please set PAYU_MERCHANT_KEY and PAYU_MERCHANT_SALT.',
+        };
+    }
+
+    const { db } = await connectToDatabase();
+    const plan = (await db
+        .collection<Plan>('plans')
+        .findOne({ _id: new ObjectId(planId) })) as WithId<Plan> | null;
+    if (!plan) return { success: false, error: 'Plan not found.' };
+
+    if (!plan.price || plan.price <= 0) {
+        return {
+            success: false,
+            error: 'Selected plan is free — no payment required.',
+        };
+    }
+
+    const amount = formatPayuAmount(plan.price);
+    const txnid = generatePayuTxnId(source === 'onboarding' ? 'pln' : 'upg');
+    const productinfo = `${plan.name} subscription`;
+    const firstname = (session.user.name || 'Customer')
+        .split(' ')[0]
+        .slice(0, 50) || 'Customer';
+    const email = session.user.email;
+
+    const appUrl =
+        process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
+        'http://localhost:3002';
+    const surl = `${appUrl}/api/payments/payu/callback`;
+    const furl = `${appUrl}/api/payments/payu/callback`;
+
+    const udf1 = session.user._id.toString();
+    const udf2 = planId;
+    const udf3 = source;
+
+    const phone =
+        (session.user as any)?.onboarding?.profile?.phone ||
+        (session.user as any)?.phone ||
+        undefined;
+
+    const fields: PayuRequestFields = {
+        key: payu.key,
+        txnid,
+        amount,
+        productinfo,
+        firstname,
+        email,
+        phone,
+        surl,
+        furl,
+        udf1,
+        udf2,
+        udf3,
+    };
+
+    const hash = buildPayuRequestHash(fields, payu.salt);
+
+    const transaction: Omit<Transaction, '_id'> = {
+        userId: new ObjectId(session.user._id),
+        type: 'PLAN',
+        description: `${plan.name} (${plan.currency || 'INR'} ${plan.price})`,
+        planId: plan._id,
+        amount: plan.price,
+        status: 'PENDING',
+        provider: 'payu',
+        providerOrderId: txnid,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    };
+    await db.collection('transactions').insertOne(transaction as any);
+
+    if (source === 'onboarding') {
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            {
+                $set: {
+                    'onboarding.checkoutTransactionId': txnid,
+                    'onboarding.selectedPlanId': planId,
+                },
+            }
+        );
+    }
+
+    return {
+        success: true,
+        payload: {
+            action: payu.action,
+            params: { ...fields, hash },
+        },
+    };
+}
+
+/**
  * Builds a PayU form-POST payload for an onboarding plan purchase.
  *
  * Called by the onboarding Plan step. The client takes the returned
@@ -40,39 +153,65 @@ export async function createPayuPlanCheckout(
     planId: string
 ): Promise<PayuCheckoutResult> {
     try {
+        return await buildPlanCheckout(planId, 'onboarding');
+    } catch (e) {
+        console.error('[PAYU] createPayuPlanCheckout failed', e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Builds a PayU form-POST payload for a plan upgrade from the billing page.
+ *
+ * Same flow as onboarding checkout but the callback redirects back to
+ * /dashboard/user/billing instead of /onboarding.
+ */
+export async function createPayuPlanUpgrade(
+    planId: string
+): Promise<PayuCheckoutResult> {
+    try {
+        return await buildPlanCheckout(planId, 'billing');
+    } catch (e) {
+        console.error('[PAYU] createPayuPlanUpgrade failed', e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Builds a PayU form-POST payload for a wallet/credits top-up.
+ *
+ * Accepts an amount in INR. The callback handler checks udf3='wallet'
+ * and credits the user's wallet.balance on success.
+ */
+export async function createPayuWalletTopup(
+    amount: number
+): Promise<PayuCheckoutResult> {
+    try {
         const session = await getSession();
         if (!session?.user) {
             return { success: false, error: 'Authentication required.' };
         }
 
-        if (!ObjectId.isValid(planId)) {
-            return { success: false, error: 'Invalid plan.' };
+        if (!amount || amount < 100) {
+            return { success: false, error: 'Minimum top-up is ₹100.' };
+        }
+        if (amount > 100000) {
+            return { success: false, error: 'Maximum top-up is ₹1,00,000.' };
         }
 
         const payu = getPayuConfig();
         if (!payu) {
             return {
                 success: false,
-                error: 'Payments are not configured. Please set PAYU_MERCHANT_KEY and PAYU_MERCHANT_SALT.',
+                error: 'Payments are not configured.',
             };
         }
 
         const { db } = await connectToDatabase();
-        const plan = (await db
-            .collection<Plan>('plans')
-            .findOne({ _id: new ObjectId(planId) })) as WithId<Plan> | null;
-        if (!plan) return { success: false, error: 'Plan not found.' };
 
-        if (!plan.price || plan.price <= 0) {
-            return {
-                success: false,
-                error: 'Selected plan is free — no payment required.',
-            };
-        }
-
-        const amount = formatPayuAmount(plan.price);
-        const txnid = generatePayuTxnId('pln');
-        const productinfo = `${plan.name} subscription`;
+        const formattedAmount = formatPayuAmount(amount);
+        const txnid = generatePayuTxnId('wal');
+        const productinfo = `Wallet top-up ₹${amount}`;
         const firstname = (session.user.name || 'Customer')
             .split(' ')[0]
             .slice(0, 50) || 'Customer';
@@ -84,14 +223,10 @@ export async function createPayuPlanCheckout(
         const surl = `${appUrl}/api/payments/payu/callback`;
         const furl = `${appUrl}/api/payments/payu/callback`;
 
-        // udf1..udf3 carry context we need in the callback (userId,
-        // planId, source) — hashed both ways so PayU can't strip them.
         const udf1 = session.user._id.toString();
-        const udf2 = planId;
-        const udf3 = 'onboarding';
+        const udf2 = String(amount); // amount for callback
+        const udf3 = 'wallet';
 
-        // Phone lives on `onboarding.profile.phone` after step 2; fall
-        // back to any top-level user.phone field for legacy users.
         const phone =
             (session.user as any)?.onboarding?.profile?.phone ||
             (session.user as any)?.phone ||
@@ -100,7 +235,7 @@ export async function createPayuPlanCheckout(
         const fields: PayuRequestFields = {
             key: payu.key,
             txnid,
-            amount,
+            amount: formattedAmount,
             productinfo,
             firstname,
             email,
@@ -114,15 +249,11 @@ export async function createPayuPlanCheckout(
 
         const hash = buildPayuRequestHash(fields, payu.salt);
 
-        // Persist a pending transaction keyed by txnid. The callback
-        // looks it up to finalize — the session cookie may or may not
-        // come along, so we identify by txnid + userId.
         const transaction: Omit<Transaction, '_id'> = {
             userId: new ObjectId(session.user._id),
-            type: 'PLAN',
-            description: `${plan.name} (${plan.currency || 'INR'} ${plan.price})`,
-            planId: plan._id,
-            amount: plan.price,
+            type: 'CREDITS',
+            description: `Wallet top-up ₹${amount}`,
+            amount: amount,
             status: 'PENDING',
             provider: 'payu',
             providerOrderId: txnid,
@@ -130,19 +261,6 @@ export async function createPayuPlanCheckout(
             updatedAt: new Date(),
         };
         await db.collection('transactions').insertOne(transaction as any);
-
-        // Also stash the pending txnid on the user's onboarding state
-        // so a page refresh in the middle of the flow can show a
-        // "we're still waiting on your PayU payment" banner.
-        await db.collection('users').updateOne(
-            { _id: new ObjectId(session.user._id) },
-            {
-                $set: {
-                    'onboarding.checkoutTransactionId': txnid,
-                    'onboarding.selectedPlanId': planId,
-                },
-            }
-        );
 
         return {
             success: true,
@@ -152,7 +270,7 @@ export async function createPayuPlanCheckout(
             },
         };
     } catch (e) {
-        console.error('[PAYU] createPayuPlanCheckout failed', e);
+        console.error('[PAYU] createPayuWalletTopup failed', e);
         return { success: false, error: getErrorMessage(e) };
     }
 }

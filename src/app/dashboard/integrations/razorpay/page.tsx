@@ -1,58 +1,61 @@
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getProjectById } from '@/app/actions/project.actions';
 import type { Project } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { useProject } from '@/context/project-context';
 import { RazorpaySettingsForm } from '@/components/wabasimplify/razorpay-settings-form';
+import { ClayBreadcrumbs } from '@/components/clay';
 
 function PageSkeleton() {
-    return (
-        <div className="space-y-6">
-            <Skeleton className="h-64 w-full" />
-        </div>
-    )
+  return (
+    <div className="space-y-4">
+      <div className="h-64 w-full animate-pulse rounded-clay-lg bg-clay-bg-2" />
+    </div>
+  );
 }
 
 export default function RazorpayIntegrationPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
-    const [isLoading, startLoadingTransition] = useTransition();
+  const { activeProject } = useProject();
+  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [isLoading, startLoadingTransition] = useTransition();
 
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
-            startLoadingTransition(async () => {
-                const projectData = await getProjectById(storedProjectId);
-                setProject(projectData);
-            });
-        } else {
-            startLoadingTransition(async () => { });
-        }
-    }, []);
-
-    if (isLoading) {
-        return <PageSkeleton />;
+  useEffect(() => {
+    const id = activeProject?._id?.toString();
+    if (id) {
+      startLoadingTransition(async () => {
+        const data = await getProjectById(id);
+        setProject(data);
+      });
     }
+  }, [activeProject]);
 
-    if (!project) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>
-                    Please select a project from the main dashboard to configure integrations.
-                </AlertDescription>
-            </Alert>
-        );
-    }
+  return (
+    <div className="flex h-full w-full flex-col">
+      <ClayBreadcrumbs
+        items={[
+          { label: 'SabNode', href: '/home' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: 'Integrations', href: '/dashboard/integrations' },
+          { label: 'Razorpay' },
+        ]}
+      />
 
-    return (
-        <div className="max-w-2xl">
+      <div className="mt-5 flex-1">
+        {isLoading ? (
+          <PageSkeleton />
+        ) : !project ? (
+          <div className="flex items-center gap-3 rounded-clay-md border border-clay-red/20 bg-red-50 p-4 text-[13px] text-clay-red">
+            No project selected. Please select a project from the main
+            dashboard.
+          </div>
+        ) : (
+          <div className="max-w-2xl">
             <RazorpaySettingsForm project={project} />
-        </div>
-    );
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

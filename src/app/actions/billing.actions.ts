@@ -82,7 +82,42 @@ export async function getTransactions(): Promise<WithId<Transaction>[]> {
     }
 }
 
-export async function handlePlanChange(planId: string) {
-    // Placeholder for plan change logic
-    return { success: true };
+/**
+ * Assigns a free plan to the user (no payment needed).
+ * For paid plans, use createPayuPlanUpgrade instead.
+ */
+export async function handlePlanChange(planId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const session = await getSession();
+        if (!session?.user) {
+            return { success: false, error: 'Authentication required.' };
+        }
+
+        if (!ObjectId.isValid(planId)) {
+            return { success: false, error: 'Invalid plan.' };
+        }
+
+        const { db } = await connectToDatabase();
+        const plan = await db
+            .collection('plans')
+            .findOne({ _id: new ObjectId(planId) });
+        if (!plan) {
+            return { success: false, error: 'Plan not found.' };
+        }
+
+        // Only allow free plan changes through this action
+        if (plan.price && plan.price > 0) {
+            return { success: false, error: 'Paid plans require checkout.' };
+        }
+
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $set: { planId: new ObjectId(planId) } }
+        );
+
+        return { success: true };
+    } catch (e: any) {
+        console.error('handlePlanChange failed:', e);
+        return { success: false, error: e.message || 'Failed to change plan.' };
+    }
 }

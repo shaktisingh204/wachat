@@ -34,8 +34,16 @@ const APP_URL = (
     'http://localhost:3002'
 );
 
-function redirectBack(query: Record<string, string>): NextResponse {
-    const url = new URL('/onboarding', APP_URL);
+function redirectBack(query: Record<string, string>, source?: string): NextResponse {
+    // Route back to the appropriate page based on source
+    let target = '/onboarding';
+    if (source === 'billing') {
+        target = '/dashboard/user/billing';
+    } else if (source === 'wallet') {
+        target = '/dashboard/user/billing';
+    }
+
+    const url = new URL(target, APP_URL);
     for (const [k, v] of Object.entries(query)) {
         url.searchParams.set(k, v);
     }
@@ -87,10 +95,10 @@ export async function POST(request: NextRequest) {
     }
 
     const fields = toResponseFields(form);
-    const { status, txnid, udf1: userIdStr, udf2: planIdStr } = fields;
+    const { status, txnid, udf1: userIdStr, udf2: udf2Str, udf3: source } = fields;
 
     if (!txnid) {
-        return redirectBack({ payment: 'failed', reason: 'missing-txnid' });
+        return redirectBack({ payment: 'failed', reason: 'missing-txnid' }, source);
     }
 
     // 1) Verify reverse hash — reject any tampered response immediately.
@@ -106,7 +114,7 @@ export async function POST(request: NextRequest) {
             payment: 'failed',
             reason: 'hash-mismatch',
             txn: txnid,
-        });
+        }, source);
     }
 
     try {
@@ -122,7 +130,7 @@ export async function POST(request: NextRequest) {
                 payment: 'failed',
                 reason: 'unknown-txn',
                 txn: txnid,
-            });
+            }, source);
         }
 
         const isSuccess = status?.toLowerCase() === 'success';
@@ -159,43 +167,83 @@ export async function POST(request: NextRequest) {
                 payment: 'failed',
                 reason: status || 'cancelled',
                 txn: txnid,
-            });
+            }, source);
         }
 
-        // 4) Success — finalize onboarding: assign plan, mark complete.
+        // 4) Success — route to the right finalization based on source.
         const userId = userIdStr && ObjectId.isValid(userIdStr)
             ? new ObjectId(userIdStr)
             : txn.userId;
+
+        if (source === 'wallet') {
+            // ── Wallet top-up: credit the user's wallet balance ──
+            const topupAmount = parseInt(udf2Str || '0', 10);
+            const amountPaisa = topupAmount * 100; // store in paisa
+
+            await db.collection('users').updateOne(
+                { _id: userId },
+                {
+                    $inc: { 'wallet.balance': amountPaisa },
+                    $set: { 'wallet.currency': 'INR' },
+                    $push: {
+                        'wallet.transactions': {
+                            _id: new ObjectId(),
+                            type: 'CREDIT',
+                            amount: amountPaisa,
+                            reason: `PayU top-up ₹${topupAmount}`,
+                            status: 'SUCCESS',
+                            createdAt: new Date(),
+                        },
+                    } as any,
+                }
+            );
+
+            return redirectBack({
+                payment: 'success',
+                txn: txnid,
+                type: 'wallet',
+            }, source);
+        }
+
+        // ── Plan purchase (onboarding or billing) ──
+        const planIdStr = udf2Str;
         const planId =
             planIdStr && ObjectId.isValid(planIdStr)
                 ? new ObjectId(planIdStr)
                 : (txn.planId as ObjectId | undefined);
 
-        const userUpdate: any = {
-            'onboarding.status': 'complete',
-            'onboarding.completedAt': new Date(),
-            'onboarding.checkoutTransactionId': txnid,
-        };
+        const userUpdate: any = {};
+
         if (planId) {
             userUpdate.planId = planId;
-            userUpdate['onboarding.selectedPlanId'] = planId.toString();
         }
 
-        await db
-            .collection('users')
-            .updateOne({ _id: userId }, { $set: userUpdate });
+        if (source === 'onboarding') {
+            userUpdate['onboarding.status'] = 'complete';
+            userUpdate['onboarding.completedAt'] = new Date();
+            userUpdate['onboarding.checkoutTransactionId'] = txnid;
+            if (planId) {
+                userUpdate['onboarding.selectedPlanId'] = planId.toString();
+            }
+        }
+
+        if (Object.keys(userUpdate).length > 0) {
+            await db
+                .collection('users')
+                .updateOne({ _id: userId }, { $set: userUpdate });
+        }
 
         return redirectBack({
             payment: 'success',
             txn: txnid,
-        });
+        }, source);
     } catch (e) {
         console.error('[PAYU CALLBACK] Failed to finalize', e);
         return redirectBack({
             payment: 'failed',
             reason: 'server-error',
             txn: txnid,
-        });
+        }, source);
     }
 }
 
