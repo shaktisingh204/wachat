@@ -1358,15 +1358,69 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
         return;
     }
 
-    const senderName = contactProfile.profile?.name || 'Unknown User';
-    let lastMessageText = message.type === 'text' ? message.text.body : `[${message.type}]`;
-    if (message.type === 'interactive') {
-        lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
+    const senderName = contactProfile?.profile?.name || 'Unknown User';
+
+    // Extract readable last-message text for all WhatsApp Cloud API message types
+    let lastMessageText: string;
+    switch (message.type) {
+        case 'text':
+            lastMessageText = message.text?.body || '[text]';
+            break;
+        case 'image':
+            lastMessageText = message.image?.caption || '[Image]';
+            break;
+        case 'video':
+            lastMessageText = message.video?.caption || '[Video]';
+            break;
+        case 'audio':
+            lastMessageText = '[Audio]';
+            break;
+        case 'document':
+            lastMessageText = message.document?.filename || '[Document]';
+            break;
+        case 'sticker':
+            lastMessageText = '[Sticker]';
+            break;
+        case 'location':
+            lastMessageText = `[Location: ${message.location?.name || `${message.location?.latitude},${message.location?.longitude}`}]`;
+            break;
+        case 'contacts':
+            lastMessageText = `[Contact: ${message.contacts?.[0]?.name?.formatted_name || 'Shared'}]`;
+            break;
+        case 'interactive':
+            lastMessageText = message.interactive?.button_reply?.title
+                || message.interactive?.list_reply?.title
+                || message.interactive?.nfm_reply?.body || '[Interactive Reply]';
+            break;
+        case 'button':
+            lastMessageText = message.button?.text || '[Button Reply]';
+            break;
+        case 'order':
+            lastMessageText = `[Order: ${message.order?.product_items?.length || 0} item(s)]`;
+            break;
+        case 'reaction':
+            lastMessageText = message.reaction?.emoji ? `[Reaction: ${message.reaction.emoji}]` : '[Reaction removed]';
+            break;
+        case 'system':
+            lastMessageText = message.system?.body || '[System message]';
+            break;
+        case 'referral':
+            lastMessageText = '[Referral from ad]';
+            break;
+        case 'request_welcome':
+            lastMessageText = '[Conversation opened]';
+            break;
+        case 'unsupported':
+            lastMessageText = '[Unsupported message type]';
+            break;
+        default:
+            lastMessageText = `[${message.type || 'unknown'}]`;
     }
 
     // Fetch media and convert to data URI if present. Gated on the dedup check
     // above so we don't redownload media on webhook retries.
-    if ((message.type === 'image' || message.type === 'video' || message.type === 'audio' || message.type === 'document') && message[message.type]?.id) {
+    const mediaTypes = ['image', 'video', 'audio', 'document', 'sticker'];
+    if (mediaTypes.includes(message.type) && message[message.type]?.id) {
         try {
             const mediaInfoResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/${message[message.type].id}`, {
                 headers: { 'Authorization': `Bearer ${project.accessToken}` }
@@ -1488,6 +1542,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
         let link = `/dashboard/information`;
 
         switch (eventType) {
+            // ── Account Events ──
             case 'account_update':
                 if (value.event === 'DISABLED_UPDATE' && value.ban_info?.waba_ban_state) {
                     message = `Account status updated: ${value.ban_info.waba_ban_state}. Ban date: ${value.ban_info.waba_ban_date || 'N/A'}`;
@@ -1496,40 +1551,135 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
                     message = `Account violation detected: ${value.violation_info.violation_type}. Please check your account quality.`;
                     link = `https://business.facebook.com/settings/wa/${project.wabaId}`;
                     await db.collection('projects').updateOne({ _id: project._id }, { $set: { violationType: value.violation_info.violation_type, violationTimestamp: new Date() } });
+                } else if (value.event === 'ACCOUNT_RESTRICTION') {
+                    message = `Account restricted: ${value.restriction_info?.restriction_type || 'Unknown'}. Please review your account.`;
+                    link = '/dashboard/health';
+                    await db.collection('projects').updateOne({ _id: project._id }, { $set: { restrictionType: value.restriction_info?.restriction_type, restrictionTimestamp: new Date() } });
                 } else if (value.review_status) {
-                    message = `Your business account has been updated. Review status: ${value.review_status?.toUpperCase() || 'N/A'}`;
+                    message = `Business account review status: ${value.review_status?.toUpperCase() || 'N/A'}`;
                     await db.collection('projects').updateOne({ _id: project._id }, { $set: { reviewStatus: value.review_status } });
                 }
                 break;
+
+            case 'account_alerts':
+                message = `Account alert: ${value.alert_type || value.event || 'Unknown alert'}`;
+                link = '/dashboard/health';
+                break;
+
+            // ── Phone Number Events ──
             case 'phone_number_quality_update':
                 message = `Phone number ${value.display_phone_number} quality is now ${value.event}. Current limit: ${value.current_limit}`;
                 link = '/dashboard/numbers';
+                // Update the quality rating on the stored phone number
+                if (value.display_phone_number) {
+                    await db.collection('projects').updateOne(
+                        { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                        { $set: { 'phoneNumbers.$.quality_rating': value.event } }
+                    );
+                }
                 break;
+
             case 'phone_number_name_update':
                 message = `Name update for ${value.display_phone_number} was ${value.decision}. Verified name: ${value.verified_name}.`;
                 link = '/dashboard/numbers';
+                if (value.decision === 'APPROVED' && value.verified_name) {
+                    await db.collection('projects').updateOne(
+                        { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                        { $set: { 'phoneNumbers.$.verified_name': value.verified_name, 'phoneNumbers.$.name_status': 'APPROVED' } }
+                    );
+                }
                 break;
+
+            // ── Template Events ──
             case 'message_template_status_update':
             case 'template_status_update':
-                message = `Template '${value.message_template_name}' was ${value.event.toLowerCase() === 'approved' ? 'approved' : 'rejected'}. Reason: ${value.reason || 'N/A'}`;
+                message = `Template '${value.message_template_name}' was ${value.event?.toLowerCase() === 'approved' ? 'approved' : value.event?.toLowerCase() || 'updated'}. Reason: ${value.reason || 'N/A'}`;
                 link = '/dashboard/templates';
-                await db.collection('templates').updateOne({ name: value.message_template_name, projectId: project._id }, { $set: { status: value.event.toUpperCase() } });
+                if (value.message_template_name && value.event) {
+                    await db.collection('templates').updateOne(
+                        { name: value.message_template_name, projectId: project._id },
+                        { $set: { status: value.event.toUpperCase(), rejectedReason: value.reason || null } }
+                    );
+                }
                 break;
+
             case 'message_template_quality_update':
                 message = `Template '${value.message_template_name}' quality updated to ${value.new_quality_score}.`;
                 link = '/dashboard/templates';
-                await db.collection('templates').updateOne({ name: value.message_template_name, projectId: project._id }, { $set: { qualityScore: value.new_quality_score } });
+                if (value.message_template_name) {
+                    await db.collection('templates').updateOne(
+                        { name: value.message_template_name, projectId: project._id },
+                        { $set: { qualityScore: value.new_quality_score } }
+                    );
+                }
                 break;
+
+            // ── Payment Events ──
             case 'payment_configuration_update':
                 message = `Payment configuration '${value.configuration_name}' was updated. Status: ${value.status}.`;
                 link = '/dashboard/whatsapp-pay/settings';
                 await db.collection('projects').updateOne({ _id: project._id }, { $set: { paymentConfiguration: value } });
                 break;
+
             case 'payment_completed':
-            case 'payment_failed':
-            case 'payment_request_status_updated':
-                message = `Payment request ${value.payment_request_id} for order ${value.order_id} is now ${value.status}.`;
+                message = `Payment received for order ${value.order_id || 'N/A'}. Amount: ${value.amount?.value || 'N/A'} ${value.amount?.currency || ''}`;
                 link = '/dashboard/whatsapp-pay';
+                if (value.payment_request_id) {
+                    await db.collection('transactions').updateOne(
+                        { providerTransactionId: value.payment_request_id },
+                        { $set: { status: 'SUCCESS', updatedAt: new Date() } }
+                    );
+                }
+                break;
+
+            case 'payment_failed':
+                message = `Payment failed for order ${value.order_id || 'N/A'}. Reason: ${value.error?.message || 'Unknown'}`;
+                link = '/dashboard/whatsapp-pay';
+                if (value.payment_request_id) {
+                    await db.collection('transactions').updateOne(
+                        { providerTransactionId: value.payment_request_id },
+                        { $set: { status: 'FAILED', error: value.error?.message, updatedAt: new Date() } }
+                    );
+                }
+                break;
+
+            case 'payment_request_status_updated':
+                message = `Payment request ${value.payment_request_id} is now ${value.status}.`;
+                link = '/dashboard/whatsapp-pay';
+                break;
+
+            // ── Security Events ──
+            case 'security':
+                message = `Security event: Two-step verification PIN was ${value.event || 'changed'} for phone number ${value.display_phone_number || 'N/A'}.`;
+                link = '/dashboard/health';
+                break;
+
+            // ── Flows Events ──
+            case 'flows':
+                message = `WhatsApp Flow '${value.flow_name || value.flow_id || 'Unknown'}' status changed to ${value.event || value.status || 'updated'}.`;
+                link = '/dashboard/flows';
+                if (value.flow_id && value.status) {
+                    await db.collection('meta_flows').updateOne(
+                        { metaId: value.flow_id, projectId: project._id },
+                        { $set: { status: value.status } }
+                    );
+                }
+                break;
+
+            // ── Business Capability Events ──
+            case 'business_capability_update':
+                message = `Business capability updated: ${value.capability || 'Unknown'} is now ${value.status || 'changed'}.`;
+                link = '/dashboard/health';
+                if (value.capability) {
+                    await db.collection('projects').updateOne(
+                        { _id: project._id },
+                        { $set: { [`capabilities.${value.capability}`]: value.status } }
+                    );
+                }
+                break;
+
+            default:
+                message = `Received webhook: ${eventType}`;
                 break;
         }
 
@@ -1554,17 +1704,25 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
         // 1) Bulk update outgoing_messages — single bulkWrite for all statuses
         const liveChatOps = statuses
             .filter(s => s.id && s.status)
-            .map(status => ({
-                updateOne: {
-                    filter: { wamid: status.id },
-                    update: {
-                        $set: {
-                            status: status.status,
-                            [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000),
-                        },
+            .map(status => {
+                const updateFields: any = {
+                    status: status.status,
+                    [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000),
+                };
+                // Store error details for failed messages
+                if (status.status === 'failed' && status.errors?.length > 0) {
+                    const err = status.errors[0];
+                    updateFields.error = err.title || err.message || `Error ${err.code}`;
+                    updateFields.errorCode = err.code;
+                    updateFields.errorDetails = err.error_data?.details || err.message;
+                }
+                return {
+                    updateOne: {
+                        filter: { wamid: status.id },
+                        update: { $set: updateFields },
                     },
-                },
-            }));
+                };
+            });
 
         // 2) Batch-lookup broadcast contacts — ONE query instead of N findOne calls
         const broadcastContacts = await db.collection('broadcast_contacts')

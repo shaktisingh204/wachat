@@ -105,6 +105,9 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
                 </Badge>
               )}
             </div>
+            {(template as any).rejectedReason && (template.status?.toUpperCase() === 'REJECTED' || template.status?.toUpperCase() === 'DISABLED') && (
+              <p className="text-xs text-destructive mt-1">Reason: {(template as any).rejectedReason}</p>
+            )}
           </div>
           <CardDescription className="flex items-center pt-2 text-xs">
             {isProductCarousel ? (
@@ -142,6 +145,9 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
               Category: {template.category} | {isProductCarousel ? `Type: ${template.type}` : `Language: ${template.language}`} | Status: <span className="capitalize">{template.status?.replace(/_/g, ' ') || 'Unknown'}</span>
               {!isProductCarousel && !isMarketingCarousel && template.qualityScore && template.qualityScore !== 'UNKNOWN' && (
                 <> | Quality: <span className="capitalize">{template.qualityScore.toLowerCase()}</span></>
+              )}
+              {(template as any).rejectedReason && (
+                <><br /><span className="text-destructive">Rejection reason: {(template as any).rejectedReason}</span></>
               )}
             </DialogDescription>
           </DialogHeader>

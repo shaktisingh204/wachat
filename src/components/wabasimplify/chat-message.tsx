@@ -63,7 +63,13 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
                         {statusTimestamps?.delivered && <p>Delivered: {formatTimestamp(statusTimestamps.delivered)}</p>}
                         {statusTimestamps?.sent && <p>Sent: {formatTimestamp(statusTimestamps.sent)}</p>}
                         {status === 'pending' && <p>Pending...</p>}
-                        {status === 'failed' && <p>Failed</p>}
+                        {status === 'failed' && (
+                            <div>
+                                <p className="text-red-400 font-medium">Failed</p>
+                                {(message as OutgoingMessage).error && <p className="text-red-300">{(message as OutgoingMessage).error}</p>}
+                                {(message as OutgoingMessage).errorCode && <p className="text-red-300/70">Code: {(message as OutgoingMessage).errorCode}</p>}
+                            </div>
+                        )}
                     </div>
                 </TooltipContent>
             </Tooltip>
@@ -271,14 +277,27 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
 
     // Incoming or Outgoing Interactive Message
     if (message.type === 'interactive') {
-        // This is a user's reply to an interactive message
-        if (message.content.interactive.button_reply) {
+        // User's reply to button/list
+        if (message.content.interactive?.button_reply) {
             return <p className="whitespace-pre-wrap">{message.content.interactive.button_reply.title}</p>;
         }
-        if (message.content.interactive.list_reply) {
+        if (message.content.interactive?.list_reply) {
             return <p className="whitespace-pre-wrap">{message.content.interactive.list_reply.title}</p>;
         }
-        // This is the interactive message itself
+        // WhatsApp Flow response (nfm_reply)
+        if (message.content.interactive?.nfm_reply) {
+            const nfm = message.content.interactive.nfm_reply;
+            return (
+                <div className="space-y-1">
+                    <p className="text-xs font-semibold text-primary flex items-center gap-1"><Bot className="h-3 w-3" /> Flow Response</p>
+                    {nfm.body && <p className="whitespace-pre-wrap text-sm">{nfm.body}</p>}
+                    {nfm.response_json && (
+                        <pre className="text-xs bg-muted/50 p-2 rounded overflow-x-auto max-w-xs">{typeof nfm.response_json === 'string' ? nfm.response_json : JSON.stringify(nfm.response_json, null, 2)}</pre>
+                    )}
+                </div>
+            );
+        }
+        // The interactive message itself (outgoing)
         return <InteractiveMessageDisplay content={message.content.interactive} />;
     }
 
@@ -309,6 +328,35 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
 
     if (message.type === 'payment_request') {
         return <PaymentRequestContent message={message as OutgoingMessage} phoneNumberId={phoneNumberId} />;
+    }
+
+    // System message (number change, group update, etc.)
+    if (message.type === 'system') {
+        return (
+            <div className="text-xs italic text-muted-foreground flex items-center gap-1.5">
+                <Bot className="h-3 w-3" />
+                {message.content.system?.body || message.content.body || '[System message]'}
+            </div>
+        );
+    }
+
+    // Referral from Click-to-WhatsApp ad
+    if (message.type === 'referral' || message.content?.referral) {
+        const ref = message.content.referral || message.content;
+        return (
+            <div className="space-y-1 text-sm">
+                <p className="text-xs font-semibold text-primary">From Ad</p>
+                {ref.headline && <p className="font-medium">{ref.headline}</p>}
+                {ref.body && <p className="text-muted-foreground">{ref.body}</p>}
+                {ref.source_url && <a href={ref.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">{ref.source_url}</a>}
+                {message.content.text?.body && <p className="whitespace-pre-wrap mt-1">{message.content.text.body}</p>}
+            </div>
+        );
+    }
+
+    // Conversation opened (request_welcome)
+    if (message.type === 'request_welcome') {
+        return <p className="text-xs italic text-muted-foreground">Customer opened the conversation</p>;
     }
 
     // Media and other types
@@ -401,9 +449,12 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                 )}
 
                 {isOutgoing && message.status === 'failed' && (
-                    <p className="text-xs mt-1 pt-1 border-t border-white/20 text-red-200">
-                        Failed: {message.error}
-                    </p>
+                    <div className="text-xs mt-1 pt-1 border-t border-white/20 text-red-200 space-y-0.5">
+                        <p className="font-medium">Failed{(message as OutgoingMessage).errorCode ? ` (${(message as OutgoingMessage).errorCode})` : ''}</p>
+                        {((message as OutgoingMessage).error || (message as OutgoingMessage).errorDetails) && (
+                            <p className="text-red-200/80">{(message as OutgoingMessage).errorDetails || (message as OutgoingMessage).error}</p>
+                        )}
+                    </div>
                 )}
 
                 <div className="flex items-center gap-1.5 self-end mt-1">

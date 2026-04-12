@@ -2255,6 +2255,8 @@ export type OutgoingMessage = {
         read?: Date;
     };
     error?: string;
+    errorCode?: number;
+    errorDetails?: string;
     createdAt: Date;
     context?: {
         message_id: string;
@@ -2268,7 +2270,7 @@ export type IncomingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product' | 'reaction' | 'contacts' | 'location' | 'button' | 'unsupported';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive' | 'order' | 'product' | 'reaction' | 'contacts' | 'location' | 'button' | 'unsupported' | 'system' | 'referral' | 'request_welcome';
     content: any;
     isRead: boolean;
     createdAt: Date;
