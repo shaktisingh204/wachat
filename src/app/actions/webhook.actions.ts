@@ -6,7 +6,8 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { revalidatePath } from "next/cache";
 import { getErrorMessage } from "@/lib/utils";
 import { ObjectId, WithId, Filter } from "mongodb";
-import { getProjectById, getAdminSession } from ".";
+import { getProjectById } from ".";
+import { getAdminSession } from '@/lib/admin-session';
 import { handleSingleMessageEvent, processStatusUpdateBatch, processSingleWebhook } from "@/lib/webhook-processor";
 import type { WebhookLog, Project, WebhookLogListItem } from "@/lib/definitions";
 

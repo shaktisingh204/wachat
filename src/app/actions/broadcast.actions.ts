@@ -6,7 +6,7 @@ import { type Db, ObjectId, type WithId, type Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { enqueueBroadcastControl } from '@/lib/queue/broadcast-queue';
 import { getProjectById } from '@/app/actions/project.actions';
-import { getAdminSession } from '@/app/actions/admin.actions';
+import { getAdminSession } from '@/lib/admin-session';
 import { handleManualWachatSetup } from '@/app/actions/whatsapp.actions';
 import { getErrorMessage, validateFile } from '@/lib/utils';
 import type { Project, Template, BroadcastJob, Contact } from '@/lib/definitions';

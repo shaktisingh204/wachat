@@ -23,9 +23,9 @@ import {
 import {
     getProjectsForAdmin,
     getAdminDashboardStats,
-    getAdminSession,
     type AdminStats,
 } from '@/app/actions/admin.actions';
+import { getAdminSession } from '@/lib/admin-session';
 import { getPlans } from '@/app/actions/plan.actions';
 import { getAllBroadcasts } from '@/app/actions/index';
 import type { Project } from '@/lib/definitions';

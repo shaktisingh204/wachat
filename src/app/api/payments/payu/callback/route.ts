@@ -205,6 +205,37 @@ export async function POST(request: NextRequest) {
             }, source);
         }
 
+        if (source === 'credits') {
+            // ── Credit purchase: credit the user's wallet balance ──
+            const amountPaisa = txn.amount; // already stored in paisa
+
+            await db.collection('users').updateOne(
+                { _id: userId },
+                {
+                    $inc: { 'wallet.balance': amountPaisa },
+                    $set: { 'wallet.currency': 'INR' },
+                    $push: {
+                        'wallet.transactions': {
+                            _id: new ObjectId(),
+                            type: 'CREDIT',
+                            amount: amountPaisa,
+                            reason: `PayU credits purchase`,
+                            payuOrderId: txnid,
+                            payuPaymentId: paymentId,
+                            status: 'SUCCESS',
+                            createdAt: new Date(),
+                        },
+                    } as any,
+                }
+            );
+
+            return redirectBack({
+                payment: 'success',
+                txn: txnid,
+                type: 'credits',
+            }, source);
+        }
+
         // ── Plan purchase (onboarding or billing) ──
         const planIdStr = udf2Str;
         const planId =

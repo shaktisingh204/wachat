@@ -6,19 +6,18 @@ import { subDays } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import Papa from 'papaparse';
 import {
-  AlertCircle,
-  CheckCircle,
-  Download,
-  IndianRupee,
-  RefreshCw,
-  XCircle,
-} from 'lucide-react';
+  LuIndianRupee,
+  LuCircleCheck,
+  LuCircleX,
+  LuDownload,
+  LuRefreshCw,
+} from 'react-icons/lu';
 
 import { getProjectById } from '@/app/actions/index';
 import { getTransactionsForProject } from '@/app/actions/whatsapp.actions';
 import type { Project, Transaction } from '@/lib/definitions';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useProject } from '@/context/project-context';
 import { DatePickerWithRange } from '@/components/wabasimplify/whatsapp-pay/date-range-picker';
 import { TransactionChart } from '@/components/wabasimplify/whatsapp-pay/transaction-chart';
 import {
@@ -26,26 +25,67 @@ import {
   PaymentTransaction,
 } from '@/components/wabasimplify/whatsapp-pay/transaction-table';
 
-import {
-  SabButton,
-  SabCard,
-  SabCardBody,
-  SabCardHeader,
-  SabPageHeader,
-  SabPageShell,
-  SabStat,
-} from '@/components/sab-ui';
+import { ClayCard, ClayButton } from '@/components/clay';
+
+/* ── stat card ────────────────────────────────────────────────── */
+
+function StatCard({
+  label,
+  value,
+  hint,
+  icon,
+  tone,
+  loading,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  icon: React.ReactNode;
+  tone: 'green' | 'rose' | 'red';
+  loading?: boolean;
+}) {
+  const toneMap = {
+    green: 'bg-emerald-50 text-emerald-600',
+    rose: 'bg-clay-rose-soft text-clay-rose',
+    red: 'bg-red-50 text-red-500',
+  };
+
+  return (
+    <ClayCard className="flex items-start gap-4 p-5">
+      <span
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${toneMap[tone]}`}
+      >
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[12px] font-medium text-clay-ink-muted">{label}</p>
+        {loading ? (
+          <div className="mt-1 h-7 w-24 animate-pulse rounded-md bg-clay-bg-2" />
+        ) : (
+          <p className="text-[22px] font-semibold tabular-nums text-clay-ink leading-tight">
+            {value}
+          </p>
+        )}
+        <p className="mt-0.5 text-[11px] text-clay-ink-soft">{hint}</p>
+      </div>
+    </ClayCard>
+  );
+}
+
+/* ── page ──────────────────────────────────────────────────────── */
 
 export default function WhatsAppPayPage() {
+  const { activeProject } = useProject();
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [transactions, setTransactions] = useState<WithId<Transaction>[]>([]);
   const [isLoading, startLoading] = useTransition();
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 30),
     to: new Date(),
   });
+
+  const activeProjectId = activeProject?._id?.toString() ?? null;
 
   const fetchData = useCallback(
     async (showToast = false) => {
@@ -66,14 +106,7 @@ export default function WhatsAppPayPage() {
   );
 
   useEffect(() => {
-    const storedId = localStorage.getItem('activeProjectId');
-    setActiveProjectId(storedId);
-  }, []);
-
-  useEffect(() => {
-    if (activeProjectId) {
-      fetchData();
-    }
+    if (activeProjectId) fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProjectId]);
 
@@ -90,7 +123,6 @@ export default function WhatsAppPayPage() {
 
   const handleExport = () => {
     if (!transactions.length) return;
-
     const csv = Papa.unparse(
       transactions.map((t) => ({
         ID: t._id,
@@ -101,7 +133,6 @@ export default function WhatsAppPayPage() {
         ProjectID: activeProjectId,
       })),
     );
-
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -112,21 +143,10 @@ export default function WhatsAppPayPage() {
 
   if (!activeProjectId) {
     return (
-      <SabPageShell>
-        <SabPageHeader
-          hero
-          eyebrow="Wachat · WhatsApp Pay"
-          title="Payment overview"
-          description="Manage payment requests and transaction history for your WhatsApp Business Account."
-        />
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No project selected</AlertTitle>
-          <AlertDescription>
-            Please select a project from the main dashboard to manage its payments.
-          </AlertDescription>
-        </Alert>
-      </SabPageShell>
+      <div className="flex items-center gap-3 rounded-clay-md border border-clay-red/20 bg-red-50 p-4 text-[13px] text-clay-red">
+        No project selected. Please select a project from the main dashboard to
+        manage its payments.
+      </div>
     );
   }
 
@@ -141,87 +161,79 @@ export default function WhatsAppPayPage() {
   }));
 
   return (
-    <SabPageShell>
-      <SabPageHeader
-        hero
-        eyebrow="Wachat · WhatsApp Pay"
-        breadcrumb={[
-          { label: 'Dashboard', href: '/dashboard' },
-          { label: 'WhatsApp Pay' },
-        ]}
-        title="Payment overview"
-        description={
-          project?.name
-            ? `Payment history and revenue for ${project.name}.`
-            : 'View payment history and revenue for this project.'
-        }
-        actions={
-          <div className="flex items-center gap-2">
-            <DatePickerWithRange date={dateRange} setDate={setDateRange} />
-            <SabButton
-              variant="secondary"
-              leftIcon={RefreshCw}
-              loading={isLoading}
-              onClick={() => fetchData(true)}
-            >
-              Refresh
-            </SabButton>
-            <SabButton variant="secondary" leftIcon={Download} onClick={handleExport}>
-              Export
-            </SabButton>
-          </div>
-        }
-      />
+    <div className="flex h-full w-full flex-col gap-6">
+      {/* Actions strip */}
+      <div className="flex flex-wrap items-center gap-2">
+        <DatePickerWithRange date={dateRange} setDate={setDateRange} />
+        <ClayButton
+          variant="pill"
+          size="sm"
+          leading={<LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
+          onClick={() => fetchData(true)}
+        >
+          Refresh
+        </ClayButton>
+        <ClayButton
+          variant="pill"
+          size="sm"
+          leading={<LuDownload className="h-3.5 w-3.5" strokeWidth={2} />}
+          onClick={handleExport}
+        >
+          Export
+        </ClayButton>
+      </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-        <SabStat
-          hero
+      {/* Stats */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <StatCard
           label="Total revenue"
           value={`₹${stats.totalRevenue.toLocaleString()}`}
           hint="from successful transactions"
-          icon={IndianRupee}
-          tone="success"
+          icon={<LuIndianRupee className="h-5 w-5" strokeWidth={2} />}
+          tone="green"
           loading={statsLoading}
         />
-        <SabStat
-          hero
+        <StatCard
           label="Successful transactions"
           value={stats.successfulTransactions.toLocaleString()}
           hint="payments completed"
-          icon={CheckCircle}
-          tone="primary"
+          icon={<LuCircleCheck className="h-5 w-5" strokeWidth={2} />}
+          tone="rose"
           loading={statsLoading}
         />
-        <SabStat
-          hero
+        <StatCard
           label="Failed or pending"
-          value={(transactions.length - stats.successfulTransactions).toLocaleString()}
+          value={(
+            transactions.length - stats.successfulTransactions
+          ).toLocaleString()}
           hint="awaiting or failed"
-          icon={XCircle}
-          tone="danger"
+          icon={<LuCircleX className="h-5 w-5" strokeWidth={2} />}
+          tone="red"
           loading={statsLoading}
         />
       </div>
 
-      <SabCard variant="hero" glow="primary">
-        <SabCardHeader
-          title="Transactions over time"
-          description="Revenue curve across the selected date range."
-        />
-        <SabCardBody>
-          <TransactionChart transactions={transactions} dateRange={dateRange} />
-        </SabCardBody>
-      </SabCard>
+      {/* Chart */}
+      <ClayCard className="p-5">
+        <h3 className="text-[15px] font-semibold text-clay-ink">
+          Transactions over time
+        </h3>
+        <p className="mb-4 text-[12px] text-clay-ink-muted">
+          Revenue curve across the selected date range.
+        </p>
+        <TransactionChart transactions={transactions} dateRange={dateRange} />
+      </ClayCard>
 
-      <SabCard variant="featured">
-        <SabCardHeader
-          title="Transaction history"
-          description="A detailed log of all payments initiated from this platform."
-        />
-        <SabCardBody>
-          <TransactionTable data={tableData} />
-        </SabCardBody>
-      </SabCard>
-    </SabPageShell>
+      {/* Table */}
+      <ClayCard className="p-5">
+        <h3 className="text-[15px] font-semibold text-clay-ink">
+          Transaction history
+        </h3>
+        <p className="mb-4 text-[12px] text-clay-ink-muted">
+          A detailed log of all payments initiated from this platform.
+        </p>
+        <TransactionTable data={tableData} />
+      </ClayCard>
+    </div>
   );
 }

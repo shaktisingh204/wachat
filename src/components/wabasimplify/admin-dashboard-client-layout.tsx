@@ -29,7 +29,7 @@ import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, C
 import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { getAdminSession, getDiwaliThemeStatus } from '@/app/actions/admin.actions';
+import { checkAdminSession, getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 
 const menuItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -56,7 +56,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
         });
 
         const checkAdminStatus = async () => {
-            const session = await getAdminSession();
+            const session = await checkAdminSession();
             if (!session.isAdmin) {
                 router.replace('/admin-login');
             } else {

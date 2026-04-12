@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid';
 import { cookies } from 'next/headers';
 import { getErrorMessage } from '@/lib/utils';
 import { comparePassword, verifyAdminJwt, createAdminSessionToken } from '@/lib/auth';
+import { getAdminSession } from '@/lib/admin-session';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Plan, Project, User } from '@/lib/definitions';
@@ -16,17 +17,10 @@ import cache from '@/lib/cache';
 const DIWALI_THEME_KEY = 'diwali_theme_enabled';
 let isDiwaliThemeEnabled: boolean | null = null;
 
-export async function getAdminSession() {
-    const cookieStore = await cookies(); // ✅ MUST await in Next 16
-    const token = cookieStore.get("admin_session")?.value;
-    if (!token) return { isAdmin: false };
-
-    const payload = await verifyAdminJwt(token);
-    if (!payload || payload.role !== 'admin') {
-        return { isAdmin: false };
-    }
-
-    return { isAdmin: true, user: payload };
+// Server-action wrapper so client components can call getAdminSession via RPC.
+// Server components should import from '@/lib/admin-session' directly.
+export async function checkAdminSession() {
+    return getAdminSession();
 }
 
 export async function setWebhookProcessingStatus(enabled: boolean) {

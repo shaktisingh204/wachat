@@ -10,7 +10,7 @@ import NodeFormData from 'form-data';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/project.actions';
-import { getAdminSession } from '@/app/actions/admin.actions';
+import { getAdminSession } from '@/lib/admin-session';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import type { Project, Template, CreateTemplateState, MetaTemplate, MetaTemplatesResponse, LibraryTemplate, TemplateCategory } from '@/lib/definitions';

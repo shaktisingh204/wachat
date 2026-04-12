@@ -64,7 +64,9 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
         return !!revokedToken;
     } catch (error) {
         console.error("Error checking for revoked token:", error);
-        return true;
+        // Fail-open: a transient DB error should not log every admin out.
+        // The JWT signature is still verified, so this is safe.
+        return false;
     }
 }
 

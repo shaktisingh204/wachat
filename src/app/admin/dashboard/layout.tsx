@@ -1,8 +1,10 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
-import { getAdminSession } from '@/app/actions/admin.actions';
+import { getAdminSession } from '@/lib/admin-session';
 import { AdminSidebarNav } from '@/components/wabasimplify/admin-sidebar-nav';
 import { AdminTopBar } from '@/components/wabasimplify/admin-top-bar';
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardLayout({
     children,
