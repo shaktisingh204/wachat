@@ -65,7 +65,7 @@ export async function enqueueBroadcastControl(broadcastId: string): Promise<void
     { broadcastId },
     {
       jobId: `bcast_${broadcastId}`,
-      priority: Math.max(1, Date.now() % 1_000_000_000),
+      priority: Math.max(1, Date.now() % 2_000_000),
     },
   );
 }
