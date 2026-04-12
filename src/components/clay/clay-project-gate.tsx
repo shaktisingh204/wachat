@@ -22,6 +22,7 @@ import {
   LuCheck,
   LuPlus,
   LuSearch,
+  LuMessageSquare,
 } from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
@@ -35,7 +36,13 @@ import { ClayBreadcrumbs } from './clay-breadcrumbs';
  * Routes that are allowed to render without an active project.
  * Anything else under Wachat gets gated.
  */
-const OPEN_ROUTES = new Set<string>(['/dashboard', '/dashboard/']);
+const OPEN_ROUTES = new Set<string>([
+  '/dashboard',
+  '/dashboard/',
+  '/dashboard/setup',
+  '/dashboard/setup/',
+  '/dashboard/setup/docs',
+]);
 
 export interface ClayProjectGateProps {
   children: React.ReactNode;
@@ -108,9 +115,9 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
             variant="obsidian"
             size="md"
             leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/dashboard/setup')}
           >
-            New project
+            Connect account
           </ClayButton>
         </div>
       </div>
@@ -138,25 +145,64 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
         </div>
       ) : filteredProjects.length === 0 ? (
         <ClayCard padded={false} className="mt-8 p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
-            <LuBriefcase className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">
-            {filter ? 'No projects match your search' : 'No projects yet'}
-          </div>
-          <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
-            {filter
-              ? 'Try a different name, or clear the filter to see all your projects.'
-              : 'Create your first WhatsApp Business project to start using Wachat.'}
-          </div>
-          <ClayButton
-            variant="rose"
-            size="md"
-            onClick={() => router.push('/dashboard')}
-            className="mt-5"
-          >
-            {filter ? 'Clear & browse all' : 'Create project'}
-          </ClayButton>
+          {filter ? (
+            <>
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+                <LuSearch className="h-5 w-5" strokeWidth={1.5} />
+              </div>
+              <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+                No projects match your search
+              </div>
+              <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+                Try a different name, or clear the filter to see all your projects.
+              </div>
+              <ClayButton
+                variant="pill"
+                size="md"
+                onClick={() => setFilter('')}
+                className="mt-5"
+              >
+                Clear filter
+              </ClayButton>
+            </>
+          ) : (
+            <>
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50">
+                <LuMessageSquare className="h-6 w-6 text-emerald-600" strokeWidth={1.75} />
+              </div>
+              <div className="mt-4 text-[18px] font-semibold text-clay-ink">
+                Connect your WhatsApp Business
+              </div>
+              <div className="mx-auto mt-1.5 max-w-sm text-[13px] text-clay-ink-muted leading-relaxed">
+                Link your WhatsApp Business Account via Meta to start sending
+                broadcasts, managing chats, and building automations.
+              </div>
+              <div className="mt-5 flex items-center justify-center gap-2.5">
+                <ClayButton
+                  variant="obsidian"
+                  size="md"
+                  leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
+                  onClick={() => router.push('/dashboard/setup')}
+                >
+                  Connect WhatsApp account
+                </ClayButton>
+              </div>
+              <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 gap-4 text-left">
+                <div>
+                  <div className="text-[12px] font-semibold text-clay-ink">1. Click connect</div>
+                  <div className="mt-0.5 text-[11px] text-clay-ink-muted">Open the Meta guided signup</div>
+                </div>
+                <div>
+                  <div className="text-[12px] font-semibold text-clay-ink">2. Login to Meta</div>
+                  <div className="mt-0.5 text-[11px] text-clay-ink-muted">Grant WhatsApp permissions</div>
+                </div>
+                <div>
+                  <div className="text-[12px] font-semibold text-clay-ink">3. Auto-sync</div>
+                  <div className="mt-0.5 text-[11px] text-clay-ink-muted">Your WABA appears instantly</div>
+                </div>
+              </div>
+            </>
+          )}
         </ClayCard>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

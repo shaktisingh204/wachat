@@ -87,7 +87,6 @@ import {
   ClaySidebar,
   ClayTopbar,
   ClayButton,
-  ClayPromoCard,
   ClayUserCard,
   type ClayNavItem,
 } from '@/components/clay';
@@ -617,10 +616,6 @@ export function ClayDashboardLayout({
     [],
   );
 
-  const planName = plan?.name ?? null;
-  const credits = plan?.credits ?? 0;
-  const isPaidPlan = planName !== null && planName.toLowerCase() !== 'free';
-
   return (
     <ClayShell className="flex flex-col">
       {/* ── TOPBAR ── */}
@@ -915,24 +910,9 @@ export function ClayDashboardLayout({
           }
           footer={
             <>
-              {isPaidPlan ? (
-                <ClayPromoCard
-                  title={`You're on ${planName}!`}
-                  description="Enjoy advanced features, higher limits, and priority support."
-                  discountLabel={`${credits.toLocaleString()} credits`}
-                  discountNote="available now"
-                  ctaLabel="Manage billing"
-                  onCtaClick={() => router.push('/dashboard/billing')}
-                />
-              ) : (
-                <ClayPromoCard
-                  title="Upgrade to PRO"
-                  description="Unlock unlimited broadcasts, SabFlow, and premium support."
-                  discountLabel="-50%"
-                  discountNote="for the first month"
-                  ctaLabel="Explore PRO plans"
-                  onCtaClick={() => router.push('/dashboard/billing')}
-                />
+              {/* All Apps quick-nav — visible in every sidebar context */}
+              {context !== 'sabnode' && (
+                <SidebarAppsGrid currentContext={context} onNavigate={(href) => router.push(href)} />
               )}
               <ClayUserCard
                 name={user?.name || 'SabNode user'}
@@ -974,6 +954,88 @@ export function ClayDashboardLayout({
         </main>
       </div>
     </ClayShell>
+  );
+}
+
+/* ── sidebar apps grid ──────────────────────────────────────────── */
+
+const ALL_APPS: {
+  key: ClayLayoutContext;
+  label: string;
+  href: string;
+  gradient: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    key: 'sabnode',
+    label: 'Home',
+    href: '/home',
+    gradient: 'linear-gradient(135deg, #F5F5F4 0%, #A8A29E 100%)',
+    icon: <LuLayoutDashboard className="h-3.5 w-3.5 text-stone-700" strokeWidth={2} />,
+  },
+  {
+    key: 'wachat',
+    label: 'Wachat',
+    href: '/dashboard/chat',
+    gradient: 'linear-gradient(135deg, #BBF7D0 0%, #16A34A 100%)',
+    icon: <LuMessagesSquare className="h-3.5 w-3.5 text-white" strokeWidth={2} />,
+  },
+  {
+    key: 'meta-suite',
+    label: 'Meta Suite',
+    href: '/dashboard/facebook',
+    gradient: 'linear-gradient(135deg, #60A5FA 0%, #1877F2 100%)',
+    icon: <LuGlobe className="h-3.5 w-3.5 text-white" strokeWidth={2} />,
+  },
+  {
+    key: 'instagram',
+    label: 'Instagram',
+    href: '/dashboard/instagram',
+    gradient: 'linear-gradient(135deg, #F9CE34 0%, #EE2A7B 50%, #6228D7 100%)',
+    icon: <LuImage className="h-3.5 w-3.5 text-white" strokeWidth={2} />,
+  },
+  {
+    key: 'ad-manager',
+    label: 'Ad Manager',
+    href: '/dashboard/ad-manager',
+    gradient: 'linear-gradient(135deg, #C7D2FE 0%, #4F46E5 100%)',
+    icon: <LuMegaphone className="h-3.5 w-3.5 text-white" strokeWidth={2} />,
+  },
+];
+
+function SidebarAppsGrid({
+  currentContext,
+  onNavigate,
+}: {
+  currentContext: ClayLayoutContext;
+  onNavigate: (href: string) => void;
+}) {
+  return (
+    <div className="rounded-xl border border-clay-border bg-clay-surface p-2.5">
+      <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-clay-ink-muted">
+        All Apps
+      </p>
+      <div className="grid grid-cols-3 gap-1">
+        {ALL_APPS.filter((a) => a.key !== currentContext).map((app) => (
+          <button
+            key={app.key}
+            type="button"
+            onClick={() => onNavigate(app.href)}
+            className="group flex flex-col items-center gap-1.5 rounded-lg p-2 transition hover:bg-clay-bg-2"
+          >
+            <div
+              className="flex h-7 w-7 items-center justify-center rounded-lg shadow-sm"
+              style={{ background: app.gradient }}
+            >
+              {app.icon}
+            </div>
+            <span className="text-[10px] font-medium text-clay-ink-muted group-hover:text-clay-ink leading-tight text-center">
+              {app.label}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
