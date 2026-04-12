@@ -88,6 +88,7 @@ import {
   LuClapperboard,
   LuCirclePlay,
   LuUserCheck,
+  LuQrCode,
 } from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
@@ -279,6 +280,7 @@ const appsNav: NavEntry[] = [
  *  structured into the Clay sidebar's (primary + sub-groups) pattern.
  * ══════════════════════════════════════════════════════════════════ */
 
+/* ── Primary: Core messaging & outreach ── */
 const wachatPrimary: NavEntry[] = [
   {
     key: 'wachat-overview',
@@ -317,7 +319,8 @@ const wachatPrimary: NavEntry[] = [
   },
 ];
 
-const wachatTools: NavEntry[] = [
+/* ── Automate: Flow builders, auto-reply, bots ── */
+const wachatAutomate: NavEntry[] = [
   {
     key: 'wachat-flow-builder',
     label: 'Flow Builder',
@@ -333,11 +336,61 @@ const wachatTools: NavEntry[] = [
     matches: ['/dashboard/flows'],
   },
   {
+    key: 'wachat-auto-reply',
+    label: 'Auto Reply',
+    icon: <LuReply className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/auto-reply',
+    matches: ['/dashboard/auto-reply'],
+  },
+  {
+    key: 'wachat-automation',
+    label: 'Conversational AI',
+    icon: <LuBot className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/automation',
+    matches: ['/dashboard/automation'],
+  },
+];
+
+/* ── Grow: Commerce, payments, links, QR ── */
+const wachatGrow: NavEntry[] = [
+  {
     key: 'wachat-catalog',
     label: 'Catalog',
     icon: <LuShoppingBag className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/catalog',
     matches: ['/dashboard/catalog'],
+  },
+  {
+    key: 'wachat-pay',
+    label: 'WhatsApp Pay',
+    icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/whatsapp-pay',
+    matches: ['/dashboard/whatsapp-pay'],
+  },
+  {
+    key: 'wachat-qr-codes',
+    label: 'QR Codes',
+    icon: <LuQrCode className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/qr-codes',
+    matches: ['/dashboard/qr-codes'],
+  },
+  {
+    key: 'wachat-analytics',
+    label: 'Analytics',
+    icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/analytics',
+    matches: ['/dashboard/analytics'],
+  },
+];
+
+/* ── Configure: Account settings, phone numbers, dev tools ── */
+const wachatConfigure: NavEntry[] = [
+  {
+    key: 'wachat-numbers',
+    label: 'Numbers',
+    icon: <LuHash className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/numbers',
+    matches: ['/dashboard/numbers'],
   },
   {
     key: 'wachat-calls',
@@ -347,22 +400,12 @@ const wachatTools: NavEntry[] = [
     matches: ['/dashboard/calls'],
   },
   {
-    key: 'wachat-numbers',
-    label: 'Numbers',
-    icon: <LuHash className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/numbers',
-    matches: ['/dashboard/numbers'],
+    key: 'wachat-health',
+    label: 'Account Health',
+    icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/health',
+    matches: ['/dashboard/health'],
   },
-  {
-    key: 'wachat-pay',
-    label: 'WhatsApp Pay',
-    icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/whatsapp-pay',
-    matches: ['/dashboard/whatsapp-pay'],
-  },
-];
-
-const wachatConfigure: NavEntry[] = [
   {
     key: 'wachat-integrations',
     label: 'Integrations',
@@ -376,13 +419,6 @@ const wachatConfigure: NavEntry[] = [
     icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/webhooks',
     matches: ['/dashboard/webhooks'],
-  },
-  {
-    key: 'wachat-auto-reply',
-    label: 'Auto Reply',
-    icon: <LuReply className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/auto-reply',
-    matches: ['/dashboard/auto-reply'],
   },
   {
     key: 'wachat-settings',
@@ -555,7 +591,7 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
         : context === 'meta-suite'
           ? [metaFbPrimary, metaFbContent, metaFbEngage, metaFbGrowth, metaFbCommerce, metaFbAdvanced]
           : context === 'wachat'
-            ? [wachatPrimary, wachatTools, wachatConfigure]
+            ? [wachatPrimary, wachatAutomate, wachatGrow, wachatConfigure]
             : [primaryNav, appsNav];
   let bestKey =
     context === 'ad-manager' ? 'adm-overview' :
@@ -910,9 +946,14 @@ export function ClayDashboardLayout({
                 ? [
                     { items: wachatPrimary.map(toNavItem) },
                     {
-                      title: 'Tools',
+                      title: 'Automate',
                       addable: false,
-                      items: wachatTools.map(toNavItem),
+                      items: wachatAutomate.map(toNavItem),
+                    },
+                    {
+                      title: 'Grow',
+                      addable: false,
+                      items: wachatGrow.map(toNavItem),
                     },
                     {
                       title: 'Configure',

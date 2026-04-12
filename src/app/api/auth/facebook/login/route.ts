@@ -25,11 +25,12 @@ export async function GET(request: NextRequest) {
   const state = stateFromClient || nanoid();
   const redirectUri = `${appUrl}/auth/facebook/callback`;
 
-  // Base scopes
-  let scopes = 'whatsapp_business_management,whatsapp_business_messaging';
+  // Base scopes — business_management is always required to discover WABAs
+  // via the me/businesses → owned_whatsapp_business_accounts flow.
+  let scopes = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
   // Add catalog scopes if requested
   if (includeCatalog) {
-    scopes += ',catalog_management,business_management';
+    scopes += ',catalog_management';
   }
 
   const facebookLoginUrl = new URL('https://www.facebook.com/v24.0/dialog/oauth');

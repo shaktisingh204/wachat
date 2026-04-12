@@ -66,11 +66,14 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
     return <>{children}</>;
   }
 
+  // Only show WABA projects in the Wachat gate
+  const wabaProjects = projects.filter((p) => !!(p as any).wabaId);
+
   const filteredProjects = filter.trim()
-    ? projects.filter((p) =>
+    ? wabaProjects.filter((p) =>
         p.name?.toLowerCase().includes(filter.toLowerCase().trim()),
       )
-    : projects;
+    : wabaProjects;
 
   const selectProject = (id: string) => {
     setActiveProjectId(id);

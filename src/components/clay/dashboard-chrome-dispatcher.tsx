@@ -95,6 +95,10 @@ const WACHAT_PREFIXES = [
   '/dashboard/integrations',
   '/dashboard/setup',
   '/dashboard/wachat',
+  '/dashboard/analytics',
+  '/dashboard/qr-codes',
+  '/dashboard/automation',
+  '/dashboard/health',
   '/dashboard/settings',
 ];
 
@@ -285,9 +289,11 @@ export function DashboardChromeDispatcher({
     if (!wachatData) {
       return <ClayBootSkeleton />;
     }
+    // Only WABA projects should be shown/managed in Wachat
+    const wabaProjects = wachatData.projects.filter((p: any) => !!p.wabaId);
     return (
       <ProjectProvider
-        initialProjects={wachatData.projects}
+        initialProjects={wabaProjects}
         user={wachatData.user}
       >
         <AdManagerProvider>

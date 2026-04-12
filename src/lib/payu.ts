@@ -60,8 +60,11 @@ export interface PayuRequestFields {
 /**
  * Request hash (forward):
  *   sha512(key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||salt)
- * Six trailing empty pipes (udf6–udf10 placeholders) come before salt,
- * per PayU's integration spec.
+ *
+ * PayU spec: after udf5 there are 6 pipe characters before salt,
+ * representing empty udf6–udf10 placeholders. With .join('|') that
+ * means 5 empty strings between udf5 and salt:
+ *   [udf5, '', '', '', '', '', salt].join('|') → "udf5||||||salt"
  */
 export function buildPayuRequestHash(
     fields: PayuRequestFields,
@@ -93,12 +96,11 @@ export function buildPayuRequestHash(
         udf3,
         udf4,
         udf5,
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
+        '',   // udf6
+        '',   // udf7
+        '',   // udf8
+        '',   // udf9
+        '',   // udf10
         salt,
     ].join('|');
 

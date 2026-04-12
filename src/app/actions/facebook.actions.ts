@@ -139,13 +139,13 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
     }
 
     try {
-        const tokenResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
+        const tokenResponse = await axios.get('https://graph.facebook.com/v24.0/oauth/access_token', {
             params: { client_id: appId, redirect_uri: redirectUri, client_secret: appSecret, code: code }
         });
         const shortLivedToken = tokenResponse.data.access_token;
         if (!shortLivedToken) return { success: false, error: 'Failed to obtain access token from Facebook.' };
 
-        const longLivedResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
+        const longLivedResponse = await axios.get('https://graph.facebook.com/v24.0/oauth/access_token', {
             params: { grant_type: 'fb_exchange_token', client_id: appId, client_secret: appSecret, fb_exchange_token: shortLivedToken }
         });
         const longLivedToken = longLivedResponse.data.access_token;
@@ -157,43 +157,73 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
 
         if (state === 'whatsapp') {
             await db.collection('users').updateOne({ _id: new ObjectId(session.user._id) }, { $set: userUpdate });
-            let businesses: any[] = [];
-            try {
-                const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
-                    params: { access_token: longLivedToken }
-                });
-                businesses = businessesResponse.data.data;
-            } catch (e) {
-                console.warn("Failed to fetch businesses (likely missing permissions):", getErrorMessage(e));
-            }
-
-            if (!businesses || businesses.length === 0) {
-                return { success: false, error: "Could not discover any WhatsApp Business Accounts. This is likely because the 'business_management' permission was not granted. Please try the 'Manual Setup' option to connect your WABA using its ID." };
-            }
 
             let allWabas: any[] = [];
-            for (const business of businesses) {
-                try {
-                    const wabasResponse = await axios.get<{ data: any[] }>(`https://graph.facebook.com/v23.0/${business.id}/owned_whatsapp_business_accounts`, {
-                        params: { access_token: longLivedToken }
-                    });
-                    if (wabasResponse.data.data) {
-                        allWabas.push(...wabasResponse.data.data);
+
+            // Strategy 1: Discover WABAs via me/businesses → owned_whatsapp_business_accounts
+            try {
+                const businessesResponse = await axios.get(`https://graph.facebook.com/v24.0/me/businesses`, {
+                    params: { access_token: longLivedToken }
+                });
+                const businesses = businessesResponse.data?.data || [];
+
+                for (const business of businesses) {
+                    try {
+                        const wabasResponse = await axios.get<{ data: any[] }>(`https://graph.facebook.com/v24.0/${business.id}/owned_whatsapp_business_accounts`, {
+                            params: { access_token: longLivedToken, fields: 'id,name' }
+                        });
+                        if (wabasResponse.data?.data) {
+                            allWabas.push(...wabasResponse.data.data);
+                        }
+                    } catch (e: any) {
+                        console.warn(`[WhatsApp OAuth] Could not fetch WABAs for business ${business.id}: ${getErrorMessage(e)}`);
                     }
-                } catch (e: any) {
-                    console.warn(`Could not fetch WABAs for business ${business.id}: ${getErrorMessage(e)}`);
+                }
+            } catch (e) {
+                console.warn("[WhatsApp OAuth] me/businesses failed, trying fallback via debug_token:", getErrorMessage(e));
+            }
+
+            // Strategy 2 (fallback): Discover WABA IDs from the granted scopes via debug_token
+            if (allWabas.length === 0) {
+                try {
+                    const debugResponse = await axios.get(`https://graph.facebook.com/v24.0/debug_token`, {
+                        params: {
+                            input_token: longLivedToken,
+                            access_token: `${appId}|${appSecret}`,
+                        }
+                    });
+                    const granularScopes = debugResponse.data?.data?.granular_scopes || [];
+                    const wabaScope = granularScopes.find((s: any) => s.scope === 'whatsapp_business_management');
+                    const wabaIds = wabaScope?.target_ids || [];
+
+                    for (const wabaId of wabaIds) {
+                        try {
+                            const wabaData = await axios.get(`https://graph.facebook.com/v24.0/${wabaId}`, {
+                                params: { fields: 'id,name', access_token: longLivedToken }
+                            });
+                            allWabas.push({ id: wabaData.data.id, name: wabaData.data.name });
+                        } catch (e) {
+                            // Still add with just the ID so the project can be created
+                            allWabas.push({ id: wabaId });
+                        }
+                    }
+                } catch (e) {
+                    console.error("[WhatsApp OAuth] debug_token fallback also failed:", getErrorMessage(e));
                 }
             }
 
             if (allWabas.length === 0) {
-                return { success: false, error: "No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions." };
+                return { success: false, error: "No WhatsApp Business Accounts found. Please ensure you have a WABA connected to your Meta Business Suite account and granted all requested permissions during login." };
             }
 
+            // Deduplicate by WABA ID
+            const uniqueWabas = Array.from(new Map(allWabas.map(w => [w.id, w])).values());
+
             await Promise.all(
-                allWabas.map(async (waba) => {
+                uniqueWabas.map(async (waba) => {
                     await _createProjectFromWaba({
                         wabaId: waba.id,
-                        appId,
+                        appId: appId!,
                         accessToken: longLivedToken,
                         includeCatalog,
                         userId: session.user._id.toString(),
@@ -206,7 +236,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
 
         } else if (state === 'facebook' || state === 'instagram' || state === 'facebook_reauth') {
             await db.collection('users').updateOne({ _id: new ObjectId(session.user._id) }, { $set: userUpdate });
-            const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', {
+            const pagesResponse = await axios.get('https://graph.facebook.com/v24.0/me/accounts', {
                 params: { fields: 'id,name,access_token,tasks', access_token: longLivedToken }
             });
             const userPagesWithTokens = pagesResponse.data?.data;
@@ -237,7 +267,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
             return { success: true, redirectPath };
 
         } else if (state === 'ad_manager') {
-            const adAccountsResponse = await axios.get(`https://graph.facebook.com/v23.0/me/adaccounts`, { params: { access_token: longLivedToken, fields: 'id,name,account_id' } });
+            const adAccountsResponse = await axios.get(`https://graph.facebook.com/v24.0/me/adaccounts`, { params: { access_token: longLivedToken, fields: 'id,name,account_id' } });
             const adAccounts = adAccountsResponse.data?.data || [];
             if (adAccounts.length > 0) {
                 userUpdate.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
