@@ -41,7 +41,7 @@ interface ProjectSettingsFormProps {
 }
 
 export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
-    const [state, formAction] = useActionState(handleUpdateProjectSettings, initialState);
+    const [state, formAction] = useActionState(handleUpdateProjectSettings as any, initialState as any);
     const { toast } = useToast();
     
     useEffect(() => {

@@ -1,8 +1,10 @@
 "use client"
 
 import { GripVertical } from "lucide-react"
-import * as ResizablePanels from "react-resizable-panels"
+import * as ResizablePanelsImport from "react-resizable-panels"
 import { cn } from "@/lib/utils"
+
+const ResizablePanels: any = ResizablePanelsImport;
 
 const ResizablePanelGroup = ({
     className,

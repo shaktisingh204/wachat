@@ -41,7 +41,10 @@ import {
     Calendar,
     Webhook,
     Search,
-    AlertCircle
+    AlertCircle,
+    Sparkles,
+    Settings2,
+    Sliders,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Node } from '@xyflow/react';
@@ -481,6 +484,28 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
                         </div>
                     )}
 
+                    {triggerType === 'schedule' && (
+                        <div className="space-y-3">
+                            <Label>Schedule</Label>
+                            <Input
+                                value={selectedNodeData.schedule || ''}
+                                onChange={e => handleDataChange({ schedule: e.target.value })}
+                                placeholder="5m, 1h, 1d — or cron: * * * * *"
+                                className="font-mono text-xs"
+                            />
+                            <div className="rounded-md bg-muted/40 border border-border/60 p-2.5 text-[11px] text-muted-foreground space-y-1">
+                                <p className="font-semibold text-foreground/80">Accepted formats:</p>
+                                <p>• <code className="bg-background/60 px-1 rounded">30s</code>, <code className="bg-background/60 px-1 rounded">5m</code>, <code className="bg-background/60 px-1 rounded">1h</code>, <code className="bg-background/60 px-1 rounded">2d</code> — interval since last run</p>
+                                <p>• <code className="bg-background/60 px-1 rounded">0 9 * * 1-5</code> — 5-field UTC cron (min hr dom mon dow)</p>
+                                <p>• <code className="bg-background/60 px-1 rounded">*/15 * * * *</code> — every 15 minutes</p>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                <AlertCircle className="h-3 w-3" />
+                                The cron runner checks every minute. Ensure <code className="bg-muted px-1 rounded">CRON_SECRET</code> is configured for production.
+                            </p>
+                        </div>
+                    )}
+
                     {triggerType === 'app' && (
                         <div className="space-y-6">
                             {!selectedApp ? (
@@ -634,21 +659,81 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
     const isAction = node.type === 'action';
     const selectedApp = sabnodeAppActions.find(app => app.appId === selectedNodeData.appId);
 
+    // Per-type theming for the panel header
+    const panelTheme = (() => {
+        if (node.type === 'trigger') {
+            return {
+                label: 'TRIGGER',
+                subLabel: 'Start of flow',
+                gradient: 'from-emerald-500/15 via-emerald-500/5 to-transparent',
+                badgeBg: 'bg-emerald-500/10 dark:bg-emerald-400/10',
+                badgeText: 'text-emerald-600 dark:text-emerald-400',
+                iconBg: 'bg-emerald-500/10 dark:bg-emerald-400/10',
+                iconText: 'text-emerald-600 dark:text-emerald-400',
+                icon: Zap,
+            };
+        }
+        if (node.type === 'condition') {
+            return {
+                label: 'CONDITION',
+                subLabel: 'Branching logic',
+                gradient: 'from-amber-500/15 via-amber-500/5 to-transparent',
+                badgeBg: 'bg-amber-500/10 dark:bg-amber-400/10',
+                badgeText: 'text-amber-600 dark:text-amber-400',
+                iconBg: 'bg-amber-500/10 dark:bg-amber-400/10',
+                iconText: 'text-amber-600 dark:text-amber-400',
+                icon: GitFork,
+            };
+        }
+        return {
+            label: 'ACTION',
+            subLabel: selectedApp?.category || 'App integration',
+            gradient: 'from-violet-500/15 via-violet-500/5 to-transparent',
+            badgeBg: 'bg-violet-500/10 dark:bg-violet-400/10',
+            badgeText: 'text-violet-600 dark:text-violet-400',
+            iconBg: 'bg-violet-500/10 dark:bg-violet-400/10',
+            iconText: selectedApp?.iconColor || 'text-violet-600 dark:text-violet-400',
+            icon: selectedApp?.icon || Sparkles,
+        };
+    })();
+    const PanelIcon = panelTheme.icon;
+
     return (
         <div className="h-full flex flex-col bg-background/95 backdrop-blur-md">
-            {/* Header */}
-            <div className="p-4 border-b shrink-0 flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-xl z-20">
-                <div className="flex flex-col">
-                    <h3 className="text-lg font-bold tracking-tight text-foreground/90">
-                        {node.type === 'action' ? (selectedApp ? selectedApp.name : 'Action') :
-                            node.type === 'trigger' ? 'Trigger' :
-                                node.type === 'condition' ? 'Condition' : 'Start'}
-                    </h3>
-                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Configuration</p>
-                </div>
-                <div className="flex items-center gap-1">
+            {/* Themed Header */}
+            <div className="relative shrink-0 sticky top-0 z-20 border-b bg-background/85 backdrop-blur-xl">
+                <div className={cn("absolute inset-0 pointer-events-none bg-gradient-to-br", panelTheme.gradient)} />
+                <div className="relative p-5 flex items-start gap-3">
+                    <div className={cn(
+                        "h-11 w-11 shrink-0 rounded-xl flex items-center justify-center border border-border/40 shadow-sm",
+                        panelTheme.iconBg
+                    )}>
+                        <PanelIcon className={cn("h-5 w-5", panelTheme.iconText)} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                            <span className={cn(
+                                "inline-flex items-center text-[9px] font-bold tracking-[0.15em] px-1.5 py-0.5 rounded",
+                                panelTheme.badgeBg, panelTheme.badgeText
+                            )}>
+                                {panelTheme.label}
+                            </span>
+                        </div>
+                        <h3 className="text-base font-bold tracking-tight text-foreground truncate mt-1">
+                            {node.type === 'action' ? (selectedApp ? selectedApp.name : 'Select an action') :
+                                node.type === 'trigger' ? 'Trigger Setup' :
+                                    node.type === 'condition' ? 'Condition Rules' : 'Start'}
+                        </h3>
+                        <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{panelTheme.subLabel}</p>
+                    </div>
                     {node.type !== 'start' && node.type !== 'trigger' && (
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={() => deleteNode(node.id)}>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+                            onClick={() => deleteNode(node.id)}
+                            aria-label="Delete node"
+                        >
                             <Trash2 className="h-4 w-4" />
                         </Button>
                     )}
@@ -659,39 +744,48 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
             <ScrollArea className="flex-1">
                 <div className="p-5 space-y-6">
                     {/* Step Name */}
-                    <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground uppercase tracking-widest">Step Name</Label>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-1.5">
+                            <Sliders className="h-3 w-3" />
+                            Step Name
+                        </Label>
                         <Input
                             value={selectedNodeData.name}
                             onChange={e => handleDataChange({ name: e.target.value })}
-                            className="bg-muted/30 border-transparent focus:border-primary/50 focus:bg-background transition-all font-medium"
+                            className="bg-muted/30 border-border/60 focus:border-primary/50 focus:bg-background transition-all font-medium h-9"
                             placeholder="Name your step"
                         />
                     </div>
 
-                    <Separator className="bg-border/50" />
+                    <Separator className="bg-border/40" />
 
                     {/* App Header (if selected) */}
                     {selectedApp && isAction && (
-                        <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-muted/50 to-muted/10 p-4 transition-all hover:shadow-md">
+                        <div className="group relative overflow-hidden rounded-xl border border-border/60 bg-gradient-to-br from-violet-500/5 via-muted/30 to-transparent p-3 transition-all hover:shadow-md">
                             <div className="flex items-center justify-between relative z-10">
-                                <div className="flex items-center gap-3">
-                                    <div className={cn("p-2 rounded-lg bg-background shadow-sm", (selectedApp.iconColor || '').replace('text-', 'bg-').replace('-icon', '/10'))}>
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center bg-background border border-border/60 shadow-sm">
                                         <selectedApp.icon className={cn("h-5 w-5", selectedApp.iconColor)} />
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-sm">{selectedApp.name}</span>
-                                        <span className="text-[10px] text-muted-foreground">{selectedApp.category || 'App Integration'}</span>
+                                    <div className="flex flex-col min-w-0">
+                                        <span className="font-semibold text-sm truncate">{selectedApp.name}</span>
+                                        <span className="text-[10px] text-muted-foreground truncate">{selectedApp.category || 'App Integration'}</span>
                                     </div>
                                 </div>
-                                <Button variant="secondary" size="sm" className="h-7 text-xs bg-background/80 backdrop-blur-sm hover:bg-background" onClick={() => handleDataChange({ appId: '', actionName: '', inputs: {} })}>
+                                <Button variant="secondary" size="sm" className="h-7 text-[11px] bg-background/80 backdrop-blur-sm hover:bg-background shrink-0 ml-2" onClick={() => handleDataChange({ appId: '', actionName: '', inputs: {} })}>
                                     Change
                                 </Button>
                             </div>
                         </div>
                     )}
 
-                    {renderEditorContent()}
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-1.5">
+                            <Settings2 className="h-3 w-3" />
+                            Configuration
+                        </Label>
+                        {renderEditorContent()}
+                    </div>
                 </div>
             </ScrollArea>
         </div>

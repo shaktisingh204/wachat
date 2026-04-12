@@ -135,7 +135,7 @@ function EditFormPageContent() {
                     </Button>
                 </div>
             </header>
-             <CrmFormBuilder initialForm={initialForm} onSave={handleSave} />
+             <CrmFormBuilder {...({ initialForm, onSave: handleSave } as any)} />
         </div>
     );
 }

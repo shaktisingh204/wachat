@@ -86,9 +86,9 @@ export async function getLeadsSummaryData(filters: {
 
         // 2. Pipeline Stage Summary & Chart Data
         const pipelines = session.user.crmPipelines || [{ id: 'default', name: 'Sales Pipeline', stages: [{id: '1', name:'Open', chance: 10}, {id: '2', name:'Contacted', chance: 20}, {id: '3', name:'Proposal Sent', chance: 50}, {id: '4', name:'Deal Done', chance: 100}, {id: '5', name:'Lost', chance: 0}, {id: '6', name:'Not Serviceable', chance: 0}] }];
-        const activePipeline = pipelines.find(p => p.id === (filters.pipelineId || pipelines[0].id)) || pipelines[0];
+        const activePipeline = pipelines.find((p: any) => p.id === (filters.pipelineId || pipelines[0].id)) || pipelines[0];
 
-        const pipelineSummary = activePipeline.stages.map(stage => {
+        const pipelineSummary = activePipeline.stages.map((stage: any) => {
             const dealsInStage = deals.filter(d => d.stage === stage.name);
             const totalValue = dealsInStage.reduce((sum, d) => sum + d.value, 0);
             const weightedValue = totalValue * (stage.chance / 100);
@@ -145,7 +145,7 @@ export async function generateTeamSalesReportData(filters: {
         // For now, we'll consider all users under the main account as 'salespeople'
         const users = await db.collection<User>('users').find({}).project({ name: 1, email: 1 }).toArray();
 
-        const dealsFilter: Filter<CrmDeal> = { userId };
+        const dealsFilter: any = { userId };
         if (filters.createdFrom && filters.createdTo) {
             dealsFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
         }
@@ -205,7 +205,7 @@ export async function generateClientPerformanceReportData(filters: {
         const accounts = await db.collection<CrmAccount>('crm_accounts').find({ userId }).toArray();
         const accountIds = accounts.map(a => a._id);
 
-        const dealsFilter: Filter<CrmDeal> = { userId, accountId: { $in: accountIds } };
+        const dealsFilter: any = { userId, accountId: { $in: accountIds } };
         if (filters.createdFrom && filters.createdTo) {
             dealsFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
         }

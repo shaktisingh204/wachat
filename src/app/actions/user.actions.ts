@@ -91,83 +91,126 @@ export async function handleRunCron() {
     return { message: 'Cron jobs triggered.', error: null };
 }
 
+/**
+ * Manually add a single WhatsApp Business Account (WABA) as a project.
+ *
+ * Rewritten from the previous "sync by Business Portfolio id" flow which
+ * kept hitting Meta error (#100) because of ambiguity around which edge to
+ * query on the Business node (`owned_whatsapp_business_accounts` vs
+ * `client_whatsapp_business_accounts`) and because many users entered a
+ * WABA id, Page id, or App id instead of a Business Portfolio id.
+ *
+ * The new flow skips discovery entirely: the user pastes the exact WABA id
+ * they want to add, we fetch it directly with `GET /{waba-id}`, and upsert
+ * one project. Phone numbers and webhook subscription run as before.
+ *
+ * Function name kept as `handleSyncWabas` so existing imports (including
+ * `SyncProjectsDialog`) keep working. FormData key is now `wabaId`.
+ */
 export async function handleSyncWabas(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, count?: number }> {
-    const accessToken = formData.get('accessToken') as string;
-    const appId = formData.get('appId') as string;
-    const businessId = formData.get('businessId') as string;
-    const groupName = formData.get('groupName') as string;
+    const accessToken = (formData.get('accessToken') as string | null)?.trim() || '';
+    const appId = (formData.get('appId') as string | null)?.trim() || '';
+    const wabaId = (formData.get('wabaId') as string | null)?.trim() || '';
+    const groupName = (formData.get('groupName') as string | null)?.trim() || '';
 
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };
 
-    if (!accessToken || !appId || !businessId) {
-        return { error: 'Access Token, App ID, and Business ID are required.' };
+    if (!accessToken || !appId || !wabaId) {
+        return { error: 'WABA ID, Access Token, and App ID are required.' };
+    }
+    // Basic shape check — Meta WABA ids are numeric, typically 15–16 digits.
+    if (!/^\d{6,25}$/.test(wabaId)) {
+        return { error: 'WABA ID should be a numeric id from Meta Business Manager. Double-check that you pasted the WhatsApp Business Account ID (not the Business Portfolio, Page, or App ID).' };
     }
 
     try {
         const { db } = await connectToDatabase();
 
+        // Fetch the WABA directly from Meta. If the ID is wrong or the token
+        // can't see it, this surfaces Meta's actual error back to the user
+        // (which is much more informative than the old "nonexisting field"
+        // error from guessing edges on the wrong node type).
+        let wabaName: string;
+        try {
+            const wabaResp = await axios.get(`https://graph.facebook.com/v23.0/${wabaId}`, {
+                params: {
+                    fields: 'id,name,currency,timezone_id,message_template_namespace',
+                    access_token: accessToken,
+                },
+            });
+            if (!wabaResp.data?.id) {
+                return { error: 'Meta returned no WABA for that ID. Check that the ID is correct and the token has whatsapp_business_management scope.' };
+            }
+            if (String(wabaResp.data.id) !== wabaId) {
+                // Defensive: Meta should always echo the id we queried. Flag
+                // the mismatch loudly rather than silently trusting the wrong id.
+                return { error: `Meta returned a different id (${wabaResp.data.id}) than requested (${wabaId}). Aborting.` };
+            }
+            wabaName = wabaResp.data.name || `WABA ${wabaId}`;
+        } catch (err: any) {
+            // Return Meta's actual error — avoids the old pattern where we
+            // wrapped everything as "nonexisting field" and buried the real
+            // cause (expired token, missing scope, wrong node type).
+            const metaMsg = err?.response?.data?.error?.message || getErrorMessage(err);
+            return { error: `Meta API error while fetching WABA ${wabaId}: ${metaMsg}` };
+        }
+
+        // Optional project group — create only after we've confirmed the
+        // WABA is reachable so we don't leave orphaned groups on bad input.
         let groupId: ObjectId | undefined;
         if (groupName) {
             const groupResult = await db.collection('project_groups').insertOne({
                 userId: new ObjectId(session.user._id),
                 name: groupName,
-                createdAt: new Date()
+                createdAt: new Date(),
             });
             groupId = groupResult.insertedId;
         }
 
-        const response = await axios.get(`https://graph.facebook.com/v23.0/${businessId}/whatsapp_business_accounts`, {
-            params: {
-                fields: 'id,name',
-                access_token: accessToken,
-            }
-        });
+        // Upsert a single project scoped by (user, waba). If the user adds
+        // the same WABA again we update its token/name/appId rather than
+        // creating a duplicate project row.
+        const upsertResult = await db.collection('projects').findOneAndUpdate(
+            { userId: new ObjectId(session.user._id), wabaId },
+            {
+                $set: {
+                    name: wabaName,
+                    accessToken,
+                    appId,
+                    ...(groupId && groupName ? { groupId, groupName } : {}),
+                },
+                $setOnInsert: {
+                    userId: new ObjectId(session.user._id),
+                    wabaId,
+                    createdAt: new Date(),
+                    messagesPerSecond: 80,
+                },
+            },
+            { upsert: true, returnDocument: 'after' },
+        );
 
-        const wabas = response.data.data;
-        if (wabas.length === 0) {
-            return { message: "No WhatsApp Business Accounts found in this business portfolio." };
+        const project = (upsertResult as any)?.value || upsertResult;
+        if (!project?._id) {
+            return { error: 'Failed to create or update project record.' };
         }
 
-        const bulkOps = wabas.map((waba: any) => ({
-            updateOne: {
-                filter: { userId: new ObjectId(session.user._id), wabaId: waba.id },
-                update: {
-                    $set: {
-                        name: waba.name,
-                        accessToken: accessToken,
-                        appId: appId,
-                        businessId: businessId,
-                        ...(groupId && groupName && { groupId, groupName }),
-                    },
-                    $setOnInsert: {
-                        userId: new ObjectId(session.user._id),
-                        wabaId: waba.id,
-                        createdAt: new Date(),
-                        messagesPerSecond: 80,
-                    },
-                },
-                upsert: true,
-            },
-        }));
-
-        const result = await db.collection('projects').bulkWrite(bulkOps);
-        const syncedCount = result.upsertedCount + result.modifiedCount;
-
-        // Subscribe new projects
-        if (result.upsertedIds) {
-            for (const id of Object.values(result.upsertedIds)) {
-                const newProject = await db.collection<Project>('projects').findOne({ _id: id });
-                if (newProject) {
-                    await handleSyncPhoneNumbers(newProject._id.toString());
-                    await handleSubscribeProjectWebhook(newProject.wabaId!, newProject.appId!, newProject.accessToken);
-                }
-            }
+        // Kick off phone number sync + webhook subscription. Both are
+        // non-fatal — we still return success if either fails, but log so
+        // the user can retry from the project settings page.
+        try {
+            await handleSyncPhoneNumbers(project._id.toString());
+        } catch (e: any) {
+            console.warn(`[addWaba] phone number sync failed for ${wabaId}:`, getErrorMessage(e));
+        }
+        try {
+            await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
+        } catch (e: any) {
+            console.warn(`[addWaba] webhook subscribe failed for ${wabaId}:`, getErrorMessage(e));
         }
 
         revalidatePath('/dashboard');
-        return { message: `Successfully synced ${syncedCount} project(s).`, count: syncedCount };
-
+        return { message: `Added WhatsApp Business Account "${wabaName}".`, count: 1 };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -278,8 +321,8 @@ export async function getSession() {
             },
         };
     } catch (error) {
-        // This catches errors if cookies() is called outside of a request context.
-        console.error('[getSession] Error accessing cookies or session:', error);
+        // Catches errors when the session cookie is read outside a request context.
+        console.error('[getSession] Error accessing session:', error);
         return null;
     }
 }
@@ -288,32 +331,50 @@ export async function getUsersForAdmin(
     page: number = 1,
     limit: number = 10,
     query?: string
-): Promise<{ users: Omit<WithId<User>, 'password'>[], total: number }> {
+): Promise<{ users: (Omit<WithId<User>, 'password'> & { plan?: WithId<Plan> | null })[], total: number }> {
     try {
         const { db } = await connectToDatabase();
-        const filter: Filter<User> = {};
+        const filter: Record<string, any> = {};
         if (query) {
             filter.$or = [
                 { name: { $regex: query, $options: 'i' } },
                 { email: { $regex: query, $options: 'i' } },
-            ]
+            ];
         }
 
-        // Cast filter to any to bypass strict MongoDB Filter typing issues if needed, or ensure it matches exact shape
-        // The error suggests Filter<User> isn't assignable to Filter<Document>, which is odd since User extends Document usually.
-        // We'll cast to any for the db call to satisfy the linter for now as the logic is correct.
-
-        const users = await db.collection<User>('users')
-            .find(filter as any, { projection: { password: 0 } })
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit)
+        // Use aggregation so the admin UI can show the resolved Plan name + limits,
+        // not just a raw ObjectId. Without this lookup the users table always shows
+        // "N/A" in the Plan column even after a successful assignment.
+        const users = await db
+            .collection<User>('users')
+            .aggregate([
+                { $match: filter },
+                { $sort: { createdAt: -1 } },
+                { $skip: (page - 1) * limit },
+                { $limit: limit },
+                { $project: { password: 0 } },
+                {
+                    $lookup: {
+                        from: 'plans',
+                        localField: 'planId',
+                        foreignField: '_id',
+                        as: '_plan',
+                    },
+                },
+                {
+                    $addFields: {
+                        plan: { $arrayElemAt: ['$_plan', 0] },
+                    },
+                },
+                { $project: { _plan: 0 } },
+            ])
             .toArray();
 
-        const total = await db.collection('users').countDocuments(filter as any);
+        const total = await db.collection('users').countDocuments(filter);
 
         return { users: JSON.parse(JSON.stringify(users)), total };
     } catch (e) {
+        console.error('getUsersForAdmin failed:', e);
         return { users: [], total: 0 };
     }
 }

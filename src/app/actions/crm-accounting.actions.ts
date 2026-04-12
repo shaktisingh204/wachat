@@ -47,7 +47,7 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
 
         const { db } = await connectToDatabase();
         
-        const existingFilter: Filter<CrmAccountGroup> = {
+        const existingFilter: any = {
             userId: groupData.userId,
             name: groupData.name,
         };
@@ -354,12 +354,12 @@ export async function generateTrialBalanceData(startDate?: Date, endDate?: Date)
         const data = accounts.map(account => {
             const openingBalance = account.balanceType === 'Cr' ? -account.openingBalance : account.openingBalance;
             
-            const totalDebit = voucherEntries.reduce((sum, entry) =>
-                sum + entry.debitEntries.reduce((entrySum, debit) =>
+            const totalDebit = voucherEntries.reduce((sum: number, entry: any) =>
+                sum + entry.debitEntries.reduce((entrySum: number, debit: any) =>
                     debit.accountId.equals(account._id) ? entrySum + debit.amount : entrySum, 0), 0);
-            
-            const totalCredit = voucherEntries.reduce((sum, entry) =>
-                sum + entry.creditEntries.reduce((entrySum, credit) =>
+
+            const totalCredit = voucherEntries.reduce((sum: number, entry: any) =>
+                sum + entry.creditEntries.reduce((entrySum: number, credit: any) =>
                     credit.accountId.equals(account._id) ? entrySum + credit.amount : entrySum, 0), 0);
                 
             const closingBalance = openingBalance + totalDebit - totalCredit;
@@ -416,9 +416,9 @@ export async function generateProfitAndLossData(startDate?: Date, endDate?: Date
         let totalExpense = 0;
 
         for (const account of accounts) {
-            const closingBalance = voucherEntries.reduce((balance, entry) => {
-                const debit = entry.debitEntries.reduce((sum, d) => d.accountId.equals(account._id) ? sum + d.amount : sum, 0);
-                const credit = entry.creditEntries.reduce((sum, c) => c.accountId.equals(account._id) ? sum + c.amount : sum, 0);
+            const closingBalance = voucherEntries.reduce((balance: number, entry: any) => {
+                const debit = entry.debitEntries.reduce((sum: number, d: any) => d.accountId.equals(account._id) ? sum + d.amount : sum, 0);
+                const credit = entry.creditEntries.reduce((sum: number, c: any) => c.accountId.equals(account._id) ? sum + c.amount : sum, 0);
                 return balance + debit - credit;
             }, 0);
 

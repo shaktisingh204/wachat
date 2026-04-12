@@ -6,7 +6,8 @@ import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
 import { BarChart } from 'lucide-react';
 
-export default async function AnalyticsPage({ searchParams }: { searchParams: { year?: string } }) {
+export default async function AnalyticsPage(props: { searchParams: Promise<{ year?: string }> }) {
+    const searchParams = await props.searchParams;
     const year = searchParams.year ? parseInt(searchParams.year) : new Date().getFullYear();
     const data = await getAnalyticsData(year);
 

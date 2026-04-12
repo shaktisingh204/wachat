@@ -3,15 +3,16 @@ import { getEcommShopBySlug, getPublicEcommProducts } from '@/app/actions/custom
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
 import { LayoutGrid } from 'lucide-react';
 
-export default async function CategoryPage({ params }: { params: { slug: string, categorySlug: string } }) {
+export default async function CategoryPage(props: { params: Promise<{ slug: string, categorySlug: string }> }) {
+    const params = await props.params;
     const shop = await getEcommShopBySlug(params.slug);
     if (!shop) {
         notFound();
     }
-    
+
     const products = await getPublicEcommProducts(shop._id.toString(), { category: params.categorySlug });
     const layout = shop.categoryPageLayout || [];
-    
+
     return (
         <main>
             {layout.length > 0 ? (

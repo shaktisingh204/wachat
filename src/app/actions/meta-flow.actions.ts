@@ -256,8 +256,8 @@ export async function handleSyncMetaFlows(projectId: string): Promise<{ message?
         let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${wabaId}/flows?access_token=${accessToken}&fields=id,name,status,categories,json_version&limit=100`;
 
         while (nextUrl) {
-            const response = await fetch(nextUrl);
-            const responseData = await response.json();
+            const response: any = await fetch(nextUrl);
+            const responseData: any = await response.json();
 
             if (!response.ok) {
                 const errorMessage = responseData?.error?.message || 'Unknown error syncing Meta Flows.';

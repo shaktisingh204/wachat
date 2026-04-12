@@ -67,13 +67,19 @@ export async function executeSabChatAction(actionName: string, inputs: any, user
                 if(visitorInfo.name) update['visitorInfo.name'] = visitorInfo.name;
                 if(visitorInfo.email) update['visitorInfo.email'] = visitorInfo.email;
                 if(visitorInfo.phone) update['visitorInfo.phone'] = visitorInfo.phone;
-                
+
+                if (Object.keys(update).length === 0) {
+                    throw new Error('At least one of name, email, or phone is required.');
+                }
+
                 const result = await db.collection('sabchat_sessions').updateOne(
                     { _id: new ObjectId(sessionId), userId: user._id },
                     { $set: update }
                 );
-                if (result.modifiedCount === 0) throw new Error('Session not found or no info to update.');
-                return { output: { success: true } };
+                // matchedCount === 0 means the session wasn't found. modifiedCount can be 0
+                // for idempotent no-op updates (same values) — those should still succeed.
+                if (result.matchedCount === 0) throw new Error('Session not found.');
+                return { output: { success: true, updated: result.modifiedCount > 0 } };
             }
             case 'assignAgent': {
                 if (!inputs.sessionId || !inputs.agentId) throw new Error('Session ID and Agent ID are required.');
@@ -81,7 +87,7 @@ export async function executeSabChatAction(actionName: string, inputs: any, user
                     { _id: new ObjectId(inputs.sessionId), userId: user._id },
                     { $set: { assignedAgentId: new ObjectId(inputs.agentId) } }
                 );
-                 if (result.modifiedCount === 0) throw new Error('Session not found.');
+                 if (result.matchedCount === 0) throw new Error('Session not found.');
                 return { output: { success: true } };
             }
             case 'getChatHistory': {

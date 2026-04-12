@@ -3,7 +3,7 @@ import "@/react-shim";
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { Poppins } from 'next/font/google';
+import { Plus_Jakarta_Sans, Geist, Geist_Mono } from 'next/font/google';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import SessionProvider from '@/components/wabasimplify/session-provider';
 
@@ -20,11 +20,31 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-const poppins = Poppins({
+// Legacy app-wide font — kept so untouched pages don't shift visually while
+// the modern SabUI rolls out across modules.
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-sans',
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+});
+
+// SabUI typography — Geist Sans + Geist Mono. Modern, distinctive, pairs
+// naturally, used globally by any page that renders sab-ui primitives.
+// Available on every page as CSS variables (`--font-sab-sans`, `--font-sab-mono`)
+// regardless of which old/new layout that page lives inside.
+const geistSans = Geist({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sab-sans',
+  weight: ['300', '400', '500', '600', '700'],
+});
+
+const geistMono = Geist_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sab-mono',
+  weight: ['400', '500', '600'],
 });
 
 export default function RootLayout({
@@ -33,7 +53,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={poppins.variable}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable}`}
+    >
       <body className="antialiased font-sans">
         <SessionProvider>
           <TooltipProvider>

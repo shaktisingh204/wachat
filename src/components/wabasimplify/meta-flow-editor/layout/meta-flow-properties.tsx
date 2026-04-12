@@ -128,7 +128,7 @@ export function MetaFlowProperties({
                 return <IfEditor component={selectedComponent} updateField={updateComponentField} />;
 
             case 'Switch':
-                return <SwitchEditor component={selectedComponent} updateField={updateComponentField} />;
+                return <SwitchEditor {...({ component: selectedComponent, updateField: updateComponentField, updateAction: (() => {}) } as any)} />;
 
             case 'Dropdown':
                 return <DropdownEditor component={selectedComponent} updateField={updateComponentField} updateAction={(action) => updateComponentAction(action, 'on-select-action')} />;

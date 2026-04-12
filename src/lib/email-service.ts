@@ -101,8 +101,8 @@ export async function getTransporter(userId?: string) {
 
     switch (settings.provider) {
         case 'smtp': return createSmtpTransporter(settings);
-        case 'google': return createGoogleTransporter(settings, finalUserId.toString());
-        case 'outlook': return createOutlookTransporter(settings, finalUserId.toString());
+        case 'google': return createGoogleTransporter(settings, finalUserId!.toString());
+        case 'outlook': return createOutlookTransporter(settings, finalUserId!.toString());
         default: throw new Error("Unsupported email provider.");
     }
 }

@@ -34,7 +34,7 @@ export function SwitchEditor({ component, updateField, updateAction }: SwitchEdi
                 label="On Change Action"
                 action={component['on-change-action']}
                 onActionChange={updateAction}
-                actionType="on-change-action"
+                actionType={"on-change-action" as any}
             />
 
             <DynamicBooleanInput

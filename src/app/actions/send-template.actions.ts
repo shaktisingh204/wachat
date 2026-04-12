@@ -33,15 +33,24 @@ export async function handleSendTemplateMessage(
 
     const { db } = await connectToDatabase();
 
-    const [contact, template] = await Promise.all([
-        db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) }),
-        db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) }),
-    ]);
-
+    // J3 P0-1 fix: resolve the contact first, then gate access via
+    // getProjectById on the contact's project, and only THEN fetch the
+    // template — scoped by the same projectId. Previously the template was
+    // fetched with `{ _id: templateId }` alone and only the contact's project
+    // was auth-checked. That allowed cross-tenant template exfiltration
+    // (attacker's contactId + victim's templateId → template content
+    // returned, and worse, sent out via the attacker's phone number).
+    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
     if (!contact) return { error: 'Contact not found.' };
+
     const hasAccess = projectFromAction || await getProjectById(contact.projectId.toString());
     if (!hasAccess) return { error: 'Access Denied.' };
-    if (!template) return { error: 'Template not found.' };
+
+    const template = await db.collection<Template>('templates').findOne({
+        _id: new ObjectId(templateId),
+        projectId: contact.projectId,
+    });
+    if (!template) return { error: 'Template not found in this project.' };
     if (template.status !== 'APPROVED') return { error: 'Cannot send a template that is not approved.' };
 
     const phoneNumberId = contact.phoneNumberId;

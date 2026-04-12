@@ -70,7 +70,7 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
     if (loading || !project || !metrics) return <Skeleton className="h-full w-full" />;
 
     return (
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">

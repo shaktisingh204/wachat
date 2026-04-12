@@ -15,7 +15,7 @@ export async function getCrmTasks(status?: 'To-Do' | 'In Progress' | 'Completed'
 
     try {
         const { db } = await connectToDatabase();
-        const filter: Filter<CrmTask> = { userId: new ObjectId(session.user._id) };
+        const filter: any = { userId: new ObjectId(session.user._id) };
         if (status) {
             filter.status = status;
         }

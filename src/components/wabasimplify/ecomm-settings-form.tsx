@@ -34,7 +34,7 @@ interface EcommSettingsFormProps {
 }
 
 export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
-    const [state, formAction] = useActionState(updateEcommShopSettings, initialState);
+    const [state, formAction] = useActionState(updateEcommShopSettings as any, initialState as any);
     const { toast } = useToast();
     const [ecommFlows, setEcommFlows] = useState<WithId<EcommFlow>[]>([]);
 

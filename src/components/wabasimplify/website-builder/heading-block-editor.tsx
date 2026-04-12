@@ -117,10 +117,10 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                              <div className="space-y-2">
                                 <Label>Alignment</Label>
                                 <div className="flex gap-2 rounded-md bg-muted p-1">
-                                    <Button size="sm" variant={settings.textAlign === 'left' ? 'background' : 'ghost'} onClick={() => handleUpdate('textAlign', 'left')}>Left</Button>
-                                    <Button size="sm" variant={settings.textAlign === 'center' ? 'background' : 'ghost'} onClick={() => handleUpdate('textAlign', 'center')}>Center</Button>
-                                    <Button size="sm" variant={settings.textAlign === 'right' ? 'background' : 'ghost'} onClick={() => handleUpdate('textAlign', 'right')}>Right</Button>
-                                    <Button size="sm" variant={settings.textAlign === 'justify' ? 'background' : 'ghost'} onClick={() => handleUpdate('textAlign', 'justify')}>Justify</Button>
+                                    <Button size="sm" variant={settings.textAlign === 'left' ? 'secondary' : 'ghost'} onClick={() => handleUpdate('textAlign', 'left')}>Left</Button>
+                                    <Button size="sm" variant={settings.textAlign === 'center' ? 'secondary' : 'ghost'} onClick={() => handleUpdate('textAlign', 'center')}>Center</Button>
+                                    <Button size="sm" variant={settings.textAlign === 'right' ? 'secondary' : 'ghost'} onClick={() => handleUpdate('textAlign', 'right')}>Right</Button>
+                                    <Button size="sm" variant={settings.textAlign === 'justify' ? 'secondary' : 'ghost'} onClick={() => handleUpdate('textAlign', 'justify')}>Justify</Button>
                                 </div>
                             </div>
                         </AccordionContent>

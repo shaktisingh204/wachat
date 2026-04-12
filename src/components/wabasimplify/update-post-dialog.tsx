@@ -47,7 +47,7 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
   
   const action = (formData: FormData) => {
     startTransition(async () => {
-        const result = await handleUpdatePost(null, formData);
+        const result = await handleUpdatePost(null as any, formData);
         setState(result);
     });
   };

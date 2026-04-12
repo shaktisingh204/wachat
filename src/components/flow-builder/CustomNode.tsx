@@ -65,7 +65,7 @@ const NodePreview = ({ data, type }: { data: any; type: string }) => {
                 <div className="space-y-1">
                     <p className="text-xs line-clamp-2">{data.text || 'Question text...'}</p>
                     <div className="space-y-1 pt-1">
-                        {(data.buttons || []).map((btn: any, i: number) => (
+                        {((data.buttons as any[]) || []).map((btn: any, i: number) => (
                             <div key={i} className="text-[10px] text-center bg-muted rounded px-1 py-0.5 truncate">
                                 {btn.text || `Button ${i + 1}`}
                             </div>
@@ -95,7 +95,7 @@ const CustomNode = ({ data, type, selected }: NodeProps) => {
                         <Icon className="h-4 w-4" />
                     </div>
                     <CardTitle className="text-sm font-medium leading-none">
-                        {data.label || blockInfo.label}
+                        {(data.label as any) || blockInfo.label}
                     </CardTitle>
                 </CardHeader>
 
@@ -139,7 +139,7 @@ const CustomNode = ({ data, type, selected }: NodeProps) => {
                     </div>
                 ) : type === 'buttons' ? (
                     <div className="absolute -right-3 top-12 flex flex-col gap-2">
-                        {(data.buttons || []).map((btn: any, i: number) => (
+                        {((data.buttons as any[]) || []).map((btn: any, i: number) => (
                             <div key={i} className="relative h-6 flex items-center">
                                 <Handle
                                     type="source"

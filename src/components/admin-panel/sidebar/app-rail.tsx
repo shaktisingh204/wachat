@@ -4,223 +4,248 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
-} from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     Home,
-    Globe,
-    Crosshair,
-    MessageCircle,
     Settings,
-    Info,
     LogOut,
-    Bell,
-    MessageSquare,
-    Briefcase,
-    Users,
     Mail,
     Smartphone,
-    LayoutTemplate,
+    Users,
+    Instagram,
+    Briefcase,
+    Megaphone,
+    Workflow,
+    Bot,
+    Search,
+    Globe,
     Link as LinkIcon,
     QrCode,
-    LineChart,
-    Facebook,
-    Instagram,
-    Monitor,
-    Grid,
-    Mic,
-    Megaphone,
-    Workflow
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationPopover } from '@/components/notifications/notification-popover';
-import { AllAppsPopover } from './all-apps-popover';
+import { useProject } from '@/context/project-context';
+
+/* ─── App definitions ──────────────────────────────────────────────────────── */
+
+const ALL_APPS = [
+    { id: 'sabflow',        label: 'SabFlow',        icon: Workflow,     href: '/dashboard/sabflow' },
+    { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon, href: '/dashboard' },
+    { id: 'facebook',       label: 'Meta Suite',     icon: MetaIcon,     href: '/dashboard/facebook/all-projects' },
+    { id: 'ad-manager',     label: 'Ad Manager',     icon: Megaphone,    href: '/dashboard/ad-manager' },
+    { id: 'instagram',      label: 'Instagram',      icon: Instagram,    href: '/dashboard/instagram/connections' },
+    { id: 'crm',            label: 'CRM',            icon: Briefcase,    href: '/dashboard/crm' },
+    { id: 'team',           label: 'Team',           icon: Users,        href: '/dashboard/team' },
+    { id: 'email',          label: 'Email',          icon: Mail,         href: '/dashboard/email' },
+    { id: 'sms',            label: 'SMS',            icon: Smartphone,   href: '/dashboard/sms' },
+    { id: 'sabchat',        label: 'SabChat',        icon: Bot,          href: '/dashboard/sabchat' },
+    { id: 'seo-suite',      label: 'SEO Suite',      icon: Search,       href: '/dashboard/seo' },
+    { id: 'website-builder',label: 'Website Builder',icon: Globe,        href: '/dashboard/website-builder' },
+    { id: 'url-shortener',  label: 'URL Shortener',  icon: LinkIcon,     href: '/dashboard/url-shortener' },
+    { id: 'qr-code-maker',  label: 'QR Code',        icon: QrCode,       href: '/dashboard/qr-code-maker' },
+];
+
+/* ─── Types ──────────────────────────────────────────────────────────────────── */
 
 interface AppRailProps {
     activeApp: string;
 }
 
+/* ─── Main Component ─────────────────────────────────────────────────────────── */
+
 export function AppRail({ activeApp }: AppRailProps) {
     const pathname = usePathname();
+    const { sessionUser } = useProject();
+
+    const initials = React.useMemo(() => {
+        const name = (sessionUser as any)?.name || (sessionUser as any)?.email || '';
+        return name.split(/[\s@]/).map((p: string) => p[0]).filter(Boolean).join('').slice(0, 2).toUpperCase() || 'U';
+    }, [sessionUser]);
+
+    const avatarSrc = (sessionUser as any)?.image || (sessionUser as any)?.profilePic || '';
 
     return (
-        <Sidebar className="w-16 bg-background/60 backdrop-blur-2xl flex !w-16 !block md:!flex z-20 m-2 rounded-2xl h-[calc(100%-1rem)] shadow-2xl border border-white/10 hover:!w-16 hover:!min-w-0 pb-2 transition-all duration-300">
-            <div className="flex flex-col h-full items-center py-2">
-                {/* Logo Section */}
-                <SidebarHeader className="h-auto flex items-center justify-center p-0 mb-4 mt-2">
-                    <div className="bg-[#1A2333] p-2 rounded-xl">
-                        <SabNodeLogo className="w-6 h-6 text-white" />
-                    </div>
-                </SidebarHeader>
-
-                <ScrollArea className="flex-1 w-full">
-                    <SidebarContent className="flex flex-col items-center gap-4 w-full overflow-visible">
-                        {/* 1. Home */}
-                        <SidebarMenu className="items-center gap-2 w-full">
-                            <RailItem
-                                icon={Home}
-                                label="Home"
-                                active={pathname === '/dashboard/home'}
-                                href="/dashboard/home"
-                            />
-                        </SidebarMenu>
-
-
-                        {/* 2. Notification */}
-                        <div className="w-full flex justify-center">
-                            <NotificationPopover />
-                        </div>
-
-                        {/* 3. Apps List */}
-                        <div className="flex flex-col items-center gap-2 w-full mt-2">
-                            <div className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[10px] font-medium">Apps</div>
-                            <SidebarMenu className="items-center gap-2 w-full">
-                                <RailItem
-                                    icon={Workflow}
-                                    label="SabFlow"
-                                    active={activeApp === 'sabflow'}
-                                    href="/dashboard/sabflow"
-                                />
-                                <RailItem
-                                    icon={WhatsAppIcon}
-                                    label="WaChat"
-                                    active={activeApp === 'whatsapp'}
-                                    href="/dashboard"
-                                />
-                                <RailItem
-                                    icon={MetaIcon}
-                                    label="Meta Suite"
-                                    active={activeApp === 'facebook'}
-                                    href="/dashboard/facebook/all-projects"
-                                />
-                                <RailItem
-                                    icon={Megaphone}
-                                    label="Ad Manager"
-                                    active={activeApp === 'ad-manager'}
-                                    href="/dashboard/ad-manager"
-                                />
-                                <RailItem
-                                    icon={Instagram}
-                                    label="Instagram"
-                                    active={activeApp === 'instagram'}
-                                    href="/dashboard/instagram/connections"
-                                />
-                                <RailItem
-                                    icon={Briefcase}
-                                    label="CRM"
-                                    active={activeApp === 'crm'}
-                                    href="/dashboard/crm"
-                                />
-                                <RailItem
-                                    icon={Users}
-                                    label="Team"
-                                    active={activeApp === 'team'}
-                                    href="/dashboard/team"
-                                />
-                                <RailItem
-                                    icon={Mail}
-                                    label="Email"
-                                    active={activeApp === 'email'}
-                                    href="/dashboard/email"
-                                />
-                                <RailItem
-                                    icon={Smartphone}
-                                    label="SMS"
-                                    active={activeApp === 'sms'}
-                                    href="/dashboard/sms"
-                                />
-                                <RailItem
-                                    icon={Globe}
-                                    label="SabChat"
-                                    active={activeApp === 'sabchat'}
-                                    href="/dashboard/sabchat"
-                                />
-                                <AllAppsPopover activeApp={activeApp} />
-                            </SidebarMenu>
-                        </div>
-
-                    </SidebarContent>
-                </ScrollArea>
-
-                {/* Footer Section */}
-                <SidebarFooter className="w-full mt-auto">
-                    <SidebarMenu className="items-center gap-2 w-full flex-col">
-                        <RailItem
-                            icon={Settings}
-                            label="Settings"
-                            active={pathname.startsWith('/dashboard/user/settings')}
-                            href="/dashboard/user/settings"
-                        />
-                        <RailItem
-                            icon={Info}
-                            label="Info"
-                            href="#"
-                        />
-
-                        <div className="w-8 h-[1px] bg-border my-1" />
-
-                        <RailItem
-                            icon={LogOut}
-                            label="Logout"
-                            href="/logout"
-                            className="text-muted-foreground hover:text-destructive"
-                            prefetch={false}
-                        />
-                    </SidebarMenu>
-                </SidebarFooter>
+        <nav
+            className="hidden md:flex flex-col h-[calc(100vh-1rem)] w-[64px] shrink-0 m-2 mr-0 rounded-2xl z-20 overflow-hidden"
+            style={{
+                background: 'rgba(255,255,255,0.82)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                border: '1px solid var(--app-border)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)',
+                transition: 'border-color 0.5s ease',
+            }}
+        >
+            {/* ── Logo ── */}
+            <div className="flex items-center justify-center pt-4 pb-3 shrink-0">
+                <Link
+                    href="/home"
+                    className="flex items-center justify-center w-9 h-9 rounded-xl transition-transform duration-200 hover:scale-105"
+                    style={{
+                        background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+                        boxShadow: '0 4px 14px var(--app-glow)',
+                    }}
+                >
+                    <SabNodeLogo className="w-5 h-5 text-white" />
+                </Link>
             </div>
-        </Sidebar>
+
+            {/* ── Divider ── */}
+            <Divider />
+
+            {/* ── Scrollable nav ── */}
+            <div className="flex-1 flex flex-col items-center gap-0.5 overflow-y-auto overflow-x-hidden py-2 scroll-container">
+
+                {/* Home */}
+                <RailItem
+                    icon={Home}
+                    label="Home"
+                    active={pathname === '/home'}
+                    href="/home"
+                />
+
+                {/* Micro label */}
+                <span className="mt-3 mb-1 text-[9px] font-bold uppercase tracking-[0.12em] select-none"
+                    style={{ color: 'var(--app-text)', opacity: 0.45 }}>
+                    Apps
+                </span>
+
+                {/* All apps */}
+                {ALL_APPS.map(app => (
+                    <RailItem
+                        key={app.id}
+                        icon={app.icon}
+                        label={app.label}
+                        active={activeApp === app.id}
+                        href={app.href}
+                    />
+                ))}
+            </div>
+
+            {/* ── Divider ── */}
+            <Divider />
+
+            {/* ── Footer ── */}
+            <div className="flex flex-col items-center gap-0.5 py-2 shrink-0">
+                {/* Notifications */}
+                <div className="flex justify-center w-full">
+                    <NotificationPopover />
+                </div>
+
+                {/* Settings */}
+                <RailItem
+                    icon={Settings}
+                    label="Settings"
+                    active={pathname.startsWith('/dashboard/user/settings')}
+                    href="/dashboard/user/settings"
+                />
+
+                <Divider />
+
+                {/* User avatar → user settings */}
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Link
+                            href="/dashboard/user/profile"
+                            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:scale-105 mt-0.5"
+                        >
+                            <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-2 transition-all duration-200"
+                                style={{ '--tw-ring-color': 'var(--app-border)' } as React.CSSProperties}>
+                                <AvatarImage src={avatarSrc} />
+                                <AvatarFallback
+                                    className="text-[11px] font-bold"
+                                    style={{ background: 'var(--app-light)', color: 'var(--app-text)' }}
+                                >
+                                    {initials}
+                                </AvatarFallback>
+                            </Avatar>
+                        </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={12}>
+                        <p>{(sessionUser as any)?.name || 'Profile'}</p>
+                    </TooltipContent>
+                </Tooltip>
+
+                {/* Logout */}
+                <RailItem
+                    icon={LogOut}
+                    label="Logout"
+                    href="/logout"
+                    prefetch={false}
+                    destructive
+                />
+
+                <div className="pb-1" />
+            </div>
+        </nav>
     );
 }
+
+/* ─── Rail Item ──────────────────────────────────────────────────────────────── */
 
 function RailItem({
     icon: Icon,
     label,
     active,
     href,
-    className,
-    prefetch
+    prefetch,
+    destructive,
 }: {
     icon: any;
     label: string;
     active?: boolean;
     href: string;
-    className?: string;
     prefetch?: boolean;
+    destructive?: boolean;
 }) {
     return (
-        <SidebarMenuItem className="w-full flex justify-center">
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Link
-                        href={href}
-                        prefetch={prefetch}
-                        className={cn(
-                            "h-10 w-10 flex items-center justify-center p-0 rounded-xl transition-all duration-200",
-                            active
-                                ? "bg-primary/10 text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)] ring-1 ring-primary/20 backdrop-blur-sm"
-                                : "text-muted-foreground/70 hover:bg-white/10 hover:text-foreground hover:backdrop-blur-md",
-                            className
-                        )}
-                    >
-                        <Icon className={cn("h-5 w-5")} />
-                        {label === 'Home' && <span className="sr-only">{label}</span>}
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={10}>
-                    <p>{label}</p>
-                </TooltipContent>
-            </Tooltip>
-        </SidebarMenuItem>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Link
+                    href={href}
+                    prefetch={prefetch}
+                    className={cn(
+                        'relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 group',
+                        destructive
+                            ? 'text-zinc-400 hover:text-red-500 hover:bg-red-50'
+                            : !active
+                                ? 'text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100/80'
+                                : ''
+                    )}
+                    style={active && !destructive ? {
+                        background: 'var(--app-light)',
+                        color: 'var(--app-text)',
+                        boxShadow: '0 0 14px var(--app-glow)',
+                        outline: '1px solid var(--app-border)',
+                    } : undefined}
+                >
+                    {/* Left indicator bar */}
+                    {active && !destructive && (
+                        <span
+                            className="absolute -left-[1px] top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
+                            style={{ background: 'var(--app-hex)' }}
+                        />
+                    )}
+                    <Icon className="h-[18px] w-[18px] shrink-0" />
+                    <span className="sr-only">{label}</span>
+                </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={12}>
+                <p>{label}</p>
+            </TooltipContent>
+        </Tooltip>
+    );
+}
+
+/* ─── Divider ────────────────────────────────────────────────────────────────── */
+
+function Divider() {
+    return (
+        <div
+            className="w-8 h-px my-1.5 shrink-0 rounded-full transition-colors duration-500"
+            style={{ background: 'var(--app-border)' }}
+        />
     );
 }

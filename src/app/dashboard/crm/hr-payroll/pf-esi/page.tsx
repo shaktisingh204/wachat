@@ -9,7 +9,8 @@ import { FileText } from 'lucide-react';
 import { format, startOfMonth } from 'date-fns';
 import { MonthPicker } from '@/components/crm/month-picker';
 
-export default async function PfEsiPage({ searchParams }: { searchParams: { month?: string, year?: string } }) {
+export default async function PfEsiPage(props: { searchParams: Promise<{ month?: string, year?: string }> }) {
+    const searchParams = await props.searchParams;
     // Default to current month or last processed month. 
     // Ideally we would have a month picker that passes params. 
     // For MVP, let's fetch for the current month.

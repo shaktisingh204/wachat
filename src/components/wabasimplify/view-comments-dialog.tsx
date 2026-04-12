@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Send, ThumbsUp, Trash2 } from 'lucide-react';
@@ -90,7 +90,7 @@ export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onAc
 
     const action = (formData: FormData) => {
         startTransition(async () => {
-            const result = await handlePostComment(null, formData);
+            const result = await handlePostComment(null as any, formData);
             setState(result);
         });
     };

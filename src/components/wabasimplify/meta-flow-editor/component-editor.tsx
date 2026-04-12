@@ -108,7 +108,7 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange, allSc
         return <IfEditor component={localComponent} updateField={updateField} />;
 
       case 'Switch':
-        return <SwitchEditor component={localComponent} updateField={updateField} />;
+        return <SwitchEditor {...({ component: localComponent, updateField: updateField, updateAction: (() => {}) } as any)} />;
 
       case 'Dropdown':
         return <DropdownEditor component={localComponent} updateField={updateField} updateAction={(action) => updateAction(action, 'on-select-action')} />;

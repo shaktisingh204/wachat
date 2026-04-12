@@ -295,6 +295,16 @@ export type GlobalPermissions = {
     [key: string]: GlobalRolePermissions;
 };
 
+/**
+ * Flat permission map used by Plans and the RBACGuard plan check.
+ * Shape: { [moduleKey]: { view, create, edit, delete } }
+ * Plans don't scope permissions per role — they define the absolute
+ * ceiling for every user on that plan.
+ */
+export type PlanPermissionMap = {
+    [moduleKey: string]: Partial<Record<'view' | 'create' | 'edit' | 'delete', boolean>>;
+};
+
 export type CrmForm = {
     _id: ObjectId;
     userId: ObjectId;
@@ -1456,6 +1466,7 @@ export type Project = {
 
 export type Template = {
     _id: ObjectId;
+    projectId: ObjectId;
     name: string;
     category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION' | 'INTERACTIVE';
     body: string;
@@ -1467,6 +1478,7 @@ export type Template = {
     qualityScore?: string;
     type?: 'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL' | 'LIMITED_TIME_OFFER';
     headerMediaDataUri?: string;
+    createdAt?: Date;
 };
 
 export type FlowNode = {
@@ -1820,7 +1832,21 @@ export type Plan = {
     name: string;
     price: number;
     currency: string;
-    appCategory?: 'All-In-One' | 'Wachat' | 'CRM' | 'Meta' | 'Instagram' | 'Email' | 'SMS' | 'URL Shortener' | 'QR Code Generator';
+    appCategory?:
+        | 'All-In-One'
+        | 'Wachat'
+        | 'CRM'
+        | 'Meta'
+        | 'Facebook'
+        | 'Instagram'
+        | 'Ad Manager'
+        | 'Email'
+        | 'SMS'
+        | 'SabChat'
+        | 'SEO'
+        | 'Website Builder'
+        | 'URL Shortener'
+        | 'QR Code Generator';
     isPublic: boolean;
     isDefault: boolean;
     projectLimit: number;
@@ -1851,40 +1877,79 @@ export type Plan = {
         email: number;
     };
     appLimits?: {
-        wachat: {
+        wachat?: {
             templates: number;
             flows: number;
             metaFlows: number;
             cannedMessages: number;
         };
-        crm: {
+        crm?: {
             products: number;
             customers: number;
             vendors: number;
             warehouses: number;
             pipelines: number;
         };
-        meta: {
+        /** @deprecated use `facebook` + `adManager` instead. Kept for legacy plans. */
+        meta?: {
             adAccounts: number;
             pages: number;
         };
-        email: {
+        facebook?: {
+            pages: number;
+            scheduledPosts: number;
+            automationRules: number;
+            shops: number;
+        };
+        instagram?: {
+            accounts: number;
+            scheduledPosts: number;
+            hashtagTracking: number;
+        };
+        /** Premium: Meta Ad Manager capabilities. */
+        adManager?: {
+            adAccounts: number;
+            campaigns: number;
+            audiences: number;
+            monthlyAdSpendCap: number;
+        };
+        email?: {
             connectedAccounts: number;
             dailyLimit: number;
         };
-        sms: {
+        sms?: {
             dailyLimit: number;
         };
-        urlShortener: {
+        sabchat?: {
+            widgets: number;
+            monthlyVisitors: number;
+            quickReplies: number;
+        };
+        seo?: {
+            projects: number;
+            brandRadars: number;
+            trackedKeywords: number;
+        };
+        websiteBuilder?: {
+            sites: number;
+            pages: number;
+            customDomains: number;
+        };
+        urlShortener?: {
             links: number;
             domains: number;
         };
-        qrCode: {
+        qrCode?: {
             limit: number;
         };
     };
     features: PlanFeaturePermissions;
-    permissions?: GlobalPermissions; // Master permission controls (Team-like structure)
+    /**
+     * Master permission ceiling enforced by RBACGuard for every user on this plan.
+     * Flat shape: { [moduleKey]: { view, create, edit, delete } }.
+     * Legacy nested `{ agent: {...} }` data is still accepted at read time.
+     */
+    permissions?: PlanPermissionMap;
     createdAt: Date;
 };
 
@@ -1902,6 +1967,11 @@ export type User = {
     customDomains?: CustomDomain[];
     facebookUserAccessToken?: string;
     metaSuiteAccessToken?: string; // Meta Suite (Facebook) access token
+    // Ad Manager OAuth produces its own long-lived token + the list of ad
+    // accounts the user authorized. Stored on the user (not per-project)
+    // because Ad Manager isn't scoped to a single project in this product.
+    adManagerAccessToken?: string;
+    metaAdAccounts?: { id: string; name: string; account_id: string }[];
     activeProjectId?: string;
     crmIndustry?: string;
     crmPipelines?: CrmPipeline[];
@@ -1944,6 +2014,44 @@ export type User = {
         transactions: WalletTransaction[];
     };
     customPermissions?: GlobalPermissions;
+
+    /**
+     * Multi-step onboarding state captured after account creation.
+     * Undefined for legacy users (grandfathered). New signups start
+     * at status='profile' and advance through each step.
+     */
+    onboarding?: {
+        status: 'profile' | 'business' | 'requirements' | 'plan' | 'complete';
+        profile?: {
+            companyName?: string;
+            role?: string;
+            phone?: string;
+            country?: string;
+            website?: string;
+        };
+        business?: {
+            industry?: string;
+            teamSize?: string;
+            monthlyVolume?: string;
+            useCases?: string[];
+        };
+        requirements?: {
+            modules: string[];
+            primaryGoal?: string;
+            currentTools?: string;
+            timeline?: string;
+        };
+        selectedPlanId?: string;
+        checkoutTransactionId?: string;
+        startedAt?: Date;
+        completedAt?: Date;
+    };
+
+    /**
+     * Modules the user explicitly asked to enable during onboarding.
+     * Intersected with plan features to tailor the dashboard landing.
+     */
+    enabledModules?: string[];
 };
 
 export type Invitation = {
@@ -1969,7 +2077,7 @@ export type Transaction = WithId<{
     credits?: number;
     amount: number;
     status: 'PENDING' | 'SUCCESS' | 'FAILED';
-    provider: 'razorpay' | 'phonepe' | 'meta';
+    provider: 'razorpay' | 'phonepe' | 'meta' | 'payu';
     providerTransactionId?: string;
     providerOrderId?: string;
     createdAt: Date;
@@ -2098,7 +2206,12 @@ export type IncomingMessage = {
 
 export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>) & { reaction?: { emoji: string, message_id: string } };
 
-export type LibraryTemplate = Omit<Template, 'metaId' | 'status' | 'qualityScore'> & {
+// LibraryTemplate is the admin-facing pool of pre-made templates, not tied
+// to any specific project. Omits _id / projectId / metaId / status /
+// qualityScore (all of which are per-project runtime state or DB-assigned).
+// Adding `_id?: ObjectId` back as optional so runtime library templates
+// loaded from the `library_templates` collection still type-check.
+export type LibraryTemplate = Omit<Template, '_id' | 'projectId' | 'metaId' | 'status' | 'qualityScore'> & {
     _id?: ObjectId;
     isCustom?: boolean;
     createdAt?: Date;

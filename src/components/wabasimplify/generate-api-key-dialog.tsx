@@ -44,7 +44,7 @@ export function GenerateApiKeyDialog({ isOpen, onOpenChange, onKeyGenerated }: G
     if (!name) return { success: false, error: 'Key name is required.', apiKey: undefined };
     const res = await generateApiKey(name);
     if ('error' in res && !('success' in res)) {
-      return { success: false, error: res.error, apiKey: undefined };
+      return { success: false, error: (res as any).error, apiKey: undefined };
     }
     return res as { success: boolean; apiKey?: string; error?: string };
   }, initialState);

@@ -36,7 +36,7 @@ import { useProject } from '@/context/project-context';
 import type { SabChatFaqItem } from '@/lib/definitions';
 import { saveSabChatFaq, deleteSabChatFaq } from '@/app/actions/sabchat.actions';
 
-const formInitialState = { message: null, error: null };
+const formInitialState: any = { message: null, error: null };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();

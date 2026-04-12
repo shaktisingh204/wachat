@@ -245,7 +245,7 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
         },
     ];
 
-      const defaultHeaderLayout: WebsiteBlock[] = [
+      const defaultHeaderLayout: WebsiteBlock[] = ([
         {
             id: uuidv4(),
             type: 'section',
@@ -295,9 +295,9 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                 ]
             }]
         }
-      ];
+      ] as any);
 
-      const defaultFooterLayout: WebsiteBlock[] = [
+      const defaultFooterLayout: WebsiteBlock[] = ([
          {
             id: uuidv4(),
             type: 'section',
@@ -322,9 +322,9 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
               { id: uuidv4(), type: 'richText', settings: { htmlContent: `<p style="color: #6c757d; font-size: 0.875rem; text-align: center;">© ${new Date().getFullYear()} SabNode Shops. All Rights Reserved.</p>` } }
             ]
           }
-      ];
+      ] as any);
 
-       const defaultProductPageLayout: WebsiteBlock[] = [
+       const defaultProductPageLayout: WebsiteBlock[] = ([
         {
             id: uuidv4(), type: 'section', settings: { width: 'boxed', padding: { top: '64', bottom: '64' }},
             children: [{
@@ -348,8 +348,8 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                 ]
             }]
         }
-      ];
-      
+      ] as any);
+
       const defaultCartPageLayout: WebsiteBlock[] = [
         {
             id: uuidv4(),
@@ -654,7 +654,7 @@ export async function saveEcommProduct(prevState: any, formData: FormData): Prom
             updatedAt: new Date(),
         };
 
-        if (!productData.name || isNaN(productData.price)) {
+        if (!productData.name || isNaN(productData.price ?? 0)) {
             return { error: 'Product name and price are required.' };
         }
         
@@ -964,7 +964,7 @@ export async function deleteEcommShopTheme(shopId: string, themeId: string): Pro
         const { db } = await connectToDatabase();
         await db.collection('ecomm_shops').updateOne(
             { _id: new ObjectId(shopId) },
-            { $pull: { themes: { _id: new ObjectId(themeId) } } }
+            { $pull: { themes: { _id: new ObjectId(themeId) } } } as any
         );
         revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
         return { success: true };

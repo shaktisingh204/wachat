@@ -20,7 +20,7 @@ export async function getCrmForms(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const filter: Filter<CrmForm> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
         if (query) {
             filter.name = { $regex: query, $options: 'i' };
         }

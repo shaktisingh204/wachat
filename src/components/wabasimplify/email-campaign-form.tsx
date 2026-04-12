@@ -43,7 +43,7 @@ interface EmailCampaignFormProps {
 }
 
 export function EmailCampaignForm({ templates, onSuccess }: EmailCampaignFormProps) {
-  const [state, formAction] = useActionState(handleSendBulkEmail, initialState);
+  const [state, formAction] = useActionState(handleSendBulkEmail as any, initialState as any);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 

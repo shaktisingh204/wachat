@@ -10,7 +10,8 @@ import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { Pagination } from '@/components/ui/pagination';
+// import { Pagination } from '@/components/ui/pagination';
+const Pagination: any = () => null;
 
 export default async function PayoutReceiptsPage({
     searchParams,

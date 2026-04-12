@@ -47,7 +47,7 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({ sc
                          <div className="grid md:grid-cols-3 gap-4 items-end">
                             <div className="space-y-2">
                                 <Label>Date</Label>
-                                <DatePicker date={new Date(entry.date)} setDate={(d) => handleChange(index, 'date', d)}/>
+                                <DatePicker date={new Date(entry.date)} setDate={(d: any) => handleChange(index, 'date', d)}/>
                             </div>
                             <div className="space-y-2">
                                 <Label>Start Time</Label>

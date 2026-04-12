@@ -1,46 +1,93 @@
-
 'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IndianRupee, Settings, History } from "lucide-react";
-import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components";
+/**
+ * Wachat WhatsApp Pay — Clay-styled tab layout.
+ *
+ * Two tabs: Transactions · Setup. Each tab's content is rendered
+ * by its child route.
+ */
 
-const navItems = [
-    { href: "/dashboard/whatsapp-pay", label: "Transactions", icon: History },
-    { href: "/dashboard/whatsapp-pay/settings", label: "Setup", icon: Settings },
+import * as React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { LuCreditCard, LuHistory, LuSettings } from 'react-icons/lu';
+
+import { useProject } from '@/context/project-context';
+import { cn } from '@/lib/utils';
+import { ClayBreadcrumbs } from '@/components/clay';
+
+const TABS = [
+  {
+    href: '/dashboard/whatsapp-pay',
+    label: 'Transactions',
+    icon: <LuHistory className="h-3.5 w-3.5" strokeWidth={2} />,
+    exact: true,
+  },
+  {
+    href: '/dashboard/whatsapp-pay/settings',
+    label: 'Setup',
+    icon: <LuSettings className="h-3.5 w-3.5" strokeWidth={2} />,
+    exact: false,
+  },
 ];
 
-export default function WhatsAppPayLayout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
+export default function WhatsAppPayLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const { activeProject } = useProject();
 
-    return (
-        <div className="flex flex-col gap-6">
-             <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <WaPayIcon className="h-8 w-8"/>
-                    WhatsApp Pay
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Manage your WhatsApp Pay configurations and view transaction history.
-                </p>
-            </div>
-            <Tabs defaultValue={pathname} className="w-full">
-                <TabsList>
-                    {navItems.map(item => (
-                         <TabsTrigger key={item.href} value={item.href} asChild>
-                            <Link href={item.href}>
-                                <item.icon className="mr-2 h-4 w-4"/>
-                                {item.label}
-                            </Link>
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
-            </Tabs>
-            <div className="mt-4">
-                 {children}
-            </div>
-        </div>
-    );
+  return (
+    <div className="flex flex-col gap-6 clay-enter">
+      <ClayBreadcrumbs
+        items={[
+          { label: 'Wachat', href: '/home' },
+          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'WhatsApp Pay' },
+        ]}
+      />
+
+      <div>
+        <h1 className="flex items-center gap-3 text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-gradient-to-br from-[#FDE68A] to-[#B45309] text-white shadow-clay-card">
+            <LuCreditCard className="h-5 w-5" strokeWidth={2} />
+          </span>
+          WhatsApp Pay
+        </h1>
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          Manage your WhatsApp Pay configurations and view transaction
+          history for customers paying directly inside conversations.
+        </p>
+      </div>
+
+      {/* Tab pills */}
+      <div className="flex flex-wrap gap-2">
+        {TABS.map((t) => {
+          const active = t.exact
+            ? pathname === t.href
+            : pathname === t.href || pathname.startsWith(t.href + '/');
+          return (
+            <Link
+              key={t.href}
+              href={t.href}
+              className={cn(
+                'inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[12.5px] font-medium transition-[background,border-color,color]',
+                active
+                  ? 'bg-clay-obsidian border-clay-obsidian text-white shadow-clay-card'
+                  : 'bg-clay-surface border-clay-border text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong',
+              )}
+            >
+              {t.icon}
+              {t.label}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Tab body */}
+      <div>{children}</div>
+    </div>
+  );
 }

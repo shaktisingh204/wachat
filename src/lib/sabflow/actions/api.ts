@@ -102,7 +102,12 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
             });
         }
 
-        const url = new URL(requestConfig.url);
+        let url: URL;
+        try {
+            url = new URL(requestConfig.url);
+        } catch {
+            throw new Error(`Invalid URL after interpolation: "${requestConfig.url}". Check that all {{placeholders}} resolved.`);
+        }
         if (Array.isArray(apiRequest.params)) {
              apiRequest.params.forEach((param: { key: string, value: string, enabled: boolean }) => {
                 if (param.enabled && param.key) {
@@ -131,7 +136,17 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
             Object.assign(requestConfig.headers, formData.getHeaders());
         }
 
-        logger.log(`Making external API call...`, { config: { ...requestConfig, headers: {...requestConfig.headers, Authorization: 'REDACTED'} } });
+        // Redact any header whose name matches common secret patterns
+        const SENSITIVE_HEADER = /authorization|api[-_]?key|x-api|token|secret|cookie/i;
+        const redactedHeaders: Record<string, string> = {};
+        for (const [k, v] of Object.entries(requestConfig.headers || {})) {
+            redactedHeaders[k] = SENSITIVE_HEADER.test(k) ? '••••••••' : String(v);
+        }
+        logger.log(`Making external API call...`, {
+            method: requestConfig.method,
+            url: requestConfig.url,
+            headers: redactedHeaders,
+        });
         const response = await axios(requestConfig);
         logger.log(`External API call successful (Status: ${response.status})`);
         
@@ -167,7 +182,8 @@ export async function executeApiAction(node: SabFlowNode, context: any, logger: 
 
     } catch (e: any) {
         const errorMsg = `Error executing API action: ${getErrorMessage(e)}`;
-        logger.log(errorMsg, { stack: e.stack, response: e.response?.data, context });
+        // Log error details WITHOUT the upstream context (which may contain prior-step secrets)
+        logger.log(errorMsg, { stack: e.stack, response: e.response?.data });
         return { error: errorMsg };
     }
 }

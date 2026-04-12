@@ -29,7 +29,7 @@ import Papa from 'papaparse';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 
-const saveInitialState = { message: null, error: null };
+const saveInitialState: any = { message: null, error: null };
 
 const accountTypes = ['Asset', 'Liability', 'Income', 'Expense', 'Capital'];
 

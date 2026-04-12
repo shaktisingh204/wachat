@@ -53,12 +53,12 @@ export function HeadingBlock({ settings, contextData }: { settings: any, context
         color: settings.subheading?.color || 'inherit',
     };
     
-    const animationClass = {
+    const animationClass = ({
         fade: 'animate-fade-in',
         slide: 'animate-slide-in-up',
         zoom: 'animate-in zoom-in-50',
         bounce: 'animate-bounce',
-    }[settings.animation || 'none'];
+    } as Record<string, string>)[settings.animation || 'none'] || '';
     
     const responsiveClasses = cn({
         'max-lg:hidden': settings.responsiveVisibility?.desktop === false,

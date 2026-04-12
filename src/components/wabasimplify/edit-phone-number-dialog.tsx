@@ -1,8 +1,11 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
+import { LuLoader, LuSave, LuUserRound, LuCamera } from 'react-icons/lu';
+import type { WithId } from 'mongodb';
+
 import {
   Dialog,
   DialogContent,
@@ -11,19 +14,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { LoaderCircle, Save, Phone } from 'lucide-react';
+import { Separator } from '../ui/separator';
+
 import { handleUpdatePhoneNumberProfile } from '@/app/actions/whatsapp.actions';
 import { useToast } from '@/hooks/use-toast';
-import type { WithId } from 'mongodb';
 import type { Project, PhoneNumber } from '@/lib/definitions';
-import { ScrollArea } from '../ui/scroll-area';
-import { Switch } from '../ui/switch';
-import { Separator } from '../ui/separator';
+import { ClayButton } from '@/components/clay';
 
 const initialState: { message?: string; error?: string } = {
   message: undefined,
@@ -40,21 +46,22 @@ const verticals = [
 
 function SubmitButton() {
   const { pending } = useFormStatus();
-
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
-        <>
-          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-          Saving...
-        </>
-      ) : (
-        <>
-          <Save className="mr-2 h-4 w-4" />
-          Save Changes
-        </>
-      )}
-    </Button>
+    <ClayButton
+      type="submit"
+      variant="rose"
+      size="md"
+      disabled={pending}
+      leading={
+        pending ? (
+          <LuLoader className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <LuSave className="h-3.5 w-3.5" strokeWidth={2} />
+        )
+      }
+    >
+      {pending ? 'Saving…' : 'Save changes'}
+    </ClayButton>
   );
 }
 
@@ -93,15 +100,28 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
-        <form action={profileFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+      <DialogContent className="max-w-[680px] max-h-[85vh] flex flex-col overflow-hidden p-0 rounded-[18px] border border-clay-border bg-clay-surface shadow-clay-pop">
+        <form
+          action={profileFormAction}
+          ref={formRef}
+          className="flex h-full flex-col overflow-hidden"
+        >
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input type="hidden" name="phoneNumberId" value={phone.id} />
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Edit Phone Number Profile</DialogTitle>
-            <DialogDescription>
-              Update the public business profile details for {phone.display_phone_number}.
-            </DialogDescription>
+
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-clay-border px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-clay-rose-soft text-clay-rose-ink">
+              <LuUserRound className="h-5 w-5" strokeWidth={2} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <DialogTitle className="text-[16px] font-semibold text-clay-ink leading-tight">
+                Edit phone number profile
+              </DialogTitle>
+              <DialogDescription className="mt-0.5 text-[12px] text-clay-ink-muted leading-snug">
+                Update the public business profile details for{' '}
+                {phone.display_phone_number}.
+              </DialogDescription>
+            </div>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-2">
@@ -110,17 +130,26 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
               {/* Top Section: Profile Pic & Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-6">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="relative h-40 w-40 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden bg-muted/30 hover:bg-muted/50 transition-colors group">
+                  <div className="group relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-clay-border-strong bg-clay-surface-2 transition-colors hover:bg-clay-bg-2">
                     {previewUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={previewUrl} alt="Profile Preview" className="h-full w-full object-cover" />
+                      <img
+                        src={previewUrl}
+                        alt="Profile preview"
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
-                      <div className="flex flex-col items-center text-muted-foreground group-hover:text-foreground transition-colors">
-                        <LoaderCircle className="h-8 w-8 mb-2 opacity-50" /> {/* Using Loader as a placeholder icon if UserCircle isn't imported, but user requested 'better preview', image tag handles preview */}
-                        <span className="text-xs font-medium">Upload Photo</span>
+                      <div className="flex flex-col items-center gap-1.5 text-clay-ink-soft">
+                        <LuCamera className="h-6 w-6" strokeWidth={1.75} />
+                        <span className="text-[11px] font-medium">
+                          Upload photo
+                        </span>
                       </div>
                     )}
-                    <label htmlFor="profilePicture" className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity font-medium text-sm">
+                    <label
+                      htmlFor="profilePicture"
+                      className="absolute inset-0 flex cursor-pointer items-center justify-center bg-clay-obsidian/60 text-[13px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    >
                       Change
                     </label>
                     <Input
@@ -132,8 +161,8 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                       onChange={handleImageChange}
                     />
                   </div>
-                  <p className="text-[10px] text-muted-foreground text-center px-4">
-                    Recommended: 500x500px, JPG or PNG.
+                  <p className="px-2 text-center text-[10.5px] text-clay-ink-soft">
+                    Recommended: 500×500 px, JPG or PNG.
                   </p>
                 </div>
 
@@ -195,8 +224,15 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
             </div>
           </div>
 
-          <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <DialogFooter className="border-t border-clay-border px-6 py-4 sm:justify-end gap-2">
+            <ClayButton
+              type="button"
+              variant="pill"
+              size="md"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </ClayButton>
             <SubmitButton />
           </DialogFooter>
         </form>

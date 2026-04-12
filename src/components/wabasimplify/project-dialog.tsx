@@ -47,7 +47,7 @@ function SubmitButton() {
 
 export function CreateProjectDialog() {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(handleManualWachatSetup, initialState);
+  const [state, formAction] = useActionState(handleManualWachatSetup as any, initialState as any);
   const { toast } = useToast();
   const router = useRouter();
   

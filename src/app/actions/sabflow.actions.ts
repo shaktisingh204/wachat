@@ -394,3 +394,122 @@ export async function getSabFlowConnections(appId?: string): Promise<any[]> {
         return [];
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Connection management
+// ─────────────────────────────────────────────────────────────────────
+
+export async function deleteSabFlowConnection(connectionId: string): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+    if (!connectionId || !ObjectId.isValid(connectionId)) return { error: 'Invalid connection ID' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $pull: { sabFlowConnections: { _id: new ObjectId(connectionId) } } as any }
+        );
+        revalidatePath('/dashboard/sabflow/connections');
+        return { message: 'Connection removed.' };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Execution logs
+// ─────────────────────────────────────────────────────────────────────
+
+export async function getSabFlowExecutions(filter?: { flowId?: string; status?: string; limit?: number }): Promise<any[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const query: any = { userId: new ObjectId(session.user._id) };
+        if (filter?.flowId && ObjectId.isValid(filter.flowId)) {
+            query.flowId = new ObjectId(filter.flowId);
+        }
+        if (filter?.status) query.status = filter.status;
+        const limit = Math.min(200, Math.max(1, filter?.limit ?? 50));
+        const docs = await db.collection('sabflow_executions')
+            .find(query)
+            .sort({ startedAt: -1 })
+            .limit(limit)
+            .toArray();
+        return JSON.parse(JSON.stringify(docs));
+    } catch {
+        return [];
+    }
+}
+
+export async function getSabFlowExecutionById(executionId: string): Promise<any | null> {
+    const session = await getSession();
+    if (!session?.user || !ObjectId.isValid(executionId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('sabflow_executions').findOne({
+            _id: new ObjectId(executionId),
+            userId: new ObjectId(session.user._id),
+        });
+        return doc ? JSON.parse(JSON.stringify(doc)) : null;
+    } catch {
+        return null;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Scheduled flow runner
+// ─────────────────────────────────────────────────────────────────────
+
+/**
+ * Scans ALL active flows whose trigger is a schedule, evaluates their cron /
+ * interval spec, and runs any that are due. Safe to call repeatedly — the
+ * `lastRunAt` timestamp prevents duplicate runs within the same minute.
+ *
+ * Intended to be invoked by Vercel Cron (or an external scheduler) every minute
+ * via `POST /api/sabflow/cron/run-scheduled`.
+ */
+export async function runScheduledFlows(now: Date = new Date()): Promise<{ evaluated: number; ran: number; errors: any[] }> {
+    const { parseSchedule, isDue } = await import('@/lib/sabflow/cron');
+    const { db } = await connectToDatabase();
+
+    const flows = await db.collection<SabFlow>('sabflows').find({
+        status: { $ne: 'PAUSED' },
+        'trigger.triggerType': 'schedule',
+    }).toArray();
+
+    const errors: any[] = [];
+    let ran = 0;
+
+    for (const flow of flows) {
+        try {
+            const scheduleInput = (flow as any).trigger?.schedule || (flow as any).trigger?.inputs?.schedule;
+            if (!scheduleInput) continue;
+
+            const spec = parseSchedule(String(scheduleInput));
+            if (!spec) {
+                errors.push({ flowId: flow._id, error: `Invalid schedule: "${scheduleInput}"` });
+                continue;
+            }
+
+            const lastRunAt: Date | null = (flow as any).lastScheduledRunAt ?? null;
+            if (!isDue(spec, now, lastRunAt)) continue;
+
+            // Mark as run FIRST to prevent duplicate firing on overlapping cron invocations
+            await db.collection('sabflows').updateOne(
+                { _id: flow._id },
+                { $set: { lastScheduledRunAt: now } as any }
+            );
+
+            // Run the flow asynchronously — fire and continue
+            runSabFlow(flow._id.toString(), { triggeredAt: now.toISOString(), source: 'schedule' })
+                .catch(err => console.error(`[SabFlow:schedule:${flow._id}]`, err));
+
+            ran++;
+        } catch (e: any) {
+            errors.push({ flowId: flow._id, error: e.message || String(e) });
+        }
+    }
+
+    return { evaluated: flows.length, ran, errors };
+}

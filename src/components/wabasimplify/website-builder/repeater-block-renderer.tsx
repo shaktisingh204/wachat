@@ -3,7 +3,8 @@
 'use client';
 
 import React from 'react';
-import useEmblaCarousel, { type EmblaOptionsType } from 'embla-carousel-react';
+import useEmblaCarousel from 'embla-carousel-react';
+type EmblaOptionsType = Parameters<typeof useEmblaCarousel>[0];
 import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import Link from 'next/link';

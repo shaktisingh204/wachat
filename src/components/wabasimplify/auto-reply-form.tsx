@@ -43,7 +43,7 @@ const formDetails = {
 };
 
 export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
-  const [state, formAction] = useActionState(handleUpdateAutoReplySettings, initialState);
+  const [state, formAction] = useActionState(handleUpdateAutoReplySettings as any, initialState as any);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -53,8 +53,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
     if (project.autoReplySettings?.[type]) {
       const settings = project.autoReplySettings[type];
       setIsEnabled(settings.enabled);
-      if (type === 'general' && settings.replies) {
-        setReplies(settings.replies);
+      if (type === 'general' && (settings as any).replies) {
+        setReplies((settings as any).replies);
       }
     }
   }, [project, type]);

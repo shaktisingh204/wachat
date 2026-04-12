@@ -11,7 +11,8 @@ import { format } from 'date-fns';
 
 import { MonthPicker } from '@/components/crm/month-picker';
 
-export default async function Gstr1Page({ searchParams }: { searchParams: { month?: string, year?: string } }) {
+export default async function Gstr1Page(props: { searchParams: Promise<{ month?: string, year?: string }> }) {
+    const searchParams = await props.searchParams;
     const month = searchParams.month ? parseInt(searchParams.month) : undefined;
     const year = searchParams.year ? parseInt(searchParams.year) : undefined;
 

@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ export function AdminAssignUserPlanDialog({ userId, userName, currentPlanId, all
   const [selectedPlan, setSelectedPlan] = useState(currentPlanId || '');
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +45,11 @@ export function AdminAssignUserPlanDialog({ userId, userName, currentPlanId, all
     startTransition(async () => {
         const result = await updateUserPlanByAdmin(userId, selectedPlan);
         if (result.success) {
-            toast({ title: 'Success!', description: `Plan successfully assigned to ${userName}.` });
+            toast({ title: 'Plan assigned', description: `${userName} is now on the selected plan.` });
             setOpen(false);
+            // Force the admin table to re-fetch so the new plan name shows up immediately
+            // instead of waiting for the next navigation event.
+            router.refresh();
         } else {
             toast({ title: 'Error', description: result.error, variant: 'destructive' });
         }

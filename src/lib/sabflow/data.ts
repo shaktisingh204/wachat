@@ -306,7 +306,73 @@ const teamActions = [
     inputs: [
       { name: 'projectId', label: 'Project', type: 'project-selector', required: true }
     ]
-  }
+  },
+  {
+    name: 'createTask',
+    label: 'Create Task',
+    description: 'Creates a new team task.',
+    inputs: [
+      { name: 'projectId', label: 'Project', type: 'project-selector', required: true },
+      { name: 'title', label: 'Title', type: 'text', required: true },
+      { name: 'description', label: 'Description', type: 'textarea' },
+      { name: 'assignedTo', label: 'Assigned User ID', type: 'text' },
+      { name: 'priority', label: 'Priority (low/medium/high)', type: 'text', placeholder: 'medium' },
+      { name: 'dueDate', label: 'Due Date (ISO)', type: 'text', placeholder: '2026-06-01' },
+    ],
+    outputs: [
+      { name: 'taskId', label: 'Task ID', type: 'text' },
+    ],
+  },
+  {
+    name: 'updateTaskStatus',
+    label: 'Update Task Status',
+    description: 'Changes the status of a team task.',
+    inputs: [
+      { name: 'taskId', label: 'Task ID', type: 'text', required: true },
+      { name: 'status', label: 'Status', type: 'text', required: true, placeholder: 'todo, in_progress, done' },
+    ],
+    outputs: [
+      { name: 'success', label: 'Success', type: 'text' },
+    ],
+  },
+  {
+    name: 'assignTask',
+    label: 'Assign Task',
+    description: 'Assigns a team task to a user.',
+    inputs: [
+      { name: 'taskId', label: 'Task ID', type: 'text', required: true },
+      { name: 'assignedTo', label: 'User ID', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'success', label: 'Success', type: 'text' },
+    ],
+  },
+  {
+    name: 'addTaskComment',
+    label: 'Add Task Comment',
+    description: 'Adds a comment to a team task.',
+    inputs: [
+      { name: 'taskId', label: 'Task ID', type: 'text', required: true },
+      { name: 'comment', label: 'Comment', type: 'textarea', required: true },
+    ],
+    outputs: [
+      { name: 'commentId', label: 'Comment ID', type: 'text' },
+    ],
+  },
+  {
+    name: 'listTasks',
+    label: 'List Tasks',
+    description: 'Retrieves tasks filtered by status and/or assignee.',
+    inputs: [
+      { name: 'projectId', label: 'Project', type: 'project-selector', required: true },
+      { name: 'status', label: 'Status Filter', type: 'text' },
+      { name: 'assignedTo', label: 'Assigned To Filter', type: 'text' },
+    ],
+    outputs: [
+      { name: 'tasks', label: 'Tasks', type: 'text' },
+      { name: 'count', label: 'Count', type: 'number' },
+    ],
+  },
 ];
 
 // Core App Action Definitions
@@ -339,7 +405,86 @@ const filterActions = [
 ];
 
 const iteratorActions = [
-  { name: 'forEach', label: 'For Each', description: 'Iterate over an array of items.', inputs: [{ name: 'array', label: 'Array', type: 'textarea' }] }
+  {
+    name: 'spread',
+    label: 'Spread Array',
+    description: 'Expose an array and its first/last item as flow variables ({{step.items}}, {{step.first}}, {{step.last}}, {{step.count}}).',
+    inputs: [
+      { name: 'array', label: 'Array', type: 'textarea', required: true, placeholder: '{{trigger.items}} or JSON array' },
+    ],
+    outputs: [
+      { name: 'items', label: 'Items', type: 'text' },
+      { name: 'count', label: 'Count', type: 'number' },
+      { name: 'first', label: 'First Item', type: 'text' },
+      { name: 'last', label: 'Last Item', type: 'text' },
+    ],
+  },
+  {
+    name: 'getFirst',
+    label: 'Get First N',
+    description: 'Return the first N items of an array.',
+    inputs: [
+      { name: 'array', label: 'Array', type: 'textarea', required: true },
+      { name: 'n', label: 'Count', type: 'number', required: true, placeholder: '5' },
+    ],
+    outputs: [
+      { name: 'items', label: 'Items', type: 'text' },
+      { name: 'count', label: 'Count', type: 'number' },
+    ],
+  },
+  {
+    name: 'getLast',
+    label: 'Get Last N',
+    description: 'Return the last N items of an array.',
+    inputs: [
+      { name: 'array', label: 'Array', type: 'textarea', required: true },
+      { name: 'n', label: 'Count', type: 'number', required: true, placeholder: '5' },
+    ],
+    outputs: [
+      { name: 'items', label: 'Items', type: 'text' },
+      { name: 'count', label: 'Count', type: 'number' },
+    ],
+  },
+  {
+    name: 'chunk',
+    label: 'Chunk Array',
+    description: 'Split an array into chunks of size N.',
+    inputs: [
+      { name: 'array', label: 'Array', type: 'textarea', required: true },
+      { name: 'size', label: 'Chunk Size', type: 'number', required: true, placeholder: '10' },
+    ],
+    outputs: [
+      { name: 'chunks', label: 'Chunks (array of arrays)', type: 'text' },
+      { name: 'count', label: 'Chunk Count', type: 'number' },
+    ],
+  },
+  {
+    name: 'mapField',
+    label: 'Pluck Field',
+    description: 'Extract a single field from each object in an array (e.g. list of emails from a list of users).',
+    inputs: [
+      { name: 'array', label: 'Array of Objects', type: 'textarea', required: true },
+      { name: 'field', label: 'Field Name', type: 'text', required: true, placeholder: 'email' },
+    ],
+    outputs: [
+      { name: 'values', label: 'Values', type: 'text' },
+      { name: 'count', label: 'Count', type: 'number' },
+    ],
+  },
+  {
+    name: 'filterByField',
+    label: 'Filter by Field',
+    description: 'Return only array items where a field equals a given value.',
+    inputs: [
+      { name: 'array', label: 'Array of Objects', type: 'textarea', required: true },
+      { name: 'field', label: 'Field Name', type: 'text', required: true },
+      { name: 'value', label: 'Value', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'items', label: 'Filtered Items', type: 'text' },
+      { name: 'count', label: 'Count', type: 'number' },
+    ],
+  },
 ];
 
 const jsonExtractorActions = [
@@ -361,6 +506,341 @@ const textFormatterActions = [
   { name: 'uppercase', label: 'Uppercase', description: 'Convert string to uppercase.', inputs: [{ name: 'text', label: 'Text', type: 'textarea' }] },
   { name: 'trim', label: 'Trim', description: 'Remove whitespace from ends of a string.', inputs: [{ name: 'text', label: 'Text', type: 'textarea' }] },
   { name: 'split', label: 'Split', description: 'Split a string into an array.', inputs: [{ name: 'text', label: 'Text', type: 'textarea' }, { name: 'separator', label: 'Separator', type: 'text' }] }
+];
+
+// ────────────────────────────────────────────────────────────────
+// Tier-1 implementations (previously empty stubs)
+// ────────────────────────────────────────────────────────────────
+
+const dynamicWebPageActions = [
+  {
+    name: 'renderTemplate',
+    label: 'Render HTML Template',
+    description: 'Render an HTML template with variable substitution. Use {{var}} placeholders.',
+    inputs: [
+      { name: 'template', label: 'HTML Template', type: 'textarea', required: true, placeholder: '<h1>Hello {{name}}</h1>' },
+      { name: 'data', label: 'Data (JSON)', type: 'textarea', placeholder: '{ "name": "World" }' },
+    ],
+    outputs: [
+      { name: 'html', label: 'Rendered HTML', type: 'text' },
+      { name: 'length', label: 'Length (chars)', type: 'number' },
+    ],
+  },
+  {
+    name: 'publishPage',
+    label: 'Publish Page',
+    description: 'Store an HTML page at a permanent slug accessible via a public URL.',
+    inputs: [
+      { name: 'slug', label: 'Slug', type: 'text', required: true, placeholder: 'welcome-page' },
+      { name: 'title', label: 'Page Title', type: 'text', required: true },
+      { name: 'content', label: 'HTML Content', type: 'textarea', required: true },
+    ],
+    outputs: [
+      { name: 'url', label: 'Public URL', type: 'text' },
+      { name: 'slug', label: 'Slug', type: 'text' },
+    ],
+  },
+  {
+    name: 'getPage',
+    label: 'Get Published Page',
+    description: 'Retrieves a previously published page by slug.',
+    inputs: [
+      { name: 'slug', label: 'Slug', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'title', label: 'Title', type: 'text' },
+      { name: 'content', label: 'Content', type: 'text' },
+      { name: 'views', label: 'Views', type: 'number' },
+    ],
+  },
+];
+
+const fileUploaderActions = [
+  {
+    name: 'inspectUrl',
+    label: 'Inspect File URL',
+    description: 'Fetches metadata about a file at a public URL (size, content-type, validates reachability).',
+    inputs: [
+      { name: 'sourceUrl', label: 'File URL', type: 'text', required: true, placeholder: 'https://example.com/image.png' },
+    ],
+    outputs: [
+      { name: 'url', label: 'URL', type: 'text' },
+      { name: 'contentType', label: 'Content Type', type: 'text' },
+      { name: 'size', label: 'Size (bytes)', type: 'number' },
+      { name: 'reachable', label: 'Reachable', type: 'text' },
+    ],
+  },
+  {
+    name: 'uploadFromUrl',
+    label: 'Upload from URL',
+    description: 'Downloads a remote file and stores it internally, returning a new URL.',
+    inputs: [
+      { name: 'sourceUrl', label: 'Source URL', type: 'text', required: true },
+      { name: 'filename', label: 'Filename', type: 'text', placeholder: 'optional-override.pdf' },
+    ],
+    outputs: [
+      { name: 'fileId', label: 'File ID', type: 'text' },
+      { name: 'url', label: 'Internal URL', type: 'text' },
+      { name: 'size', label: 'Size (bytes)', type: 'number' },
+    ],
+  },
+  {
+    name: 'uploadBase64',
+    label: 'Upload Base64 Data',
+    description: 'Decodes a Base64 payload and stores it as a file.',
+    inputs: [
+      { name: 'base64Data', label: 'Base64 Data', type: 'textarea', required: true },
+      { name: 'filename', label: 'Filename', type: 'text', required: true },
+      { name: 'contentType', label: 'Content Type', type: 'text', placeholder: 'image/png' },
+    ],
+    outputs: [
+      { name: 'fileId', label: 'File ID', type: 'text' },
+      { name: 'url', label: 'Internal URL', type: 'text' },
+      { name: 'size', label: 'Size (bytes)', type: 'number' },
+    ],
+  },
+];
+
+const lookupTableActions = [
+  {
+    name: 'findByKey',
+    label: 'Find by Key',
+    description: 'Look up a value in a JSON table by its key field.',
+    inputs: [
+      { name: 'table', label: 'Table (JSON Array)', type: 'textarea', required: true, placeholder: '[{"key":"US","value":"United States"}]' },
+      { name: 'keyField', label: 'Key Field', type: 'text', placeholder: 'key' },
+      { name: 'lookupValue', label: 'Value to Look Up', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'match', label: 'Matched Row', type: 'text' },
+      { name: 'found', label: 'Found', type: 'text' },
+    ],
+  },
+  {
+    name: 'findByField',
+    label: 'Find by Field',
+    description: 'Find the first row in a table where a field equals a given value.',
+    inputs: [
+      { name: 'table', label: 'Table (JSON Array)', type: 'textarea', required: true },
+      { name: 'field', label: 'Field Name', type: 'text', required: true },
+      { name: 'value', label: 'Value', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'match', label: 'Matched Row', type: 'text' },
+      { name: 'found', label: 'Found', type: 'text' },
+    ],
+  },
+  {
+    name: 'filterRows',
+    label: 'Filter Rows',
+    description: 'Returns all rows where a field equals a given value.',
+    inputs: [
+      { name: 'table', label: 'Table (JSON Array)', type: 'textarea', required: true },
+      { name: 'field', label: 'Field Name', type: 'text', required: true },
+      { name: 'value', label: 'Value', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'matches', label: 'Matched Rows', type: 'text' },
+      { name: 'count', label: 'Match Count', type: 'number' },
+    ],
+  },
+];
+
+const connectManagerActions = [
+  {
+    name: 'listConnections',
+    label: 'List Connections',
+    description: 'Returns all connections configured for the current user.',
+    inputs: [],
+    outputs: [
+      { name: 'connections', label: 'Connections', type: 'text' },
+      { name: 'count', label: 'Count', type: 'number' },
+    ],
+  },
+  {
+    name: 'checkConnection',
+    label: 'Check Connection',
+    description: 'Check whether a specific app connection exists for this user.',
+    inputs: [
+      { name: 'appName', label: 'App Name', type: 'text', required: true, placeholder: 'Slack' },
+    ],
+    outputs: [
+      { name: 'connected', label: 'Connected', type: 'text' },
+      { name: 'appName', label: 'App Name', type: 'text' },
+    ],
+  },
+  {
+    name: 'getConnectionDetails',
+    label: 'Get Connection Details',
+    description: 'Retrieves non-sensitive details about an existing connection.',
+    inputs: [
+      { name: 'appName', label: 'App Name', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'details', label: 'Details', type: 'text' },
+    ],
+  },
+];
+
+const hookActions = [
+  {
+    name: 'sendWebhook',
+    label: 'Send Webhook',
+    description: 'Makes an outbound HTTP request to any URL (fire and forget or await response).',
+    inputs: [
+      { name: 'url', label: 'URL', type: 'text', required: true, placeholder: 'https://example.com/hook' },
+      { name: 'method', label: 'Method', type: 'text', placeholder: 'POST' },
+      { name: 'headers', label: 'Headers (JSON)', type: 'textarea', placeholder: '{ "X-Api-Key": "..." }' },
+      { name: 'body', label: 'Body (JSON or text)', type: 'textarea' },
+    ],
+    outputs: [
+      { name: 'status', label: 'Status Code', type: 'number' },
+      { name: 'ok', label: 'OK', type: 'text' },
+      { name: 'response', label: 'Response Body', type: 'text' },
+    ],
+  },
+  {
+    name: 'pingUrl',
+    label: 'Ping URL',
+    description: 'Sends a GET request to a URL and returns the status.',
+    inputs: [
+      { name: 'url', label: 'URL', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'status', label: 'Status Code', type: 'number' },
+      { name: 'ok', label: 'OK', type: 'text' },
+      { name: 'durationMs', label: 'Duration (ms)', type: 'number' },
+    ],
+  },
+];
+
+const subscriptionBillingActions = [
+  {
+    name: 'getCurrentPlan',
+    label: 'Get Current Plan',
+    description: 'Returns the current plan of the user running this flow.',
+    inputs: [],
+    outputs: [
+      { name: 'planId', label: 'Plan ID', type: 'text' },
+      { name: 'planName', label: 'Plan Name', type: 'text' },
+      { name: 'status', label: 'Status', type: 'text' },
+    ],
+  },
+  {
+    name: 'checkFeature',
+    label: 'Check Feature Access',
+    description: 'Checks whether the current plan includes a specific feature.',
+    inputs: [
+      { name: 'feature', label: 'Feature Key', type: 'text', required: true, placeholder: 'sabflow' },
+    ],
+    outputs: [
+      { name: 'hasFeature', label: 'Has Feature', type: 'text' },
+      { name: 'planName', label: 'Plan Name', type: 'text' },
+    ],
+  },
+  {
+    name: 'getUsage',
+    label: 'Get Usage Metrics',
+    description: 'Returns current usage counters for the user (messages, storage, flows, etc).',
+    inputs: [],
+    outputs: [
+      { name: 'usage', label: 'Usage Object', type: 'text' },
+    ],
+  },
+];
+
+const selectTransformJsonActions = [
+  {
+    name: 'pickFields',
+    label: 'Pick Fields',
+    description: 'Returns only the specified fields from an input object.',
+    inputs: [
+      { name: 'source', label: 'Source (JSON)', type: 'textarea', required: true },
+      { name: 'fields', label: 'Fields (comma-separated)', type: 'text', required: true, placeholder: 'name,email,phone' },
+    ],
+    outputs: [
+      { name: 'result', label: 'Picked Object', type: 'text' },
+    ],
+  },
+  {
+    name: 'omitFields',
+    label: 'Omit Fields',
+    description: 'Returns the input object without the specified fields.',
+    inputs: [
+      { name: 'source', label: 'Source (JSON)', type: 'textarea', required: true },
+      { name: 'fields', label: 'Fields (comma-separated)', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'result', label: 'Object without fields', type: 'text' },
+    ],
+  },
+  {
+    name: 'renameField',
+    label: 'Rename Field',
+    description: 'Renames a field inside an object.',
+    inputs: [
+      { name: 'source', label: 'Source (JSON)', type: 'textarea', required: true },
+      { name: 'fromKey', label: 'From Key', type: 'text', required: true },
+      { name: 'toKey', label: 'To Key', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'result', label: 'Renamed Object', type: 'text' },
+    ],
+  },
+  {
+    name: 'flatten',
+    label: 'Flatten Object',
+    description: 'Flattens a nested object into dot-notation keys.',
+    inputs: [
+      { name: 'source', label: 'Source (JSON)', type: 'textarea', required: true },
+    ],
+    outputs: [
+      { name: 'result', label: 'Flat Object', type: 'text' },
+    ],
+  },
+];
+
+const seoSuiteActions = [
+  {
+    name: 'analyzeUrl',
+    label: 'Analyze URL',
+    description: 'Fetches a URL and extracts basic SEO metrics (title, meta description, H1, word count).',
+    inputs: [
+      { name: 'url', label: 'Page URL', type: 'text', required: true, placeholder: 'https://example.com' },
+    ],
+    outputs: [
+      { name: 'title', label: 'Title', type: 'text' },
+      { name: 'metaDescription', label: 'Meta Description', type: 'text' },
+      { name: 'h1', label: 'First H1', type: 'text' },
+      { name: 'wordCount', label: 'Word Count', type: 'number' },
+      { name: 'score', label: 'Quick Score (0-100)', type: 'number' },
+    ],
+  },
+  {
+    name: 'checkMetaTags',
+    label: 'Check Meta Tags',
+    description: 'Returns all meta tags on a page as a JSON object.',
+    inputs: [
+      { name: 'url', label: 'Page URL', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'meta', label: 'Meta Tags (JSON)', type: 'text' },
+      { name: 'ogTags', label: 'OpenGraph Tags (JSON)', type: 'text' },
+    ],
+  },
+  {
+    name: 'countKeywords',
+    label: 'Count Keywords',
+    description: 'Counts occurrences of a keyword in a body of text.',
+    inputs: [
+      { name: 'text', label: 'Text', type: 'textarea', required: true },
+      { name: 'keyword', label: 'Keyword', type: 'text', required: true },
+    ],
+    outputs: [
+      { name: 'count', label: 'Occurrences', type: 'number' },
+      { name: 'density', label: 'Density (%)', type: 'number' },
+    ],
+  },
 ];
 
 
@@ -449,7 +929,73 @@ The automation will trigger when:
         inputs: [
           { name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook', required: true }
         ]
-      }
+      },
+      // ── Actions ──────────────────────────────────────────────
+      {
+        name: 'sendDirectMessage',
+        label: 'Send Direct Message',
+        description: 'Sends an Instagram DM to a user (requires an active conversation within 24h).',
+        inputs: [
+          { name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook', required: true },
+          { name: 'recipientId', label: 'Recipient IGSID', type: 'text', required: true, placeholder: 'Instagram-scoped user ID' },
+          { name: 'messageText', label: 'Message', type: 'textarea', required: true },
+        ],
+        outputs: [
+          { name: 'messageId', label: 'Message ID', type: 'text' },
+          { name: 'recipientId', label: 'Recipient ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'replyToComment',
+        label: 'Reply to Comment',
+        description: 'Posts a reply under an Instagram comment.',
+        inputs: [
+          { name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook', required: true },
+          { name: 'commentId', label: 'Comment ID', type: 'text', required: true },
+          { name: 'message', label: 'Reply Message', type: 'textarea', required: true },
+        ],
+        outputs: [
+          { name: 'replyId', label: 'Reply ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'getComments',
+        label: 'Get Post Comments',
+        description: 'Retrieve comments on an Instagram media post.',
+        inputs: [
+          { name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook', required: true },
+          { name: 'mediaId', label: 'Media ID', type: 'text', required: true },
+        ],
+        outputs: [
+          { name: 'comments', label: 'Comments (array)', type: 'text' },
+          { name: 'count', label: 'Count', type: 'number' },
+        ],
+      },
+      {
+        name: 'getRecentMedia',
+        label: 'Get Recent Media',
+        description: 'Returns the latest Instagram posts for the connected account.',
+        inputs: [
+          { name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook', required: true },
+        ],
+        outputs: [
+          { name: 'media', label: 'Media (array)', type: 'text' },
+          { name: 'count', label: 'Count', type: 'number' },
+        ],
+      },
+      {
+        name: 'publishImagePost',
+        label: 'Publish Image Post',
+        description: 'Publishes an image to the connected Instagram Business account.',
+        inputs: [
+          { name: 'projectId', label: 'Project', type: 'project-selector', appType: 'facebook', required: true },
+          { name: 'imageUrl', label: 'Image URL', type: 'text', required: true, placeholder: 'https://...' },
+          { name: 'caption', label: 'Caption', type: 'textarea' },
+        ],
+        outputs: [
+          { name: 'mediaId', label: 'Media ID', type: 'text' },
+        ],
+      },
     ],
   },
   {
@@ -499,7 +1045,7 @@ This trigger fires when a new task is assigned to any team member in that projec
   },
   { appId: 'url-shortener', name: 'URL Shortener', actions: urlShortenerActions, connectionType: 'internal', iconColor: 'text-sabflow-url-shortener-icon' },
   { appId: 'qr-code-maker', name: 'QR Code Maker', actions: qrCodeMakerActions, connectionType: 'internal', iconColor: 'text-sabflow-qr-code-maker-icon' },
-  { appId: 'seo-suite', name: 'SEO Suite', actions: [], connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon' },
+  { appId: 'seo-suite', name: 'SEO Suite', actions: seoSuiteActions, connectionType: 'internal', iconColor: 'text-sabflow-seo-suite-icon' },
 
 
 
@@ -513,18 +1059,18 @@ This trigger fires when a new task is assigned to any team member in that projec
   { appId: 'data_transformer', name: 'Data Transformer', actions: dataTransformerActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-data_transformer-icon' },
   { appId: 'datetime_formatter', name: 'DateTime Formatter', actions: datetimeFormatterActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-datetime_formatter-icon' },
   { appId: 'delay', name: 'Delay', actions: delayActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-delay-icon' },
-  { appId: 'dynamic_web_page', name: 'Dynamic Web Page', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-dynamic_web_page-icon' },
-  { appId: 'file_uploader', name: 'File Uploader', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-file_uploader-icon' },
+  { appId: 'dynamic_web_page', name: 'Dynamic Web Page', actions: dynamicWebPageActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-dynamic_web_page-icon' },
+  { appId: 'file_uploader', name: 'File Uploader', actions: fileUploaderActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-file_uploader-icon' },
   { appId: 'filter', name: 'Filter', actions: filterActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-filter-icon' },
   { appId: 'iterator', name: 'Iterator', actions: iteratorActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-iterator-icon' },
   { appId: 'json_extractor', name: 'JSON Extractor', actions: jsonExtractorActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-json_extractor-icon' },
-  { appId: 'lookup_table', name: 'Lookup Table', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-lookup_table-icon' },
+  { appId: 'lookup_table', name: 'Lookup Table', actions: lookupTableActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-lookup_table-icon' },
   { appId: 'number_formatter', name: 'Number Formatter', actions: numberFormatterActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-number_formatter-icon' },
-  { appId: 'connect_manager', name: 'Connect Manager', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-connect_manager-icon' },
-  { appId: 'hook', name: 'Hook', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-hook-icon' },
-  { appId: 'subscription_billing', name: 'Subscription Billing', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-subscription_billing-icon' },
+  { appId: 'connect_manager', name: 'Connect Manager', actions: connectManagerActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-connect_manager-icon' },
+  { appId: 'hook', name: 'Hook', actions: hookActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-hook-icon' },
+  { appId: 'subscription_billing', name: 'Subscription Billing', actions: subscriptionBillingActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-subscription_billing-icon' },
   { appId: 'router', name: 'Router', actions: routerActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-router-icon' },
-  { appId: 'select_transform_json', name: 'Select Transform JSON', actions: [], category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-select_transform_json-icon' },
+  { appId: 'select_transform_json', name: 'Select Transform JSON', actions: selectTransformJsonActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-select_transform_json-icon' },
   { appId: 'text_formatter', name: 'Text Formatter', actions: textFormatterActions, category: 'Core Apps', connectionType: 'internal', iconColor: 'text-sabflow-text_formatter-icon' },
 
   // External Apps
@@ -558,7 +1104,7 @@ This trigger fires when a new task is assigned to any team member in that projec
       {
         name: 'onPaymentSuccess',
         label: 'Payment Successful',
-        description: 'Triggers when a payment is functionality succeeded.',
+        description: 'Triggers when a payment succeeds.',
         isTrigger: true,
         outputs: [
           { name: 'amount', label: 'Amount', type: 'number' },
@@ -567,7 +1113,69 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'paymentIntentId', label: 'Payment Intent ID', type: 'text' }
         ]
       },
-      { name: 'createCustomer', label: 'Create Customer', description: 'Creates a new customer in Stripe.', inputs: [{ name: 'email', label: 'Email', type: 'text', required: true }, { name: 'name', label: 'Name', type: 'text' }] }
+      {
+        name: 'createCustomer',
+        label: 'Create Customer',
+        description: 'Creates a new customer in Stripe.',
+        inputs: [
+          { name: 'email', label: 'Email', type: 'text', required: true },
+          { name: 'name', label: 'Name', type: 'text' },
+          { name: 'phone', label: 'Phone', type: 'text' },
+        ],
+        outputs: [
+          { name: 'customerId', label: 'Customer ID', type: 'text' },
+          { name: 'email', label: 'Email', type: 'text' },
+        ],
+      },
+      {
+        name: 'getCustomer',
+        label: 'Get Customer',
+        description: 'Retrieves a Stripe customer by ID.',
+        inputs: [
+          { name: 'customerId', label: 'Customer ID', type: 'text', required: true },
+        ],
+        outputs: [
+          { name: 'customer', label: 'Customer', type: 'text' },
+        ],
+      },
+      {
+        name: 'createPaymentLink',
+        label: 'Create Payment Link',
+        description: 'Creates a shareable Stripe payment link for a price ID.',
+        inputs: [
+          { name: 'priceId', label: 'Price ID', type: 'text', required: true, placeholder: 'price_...' },
+          { name: 'quantity', label: 'Quantity', type: 'number', placeholder: '1' },
+        ],
+        outputs: [
+          { name: 'url', label: 'Payment URL', type: 'text' },
+          { name: 'id', label: 'Link ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'createInvoice',
+        label: 'Create Invoice',
+        description: 'Creates a draft invoice for an existing customer.',
+        inputs: [
+          { name: 'customerId', label: 'Customer ID', type: 'text', required: true },
+          { name: 'description', label: 'Description', type: 'text' },
+        ],
+        outputs: [
+          { name: 'invoiceId', label: 'Invoice ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'refundPayment',
+        label: 'Refund Payment',
+        description: 'Issues a refund for a payment intent.',
+        inputs: [
+          { name: 'paymentIntentId', label: 'Payment Intent ID', type: 'text', required: true },
+          { name: 'amount', label: 'Amount (smallest unit)', type: 'number' },
+        ],
+        outputs: [
+          { name: 'refundId', label: 'Refund ID', type: 'text' },
+          { name: 'status', label: 'Status', type: 'text' },
+        ],
+      },
     ]
   },
   {
@@ -601,7 +1209,71 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'customerEmail', label: 'Customer Email', type: 'text' }
         ]
       },
-      { name: 'createProduct', label: 'Create Product', description: 'Creates a new product in Shopify.', inputs: [{ name: 'title', label: 'Title', type: 'text', required: true }, { name: 'price', label: 'Price', type: 'number', required: true }] }
+      {
+        name: 'createProduct',
+        label: 'Create Product',
+        description: 'Creates a new product in Shopify.',
+        inputs: [
+          { name: 'title', label: 'Title', type: 'text', required: true },
+          { name: 'bodyHtml', label: 'Description (HTML)', type: 'textarea' },
+          { name: 'vendor', label: 'Vendor', type: 'text' },
+          { name: 'price', label: 'Price', type: 'number', required: true },
+          { name: 'sku', label: 'SKU', type: 'text' },
+        ],
+        outputs: [
+          { name: 'productId', label: 'Product ID', type: 'text' },
+          { name: 'handle', label: 'Handle', type: 'text' },
+        ],
+      },
+      {
+        name: 'getOrder',
+        label: 'Get Order',
+        description: 'Retrieves a Shopify order by ID.',
+        inputs: [
+          { name: 'orderId', label: 'Order ID', type: 'text', required: true },
+        ],
+        outputs: [
+          { name: 'order', label: 'Order', type: 'text' },
+        ],
+      },
+      {
+        name: 'listProducts',
+        label: 'List Products',
+        description: 'Returns up to 50 products.',
+        inputs: [
+          { name: 'limit', label: 'Limit (1-50)', type: 'number', placeholder: '10' },
+        ],
+        outputs: [
+          { name: 'products', label: 'Products', type: 'text' },
+          { name: 'count', label: 'Count', type: 'number' },
+        ],
+      },
+      {
+        name: 'createCustomer',
+        label: 'Create Customer',
+        description: 'Creates a new Shopify customer.',
+        inputs: [
+          { name: 'email', label: 'Email', type: 'text', required: true },
+          { name: 'firstName', label: 'First Name', type: 'text' },
+          { name: 'lastName', label: 'Last Name', type: 'text' },
+          { name: 'phone', label: 'Phone', type: 'text' },
+        ],
+        outputs: [
+          { name: 'customerId', label: 'Customer ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'updateOrderStatus',
+        label: 'Fulfill Order',
+        description: 'Marks an order as fulfilled.',
+        inputs: [
+          { name: 'orderId', label: 'Order ID', type: 'text', required: true },
+          { name: 'locationId', label: 'Location ID', type: 'text' },
+        ],
+        outputs: [
+          { name: 'fulfillmentId', label: 'Fulfillment ID', type: 'text' },
+        ],
+      },
     ]
   },
   {
@@ -631,7 +1303,68 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'ts', label: 'Timestamp', type: 'text' }
         ]
       },
-      { name: 'sendMessage', label: 'Send Message', description: 'Send a message to a channel.', inputs: [{ name: 'channel', label: 'Channel', type: 'text' }, { name: 'text', label: 'Message', type: 'textarea' }] }
+      {
+        name: 'sendMessage',
+        label: 'Send Message',
+        description: 'Send a message to a channel.',
+        inputs: [
+          { name: 'channel', label: 'Channel', type: 'text', required: true, placeholder: '#general or C01234' },
+          { name: 'text', label: 'Message', type: 'textarea', required: true },
+        ],
+        outputs: [
+          { name: 'ts', label: 'Timestamp', type: 'text' },
+          { name: 'channel', label: 'Channel', type: 'text' },
+        ],
+      },
+      {
+        name: 'sendDirectMessage',
+        label: 'Send DM',
+        description: 'Opens a DM channel and sends a message to a user.',
+        inputs: [
+          { name: 'userId', label: 'User ID', type: 'text', required: true, placeholder: 'U01234' },
+          { name: 'text', label: 'Message', type: 'textarea', required: true },
+        ],
+        outputs: [
+          { name: 'ts', label: 'Timestamp', type: 'text' },
+          { name: 'channel', label: 'DM Channel', type: 'text' },
+        ],
+      },
+      {
+        name: 'updateMessage',
+        label: 'Update Message',
+        description: 'Edits a previously sent Slack message.',
+        inputs: [
+          { name: 'channel', label: 'Channel', type: 'text', required: true },
+          { name: 'ts', label: 'Message Timestamp', type: 'text', required: true },
+          { name: 'text', label: 'New Text', type: 'textarea', required: true },
+        ],
+        outputs: [
+          { name: 'ok', label: 'OK', type: 'text' },
+        ],
+      },
+      {
+        name: 'addReaction',
+        label: 'Add Reaction',
+        description: 'Adds an emoji reaction to a message.',
+        inputs: [
+          { name: 'channel', label: 'Channel', type: 'text', required: true },
+          { name: 'ts', label: 'Message Timestamp', type: 'text', required: true },
+          { name: 'emoji', label: 'Emoji Name', type: 'text', required: true, placeholder: 'thumbsup' },
+        ],
+        outputs: [
+          { name: 'ok', label: 'OK', type: 'text' },
+        ],
+      },
+      {
+        name: 'listChannels',
+        label: 'List Channels',
+        description: 'Lists public channels in the workspace.',
+        inputs: [],
+        outputs: [
+          { name: 'channels', label: 'Channels', type: 'text' },
+          { name: 'count', label: 'Count', type: 'number' },
+        ],
+      },
     ]
   },
   {
@@ -659,7 +1392,58 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'snippet', label: 'Snippet', type: 'text' },
           { name: 'messageId', label: 'Message ID', type: 'text' }
         ]
-      }
+      },
+      {
+        name: 'sendEmail',
+        label: 'Send Email',
+        description: 'Sends an email via the connected Gmail account.',
+        inputs: [
+          { name: 'to', label: 'To', type: 'text', required: true },
+          { name: 'subject', label: 'Subject', type: 'text', required: true },
+          { name: 'body', label: 'Body (plain text or HTML)', type: 'textarea', required: true },
+          { name: 'cc', label: 'CC (comma-separated)', type: 'text' },
+          { name: 'bcc', label: 'BCC (comma-separated)', type: 'text' },
+        ],
+        outputs: [
+          { name: 'messageId', label: 'Message ID', type: 'text' },
+          { name: 'threadId', label: 'Thread ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'listMessages',
+        label: 'List Messages',
+        description: 'Returns recent Gmail messages matching a query.',
+        inputs: [
+          { name: 'query', label: 'Gmail Search Query', type: 'text', placeholder: 'from:example.com is:unread' },
+          { name: 'maxResults', label: 'Max Results', type: 'number', placeholder: '10' },
+        ],
+        outputs: [
+          { name: 'messages', label: 'Messages', type: 'text' },
+          { name: 'count', label: 'Count', type: 'number' },
+        ],
+      },
+      {
+        name: 'getMessage',
+        label: 'Get Message',
+        description: 'Retrieves a full Gmail message by ID.',
+        inputs: [
+          { name: 'messageId', label: 'Message ID', type: 'text', required: true },
+        ],
+        outputs: [
+          { name: 'message', label: 'Message', type: 'text' },
+        ],
+      },
+      {
+        name: 'markAsRead',
+        label: 'Mark as Read',
+        description: 'Removes the UNREAD label from a Gmail message.',
+        inputs: [
+          { name: 'messageId', label: 'Message ID', type: 'text', required: true },
+        ],
+        outputs: [
+          { name: 'success', label: 'Success', type: 'text' },
+        ],
+      },
     ]
   },
   {
@@ -691,7 +1475,73 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'email', label: 'Email', type: 'text' }
         ]
       },
-      { name: 'createContact', label: 'Create Contact', description: 'Creates a new contact in HubSpot.', inputs: [{ name: 'email', label: 'Email', type: 'text', required: true }, { name: 'firstname', label: 'First Name', type: 'text' }, { name: 'lastname', label: 'Last Name', type: 'text' }] }
+      {
+        name: 'createContact',
+        label: 'Create Contact',
+        description: 'Creates a new contact in HubSpot.',
+        inputs: [
+          { name: 'email', label: 'Email', type: 'text', required: true },
+          { name: 'firstname', label: 'First Name', type: 'text' },
+          { name: 'lastname', label: 'Last Name', type: 'text' },
+          { name: 'phone', label: 'Phone', type: 'text' },
+          { name: 'company', label: 'Company', type: 'text' },
+        ],
+        outputs: [
+          { name: 'contactId', label: 'Contact ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'updateContact',
+        label: 'Update Contact',
+        description: 'Updates properties on an existing HubSpot contact.',
+        inputs: [
+          { name: 'contactId', label: 'Contact ID', type: 'text', required: true },
+          { name: 'firstname', label: 'First Name', type: 'text' },
+          { name: 'lastname', label: 'Last Name', type: 'text' },
+          { name: 'phone', label: 'Phone', type: 'text' },
+        ],
+        outputs: [
+          { name: 'contactId', label: 'Contact ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'getContactByEmail',
+        label: 'Find Contact by Email',
+        description: 'Searches HubSpot contacts by email.',
+        inputs: [
+          { name: 'email', label: 'Email', type: 'text', required: true },
+        ],
+        outputs: [
+          { name: 'contact', label: 'Contact', type: 'text' },
+          { name: 'found', label: 'Found', type: 'text' },
+        ],
+      },
+      {
+        name: 'createDeal',
+        label: 'Create Deal',
+        description: 'Creates a new deal in HubSpot.',
+        inputs: [
+          { name: 'dealname', label: 'Deal Name', type: 'text', required: true },
+          { name: 'amount', label: 'Amount', type: 'number' },
+          { name: 'pipeline', label: 'Pipeline ID', type: 'text' },
+          { name: 'dealstage', label: 'Stage', type: 'text' },
+        ],
+        outputs: [
+          { name: 'dealId', label: 'Deal ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'addNote',
+        label: 'Add Note',
+        description: 'Adds a note to a HubSpot contact.',
+        inputs: [
+          { name: 'contactId', label: 'Contact ID', type: 'text', required: true },
+          { name: 'note', label: 'Note Content', type: 'textarea', required: true },
+        ],
+        outputs: [
+          { name: 'noteId', label: 'Note ID', type: 'text' },
+        ],
+      },
     ]
   },
   {
@@ -720,7 +1570,58 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'messageId', label: 'Message ID', type: 'text' }
         ]
       },
-      { name: 'sendMessage', label: 'Send Message', description: 'Sends a message to a channel.', inputs: [{ name: 'channelId', label: 'Channel ID', type: 'text' }, { name: 'message', label: 'Message', type: 'textarea' }] }
+      {
+        name: 'sendMessage',
+        label: 'Send Message',
+        description: 'Sends a message to a Discord channel.',
+        inputs: [
+          { name: 'channelId', label: 'Channel ID', type: 'text', required: true },
+          { name: 'message', label: 'Message', type: 'textarea', required: true },
+        ],
+        outputs: [
+          { name: 'messageId', label: 'Message ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'sendEmbed',
+        label: 'Send Embed',
+        description: 'Sends an embedded rich message.',
+        inputs: [
+          { name: 'channelId', label: 'Channel ID', type: 'text', required: true },
+          { name: 'title', label: 'Title', type: 'text', required: true },
+          { name: 'description', label: 'Description', type: 'textarea' },
+          { name: 'color', label: 'Color (decimal)', type: 'number', placeholder: '5814783' },
+          { name: 'url', label: 'URL', type: 'text' },
+        ],
+        outputs: [
+          { name: 'messageId', label: 'Message ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'sendWebhook',
+        label: 'Send via Webhook',
+        description: 'Posts a message to a Discord webhook URL (no bot token required).',
+        inputs: [
+          { name: 'webhookUrl', label: 'Webhook URL', type: 'text', required: true },
+          { name: 'content', label: 'Content', type: 'textarea', required: true },
+          { name: 'username', label: 'Override Username', type: 'text' },
+        ],
+        outputs: [
+          { name: 'ok', label: 'OK', type: 'text' },
+        ],
+      },
+      {
+        name: 'createThread',
+        label: 'Create Thread',
+        description: 'Creates a new thread in a channel.',
+        inputs: [
+          { name: 'channelId', label: 'Channel ID', type: 'text', required: true },
+          { name: 'name', label: 'Thread Name', type: 'text', required: true },
+        ],
+        outputs: [
+          { name: 'threadId', label: 'Thread ID', type: 'text' },
+        ],
+      },
     ]
   },
   {
@@ -749,7 +1650,57 @@ This trigger fires when a new task is assigned to any team member in that projec
           { name: 'url', label: 'Page URL', type: 'text' }
         ]
       },
-      { name: 'createPage', label: 'Create Page', description: 'Creates a new page in a database.', inputs: [{ name: 'databaseId', label: 'Database ID', type: 'text' }, { name: 'title', label: 'Page Title', type: 'text' }] }
+      {
+        name: 'createPage',
+        label: 'Create Database Page',
+        description: 'Creates a new page in a Notion database.',
+        inputs: [
+          { name: 'databaseId', label: 'Database ID', type: 'text', required: true },
+          { name: 'title', label: 'Page Title', type: 'text', required: true },
+          { name: 'titleProperty', label: 'Title Property Name', type: 'text', placeholder: 'Name' },
+        ],
+        outputs: [
+          { name: 'pageId', label: 'Page ID', type: 'text' },
+          { name: 'url', label: 'Page URL', type: 'text' },
+        ],
+      },
+      {
+        name: 'updatePage',
+        label: 'Update Page',
+        description: 'Archives or updates page properties.',
+        inputs: [
+          { name: 'pageId', label: 'Page ID', type: 'text', required: true },
+          { name: 'archived', label: 'Archive?', type: 'text', placeholder: 'true or false' },
+        ],
+        outputs: [
+          { name: 'pageId', label: 'Page ID', type: 'text' },
+        ],
+      },
+      {
+        name: 'queryDatabase',
+        label: 'Query Database',
+        description: 'Returns pages from a Notion database.',
+        inputs: [
+          { name: 'databaseId', label: 'Database ID', type: 'text', required: true },
+          { name: 'pageSize', label: 'Page Size (1-100)', type: 'number', placeholder: '20' },
+        ],
+        outputs: [
+          { name: 'pages', label: 'Pages', type: 'text' },
+          { name: 'count', label: 'Count', type: 'number' },
+        ],
+      },
+      {
+        name: 'appendBlock',
+        label: 'Append Text Block',
+        description: 'Appends a paragraph block to a page.',
+        inputs: [
+          { name: 'pageId', label: 'Page ID', type: 'text', required: true },
+          { name: 'text', label: 'Text', type: 'textarea', required: true },
+        ],
+        outputs: [
+          { name: 'ok', label: 'OK', type: 'text' },
+        ],
+      },
     ]
   }
 ];

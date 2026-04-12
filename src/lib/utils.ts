@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-export const getErrorMessage = (error: any) => {
+export const getErrorMessage = (error: any): string => {
     // Axios error with a response from the server
     if (axios.isAxiosError(error) && error.response) {
         const apiError = error.response.data?.error;

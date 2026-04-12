@@ -1,61 +1,162 @@
-
 'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    BarChart3,
+    Bot,
+    GitFork,
+    Globe,
+    MessageSquare,
+    Users,
+} from 'lucide-react';
+
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { LoginForm } from '@/components/wabasimplify/login-form';
 import { Skeleton } from '@/components/ui/skeleton';
 
+const HIGHLIGHTS: { title: string; description: string; icon: React.ElementType }[] = [
+    {
+        title: 'WhatsApp at scale',
+        description:
+            'Broadcasts, live chat, catalogs, and Meta Flows from a single Wachat workspace.',
+        icon: MessageSquare,
+    },
+    {
+        title: 'Full-stack CRM',
+        description:
+            'Sales, inventory, accounting, HR/payroll, and GST reports — already wired up.',
+        icon: Users,
+    },
+    {
+        title: 'SabFlow automation',
+        description:
+            'Visual flow builder across 20+ apps (Meta, Slack, Stripe, Shopify, Notion…).',
+        icon: GitFork,
+    },
+    {
+        title: 'SEO & growth suite',
+        description:
+            'Audits, rank tracking, GSC, IndexNow, and AI-written PDF reports.',
+        icon: BarChart3,
+    },
+    {
+        title: 'SabChat AI',
+        description:
+            'Embeddable AI chatbot with FAQs, sessions, and live WebSocket handoff.',
+        icon: Bot,
+    },
+    {
+        title: 'Sites, shops, portfolios',
+        description:
+            'Website builder, storefronts, custom domains — everything your brand needs.',
+        icon: Globe,
+    },
+];
+
 function LoginFormSkeleton() {
     return (
-        <Card className="w-full max-w-sm">
-            <CardHeader className="text-center">
-                <Skeleton className="h-8 w-2/3 mx-auto" />
-                <Skeleton className="h-4 w-full mt-2 mx-auto" />
-            </CardHeader>
-            <CardContent className="space-y-6 p-6">
+        <div className="w-full max-w-md space-y-6 rounded-2xl border bg-card p-8 shadow-2xl">
+            <Skeleton className="h-7 w-1/2" />
+            <Skeleton className="h-4 w-3/4" />
+            <div className="space-y-4 pt-4">
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full mt-6" />
-                <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-                    </div>
-                </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                </div>
-            </CardContent>
-            <CardFooter className="justify-center">
-                <Skeleton className="h-4 w-1/2" />
-            </CardFooter>
-        </Card>
+                <Skeleton className="h-10 w-full" />
+            </div>
+        </div>
     );
 }
 
 export default function LoginPage() {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-auth-texture p-4 sm:p-6 lg:p-8">
-            <div className="absolute top-6 left-6 sm:top-8 sm:left-8">
-                <Link href="/">
-                    <SabNodeLogo className="w-24 h-auto" />
-                </Link>
-            </div>
+        <div className="min-h-screen w-full bg-background">
+            <div className="grid min-h-screen lg:grid-cols-2">
+                {/* Left column — brand + highlights */}
+                <aside className="relative hidden overflow-hidden bg-gradient-to-br from-primary/90 via-primary to-primary/70 text-primary-foreground lg:flex lg:flex-col lg:justify-between lg:p-12">
+                    <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 opacity-20"
+                        style={{
+                            backgroundImage:
+                                'radial-gradient(circle at 20% 30%, white 0, transparent 40%), radial-gradient(circle at 80% 70%, white 0, transparent 40%)',
+                        }}
+                    />
+                    <div className="relative flex items-center gap-3">
+                        <Link href="/" className="flex items-center gap-2">
+                            <SabNodeLogo className="h-8 w-auto text-white" />
+                            <span className="text-lg font-semibold tracking-tight">
+                                SabNode
+                            </span>
+                        </Link>
+                    </div>
 
-            <Suspense fallback={<LoginFormSkeleton />}>
-                <LoginForm />
-            </Suspense>
+                    <div className="relative space-y-8">
+                        <div className="space-y-3">
+                            <h1 className="text-3xl font-bold leading-tight lg:text-4xl">
+                                One workspace for
+                                <br />
+                                messaging, CRM & growth.
+                            </h1>
+                            <p className="max-w-md text-base text-primary-foreground/80">
+                                Sign in to continue managing your WhatsApp
+                                campaigns, customers, and automations.
+                            </p>
+                        </div>
 
-            <div className="absolute bottom-6 text-center w-full">
-                <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} SabNode. All Rights Reserved. | <Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link></p>
+                        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            {HIGHLIGHTS.map(
+                                ({ title, description, icon: Icon }) => (
+                                    <li
+                                        key={title}
+                                        className="rounded-xl bg-white/10 p-4 backdrop-blur-sm"
+                                    >
+                                        <Icon className="mb-2 h-5 w-5" />
+                                        <h3 className="text-sm font-semibold">
+                                            {title}
+                                        </h3>
+                                        <p className="mt-1 text-xs text-primary-foreground/80">
+                                            {description}
+                                        </p>
+                                    </li>
+                                )
+                            )}
+                        </ul>
+                    </div>
+
+                    <div className="relative text-xs text-primary-foreground/70">
+                        © {new Date().getFullYear()} SabNode — all rights
+                        reserved.
+                    </div>
+                </aside>
+
+                {/* Right column — login form */}
+                <main className="flex items-center justify-center p-6 sm:p-10">
+                    <div className="w-full max-w-md space-y-6">
+                        <div className="flex items-center justify-between lg:hidden">
+                            <Link href="/" className="flex items-center gap-2">
+                                <SabNodeLogo className="h-7 w-auto" />
+                                <span className="font-semibold">SabNode</span>
+                            </Link>
+                        </div>
+
+                        <Suspense fallback={<LoginFormSkeleton />}>
+                            <LoginForm />
+                        </Suspense>
+
+                        <p className="text-center text-xs text-muted-foreground">
+                            By signing in you agree to our{' '}
+                            <Link
+                                href="/privacy-policy"
+                                className="underline hover:text-foreground"
+                            >
+                                Privacy Policy
+                            </Link>{' '}
+                            and Terms of Service.
+                        </p>
+                    </div>
+                </main>
             </div>
         </div>
     );

@@ -59,10 +59,10 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
             </div>
              <div className="space-y-2">
                 <Label htmlFor="fieldId">Map to CRM Field</Label>
-                <Select value={field.fieldId || ''} onValueChange={(val) => handleUpdate('fieldId', val)}>
+                <Select value={field.fieldId || '__none__'} onValueChange={(val) => handleUpdate('fieldId', val === '__none__' ? '' : val)}>
                     <SelectTrigger id="fieldId"><SelectValue placeholder="Select a CRM field..."/></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">-- None (Custom Field) --</SelectItem>
+                        <SelectItem value="__none__">-- None (Custom Field) --</SelectItem>
                         {crmFieldMappingOptions.map(opt => (
                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                         ))}

@@ -22,7 +22,7 @@ import Link from 'next/link';
 import { useProject } from '@/context/project-context';
 import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
 
-const scheduleInitialState = { message: null, error: undefined };
+const scheduleInitialState: any = { message: null, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();

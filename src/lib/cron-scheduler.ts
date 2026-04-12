@@ -4,7 +4,7 @@
 import { connectToDatabase } from './mongodb';
 import { getErrorMessage } from './utils';
 import { ObjectId } from 'mongodb';
-import type { Broadcast } from './definitions';
+type Broadcast = any;
 
 // This function is designed to be lightweight, suitable for a cron trigger.
 // It finds one queued broadcast and marks it for processing by the background worker.

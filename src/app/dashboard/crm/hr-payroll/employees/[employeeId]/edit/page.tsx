@@ -17,11 +17,12 @@ async function getEmployeeById(id: string) {
   return JSON.parse(JSON.stringify(employee));
 }
 
-export default async function EditEmployeePage({
-  params,
-}: {
-  params: { employeeId: string };
-}) {
+export default async function EditEmployeePage(
+  props: {
+    params: Promise<{ employeeId: string }>;
+  }
+) {
+  const params = await props.params;
   const employeeId = params.employeeId;
 
   const [employee, departments, designations, managers] =

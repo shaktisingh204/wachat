@@ -74,11 +74,11 @@ export function EmailConversationList({
                                     )}
                                 >
                                     <Avatar>
-                                        <AvatarFallback>{convo.fromName?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                                        <AvatarFallback>{(convo as any).fromName?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1 overflow-hidden">
                                         <div className="flex items-center justify-between">
-                                            <p className="font-semibold truncate">{convo.fromName}</p>
+                                            <p className="font-semibold truncate">{(convo as any).fromName}</p>
                                             <p className="text-xs text-muted-foreground whitespace-nowrap">
                                                 {formatDistanceToNow(new Date(convo.lastMessageAt), { addSuffix: true })}
                                             </p>

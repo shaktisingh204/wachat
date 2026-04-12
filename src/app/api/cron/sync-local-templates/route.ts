@@ -97,7 +97,7 @@ async function handleSync() {
             return NextResponse.json({ message: 'No local or eligible failed templates found to sync.' });
         }
         
-        const projectIds = [...new Set(templatesToProcess.map(t => t.projectId.toString()))];
+        const projectIds = [...new Set(templatesToProcess.map(t => (t as any).projectId.toString()))];
         const projects = await db.collection<WithId<Project>>('projects').find({ _id: { $in: projectIds.map(id => new ObjectId(id)) } }).toArray();
         const projectsMap = new Map(projects.map(p => [p._id.toString(), p]));
         
@@ -107,10 +107,10 @@ async function handleSync() {
         let firstPayloadString: string | null = null;
 
         for (const template of templatesToProcess) {
-            const project = projectsMap.get(template.projectId.toString());
+            const project = projectsMap.get((template as any).projectId.toString());
             if (!project) {
                 failureCount++;
-                const errorMsg = `Template "${template.name}" on Project ID ${template.projectId}: Project not found`;
+                const errorMsg = `Template "${template.name}" on Project ID ${(template as any).projectId}: Project not found`;
                 errors.push(errorMsg);
                 await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: 'FAILED_SUBMISSION', error: 'Project not found', lastSubmissionAttemptAt: new Date() } });
                 continue;

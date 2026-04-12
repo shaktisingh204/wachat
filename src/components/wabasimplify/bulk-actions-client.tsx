@@ -50,9 +50,11 @@ export function BulkActionsClient({ sourceProjectName, allProjects, initialTempl
                 </div>
                  <div className="lg:col-span-1">
                     <BulkBroadcastForm
-                        sourceProjectName={sourceProjectName}
-                        targetProjects={selectedProjects}
-                        templates={initialTemplates}
+                        {...({
+                            sourceProjectName: sourceProjectName,
+                            targetProjects: selectedProjects,
+                            templates: initialTemplates,
+                        } as any)}
                     />
                 </div>
                  <div className="lg:col-span-1">

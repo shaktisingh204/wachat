@@ -134,8 +134,8 @@ export default function NewSalesOrderPage() {
             <input type="hidden" name="lineItems" value={JSON.stringify(lineItems)} />
             <input type="hidden" name="notes" value={notes} />
 
-            <div className="bg-muted/30">
-                <div className="container mx-auto p-4 md:p-8">
+            <div>
+                <div className="max-w-6xl mx-auto flex flex-col gap-6">
                     <header className="flex justify-between items-center mb-6">
                         <div>
                             <Button variant="ghost" asChild className="-ml-4">

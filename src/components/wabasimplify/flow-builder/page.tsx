@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { 
     MessageSquare, 
     ToggleRight, 
@@ -586,7 +587,7 @@ export function FlowBuilder() {
                              <SheetTrigger asChild>
                                 <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode}><Settings2 className="h-5 w-5" /></Button>
                             </SheetTrigger>
-                            <SheetContent side="right" className="p-0 flex flex-col"><SheetTitle className="sr-only">Properties</SheetTitle><SheetDescription className="sr-only">Configure the selected block.</SheetDescription>{selectedNode && <PropertiesPanel node={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}</SheetContent>
+                            <SheetContent side="right" className="p-0 flex flex-col"><SheetTitle className="sr-only">Properties</SheetTitle><SheetDescription className="sr-only">Configure the selected block.</SheetDescription>{selectedNode && <PropertiesPanel {...({ node: selectedNode, onUpdate: updateNodeData, deleteNode: deleteNode, availableVariables: [] } as any)} />}</SheetContent>
                         </Sheet>
                     </div>
                  </header>
@@ -633,7 +634,7 @@ export function FlowBuilder() {
                         </div>
                     </Card>
                     <aside className="hidden md:block col-span-3 bg-background p-4 overflow-y-auto">
-                        {selectedNode && <PropertiesPanel node={selectedNode} onUpdate={updateNodeData} deleteNode={deleteNode} />}
+                        {selectedNode && <PropertiesPanel {...({ node: selectedNode, onUpdate: updateNodeData, deleteNode: deleteNode, availableVariables: [] } as any)} />}
                     </aside>
                  </main>
                   <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">

@@ -246,12 +246,15 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
             case 'addContactTag':
             case 'removeContactTag': {
                 if (!inputs.tagId) throw new Error('Tag ID is required.');
-                const currentTags = contact.tagIds || [];
-                let newTags;
+                const targetTagId = String(inputs.tagId);
+                const currentTags: any[] = contact.tagIds || [];
+                // Normalize to string IDs for safe comparison (handles ObjectId vs string mismatch)
+                const currentStringTags = currentTags.map((t: any) => String(t));
+                let newTags: string[];
                 if (actionName === 'addContactTag') {
-                    newTags = [...new Set([...currentTags, inputs.tagId])];
+                    newTags = Array.from(new Set([...currentStringTags, targetTagId]));
                 } else {
-                    newTags = currentTags.filter(t => t !== inputs.tagId);
+                    newTags = currentStringTags.filter((t: string) => t !== targetTagId);
                 }
                 const result = await updateContactTags(contact._id.toString(), newTags);
                 if (!result.success) throw new Error(result.error);

@@ -16,12 +16,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useEffect, useState, useTransition, useCallback } from 'react';
+import { useEffect, useState, useTransition, useCallback, use } from 'react';
 import type { WithId, CrmChartOfAccount, CrmVoucherEntry } from '@/lib/definitions';
 import { DatePicker } from '@/components/ui/date-picker';
 import { CrmChartOfAccountDialog } from '@/components/wabasimplify/crm-chart-of-account-dialog';
 
-export default function AccountDetailPage({ params }: { params: { accountId: string } }) {
+export default function AccountDetailPage(props: { params: Promise<{ accountId: string }> }) {
+    const params = use(props.params);
     const [account, setAccount] = useState<WithId<CrmChartOfAccount> | null>(null);
     const [entries, setEntries] = useState<WithId<CrmVoucherEntry>[]>([]);
     const [isLoading, startTransition] = useTransition();
@@ -65,7 +66,7 @@ export default function AccountDetailPage({ params }: { params: { accountId: str
     if (!account) {
         return <div>Account not found.</div>;
     }
-    
+
     const openingBalance = account.balanceType === 'Cr' ? -account.openingBalance : account.openingBalance;
     const { totalDebit, totalCredit } = entries.reduce((acc, entry) => {
         entry.debitEntries.forEach(de => {
@@ -101,7 +102,7 @@ export default function AccountDetailPage({ params }: { params: { accountId: str
                     <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <h1 className="text-2xl font-bold font-headline">{account.name}</h1>
-                            <p className="text-muted-foreground">{account.accountGroupName} [{account.accountGroupCategory?.replace(/_/g, ' ')}]</p>
+                            <p className="text-muted-foreground">{(account as any).accountGroupName} [{(account as any).accountGroupCategory?.replace(/_/g, ' ')}]</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <Select value={financialYear} onValueChange={setFinancialYear}>

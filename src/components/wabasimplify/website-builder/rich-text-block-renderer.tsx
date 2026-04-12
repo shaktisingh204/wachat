@@ -53,10 +53,10 @@ export const RichTextBlockRenderer: React.FC<RichTextBlockRendererProps> = ({ se
         zIndex: settings.zIndex || undefined,
     };
     
-    const animationClass = {
+    const animationClass = ({
         fadeIn: 'animate-in fade-in duration-500',
         fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
-    }[settings.animation || 'none'];
+    } as Record<string, string>)[settings.animation || 'none'] || '';
     
     const responsiveClasses = cn({
         'max-lg:hidden': settings.responsiveVisibility?.desktop === false,

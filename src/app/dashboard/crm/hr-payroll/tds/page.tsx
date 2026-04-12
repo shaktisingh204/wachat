@@ -9,7 +9,8 @@ import { FileText } from 'lucide-react';
 import { format, startOfMonth } from 'date-fns';
 import { MonthPicker } from '@/components/crm/month-picker';
 
-export default async function TdsPage({ searchParams }: { searchParams: { month?: string, year?: string } }) {
+export default async function TdsPage(props: { searchParams: Promise<{ month?: string, year?: string }> }) {
+    const searchParams = await props.searchParams;
 
     let currentPeriod = startOfMonth(new Date());
     if (searchParams.month && searchParams.year) {

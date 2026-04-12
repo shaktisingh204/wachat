@@ -158,7 +158,7 @@ export default function SalaryStructurePage() {
                         <h1 className="text-3xl font-bold font-headline">Salary Structures</h1>
                         <p className="text-muted-foreground">Define salary templates for different employee roles or grades.</p>
                     </div>
-                    <Button onClick={() => handleEdit(null)}><Plus className="mr-2 h-4 w-4"/>Create New Structure</Button>
+                    <Button onClick={() => handleEdit(null as any)}><Plus className="mr-2 h-4 w-4"/>Create New Structure</Button>
                 </div>
                 <Card>
                     <CardHeader><CardTitle>Your Structures</CardTitle></CardHeader>

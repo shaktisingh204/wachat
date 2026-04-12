@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
 
-const saveInitialState = { message: null, error: null };
+const saveInitialState: any = { message: null, error: null };
 
 function SaveButton() {
     const { pending } = useFormStatus();

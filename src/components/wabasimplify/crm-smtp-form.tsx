@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { LoaderCircle, Server, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCrmEmailSettings } from '@/app/actions/crm-email.actions';
-import type { CrmEmailSettings } from '@/lib/definitions';
+import type { EmailSettings as CrmEmailSettings } from '@/lib/definitions';
 import { Switch } from '../ui/switch';
 import { Separator } from '../ui/separator';
 
@@ -39,7 +39,7 @@ interface CrmSmtpFormProps {
 }
 
 export function CrmSmtpForm({ settings }: CrmSmtpFormProps) {
-    const [state, formAction] = useActionState(saveCrmEmailSettings, initialState);
+    const [state, formAction] = useActionState(saveCrmEmailSettings as any, initialState as any);
     const { toast } = useToast();
     
     useEffect(() => {

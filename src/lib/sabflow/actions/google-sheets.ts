@@ -19,14 +19,21 @@ async function getAuthenticatedClient(user: WithId<User>) {
          throw new Error("Missing refresh token. Please reconnect your Google Sheets account to grant offline access.");
     }
 
-    if (Date.now() >= expiry_date) {
+    // Refresh when: no expiry recorded (undefined/null/0), or expiry has passed,
+    // or expiry is within the next 60 seconds (buffer to avoid mid-call expiration).
+    const expiryMs = typeof expiry_date === 'number' ? expiry_date : 0;
+    const needsRefresh = !accessToken || !expiryMs || Date.now() >= (expiryMs - 60_000);
+
+    if (needsRefresh) {
         googleAuthClient.setCredentials({ refresh_token: refreshToken });
         const { credentials } = await googleAuthClient.refreshAccessToken();
-        // This is a placeholder. A proper implementation would update the stored credentials.
-        console.log("Refreshed Google Sheets token.");
         accessToken = credentials.access_token;
+        console.log("[GoogleSheets] Refreshed access token.");
+        // Note: token persistence is intentionally skipped here — tokens live on the
+        // in-memory credentials object for the request duration. For persistent storage,
+        // wire this refresh to user.sabFlowConnections.credentials updates.
     }
-    
+
     googleAuthClient.setCredentials({ access_token: accessToken });
     return google.sheets({ version: 'v4', auth: googleAuthClient });
 }

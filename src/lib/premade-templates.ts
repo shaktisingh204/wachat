@@ -1,9 +1,11 @@
 
-import type { Template } from '@/lib/definitions';
+import type { LibraryTemplate } from '@/lib/definitions';
 
 // Note: This is a static library of templates. The `components` array is structured
 // to be compatible with the `handleCreateTemplate` action.
-export const premadeTemplates: Omit<Template, '_id' | 'metaId' | 'status' | 'qualityScore'>[] = [
+// Uses `LibraryTemplate` (the admin-facing pool type) instead of `Omit<Template, ...>`
+// directly, because premade templates are global and have no projectId.
+export const premadeTemplates: LibraryTemplate[] = [
   {
     name: 'order_confirmation_shipping',
     category: 'UTILITY',

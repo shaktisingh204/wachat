@@ -74,7 +74,7 @@ export async function saveCrmStockAdjustment(prevState: any, formData: FormData)
                 if (updateResult.matchedCount === 0) {
                     await db.collection('crm_products').updateOne(
                         { _id: adjustmentData.productId, userId: adjustmentData.userId },
-                        { $push: { inventory: { warehouseId: adjustmentData.warehouseId, stock: adjustmentData.quantity } } },
+                        { $push: { inventory: { warehouseId: adjustmentData.warehouseId, stock: adjustmentData.quantity } } } as any,
                         { session: dbSession }
                     );
                 }

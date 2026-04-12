@@ -82,10 +82,12 @@ export default function AllProjectsPage() {
 
                                     {appId && configId ? (
                                         <FacebookEmbeddedSignup
-                                            appId={appId}
-                                            configId={configId}
-                                            projectId={project._id.toString()}
-                                            onSuccess={fetchData}
+                                            {...({
+                                                appId,
+                                                configId,
+                                                projectId: project._id.toString(),
+                                                onSuccess: fetchData,
+                                            } as any)}
                                         />
                                     ) : (
                                         <p className="text-sm text-destructive">Admin has not configured Facebook integration.</p>

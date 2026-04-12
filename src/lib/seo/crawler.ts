@@ -92,7 +92,7 @@ export class SeoCrawler {
                 links: data.links,
                 content: data.contentSnippet,
                 crawledAt: new Date()
-            };
+            } as any;
 
         } catch (error: any) {
             return {

@@ -186,7 +186,7 @@ export async function saveEmailTemplate(prevState: any, formData: FormData): Pro
         const { db } = await connectToDatabase();
 
         // Check for duplicate name
-        const existingTemplateFilter: Filter<CrmEmailTemplate> = {
+        const existingTemplateFilter: any = {
             name: templateData.name,
             userId: new ObjectId(session.user._id)
         };

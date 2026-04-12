@@ -49,7 +49,7 @@ export async function getQuotations(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const filter: Filter<CrmQuotation> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
 
         const skip = (page - 1) * limit;
 

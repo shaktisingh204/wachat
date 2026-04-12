@@ -69,9 +69,9 @@ export default function PostGeneratorPage() {
                 defaultValue={mockFacebookDataString}
                 required
               />
-              {state.errors?.facebookData && (
+              {(state as any).errors?.facebookData && (
                 <p className="text-sm font-medium text-destructive">
-                  {state.errors.facebookData[0]}
+                  {(state as any).errors.facebookData[0]}
                 </p>
               )}
             </div>

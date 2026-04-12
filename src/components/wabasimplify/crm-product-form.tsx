@@ -40,7 +40,7 @@ interface CrmProductFormProps {
 }
 
 export function CrmProductForm({ product }: CrmProductFormProps) {
-    const [state, formAction] = useActionState(saveCrmProduct, initialState);
+    const [state, formAction] = useActionState(saveCrmProduct as any, initialState as any);
     const { toast } = useToast();
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
@@ -75,7 +75,7 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
     const handleRemoveBatch = (id: string) => setBatches(prev => prev.filter(b => b.id !== id));
     const handleBatchChange = (id: string, field: keyof ProductBatch, value: any) => setBatches(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
     
-    const currency = user?.plan?.currency || 'USD';
+    const currency = (user as any)?.plan?.currency || 'USD';
 
     return (
         <form action={formAction} ref={formRef}>
@@ -123,8 +123,8 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                                         <div key={batch.id} className="grid grid-cols-[1fr,1fr,auto,auto,auto] items-end gap-2 p-2 border rounded-md">
                                             <div className="space-y-1"><Label className="text-xs">Batch No.</Label><Input value={batch.batchNumber} onChange={e => handleBatchChange(batch.id, 'batchNumber', e.target.value)} /></div>
                                             <div className="space-y-1"><Label className="text-xs">Quantity</Label><Input type="number" value={batch.stock} onChange={e => handleBatchChange(batch.id, 'stock', Number(e.target.value))} /></div>
-                                            <div className="space-y-1"><Label className="text-xs">Mfg. Date</Label><DatePicker date={batch.mfgDate ? new Date(batch.mfgDate) : undefined} setDate={(d) => handleBatchChange(batch.id, 'mfgDate', d)} /></div>
-                                            <div className="space-y-1"><Label className="text-xs">Expiry Date</Label><DatePicker date={batch.expiryDate ? new Date(batch.expiryDate) : undefined} setDate={(d) => handleBatchChange(batch.id, 'expiryDate', d)} /></div>
+                                            <div className="space-y-1"><Label className="text-xs">Mfg. Date</Label><DatePicker date={batch.mfgDate ? new Date(batch.mfgDate) : undefined} setDate={(d: any) => handleBatchChange(batch.id, 'mfgDate', d)} /></div>
+                                            <div className="space-y-1"><Label className="text-xs">Expiry Date</Label><DatePicker date={batch.expiryDate ? new Date(batch.expiryDate) : undefined} setDate={(d: any) => handleBatchChange(batch.id, 'expiryDate', d)} /></div>
                                             <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveBatch(batch.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                                         </div>
                                     ))}

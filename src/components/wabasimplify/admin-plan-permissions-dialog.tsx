@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import * as React from 'react';
 import {
     Dialog,
     DialogContent,
@@ -8,202 +8,132 @@ import {
     DialogTitle,
     DialogTrigger,
     DialogFooter,
-    DialogDescription
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Settings, ShieldCheck } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
-import { updatePlanPermissions } from "@/app/actions/admin.actions";
-import { moduleCategories, permissionActions } from "@/lib/permission-modules";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+    DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { LoaderCircle, ShieldCheck } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { updatePlanPermissions } from '@/app/actions/admin.actions';
+import {
+    PlanPermissionsMatrix,
+    type PlanPermissionsMap,
+} from './plan-permissions-matrix';
+import { moduleCategories } from '@/lib/permission-modules';
 
 interface AdminPlanPermissionsDialogProps {
     planId: string;
     planName: string;
-    initialPermissions?: any; // GlobalPermissions structure
+    initialPermissions?: any;
 }
 
-export function AdminPlanPermissionsDialog({ planId, planName, initialPermissions = {} }: AdminPlanPermissionsDialogProps) {
-    const [open, setOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [permissions, setPermissions] = useState<any>(initialPermissions?.agent || {}); // Default to 'agent' role for Plan base permissions
+function normalizeLegacy(raw: any): PlanPermissionsMap {
+    if (!raw || typeof raw !== 'object') return {};
+    const known = new Set(Object.values(moduleCategories).flatMap((m) => m));
+    const flatMatches = Object.keys(raw).filter((k) => known.has(k));
+    if (flatMatches.length > 0) return raw as PlanPermissionsMap;
+    if (raw.agent && typeof raw.agent === 'object') return raw.agent as PlanPermissionsMap;
+    return {};
+}
+
+export function AdminPlanPermissionsDialog({
+    planId,
+    planName,
+    initialPermissions = {},
+}: AdminPlanPermissionsDialogProps) {
+    const [open, setOpen] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [permissions, setPermissions] = React.useState<PlanPermissionsMap>(() =>
+        normalizeLegacy(initialPermissions),
+    );
     const { toast } = useToast();
 
-    // Plan-level permissions defined here essentially become the 'Default Role' permissions for users on this plan
-    // We map this to the 'agent' key in GlobalPermissions for simplicity, as most users are agents.
-    // In a full RBAC system, we might want UI to config Admin vs Agent roles for the plan.
-    // For now, consistent with user-level overrides, we edit the 'agent' block.
+    // Re-sync when dialog opens (in case initialPermissions changed via revalidate)
+    React.useEffect(() => {
+        if (open) setPermissions(normalizeLegacy(initialPermissions));
+    }, [open, initialPermissions]);
 
     const handleSave = async () => {
         setIsLoading(true);
         try {
-            const globalPermissions = {
-                agent: permissions
-            };
-
-            const result = await updatePlanPermissions(planId, globalPermissions);
+            // Save as flat structure — what RBACGuard reads.
+            const result = await updatePlanPermissions(planId, permissions);
             if (result.success) {
                 toast({
-                    title: "Success",
-                    description: "Plan permissions updated successfully",
+                    title: 'Permissions updated',
+                    description: `Master controls for ${planName} saved.`,
                 });
                 setOpen(false);
             } else {
                 toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: result.error || "Failed to update permissions",
+                    variant: 'destructive',
+                    title: 'Save failed',
+                    description: result.error || 'Could not update permissions.',
                 });
             }
-        } catch (error) {
+        } catch (e) {
             toast({
-                variant: "destructive",
-                title: "Error",
-                description: "An unexpected error occurred",
+                variant: 'destructive',
+                title: 'Unexpected error',
+                description: 'Something went wrong while saving permissions.',
             });
         } finally {
             setIsLoading(false);
         }
     };
 
-    const togglePermission = (moduleKey: string, action: string, checked: boolean) => {
-        setPermissions((prev: any) => ({
-            ...prev,
-            [moduleKey]: {
-                ...(prev[moduleKey] || {}),
-                [action]: checked
-            }
-        }));
-    };
-
-    const toggleModule = (moduleKey: string, checked: boolean) => {
-        setPermissions((prev: any) => ({
-            ...prev,
-            [moduleKey]: {
-                view: checked,
-                create: checked,
-                edit: checked,
-                delete: checked
-            }
-        }));
-    };
-
-    const toggleCategory = (category: string, checked: boolean) => {
-        const modules = moduleCategories[category as keyof typeof moduleCategories];
-        setPermissions((prev: any) => {
-            const next = { ...prev };
-            modules.forEach(mod => {
-                next[mod] = {
-                    view: checked,
-                    create: checked,
-                    edit: checked,
-                    delete: checked
-                };
-            });
-            return next;
-        });
-    };
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" title="Manage Master Permissions">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    title="Manage plan permissions"
+                    className="rounded-lg hover:bg-primary/10"
+                >
                     <ShieldCheck className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-                <DialogHeader>
-                    <DialogTitle>Master Permissions for {planName}</DialogTitle>
-                    <DialogDescription>
-                        Define granular permissions for this plan. These apply to all users on this plan unless overridden.
-                        Currently editing <strong>Agent</strong> role defaults.
-                    </DialogDescription>
+            <DialogContent className="max-w-5xl w-[95vw] max-h-[92vh] flex flex-col rounded-2xl border-white/10 bg-background/95 backdrop-blur-xl p-0 overflow-hidden">
+                <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
+                    <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center">
+                            <ShieldCheck className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <DialogTitle className="text-lg">
+                                Master Permissions — {planName}
+                            </DialogTitle>
+                            <DialogDescription className="mt-0.5">
+                                Every switch here is a hard ceiling. Unchecked actions are blocked
+                                for all users on this plan, even owners.
+                            </DialogDescription>
+                        </div>
+                    </div>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-hidden">
-                    <Tabs defaultValue={Object.keys(moduleCategories)[0]} className="h-full flex flex-col">
-                        <ScrollArea className="w-full border-b">
-                            <TabsList className="h-auto flex-wrap justify-start bg-transparent p-0 gap-1 mb-2">
-                                {Object.keys(moduleCategories).map(category => (
-                                    <TabsTrigger
-                                        key={category}
-                                        value={category}
-                                        className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border"
-                                    >
-                                        {category}
-                                    </TabsTrigger>
-                                ))}
-                            </TabsList>
-                        </ScrollArea>
-
-                        <div className="flex-1 overflow-auto py-4">
-                            {Object.entries(moduleCategories).map(([category, modules]) => (
-                                <TabsContent key={category} value={category} className="mt-0">
-                                    <div className="flex justify-between items-center mb-4 bg-muted/30 p-2 rounded-md">
-                                        <div className="flex items-center gap-2">
-                                            <h3 className="font-semibold text-sm">{category} Modules</h3>
-                                            <Badge variant="outline" className="text-[10px]">{modules.length}</Badge>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <Button className="h-7 px-2" variant="outline" onClick={() => toggleCategory(category, true)}>Enable All</Button>
-                                            <Button className="h-7 px-2" variant="outline" onClick={() => toggleCategory(category, false)}>Disable All</Button>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid gap-4">
-                                        {modules.map(moduleKey => {
-                                            const modulePerms = permissions[moduleKey] || { view: false, create: false, edit: false, delete: false };
-                                            const isAllEnabled = permissionActions.every(action => modulePerms[action]);
-
-                                            return (
-                                                <div key={moduleKey} className="border rounded-md p-3">
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <div>
-                                                            <div className="font-medium text-sm flex items-center gap-2">
-                                                                {moduleKey.replace(/_/g, ' ')}
-                                                            </div>
-                                                            <p className="text-xs text-muted-foreground">
-                                                                {moduleKey}
-                                                            </p>
-                                                        </div>
-                                                        <Switch
-                                                            checked={isAllEnabled}
-                                                            onCheckedChange={(checked) => toggleModule(moduleKey, checked)}
-                                                        />
-                                                    </div>
-
-                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                                        {permissionActions.map(action => (
-                                                            <div key={action} className="flex items-center space-x-2">
-                                                                <Switch
-                                                                    id={`${moduleKey}-${action}-plan`}
-                                                                    checked={!!modulePerms[action]}
-                                                                    onCheckedChange={(checked) => togglePermission(moduleKey, action, checked)}
-                                                                />
-                                                                <Label htmlFor={`${moduleKey}-${action}-plan`} className="capitalize text-xs cursor-pointer">
-                                                                    {action}
-                                                                </Label>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </TabsContent>
-                            ))}
-                        </div>
-                    </Tabs>
+                <div className="flex-1 overflow-y-auto px-6 py-4">
+                    <PlanPermissionsMatrix
+                        value={permissions}
+                        onChange={setPermissions}
+                        compact
+                    />
                 </div>
 
-                <DialogFooter className="mt-4">
-                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleSave} disabled={isLoading}>
-                        {isLoading ? "Saving..." : "Save Changes"}
+                <DialogFooter className="px-6 py-4 border-t border-white/10 bg-white/[0.02]">
+                    <Button
+                        variant="outline"
+                        onClick={() => setOpen(false)}
+                        className="rounded-xl border-white/10 bg-white/5"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        className="rounded-xl gap-2"
+                    >
+                        {isLoading && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                        Save Permissions
                     </Button>
                 </DialogFooter>
             </DialogContent>

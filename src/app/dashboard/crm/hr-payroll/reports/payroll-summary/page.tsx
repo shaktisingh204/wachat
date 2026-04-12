@@ -15,6 +15,7 @@ const ChartTooltip = dynamic(() => import("@/components/ui/chart").then(mod => m
 const ChartTooltipContent = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltipContent), { ssr: false });
 import { BarChart as RechartsBarChart, Bar as RechartsBar, CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer } from 'recharts';
 
+const BarChartAny: any = BarChart;
 const chartConfig = { cost: { label: "Cost", color: "hsl(var(--primary))" } };
 
 const StatCard = ({ title, value, icon: Icon }: { title: string, value: string | number, icon: React.ElementType }) => (
@@ -72,14 +73,14 @@ export default function PayrollSummaryPage() {
                 </CardHeader>
                 <CardContent>
                     <ChartContainer config={chartConfig} className="h-64 w-full">
-                        <BarChart data={summary.monthlyData || []}>
+                        <BarChartAny data={summary.monthlyData || []}>
                              <CartesianGrid vertical={false} />
                             <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
                             <YAxis />
                             <ChartTooltip content={<ChartTooltipContent />} />
                             <Legend />
                             <RechartsBar dataKey="cost" fill="var(--color-cost)" radius={4} />
-                        </BarChart>
+                        </BarChartAny>
                     </ChartContainer>
                 </CardContent>
             </Card>

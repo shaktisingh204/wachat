@@ -5,7 +5,8 @@ import {
     Mail, Bolt, FolderKanban, Repeat, Inbox, Package, Compass, Search,
     Video, ShieldCheck, Key, BookCopy, Rss, TrendingUp, Calendar,
     Newspaper, Clapperboard, BarChart2, Landmark, Users as UsersIcon,
-    LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database, Layers, FileText
+    LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database, Layers, FileText,
+    Cable, Activity
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import React from 'react';
@@ -262,9 +263,34 @@ export const instagramMenuGroups: MenuGroup[] = [
 ];
 
 export const adManagerMenuItems: MenuItem[] = [
-    { href: '/dashboard/ad-manager/ad-accounts', label: 'Ad Accounts', icon: Wrench, permissionKey: 'ad_manager_accounts' },
+    // ── Analyze ────────────────────────────────────────────────
+    { href: '/dashboard/ad-manager', label: 'Overview', icon: LayoutDashboard, permissionKey: 'ad_manager_accounts' },
+    { href: '/dashboard/ad-manager/insights', label: 'Performance', icon: BarChart, permissionKey: 'ad_manager_accounts' },
+    { href: '/dashboard/ad-manager/reports', label: 'Reports', icon: FileText, permissionKey: 'ad_manager_accounts' },
+    // ── Advertise ──────────────────────────────────────────────
     { href: '/dashboard/ad-manager/campaigns', label: 'Campaigns', icon: Megaphone, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/ad-sets', label: 'Ad Sets', icon: Layers, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/ads', label: 'Ads', icon: Package, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/bulk-editor', label: 'Bulk Editor', icon: FolderKanban, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/split-tests', label: 'A/B Split Tests', icon: Repeat, permissionKey: 'ad_manager_campaigns' },
+    // ── Creative & planning ────────────────────────────────────
+    { href: '/dashboard/ad-manager/creative-library', label: 'Creative Library', icon: Clapperboard, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/ai-lab', label: 'AI Creative Lab', icon: Bot, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/catalogs', label: 'Product Catalogs', icon: ShoppingBag, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/automated-rules', label: 'Automated Rules', icon: Bolt, permissionKey: 'ad_manager_campaigns' },
+    // ── Audiences ──────────────────────────────────────────────
     { href: '/dashboard/ad-manager/audiences', label: 'Audiences', icon: Users, permissionKey: 'ad_manager_audiences' },
+    { href: '/dashboard/ad-manager/customer-lists', label: 'Customer Lists', icon: UsersIcon, permissionKey: 'ad_manager_audiences' },
+    { href: '/dashboard/ad-manager/lead-forms', label: 'Lead Forms', icon: Inbox, permissionKey: 'ad_manager_campaigns' },
+    // ── Measurement ────────────────────────────────────────────
+    { href: '/dashboard/ad-manager/pixels', label: 'Pixels & Datasets', icon: Database, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/events-manager', label: 'Events Manager', icon: Activity, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/custom-conversions', label: 'Custom Conversions', icon: TrendingUp, permissionKey: 'ad_manager_campaigns' },
+    { href: '/dashboard/ad-manager/capi', label: 'Conversions API', icon: ShieldCheck, permissionKey: 'ad_manager_campaigns' },
+    // ── Settings ───────────────────────────────────────────────
+    { href: '/dashboard/ad-manager/ad-accounts', label: 'Ad Accounts', icon: Wrench, permissionKey: 'ad_manager_accounts' },
+    { href: '/dashboard/ad-manager/billing', label: 'Billing', icon: CreditCard, permissionKey: 'ad_manager_accounts' },
+    { href: '/dashboard/ad-manager/settings', label: 'Settings', icon: Settings, permissionKey: 'ad_manager_accounts' },
 ];
 
 export const emailMenuItems: MenuItem[] = [
@@ -292,7 +318,10 @@ export const apiMenuItems: MenuItem[] = [
 ];
 
 export const sabflowMenuItems: MenuItem[] = [
-    { href: '/dashboard/sabflow/flow-builder', label: 'Flow Builder', icon: GitFork, permissionKey: 'wachat_flows' }, // Reusing wachat_flows or specific?
+    { href: '/dashboard/sabflow/flow-builder', label: 'Flow Builder', icon: GitFork, permissionKey: 'wachat_flows' },
+    { href: '/dashboard/sabflow/logs', label: 'Execution Logs', icon: Activity, permissionKey: 'wachat_flows' },
+    { href: '/dashboard/sabflow/connections', label: 'Connections', icon: Cable, permissionKey: 'wachat_flows' },
+    { href: '/dashboard/sabflow/settings', label: 'Settings', icon: Settings, permissionKey: 'wachat_flows' },
     { href: '/dashboard/sabflow/docs', label: 'Documentation', icon: BookCopy, permissionKey: 'wachat_flows' },
 ];
 
@@ -312,6 +341,7 @@ export const portfolioMenuItems: MenuItem[] = [
 
 export const seoMenuItems: MenuItem[] = [
     { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp, permissionKey: 'seo_dashboard' },
+    { href: '/dashboard/seo/tools', label: 'SEO Tools (117)', icon: Wrench, permissionKey: 'seo_dashboard' },
     { href: '/dashboard/seo/rankings', label: 'Rank Tracker', icon: BarChart2, permissionKey: 'seo_rankings' },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, permissionKey: 'seo_site_explorer' },
     { href: '/dashboard/seo/competitors', label: 'Competitor Gap', icon: UsersIcon, permissionKey: 'seo_competitors' }, // New

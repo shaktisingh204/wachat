@@ -21,9 +21,12 @@ export type DataForSeoTaskResponse = {
     tasks_count?: number;
 };
 
-// Generic Fetcher
+// Generic Fetcher — returns empty result instead of throwing when credentials are absent,
+// so UI components don't crash in local-only mode.
 async function fetchFromDataForSeo(endpoint: string, body: any): Promise<any> {
-    if (!DATAFORSEO_LOGIN || !DATAFORSEO_PASSWORD) throw new Error("Missing credentials");
+    if (!DATAFORSEO_LOGIN || !DATAFORSEO_PASSWORD) {
+        return { status_code: 20000, status_message: 'local-only', tasks: [], tasks_count: 0, tasks_error: 0 };
+    }
 
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: "POST",

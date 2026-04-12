@@ -153,8 +153,8 @@ export default function CatalogProductsPage() {
                     getProductsForCatalog(catalogId, activeProjectId),
                     listProductSets(catalogId, activeProjectId)
                 ]);
-                setProducts(productsData);
-                setCollections(collectionsData);
+                setProducts(productsData as any);
+                setCollections(collectionsData as any);
             });
         }
     }, [activeProjectId, catalogId]);

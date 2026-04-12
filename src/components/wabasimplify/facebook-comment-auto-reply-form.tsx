@@ -70,7 +70,7 @@ export function FacebookCommentAutoReplyForm({ project }: FacebookCommentAutoRep
                             id="replyText"
                             name="replyText"
                             placeholder="Thanks for your comment! We'll get back to you shortly."
-                            defaultValue={settings?.replyText || ''}
+                            defaultValue={(settings as any)?.replyText || ''}
                             className="min-h-32"
                         />
                         <p className="text-xs text-muted-foreground">This message will be posted as a reply to the comment.</p>

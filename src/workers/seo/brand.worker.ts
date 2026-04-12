@@ -25,7 +25,7 @@ export const brandWorker = new Worker('seo-brand-queue', async (job: Job) => {
 
         // 2. Simple Sentiment Analysis (Mock Genkit Call)
         // Real implementation would pass snippet to LLM
-        for (const item of serps) {
+        for (const item of (serps as any)) {
             const sentiment = item.title.toLowerCase().includes('scam') || item.title.toLowerCase().includes('bad')
                 ? 'negative'
                 : item.title.toLowerCase().includes('best') || item.title.toLowerCase().includes('great')

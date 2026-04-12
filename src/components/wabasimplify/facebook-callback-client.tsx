@@ -29,7 +29,7 @@ export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: s
       startTransition(async () => {
         // The userId is now read from the secure cookie on the server-side action
         // Passing an empty string, the server will resolve the user from the cookie.
-        const result = await handleWabaOnboarding({ code, userId: '' }); 
+        const result = await (handleWabaOnboarding as any)({ code, userId: '' });
         
         if (result.success) {
           toast({

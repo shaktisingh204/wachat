@@ -37,7 +37,7 @@ import type { SabChatQuickReply } from '@/lib/definitions';
 import { saveSabChatQuickReply, deleteSabChatQuickReply } from '@/app/actions/sabchat.actions';
 import { Badge } from '@/components/ui/badge';
 
-const formInitialState = { message: null, error: null };
+const formInitialState: any = { message: null, error: null };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();

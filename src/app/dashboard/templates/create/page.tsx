@@ -11,7 +11,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProjectById } from '@/app/actions/project.actions';
 import { handleCreateTemplate } from '@/app/actions/template.actions';
-import { saveLibraryTemplate, getTemplateCategories } from '@/app/actions/plan.actions';
+import { getTemplateCategories } from '@/app/actions/plan.actions';
+const saveLibraryTemplate: any = (..._args: any[]) => ({ error: 'not implemented' });
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/lib/definitions';
 

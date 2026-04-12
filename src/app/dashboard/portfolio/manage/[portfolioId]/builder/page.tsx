@@ -6,7 +6,8 @@ import { CartProvider } from '@/context/cart-context';
 
 export const dynamic = 'force-dynamic';
 
-export default async function WebsiteBuilderPage({ params }: { params: { portfolioId: string } }) {
+export default async function WebsiteBuilderPage(props: { params: Promise<{ portfolioId: string }> }) {
+    const params = await props.params;
     const [site, pages] = await Promise.all([
         getSiteById(params.portfolioId),
         getWebsitePages(params.portfolioId),

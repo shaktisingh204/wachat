@@ -66,7 +66,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
       onSuccess();
     }
     if (state.error) {
-      toast({ title: 'Error Syncing Projects', description: state.error, variant: 'destructive' });
+      toast({ title: 'Could not add WABA', description: state.error, variant: 'destructive' });
     }
   }, [state, toast, onSuccess]);
 
@@ -75,27 +75,31 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
       <DialogTrigger asChild>
         <Button variant="outline">
           <RefreshCw className="mr-2 h-4 w-4" />
-          Sync Projects from Meta
+          Add WABA from Meta
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <form action={action} ref={formRef}>
           <DialogHeader>
-            <DialogTitle>Sync Projects with Meta</DialogTitle>
+            <DialogTitle>Add WhatsApp Business Account</DialogTitle>
             <DialogDescription>
-              Enter a permanent User Access Token, your App ID, and the Business ID to sync your projects.
+              Paste a single WhatsApp Business Account (WABA) ID, a permanent access token, and your App ID. We&rsquo;ll fetch the WABA from Meta and add it as a project.
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
              <div className="space-y-2">
-                <Label htmlFor="businessId">Business ID</Label>
+                <Label htmlFor="wabaId">WhatsApp Business Account ID</Label>
                 <Input
-                    id="businessId"
-                    name="businessId"
-                    placeholder="Your Meta Business Portfolio ID"
+                    id="wabaId"
+                    name="wabaId"
+                    placeholder="e.g. 102345678901234"
+                    inputMode="numeric"
                     required
                 />
+                <p className="text-xs text-muted-foreground">
+                  Find this in Meta Business Manager → WhatsApp Accounts → your WABA. Do not paste the Business Portfolio ID, Page ID, or App ID here.
+                </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="accessToken">Meta Access Token</Label>
@@ -103,11 +107,11 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 id="accessToken"
                 name="accessToken"
                 type="password"
-                placeholder="A permanent token with business management permissions"
+                placeholder="Permanent system-user token"
                 required
               />
                <p className="text-xs text-muted-foreground">
-                Follow the manual setup guide for instructions on generating a token.
+                Needs <code>whatsapp_business_management</code> and <code>whatsapp_business_messaging</code> scopes. See the manual setup guide for instructions on generating a system-user token.
               </p>
             </div>
             <div className="space-y-2">
@@ -122,7 +126,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
              <div className="space-y-2">
                 <Label htmlFor="groupName">Group Name (Optional)</Label>
                 <Input id="groupName" name="groupName" placeholder="e.g. My Agency's Clients" />
-                <p className="text-xs text-muted-foreground">All synced projects will be added to this new group.</p>
+                <p className="text-xs text-muted-foreground">The added project will be placed into this new group.</p>
             </div>
           </div>
           <DialogFooter>
@@ -131,10 +135,10 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 {isPending ? (
                     <>
                     <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                    Syncing...
+                    Adding…
                     </>
                 ) : (
-                    'Sync Projects'
+                    'Add WABA'
                 )}
             </Button>
           </DialogFooter>

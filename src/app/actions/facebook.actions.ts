@@ -84,11 +84,24 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
         return { success: false, error: "Onboarding session expired or cookies are disabled. Please try again." };
     }
 
-    const stateCookie = JSON.parse(stateCookieJSON);
+    let stateCookie: { state?: string; userId?: string; includeCatalog?: boolean };
+    try {
+        stateCookie = JSON.parse(stateCookieJSON);
+    } catch (e) {
+        console.error('[OAuth Callback] Corrupted onboarding_state cookie:', e);
+        return { success: false, error: 'Onboarding session is corrupted. Please try again.' };
+    }
+
     if (state !== stateCookie.state) {
         console.error(`[OAuth Callback] State mismatch. URL: ${state}, Cookie: ${stateCookie.state}`);
         return { success: false, error: 'Invalid state received during authentication.' };
     }
+
+    // includeCatalog is set by /api/auth/facebook/login when the user opts into
+    // catalog scopes. The WhatsApp branch needs it to (a) decide whether to
+    // resolve a Meta business id, and (b) flip hasCatalogManagement on the
+    // project doc so the catalog UI unlocks.
+    const includeCatalog = stateCookie.includeCatalog === true;
 
     cookieStore.delete('onboarding_state');
 
@@ -181,6 +194,7 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                         wabaId: waba.id,
                         appId,
                         accessToken: longLivedToken,
+                        includeCatalog,
                         userId: session.user._id.toString(),
                     });
                 })

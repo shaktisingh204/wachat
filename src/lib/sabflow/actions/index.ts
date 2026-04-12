@@ -33,6 +33,22 @@ import { executeHubSpotAction } from './hubspot';
 import { executeDiscordAction } from './discord';
 import { executeNotionAction } from './notion';
 
+// Tier-1 Core/Internal Apps (previously empty stubs)
+import { executeDynamicWebPageAction } from './dynamic-web-page';
+import { executeFileUploaderAction } from './file-uploader';
+import { executeLookupTableAction } from './lookup-table';
+import { executeConnectManagerAction } from './connect-manager';
+import { executeHookAction } from './hook';
+import { executeSubscriptionBillingAction } from './subscription-billing';
+import { executeSelectTransformJsonAction } from './select-transform-json';
+import { executeSeoSuiteAction } from './seo-suite';
+
+// Tier-2 (instagram/team/gmail/iterator)
+import { executeInstagramAction } from './instagram';
+import { executeTeamAction } from './team';
+import { executeGmailAction } from './gmail';
+import { executeIteratorAction } from './iterator';
+
 
 function getValueFromPath(obj: any, path: string): any {
     if (!path || typeof path !== 'string') return undefined;
@@ -143,17 +159,33 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'code':
             return await executeCodeAction(actionName, interpolatedInputs, context);
 
-        // Core Apps (Placeholders or Unimplemented in this phase)
-        case 'iterator':
+        // Tier-1 Core/Internal Apps
         case 'dynamic_web_page':
+            return await executeDynamicWebPageAction(actionName, interpolatedInputs, user, logger);
         case 'file_uploader':
+            return await executeFileUploaderAction(actionName, interpolatedInputs, user, logger);
         case 'lookup_table':
+            return await executeLookupTableAction(actionName, interpolatedInputs, user, logger);
         case 'connect_manager':
+            return await executeConnectManagerAction(actionName, interpolatedInputs, user, logger);
         case 'hook':
+            return await executeHookAction(actionName, interpolatedInputs, user, logger);
         case 'subscription_billing':
+            return await executeSubscriptionBillingAction(actionName, interpolatedInputs, user, logger);
         case 'select_transform_json':
-            logger.log(`Warning: Action app "${appId}" is not yet fully implemented or registered.`);
-            return { error: `Action app "${appId}" is not yet implemented.` };
+            return await executeSelectTransformJsonAction(actionName, interpolatedInputs, user, logger);
+        case 'seo-suite':
+            return await executeSeoSuiteAction(actionName, interpolatedInputs, user, logger);
+
+        // Tier-2 apps
+        case 'instagram':
+            return await executeInstagramAction(actionName, interpolatedInputs, user, logger);
+        case 'team':
+            return await executeTeamAction(actionName, interpolatedInputs, user, logger);
+        case 'gmail':
+            return await executeGmailAction(actionName, interpolatedInputs, user, logger);
+        case 'iterator':
+            return await executeIteratorAction(actionName, interpolatedInputs, user, logger);
 
         // External Apps
         case 'stripe':

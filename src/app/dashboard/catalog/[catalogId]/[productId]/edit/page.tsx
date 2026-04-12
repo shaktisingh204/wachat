@@ -26,7 +26,7 @@ export default function EditProductPage() {
         if (productId && activeProjectId) {
             startLoading(async () => {
                 const products = await getProductsForCatalog(catalogId, activeProjectId);
-                const found = products.find(p => p.id === productId);
+                const found = (products as any).products?.find((p: any) => p.id === productId);
                 if (found) {
                     setProduct(found as any);
                 }

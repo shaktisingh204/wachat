@@ -36,10 +36,10 @@ export const SpacerBlockRenderer: React.FC<SpacerBlockRendererProps> = ({ settin
         'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
     });
     
-    const animationClass = {
+    const animationClass = ({
         fadeIn: 'animate-in fade-in duration-500',
         fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
-    }[settings.animation || 'none'];
+    } as Record<string, string>)[settings.animation || 'none'] || '';
 
     const baseStyle: React.CSSProperties = {
         marginTop: settings.margin?.top ? `${settings.margin.top}px` : undefined,

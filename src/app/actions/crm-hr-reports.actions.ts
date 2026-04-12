@@ -26,7 +26,7 @@ export async function generateAttendanceReportData(filters: { startDate?: Date; 
         if (filters.startDate) dateFilter.$gte = new Date(filters.startDate);
         if (filters.endDate) dateFilter.$lte = new Date(filters.endDate);
 
-        const attendanceFilter: Filter<CrmAttendance> = { userId };
+        const attendanceFilter: any = { userId };
         if (filters.startDate || filters.endDate) {
             attendanceFilter.date = dateFilter;
         }

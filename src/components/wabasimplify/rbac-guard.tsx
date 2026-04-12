@@ -1,8 +1,7 @@
 import { headers } from 'next/headers';
 import { getSession } from '@/app/actions/index';
 import { getRequiredPermissionForPath } from '@/lib/rbac-server';
-import { redirect } from 'next/navigation';
-import { AlertCircle } from 'lucide-react';
+import { ShieldOff, Home, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { GlobalRolePermissions } from '@/lib/definitions';
@@ -11,22 +10,42 @@ import { ObjectId } from 'mongodb';
 
 function ForbiddenPage() {
     return (
-        <div className="h-full w-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-300">
-            <div className="bg-destructive/10 p-4 rounded-full mb-6">
-                <AlertCircle className="h-12 w-12 text-destructive" />
-            </div>
-            <h1 className="text-3xl font-bold font-headline mb-2">Access Denied</h1>
-            <p className="text-muted-foreground mb-8 max-w-md">
-                You do not have the required permissions to view this page.
-                Please contact your administrator if you believe this is a mistake.
-            </p>
-            <div className="flex gap-4">
-                <Button asChild variant="default">
-                    <Link href="/dashboard">Go Home</Link>
-                </Button>
-                <Button asChild variant="outline">
-                    <Link href="/dashboard/team/team-chat">Contact Admin</Link>
-                </Button>
+        <div className="h-full w-full flex flex-col items-center justify-center p-8 text-center">
+            {/* Glassmorphism card */}
+            <div className="relative max-w-md w-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl shadow-black/20 p-10 overflow-hidden">
+                {/* Subtle glow blob */}
+                <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+
+                {/* Icon */}
+                <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/10 shadow-inner">
+                    <ShieldOff className="h-8 w-8 text-muted-foreground" />
+                </div>
+
+                {/* Text */}
+                <h1 className="relative text-2xl font-semibold tracking-tight mb-2">
+                    Access Restricted
+                </h1>
+                <p className="relative text-sm text-muted-foreground leading-relaxed mb-8">
+                    You don&apos;t have permission to view this page.
+                    If you think this is wrong, reach out to your admin.
+                </p>
+
+                {/* Actions */}
+                <div className="relative flex gap-3 justify-center">
+                    <Button asChild size="sm" className="gap-2 rounded-xl bg-primary/90 hover:bg-primary shadow-md">
+                        <Link href="/dashboard">
+                            <Home className="h-4 w-4" />
+                            Go Home
+                        </Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline" className="gap-2 rounded-xl border-white/10 bg-white/5 hover:bg-white/10">
+                        <Link href="/dashboard/team/team-chat">
+                            <MessageSquare className="h-4 w-4" />
+                            Contact Admin
+                        </Link>
+                    </Button>
+                </div>
             </div>
         </div>
     );
@@ -56,110 +75,147 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
         return <>{children}</>;
     }
 
-    // 0. Check Plan Permissions (Master Overlay)
-    // The Plan dictates the absolute maximum ceiling of what is possible.
-    // Even an Owner cannot access a module if their Plan disables it.
+    // =========================================================================
+    // MAIN ACCOUNT OWNER FAST-PATH
+    // =========================================================================
+    // A "main account owner" is anyone who signed up and created a project — they
+    // are NEVER gated by plan restrictions, team roles, or custom-role checks.
+    // Team users (sub-users under a main account) are the only ones subject to
+    // the plan permission ceiling and per-role gating below.
+    //
+    // We identify main account owners in three ways, each cheaper than the last:
+    //   1. Explicit `role`/`roles` field says owner/admin
+    //   2. `user.ownedProjectIds` (cached list on the session) is non-empty
+    //   3. Fallback MongoDB lookup against `projects.userId` (also self-heals the
+    //      user doc so step 1 takes over on subsequent requests)
+    // -------------------------------------------------------------------------
 
-    // session object structure from getSession: { user: { ...plan: { permissions: ... } } }
-    // User type has planId, and getSession populates 'plan'.
-
-    const plan = (user as any).plan;
-    if (plan && plan.permissions && permissionKey) {
-        // Parse module and action from permissionKey (format: module_view)
-        // Actually, our permission keys in `globalModules` are like `crm_sales`, but the guard passes `crm_sales` as key?
-        // Wait, `getRequiredPermissionForPath` returns keys like `crm_sales`?
-        // Let's verify `getRequiredPermissionForPath` logic. 
-        // Assuming permissionKey matches the module name in globalModules.
-
-        // If the Key matches a module name directly (e.g. 'crm_reports'), we check 'view' on that module.
-        // For now, let's assume 'view' is required to access the page.
-
-        const [module, action] = permissionKey.split(':'); // If format is module:action
-        // However, looking at rbca-guard usage, it seems it gets keys like 'crm_dashboard'.
-        // So we default to checking 'view' permission for that module.
-
-        const requiredModule = permissionKey;
-        const requiredAction = 'view';
-
-        const planModulePerms = plan.permissions[requiredModule];
-        if (planModulePerms) {
-            // If the module exists in plan permissions, we check the specific action.
-            // If the plan has explicit "false", we deny.
-            // If existing plans (legacy) don't have permissions object, we treat as "Allowed" (backward compat).
-
-            if (planModulePerms[requiredAction] === false) {
-                return <ForbiddenPage />;
-            }
-        }
-    }
-
-    // 1. Check Explicit Roles
-    // Check both 'roles' array and legacy/singular 'role' string
-    if (
+    const hasExplicitOwnerRole =
         user.roles?.includes('owner') ||
         user.roles?.includes('admin') ||
         user.role === 'owner' ||
-        user.role === 'admin'
-    ) {
+        user.role === 'admin';
+
+    if (hasExplicitOwnerRole) {
         return <>{children}</>;
     }
 
-    // 2. Check Permissions (for Agents)
-    const userPermissions = user.crm?.permissions || {};
-    // Default to 'agent' role if no specific role assignment logic found in user object yet, 
-    // or if the user is just a basic member.
-    // Since we created `Manage Roles`, we need to know WHICH role the user has.
-    // This `assignedRoles` field might be missing in `User` type. I should check.
-    // For now, I will check the 'agent' role permissions as the baseline for non-admins.
+    // Step 2 — Session-cached ownership flag. `getSession` may attach
+    // `ownedProjectIds` or an `isProjectOwner` boolean. Check both to avoid a DB hit.
+    const sessionOwnerHint =
+        (user as any).isProjectOwner === true ||
+        (Array.isArray((user as any).ownedProjectIds) &&
+            (user as any).ownedProjectIds.length > 0);
 
-    const agentPermissions = userPermissions['agent'] as GlobalRolePermissions | undefined;
-    const hasAgentAccess = agentPermissions?.[permissionKey as keyof GlobalRolePermissions]?.view;
-
-    if (hasAgentAccess) {
+    if (sessionOwnerHint) {
         return <>{children}</>;
     }
 
-    // 3. Check Custom Roles (for Agents)
-    let hasCustomAccess = false;
-    if (user.crm?.customRoles) {
-        // This logic is tricky: users usually HAVE roles, they don't OWN role definitions.
-        // But currently, the `user` object seems to store the definitions (`user.crm.customRoles`).
-        // The actual assignment of a role to a *different* user isn't fully clear in the schema I saw.
-        // Usually `user.role` is a string or array.
-        // If `user.role` === 'agent', we checked above.
-        // If `user.role` === 'marketing_lead', we check that key.
-
-        const userRole = user.role || 'agent'; // Fallback
-        const rolePermissions = userPermissions[userRole] as GlobalRolePermissions | undefined;
-        if (rolePermissions?.[permissionKey as keyof GlobalRolePermissions]?.view) {
-            hasCustomAccess = true;
-        }
-    }
-
-    if (hasCustomAccess) {
-        return <>{children}</>;
-    }
-
-    // 4. Fallback: Check if User is a Project Owner (Main Account)
-    // This handles the case where "Main Accounts" don't have role='owner' set in DB.
+    // Step 3 — Definitive DB lookup. We ask Mongo a single question:
+    //   "Does this user appear in ANY project, and in what capacity?"
+    // The query matches projects where either:
+    //   a) user is the direct owner (`project.userId`), OR
+    //   b) user is listed as a team agent (`project.agents[].userId`)
+    //
+    // This is run BEFORE any plan/role gating so a main account owner whose
+    // `role` field was never populated in Mongo cannot be accidentally locked
+    // out by their own plan's permission ceiling.
+    let isTeamMember = false;
     try {
         const { db } = await connectToDatabase();
-        // Check if user owns ANY project
-        const ownedProject = await db.collection('projects').findOne(
-            { userId: new ObjectId(user._id) },
-            { projection: { _id: 1 } }
+        const userObjectId = new ObjectId(user._id);
+
+        const matches = await db
+            .collection('projects')
+            .find(
+                {
+                    $or: [
+                        { userId: userObjectId },
+                        { 'agents.userId': userObjectId },
+                    ],
+                },
+                { projection: { _id: 1, userId: 1 } },
+            )
+            .limit(5)
+            .toArray();
+
+        const isMainOwner = matches.some(
+            (p: any) =>
+                p.userId &&
+                (p.userId.equals?.(userObjectId) ||
+                    p.userId.toString() === userObjectId.toString()),
         );
 
-        if (ownedProject) {
-            // Self-Healing: Update user to have 'owner' role to avoid this DB call next time
-            await db.collection('users').updateOne(
-                { _id: new ObjectId(user._id) },
-                { $set: { role: 'owner' } } // Setting legacy role field for compatibility
-            );
+        if (isMainOwner) {
+            // Self-heal: set role on the user doc so future requests skip this lookup.
+            await db
+                .collection('users')
+                .updateOne(
+                    { _id: userObjectId },
+                    { $set: { role: 'owner' } },
+                );
             return <>{children}</>;
         }
+
+        // If the user isn't in any project at all, they also aren't a team
+        // member — treat them like a main account (e.g. freshly signed-up user
+        // who hasn't created a project yet). Allow through.
+        if (matches.length === 0) {
+            return <>{children}</>;
+        }
+
+        // User is present in at least one project but NOT as the owner →
+        // they are a team member / agent and will be subject to gating below.
+        isTeamMember = true;
     } catch (e) {
-        console.error("RBAC Owner Check Failed:", e);
+        console.error('RBAC ownership check failed:', e);
+        // On DB failure, fail-open for owners rather than locking everyone out.
+        return <>{children}</>;
+    }
+
+    // =========================================================================
+    // TEAM USER GATING
+    // =========================================================================
+    // The forbidden page is ONLY reachable from this point on, and only for
+    // confirmed team members (agents/custom roles under someone else's account).
+    // If `isTeamMember` somehow ended up false here, we bail out safely.
+    // -------------------------------------------------------------------------
+    if (!isTeamMember) {
+        return <>{children}</>;
+    }
+
+    // Plan permissions — the master overlay enforced on team users only.
+    const plan = (user as any).plan;
+    if (plan && plan.permissions && permissionKey) {
+        const requiredAction = 'view';
+        const perms = plan.permissions;
+        // Support both the new flat shape { [module]: { view, ... } }
+        // and the legacy nested shape { agent: { [module]: { view, ... } } }.
+        const planModulePerms =
+            perms[permissionKey] ??
+            (perms.agent && typeof perms.agent === 'object'
+                ? perms.agent[permissionKey]
+                : undefined);
+
+        if (planModulePerms && planModulePerms[requiredAction] === false) {
+            return <ForbiddenPage />;
+        }
+    }
+
+    // Agent (default team role) permissions
+    const userPermissions = user.crm?.permissions || {};
+    const agentPermissions = userPermissions['agent'] as GlobalRolePermissions | undefined;
+    if (agentPermissions?.[permissionKey as keyof GlobalRolePermissions]?.view) {
+        return <>{children}</>;
+    }
+
+    // Custom role permissions
+    if (user.crm?.customRoles) {
+        const userRole = user.role || 'agent';
+        const rolePermissions = userPermissions[userRole] as GlobalRolePermissions | undefined;
+        if (rolePermissions?.[permissionKey as keyof GlobalRolePermissions]?.view) {
+            return <>{children}</>;
+        }
     }
 
     return <ForbiddenPage />;

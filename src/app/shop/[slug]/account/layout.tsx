@@ -1,5 +1,6 @@
 
-'use client';
+'use client';;
+import { use } from "react";
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -30,13 +31,18 @@ const navItems = [
   { href: '/compare', label: 'Compare', icon: GitCompare },
 ];
 
-export default function AccountLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: { slug: string };
-}) {
+export default function AccountLayout(
+  props: {
+    children: React.ReactNode;
+    params: Promise<{ slug: string }>;
+  }
+) {
+  const params = use(props.params);
+
+  const {
+    children
+  } = props;
+
   const pathname = usePathname();
   const basePath = `/shop/${params.slug}/account`;
 

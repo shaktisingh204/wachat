@@ -211,7 +211,7 @@ export async function handleCreateTemplate(
             });
 
             if (!validationResult.success) {
-                return { error: validationResult.error.errors.map(e => e.message).join('\n') };
+                return { error: (validationResult.error as any).errors.map((e: any) => e.message).join('\n') };
             }
 
             const sections = [
@@ -293,7 +293,7 @@ export async function handleCreateTemplate(
         const validationResult = createTemplateSchema.safeParse(validationData);
         if (!validationResult.success) {
             console.error("Zod Validation Error:", JSON.stringify(validationResult.error.format(), null, 2), "FormData:", JSON.stringify(validationData, null, 2));
-            return { error: validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ') };
+            return { error: (validationResult.error as any).errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ') };
         }
 
         const { wabaId, accessToken } = project;
@@ -344,7 +344,7 @@ export async function handleCreateTemplate(
                 // Handle Carousel Body Variables
                 const bodyVarMatches = card.body.match(/{{\s*(\d+)\s*}}/g);
                 if (bodyVarMatches) {
-                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a, b) => a - b);
+                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a: any, b: any) => a - b);
                     const bodyExamples = [];
                     for (const varNum of bodyVarNumbers) {
                         const exVal = card.exampleValues?.[String(varNum)];
@@ -557,7 +557,7 @@ export async function handleBulkCreateTemplate(
         });
 
         if (!validationResult.success) {
-            return { error: validationResult.error.errors.map(e => e.message).join('\n') };
+            return { error: (validationResult.error as any).errors.map((e: any) => e.message).join('\n') };
         }
 
 
@@ -588,7 +588,25 @@ export async function handleBulkCreateTemplate(
         }
 
 
+        // J3 P0-3 fix: per-project ownership check. Previously this action
+        // accepted a comma-separated list of projectIds from the form with
+        // no auth at all — any authenticated client could inject a LOCAL
+        // template into any tenant's project, which the cron job would then
+        // auto-submit to Meta on the victim's WABA.
+        //
+        // Do NOT echo failed projectIds back in the error string (that would
+        // leak project-id existence). Just count and report "skipped".
+        let skippedForAuth = 0;
         for (const projectId of projectIds) {
+            if (!ObjectId.isValid(projectId)) {
+                skippedForAuth++;
+                continue;
+            }
+            const access = await getProjectById(projectId);
+            if (!access) {
+                skippedForAuth++;
+                continue;
+            }
             try {
                 const projectObjectId = new ObjectId(projectId);
 
@@ -612,6 +630,9 @@ export async function handleBulkCreateTemplate(
         }
 
         let message = `Template saved as 'LOCAL' for ${successes} project(s). They will be submitted by the next cron run.`;
+        if (skippedForAuth > 0) {
+            message += ` Skipped ${skippedForAuth} project(s) (no access).`;
+        }
         if (errors.length > 0) {
             message += ` Failed on ${errors.length} project(s).`;
             return { error: `Errors:\n- ${errors.join('\n- ')}`, message };
@@ -784,8 +805,8 @@ export async function getLibraryTemplates() {
     }
 }
 
-export async function handleApplyTemplateToProjects(sourceTemplateId: string, targetProjectIds: string[]): Promise<{ success: boolean, error?: string }> {
-    if (!sourceTemplateId || targetProjectIds.length === 0) {
+export async function handleApplyTemplateToProjects(sourceTemplateId: string, targetProjectIds: string[]): Promise<{ success: boolean, error?: string, applied?: number, skipped?: number }> {
+    if (!sourceTemplateId || !ObjectId.isValid(sourceTemplateId) || targetProjectIds.length === 0) {
         return { success: false, error: 'Source template and target projects are required.' };
     }
 
@@ -797,11 +818,38 @@ export async function handleApplyTemplateToProjects(sourceTemplateId: string, ta
             return { success: false, error: 'Source template not found.' };
         }
 
-        const bulkOps = targetProjectIds.map(projectId => {
+        // J3 P0-2 fix: verify the caller actually owns the source project
+        // BEFORE exposing any part of the source template (even its name).
+        // Previously this action had no auth at all — any authenticated client
+        // could copy any tenant's templates anywhere, and the cron job would
+        // then auto-submit the injected templates to Meta on the victim's WABA.
+        const sourceProjectAccess = await getProjectById(sourceTemplate.projectId.toString());
+        if (!sourceProjectAccess) {
+            return { success: false, error: 'Source template not found.' };
+        }
+
+        // Validate each target project in parallel via the existing auth helper.
+        // Silently drop any that the caller doesn't own — do NOT echo the list
+        // of unauthorized IDs back, which would leak project-id existence.
+        const validatedTargetIds: ObjectId[] = [];
+        const authChecks = await Promise.all(
+            targetProjectIds
+                .filter((id) => ObjectId.isValid(id))
+                .map(async (id) => ({ id, access: await getProjectById(id) })),
+        );
+        for (const { id, access } of authChecks) {
+            if (access) validatedTargetIds.push(new ObjectId(id));
+        }
+
+        if (validatedTargetIds.length === 0) {
+            return { success: false, error: 'No accessible target projects.' };
+        }
+
+        const bulkOps = validatedTargetIds.map((projectObjectId) => {
             const newTemplate = {
                 ...sourceTemplate,
                 _id: new ObjectId(), // generate new ID
-                projectId: new ObjectId(projectId),
+                projectId: projectObjectId,
                 status: 'LOCAL', // Mark as local for the cron job to pick up
                 metaId: '', // Clear meta ID as it's a new template for the target project
                 createdAt: new Date(),
@@ -810,7 +858,7 @@ export async function handleApplyTemplateToProjects(sourceTemplateId: string, ta
 
             return {
                 updateOne: {
-                    filter: { projectId: new ObjectId(projectId), name: sourceTemplate.name, language: sourceTemplate.language },
+                    filter: { projectId: projectObjectId, name: sourceTemplate.name, language: sourceTemplate.language },
                     update: { $set: newTemplate },
                     upsert: true,
                 }
@@ -819,7 +867,11 @@ export async function handleApplyTemplateToProjects(sourceTemplateId: string, ta
 
         await db.collection('templates').bulkWrite(bulkOps);
 
-        return { success: true };
+        return {
+            success: true,
+            applied: validatedTargetIds.length,
+            skipped: targetProjectIds.length - validatedTargetIds.length,
+        };
     } catch (e: any) {
         console.error("Error applying template to projects:", e);
         return { success: false, error: getErrorMessage(e) };

@@ -5,7 +5,8 @@ import { getCrmFormById } from '@/app/actions/crm-forms.actions';
 import { ObjectId } from 'mongodb';
 
 
-export async function GET(request, { params }) {
+export async function GET(request, props) {
+    const params = await props.params;
     const rawFormId = params.formId;
     const formIdFromServer = rawFormId.endsWith('.js') ? rawFormId.slice(0, -3) : rawFormId;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
@@ -13,7 +14,7 @@ export async function GET(request, { params }) {
     if (!formIdFromServer || !ObjectId.isValid(formIdFromServer)) {
         return new NextResponse('Form ID not provided or invalid.', { status: 400 });
     }
-    
+
     if (!appUrl) {
          return new NextResponse('App URL not configured.', { status: 500 });
     }
@@ -23,7 +24,7 @@ export async function GET(request, { params }) {
         return new NextResponse('Form not found.', { status: 404 });
     }
     const settings = form.settings || {};
-    
+
     const dynamicStyles = `
       #sabnode-form-iframe-${formIdFromServer} {
         border: none;

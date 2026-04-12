@@ -5,11 +5,12 @@
 
 import { EmbeddedForm } from '@/components/wabasimplify/embedded-form';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import type { WithId, CrmForm } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function EmbeddedFormPage({ params }: { params: { formId: string } }) {
+export default function EmbeddedFormPage(props: { params: Promise<{ formId: string }> }) {
+    const params = use(props.params);
     const [form, setForm] = useState<WithId<CrmForm> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -24,7 +25,7 @@ export default function EmbeddedFormPage({ params }: { params: { formId: string 
     if (isLoading) {
         return <div className="p-4"><Skeleton className="h-96 w-full max-w-lg mx-auto" /></div>;
     }
-    
+
     if (!form) {
         return <div className="p-4 text-center">Form not found.</div>;
     }

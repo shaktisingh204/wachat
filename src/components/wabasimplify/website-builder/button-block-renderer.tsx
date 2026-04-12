@@ -55,9 +55,9 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
     };
     const animationDurationClasses = { slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300' };
 
-    const hoverAnimationClass = {
+    const hoverAnimationClass = ({
         grow: 'hover:scale-110', shrink: 'hover:scale-90', pulse: 'hover:animate-pulse', bob: 'hover:animate-bob', wobbleHorizontal: 'hover:animate-wobbleHorizontal',
-    }[hover?.animation || 'none'];
+    } as Record<string, string>)[hover?.animation || 'none'] || '';
 
     const customAttrs = (customAttributes || []).reduce((acc: any, attr: any) => {
         if(attr.key) acc[attr.key] = attr.value;

@@ -31,7 +31,7 @@ function SubmitButton() {
 }
 
 export default function NewPaymentAccountPage() {
-    const [state, formAction] = useActionState(saveCrmPaymentAccount, initialState);
+    const [state, formAction] = useActionState(saveCrmPaymentAccount as any, initialState as any);
     const { toast } = useToast();
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);

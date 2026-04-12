@@ -20,7 +20,7 @@ export async function getCrmProducts(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const filter: Filter<CrmProduct> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
         if (query) {
             filter.$or = [
                 { name: { $regex: query, $options: 'i' } },

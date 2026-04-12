@@ -4,16 +4,14 @@ import { getPublicProjectById } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-export async function GET(
-    request: NextRequest,
-    { params }: { params: { projectId: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ projectId: string }> }) {
+    const params = await props.params;
     const { projectId } = params;
 
     if (!projectId || !ObjectId.isValid(projectId)) {
         return new NextResponse('Invalid Project ID', { status: 400 });
     }
-    
+
     // Increment load count
     try {
         const { db } = await connectToDatabase();
@@ -37,7 +35,7 @@ export async function GET(
     const prefilledMessage = encodeURIComponent(settings?.prefilledMessage || '');
     const waLink = `https://wa.me/${waId}?text=${prefilledMessage}`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
-    
+
     // This JS code will be injected into the user's website
     const script = `
         (function() {

@@ -256,41 +256,65 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
 
     // Sync React Flow selection with our state if needed, or rely on onNodeClick
 
+    const isPaused = currentFlow?.status === 'PAUSED';
+
     return (
         <div className="flex flex-col h-full bg-background overflow-hidden relative">
             {/* Header */}
-            <header className="flex h-14 items-center justify-between border-b px-4 lg:h-[60px] bg-card shrink-0">
-                <div className="flex items-center gap-4">
-                    <Link href="/dashboard/sabflow/flow-builder" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back
-                    </Link>
+            <header className="relative flex h-14 items-center justify-between border-b px-4 lg:h-[60px] shrink-0 bg-background/85 backdrop-blur-xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-transparent to-emerald-500/5 pointer-events-none" />
+                <div className="relative flex items-center gap-3 min-w-0">
+                    <Button variant="ghost" size="sm" asChild className="h-8 px-2 text-muted-foreground hover:text-foreground">
+                        <Link href="/dashboard/sabflow/flow-builder">
+                            <ArrowLeft className="mr-1.5 h-4 w-4" />
+                            Back
+                        </Link>
+                    </Button>
                     <div className="h-6 w-px bg-border" />
-                    <Input
-                        value={flowName}
-                        onChange={(e) => setFlowName(e.target.value)}
-                        className="h-8 w-[200px] font-medium"
-                        placeholder="Flow Name"
-                    />
+                    <div className="flex items-center gap-2 min-w-0">
+                        <div className="h-7 w-7 shrink-0 rounded-md bg-violet-500/10 border border-border/40 flex items-center justify-center">
+                            <Save className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                        </div>
+                        <Input
+                            value={flowName}
+                            onChange={(e) => setFlowName(e.target.value)}
+                            className="h-8 w-56 font-semibold bg-muted/30 border-border/60 focus-visible:bg-background"
+                            placeholder="Untitled Flow"
+                        />
+                    </div>
                 </div>
-                <div className="flex items-center gap-4">
-                    <Button variant="outline" size="sm" asChild>
+                <div className="relative flex items-center gap-2">
+                    <Button variant="ghost" size="sm" asChild className="h-8">
                         <Link href="/dashboard/sabflow/docs" target="_blank">
-                            <BookOpen className="mr-2 h-4 w-4" />
+                            <BookOpen className="mr-1.5 h-4 w-4" />
                             Docs
                         </Link>
                     </Button>
-                    <div className="flex items-center gap-2 border px-3 py-1.5 rounded-md bg-muted/50">
-                        <span className={cn("text-xs font-medium uppercase tracking-wider", currentFlow?.status === 'PAUSED' ? "text-amber-500" : "text-green-500")}>
-                            {currentFlow?.status === 'PAUSED' ? 'Paused' : 'Active'}
+                    <div className={cn(
+                        "flex items-center gap-2 h-8 px-2.5 rounded-md border transition-colors",
+                        isPaused
+                            ? "border-amber-500/40 bg-amber-500/5"
+                            : "border-emerald-500/40 bg-emerald-500/5"
+                    )}>
+                        <span className="flex items-center gap-1.5">
+                            <span className={cn(
+                                "h-1.5 w-1.5 rounded-full",
+                                isPaused ? "bg-amber-500" : "bg-emerald-500 animate-pulse"
+                            )} />
+                            <span className={cn(
+                                "text-[10px] font-bold uppercase tracking-[0.12em]",
+                                isPaused ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"
+                            )}>
+                                {isPaused ? 'Paused' : 'Active'}
+                            </span>
                         </span>
                         <Switch
-                            checked={currentFlow?.status !== 'PAUSED'}
+                            checked={!isPaused}
                             onCheckedChange={(checked) => setCurrentFlow({ ...currentFlow, status: checked ? 'ACTIVE' : 'PAUSED' })}
                         />
                     </div>
-                    <Button size="sm" onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                    <Button size="sm" onClick={handleSave} disabled={isSaving} className="h-8 shadow-sm">
+                        {isSaving ? <LoaderCircle className="mr-1.5 h-4 w-4 animate-spin" /> : <Save className="mr-1.5 h-4 w-4" />}
                         Save Flow
                     </Button>
 
@@ -348,16 +372,27 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
                         <Panel position="top-left" className="m-4">
                             <Popover>
                                 <PopoverTrigger asChild>
-                                    <Button size="icon" className="h-12 w-12 rounded-full shadow-xl bg-primary hover:bg-primary/90 transition-all active:scale-95">
-                                        <Plus className="h-6 w-6 text-primary-foreground" />
+                                    <Button
+                                        size="icon"
+                                        className="h-12 w-12 rounded-full shadow-xl bg-gradient-to-br from-violet-500 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 transition-all active:scale-95 ring-2 ring-background"
+                                        aria-label="Add block"
+                                    >
+                                        <Plus className="h-6 w-6 text-white" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent side="right" align="start" className="w-[340px] p-0 ml-4 max-h-[80vh] overflow-hidden bg-background/95 backdrop-blur-sm shadow-2xl border-muted">
-                                    <div className="p-4 border-b">
-                                        <h4 className="font-semibold leading-none">Add Block</h4>
-                                        <p className="text-sm text-muted-foreground mt-1">Drag blocks to the canvas</p>
+                                <PopoverContent side="right" align="start" className="w-85 p-0 ml-4 max-h-[80vh] overflow-hidden bg-background/95 backdrop-blur-xl shadow-2xl border-border/60">
+                                    <div className="relative p-4 border-b bg-gradient-to-br from-violet-500/5 via-transparent to-emerald-500/5">
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-7 w-7 rounded-md bg-violet-500/10 border border-border/40 flex items-center justify-center">
+                                                <Plus className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-semibold leading-none text-sm">Add Block</h4>
+                                                <p className="text-[11px] text-muted-foreground mt-0.5">Drag blocks onto the canvas</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="h-[400px]">
+                                    <div className="h-100">
                                         <SabFlowSidebar className="w-full" />
                                     </div>
                                 </PopoverContent>

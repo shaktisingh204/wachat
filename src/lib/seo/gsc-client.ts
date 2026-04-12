@@ -19,7 +19,7 @@ export class GscClient {
             GOOGLE_CLIENT_ID,
             GOOGLE_CLIENT_SECRET,
             GOOGLE_REDIRECT_URI
-        );
+        ) as any;
 
         if (tokens) {
             this.auth.setCredentials(tokens);
@@ -54,13 +54,13 @@ export class GscClient {
     }
 
     async getSites() {
-        const searchConsole = google.searchconsole({ version: 'v1', auth: this.auth });
+        const searchConsole = google.searchconsole({ version: 'v1', auth: this.auth as any } as any);
         const res = await searchConsole.sites.list();
         return res.data.siteEntry || [];
     }
 
     async getAnalytics(siteUrl: string, startDate: string, endDate: string) {
-        const searchConsole = google.searchconsole({ version: 'v1', auth: this.auth });
+        const searchConsole = google.searchconsole({ version: 'v1', auth: this.auth as any } as any);
         const res = await searchConsole.searchanalytics.query({
             siteUrl,
             requestBody: {

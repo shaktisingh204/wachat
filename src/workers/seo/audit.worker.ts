@@ -89,7 +89,7 @@ export const auditWorker = new Worker('seo-audit-queue', async (job: Job) => {
             crawledAt: result.crawledAt,
             depth: depth,
             outboundLinks: links
-        };
+        } as any;
 
         await db.collection('audit_snapshots').insertOne(snapshot);
 

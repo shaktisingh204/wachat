@@ -447,7 +447,15 @@ export async function handleSendMessage(
         } as OutgoingMessage);
 
         const lastMessage = messageType === 'text' ? messageText : `[${messageType}]`;
-        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } });
+        // J2 P1-1 fix: scope the contact update by both _id AND projectId so
+        // a contactId belonging to a different project (which this caller has
+        // no access to) silently no-ops instead of stomping lastMessage/status.
+        await db
+            .collection('contacts')
+            .updateOne(
+                { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
+                { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now } },
+            );
 
         revalidatePath('/dashboard/chat');
 
@@ -551,29 +559,99 @@ export async function getInitialChatData(projectId: string, phoneNumberId?: stri
 }
 
 
+/**
+ * Verify that the current session user is allowed to touch this contactId.
+ *
+ * J2 P0 fix: several chat server actions previously accepted a raw `contactId`
+ * from the client and queried messages / contacts with no project scoping,
+ * which leaked chat history cross-tenant and allowed cross-tenant write
+ * tampering. This helper is the single choke point for those actions.
+ *
+ * Returns the loaded contact (with its ObjectId projectId) on success, or
+ * null if the contactId is invalid, the contact doesn't exist, or the caller
+ * does not own/agent the project that the contact belongs to.
+ */
+async function resolveContactForSession(
+    contactId: string,
+): Promise<{ contact: WithId<Contact>; projectObjectId: ObjectId } | null> {
+    if (!contactId || !ObjectId.isValid(contactId)) return null;
+    const { db } = await connectToDatabase();
+    const contact = await db
+        .collection<Contact>('contacts')
+        .findOne({ _id: new ObjectId(contactId) });
+    if (!contact) return null;
+    // getProjectById checks session.user AND enforces ownership/agent membership.
+    // Using it (instead of re-rolling auth) keeps the access rules consistent
+    // with every other chat/broadcast/crm server action in this file.
+    const project = await getProjectById(contact.projectId.toString());
+    if (!project) return null;
+    return { contact, projectObjectId: new ObjectId(contact.projectId) };
+}
+
 export async function getConversation(contactId: string): Promise<AnyMessage[]> {
-    if (!contactId || !ObjectId.isValid(contactId)) return [];
+    // J2 P0-1 fix: resolve the contact and verify project access BEFORE querying
+    // messages. Previously this action took contactId on trust and would
+    // return any tenant's chat history to any authenticated caller.
+    const resolved = await resolveContactForSession(contactId);
+    if (!resolved) return [];
 
     const { db } = await connectToDatabase();
-    const contactObjectId = new ObjectId(contactId);
+    const contactObjectId = resolved.contact._id;
+    const projectObjectId = resolved.projectObjectId;
 
+    // Defence-in-depth: scope the message queries by BOTH contactId and
+    // projectId. Even if the contact check above somehow failed open, the
+    // query filter would still block cross-tenant leaks.
     const [incoming, outgoing] = await Promise.all([
-        db.collection('incoming_messages').find({ contactId: contactObjectId }).sort({ messageTimestamp: 1 }).toArray(),
-        db.collection('outgoing_messages').find({ contactId: contactObjectId }).sort({ messageTimestamp: 1 }).toArray(),
+        db
+            .collection('incoming_messages')
+            .find({ contactId: contactObjectId, projectId: projectObjectId })
+            .sort({ messageTimestamp: 1 })
+            .toArray(),
+        db
+            .collection('outgoing_messages')
+            .find({ contactId: contactObjectId, projectId: projectObjectId })
+            .sort({ messageTimestamp: 1 })
+            .toArray(),
     ]);
 
     const conversation: AnyMessage[] = [...(incoming as any[]), ...(outgoing as any[])];
-    conversation.sort((a, b) => new Date(a.messageTimestamp).getTime() - new Date(b.messageTimestamp).getTime());
+
+    // J2 P1-2 fix: stable sort. Previously sorted only by messageTimestamp, which
+    // leaves relative order undefined when two messages share a timestamp
+    // (common in fast sequences or same-second Meta timestamps). Adding
+    // createdAt and _id as tiebreakers so the order is deterministic.
+    conversation.sort((a, b) => {
+        const ta = new Date(a.messageTimestamp).getTime();
+        const tb = new Date(b.messageTimestamp).getTime();
+        if (ta !== tb) return ta - tb;
+        const ca = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const cb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        if (ca !== cb) return ca - cb;
+        return String(a._id).localeCompare(String(b._id));
+    });
 
     return JSON.parse(JSON.stringify(conversation)) as AnyMessage[];
 }
 
 export async function markConversationAsRead(contactId: string): Promise<{ success: boolean }> {
-    if (!contactId || !ObjectId.isValid(contactId)) return { success: false };
+    // J2 P0-2 fix: resolve + verify project access before any write.
+    const resolved = await resolveContactForSession(contactId);
+    if (!resolved) return { success: false };
     try {
         const { db } = await connectToDatabase();
-        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { unreadCount: 0 } });
-        await db.collection('incoming_messages').updateMany({ contactId: new ObjectId(contactId), isRead: false }, { $set: { isRead: true } });
+        await db
+            .collection('contacts')
+            .updateOne(
+                { _id: resolved.contact._id, projectId: resolved.projectObjectId },
+                { $set: { unreadCount: 0 } },
+            );
+        await db
+            .collection('incoming_messages')
+            .updateMany(
+                { contactId: resolved.contact._id, projectId: resolved.projectObjectId, isRead: false },
+                { $set: { isRead: true } },
+            );
         revalidatePath('/dashboard/chat');
         return { success: true };
     } catch (e) {
@@ -582,10 +660,17 @@ export async function markConversationAsRead(contactId: string): Promise<{ succe
 }
 
 export async function markConversationAsUnread(contactId: string): Promise<{ success: boolean }> {
-    if (!contactId || !ObjectId.isValid(contactId)) return { success: false };
+    // J2 P0-2 fix: resolve + verify project access before any write.
+    const resolved = await resolveContactForSession(contactId);
+    if (!resolved) return { success: false };
     try {
         const { db } = await connectToDatabase();
-        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { unreadCount: 1 } });
+        await db
+            .collection('contacts')
+            .updateOne(
+                { _id: resolved.contact._id, projectId: resolved.projectObjectId },
+                { $set: { unreadCount: 1 } },
+            );
         revalidatePath('/dashboard/chat');
         return { success: true };
     } catch (e) {

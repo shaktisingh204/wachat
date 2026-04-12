@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         tagIds.forEach(id => formData.append('tagIds', id));
         formData.append('variableMappings', JSON.stringify(variableMappings || []));
 
-        const result = await handleStartBroadcast(null, formData);
+        const result = await handleStartBroadcast(null as any, formData);
 
         if (result.error) {
             return NextResponse.json({ error: result.error }, { status: 500 });

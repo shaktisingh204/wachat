@@ -2,7 +2,8 @@
 'use client';
 
 import React from 'react';
-import useEmblaCarousel, { type EmblaOptionsType } from 'embla-carousel-react';
+import useEmblaCarousel from 'embla-carousel-react';
+type EmblaOptionsType = Parameters<typeof useEmblaCarousel>[0];
 import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -82,12 +83,12 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
         arrowPosition = 'inside',
     } = settings;
 
-    const options: EmblaOptionsType = { 
-        loop, 
-        align: 'start', 
+    const options: EmblaOptionsType = {
+        loop,
+        align: 'start',
         slidesToScroll,
         slidesToShow
-    };
+    } as any;
     
     const plugins = autoplay ? [Autoplay({ delay: autoplayDelay, stopOnInteraction: !pauseOnHover, stopOnMouseEnter: pauseOnHover })] : [];
     
@@ -101,9 +102,9 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
     }
     
     const hoverClass = settings.hoverAnimation && settings.hoverAnimation !== 'none' ? `group-hover:${settings.hoverAnimation}` : '';
-    const shadowClass = { sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg'}[settings.boxShadow || 'none'] || 'shadow-none';
+    const shadowClass = ({ sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg'} as Record<string, string>)[settings.boxShadow || 'none'] || 'shadow-none';
 
-    const animationDurationClass = { slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300'}[settings.animationDuration || 'normal'];
+    const animationDurationClass = ({ slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300'} as Record<string, string>)[settings.animationDuration || 'normal'];
     const animationClass = settings.animation && settings.animation !== 'none' ? `animate-in ${settings.animation} ${animationDurationClass}` : '';
     
     const responsiveClasses = cn({

@@ -37,7 +37,7 @@ export function FacebookKanbanColumn({ title, conversations, innerRef, droppable
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
                                 >
-                                    <FacebookKanbanCard conversation={convo} />
+                                    <FacebookKanbanCard {...({ conversation: convo, index: index } as any)} />
                                 </div>
                             )}
                         </Draggable>

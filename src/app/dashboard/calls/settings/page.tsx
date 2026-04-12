@@ -8,7 +8,7 @@ import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
 import type { Project, PhoneNumber, CallingSettings } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Phone, FileText, ChevronUp, ChevronDown, Check, X } from 'lucide-react';
+import { AlertCircle, Phone, FileText, Check, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CallingSettingsForm } from '@/components/wabasimplify/calling-settings-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,43 +33,29 @@ function SettingsPageSkeleton() {
 }
 
 const ApiLogRow = ({ log }: { log: any }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+    // Clean user-facing row — no raw JSON payload dumps.
+    // If something failed we show the short error message only.
     return (
-        <div className="p-3 border-b last:border-0 text-sm">
-            <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-                <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs">{log.method}</span>
-                    <Badge variant={log.status === 'SUCCESS' ? 'default' : 'destructive'}>{log.status}</Badge>
-                </div>
-                <div className="flex items-center gap-4">
-                    <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}</span>
-                    <button>{isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}</button>
-                </div>
+        <div className="flex items-center justify-between gap-3 border-b border-clay-border px-1 py-2.5 text-[12.5px] last:border-0">
+            <div className="flex min-w-0 items-center gap-2">
+                <span className="font-mono text-[11px] text-clay-ink-muted">
+                    {log.method}
+                </span>
+                <Badge
+                    variant={log.status === 'SUCCESS' ? 'default' : 'destructive'}
+                    className="text-[10px]"
+                >
+                    {log.status}
+                </Badge>
+                {log.status !== 'SUCCESS' && log.errorMessage ? (
+                    <span className="ml-2 min-w-0 truncate text-[11.5px] text-clay-red/80">
+                        {log.errorMessage}
+                    </span>
+                ) : null}
             </div>
-            {isExpanded && (
-                <div className="mt-2 space-y-2">
-                    <h4 className="font-semibold text-xs uppercase text-muted-foreground">Payload</h4>
-                    <pre className="p-2 bg-muted rounded-md text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto">
-                        {JSON.stringify(log.payload, null, 2)}
-                    </pre>
-                     {log.errorMessage && (
-                        <>
-                             <h4 className="font-semibold text-xs uppercase text-muted-foreground">Error Response</h4>
-                             <pre className="p-2 bg-destructive/10 text-destructive rounded-md text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto">
-                                {log.errorMessage}
-                            </pre>
-                        </>
-                    )}
-                     {log.response && (
-                        <>
-                             <h4 className="font-semibold text-xs uppercase text-muted-foreground">Success Response</h4>
-                             <pre className="p-2 bg-green-500/10 text-green-700 rounded-md text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto">
-                                {JSON.stringify(log.response, null, 2)}
-                            </pre>
-                        </>
-                    )}
-                </div>
-            )}
+            <span className="shrink-0 text-[11px] text-clay-ink-muted">
+                {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
+            </span>
         </div>
     );
 };

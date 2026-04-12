@@ -14,6 +14,9 @@ async function assignDefaultPlan() {
   // 1. Define and create the default plan if it doesn't exist
   console.log('Upserting Default Plan...');
   const defaultPlan: Omit<Plan, '_id' | 'createdAt'> = {
+    customRoleLimit: 0,
+    teamChannelLimit: 0,
+    teamTaskLimit: 0,
     name: 'Default Plan',
     price: 0,
     currency: 'INR',

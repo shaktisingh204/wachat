@@ -24,7 +24,7 @@ function SubmitButton() {
 }
 
 export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: any, onConnectionSaved: () => void, flowId?: string }) {
-    const [state, formAction] = useActionState(saveSabFlowConnection, initialState);
+    const [state, formAction] = useActionState(saveSabFlowConnection as any, initialState as any);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 

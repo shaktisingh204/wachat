@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { saveSabChatSettings } from '@/app/actions/sabchat.actions';
 import { useProject } from '@/context/project-context';
 
-const initialState = { message: null, error: null };
+const initialState: any = { message: null, error: null };
 
 function SubmitButton() {
   const { pending } = useFormStatus();

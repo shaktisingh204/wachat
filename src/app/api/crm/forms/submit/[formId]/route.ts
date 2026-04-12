@@ -9,12 +9,10 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-export async function POST(
-    request: NextRequest,
-    { params }: { params: { formId: string } }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ formId: string }> }) {
+    const params = await props.params;
     const { formId } = params;
-    
+
     let formData;
     try {
         formData = await request.json();

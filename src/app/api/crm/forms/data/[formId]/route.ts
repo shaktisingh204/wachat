@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
 import { ObjectId } from 'mongodb';
 
-export async function GET(request: Request, { params }: { params: { formId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ formId: string }> }) {
+    const params = await props.params;
     const { formId } = params;
 
     if (!formId || !ObjectId.isValid(formId)) {

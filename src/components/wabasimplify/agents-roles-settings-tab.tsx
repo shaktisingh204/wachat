@@ -24,8 +24,8 @@ interface AgentsRolesSettingsTabProps {
     user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) | null;
 }
 
-const removeAgentInitialState = { message: null, error: null };
-const inviteAgentInitialState = { message: null, error: null };
+const removeAgentInitialState: any = { message: null, error: null };
+const inviteAgentInitialState: any = { message: null, error: null };
 
 
 function RemoveAgentForm({ agent, project }: { agent: any, project: any }) {

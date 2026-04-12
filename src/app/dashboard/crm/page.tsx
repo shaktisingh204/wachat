@@ -42,7 +42,7 @@ export default function CrmDashboardPage() {
 
     if (isLoading || !stats) {
         return (
-            <div className="flex flex-col gap-8 p-4 md:p-6 lg:p-8">
+            <div className="flex flex-col gap-8">
                 <div>
                     <Skeleton className="h-8 w-1/3" />
                     <Skeleton className="h-4 w-2/3 mt-2" />
@@ -62,7 +62,7 @@ export default function CrmDashboardPage() {
     }
 
     return (
-        <div className="flex flex-col gap-8 p-4 md:p-6 lg:p-8">
+        <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold font-headline">CRM Dashboard</h1>
                 <p className="text-muted-foreground">An overview of your customer relationships, leads, and deals.</p>

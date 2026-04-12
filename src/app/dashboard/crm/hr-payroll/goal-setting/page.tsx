@@ -41,7 +41,7 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-const saveInitialState = { message: null, error: null };
+const saveInitialState: any = { message: null, error: null };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
@@ -129,7 +129,7 @@ function GoalCard({ goal, onEdit, onDelete }: { goal: WithId<CrmGoal>, onEdit: (
                     <Progress value={goal.progress} />
                     <p className="text-xs text-right">{goal.progress}%</p>
                 </div>
-                 {goal.assigneeInfo && <p className="text-xs">Assigned to: <span className="font-semibold">{(goal.assigneeInfo as any).firstName} {(goal.assigneeInfo as any).lastName}</span></p>}
+                 {(goal as any).assigneeInfo && <p className="text-xs">Assigned to: <span className="font-semibold">{((goal as any).assigneeInfo as any).firstName} {((goal as any).assigneeInfo as any).lastName}</span></p>}
              </CardContent>
              <CardFooter className="flex justify-end gap-2">
                  <AlertDialog>

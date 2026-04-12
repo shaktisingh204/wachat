@@ -25,7 +25,7 @@ export default function BillingHistoryPage() {
             // Transactions are now part of the user's wallet object
             const walletTransactions = session?.user?.wallet?.transactions || [];
             // Sort by most recent first
-            const sortedTransactions = walletTransactions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            const sortedTransactions = walletTransactions.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             setTransactions(sortedTransactions);
         });
     }, []);

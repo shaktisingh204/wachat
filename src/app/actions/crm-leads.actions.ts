@@ -42,7 +42,7 @@ export async function getCrmLeads(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const filter: Filter<CrmLead> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
             filter.$or = [
@@ -104,14 +104,14 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
 
     try {
         const { db } = await connectToDatabase();
-        const newLead: Omit<CrmLead, '_id'> = {
+        const newLead: Omit<CrmLead, '_id'> = ({
             userId: new ObjectId(session.user._id),
             createdAt: new Date(),
             updatedAt: new Date(),
             ...validatedFields.data,
             value: validatedFields.data.value || 0,
             currency: validatedFields.data.currency || 'INR',
-        };
+        } as any);
 
         const result = await db.collection('crm_leads').insertOne(newLead as CrmLead);
 

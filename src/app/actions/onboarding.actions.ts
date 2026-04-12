@@ -180,9 +180,9 @@ export async function handleWabaOnboarding(data: {
 
       const updatedProject = await db.collection<Project>('projects').findOne({ _id: project._id });
 
-      if (updatedProject?.phoneNumbers?.length > 0) {
+      if ((updatedProject?.phoneNumbers?.length ?? 0) > 0) {
         console.log(`${LOG_PREFIX_WABA} Step 7: Registering verified phone numbers`);
-        for (const phone of updatedProject.phoneNumbers) {
+        for (const phone of updatedProject!.phoneNumbers!) {
           if (phone.code_verification_status === 'VERIFIED') {
             try {
               await axios.post(

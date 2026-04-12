@@ -16,7 +16,7 @@ import { AppConnectionSetup } from './connections/app-connection-setup';
 import { ApiRequestEditor } from './api-request-editor';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '../ui/textarea';
+import { Textarea } from '@/components/ui/textarea';
 import type { WithId, Project, User, SabFlowNode } from '@/lib/definitions';
 import { getInvitedUsers } from '@/app/actions/team.actions';
 import { getChatSessionsForUser } from '@/app/actions/sabchat.actions';
@@ -73,9 +73,9 @@ function NodeInput({ input, value, onChange, dataOptions }: { input: any, value:
     
     switch (input.type) {
         case 'textarea':
-            return <Textarea placeholder={input.placeholder} value={value} onChange={e => onChange(e.target.value)} />;
+            return <Textarea placeholder={input.placeholder} value={value} onChange={(e: any) => onChange(e.target.value)} />;
         default:
-            return <Input type={input.type || 'text'} placeholder={input.placeholder} value={value} onChange={e => onChange(e.target.value)} />;
+            return <Input type={input.type || 'text'} placeholder={input.placeholder} value={value} onChange={(e: any) => onChange(e.target.value)} />;
     }
 }
 
@@ -112,10 +112,10 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                 getInvitedUsers(),
                 getChatSessionsForUser()
             ]);
-            setDynamicData(prev => ({
+            setDynamicData((prev: any) => ({
                 ...prev,
-                agents: fetchedAgents.map(a => ({ value: a._id.toString(), label: a.name })),
-                sabChatSessions: fetchedSessions.map(s => ({ value: s._id.toString(), label: `${s.visitorInfo?.email || 'Visitor'} - ${s._id.toString().slice(-6)}` }))
+                agents: fetchedAgents.map((a: any) => ({ value: a._id.toString(), label: a.name })),
+                sabChatSessions: fetchedSessions.map((s: any) => ({ value: s._id.toString(), label: `${s.visitorInfo?.email || 'Visitor'} - ${s._id.toString().slice(-6)}` }))
             }));
         });
     }, []);
@@ -150,7 +150,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                  const connectedAppIds = new Set(user?.sabFlowConnections?.map((c: any) => c.appId));
                 
                  const groupedApps = Object.entries(sabnodeAppActions.reduce((acc, app) => {
-                    if (!app.actions || app.actions.every(a => a.isTrigger)) return acc;
+                    if (!app.actions || app.actions.every((a: any) => (a as any).isTrigger)) return acc;
                     const category = app.category || 'SabNode Apps';
                     if (!acc[category]) acc[category] = [];
                     acc[category].push(app);
@@ -200,17 +200,17 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                 return <ApiFileProcessorEditor node={selectedNode} onUpdate={handleDataChange} nodes={nodes} />;
             }
             
-            if (selectedAction?.inputs.length > 0) {
+            if ((selectedAction as any)?.inputs?.length > 0) {
                  return (
                     <div className="space-y-4">
-                        <p className="text-sm text-muted-foreground">{selectedAction.description}</p>
-                        {selectedAction.inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs?.[input.name] || ''} onChange={val => handleInputChange(input.name, val)} dataOptions={dynamicData} /></div>))}
+                        <p className="text-sm text-muted-foreground">{selectedAction!.description}</p>
+                        {(selectedAction! as any).inputs.map((input: any) => (<div key={input.name} className="space-y-2"><Label>{input.label}</Label><NodeInput input={input} value={selectedNode.data.inputs?.[input.name] || ''} onChange={val => handleInputChange(input.name, val)} dataOptions={dynamicData} /></div>))}
                     </div>
                 );
             }
             
              if (selectedApp?.actions) {
-                 const actionOptions = selectedApp.actions.filter(a => isTrigger ? a.isTrigger : !a.isTrigger) || [];
+                 const actionOptions = selectedApp.actions.filter((a: any) => isTrigger ? (a as any).isTrigger : !(a as any).isTrigger) || [];
                  if (actionOptions.length > 1) {
                      return (
                         <div className="space-y-2">
@@ -230,7 +230,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
 
         if (isTrigger) {
              const selectedTriggerInfo = triggers.find(t => t.id === triggerType);
-             const triggerApps = sabnodeAppActions.filter(app => app.actions?.some(a => a.isTrigger === true));
+             const triggerApps = sabnodeAppActions.filter(app => app.actions?.some((a: any) => (a as any).isTrigger === true));
 
              return (
                <div className="space-y-4">
@@ -270,7 +270,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                                         key={app.appId} 
                                         className={cn("p-2 text-center cursor-pointer hover:bg-accent rounded-lg flex flex-col items-center justify-start gap-1 transition-all border", isSelected && 'ring-2 ring-primary')}
                                         onClick={() => {
-                                            const triggerAction = app.actions.find(a => a.isTrigger);
+                                            const triggerAction = app.actions.find((a: any) => (a as any).isTrigger);
                                             handleDataChange({ appId: app.appId, actionName: triggerAction?.name, inputs: {} });
                                         }}
                                     >
@@ -280,7 +280,7 @@ export function PropertiesPanel({ user, selectedNode, onNodeChange, onNodeRemove
                                 )
                             })}
                         </div>
-                         {selectedApp && selectedAction && selectedAction.isTrigger && (
+                         {selectedApp && selectedAction && (selectedAction as any).isTrigger && (
                             <AppConnectionSetup app={selectedApp} flowId={params.flowId} onConnectionSaved={onConnectionSaved} />
                          )}
                     </div>

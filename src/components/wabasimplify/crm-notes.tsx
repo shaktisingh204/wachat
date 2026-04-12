@@ -30,7 +30,7 @@ interface CrmNotesProps {
 }
 
 export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotesProps) {
-    const [state, formAction] = useActionState(addCrmNote, initialState);
+    const [state, formAction] = useActionState(addCrmNote as any, initialState as any);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     const [notes, setNotes] = useState(initialNotes);

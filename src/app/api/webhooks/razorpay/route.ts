@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
                                 createdAt: new Date()
                             }
                         }
-                    }
+                    } as any
                 );
 
                 console.log(`Successfully credited ${amountToAdd} to user ${transaction.userId} for order ${orderId}`);

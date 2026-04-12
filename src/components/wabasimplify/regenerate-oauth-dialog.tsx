@@ -44,8 +44,8 @@ export function RegenerateOauthDialog({ project, config, onSuccess }: Regenerate
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state.message && !state.oauth_url) {
-      toast({ title: 'Success!', description: state.message });
+    if ((state as any).message && !(state as any).oauth_url) {
+      toast({ title: 'Success!', description: (state as any).message });
       onSuccess();
       setOpen(false);
     }

@@ -14,7 +14,8 @@ async function getPageBySlug(siteSlug: string, pageSlug: string) {
     return page;
 }
 
-export default async function WebsiteSubPage({ params }: { params: { slug: string, pageSlug: string } }) {
+export default async function WebsiteSubPage(props: { params: Promise<{ slug: string, pageSlug: string }> }) {
+    const params = await props.params;
     if (!params.slug || !params.pageSlug) {
         notFound();
     }
@@ -23,7 +24,7 @@ export default async function WebsiteSubPage({ params }: { params: { slug: strin
     if (!page) {
         notFound();
     }
-    
+
     return (
         <main>
             <Canvas

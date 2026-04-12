@@ -31,7 +31,7 @@ export default async function AutoLeadsSetupPage() {
                         <Button><Plus className="mr-2 h-4 w-4" /> Add New Rule</Button>
                     </DialogTrigger>
                     <DialogContent>
-                        <form action={saveAutoLeadRule}>
+                        <form action={saveAutoLeadRule as any}>
                             <DialogHeader>
                                 <DialogTitle>Create Auto-Lead Rule</DialogTitle>
                                 <DialogDescription>Define when to automatically create a lead.</DialogDescription>

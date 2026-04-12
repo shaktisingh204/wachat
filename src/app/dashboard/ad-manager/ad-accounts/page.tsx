@@ -188,10 +188,14 @@ export default function AdAccountsPage() {
     }, []);
 
     const handleSelect = (account: any) => {
+        // Meta returns two distinct fields:
+        //   account.id         e.g. "act_123456789"  (Graph API node id, prefixed)
+        //   account.account_id e.g. "123456789"      (bare numeric account id)
+        // Keep them separate so downstream code can pick the right form.
         selectAccount({
             id: account.id,
             name: account.name,
-            account_id: account.id // Using 'id' field which seems to be the Graph API ID, typically 'act_XXXX' or similar
+            account_id: account.account_id || account.id?.replace(/^act_/, ''),
         });
         toast({ title: 'Account Selected', description: `Now managing ${account.name}` });
         router.push('/dashboard/ad-manager/campaigns');
@@ -215,7 +219,7 @@ export default function AdAccountsPage() {
     }
 
     return (
-        <div className="flex flex-col gap-6 max-w-7xl mx-auto p-2 sm:p-4">
+        <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">

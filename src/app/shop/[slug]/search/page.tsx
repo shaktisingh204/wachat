@@ -26,7 +26,11 @@ async function SearchResults({ slug, query }: { slug: string, query: string }) {
     );
 }
 
-export default async function SearchPage({ params, searchParams }: { params: { slug: string }, searchParams: { q: string } }) {
+export default async function SearchPage(
+    props: { params: Promise<{ slug: string }>, searchParams: Promise<{ q: string }> }
+) {
+    const searchParams = await props.searchParams;
+    const params = await props.params;
     return (
         <Suspense fallback={<div>Loading search results...</div>}>
             <SearchResults slug={params.slug} query={searchParams.q} />

@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import useEmblaCarousel, { EmblaOptionsType } from 'embla-carousel-react';
+import useEmblaCarousel from 'embla-carousel-react';
+type EmblaOptionsType = Parameters<typeof useEmblaCarousel>[0];
 import Autoplay from 'embla-carousel-autoplay';
 import { ShapeDivider } from './shape-divider';
 
@@ -41,9 +42,9 @@ export function HeroBlock({ settings }: { settings: any }) {
     const [isClient, setIsClient] = useState(false);
     useEffect(() => { setIsClient(true) }, []);
 
-    const alignmentClasses = { 'flex-start': 'items-start', 'center': 'items-center', 'flex-end': 'items-end' }[verticalAlign] || 'items-center';
-    const textAlignClasses = { 'left': 'text-left', 'center': 'text-center', 'right': 'text-right' }[textAlign] || 'text-center';
-    const animationClasses = { 'fade': 'animate-fade-in', 'slide-up': 'animate-fade-in-up', 'zoom': 'animate-in zoom-in-50' }[animation || 'none'];
+    const alignmentClasses = ({ 'flex-start': 'items-start', 'center': 'items-center', 'flex-end': 'items-end' } as Record<string, string>)[verticalAlign] || 'items-center';
+    const textAlignClasses = ({ 'left': 'text-left', 'center': 'text-center', 'right': 'text-right' } as Record<string, string>)[textAlign] || 'text-center';
+    const animationClasses = ({ 'fade': 'animate-fade-in', 'slide-up': 'animate-fade-in-up', 'zoom': 'animate-in zoom-in-50' } as Record<string, string>)[animation || 'none'] || '';
     
     const responsiveClasses = cn({
         'max-lg:hidden': responsiveVisibility?.desktop === false,
@@ -51,7 +52,7 @@ export function HeroBlock({ settings }: { settings: any }) {
         'max-sm:hidden': responsiveVisibility?.mobile === false
     });
 
-    const shadowClasses = { 'none': 'shadow-none', 'sm': 'shadow-sm', 'md': 'shadow-md', 'lg': 'shadow-lg' }[boxShadow || 'none'];
+    const shadowClasses = ({ 'none': 'shadow-none', 'sm': 'shadow-sm', 'md': 'shadow-md', 'lg': 'shadow-lg' } as Record<string, string>)[boxShadow || 'none'] || '';
 
     const sectionStyle: React.CSSProperties = {
         backgroundColor: backgroundType === 'classic' ? backgroundColor : undefined,

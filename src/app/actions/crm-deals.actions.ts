@@ -100,7 +100,7 @@ export async function createCrmDeal(prevState: any, formData: FormData): Promise
         const closeDate = formData.get('closeDate') as string;
         if (closeDate) newDeal.closeDate = new Date(closeDate);
 
-        if (!newDeal.name || !newDeal.stage || isNaN(newDeal.value)) {
+        if (!newDeal.name || !newDeal.stage || isNaN(newDeal.value ?? 0)) {
             return { error: 'Deal Name, Stage, and Value are required.' };
         }
 

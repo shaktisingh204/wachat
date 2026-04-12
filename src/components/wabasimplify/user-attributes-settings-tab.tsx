@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
-const saveAttributesInitialState = { message: null, error: null };
+const saveAttributesInitialState: any = { message: null, error: null };
 
 function SaveAttributesButton() {
   const { pending } = useFormStatus();

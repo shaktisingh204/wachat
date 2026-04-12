@@ -21,7 +21,7 @@ export async function getDeliveryChallans(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
         
-        const filter: Filter<CrmDeliveryChallan> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
         
         const skip = (page - 1) * limit;
 

@@ -1,10 +1,10 @@
 
 import { SmsProviderConfig } from "@/lib/definitions";
 import { ISmsProvider } from "./types";
-import { TwilioProvider } from "./twilio";
-import { Msg91Provider } from "./msg91";
-import { GupshupProvider } from "./gupshup";
-import { PlivoProvider } from "./plivo";
+import { TwilioAdapter } from "./twilio";
+import { Msg91Adapter } from "./msg91";
+import { GupshupAdapter } from "./gupshup";
+import { PlivoAdapter } from "./plivo";
 import { GenericHttpProvider, GenericProviderConfig } from "./generic";
 import { PROVIDER_PRESETS } from "./presets";
 
@@ -14,13 +14,27 @@ export class SmsProviderFactory {
 
         switch (provider) {
             case 'twilio':
-                return new TwilioProvider(credentials as any);
+                return new TwilioAdapter(
+                    (credentials as any).accountSid,
+                    (credentials as any).authToken,
+                    (credentials as any).fromNumber,
+                );
             case 'msg91':
-                return new Msg91Provider(credentials as any);
+                return new Msg91Adapter(
+                    (credentials as any).authKey,
+                    (credentials as any).senderId,
+                );
             case 'gupshup':
-                return new GupshupProvider(credentials as any);
+                return new GupshupAdapter(
+                    (credentials as any).userId,
+                    (credentials as any).password,
+                );
             case 'plivo':
-                return new PlivoProvider(credentials as any);
+                return new PlivoAdapter(
+                    (credentials as any).authId,
+                    (credentials as any).authToken,
+                    (credentials as any).src,
+                );
             // Add specific adapters as they are implemented
             default:
                 // Check presets

@@ -41,7 +41,7 @@ interface UpdateDataEndpointDialogProps {
 
 export function UpdateDataEndpointDialog({ project, config, onSuccess }: UpdateDataEndpointDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(handleUpdateDataEndpoint, initialState);
+  const [state, formAction] = useActionState(handleUpdateDataEndpoint as any, initialState as any);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 

@@ -147,7 +147,7 @@ export default function AppDocPage() {
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {action.inputs.map((input: any, i: number) => (
+                                                        {(action as any).inputs.map((input: any, i: number) => (
                                                             <TableRow key={i}>
                                                                 <TableCell className="font-mono text-xs">{input.name}</TableCell>
                                                                 <TableCell>{input.placeholder}</TableCell>
@@ -176,7 +176,7 @@ export default function AppDocPage() {
                                         <AccordionTrigger>{action.label}</AccordionTrigger>
                                         <AccordionContent className="space-y-4 pt-2">
                                             <p className="text-muted-foreground">{action.description}</p>
-                                            {action.inputs.length > 0 && (
+                                            {(action as any).inputs.length > 0 && (
                                                 <div>
                                                     <h5 className="font-semibold mb-2">Inputs:</h5>
                                                      <div className="border rounded-md">
@@ -189,7 +189,7 @@ export default function AppDocPage() {
                                                                 </TableRow>
                                                             </TableHeader>
                                                             <TableBody>
-                                                                {action.inputs.map((input: any, i: number) => (
+                                                                {(action as any).inputs.map((input: any, i: number) => (
                                                                     <TableRow key={i}>
                                                                         <TableCell className="font-mono text-xs">{input.name}</TableCell>
                                                                          <TableCell><Badge variant="outline">{input.type}</Badge></TableCell>

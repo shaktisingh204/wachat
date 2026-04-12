@@ -11,6 +11,8 @@ import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions'
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface CrmAutomationBlockEditorProps {
     node: any;
@@ -65,7 +67,7 @@ const SendEmailEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) 
             <Label>Email Template</Label>
             <Select value={data.templateId || ''} onValueChange={(val) => onUpdate({ ...data, templateId: val })}>
                 <SelectTrigger><SelectValue placeholder="Select an email template..." /></SelectTrigger>
-                <SelectContent searchable>
+                <SelectContent {...({ searchable: true } as any)}>
                     {templates.map(template => (
                         <SelectItem key={template._id.toString()} value={template._id.toString()}>{template.name}</SelectItem>
                     ))}

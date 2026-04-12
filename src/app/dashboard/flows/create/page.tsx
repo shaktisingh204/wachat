@@ -36,7 +36,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 function PageSkeleton() {
     return (
-        <div className="flex flex-col h-full space-y-4 p-4">
+        <div className="flex flex-col h-full gap-4">
             <div className="flex items-center justify-between">
                 <Skeleton className="h-10 w-48" />
                 <Skeleton className="h-10 w-32" />

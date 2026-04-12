@@ -93,8 +93,8 @@ export async function getWebhookLogs(
         const skip = (safePage - 1) * safeLimit;
 
         const [fullLogs, total] = await Promise.all([
-            db.collection<WithId<WebhookLog>>('webhook_logs').find(filter).sort({ createdAt: -1 }).skip(skip).limit(safeLimit).toArray(),
-            db.collection('webhook_logs').countDocuments(filter)
+            db.collection<WithId<WebhookLog>>('webhook_logs').find(filter as any).sort({ createdAt: -1 }).skip(skip).limit(safeLimit).toArray(),
+            db.collection('webhook_logs').countDocuments(filter as any)
         ]);
 
         const logsForClient = fullLogs.map(log => ({

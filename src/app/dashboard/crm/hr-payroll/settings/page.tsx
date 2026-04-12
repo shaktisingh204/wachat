@@ -167,7 +167,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
 function AccessControlTab() {
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [isLoading, startLoading] = useTransition();
-    const [state, formAction] = useActionState(saveRolePermissions, initialState);
+    const [state, formAction] = useActionState(saveRolePermissions as any, initialState as any);
     const { toast } = useToast();
 
     const fetchUser = useCallback(() => {
@@ -205,7 +205,7 @@ function AccessControlTab() {
             </div>
             <Accordion type="single" collapsible className="w-full space-y-4">
                 {allRoles.map(role => {
-                    const crmPermissions = role.permissions || {};
+                    const crmPermissions = (role as any).permissions || {};
 
                     return (
                         <AccordionItem key={role.id} value={role.id} className="border rounded-lg bg-card">

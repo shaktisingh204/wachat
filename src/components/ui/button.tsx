@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02]",
+          "bg-primary text-primary-foreground shadow-lg shadow-emerald-600/25 hover:bg-primary/90 hover:shadow-xl hover:shadow-emerald-600/35 hover:scale-[1.02]",
         destructive:
           "bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20 hover:bg-destructive/90 hover:shadow-xl hover:shadow-destructive/30 hover:scale-[1.02]",
         outline:
@@ -22,7 +22,7 @@ const buttonVariants = cva(
         link:
           "text-primary underline-offset-4 hover:underline",
         "sidebar-active":
-          "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+          "bg-[var(--app-light)] text-[var(--app-text)] shadow-[0_0_12px_var(--app-glow)] ring-1 ring-[var(--app-border)] hover:bg-[var(--app-light)] hover:text-[var(--app-text)]",
         premium:
           "bg-gradient-to-r from-primary via-primary/90 to-secondary text-primary-foreground shadow-xl shadow-primary/40 hover:shadow-2xl hover:shadow-primary/50 hover:scale-[1.02] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-200%] before:transition-transform before:duration-700 hover:before:translate-x-[200%]",
         glass:

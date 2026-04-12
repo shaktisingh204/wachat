@@ -49,7 +49,7 @@ function SubmitButton() {
 const handleCleanDatabase = async () => ({ message: "Database cleaning is currently disabled for safety.", error: null });
 
 export function CleanDatabaseButton() {
-  const [state, formAction] = useActionState(handleCleanDatabase, initialState);
+  const [state, formAction] = useActionState(handleCleanDatabase as any, initialState as any);
   const { toast } = useToast();
 
   useEffect(() => {

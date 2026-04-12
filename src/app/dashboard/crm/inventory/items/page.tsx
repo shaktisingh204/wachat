@@ -17,11 +17,12 @@ import { getCrmProducts, deleteCrmProduct } from "@/app/actions/crm-products.act
 import { DeleteButton } from "@/components/wabasimplify/delete-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default async function InventoryItemsPage({
-    searchParams,
-}: {
-    searchParams: { query?: string; page?: string };
-}) {
+export default async function InventoryItemsPage(
+    props: {
+        searchParams: Promise<{ query?: string; page?: string }>;
+    }
+) {
+    const searchParams = await props.searchParams;
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || 1;
 
@@ -41,7 +42,6 @@ export default async function InventoryItemsPage({
                     </Button>
                 </Link>
             </div>
-
             <div className="flex items-center space-x-2">
                 <div className="relative flex-1">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -49,7 +49,6 @@ export default async function InventoryItemsPage({
                     {/* Implementation note: Proper search requires client component or form submission */}
                 </div>
             </div>
-
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -92,9 +91,9 @@ export default async function InventoryItemsPage({
                                     <TableCell>
                                         {product.isTrackInventory ? (
                                             /* Simple check for total stock vs 0 if reorderPoint logic is complex to display per warehouse here */
-                                            <span className={product.totalStock <= 5 ? "text-red-500 font-medium" : ""}>
+                                            (<span className={product.totalStock <= 5 ? "text-red-500 font-medium" : ""}>
                                                 {product.totalStock}
-                                            </span>
+                                            </span>)
                                         ) : (
                                             <span className="text-muted-foreground text-sm">N/A</span>
                                         )}

@@ -39,7 +39,7 @@ export function SyncCustomProductsDialog({ projectId, shopId }: SyncCustomProduc
       // Silently sync first to ensure list is fresh
       await syncCatalogs(projectId);
       const catalogsData = await getCatalogs(projectId);
-      setCatalogs(catalogsData);
+      setCatalogs(catalogsData as any);
       if (showToast) {
         toast({ title: "Catalogs Refreshed" });
       }

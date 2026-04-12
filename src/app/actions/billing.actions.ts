@@ -49,7 +49,7 @@ export async function handleCreateRazorpayOrder(amount: number, currency: string
         return {
             success: true,
             orderId: order.id,
-            amount: order.amount,
+            amount: Number(order.amount),
             currency: order.currency,
             apiKey: razorpayConfig.keyId,
             user: { name: session.user.name, email: session.user.email }

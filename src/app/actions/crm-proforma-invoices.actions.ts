@@ -44,7 +44,7 @@ export async function getProformaInvoices(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const filter: Filter<CrmProformaInvoice> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
 
         if (filters?.month && filters?.year) {
             const start = new Date(filters.year, filters.month - 1, 1);

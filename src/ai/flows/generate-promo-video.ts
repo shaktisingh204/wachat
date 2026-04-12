@@ -6,7 +6,8 @@
 import { ai } from '@/ai/genkit';
 import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'genkit';
-import { MediaPart } from 'genkit/media';
+// import { MediaPart } from 'genkit/media';
+type MediaPart = any;
 
 const GeneratePromoVideoInputSchema = z.object({
   prompt: z.string().describe('The text prompt describing the video to generate.'),

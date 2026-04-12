@@ -7,7 +7,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowUpCircle, ArrowDownCircle, Banknote } from 'lucide-react';
 
-export default async function CashFlowPage({ searchParams }: { searchParams: { year?: string } }) {
+export default async function CashFlowPage(props: { searchParams: Promise<{ year?: string }> }) {
+    const searchParams = await props.searchParams;
     const year = searchParams.year ? parseInt(searchParams.year) : new Date().getFullYear();
     const { monthly, totalIn, totalOut } = await getCashFlowStatement(year);
     const netCashFlow = totalIn - totalOut;

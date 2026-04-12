@@ -99,7 +99,7 @@ export const CountdownBlockRenderer: React.FC<CountdownBlockRendererProps> = ({ 
         if (typeof window === 'undefined') return null; // Can't use localStorage on server
 
         if (countdownType === 'evergreen') {
-            const timerId = `evergreen-timer-${cssId || settings.id}`;
+            const timerId = `evergreen-timer-${cssId || (settings as any).id}`;
             const storedEndTime = localStorage.getItem(timerId);
             if (storedEndTime) {
                 return new Date(parseInt(storedEndTime, 10));
@@ -119,7 +119,7 @@ export const CountdownBlockRenderer: React.FC<CountdownBlockRendererProps> = ({ 
             return new Date(endDate + 'Z'); 
         }
         return new Date(endDate); 
-    }, [countdownType, evergreenDuration, endDate, timeZone, cssId, settings.id]);
+    }, [countdownType, evergreenDuration, endDate, timeZone, cssId, (settings as any).id]);
 
     const calculateTimeLeft = useCallback(() => {
         const targetDate = getEndDate();

@@ -162,7 +162,7 @@ export function KanbanBoard() {
                     <div style={{ minWidth: "100%", display: "table", height: '100%' }}>
                         <div className="flex h-full w-max p-4 gap-4">
                             {boardData.map(column => (
-                                <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} />
+                                <KanbanColumn key={column.name} {...({ title: column.name, contacts: column.contacts } as any)} />
                             ))}
                             <AddList onAddList={handleAddList} />
                         </div>

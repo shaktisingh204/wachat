@@ -36,7 +36,7 @@ interface RazorpaySettingsFormProps {
 }
 
 export function RazorpaySettingsForm({ project }: RazorpaySettingsFormProps) {
-    const [state, formAction] = useActionState(saveRazorpaySettings, initialState);
+    const [state, formAction] = useActionState(saveRazorpaySettings as any, initialState as any);
     const { toast } = useToast();
     
     useEffect(() => {

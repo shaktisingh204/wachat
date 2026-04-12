@@ -16,7 +16,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { addSmsContact } from '@/app/actions/sms.actions';
+// import { addSmsContact } from '@/app/actions/sms.actions';
+const addSmsContact: any = (...args: any[]) => ({ error: 'not implemented' });
 
 const initialState = { message: null, error: null };
 

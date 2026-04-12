@@ -90,9 +90,9 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = (props)
     };
     const shadowClass = shadowClasses[safeSettings.boxShadow as keyof typeof shadowClasses] || '';
 
-    const alignmentClasses = {
+    const alignmentClasses = ({
         top: 'items-start', middle: 'items-center', bottom: 'items-end',
-    }[safeSettings.verticalAlign || 'top'];
+    } as Record<string, string>)[safeSettings.verticalAlign || 'top'];
     
     const responsiveClasses = cn({
         'hidden': safeSettings.responsiveVisibility?.desktop === false,

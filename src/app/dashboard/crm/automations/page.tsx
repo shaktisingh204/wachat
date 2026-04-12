@@ -236,7 +236,7 @@ export default function CrmAutomationsPage() {
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
 
-    const renderNodeAndChildren = (nodeId: string): (JSX.Element | null)[] => {
+    const renderNodeAndChildren = (nodeId: string): (React.ReactElement | null)[] => {
         const node = nodes.find(n => n.id === nodeId);
         if (!node) return [null];
     

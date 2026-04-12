@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, Trash2, LoaderCircle, Users } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -23,8 +25,8 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
-const removeAgentInitialState = { message: null, error: null };
-const inviteAgentInitialState = { message: null, error: null };
+const removeAgentInitialState: any = { message: null, error: null };
+const inviteAgentInitialState: any = { message: null, error: null };
 
 function RemoveAgentButton({ agentId, onAgentRemoved }: { agentId: string, onAgentRemoved: () => void }) {
     const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);

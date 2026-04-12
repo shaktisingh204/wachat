@@ -30,7 +30,7 @@ import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
 import type { ProductSet } from '@/lib/definitions';
 
 
-const addProductInitialState = { message: null, error: null };
+const addProductInitialState: any = { message: null, error: null };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -90,7 +90,7 @@ function AddProductDialog({ catalogId, projectId, onProductAdded }: { catalogId:
     );
 }
 
-const addCollectionInitialState = { message: null, error: null };
+const addCollectionInitialState: any = { message: null, error: null };
 
 function CollectionSubmitButton() {
     const { pending } = useFormStatus();
@@ -246,11 +246,13 @@ const ProductsTable = ({ products, projectId, onAction }: { products: any[], pro
             )}
             {editingProduct && (
                 <EditProductDialog
-                    isOpen={!!editingProduct}
-                    onOpenChange={(open) => !open && setEditingProduct(null)}
-                    product={editingProduct}
-                    projectId={projectId}
-                    onProductUpdated={onAction}
+                    {...({
+                        isOpen: !!editingProduct,
+                        onOpenChange: (open: any) => !open && setEditingProduct(null),
+                        product: editingProduct,
+                        projectId,
+                        onProductUpdated: onAction,
+                    } as any)}
                 />
             )}
         </>
@@ -312,8 +314,8 @@ export default function CatalogProductsPage() {
                     getProductsForCatalog(catalogId, storedProjectId),
                     listProductSets(catalogId, storedProjectId)
                 ]);
-                setProducts(productsData);
-                setCollections(collectionsData);
+                setProducts(productsData as any);
+                setCollections(collectionsData as any);
             });
         }
     }, [catalogId]);

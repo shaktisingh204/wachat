@@ -42,7 +42,7 @@ interface EmailTemplateDialogProps {
 }
 
 export function EmailTemplateDialog({ isOpen, onOpenChange, template, onSuccess }: EmailTemplateDialogProps) {
-    const [state, formAction] = useActionState(saveEmailTemplate, initialState);
+    const [state, formAction] = useActionState(saveEmailTemplate as any, initialState as any);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     const isEditing = !!template;

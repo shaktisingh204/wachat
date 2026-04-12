@@ -62,7 +62,7 @@ export function Sidebar({ className, children }: { className?: string; children:
   }
 
   return (
-    <aside className={cn('flex h-full flex-col bg-card rounded-lg shadow-sm transition-[width] duration-300 ease-in-out group overflow-hidden z-30 relative', isOpen ? 'w-fit min-w-60' : 'w-[70px] hover:w-fit hover:min-w-60 hover:shadow-xl', className)}>
+    <aside className={cn('flex h-full flex-col bg-white/70 backdrop-blur-xl rounded-lg shadow-sm border-0 transition-[width] duration-300 ease-in-out group overflow-hidden z-30 relative', isOpen ? 'w-fit min-w-60' : 'w-[70px] hover:w-fit hover:min-w-60 hover:shadow-xl', className)}>
       {sidebarContent}
     </aside>
   );
@@ -155,5 +155,5 @@ export const SidebarTrigger = ({ children }: { children?: React.ReactNode }) => 
 
   return React.cloneElement(children as React.ReactElement, {
     onClick: () => setIsOpen(!isOpen),
-  });
+  } as any);
 }

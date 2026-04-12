@@ -23,7 +23,7 @@ function SubmitButton() {
 }
 
 export function EmailReplyBox({ conversation }: { conversation: WithId<EmailConversation> }) {
-    const [state, formAction] = useActionState(sendReplyEmail, initialState);
+    const [state, formAction] = useActionState(sendReplyEmail as any, initialState as any);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     const [body, setBody] = useState('');
@@ -44,7 +44,7 @@ export function EmailReplyBox({ conversation }: { conversation: WithId<EmailConv
 
     return (
         <form action={formAction} ref={formRef} className="w-full">
-            <input type="hidden" name="to" value={conversation.fromEmail} />
+            <input type="hidden" name="to" value={(conversation as any).fromEmail} />
             <input type="hidden" name="subject" value={`Re: ${conversation.subject}`} />
             <input type="hidden" name="body" value={body + quotedBody} />
 

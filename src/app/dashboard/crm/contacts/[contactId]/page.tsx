@@ -19,6 +19,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Label } from '@/components/ui/label';
 
 function ContactDetailPageSkeleton() {
     return (
@@ -58,7 +59,7 @@ export default function CrmContactDetailPage() {
                 }
                 if (fetchedContact) {
                     const allDeals = await getCrmDeals();
-                    setDeals(allDeals.filter(d => d.contactIds?.some(id => id.toString() === fetchedContact._id.toString())));
+                    setDeals((allDeals as any).deals?.filter((d: any) => d.contactIds?.some((id: any) => id.toString() === fetchedContact._id.toString())));
                 }
             });
         }

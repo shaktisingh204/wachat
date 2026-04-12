@@ -9,7 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Eye, Trash2, LoaderCircle } from 'lucide-react';
 import type { WithId } from 'mongodb';
-import { getQrCodes, deleteQrCode, type QrCode, type QrCodeWithShortUrl } from '@/app/actions/qr-code.actions';
+import { getQrCodes, deleteQrCode } from '@/app/actions/qr-code.actions';
+type QrCode = any;
+type QrCodeWithShortUrl = any;
 import { QrCodeDialog } from './qr-code-dialog';
 import {
   AlertDialog,

@@ -129,7 +129,7 @@ const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
                     </div>
                     <div className="overflow-hidden">
                         <CardTitle className="text-sm font-semibold leading-none truncate mb-1">
-                            {nodeInfo.label}
+                            {nodeInfo.label as any}
                         </CardTitle>
                         <p className="text-xs text-muted-foreground truncate">
                             {nodeInfo.subLabel}

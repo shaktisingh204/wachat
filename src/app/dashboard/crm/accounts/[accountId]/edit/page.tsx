@@ -34,7 +34,7 @@ export default function EditCrmAccountPage() {
     const [account, setAccount] = useState<WithId<CrmAccount> | null>(null);
     const [isLoading, startLoading] = useTransition();
 
-    const [state, formAction] = useActionState(updateCrmAccount, initialState);
+    const [state, formAction] = useActionState(updateCrmAccount as any, initialState as any);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 

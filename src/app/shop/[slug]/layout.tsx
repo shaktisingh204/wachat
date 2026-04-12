@@ -7,23 +7,28 @@ import { CartProvider } from '@/context/cart-context';
 import { BlockRenderer } from '@/components/wabasimplify/website-builder/block-renderer';
 import { getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
 
-export default async function ShopLayout({
-    children,
-    params,
-}: {
-    children: React.ReactNode;
-    params: { slug: string };
-}) {
+export default async function ShopLayout(
+    props: {
+        children: React.ReactNode;
+        params: Promise<{ slug: string }>;
+    }
+) {
+    const params = await props.params;
+
+    const {
+        children
+    } = props;
+
     const shop = await getEcommShopBySlug(params.slug);
     if (!shop) {
         notFound();
     }
-    
+
     // Fetch products once at the layout level if needed by header/footer
     const products = await getPublicEcommProducts(shop._id.toString());
-    
+
     const globalFontFamily = shop.appearance?.fontFamily || 'Inter, sans-serif';
-    
+
     return (
         <CartProvider>
             <div style={{ fontFamily: globalFontFamily, '--shop-primary-color': shop.appearance?.primaryColor || '#1877F2' } as React.CSSProperties}>

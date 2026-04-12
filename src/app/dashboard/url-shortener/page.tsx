@@ -36,7 +36,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const initialState = {
+const initialState: any = {
   message: null,
   error: null,
 };

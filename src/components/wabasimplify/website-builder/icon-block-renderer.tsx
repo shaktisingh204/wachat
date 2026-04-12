@@ -57,20 +57,20 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
         'max-sm:hidden': responsiveVisibility?.mobile === false,
     });
     
-    const animationClasses = {
+    const animationClasses = ({
         fadeIn: 'animate-in fade-in',
         fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5',
         zoomIn: 'animate-in zoom-in-75',
         bounce: 'animate-bounce',
         none: '',
-    }[animation || 'none'];
-    
-    const animationDurationClasses = { slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300' }[animationDuration || 'normal'];
+    } as Record<string, string>)[animation || 'none'] || '';
 
-    const hoverAnimationClass = {
+    const animationDurationClasses = ({ slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300' } as Record<string, string>)[animationDuration || 'normal'] || '';
+
+    const hoverAnimationClass = ({
         grow: 'group-hover:scale-110', shrink: 'group-hover:scale-90', pulse: 'hover:animate-pulse', bob: 'animate-bob', wobbleHorizontal: 'animate-wobble-horizontal',
         rotate: 'group-hover:rotate-180',
-    }[hoverAnimation || 'none'];
+    } as Record<string, string>)[hoverAnimation || 'none'] || '';
 
     const wrapperStyle: React.CSSProperties = {
         display: 'flex',
@@ -98,7 +98,7 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
         borderBottomWidth: view === 'framed' ? `${border?.width?.bottom || 0}px` : undefined,
         borderLeftWidth: view === 'framed' ? `${border?.width?.left || 0}px` : undefined,
         borderRadius: view !== 'none' ? (shape === 'circle' ? '50%' : `${border?.radius?.tl || 0}px ${border?.radius?.tr || 0}px ${border?.radius?.br || 0}px ${border?.radius?.bl || 0}px`) : undefined,
-        boxShadow: { sm: 'var(--tw-shadow)', md: 'var(--tw-shadow-md)', lg: 'var(--tw-shadow-lg)' }[boxShadow || 'none'],
+        boxShadow: ({ sm: 'var(--tw-shadow)', md: 'var(--tw-shadow-md)', lg: 'var(--tw-shadow-lg)' } as Record<string, string>)[boxShadow || 'none'],
         transition: `all ${transitionDuration}s ease-in-out`
     };
 

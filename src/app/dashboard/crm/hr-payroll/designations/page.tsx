@@ -13,7 +13,7 @@ import type { WithId, CrmDesignation } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-const saveInitialState = { message: null, error: null };
+const saveInitialState: any = { message: null, error: null };
 
 function SaveButton() {
     const { pending } = useFormStatus();

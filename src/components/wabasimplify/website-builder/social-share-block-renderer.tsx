@@ -81,20 +81,20 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
         setPageTitle(document.title);
     }, [urlType, customUrl]);
 
-    const buttonSizeClasses = { small: 'h-8 px-2', medium: 'h-10 px-3', large: 'h-12 px-4'}[size];
-    const iconSizeClasses = { small: 'h-4 w-4', medium: 'h-5 w-5', large: 'h-6 w-6'}[size];
-    
-    const shapeClasses = { square: 'rounded-none', rounded: 'rounded-md', circle: 'rounded-full' };
-    
-    const alignmentClasses = {
+    const buttonSizeClasses = ({ small: 'h-8 px-2', medium: 'h-10 px-3', large: 'h-12 px-4'} as Record<string, string>)[size];
+    const iconSizeClasses = ({ small: 'h-4 w-4', medium: 'h-5 w-5', large: 'h-6 w-6'} as Record<string, string>)[size];
+
+    const shapeClasses: Record<string, string> = { square: 'rounded-none', rounded: 'rounded-md', circle: 'rounded-full' };
+
+    const alignmentClasses: Record<string, string> = {
         left: 'justify-start', center: 'justify-center', right: 'justify-end',
         justify: 'w-full [&>*]:flex-1',
     };
-    
-    const gridColsClass = {
+
+    const gridColsClass = ({
         0: 'grid-cols-none', 1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3',
         4: 'grid-cols-4', 5: 'grid-cols-5', 6: 'grid-cols-6',
-    }[columns];
+    } as Record<string, string>)[columns];
 
     const uniqueId = React.useId().replace(/:/g, "");
     

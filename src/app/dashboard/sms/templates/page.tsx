@@ -30,7 +30,7 @@ export default async function DltTemplatesPage() {
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
-                        <form action={createDltTemplate}>
+                        <form action={createDltTemplate as any}>
                             <DialogHeader>
                                 <DialogTitle>Add DLT Template</DialogTitle>
                                 <DialogDescription>

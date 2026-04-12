@@ -200,7 +200,7 @@ export default function EditSabFlowPage() {
     const flowId = params.flowId as string;
 
     const initialState = { message: null, error: null, flowId: undefined };
-    const [state, formAction] = useActionState(saveSabFlow, initialState);
+    const [state, formAction] = useActionState(saveSabFlow as any, initialState as any);
     const formRef = useRef<HTMLFormElement>(null);
     const [user, setUser] = useState<any>(null);
 

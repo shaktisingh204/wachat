@@ -20,7 +20,7 @@ export async function getCrmAccounts(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const filter: Filter<CrmAccount> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
         if (status === 'active') {
             filter.status = { $ne: 'archived' };
         } else if (status === 'archived') {

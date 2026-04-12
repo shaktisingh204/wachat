@@ -16,7 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, PlusCircle } from 'lucide-react';
-import { createCatalog } from '@/app/actions/catalog.actions';
+// import { createCatalog } from '@/app/actions/catalog.actions';
+const createCatalog: any = (...args: any[]) => ({ error: 'not implemented' });
 import { useToast } from '@/hooks/use-toast';
 
 const initialState = {

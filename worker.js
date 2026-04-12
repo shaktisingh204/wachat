@@ -232,8 +232,18 @@ async function startBroadcastWorker(workerId) {
 
   let busy = false;
 
+  // Kill switch: when the new BullMQ pipeline is active
+  // (sabnode-broadcast-worker running, BROADCAST_USE_BULLMQ=1) this legacy
+  // poller must NOT claim new broadcasts. We keep the process alive so any
+  // in-flight legacy broadcasts can still be observed, but we stop pulling
+  // new work.
+  const LEGACY_DISABLED = process.env.BROADCAST_USE_BULLMQ === '1';
+  if (LEGACY_DISABLED) {
+    console.log(`${LOG_PREFIX} legacy poller disabled (BROADCAST_USE_BULLMQ=1) — handing off to BullMQ pipeline`);
+  }
+
   setInterval(async () => {
-    if (busy) return;
+    if (busy || LEGACY_DISABLED) return;
     busy = true;
 
     let job = null;

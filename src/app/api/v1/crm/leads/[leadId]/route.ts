@@ -7,11 +7,11 @@ import { ObjectId } from 'mongodb';
 
 async function handler(
     request: NextRequest,
-    { params }: { params: { leadId: string } },
+    { params }: { params: Promise<{ leadId: string }> },
     authResult: any
 ) {
     const { user } = authResult;
-    const { leadId } = params;
+    const { leadId } = await params;
 
     if (!ObjectId.isValid(leadId)) {
         return NextResponse.json({ error: 'Invalid Lead ID format.' }, { status: 400 });
@@ -43,7 +43,7 @@ async function handler(
 // Wrapper to handle authentication and rate limiting for all methods
 export async function wrapper(
     request: NextRequest,
-    { params }: { params: { leadId: string } }
+    { params }: { params: Promise<{ leadId: string }> }
 ) {
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

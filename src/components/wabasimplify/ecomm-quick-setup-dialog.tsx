@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, Settings } from 'lucide-react';
-import { saveEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
+import { updateEcommShopSettings as saveEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, Project } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -41,7 +41,7 @@ interface EcommQuickSetupDialogProps {
 
 export function EcommQuickSetupDialog({ project, onSuccess, children }: EcommQuickSetupDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(saveEcommShopSettings, initialState);
+  const [state, formAction] = useActionState(saveEcommShopSettings as any, initialState as any);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 

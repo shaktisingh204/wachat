@@ -39,9 +39,40 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
     const isNew = planId === 'new';
 
     try {
+        // Load existing features so we only overwrite keys the form actually sent.
+        // Historically the editor had no UI for `plan.features` while savePlan still
+        // iterated `planFeaturesDefaults` — that quietly wrote every flag to `false`
+        // on every save. We now treat the form as authoritative only when it explicitly
+        // carries a `__featuresSubmitted=1` marker (i.e. the Features tab is mounted).
+        const featuresSubmitted = formData.get('__featuresSubmitted') === '1';
+
+        let existingFeatures: Partial<PlanFeaturePermissions> = {};
+        if (!isNew && ObjectId.isValid(planId)) {
+            try {
+                const { db: readDb } = await connectToDatabase();
+                const existing = await readDb
+                    .collection<Plan>('plans')
+                    .findOne(
+                        { _id: new ObjectId(planId) },
+                        { projection: { features: 1 } },
+                    );
+                existingFeatures = (existing?.features as any) || {};
+            } catch (e) {
+                console.error('savePlan: failed to load existing features', e);
+            }
+        }
+
         const features: Partial<PlanFeaturePermissions> = {};
         for (const key of Object.keys(planFeaturesDefaults)) {
-            features[key as keyof PlanFeaturePermissions] = formData.get(key) === 'on';
+            if (featuresSubmitted) {
+                features[key as keyof PlanFeaturePermissions] = formData.get(key) === 'on';
+            } else {
+                // No Features tab submission → keep whatever is already on the plan,
+                // falling back to the defaults (all true) for brand-new plans.
+                features[key as keyof PlanFeaturePermissions] =
+                    existingFeatures[key as keyof PlanFeaturePermissions] ??
+                    planFeaturesDefaults[key as keyof PlanFeaturePermissions];
+            }
         }
 
         const planData: Omit<Plan, '_id' | 'createdAt'> = {
@@ -95,9 +126,22 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
                     warehouses: Number(formData.get('limit_crm_warehouses') ?? 0),
                     pipelines: Number(formData.get('limit_crm_pipelines') ?? 0),
                 },
-                meta: {
-                    adAccounts: Number(formData.get('limit_meta_adAccounts') ?? 0),
-                    pages: Number(formData.get('limit_meta_pages') ?? 0),
+                facebook: {
+                    pages: Number(formData.get('limit_fb_pages') ?? 0),
+                    scheduledPosts: Number(formData.get('limit_fb_scheduled') ?? 0),
+                    automationRules: Number(formData.get('limit_fb_automation') ?? 0),
+                    shops: Number(formData.get('limit_fb_shops') ?? 0),
+                },
+                instagram: {
+                    accounts: Number(formData.get('limit_ig_accounts') ?? 0),
+                    scheduledPosts: Number(formData.get('limit_ig_scheduled') ?? 0),
+                    hashtagTracking: Number(formData.get('limit_ig_hashtags') ?? 0),
+                },
+                adManager: {
+                    adAccounts: Number(formData.get('limit_ads_accounts') ?? 0),
+                    campaigns: Number(formData.get('limit_ads_campaigns') ?? 0),
+                    audiences: Number(formData.get('limit_ads_audiences') ?? 0),
+                    monthlyAdSpendCap: Number(formData.get('limit_ads_spend_cap') ?? 0),
                 },
                 email: {
                     connectedAccounts: Number(formData.get('limit_email_connectedAccounts') ?? 0),
@@ -105,6 +149,21 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
                 },
                 sms: {
                     dailyLimit: Number(formData.get('limit_sms_dailyLimit') ?? 0),
+                },
+                sabchat: {
+                    widgets: Number(formData.get('limit_sabchat_widgets') ?? 0),
+                    monthlyVisitors: Number(formData.get('limit_sabchat_visitors') ?? 0),
+                    quickReplies: Number(formData.get('limit_sabchat_replies') ?? 0),
+                },
+                seo: {
+                    projects: Number(formData.get('limit_seo_projects') ?? 0),
+                    brandRadars: Number(formData.get('limit_seo_radars') ?? 0),
+                    trackedKeywords: Number(formData.get('limit_seo_keywords') ?? 0),
+                },
+                websiteBuilder: {
+                    sites: Number(formData.get('limit_site_sites') ?? 0),
+                    pages: Number(formData.get('limit_site_pages') ?? 0),
+                    customDomains: Number(formData.get('limit_site_domains') ?? 0),
                 },
                 urlShortener: {
                     links: Number(formData.get('limit_url_links') ?? 0),
@@ -115,28 +174,39 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
                 },
             },
             features: features as PlanFeaturePermissions,
-            permissions: { agent: {} }, // Will populate below
+            permissions: {}, // Will populate below
         };
 
-        // Initialize permissions with 'agent' key to satisfy GlobalPermissions type
-        const permissions: any = { agent: {} };
+        // Parse the permissions blob emitted by <PlanPermissionSelector />.
+        // Structure: flat { [moduleKey]: { view, create, edit, delete } }
+        // Fall back to legacy formData iteration if the JSON field is absent.
+        const permissionsJson = formData.get('permissionsJson') as string | null;
+        let permissions: Record<string, Record<string, boolean>> = {};
 
-        // Use require to avoid top-level import issues if not yet transpiled, or just to keep scope clean
-        // Ideally we should move this to a top-level import, but to fix validly now:
-        const { globalModules, permissionActions } = require('@/lib/permission-modules');
-
-        for (const module of globalModules) {
-            permissions[module] = {};
-            for (const action of permissionActions) {
-                const key = `${module}_${action}`;
-                // If the key is present in formData, it's checked (checkbox behavior)
-                // But wait, ShadCN Checkbox might send "on" or nothing.
-                // Native HTML Checkbox sends "on" if checked, nothing if not.
-                // So formData.get(key) === 'on' is correct.
-                permissions[module][action] = formData.get(key) === 'on';
+        if (permissionsJson) {
+            try {
+                const parsed = JSON.parse(permissionsJson);
+                // Accept either flat or nested-under-`agent` legacy shape.
+                if (parsed && typeof parsed === 'object') {
+                    const source = parsed.agent && !parsed.wachat_overview ? parsed.agent : parsed;
+                    permissions = source;
+                }
+            } catch (e) {
+                console.error('Failed to parse permissionsJson, falling back to {}', e);
+                permissions = {};
+            }
+        } else {
+            // Legacy fallback: iterate named checkbox inputs
+            const { globalModules, permissionActions } = require('@/lib/permission-modules');
+            for (const module of globalModules) {
+                permissions[module] = {} as any;
+                for (const action of permissionActions) {
+                    const key = `${module}_${action}`;
+                    permissions[module][action] = formData.get(key) === 'on';
+                }
             }
         }
-        planData.permissions = permissions;
+        planData.permissions = permissions as any;
 
         if (!planData.name || isNaN(planData.price)) {
             return { error: 'Plan name and price are required.' };

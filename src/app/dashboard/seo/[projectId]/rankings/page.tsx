@@ -35,7 +35,7 @@ export default function RankingsPage({ params }: { params: Promise<{ projectId: 
     const top10 = keywords.filter(k => k.currentRank > 0 && k.currentRank <= 10).length;
 
     return (
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">

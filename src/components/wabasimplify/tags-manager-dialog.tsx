@@ -41,7 +41,7 @@ interface TagsManagerDialogProps {
 }
 
 export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }: TagsManagerDialogProps) {
-    const [state, formAction] = useActionState(handleUpdateUserProfile, initialState);
+    const [state, formAction] = useActionState(handleUpdateUserProfile as any, initialState as any);
     const { toast } = useToast();
     const [tags, setTags] = useState<Tag[]>([]);
     const [validationError, setValidationError] = useState<string | null>(null);
@@ -95,7 +95,7 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
         }
         
         setValidationError(null);
-        formAction(formData);
+        (formAction as any)(formData);
     };
 
     return (

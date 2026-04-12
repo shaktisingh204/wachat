@@ -106,7 +106,7 @@ export default function LeadsSummaryPage() {
 
     const { summary, pipelineSummary, filtersData } = summaryData;
     
-    const activeFilters = Object.entries(filters).filter(([key, value]) => value && (typeof value !== 'object' || (value.from || value.to)));
+    const activeFilters = Object.entries(filters).filter(([key, value]: [string, any]) => value && (typeof value !== 'object' || ((value as any).from || (value as any).to)));
 
     const FilterPill = ({ filterKey, value }: { filterKey: string; value: any }) => {
         let label = filterKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
@@ -141,12 +141,12 @@ export default function LeadsSummaryPage() {
                     <div className="space-y-1"><Label>Lead Source</Label><Select value={filters.leadSource} onValueChange={v => handleFilterChange('leadSource', v)}><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent>{(filtersData.leadSources || []).map((s: string) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>
                     <div className="space-y-1"><Label>Assigned To</Label><Select value={filters.assigneeId} onValueChange={v => handleFilterChange('assigneeId', v)}><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent>{(filtersData.assignees || []).map((a: any) => <SelectItem key={a._id} value={a._id}>{a.name}</SelectItem>)}</SelectContent></Select></div>
                     <div className="space-y-1"><Label>Current Stage</Label><Select value={filters.currentStage} onValueChange={v => handleFilterChange('currentStage', v)}><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent>{(filtersData.pipelines[0]?.stages || []).map((s: any) => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-1"><Label>Created Date</Label><DatePicker date={filters.createdFrom} setDate={d => handleFilterChange('createdFrom', d)} placeholder="Start Date"/></div>
-                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.createdTo} setDate={d => handleFilterChange('createdTo', d)} placeholder="End Date" /></div>
-                    <div className="space-y-1"><Label>Updated Date</Label><DatePicker date={filters.updatedFrom} setDate={d => handleFilterChange('updatedFrom', d)} placeholder="Start Date"/></div>
-                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.updatedTo} setDate={d => handleFilterChange('updatedTo', d)} placeholder="End Date" /></div>
-                    <div className="space-y-1"><Label>Closed Date</Label><DatePicker date={filters.closedFrom} setDate={d => handleFilterChange('closedFrom', d)} placeholder="Start Date"/></div>
-                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.closedTo} setDate={d => handleFilterChange('closedTo', d)} placeholder="End Date" /></div>
+                    <div className="space-y-1"><Label>Created Date</Label><DatePicker date={filters.createdFrom} setDate={((d: any) => handleFilterChange('createdFrom', d)) as any} placeholder="Start Date"/></div>
+                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.createdTo} setDate={((d: any) => handleFilterChange('createdTo', d)) as any} placeholder="End Date" /></div>
+                    <div className="space-y-1"><Label>Updated Date</Label><DatePicker date={filters.updatedFrom} setDate={((d: any) => handleFilterChange('updatedFrom', d)) as any} placeholder="Start Date"/></div>
+                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.updatedTo} setDate={((d: any) => handleFilterChange('updatedTo', d)) as any} placeholder="End Date" /></div>
+                    <div className="space-y-1"><Label>Closed Date</Label><DatePicker date={filters.closedFrom} setDate={((d: any) => handleFilterChange('closedFrom', d)) as any} placeholder="Start Date"/></div>
+                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.closedTo} setDate={((d: any) => handleFilterChange('closedTo', d)) as any} placeholder="End Date" /></div>
                 </CardContent>
                  <CardFooter>
                     <Button onClick={fetchData} disabled={isLoading}>

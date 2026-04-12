@@ -23,11 +23,11 @@ export function EmailThread({ conversation, onStatusChange }: EmailThreadProps) 
             <CardHeader className="p-3 border-b flex-shrink-0 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Avatar>
-                        <AvatarFallback>{conversation.fromName.charAt(0).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>{(conversation as any).fromName.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <p className="font-semibold">{conversation.fromName}</p>
-                        <p className="text-sm text-muted-foreground">{conversation.fromEmail}</p>
+                        <p className="font-semibold">{(conversation as any).fromName}</p>
+                        <p className="text-sm text-muted-foreground">{(conversation as any).fromEmail}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -43,11 +43,11 @@ export function EmailThread({ conversation, onStatusChange }: EmailThreadProps) 
                     {conversation.messages.map((message, index) => (
                         <div key={index} className="flex gap-4">
                             <Avatar>
-                                <AvatarFallback>{message.from.split(' ')[0].charAt(0)}</AvatarFallback>
+                                <AvatarFallback>{String((message as any).from || '').charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                    <p className="font-semibold">{message.from}</p>
+                                    <p className="font-semibold">{String((message as any).from || '')}</p>
                                     <p className="text-xs text-muted-foreground">{format(new Date(message.date), 'PPpp')}</p>
                                 </div>
                                  <div className="prose prose-sm dark:prose-invert max-w-none mt-1 border p-3 rounded-md"

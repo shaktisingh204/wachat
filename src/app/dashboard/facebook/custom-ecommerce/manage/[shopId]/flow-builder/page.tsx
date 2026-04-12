@@ -377,7 +377,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                     <div className="space-y-2">
                         <Label htmlFor="confirmation-text">Confirmation Message</Label>
                         <Textarea id="confirmation-text" placeholder="Thank you for your order, {{name}}!" defaultValue={selectedNode.data.text || 'Thank you for your order, {{name}}! Your order ID is #{{order_id}}.'} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />
-                        <p className="text-xs text-muted-foreground">Use variables like `{{order_id}}` which you should get from a preceding API call block.</p>
+                        <p className="text-xs text-muted-foreground">{`Use variables like \`{{order_id}}\` which you should get from a preceding API call block.`}</p>
                     </div>
                 );
              case 'image':
@@ -972,15 +972,15 @@ export default function EcommFlowBuilderPage() {
                 return;
             }
 
-            const newEdge: EcommFlowEdge = {
+            const newEdge: EcommFlowEdge = ({
                 id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`,
                 source: connecting.sourceNodeId,
                 target: nodeId,
                 sourceHandle: connecting.sourceHandleId,
                 targetHandle: handleId
-            };
-            
-            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
+            } as any);
+
+            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && (edge as any).targetHandle === handleId));
             
             const sourceHasSingleOutput = !connecting.sourceHandleId.includes('btn-') && !connecting.sourceHandleId.includes('output-yes') && !connecting.sourceHandleId.includes('output-no');
             if (sourceHasSingleOutput) {
@@ -1152,7 +1152,7 @@ export default function EcommFlowBuilderPage() {
                                             if(!sourceNode || !targetNode) return null;
                                             
                                             const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
-                                            const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
+                                            const targetPos = getNodeHandlePosition(targetNode, (edge as any).targetHandle || `${edge.target}-input`);
                                             if (!sourcePos || !targetPos) return null;
 
                                             return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />

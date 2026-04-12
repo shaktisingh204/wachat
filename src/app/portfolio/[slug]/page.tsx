@@ -7,7 +7,8 @@ import { LayoutGrid } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { WebsitePage } from '@/lib/definitions';
 
-export default async function WebsiteHomePage({ params }: { params: { slug: string } }) {
+export default async function WebsiteHomePage(props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params;
     if (!params.slug) {
         notFound();
     }
@@ -17,12 +18,12 @@ export default async function WebsiteHomePage({ params }: { params: { slug: stri
     if (!site) {
         notFound();
     }
-    
+
     const { db } = await connectToDatabase();
     const homepage = await db.collection<WebsitePage>('website_pages').findOne({ siteId: site._id, isHomepage: true });
 
     const homepageLayout = homepage?.layout || [];
-    
+
     return (
         <main>
             {homepageLayout.length > 0 ? (

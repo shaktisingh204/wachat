@@ -15,7 +15,8 @@ async function getPageBySlug(shopSlug: string, pageSlug: string) {
     return page;
 }
 
-export default async function ShopSubPage({ params }: { params: { slug: string, pageSlug: string } }) {
+export default async function ShopSubPage(props: { params: Promise<{ slug: string, pageSlug: string }> }) {
+    const params = await props.params;
     if (!params.slug || !params.pageSlug) {
         notFound();
     }
@@ -24,9 +25,9 @@ export default async function ShopSubPage({ params }: { params: { slug: string, 
     if (!page) {
         notFound();
     }
-    
+
     const products = await getPublicEcommProducts(page.shopId.toString());
-    
+
     return (
         <main>
             <Canvas

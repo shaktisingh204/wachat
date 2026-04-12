@@ -1,108 +1,71 @@
 'use client';
 
-import { useState } from 'react';
+import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Button } from '@/components/ui/button';
-import { moduleCategories, permissionActions } from '@/lib/permission-modules';
+import { ShieldCheck } from 'lucide-react';
 import type { GlobalPermissions } from '@/lib/definitions';
+import {
+    PlanPermissionsMatrix,
+    type PlanPermissionsMap,
+} from './plan-permissions-matrix';
+import { moduleCategories } from '@/lib/permission-modules';
 
 interface PlanPermissionSelectorProps {
-    defaultPermissions?: GlobalPermissions;
+    defaultPermissions?: GlobalPermissions | PlanPermissionsMap;
+    /** Hidden input name used when submitting via a form action. */
+    name?: string;
 }
 
-export function PlanPermissionSelector({ defaultPermissions }: PlanPermissionSelectorProps) {
-    // defaultPermissions structure is typically { agent: { module_action: boolean } } for roles
-    // For plans, we might store it as { module_action: boolean } flattened, or reuse the structure.
-    // Let's use a flat structure for the form submission: name="perm_module_action"
+/**
+ * Normalize legacy nested `{ agent: { module: {...} } }` plans to the new
+ * flat `{ module: {...} }` shape the rest of the codebase expects.
+ */
+function normalizeLegacy(raw: any): PlanPermissionsMap {
+    if (!raw || typeof raw !== 'object') return {};
+    const knownModules = new Set(
+        Object.values(moduleCategories).flatMap((m) => m),
+    );
+    const rootMatches = Object.keys(raw).filter((k) => knownModules.has(k));
+    if (rootMatches.length > 0) return raw as PlanPermissionsMap;
+    if (raw.agent && typeof raw.agent === 'object') {
+        return raw.agent as PlanPermissionsMap;
+    }
+    return {};
+}
 
-    // Helper to check if a specific permission is enabled in defaults
-    // Since Plan type has `permissions?: GlobalPermissions`, which is nested, 
-    // but for Plans we might just want to store "Allowed Capabilities".
-    // Let's assume for now we save it as a flat list or the same nested structure.
-    // For simplicity in form submission, inputs with names `permissions[module][action]` works if we use a parser,
-    // but `module_action` string is easier to handle plain FormData.
-
-    // Let's assume the Plan permissions are stored in the same structure as GlobalPermissions:
-    // permissions: { module: { action: boolean } } (Plan level doesn't need 'agent' key wrapper like user roles)
-    // Wait, GlobalPermissions is { agent: GlobalRolePermissions, [roleId]: ... }
-    // For a Plan, we just need `GlobalRolePermissions` structure directly.
-
-    // Let's safely access defaults. 
-    // If the prop passed is the full `permissions` object from Plan, it might be `GlobalRolePermissions`.
-
-    const [expandedSections, setExpandedSections] = useState<string[]>(Object.keys(moduleCategories));
-
-    const handleSelectAll = (category: string, select: boolean) => {
-        const modules = moduleCategories[category as keyof typeof moduleCategories];
-        modules.forEach(module => {
-            permissionActions.forEach(action => {
-                const el = document.getElementById(`${module}_${action}`) as HTMLInputElement;
-                if (el) {
-                    el.checked = select;
-                    el.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            });
-        });
-    };
+/**
+ * Plan permission editor used inside the plan editor form.
+ * Keeps the permissions in client state and emits a single hidden JSON
+ * field so the server action can parse it without iterating over 292
+ * formData keys.
+ */
+export function PlanPermissionSelector({
+    defaultPermissions,
+    name = 'permissionsJson',
+}: PlanPermissionSelectorProps) {
+    const [permissions, setPermissions] = React.useState<PlanPermissionsMap>(() =>
+        normalizeLegacy(defaultPermissions),
+    );
 
     return (
-        <Card className="mt-6">
-            <CardHeader>
-                <CardTitle>Master Permission Control</CardTitle>
-                <CardDescription>
-                    Define the absolute maximum capabilities for this plan. Users on this plan cannot use or assign permissions that are unchecked here.
-                </CardDescription>
+        <Card className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
+            <CardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
+                <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center">
+                        <ShieldCheck className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                        <CardTitle className="text-lg">Master Permission Control</CardTitle>
+                        <CardDescription>
+                            Define the absolute ceiling of what users on this plan can do. Anything
+                            unchecked here is blocked application-wide, even for paying users.
+                        </CardDescription>
+                    </div>
+                </div>
             </CardHeader>
-            <CardContent>
-                <Accordion type="multiple" defaultValue={Object.keys(moduleCategories)} className="space-y-4">
-                    {Object.entries(moduleCategories).map(([category, modules]) => (
-                        <AccordionItem value={category} key={category} className="border rounded-lg px-4">
-                            <AccordionTrigger className="hover:no-underline py-3">
-                                <div className="flex items-center gap-4 w-full">
-                                    <span className="font-semibold text-base">{category}</span>
-                                    <span className="text-xs text-muted-foreground font-normal">({modules.length} modules)</span>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-2 pb-4">
-                                <div className="flex justify-end gap-2 mb-4">
-                                    <Button type="button" variant="outline" size="sm" onClick={() => handleSelectAll(category, true)}>Select All</Button>
-                                    <Button type="button" variant="outline" size="sm" onClick={() => handleSelectAll(category, false)}>Deselect All</Button>
-                                </div>
-                                <div className="space-y-6">
-                                    {modules.map(module => (
-                                        <div key={module} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center border-b pb-4 last:border-0 last:pb-0">
-                                            <div className="md:col-span-1">
-                                                <Label className="text-sm font-medium break-words">
-                                                    {module.replace(/_/g, ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase())}
-                                                </Label>
-                                            </div>
-                                            <div className="md:col-span-4 flex flex-wrap gap-4">
-                                                {permissionActions.map(action => (
-                                                    <div key={`${module}_${action}`} className="flex items-center space-x-2">
-                                                        <Checkbox
-                                                            id={`${module}_${action}`}
-                                                            name={`${module}_${action}`}
-                                                            defaultChecked={(defaultPermissions as any)?.[module]?.[action] ?? true}
-                                                        />
-                                                        <Label htmlFor={`${module}_${action}`} className="capitalize cursor-pointer text-muted-foreground hover:text-foreground">
-                                                            {action}
-                                                        </Label>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-                    ))}
-                </Accordion>
-                <p className="text-xs text-muted-foreground mt-6 text-center">
-                    Note: "View" permission is usually required for other permissions to work effectively.
-                </p>
+            <CardContent className="pt-6">
+                <input type="hidden" name={name} value={JSON.stringify(permissions)} />
+                <PlanPermissionsMatrix value={permissions} onChange={setPermissions} />
             </CardContent>
         </Card>
     );

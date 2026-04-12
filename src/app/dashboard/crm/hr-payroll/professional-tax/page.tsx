@@ -27,7 +27,7 @@ import { getCrmPtSlabs, saveCrmPtSlab, deleteCrmPtSlab, generateProfessionalTaxR
 import type { WithId, CrmProfessionalTaxSlab } from '@/lib/definitions';
 import { indianStates } from '@/lib/states';
 
-const saveInitialState = { message: null, error: null };
+const saveInitialState: any = { message: null, error: null };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();

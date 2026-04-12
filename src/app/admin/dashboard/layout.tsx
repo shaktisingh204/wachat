@@ -1,28 +1,42 @@
-import React, { Suspense } from 'react';
-import { AdminDashboardClientLayout } from '@/components/wabasimplify/admin-dashboard-client-layout';
-import { Skeleton } from '@/components/ui/skeleton';
+import React from 'react';
+import { redirect } from 'next/navigation';
+import { getAdminSession } from '@/app/actions/admin.actions';
+import { AdminSidebarNav } from '@/components/wabasimplify/admin-sidebar-nav';
+import { AdminTopBar } from '@/components/wabasimplify/admin-top-bar';
 
-function FullPageSkeleton() {
+export default async function AdminDashboardLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    // Server-side auth guard — no flash, no race condition
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) {
+        redirect('/admin-login');
+    }
+
     return (
-        <div className="flex h-screen w-screen bg-background p-2 gap-2">
-            <div className="w-60 rounded-lg bg-card p-2"><Skeleton className="h-full w-full"/></div>
-            <div className="flex-1 flex flex-col gap-2">
-                <div className="h-16 rounded-lg bg-card p-4"><Skeleton className="h-full w-full"/></div>
-                <div className="flex-1 rounded-lg bg-card p-4"><Skeleton className="h-full w-full"/></div>
+        <div className="flex h-screen bg-slate-50 overflow-hidden">
+            {/* Sidebar */}
+            <AdminSidebarNav />
+
+            {/* Main column */}
+            <div className="flex flex-1 flex-col min-w-0">
+                <AdminTopBar />
+                <main className="flex-1 overflow-y-auto">
+                    <div className="p-4 md:p-6 lg:p-8 space-y-6">
+                        <React.Suspense fallback={
+                            <div className="space-y-4">
+                                {[...Array(3)].map((_, i) => (
+                                    <div key={i} className="h-32 rounded-2xl bg-white animate-pulse" />
+                                ))}
+                            </div>
+                        }>
+                            {children}
+                        </React.Suspense>
+                    </div>
+                </main>
             </div>
         </div>
     );
-}
-
-
-export default function AdminDashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <Suspense fallback={<FullPageSkeleton />}>
-        <AdminDashboardClientLayout>{children}</AdminDashboardClientLayout>
-    </Suspense>
-  )
 }

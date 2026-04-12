@@ -25,7 +25,7 @@ export async function getCrmContacts(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const filter: Filter<CrmContact> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
             filter.$or = [

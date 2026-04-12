@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     try {
         const response = await outlookAuthClient.acquireTokenByCode(tokenRequest);
         
-        if (!response.accessToken || !response.refreshToken || !response.expiresOn) {
+        if (!response.accessToken || !(response as any).refreshToken || !response.expiresOn) {
             throw new Error("Failed to acquire complete token set from Outlook.");
         }
         
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
             userId: session.user._id.toString(),
             provider: 'outlook',
             accessToken: response.accessToken,
-            refreshToken: response.refreshToken!,
+            refreshToken: (response as any).refreshToken!,
             expiryDate: response.expiresOn!.getTime(),
             fromEmail: userInfo.mail || userInfo.userPrincipalName,
             fromName: userInfo.displayName,

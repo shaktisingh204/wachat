@@ -15,7 +15,7 @@ export function SyncProjectsButton() {
   
   const onSync = () => {
     startTransition(async () => {
-        const result = await handleSyncWabas();
+        const result = await (handleSyncWabas as any)(undefined as any, undefined as any);
         if (result?.error) {
             toast({
                 title: 'Sync Error',

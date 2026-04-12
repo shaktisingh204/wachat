@@ -58,8 +58,7 @@ export async function handleAdminLogin(prevState: any, formData: FormData) {
     const jwtSecret = process.env.JWT_SECRET;
 
     if (!adminEmail || !adminPasswordHash || !jwtSecret) {
-        const errorMessage = "Server misconfiguration: Admin credentials are not set in the environment variables.";
-        return { success: false, error: errorMessage };
+        return { success: false, error: "Server misconfiguration: Admin credentials are not set." };
     }
 
     if (email !== adminEmail) {
@@ -68,14 +67,23 @@ export async function handleAdminLogin(prevState: any, formData: FormData) {
 
     try {
         const isMatch = await comparePassword(password, adminPasswordHash);
-
         if (!isMatch) {
             return { success: false, error: "Invalid credentials." };
         }
 
         const token = await createAdminSessionToken();
 
-        return { success: true, token };
+        // Set httpOnly cookie server-side — never expose the token to the client
+        const cookieStore = await cookies();
+        cookieStore.set('admin_session', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24, // 1 day
+        });
+
+        return { success: true };
     } catch (e: any) {
         console.error('[ADMIN_LOGIN] FATAL:', e);
         return { success: false, error: 'An unexpected server error occurred.' };
@@ -242,24 +250,202 @@ export async function updateUserPlanByAdmin(userId: string, planId: string): Pro
     }
 }
 
-export async function getAdminDashboardStats() {
+export type AdminStats = {
+    core: {
+        totalUsers: number;
+        approvedUsers: number;
+        pendingUsers: number;
+        totalProjects: number;
+        totalWabas: number;
+        totalPlans: number;
+        totalTransactions: number;
+    };
+    wachat: {
+        broadcasts: number;
+        outgoingMessages: number;
+        incomingMessages: number;
+        contacts: number;
+        templates: number;
+        libraryTemplates: number;
+        flows: number;
+        flowLogs: number;
+        cannedMessages: number;
+        activityLogs: number;
+    };
+    crm: {
+        contacts: number;
+        leads: number;
+        deals: number;
+        invoices: number;
+        quotations: number;
+        salesOrders: number;
+        purchaseOrders: number;
+        expenses: number;
+        products: number;
+        employees: number;
+        vendors: number;
+        tasks: number;
+        automations: number;
+        forms: number;
+        formSubmissions: number;
+        voucherEntries: number;
+    };
+    ads: {
+        adCampaigns: number;
+        facebookBroadcasts: number;
+        facebookFlows: number;
+        facebookSubscribers: number;
+        metaFlows: number;
+    };
+    marketing: {
+        emailCampaigns: number;
+        emailContacts: number;
+        emailTemplates: number;
+        smsCampaigns: number;
+        smsLogs: number;
+    };
+    platform: {
+        seoProjects: number;
+        seoAudits: number;
+        seoKeywords: number;
+        sabflows: number;
+        sabflowExecutions: number;
+        sabchatSessions: number;
+        teamChannels: number;
+        teamMessages: number;
+        teamTasks: number;
+        notifications: number;
+    };
+    tools: {
+        shortUrls: number;
+        qrCodes: number;
+        ecommShops: number;
+        ecommProducts: number;
+        ecommOrders: number;
+        websitePages: number;
+    };
+};
+
+function emptyAdminStats(): AdminStats {
+    return {
+        core: { totalUsers: 0, approvedUsers: 0, pendingUsers: 0, totalProjects: 0, totalWabas: 0, totalPlans: 0, totalTransactions: 0 },
+        wachat: { broadcasts: 0, outgoingMessages: 0, incomingMessages: 0, contacts: 0, templates: 0, libraryTemplates: 0, flows: 0, flowLogs: 0, cannedMessages: 0, activityLogs: 0 },
+        crm: { contacts: 0, leads: 0, deals: 0, invoices: 0, quotations: 0, salesOrders: 0, purchaseOrders: 0, expenses: 0, products: 0, employees: 0, vendors: 0, tasks: 0, automations: 0, forms: 0, formSubmissions: 0, voucherEntries: 0 },
+        ads: { adCampaigns: 0, facebookBroadcasts: 0, facebookFlows: 0, facebookSubscribers: 0, metaFlows: 0 },
+        marketing: { emailCampaigns: 0, emailContacts: 0, emailTemplates: 0, smsCampaigns: 0, smsLogs: 0 },
+        platform: { seoProjects: 0, seoAudits: 0, seoKeywords: 0, sabflows: 0, sabflowExecutions: 0, sabchatSessions: 0, teamChannels: 0, teamMessages: 0, teamTasks: 0, notifications: 0 },
+        tools: { shortUrls: 0, qrCodes: 0, ecommShops: 0, ecommProducts: 0, ecommOrders: 0, websitePages: 0 },
+    };
+}
+
+export async function getAdminDashboardStats(): Promise<AdminStats> {
     const { isAdmin } = await getAdminSession();
-    if (!isAdmin) {
-        return { totalUsers: 0, totalWabas: 0, totalMessages: 0, totalCampaigns: 0, totalFlows: 0 };
-    }
+    if (!isAdmin) return emptyAdminStats();
+
     try {
         const { db } = await connectToDatabase();
-        const [totalUsers, totalWabas, totalMessages, totalCampaigns, totalFlows] = await Promise.all([
-            db.collection('users').countDocuments(),
-            db.collection('projects').countDocuments({ wabaId: { $exists: true } }),
-            db.collection('outgoing_messages').countDocuments(),
-            db.collection('broadcasts').countDocuments(),
-            db.collection('flows').countDocuments(),
+
+        // Small helper: never fail the whole dashboard because one collection is missing
+        const count = (name: string, filter: any = {}): Promise<number> =>
+            db.collection(name).countDocuments(filter).catch(() => 0);
+
+        // Fire every count in parallel — one round trip from the API's perspective
+        const [
+            // Core
+            totalUsers, approvedUsers, pendingUsers, totalProjects, totalWabas, totalPlans, totalTransactions,
+            // Wachat
+            broadcasts, outgoingMessages, incomingMessages, waContacts, templates, libraryTemplates, flows, flowLogs, cannedMessages, activityLogs,
+            // CRM
+            crmContacts, crmLeads, crmDeals, crmInvoices, crmQuotations, crmSalesOrders, crmPurchaseOrders, crmExpenses, crmProducts, crmEmployees, crmVendors, crmTasks, crmAutomations, crmForms, crmFormSubmissions, crmVoucherEntries,
+            // Ads
+            adCampaigns, facebookBroadcasts, facebookFlows, facebookSubscribers, metaFlows,
+            // Marketing
+            emailCampaigns, emailContacts, emailTemplates, smsCampaigns, smsLogs,
+            // Platform
+            seoProjects, seoAudits, seoKeywords, sabflows, sabflowExecutions, sabchatSessions, teamChannels, teamMessages, teamTasks, notifications,
+            // Tools
+            shortUrls, qrCodes, ecommShops, ecommProducts, ecommOrders, websitePages,
+        ] = await Promise.all([
+            // Core
+            count('users'),
+            count('users', { isApproved: true }),
+            count('users', { isApproved: { $ne: true } }),
+            count('projects'),
+            count('projects', { wabaId: { $exists: true } }),
+            count('plans'),
+            count('transactions'),
+            // Wachat
+            count('broadcasts'),
+            count('outgoing_messages'),
+            count('incoming_messages'),
+            count('contacts'),
+            count('templates'),
+            count('library_templates'),
+            count('flows'),
+            count('flow_logs'),
+            count('canned_messages'),
+            count('activity_logs'),
+            // CRM
+            count('crm_contacts'),
+            count('crm_leads'),
+            count('crm_deals'),
+            count('crm_invoices'),
+            count('crm_quotations'),
+            count('crm_sales_orders'),
+            count('crm_purchase_orders'),
+            count('crm_expenses'),
+            count('crm_products'),
+            count('crm_employees'),
+            count('crm_vendors'),
+            count('crm_tasks'),
+            count('crm_automations'),
+            count('crm_forms'),
+            count('crm_form_submissions'),
+            count('crm_voucher_entries'),
+            // Ads
+            count('ad_campaigns'),
+            count('facebook_broadcasts'),
+            count('facebook_flows'),
+            count('facebook_subscribers'),
+            count('meta_flows'),
+            // Marketing
+            count('email_campaigns'),
+            count('email_contacts'),
+            count('email_templates'),
+            count('sms_campaigns'),
+            count('sms_logs'),
+            // Platform
+            count('seo_projects'),
+            count('seo_audits'),
+            count('seo_keywords'),
+            count('sabflows'),
+            count('sabflow_executions'),
+            count('sabchat_sessions'),
+            count('team_channels'),
+            count('team_messages'),
+            count('team_tasks'),
+            count('notifications'),
+            // Tools
+            count('short_urls'),
+            count('qr_codes'),
+            count('ecomm_shops'),
+            count('ecomm_products'),
+            count('ecomm_orders'),
+            count('website_pages'),
         ]);
-        return { totalUsers, totalWabas, totalMessages, totalCampaigns, totalFlows };
+
+        return {
+            core: { totalUsers, approvedUsers, pendingUsers, totalProjects, totalWabas, totalPlans, totalTransactions },
+            wachat: { broadcasts, outgoingMessages, incomingMessages, contacts: waContacts, templates, libraryTemplates, flows, flowLogs, cannedMessages, activityLogs },
+            crm: { contacts: crmContacts, leads: crmLeads, deals: crmDeals, invoices: crmInvoices, quotations: crmQuotations, salesOrders: crmSalesOrders, purchaseOrders: crmPurchaseOrders, expenses: crmExpenses, products: crmProducts, employees: crmEmployees, vendors: crmVendors, tasks: crmTasks, automations: crmAutomations, forms: crmForms, formSubmissions: crmFormSubmissions, voucherEntries: crmVoucherEntries },
+            ads: { adCampaigns, facebookBroadcasts, facebookFlows, facebookSubscribers, metaFlows },
+            marketing: { emailCampaigns, emailContacts, emailTemplates, smsCampaigns, smsLogs },
+            platform: { seoProjects, seoAudits, seoKeywords, sabflows, sabflowExecutions, sabchatSessions, teamChannels, teamMessages, teamTasks, notifications },
+            tools: { shortUrls, qrCodes, ecommShops, ecommProducts, ecommOrders, websitePages },
+        };
     } catch (e) {
         console.error("Failed to fetch admin stats:", e);
-        return { totalUsers: 0, totalWabas: 0, totalMessages: 0, totalCampaigns: 0, totalFlows: 0 };
+        return emptyAdminStats();
     }
 }
 
@@ -364,7 +550,7 @@ export async function getDiwaliThemeStatus(): Promise<{ enabled: boolean }> {
     try {
         const { db } = await connectToDatabase();
         const setting = await db.collection('settings').findOne({ key: DIWALI_THEME_KEY });
-        isDiwaliThemeEnabled = setting?.value ?? false;
+        isDiwaliThemeEnabled = !!(setting?.value ?? false);
         return { enabled: isDiwaliThemeEnabled };
     } catch (e) {
         return { enabled: false };

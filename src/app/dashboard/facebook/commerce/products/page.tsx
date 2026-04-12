@@ -58,7 +58,7 @@ export default function ProductsPage() {
         if (!activeProjectId) return;
         console.log(`[CatalogPage] Fetching data for project: ${activeProjectId}`);
         getProjectById(activeProjectId).then(() => {
-            getCatalogs(activeProjectId).then(setCatalogs);
+            getCatalogs(activeProjectId).then(setCatalogs as any);
         });
     }, [activeProjectId]);
 

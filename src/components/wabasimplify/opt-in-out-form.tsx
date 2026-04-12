@@ -38,7 +38,7 @@ interface OptInOutFormProps {
 }
 
 export function OptInOutForm({ project }: OptInOutFormProps) {
-  const [state, formAction] = useActionState(handleUpdateOptInOutSettings, initialState);
+  const [state, formAction] = useActionState(handleUpdateOptInOutSettings as any, initialState as any);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const settings = project.optInOutSettings;

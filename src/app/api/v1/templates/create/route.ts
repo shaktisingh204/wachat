@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         if (footer) formData.append('footer', footer);
         if (buttons) formData.append('buttons', JSON.stringify(buttons));
         
-        const result = await handleCreateTemplate(null, formData);
+        const result = await handleCreateTemplate(null as any, formData);
 
         if (result.error) {
             return NextResponse.json({ error: result.error, payload: result.payload }, { status: 500 });

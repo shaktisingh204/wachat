@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Send, X, Instagram } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-const initialState = { message: null, error: null };
+const initialState: any = { message: null, error: null };
 
 function SubmitButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus();
@@ -50,7 +50,7 @@ export default function CreateInstagramPostPage() {
     }, [state, toast, router]);
 
     return (
-        <div className="flex justify-center p-4">
+        <div className="flex justify-center">
             <form action={formAction} ref={formRef} className="w-full max-w-xl">
                 <input type="hidden" name="projectId" value={projectId || ''} />
                 <Card>

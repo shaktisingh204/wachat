@@ -226,15 +226,15 @@ export async function handlePaymentConfigurationUpdate(project: WithId<Project>,
     const { db } = await connectToDatabase();
     
     // Find the specific configuration in the array and update it, or add it if it doesn't exist.
-    const currentConfigs = project.paymentConfiguration || [];
-    const configIndex = currentConfigs.findIndex(c => c.configuration_name === updateValue.configuration_name);
+    const currentConfigs = (project.paymentConfiguration || []) as any[];
+    const configIndex = (currentConfigs as any[]).findIndex((c: any) => c.configuration_name === updateValue.configuration_name);
 
     if (configIndex > -1) {
         // Update existing config
-        currentConfigs[configIndex] = updateValue;
+        (currentConfigs as any)[configIndex] = updateValue;
     } else {
         // Add new config
-        currentConfigs.push(updateValue);
+        (currentConfigs as any).push(updateValue);
     }
     
     await db.collection('projects').updateOne(

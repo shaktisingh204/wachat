@@ -1206,10 +1206,15 @@ async function sendAutoReplyMessage(db: Db, project: WithId<Project>, contact: W
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
         const now = new Date();
+        // J2 P2 fix: tag auto-reply outgoing messages with sourceType='auto_reply'
+        // so the chat UI can visually distinguish them from user-typed messages
+        // (they both show as "outgoing" today). Also enables future filtering
+        // for analytics ("which messages were automated vs manual?").
         await db.collection('outgoing_messages').insertOne({
             direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'text',
             content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-        });
+            sourceType: 'auto_reply',
+        } as any);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Auto]: ${messageText.substring(0, 50)}`, lastMessageTimestamp: now } });
     } catch (e: any) {
         console.error(`Failed to send auto-reply to ${contact.waId} for project ${project._id}:`, e.message);
@@ -1321,13 +1326,34 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
 
 export async function handleSingleMessageEvent(db: Db, project: WithId<Project>, message: any, contactProfile: any, phoneNumberId: string) {
     const senderWaId = message.from;
+
+    // P1-1 fix: short-circuit duplicate webhook deliveries BEFORE any side effects.
+    //
+    // The previous implementation only skipped the insert — but still incremented
+    // `contacts.unreadCount`, created a notification, and re-ran the full
+    // automation pipeline (opt-in/out, flows, auto-reply). On Meta's typical
+    // retry pattern that meant double auto-replies, double-billed flow runs,
+    // and inflated unread counts.
+    //
+    // Dedup key is wamid (Meta's globally unique message id). Also scoping by
+    // projectId as defence-in-depth against theoretical cross-tenant collisions.
+    const existingMessage = await db.collection('incoming_messages').findOne(
+        { wamid: message.id, projectId: project._id },
+        { projection: { _id: 1 } },
+    );
+    if (existingMessage) {
+        console.log(`[Webhook] Duplicate message detected: ${message.id}. Skipping all side effects.`);
+        return;
+    }
+
     const senderName = contactProfile.profile?.name || 'Unknown User';
     let lastMessageText = message.type === 'text' ? message.text.body : `[${message.type}]`;
     if (message.type === 'interactive') {
         lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
     }
 
-    // Fetch media and convert to data URI if present
+    // Fetch media and convert to data URI if present. Gated on the dedup check
+    // above so we don't redownload media on webhook retries.
     if ((message.type === 'image' || message.type === 'video' || message.type === 'audio' || message.type === 'document') && message[message.type]?.id) {
         try {
             const mediaInfoResponse = await axios.get(`https://graph.facebook.com/${API_VERSION}/${message[message.type].id}`, {
@@ -1361,33 +1387,42 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
     const contact = contactResult;
     if (!contact) throw new Error(`Failed to find or create contact for WA ID ${senderWaId}`);
 
-    // Check for duplicate message (idempotency)
-    const existingMessage = await db.collection('incoming_messages').findOne({ wamid: message.id }, { projection: { _id: 1 } });
-    if (!existingMessage) {
-        await db.collection('incoming_messages').insertOne({
-            direction: 'in', projectId: project._id, contactId: contact._id,
-            wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
-            type: message.type, content: message, isRead: false, createdAt: new Date(),
-        });
-
-        // Create notification for the new message
-        try {
-            await db.collection('notifications').insertOne({
+    // Insert the message. Using an updateOne+upsert keyed on wamid as a second
+    // line of defence against concurrent duplicate webhooks that both slipped
+    // past the pre-check above (possible without a unique index).
+    await db.collection('incoming_messages').updateOne(
+        { wamid: message.id, projectId: project._id },
+        {
+            $setOnInsert: {
+                direction: 'in',
                 projectId: project._id,
-                wabaId: project.wabaId || '', // Fallback if wabaId is missing
-                message: `New WhatsApp message from ${senderName}`,
-                link: `/dashboard/chat?contactId=${contact._id.toString()}`,
+                contactId: contact._id,
+                wamid: message.id,
+                messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+                type: message.type,
+                content: message,
                 isRead: false,
-                eventType: 'whatsapp_message',
-                sourceApp: 'wachat',
                 createdAt: new Date(),
-            });
-        } catch (e) {
-            console.error(`Failed to create notification for message from ${senderWaId}:`, e);
-            // Do not block flow execution if notification fails
-        }
-    } else {
-        console.log(`[Webhook] Duplicate message detected: ${message.id}. Skipping insertion.`);
+            },
+        },
+        { upsert: true },
+    );
+
+    // Create notification for the new message
+    try {
+        await db.collection('notifications').insertOne({
+            projectId: project._id,
+            wabaId: project.wabaId || '', // Fallback if wabaId is missing
+            message: `New WhatsApp message from ${senderName}`,
+            link: `/dashboard/chat?contactId=${contact._id.toString()}`,
+            isRead: false,
+            eventType: 'whatsapp_message',
+            sourceApp: 'wachat',
+            createdAt: new Date(),
+        });
+    } catch (e) {
+        console.error(`Failed to create notification for message from ${senderWaId}:`, e);
+        // Do not block flow execution if notification fails
     }
 
     const wasOptInOut = await handleOptInOut(db, project, contact, message, phoneNumberId);
@@ -1557,7 +1592,34 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
 }
 
 export async function processIncomingMessageBatch(db: Db, project: WithId<Project>, messageGroup: { message: any; contactProfile: any; phoneNumberId: string }[]) {
-    const contactOps = messageGroup.map(item => {
+    if (messageGroup.length === 0) return;
+
+    // P1-1 fix: dedupe the batch against already-persisted wamids BEFORE any
+    // side effects. Previously this function always ran the contact $inc
+    // (unreadCount), always inserted messages, and always ran the automation
+    // loop — so a Meta webhook retry would double auto-reply, double flow-run
+    // and double-bump unread counters.
+    //
+    // Strategy: one round-trip to fetch known wamids, then filter messageGroup
+    // to only new messages. Everything downstream operates on the filtered set.
+    const incomingWamids = messageGroup.map(g => g.message.id).filter(Boolean);
+    const existingDocs = incomingWamids.length > 0
+        ? await db.collection('incoming_messages')
+            .find({ wamid: { $in: incomingWamids }, projectId: project._id }, { projection: { wamid: 1 } })
+            .toArray()
+        : [];
+    const knownWamids = new Set(existingDocs.map(d => (d as any).wamid));
+
+    const newMessages = messageGroup.filter(item => !knownWamids.has(item.message.id));
+    if (newMessages.length === 0) {
+        console.log(`[Webhook] Batch of ${messageGroup.length} messages were all duplicates. Skipping all side effects.`);
+        return;
+    }
+    if (newMessages.length < messageGroup.length) {
+        console.log(`[Webhook] Dropped ${messageGroup.length - newMessages.length} duplicate messages from batch.`);
+    }
+
+    const contactOps = newMessages.map(item => {
         const { message, contactProfile, phoneNumberId } = item;
         const senderWaId = message.from;
         const senderName = contactProfile?.profile?.name || 'Unknown User';
@@ -1578,29 +1640,49 @@ export async function processIncomingMessageBatch(db: Db, project: WithId<Projec
             }
         };
     });
-    await db.collection('contacts').bulkWrite(contactOps);
+    if (contactOps.length > 0) {
+        await db.collection('contacts').bulkWrite(contactOps);
+    }
 
-    // Re-fetch contacts to get their IDs
-    const contactWaIds = messageGroup.map(g => g.message.from);
+    // Re-fetch contacts to get their IDs (only for waIds in the new-messages set).
+    const contactWaIds = Array.from(new Set(newMessages.map(g => g.message.from)));
     const contacts = await db.collection<Contact>('contacts').find({ projectId: project._id, waId: { $in: contactWaIds } }).toArray();
     const contactsMap = new Map(contacts.map(c => [c.waId, c]));
 
-    const insertOps = messageGroup.map(item => {
+    // Insert messages via bulk upsert (keyed on wamid) so concurrent batches
+    // that both slipped past the pre-check won't produce duplicate rows.
+    const messageUpsertOps = newMessages.map(item => {
         const contact = contactsMap.get(item.message.from);
         if (!contact) return null;
         return {
-            direction: 'in', projectId: project._id, contactId: contact._id,
-            wamid: item.message.id, messageTimestamp: new Date(parseInt(item.message.timestamp, 10) * 1000),
-            type: item.message.type, content: item.message, isRead: false, createdAt: new Date(),
+            updateOne: {
+                filter: { wamid: item.message.id, projectId: project._id },
+                update: {
+                    $setOnInsert: {
+                        direction: 'in',
+                        projectId: project._id,
+                        contactId: contact._id,
+                        wamid: item.message.id,
+                        messageTimestamp: new Date(parseInt(item.message.timestamp, 10) * 1000),
+                        type: item.message.type,
+                        content: item.message,
+                        isRead: false,
+                        createdAt: new Date(),
+                    },
+                },
+                upsert: true,
+            },
         };
-    }).filter(Boolean);
+    }).filter(Boolean) as any[];
 
-    if (insertOps.length > 0) {
-        await db.collection('incoming_messages').insertMany(insertOps as any[]);
+    if (messageUpsertOps.length > 0) {
+        await db.collection('incoming_messages').bulkWrite(messageUpsertOps, { ordered: false });
     }
 
-    // Handle automations sequentially for each message
-    for (const item of messageGroup) {
+    // Handle automations sequentially for each NEW message only. Duplicates
+    // are already filtered out above so opt-in/out, flows, and auto-replies
+    // all run at-most-once per wamid.
+    for (const item of newMessages) {
         const contact = contactsMap.get(item.message.from);
         if (!contact) continue;
         const wasOptInOut = await handleOptInOut(db, project, contact, item.message, item.phoneNumberId);

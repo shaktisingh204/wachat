@@ -1,64 +1,150 @@
-
-
 'use client';
 
-import { WebhookInfo } from "@/components/wabasimplify/webhook-info";
-import { WebhookLogs } from "@/components/wabasimplify/webhook-logs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Lightbulb } from "lucide-react";
-import {Calendar} from 'lucide-react';
+/**
+ * Wachat Webhooks — rebuilt on Clay primitives.
+ */
+
+import * as React from 'react';
+import { LuLightbulb, LuWebhook } from 'react-icons/lu';
+
+import { WebhookInfo } from '@/components/wabasimplify/webhook-info';
+import { WebhookLogs } from '@/components/wabasimplify/webhook-logs';
+import { useProject } from '@/context/project-context';
+
+import { ClayBreadcrumbs, ClayCard } from '@/components/clay';
 
 export const dynamic = 'force-dynamic';
 
 export default function WebhooksPage() {
-    const verifyToken = process.env.META_VERIFY_TOKEN;
-    const webhookPath = '/api/webhooks/meta';
+  const { activeProject } = useProject();
+  const verifyToken = process.env.NEXT_PUBLIC_META_VERIFY_TOKEN;
+  const webhookPath = '/api/webhooks/meta';
 
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline">Webhooks Configuration</h1>
-                <p className="text-muted-foreground">
-                    Use this information to set up your webhook in the Meta for Developers dashboard.
-                </p>
+  return (
+    <div className="clay-enter flex min-h-full flex-col gap-6">
+      {/* Breadcrumb */}
+      <ClayBreadcrumbs
+        items={[
+          { label: 'Wachat', href: '/home' },
+          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Webhooks' },
+        ]}
+      />
+
+      {/* Header */}
+      <div>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          Webhook configuration
+        </h1>
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          Point Meta&apos;s servers at your SabNode endpoint so deliveries,
+          reads, and inbound messages flow back into the app in real time.
+        </p>
+      </div>
+
+      {/* Existing (shared) Webhook info component */}
+      <WebhookInfo webhookPath={webhookPath} verifyToken={verifyToken} />
+
+      {/* Setup guide */}
+      <ClayCard padded={false} className="p-6">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-clay-rose-soft text-clay-rose-ink">
+            <LuWebhook className="h-4 w-4" strokeWidth={2} />
+          </span>
+          <div>
+            <div className="text-[15px] font-semibold text-clay-ink leading-tight">
+              Setup guide
             </div>
-
-            <WebhookInfo webhookPath={webhookPath} verifyToken={verifyToken} />
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>How to Use This Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm text-foreground/90">
-                    <ol className="list-decimal list-inside space-y-2">
-                        <li>Go to your Meta App's dashboard and select the **Webhooks** product.</li>
-                        <li>Find the object you want to subscribe to (e.g., "WhatsApp Business Account" or "Page").</li>
-                        <li>Click **Edit subscription** or **Subscribe to object**.</li>
-                        <li>In the popup, paste the **Callback URL** and the **Verify token** from above into the corresponding fields, then click **Verify and save**.</li>
-                        <li>**This is the most important step:** After verifying, find the event fields for that object and click **Edit** or **Subscribe**.</li>
-                        <li>
-                            For full functionality, it's recommended to subscribe to all relevant events.
-                             <ul className="list-disc list-inside ml-6 mt-2">
-                                <li><strong>For WhatsApp:</strong> `messages`, `message_template_status_update`, `phone_number_quality_update`.</li>
-                                <li><strong>For Facebook Pages:</strong> `feed` (for comments), `messages` (for Messenger).</li>
-                                <li><strong>For E-Commerce:</strong> `commerce_orders`, `catalog_product_events`.</li>
-                            </ul>
-                        </li>
-                    </ol>
-                    <Alert>
-                        <Lightbulb className="h-4 w-4" />
-                        <AlertTitle>Important</AlertTitle>
-                        <AlertDescription>
-                            Your application must be deployed to a public URL for Meta's servers to be able to send requests to your Callback URL. Test events work from the dashboard, but real events require a public endpoint.
-                        </AlertDescription>
-                    </Alert>
-                </CardContent>
-            </Card>
-
-            <WebhookLogs filterByProject={true} />
+            <div className="mt-0.5 text-[11.5px] text-clay-ink-muted">
+              Follow these steps in your Meta App dashboard to complete
+              webhook registration.
+            </div>
+          </div>
         </div>
-    )
+
+        <ol className="mt-5 flex list-decimal flex-col gap-3 pl-5 text-[13px] leading-relaxed text-clay-ink">
+          <li>
+            Go to your Meta App&apos;s dashboard and select the{' '}
+            <strong>Webhooks</strong> product.
+          </li>
+          <li>
+            Find the object you want to subscribe to (e.g.{' '}
+            <em>WhatsApp Business Account</em> or <em>Page</em>).
+          </li>
+          <li>
+            Click <strong>Edit subscription</strong> or{' '}
+            <strong>Subscribe to object</strong>.
+          </li>
+          <li>
+            In the popup, paste the <strong>Callback URL</strong> and{' '}
+            <strong>Verify token</strong> from above into the corresponding
+            fields, then click <strong>Verify and save</strong>.
+          </li>
+          <li>
+            <strong>This is the most important step:</strong> after verifying,
+            find the event fields for that object and click{' '}
+            <strong>Edit</strong> or <strong>Subscribe</strong>.
+          </li>
+          <li>
+            For full functionality, subscribe to all relevant events:
+            <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-6 text-[12.5px] text-clay-ink-muted">
+              <li>
+                <strong className="text-clay-ink">WhatsApp:</strong>{' '}
+                <Code>messages</Code>, <Code>message_template_status_update</Code>,{' '}
+                <Code>phone_number_quality_update</Code>
+              </li>
+              <li>
+                <strong className="text-clay-ink">Facebook Pages:</strong>{' '}
+                <Code>feed</Code> (comments), <Code>messages</Code> (Messenger)
+              </li>
+              <li>
+                <strong className="text-clay-ink">E-Commerce:</strong>{' '}
+                <Code>commerce_orders</Code>, <Code>catalog_product_events</Code>
+              </li>
+            </ul>
+          </li>
+        </ol>
+
+        {/* Heads up callout */}
+        <div className="mt-5 flex items-start gap-3 rounded-[12px] border border-clay-border bg-clay-surface-2 p-4">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-[#FEF3C7] text-[#92400E]">
+            <LuLightbulb className="h-3.5 w-3.5" strokeWidth={2} />
+          </span>
+          <div className="min-w-0">
+            <div className="text-[13px] font-semibold text-clay-ink">
+              Heads up
+            </div>
+            <div className="mt-0.5 text-[12px] text-clay-ink-muted leading-relaxed">
+              Your application must be deployed to a public URL for Meta&apos;s
+              servers to reach the callback endpoint. Test events work from the
+              dashboard, but real events require a public deployment.
+            </div>
+          </div>
+        </div>
+      </ClayCard>
+
+      {/* Webhook logs (shared component) */}
+      <ClayCard padded={false} className="p-6">
+        <div className="mb-4">
+          <div className="text-[15px] font-semibold text-clay-ink">
+            Recent events
+          </div>
+          <div className="mt-0.5 text-[11.5px] text-clay-ink-muted">
+            Live log of webhook events received for this project.
+          </div>
+        </div>
+        <WebhookLogs filterByProject={true} />
+      </ClayCard>
+
+      <div className="h-6" />
+    </div>
+  );
 }
 
-    
+function Code({ children }: { children: React.ReactNode }) {
+  return (
+    <code className="inline-flex items-center rounded-[4px] border border-clay-border bg-clay-surface px-1.5 py-0.5 font-mono text-[11px] text-clay-rose-ink">
+      {children}
+    </code>
+  );
+}

@@ -1,29 +1,51 @@
-
-
 'use client';
 
-import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
+/**
+ * Wachat Broadcasts — list + create, rebuilt on Clay primitives.
+ *
+ * Keeps the existing BroadcastForm (the composer is a beast I don't
+ * want to touch), StopBroadcastButton, and RequeueBroadcastDialog —
+ * just replaces the page chrome, stats strip, and history table with
+ * Clay cards / list rows.
+ */
+
+import * as React from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { WithId } from 'mongodb';
+import { formatDistanceToNow } from 'date-fns';
+
+import {
+  LuRefreshCw,
+  LuClock,
+  LuCircleAlert,
+  LuFileText,
+  LuLoader,
+  LuCircleStop,
+  LuArrowUpRight,
+  LuSend,
+  LuChevronLeft,
+  LuChevronRight,
+  LuPlus,
+  LuEllipsis,
+  LuChevronDown,
+  LuBookCopy,
+  LuUsers,
+} from 'react-icons/lu';
+
 import { getTemplates, handleStopBroadcast } from '@/app/actions/index.ts';
 import { handleSyncTemplates } from '@/app/actions/template.actions';
-import { useRouter } from 'next/navigation';
-import type { Project, Template, MetaFlow } from '@/lib/definitions';
-import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { getMetaFlows } from '@/app/actions/meta-flow.actions';
+import { getBroadcasts } from '@/app/actions/broadcast.actions';
+import type { Template, MetaFlow } from '@/lib/definitions';
+
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, Play, AlertCircle } from 'lucide-react';
+import { useProject } from '@/context/project-context';
+
+import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
+import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadcast-dialog';
+import { Progress } from '@/components/ui/progress';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,81 +57,118 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadcast-dialog';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
-import { getMetaFlows } from '@/app/actions/meta-flow.actions';
-import {Calendar} from 'lucide-react';
-import { useProject } from '@/context/project-context';
-import { getBroadcasts } from '@/app/actions/broadcast.actions';
 
-
-type Broadcast = {
-  _id: any;
-  templateId: any;
-  templateName: string;
-  deliveredCount?: number;
-  readCount?: number;
-  fileName: string;
-  contactCount: number;
-  successCount?: number;
-  errorCount?: number;
-  status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled' | 'PENDING_PROCESSING';
-  createdAt: string;
-  completedAt?: string;
-  startedAt?: string;
-  messagesPerSecond?: number;
-  projectMessagesPerSecond?: number;
-};
+import { cn } from '@/lib/utils';
+import {
+  ClayBreadcrumbs,
+  ClayButton,
+  ClayCard,
+  ClayListRow,
+} from '@/components/clay';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const BROADCASTS_PER_PAGE = 10;
 
-function StopBroadcastButton({ broadcastId, size = 'sm' }: { broadcastId: string, size?: 'sm' | 'default' | 'lg' | 'icon' | null }) {
-  const [open, setOpen] = useState(false);
-  const { toast } = useToast();
-  const [isPending, startTransition] = useTransition();
+/* ── helpers ────────────────────────────────────────────────────── */
 
-  const onStop = () => {
-    startTransition(async () => {
-        const result = await handleStopBroadcast(broadcastId);
-        if (result.error) {
-          toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        } else {
-          toast({ title: 'Success', description: result.message });
-        }
-        setOpen(false);
-    });
+function compact(n: number | null | undefined): string {
+  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
+  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (v >= 1_000) return (v / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(v);
+}
+
+function pct(num: number, den: number): number {
+  if (!den) return 0;
+  return Math.round((num / den) * 1000) / 10;
+}
+
+/* Status colour tokens — keeps status badges on-brand */
+function statusTone(status: string | undefined) {
+  const s = (status ?? '').toLowerCase();
+  if (s === 'completed') return { dot: 'bg-clay-green', label: 'Completed' };
+  if (s === 'processing' || s === 'pending_processing')
+    return { dot: 'bg-clay-blue', label: 'Processing' };
+  if (s === 'queued') return { dot: 'bg-clay-amber', label: 'Queued' };
+  if (s === 'partial failure')
+    return { dot: 'bg-clay-amber', label: 'Partial' };
+  if (s === 'failed') return { dot: 'bg-clay-red', label: 'Failed' };
+  if (s === 'cancelled')
+    return { dot: 'bg-clay-ink-fade', label: 'Cancelled' };
+  return { dot: 'bg-clay-ink-fade', label: status || 'Unknown' };
+}
+
+function getFormattedDate(item: any): Date | null {
+  try {
+    const dateString = item.createdAt;
+    if (dateString && !isNaN(new Date(dateString).getTime())) {
+      return new Date(dateString);
+    }
+    if (item._id) {
+      const objectIdDate = new Date(
+        parseInt(item._id.toString().substring(0, 8), 16) * 1000,
+      );
+      if (!isNaN(objectIdDate.getTime())) return objectIdDate;
+    }
+  } catch (e) {
+    console.error('Date formatting failed', e);
   }
+  return null;
+}
+
+/* ── Stop-broadcast confirmation ────────────────────────────────── */
+
+function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
+  const { toast } = useToast();
+  const [isStopping, start] = useTransition();
+
+  const onConfirm = () => {
+    start(async () => {
+      const result = await handleStopBroadcast(broadcastId);
+      if (result.error) {
+        toast({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Broadcast stopped',
+          description: result.message,
+        });
+      }
+    });
+  };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size={size}>
-          <StopCircle className="mr-2 h-4 w-4"/>
-          Stop
-        </Button>
+        <button
+          type="button"
+          aria-label="Stop broadcast"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-clay-red hover:bg-clay-red-soft transition-colors"
+        >
+          <LuCircleStop className="h-3.5 w-3.5" strokeWidth={1.75} />
+        </button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure you want to stop this broadcast?</AlertDialogTitle>
+          <AlertDialogTitle>Stop this broadcast?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. Any remaining messages in the queue for this broadcast will be cancelled.
+            Stopping will cancel any pending messages. Messages already sent
+            cannot be unsent.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-              <Button variant="destructive" onClick={onStop} disabled={isPending}>
-                  {isPending ? (
-                    <>
-                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                      Stopping...
-                    </>
-                  ) : (
-                    'Yes, Stop Broadcast'
-                  )}
-              </Button>
+          <AlertDialogAction onClick={onConfirm} disabled={isStopping}>
+            {isStopping ? 'Stopping…' : 'Stop broadcast'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -117,376 +176,539 @@ function StopBroadcastButton({ broadcastId, size = 'sm' }: { broadcastId: string
   );
 }
 
+/* ── IST clock chip (topbar-style pill) ─────────────────────────── */
+
 function ISTClock() {
-    const [time, setTime] = useState<string | null>(null);
-
-    useEffect(() => {
-        const updateClock = () => {
-            setTime(new Date().toLocaleString('en-US', {
-                timeZone: 'Asia/Kolkata',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true,
-            }));
-        };
-        updateClock(); // Set time on mount on the client
-        const timerId = setInterval(updateClock, 1000);
-        return () => clearInterval(timerId);
-    }, []);
-
-    return (
-        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground font-mono bg-muted px-3 py-1.5 rounded-md">
-        <Clock className="h-4 w-4" />
-        <span>{time || '--:--:-- --'} (IST)</span>
-        </div>
-    );
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    setNow(new Date());
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  if (!now) return null;
+  const ist = now.toLocaleTimeString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+  return (
+    <ClayButton
+      variant="pill"
+      size="md"
+      leading={<LuClock className="h-3.5 w-3.5" strokeWidth={2} />}
+    >
+      {ist} IST
+    </ClayButton>
+  );
 }
 
-function BroadcastPageSkeleton() {
-    return (
-      <div className="flex flex-col gap-8">
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-8 w-1/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-6">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-8 w-1/4" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-48 w-full" />
-          </CardContent>
-        </Card>
-      </div>
-    );
-}
+/* ── page ───────────────────────────────────────────────────────── */
 
 export default function BroadcastPage() {
+  const router = useRouter();
   const { activeProject, activeProjectId } = useProject();
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
-  const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
+  const [totalCampaigns, setTotalCampaigns] = useState(0);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
   const { toast } = useToast();
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
-  const getFormattedDate = (item: WithId<Broadcast>) => {
-    try {
-      const dateString = item.createdAt;
-      if (dateString && !isNaN(new Date(dateString).getTime())) {
-        return new Date(dateString).toLocaleString();
-      }
-      if (item._id) {
-        const objectIdDate = new Date(parseInt(item._id.toString().substring(0, 8), 16) * 1000);
-        if (!isNaN(objectIdDate.getTime())) {
-          return objectIdDate.toLocaleString();
-        }
-      }
-    } catch (e) {
-      console.error("Date formatting failed", e);
-    }
-    return 'N/A';
-  };
-
-  const fetchData = useCallback(async (projectId: string, page: number, showToast = false) => {
-    startRefreshTransition(async () => {
+  const fetchData = useCallback(
+    async (projectId: string, page: number, showToast = false) => {
+      startRefreshTransition(async () => {
         try {
-            const [templatesData, historyData, metaFlowsData] = await Promise.all([
-                getTemplates(projectId),
-                getBroadcasts(projectId, page, BROADCASTS_PER_PAGE),
-                getMetaFlows(projectId),
-            ]);
+          const [templatesData, historyData, metaFlowsData] = await Promise.all([
+            getTemplates(projectId),
+            getBroadcasts(projectId, page, BROADCASTS_PER_PAGE),
+            getMetaFlows(projectId),
+          ]);
 
-            setTemplates(templatesData || []);
-            setMetaFlows(metaFlowsData || []);
-            setHistory(historyData.broadcasts || []);
-            setTotalPages(Math.ceil(historyData.total / BROADCASTS_PER_PAGE));
-            
-            if (showToast) {
-              toast({ title: 'Refreshed', description: 'Broadcast history has been updated.' });
-            }
-        } catch (error) {
-            console.error("Failed to fetch broadcast page data:", error);
+          setTemplates(templatesData || []);
+          setMetaFlows(metaFlowsData || []);
+          setHistory((historyData.broadcasts || []) as any);
+          setTotalCampaigns(historyData.total || 0);
+          setTotalPages(
+            Math.max(1, Math.ceil(historyData.total / BROADCASTS_PER_PAGE)),
+          );
+
+          if (showToast) {
             toast({
-                title: "Error",
-                description: "Failed to load page data. Please try again later.",
-                variant: "destructive",
+              title: 'Refreshed',
+              description: 'Broadcast history has been updated.',
             });
+          }
+        } catch (error) {
+          console.error('Failed to fetch broadcast page data:', error);
+          toast({
+            title: 'Error',
+            description: 'Failed to load page data. Please try again later.',
+            variant: 'destructive',
+          });
         }
-    });
-  }, [toast]);
-  
+      });
+    },
+    [toast],
+  );
+
   useEffect(() => {
     if (activeProjectId) {
       fetchData(activeProjectId, currentPage);
     }
   }, [activeProjectId, currentPage, fetchData]);
-  
+
+  /* Live polling while any broadcast is still processing */
   useEffect(() => {
     if (!activeProjectId || isRefreshing) return;
-
-    const hasActiveBroadcasts = history.some(b => b.status === 'QUEUED' || b.status === 'PROCESSING' || b.status === 'PENDING_PROCESSING');
-    if (!hasActiveBroadcasts) return;
-
+    const hasActive = history.some((b) =>
+      ['QUEUED', 'PROCESSING', 'PENDING_PROCESSING'].includes(b.status),
+    );
+    if (!hasActive) return;
     const interval = setInterval(() => {
       fetchData(activeProjectId, currentPage, false);
     }, 5000);
-
     return () => clearInterval(interval);
   }, [history, activeProjectId, currentPage, fetchData, isRefreshing]);
 
   const onSyncTemplates = useCallback(async () => {
     if (!activeProjectId) {
-      toast({ title: "Error", description: "No active project selected.", variant: "destructive" });
+      toast({
+        title: 'Error',
+        description: 'No active project selected.',
+        variant: 'destructive',
+      });
       return;
     }
     startTemplatesSyncTransition(async () => {
       const result = await handleSyncTemplates(activeProjectId);
       if (result.error) {
-        toast({ title: "Sync Failed", description: result.error, variant: "destructive" });
+        toast({
+          title: 'Sync failed',
+          description: result.error,
+          variant: 'destructive',
+        });
       } else {
-        toast({ title: "Sync Successful", description: result.message });
+        toast({
+          title: 'Sync successful',
+          description: result.message,
+        });
         const templatesData = await getTemplates(activeProjectId);
         setTemplates(templatesData || []);
       }
     });
   }, [toast, activeProjectId]);
 
-  const getStatusVariant = (item: WithId<Broadcast>) => {
-    const status = item.status;
-    if (!status) return 'outline';
-    return status === 'QUEUED'
-            ? 'outline'
-            : status === 'PROCESSING' || status === 'PENDING_PROCESSING'
-            ? 'secondary'
-            : status === 'Completed'
-            ? 'default'
-            : status === 'Partial Failure'
-            ? 'secondary'
-            : 'destructive';
+  const onBroadcastSuccess = () => {
+    if (!activeProjectId) return;
+    if (currentPage === 1) {
+      fetchData(activeProjectId, 1, false);
+    } else {
+      setCurrentPage(1);
+    }
   };
 
-  const isLoadingData = isRefreshing && !activeProject;
-
-  const onBroadcastSuccess = () => {
-      if (activeProjectId) {
-        if (currentPage === 1) {
-            fetchData(activeProjectId, 1, false);
-        } else {
-            setCurrentPage(1);
-        }
-      }
-  }
+  /* ── derived stats strip ─────────────────────────────────────── */
+  const stats = React.useMemo(() => {
+    const totalContacts = history.reduce(
+      (s, h) => s + (h.contactCount || 0),
+      0,
+    );
+    const totalDelivered = history.reduce(
+      (s, h) => s + (h.deliveredCount || 0),
+      0,
+    );
+    const totalSent = history.reduce((s, h) => s + (h.successCount || 0), 0);
+    const processing = history.filter((h) =>
+      ['QUEUED', 'PROCESSING', 'PENDING_PROCESSING'].includes(h.status),
+    ).length;
+    return {
+      totalContacts,
+      totalDelivered,
+      totalSent,
+      processing,
+      deliveryRate: pct(totalDelivered, totalSent),
+    };
+  }, [history]);
 
   return (
-    <>
-      <div className="flex flex-col gap-8">
-        <div>
-          <h1 className="text-3xl font-bold font-headline">Send Broadcast</h1>
-          <p className="text-muted-foreground">
-            Send a message template to a list of contacts via CSV or XLSX upload.
+    <div className="clay-enter flex min-h-full flex-col gap-6">
+      {/* ── Breadcrumb ── */}
+      <ClayBreadcrumbs
+        items={[
+          { label: 'Wachat', href: '/home' },
+          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Campaigns' },
+        ]}
+      />
+
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between gap-6">
+        <div className="min-w-0">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+            Campaigns
+          </h1>
+          <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+            Ship a WhatsApp template to a segmented list of contacts — upload a
+            CSV, pick a tag, or reuse a previous audience.
           </p>
         </div>
+        <div className="flex items-center gap-2">
+          <ISTClock />
+          <ClayButton
+            variant="pill"
+            size="md"
+            leading={<LuBookCopy className="h-3.5 w-3.5" strokeWidth={2} />}
+            onClick={onSyncTemplates}
+            disabled={!activeProjectId || isSyncingTemplates}
+          >
+            {isSyncingTemplates ? 'Syncing…' : 'Sync templates'}
+          </ClayButton>
+          <ClayButton
+            variant="pill"
+            size="md"
+            leading={<LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
+            onClick={() =>
+              activeProjectId && fetchData(activeProjectId, currentPage, true)
+            }
+            disabled={!activeProjectId || isRefreshing}
+          >
+            {isRefreshing ? 'Refreshing…' : 'Refresh'}
+          </ClayButton>
+        </div>
+      </div>
 
-        {isLoadingData ? (
-            <Skeleton className="h-64 w-full"/>
-        ) : (
-            <BroadcastForm 
-                templates={templates} 
-                metaFlows={metaFlows} 
-                onSuccess={onBroadcastSuccess}
+      {/* ── Stats strip ── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MiniStat
+          label="All-time campaigns"
+          value={compact(totalCampaigns)}
+          hint="across this project"
+        />
+        <MiniStat
+          label="Contacts reached"
+          value={compact(stats.totalContacts)}
+          hint="sum of this page"
+        />
+        <MiniStat
+          label="Delivery rate"
+          value={`${stats.deliveryRate}%`}
+          hint={`${compact(stats.totalDelivered)} delivered`}
+        />
+        <MiniStat
+          label="Live now"
+          value={String(stats.processing)}
+          hint={stats.processing > 0 ? 'polling every 5s' : 'nothing running'}
+        />
+      </div>
+
+      {/* ── New campaign form ── */}
+      <div>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+              New campaign
+            </h2>
+            <p className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+              Choose a template or flow, upload your audience, and queue the
+              broadcast.
+            </p>
+          </div>
+        </div>
+        <ClayCard padded={false} className="mt-5 p-6">
+          {isRefreshing && !activeProject ? (
+            <div className="h-40 w-full animate-pulse rounded-[12px] bg-clay-bg-2" />
+          ) : (
+            <BroadcastForm
+              templates={templates}
+              metaFlows={metaFlows}
+              onSuccess={onBroadcastSuccess}
             />
-        )}
+          )}
+        </ClayCard>
+      </div>
 
-        <Card className="card-gradient card-gradient-blue">
-          <CardHeader>
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <CardTitle>Broadcast History</CardTitle>
-                <CardDescription>A log of all broadcast campaigns for the selected project.</CardDescription>
+      {/* ── Broadcast history ── */}
+      <div>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+              Broadcast history
+            </h2>
+            <p className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+              A log of every broadcast campaign for{' '}
+              {activeProject?.name || 'this project'}.
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <ClayButton
+              variant="pill"
+              size="icon"
+              aria-label="New campaign"
+              onClick={() => {
+                const el = document.querySelector('h2');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              <LuPlus className="h-4 w-4" />
+            </ClayButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <ClayButton variant="pill" size="icon" aria-label="More">
+                  <LuEllipsis className="h-4 w-4" />
+                </ClayButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onSelect={() =>
+                    activeProjectId &&
+                    fetchData(activeProjectId, currentPage, true)
+                  }
+                >
+                  <LuRefreshCw className="mr-2 h-4 w-4" /> Refresh list
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => router.push('/dashboard/templates')}
+                >
+                  <LuBookCopy className="mr-2 h-4 w-4" /> Manage templates
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => router.push('/dashboard/contacts')}
+                >
+                  <LuUsers className="mr-2 h-4 w-4" /> Manage contacts
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => router.push('/dashboard/analytics')}
+                >
+                  <LuArrowUpRight className="mr-2 h-4 w-4" /> Open analytics
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        <ClayCard padded={false} className="mt-5 p-6">
+          {isRefreshing && history.length === 0 ? (
+            <div className="flex h-24 items-center justify-center">
+              <LuLoader
+                className="h-5 w-5 animate-spin text-clay-ink-muted"
+                strokeWidth={1.75}
+              />
+            </div>
+          ) : !activeProjectId ? (
+            <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+                <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <ISTClock />
-                <Button onClick={onSyncTemplates} disabled={isSyncingTemplates || isRefreshing} variant="outline" size="sm">
-                  <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
-                  Sync Templates
-                </Button>
-                <Button onClick={() => activeProjectId && fetchData(activeProjectId, currentPage, true)} disabled={isRefreshing} variant="outline" size="sm">
-                  <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
+              <div className="text-[13px] font-semibold text-clay-ink">
+                No project selected
+              </div>
+              <div className="max-w-[340px] text-[11.5px] text-clay-ink-muted">
+                Please select a project from the main dashboard to view its
+                broadcast history.
+              </div>
+              <ClayButton
+                variant="rose"
+                size="sm"
+                onClick={() => router.push('/dashboard')}
+                className="mt-1"
+              >
+                Choose a project
+              </ClayButton>
+            </div>
+          ) : history.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-clay-bg text-clay-ink-muted">
+                <LuFileText className="h-5 w-5" strokeWidth={1.5} />
+              </div>
+              <div className="text-[13px] font-semibold text-clay-ink">
+                No broadcasts yet
+              </div>
+              <div className="max-w-[340px] text-[11.5px] text-clay-ink-muted">
+                Use the composer above to send your first WhatsApp broadcast —
+                it&apos;ll appear here with live delivery and read analytics.
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            {isLoadingData ? (
-                <div className="h-24 text-center flex items-center justify-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-            ) : !activeProjectId ? (
-                 <Alert variant="destructive" className="max-w-md mx-auto">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>
-                        Please select a project from the main dashboard to view its broadcast history.
-                    </AlertDescription>
-                </Alert>
-            ) : history.length > 0 ? (
-              <>
-                {/* Desktop Table View */}
-                <div className="hidden md:block">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Queued</TableHead>
-                        <TableHead>Template / Flow</TableHead>
-                        <TableHead>Delivery Stats</TableHead>
-                        <TableHead>File</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {history.map((item) => (
-                          <TableRow key={item._id.toString()}>
-                            <TableCell>{getFormattedDate(item)}</TableCell>
-                            <TableCell>{item.templateName}</TableCell>
-                            <TableCell>
-                                <div className="w-40 space-y-1">
-                                    <div className="text-xs font-mono">
-                                    <div>Sent: {item.successCount ?? 0} / {item.contactCount}</div>
-                                    <div>Delivered: {item.deliveredCount ?? 0} | Read: {item.readCount ?? 0}</div>
-                                    <div className="text-destructive">Failed: {item.errorCount ?? 0}</div>
-                                    </div>
-                                    {item.status === 'PROCESSING' && item.contactCount > 0 && (
-                                        <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-1 mt-1" />
-                                    )}
-                                </div>
-                            </TableCell>
-                            <TableCell>{item.fileName}</TableCell>
-                            <TableCell>
-                              <Badge variant={getStatusVariant(item)} className="capitalize">
-                                {item.status?.toLowerCase() || 'unknown'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                {(item.status === 'QUEUED' || item.status === 'PROCESSING' || item.status === 'PENDING_PROCESSING') && (
-                                      <StopBroadcastButton broadcastId={item._id.toString()} />
-                                  )}
-                                  {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
-                                      <RequeueBroadcastDialog
-                                        broadcastId={item._id.toString()}
-                                        originalTemplateId={item.templateId?.toString()}
-                                        project={activeProject}
-                                        templates={templates}
-                                      />
-                                  )}
-                                  <Button asChild variant="outline" size="sm">
-                                      <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
-                                          <FileText className="mr-2 h-4 w-4" />
-                                          <span>Report</span>
-                                      </Link>
-                                  </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                    </TableBody>
-                  </Table>
-                </div>
-                {/* Mobile Card View */}
-                <div className="md:hidden space-y-4">
-                  {history.map((item) => (
-                      <Card key={item._id.toString()} className="border card-gradient card-gradient-blue">
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                              <CardTitle className="text-base leading-snug">{item.templateName}</CardTitle>
-                              <Badge variant={getStatusVariant(item)} className="capitalize">{item.status?.toLowerCase() || 'unknown'}</Badge>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {history.map((item, i) => {
+                const tone = statusTone(item.status);
+                const processing =
+                  item.status === 'PROCESSING' && item.contactCount > 0;
+                const progress =
+                  item.contactCount > 0
+                    ? (((item.successCount ?? 0) + (item.errorCount ?? 0)) *
+                        100) /
+                      item.contactCount
+                    : 0;
+                const date = getFormattedDate(item);
+                const index = (currentPage - 1) * BROADCASTS_PER_PAGE + i + 1;
+                return (
+                  <ClayListRow
+                    key={item._id.toString()}
+                    index={index}
+                    title={item.fileName || item.templateName || 'Untitled'}
+                    meta={
+                      <span className="flex flex-wrap items-center gap-2">
+                        {item.templateName ? (
+                          <span className="font-medium text-clay-ink-2">
+                            {item.templateName}
+                          </span>
+                        ) : null}
+                        {item.templateName ? (
+                          <span className="text-clay-ink-fade">·</span>
+                        ) : null}
+                        <span>
+                          {date
+                            ? formatDistanceToNow(date, { addSuffix: true })
+                            : '—'}
+                        </span>
+                        <span className="text-clay-ink-fade">·</span>
+                        <span>
+                          {(item.contactCount ?? 0).toLocaleString()} contacts
+                        </span>
+                        <span className="text-clay-ink-fade">·</span>
+                        <span className="inline-flex items-center gap-1">
+                          <span
+                            className={cn(
+                              'h-1.5 w-1.5 rounded-full',
+                              tone.dot,
+                            )}
+                          />
+                          {tone.label}
+                        </span>
+                      </span>
+                    }
+                    trailing={
+                      <>
+                        {/* Delivery rate summary */}
+                        <div className="hidden flex-col items-end pr-1 text-[11.5px] sm:flex">
+                          <div className="font-semibold text-clay-ink">
+                            {pct(
+                              item.deliveredCount ?? 0,
+                              item.contactCount ?? 0,
+                            )}
+                            %
                           </div>
-                          <CardDescription className="text-xs">{getFormattedDate(item)}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4 text-sm">
-                          {item.status === 'PROCESSING' && item.contactCount > 0 && (
-                              <div className="w-full space-y-1">
-                                  <div className="flex justify-between text-xs font-mono text-muted-foreground">
-                                    <span>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</span>
-                                  </div>
-                                  <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
-                              </div>
-                          )}
-                           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-                              <div className="flex justify-between"><span className="text-muted-foreground">Contacts:</span> <span className="font-medium">{item.contactCount}</span></div>
-                              <div className="flex justify-between"><span className="text-muted-foreground">Sent:</span> <span className="font-medium">{item.successCount || 0}</span></div>
-                              <div className="flex justify-between"><span className="text-muted-foreground">Failed:</span> <span className="font-medium">{item.errorCount || 0}</span></div>
-                              <div className="flex justify-between col-span-2"><span className="text-muted-foreground">File:</span> <span className="font-medium truncate">{item.fileName}</span></div>
-                           </div>
-                        </CardContent>
-                        <CardFooter className="flex justify-end gap-2">
-                             {(item.status === 'QUEUED' || item.status === 'PROCESSING' || item.status === 'PENDING_PROCESSING') && <StopBroadcastButton broadcastId={item._id.toString()} size="sm" />}
-                              {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
-                                <RequeueBroadcastDialog
-                                  broadcastId={item._id.toString()}
-                                  originalTemplateId={item.templateId?.toString()}
-                                  project={activeProject}
-                                  templates={templates}
-                                />
-                              )}
-                              <Button asChild variant="outline" size="sm">
-                                  <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
-                                      <FileText className="mr-2 h-4 w-4" />
-                                      <span>Report</span>
-                                  </Link>
-                              </Button>
-                        </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="h-24 text-center flex items-center justify-center">
-                  No broadcast history found for this project.
+                          <div className="text-[10.5px] text-clay-ink-muted">
+                            {compact(item.deliveredCount ?? 0)} /{' '}
+                            {compact(item.contactCount ?? 0)}
+                          </div>
+                        </div>
+
+                        {/* Stop / Requeue / Report action cluster */}
+                        {[
+                          'QUEUED',
+                          'PROCESSING',
+                          'PENDING_PROCESSING',
+                        ].includes(item.status) && (
+                          <StopBroadcastButton
+                            broadcastId={item._id.toString()}
+                          />
+                        )}
+                        {[
+                          'Completed',
+                          'Partial Failure',
+                          'Failed',
+                          'Cancelled',
+                        ].includes(item.status) && (
+                          <RequeueBroadcastDialog
+                            broadcastId={item._id.toString()}
+                            originalTemplateId={item.templateId?.toString()}
+                            project={activeProject}
+                            templates={templates}
+                          />
+                        )}
+                        <Link
+                          href={`/dashboard/broadcasts/${item._id.toString()}`}
+                          aria-label="View report"
+                          className="flex h-7 w-7 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+                        >
+                          <LuArrowUpRight
+                            className="h-3.5 w-3.5"
+                            strokeWidth={1.75}
+                          />
+                        </Link>
+                      </>
+                    }
+                  >
+                    {processing ? (
+                      <Progress value={progress} className="h-1" />
+                    ) : undefined}
+                  </ClayListRow>
+                );
+              })}
+            </div>
+          )}
+
+          {totalPages > 1 ? (
+            <div className="mt-5 flex items-center justify-between gap-3 border-t border-clay-border pt-4">
+              <span className="text-[11.5px] tabular-nums text-clay-ink-muted">
+                Page {currentPage} of {totalPages} · {compact(totalCampaigns)}{' '}
+                campaigns
+              </span>
+              <div className="flex items-center gap-2">
+                <ClayButton
+                  variant="pill"
+                  size="sm"
+                  leading={<LuChevronLeft className="h-3 w-3" strokeWidth={2} />}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1 || isRefreshing}
+                >
+                  Previous
+                </ClayButton>
+                <ClayButton
+                  variant="pill"
+                  size="sm"
+                  trailing={<LuChevronRight className="h-3 w-3" strokeWidth={2} />}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage >= totalPages || isRefreshing}
+                >
+                  Next
+                </ClayButton>
               </div>
-            )}
-            
-            {totalPages > 1 && (
-                <div className="flex items-center justify-end space-x-2 py-4">
-                    <span className="text-sm text-muted-foreground">
-                        Page {currentPage} of {totalPages > 0 ? totalPages : 1}
-                    </span>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => p - 1)}
-                        disabled={currentPage <= 1 || isRefreshing}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => p + 1)}
-                        disabled={currentPage >= totalPages || isRefreshing}
-                    >
-                        Next
-                    </Button>
-                </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          ) : null}
+        </ClayCard>
       </div>
-    </>
+
+      <div className="h-6" />
+    </div>
+  );
+}
+
+/* ── tiny inline KPI tile ───────────────────────────────────────── */
+
+function MiniStat({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
+  return (
+    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">
+        {label}
+      </div>
+      <div className="mt-2 text-[22px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+        {value}
+      </div>
+      {hint ? (
+        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+          {hint}
+        </div>
+      ) : null}
+    </div>
   );
 }

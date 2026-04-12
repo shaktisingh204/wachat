@@ -109,7 +109,7 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
         borderLeftWidth: border?.width?.left ? `${border.width.left}px` : undefined,
         borderColor: border?.color,
         borderRadius: borderRadius ? `${borderRadius.tl || 0}px ${borderRadius.tr || 0}px ${borderRadius.br || 0}px ${borderRadius.bl || 0}px` : undefined,
-        boxShadow: { sm: 'var(--tw-shadow-sm)', md: 'var(--tw-shadow-md)', lg: 'var(--tw-shadow-lg)'}[boxShadow || 'none'],
+        boxShadow: ({ sm: 'var(--tw-shadow-sm)', md: 'var(--tw-shadow-md)', lg: 'var(--tw-shadow-lg)'} as Record<string, string>)[boxShadow || 'none'],
         '--map-height': height,
         '--map-tablet-height': tabletHeight,
         '--map-mobile-height': mobileHeight,
@@ -146,7 +146,7 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
         <div 
             id={`map-wrapper-${uniqueId}`}
             style={wrapperStyle}
-            className={cn('overflow-hidden', animationClass, durationClass, responsiveClasses, cssClasses)}
+            className={cn('overflow-hidden', animationClass, animationDurationClass, responsiveClasses, cssClasses)}
             {...customAttrs}
         >
             {customStyleTag}

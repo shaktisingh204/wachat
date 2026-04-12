@@ -7,7 +7,8 @@ import { CartProvider } from '@/context/cart-context';
 
 export const dynamic = 'force-dynamic';
 
-export default async function WebsiteBuilderPage({ params }: { params: { shopId: string } }) {
+export default async function WebsiteBuilderPage(props: { params: Promise<{ shopId: string }> }) {
+    const params = await props.params;
     const [shop, pages, products] = await Promise.all([
         getEcommShopById(params.shopId),
         getEcommPages(params.shopId),

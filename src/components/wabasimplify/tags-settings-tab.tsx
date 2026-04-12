@@ -3,7 +3,8 @@
 
 import { useState, useEffect, useActionState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { handleUpdateUserProfile, type User, type Tag } from '@/app/actions/index.ts';
+import { handleUpdateUserProfile } from '@/app/actions/index.ts';
+import type { User, Tag } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 
-const updateTagsInitialState = { message: null, error: null };
+const updateTagsInitialState: any = { message: null, error: null };
 
 interface TagsSettingsTabProps {
   user: (Omit<User, 'password'> & { _id: string, tags?: Tag[] });

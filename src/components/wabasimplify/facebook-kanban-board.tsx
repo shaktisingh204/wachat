@@ -165,7 +165,7 @@ export function FacebookKanbanBoard() {
                     <div style={{minWidth: "100%", display: "table", height: '100%'}}>
                         <div className="flex h-full w-max p-4 gap-4">
                             {boardData.map(column => (
-                                <FacebookKanbanColumn key={column.name} title={column.name} conversations={column.conversations} />
+                                <FacebookKanbanColumn key={column.name} {...({ title: column.name, conversations: column.conversations } as any)} />
                             ))}
                             <AddList onAddList={handleAddList} />
                         </div>

@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, Upload, Users, FileText, MoreVertical, Archive, Edit, Activity, File, FilePlus, ChevronRight, ChevronsUpDown, ArchiveRestore } from 'lucide-react';
+import { Search, Plus, Upload, Users, FileText, MoreVertical, Archive, Edit, Activity, File, FilePlus, ChevronRight, ChevronsUpDown, ArchiveRestore, Building } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

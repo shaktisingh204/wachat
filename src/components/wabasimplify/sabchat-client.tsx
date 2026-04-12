@@ -35,7 +35,7 @@ export function SabChatClient() {
             setConversations(sessions);
 
             if (conversationIdFromUrl) {
-                const convo = sessions.find(c => c._id.toString() === conversationIdFromUrl);
+                const convo = sessions.find((c: any) => c._id.toString() === conversationIdFromUrl);
                 if (convo) {
                     handleSelectConversation(convo);
                 }

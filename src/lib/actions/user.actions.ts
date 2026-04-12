@@ -284,16 +284,52 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
             groupId = groupResult.insertedId;
         }
 
-        const response = await axios.get(`https://graph.facebook.com/v23.0/${businessId}/whatsapp_business_accounts`, {
-            params: {
-                fields: 'id,name',
-                access_token: accessToken,
-            }
-        });
+        // See `src/app/actions/user.actions.ts:handleSyncWabas` for the full
+        // rationale. Short version: there is no `whatsapp_business_accounts`
+        // field on a Meta Business node. Query both `owned_` and `client_`
+        // WABA edges in parallel and merge the results by WABA id.
+        const wabaEdges = ['owned_whatsapp_business_accounts', 'client_whatsapp_business_accounts'] as const;
+        const edgeResponses = await Promise.allSettled(
+            wabaEdges.map((edge) =>
+                axios.get(`https://graph.facebook.com/v23.0/${businessId}/${edge}`, {
+                    params: {
+                        fields: 'id,name',
+                        access_token: accessToken,
+                    },
+                }),
+            ),
+        );
 
-        const wabas = response.data.data;
+        const wabaMap = new Map<string, { id: string; name: string }>();
+        let anyEdgeSucceeded = false;
+        let lastEdgeError: string | null = null;
+        for (let i = 0; i < edgeResponses.length; i++) {
+            const res = edgeResponses[i];
+            if (res.status === 'fulfilled') {
+                anyEdgeSucceeded = true;
+                const rows = res.value.data?.data ?? [];
+                for (const w of rows) {
+                    if (w?.id && !wabaMap.has(w.id)) {
+                        wabaMap.set(w.id, { id: w.id, name: w.name });
+                    }
+                }
+            } else {
+                lastEdgeError = getErrorMessage(res.reason);
+                console.warn(`[SYNC_WABAS] edge ${wabaEdges[i]} failed:`, lastEdgeError);
+            }
+        }
+
+        if (!anyEdgeSucceeded) {
+            return {
+                error:
+                    lastEdgeError ||
+                    'Could not reach Meta to list WhatsApp Business Accounts. Check the Business ID and token scopes (business_management, whatsapp_business_management).',
+            };
+        }
+
+        const wabas = Array.from(wabaMap.values());
         if (wabas.length === 0) {
-            return { message: "No WhatsApp Business Accounts found in this business portfolio." };
+            return { message: 'No WhatsApp Business Accounts found in this business portfolio (checked both owned and client accounts).' };
         }
 
         const bulkOps = wabas.map((waba: any) => ({

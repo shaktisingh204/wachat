@@ -8,11 +8,11 @@ import { cn } from '@/lib/utils';
 
 export function ImageBlockRenderer({ settings }: { settings: any }) {
     const Tag = settings.htmlTag || 'div';
-    const alignClasses = {
+    const alignClasses = ({
         left: 'justify-start',
         center: 'justify-center',
         right: 'justify-end',
-    }[settings.align || 'center'];
+    } as Record<string, string>)[settings.align || 'center'];
 
     const wrapperStyle: React.CSSProperties = {
         display: 'flex',
@@ -47,18 +47,18 @@ export function ImageBlockRenderer({ settings }: { settings: any }) {
         imageStyle.borderWidth = `${settings.border.width || 1}px`;
     }
     
-    const shadowClasses = { none: '', sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg' }[settings.shadow || 'none'];
-    const hoverClasses = {
+    const shadowClasses = ({ none: '', sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg' } as Record<string, string>)[settings.shadow || 'none'];
+    const hoverClasses = ({
         none: '',
         zoom: 'group-hover:scale-105',
         grow: 'group-hover:scale-110',
         shrink: 'group-hover:scale-95',
-    }[settings.hoverAnimation || 'none'];
+    } as Record<string, string>)[settings.hoverAnimation || 'none'];
 
-    const animationClass = {
+    const animationClass = ({
         fadeIn: 'animate-in fade-in duration-500',
         fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
-    }[settings.animation || 'none'];
+    } as Record<string, string>)[settings.animation || 'none'] || '';
 
     const responsiveClasses = cn({
         'max-lg:hidden': settings.responsiveVisibility?.desktop === false,

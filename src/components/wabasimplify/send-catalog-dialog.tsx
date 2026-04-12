@@ -55,7 +55,7 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
         if (isOpen && project.connectedCatalogId) {
             startLoading(async () => {
                 const fetchedProducts = await getProductsForCatalog(project.connectedCatalogId!, project._id.toString());
-                setProducts(fetchedProducts);
+                setProducts(fetchedProducts as any);
             });
         }
     }, [isOpen, project]);

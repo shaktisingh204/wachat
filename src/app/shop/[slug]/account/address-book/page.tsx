@@ -5,14 +5,15 @@ import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AddressBookPage({ params }: { params: { slug: string }}) {
+export default async function AddressBookPage(props: { params: Promise<{ slug: string }>}) {
+    const params = await props.params;
     const shop = await getEcommShopBySlug(params.slug);
     if (!shop) {
         notFound();
     }
-    
+
     const layout = shop.addressBookPageLayout || [];
-    
+
     return (
         <main>
             <Canvas

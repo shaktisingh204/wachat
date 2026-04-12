@@ -80,7 +80,7 @@ export default function CustomEcommerceDashboard() {
 
     const fetchProjects = useCallback(() => {
         startLoading(async () => {
-            const { projects: projectsData } = await getProjects(undefined, 'facebook');
+            const { projects: projectsData } = (await getProjects(undefined, 'facebook')) as any;
             setProjects(projectsData);
         });
     }, []);

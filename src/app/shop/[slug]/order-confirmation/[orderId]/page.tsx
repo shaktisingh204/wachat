@@ -9,9 +9,10 @@ import type { WithId, EcommOrder } from '@/lib/definitions';
 import { CheckCircle, Package } from 'lucide-react';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 
-export default function OrderConfirmationPage({ params }: { params: { orderId: string, slug: string } }) {
+export default function OrderConfirmationPage(props: { params: Promise<{ orderId: string, slug: string }> }) {
+    const params = use(props.params);
     const [order, setOrder] = useState<WithId<EcommOrder> | null>(null);
 
     useEffect(() => {
@@ -24,7 +25,7 @@ export default function OrderConfirmationPage({ params }: { params: { orderId: s
     if (!order) {
         return  <div className="flex items-center justify-center min-h-[50vh]">Loading...</div>; // Or a skeleton loader
     }
-    
+
 
     return (
          <div className="container mx-auto px-4 py-12 flex justify-center">

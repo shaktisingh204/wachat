@@ -81,7 +81,7 @@ export default function SmsCampaignWizard({ templates }: { templates: any[] }) {
     const variables = currentTemplate ? getVariables(currentTemplate.content) : [];
 
     return (
-        <div className="max-w-3xl mx-auto py-8">
+        <div className="max-w-3xl mx-auto flex flex-col gap-8">
             <div className="mb-8 flex justify-between items-center px-4">
                 {[1, 2, 3].map((s) => (
                     <div key={s} className={`flex items-center ${s <= step ? 'text-primary' : 'text-muted-foreground'}`}>

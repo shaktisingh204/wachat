@@ -46,7 +46,7 @@ export async function saveCrmAccountGroup(prevState: any, formData: FormData): P
 
         const { db } = await connectToDatabase();
 
-        const existingFilter: Filter<CrmAccountGroup> = {
+        const existingFilter: any = {
             userId: groupData.userId,
             name: groupData.name,
         };

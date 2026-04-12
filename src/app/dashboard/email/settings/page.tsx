@@ -292,7 +292,7 @@ function EmailSettingsPageContent() {
     if (view === 'connect') {
         return (
             <EmailSuiteLayout>
-                <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-4xl mx-auto space-y-8 px-4 py-10">
+                <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-4xl mx-auto gap-8">
                     <div className="w-full flex justify-start">
                         <Button variant="ghost" onClick={() => router.push('/dashboard/email')}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Accounts

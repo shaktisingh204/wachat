@@ -31,7 +31,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
     React.useEffect(() => {
         let currentApp = 'whatsapp';
-        if (pathname.startsWith('/dashboard/sabflow')) { currentApp = 'sabflow'; }
+        if (pathname === '/home') { currentApp = 'home'; }
+        else if (pathname.startsWith('/dashboard/sabflow')) { currentApp = 'sabflow'; }
         else if (pathname.startsWith('/dashboard/ad-manager')) { currentApp = 'ad-manager'; }
         else if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
         else if (pathname.startsWith('/dashboard/instagram')) { currentApp = 'instagram'; }
@@ -66,30 +67,71 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
     const isBuilderPage = pathname.includes('builder') && !pathname.includes('website-builder'); // Keep sidebar for website builder mainly, but maybe not flow builder
 
-    const showSidebar = !(!activeProject?._id && ['whatsapp', 'facebook', 'instagram', 'ad-manager'].includes(activeApp));
+    const isHomePage = pathname === '/home';
+    // Note: 'ad-manager' is intentionally excluded from the "needs project" gate.
+    // Its project switcher lives inside the sidebar, so gating the sidebar on a
+    // selected project creates a catch-22 where the user can never reach the
+    // switcher. Ad Manager is scoped by ad account anyway, not project.
+    const showSidebar = !isHomePage && !(!activeProject?._id && ['whatsapp', 'facebook', 'instagram'].includes(activeApp));
 
     return (
         <SidebarProvider defaultOpen={false}>
-            <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-muted/40", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
+            <div data-app={activeApp} style={{ backgroundColor: 'var(--app-bg)' }} className={cn("admin-dashboard flex h-screen w-full flex-col relative overflow-hidden", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
+                {/* Ambient theme blobs — color derived from per-app CSS vars */}
+                <div className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
+                    <div className="absolute -top-32 -left-32 h-72 w-72 rounded-full blur-[90px] transition-colors duration-700" style={{ background: 'var(--app-blob1)' }} />
+                    <div className="absolute top-1/2 -right-24 h-80 w-80 rounded-full blur-[100px] transition-colors duration-700" style={{ background: 'var(--app-blob2)' }} />
+                    <div className="absolute bottom-0 left-1/3 h-60 w-60 rounded-full blur-[70px] transition-colors duration-700" style={{ background: 'var(--app-blob3)' }} />
+                    <div className="absolute top-1/4 left-1/2 h-48 w-48 rounded-full blur-[80px] transition-colors duration-700" style={{ background: 'var(--app-blob4)' }} />
+                </div>
 
-                <AdminHeader appRailPosition={appRailPosition} activeApp={activeApp} />
+                <div className="relative z-10">
+                    <AdminHeader appRailPosition={appRailPosition} activeApp={activeApp} />
+                </div>
 
-                <div className="flex flex-1 overflow-hidden">
+                <div className="relative z-10 flex flex-1 overflow-hidden">
                     {appRailPosition === 'left' && <AppRail activeApp={activeApp} />}
 
                     {showSidebar && (
-                        <div className="hidden md:flex m-2 ml-0 rounded-2xl h-[calc(100%-1rem)] shadow-2xl border border-white/10 bg-background/60 backdrop-blur-2xl overflow-hidden transition-all duration-300">
+                        <div
+                            className="hidden md:flex my-2 mr-0 ml-1 rounded-2xl h-[calc(100%-1rem)] shadow-xl overflow-hidden transition-all duration-500 animate-fade-in shrink-0"
+                            style={{
+                                background: 'rgba(255,255,255,0.80)',
+                                backdropFilter: 'blur(24px)',
+                                WebkitBackdropFilter: 'blur(24px)',
+                                border: '1px solid var(--app-border)',
+                            }}
+                        >
                             <AppSidebar activeApp={activeApp} currentUserRole={currentUserRole} />
                         </div>
                     )}
 
-                    <main className={cn("flex-1 overflow-hidden relative transition-all duration-300",
-                        isChatPage || isBuilderPage ? "" : "p-4 md:p-6 lg:p-8 pt-0")}>
+                    <main className="flex-1 overflow-hidden relative transition-all duration-300 p-2 pl-1">
                         {isChatPage || isBuilderPage ? (
-                            children
-                        ) : (
-                            <div className="h-full overflow-y-auto rounded-3xl bg-background/60 backdrop-blur-2xl shadow-2xl border border-white/10 p-4 md:p-6">
+                            <div
+                                className="h-full overflow-hidden rounded-2xl shadow-xl"
+                                style={{
+                                    background: 'rgba(255,255,255,0.80)',
+                                    backdropFilter: 'blur(24px)',
+                                    WebkitBackdropFilter: 'blur(24px)',
+                                    border: '1px solid var(--app-border)',
+                                }}
+                            >
                                 {children}
+                            </div>
+                        ) : (
+                            <div
+                                className="h-full overflow-y-auto rounded-2xl shadow-xl px-5 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8"
+                                style={{
+                                    background: 'rgba(255,255,255,0.80)',
+                                    backdropFilter: 'blur(24px)',
+                                    WebkitBackdropFilter: 'blur(24px)',
+                                    border: '1px solid var(--app-border)',
+                                }}
+                            >
+                                <div className="mx-auto w-full max-w-[1600px]">
+                                    {children}
+                                </div>
                             </div>
                         )}
                     </main>

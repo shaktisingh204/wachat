@@ -364,6 +364,7 @@ const portfolioMenuItems = [
 
 const seoMenuItems = [
     { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp },
+    { href: '/dashboard/seo/tools', label: 'SEO Tools (117)', icon: Wrench },
     { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe },
 ];
@@ -630,7 +631,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                             )}
                             {activeApp === 'sms' && (
                                 <SidebarMenu>
-                                    {smsMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
+                                    {smsMenuItems.map((item: any) => (item as any).subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
                                 </SidebarMenu>
                             )}
                             {activeApp === 'api' && (
@@ -689,7 +690,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                     router.push('/login');
                     return;
                 }
-                const { projects } = await getProjects() || { projects: [] };
+                const { projects } = (await getProjects() as any) || { projects: [] };
                 setInitialData({ user: session.user, projects });
             } catch (error) {
                 console.error("Initialization failed:", error);

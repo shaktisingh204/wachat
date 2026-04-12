@@ -92,7 +92,7 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
         borderRadius: border.radius ? `${border.radius}px` : undefined,
     };
 
-    const shadowClass = { sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg'}[boxShadow] || '';
+    const shadowClass = ({ sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg'} as Record<string, string>)[boxShadow] || '';
     
     const contentStyle: React.CSSProperties = {
         backgroundColor: contentBgColor,
@@ -108,27 +108,27 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
         padding: titlePadding ? `${titlePadding}px` : undefined,
     };
     
-    const animationClass = { fadeIn: 'animate-in fade-in duration-500', fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500' }[animation || 'none'];
+    const animationClass = ({ fadeIn: 'animate-in fade-in duration-500', fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500' } as Record<string, string>)[animation || 'none'] || '';
     const responsiveClasses = cn({ 'max-lg:hidden': responsiveVisibility?.desktop === false, 'max-md:hidden lg:hidden': responsiveVisibility?.tablet === false, 'max-sm:hidden': responsiveVisibility?.mobile === false });
     const customAttrs = (customAttributes || []).reduce((acc: any, attr: any) => { if(attr.key) acc[attr.key] = attr.value; return acc; }, {});
 
     const dynamicStyles = `
-        .accordion-item-${settings.id} > [data-state="open"] > button { background-color: ${activeTitleBgColor || ''} !important; color: ${activeTitleColor || ''} !important; }
-        .accordion-item-${settings.id} > [data-state="open"] .inactive-icon { display: none; }
-        .accordion-item-${settings.id} > [data-state="closed"] .active-icon { display: none; }
+        .accordion-item-${(settings as any).id} > [data-state="open"] > button { background-color: ${activeTitleBgColor || ''} !important; color: ${activeTitleColor || ''} !important; }
+        .accordion-item-${(settings as any).id} > [data-state="open"] .inactive-icon { display: none; }
+        .accordion-item-${(settings as any).id} > [data-state="closed"] .active-icon { display: none; }
         ${customCss || ''}
     `;
 
     return (
         <div id={cssId} className={cn(animationClass, responsiveClasses, cssClasses)} style={wrapperStyle} {...customAttrs}>
             <style>{dynamicStyles}</style>
-            <Accordion type={behavior} collapsible className="w-full space-y-2" defaultValue={defaultActiveItem} style={{ gap: `${spaceBetween}px` }}>
+            <Accordion type={behavior as any} collapsible className="w-full space-y-2" defaultValue={defaultActiveItem as any} style={{ gap: `${spaceBetween}px` }}>
                 {items.map(item => (
                     <AccordionItem 
                         key={item.id} 
                         value={item.id} 
                         style={itemStyle} 
-                        className={cn(`accordion-item-${settings.id} border-none overflow-hidden`, shadowClass)}
+                        className={cn(`accordion-item-${(settings as any).id} border-none overflow-hidden`, shadowClass)}
                     >
                         <AccordionTrigger style={triggerStyle} asChild>
                              <TitleTag className={cn('flex flex-1 items-center justify-between font-medium transition-all hover:underline', iconPosition === 'right' && 'flex-row-reverse')}>

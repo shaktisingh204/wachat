@@ -20,7 +20,7 @@ export default function EditCrmItemPage() {
     useEffect(() => {
         if (productId) {
             getCrmProducts().then(products => {
-                const found = products.find(p => p._id.toString() === productId);
+                const found = (products as any).find((p: any) => p._id.toString() === productId);
                 if (found) {
                     setProduct(found);
                 }

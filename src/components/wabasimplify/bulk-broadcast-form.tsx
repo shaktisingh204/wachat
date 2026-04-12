@@ -33,7 +33,7 @@ interface BulkBroadcastFormProps {
 }
 
 export function BulkBroadcastForm({ sourceProjectName, targetProjects }: BulkBroadcastFormProps) {
-  const [state, formAction] = useFormState(handleBulkBroadcast, initialState);
+  const [state, formAction] = useFormState(handleBulkBroadcast as any, initialState as any);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [file, setFile] = useState<File | null>(null);

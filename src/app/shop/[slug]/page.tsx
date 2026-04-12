@@ -7,7 +7,8 @@ import { LayoutGrid } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { EcommPage } from '@/lib/definitions';
 
-export default async function ShopPage({ params }: { params: { slug: string } }) {
+export default async function ShopPage(props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params;
     if (!params.slug) {
         notFound();
     }
@@ -17,13 +18,13 @@ export default async function ShopPage({ params }: { params: { slug: string } })
     if (!shop) {
         notFound();
     }
-    
+
     const { db } = await connectToDatabase();
     const homepage = await db.collection<EcommPage>('ecomm_pages').findOne({ shopId: shop._id, isHomepage: true });
 
     const products = await getPublicEcommProducts(shop._id.toString());
     const homepageLayout = homepage?.layout || [];
-    
+
     return (
         <main>
             {homepageLayout.length > 0 ? (

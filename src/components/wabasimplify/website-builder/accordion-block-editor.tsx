@@ -95,10 +95,10 @@ export function AccordionBlockEditor({ settings, onUpdate }: { settings: any, on
                                     <Label>Item {index + 1}</Label>
                                     <Input placeholder="Item Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} />
                                     <Textarea placeholder="Item content..." value={item.content || ''} onChange={(e) => handleItemChange(index, 'content', e.target.value)} />
-                                    <Select value={item.icon || ''} onValueChange={(val) => handleItemChange(index, 'icon', val)}>
+                                    <Select value={item.icon || '__none__'} onValueChange={(val) => handleItemChange(index, 'icon', val === '__none__' ? '' : val)}>
                                         <SelectTrigger><SelectValue placeholder="Select an icon..."/></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">No Icon</SelectItem>
+                                            <SelectItem value="__none__">No Icon</SelectItem>
                                             {iconNames.map(iconName => (<SelectItem key={iconName} value={iconName}>{iconName}</SelectItem>))}
                                         </SelectContent>
                                     </Select>
@@ -111,7 +111,7 @@ export function AccordionBlockEditor({ settings, onUpdate }: { settings: any, on
                         <AccordionTrigger>Settings</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2"><Label>Toggle Behavior</Label><Select value={settings.behavior || 'single'} onValueChange={(val) => handleUpdate('behavior', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="single">Accordion</SelectItem><SelectItem value="multiple">Toggle</SelectItem></SelectContent></Select></div>
-                            <div className="space-y-2"><Label>Default Active Item</Label><Select value={settings.defaultActiveItem || ''} onValueChange={v => handleUpdate('defaultActiveItem', v)}><SelectTrigger><SelectValue placeholder="None"/></SelectTrigger><SelectContent><SelectItem value="">None</SelectItem>{items.map((item: AccordionItemData, index: number) => <SelectItem key={item.id} value={item.id}>Item {index+1} ({item.title})</SelectItem>)}</SelectContent></Select></div>
+                            <div className="space-y-2"><Label>Default Active Item</Label><Select value={settings.defaultActiveItem || '__none__'} onValueChange={v => handleUpdate('defaultActiveItem', v === '__none__' ? '' : v)}><SelectTrigger><SelectValue placeholder="None"/></SelectTrigger><SelectContent><SelectItem value="__none__">None</SelectItem>{items.map((item: AccordionItemData, index: number) => <SelectItem key={item.id} value={item.id}>Item {index+1} ({item.title})</SelectItem>)}</SelectContent></Select></div>
                             <div className="space-y-2"><Label>Title HTML Tag</Label><Select value={settings.titleHtmlTag || 'h3'} onValueChange={v => handleUpdate('titleHtmlTag', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="h2">H2</SelectItem><SelectItem value="h3">H3</SelectItem><SelectItem value="h4">H4</SelectItem><SelectItem value="div">div</SelectItem></SelectContent></Select></div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label>Inactive Icon</Label><Select value={settings.inactiveIcon || 'Plus'} onValueChange={v => handleUpdate('inactiveIcon', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{iconNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>

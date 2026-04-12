@@ -1,19 +1,13 @@
-
 'use client';
 
 import { useEffect, useState, useTransition, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { PlusCircle, BookCopy, Check, X } from 'lucide-react';
 import { getLibraryTemplates } from '@/app/actions/template.actions';
 import type { LibraryTemplate } from '@/lib/definitions';
 import { AdminDeleteLibraryTemplateButton } from '@/components/wabasimplify/admin-delete-library-template-button';
-import { Separator } from '@/components/ui/separator';
 import { AdminTemplateCategoryManager } from '@/components/wabasimplify/admin-template-category-manager';
+import { PlusCircle, BookCopy, Lock, Trash2 } from 'lucide-react';
 
 export default function AdminTemplateLibraryPage() {
     const [templates, setTemplates] = useState<LibraryTemplate[]>([]);
@@ -26,94 +20,106 @@ export default function AdminTemplateLibraryPage() {
         });
     };
 
-    useEffect(() => {
-        fetchTemplates();
-    }, []);
+    useEffect(() => { fetchTemplates(); }, []);
 
-    const { customTemplates, premadeTemplatesList } = useMemo(() => {
+    const { customTemplates, premadeTemplates } = useMemo(() => {
         const custom: LibraryTemplate[] = [];
         const premade: LibraryTemplate[] = [];
-        templates.forEach(t => {
-            if (t.isCustom) custom.push(t);
-            else premade.push(t);
-        });
-        return { customTemplates: custom, premadeTemplatesList: premade };
+        templates.forEach(t => (t.isCustom ? custom : premade).push(t));
+        return { customTemplates: custom, premadeTemplates: premade };
     }, [templates]);
-    
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <BookCopy className="h-8 w-8" />
-                        Manage Template Library
-                    </h1>
-                    <p className="text-muted-foreground mt-2">Add, edit, or remove templates from the global user library.</p>
+                    <h1 className="text-2xl font-bold text-slate-900">Template Library</h1>
+                    <p className="text-sm text-slate-500 mt-1">Manage global templates available to all users.</p>
                 </div>
-                 <Button asChild>
+                <Button asChild className="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold shadow-lg shadow-amber-500/25">
                     <Link href="/admin/dashboard/template-library/create">
                         <PlusCircle className="mr-2 h-4 w-4" />
-                        Add New Template
+                        Add Template
                     </Link>
                 </Button>
             </div>
 
-            <AdminTemplateCategoryManager />
+            {/* Category manager */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                <h2 className="text-sm font-semibold text-slate-900 mb-3">Category Manager</h2>
+                <AdminTemplateCategoryManager />
+            </div>
 
-            <Separator />
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Custom Library Templates</CardTitle>
-                    <CardDescription>Templates you have added to the library. These can be deleted.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Category</TableHead><TableHead>Language</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
-                            <TableBody>
-                                {isLoading ? <TableRow><TableCell colSpan={4}><Skeleton className="h-10 w-full"/></TableCell></TableRow>
-                                : customTemplates.length > 0 ? customTemplates.map(template => (
-                                    <TableRow key={template._id?.toString()}>
-                                        <TableCell className="font-medium">{template.name}</TableCell>
-                                        <TableCell><Badge variant="outline">{template.category}</Badge></TableCell>
-                                        <TableCell>{template.language}</TableCell>
-                                        <TableCell className="text-right">
-                                            <AdminDeleteLibraryTemplateButton templateId={template._id!.toString()} templateName={template.name}/>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                                : <TableRow><TableCell colSpan={4} className="h-24 text-center">No custom templates added yet.</TableCell></TableRow>}
-                            </TableBody>
-                        </Table>
+            <div className="grid gap-5 lg:grid-cols-2">
+                {/* Custom templates */}
+                <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-2">
+                        <BookCopy className="h-4 w-4 text-amber-600" />
+                        <h2 className="font-semibold text-slate-900 text-sm">Custom Templates</h2>
+                        <span className="ml-auto text-xs text-slate-500">{customTemplates.length} total</span>
                     </div>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Pre-made Templates</CardTitle>
-                    <CardDescription>Core templates included with the application. These cannot be deleted.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <div className="border rounded-md">
-                        <Table>
-                            <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Category</TableHead><TableHead>Language</TableHead></TableRow></TableHeader>
-                            <TableBody>
-                                {isLoading ? <TableRow><TableCell colSpan={3}><Skeleton className="h-10 w-full"/></TableCell></TableRow>
-                                : premadeTemplatesList.map((template, i) => (
-                                    <TableRow key={i}>
-                                        <TableCell className="font-medium">{template.name}</TableCell>
-                                        <TableCell><Badge variant="secondary">{template.category}</Badge></TableCell>
-                                        <TableCell>{template.language}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                    <div className="divide-y divide-slate-200">
+                        {isLoading ? (
+                            [...Array(3)].map((_, i) => (
+                                <div key={i} className="px-6 py-3 flex gap-3">
+                                    <div className="h-4 flex-1 rounded bg-slate-100 animate-pulse" />
+                                </div>
+                            ))
+                        ) : customTemplates.length > 0 ? (
+                            customTemplates.map(t => (
+                                <div key={t._id?.toString()} className="px-6 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-slate-900 truncate">{t.name}</p>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            <span className="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                                                {t.category}
+                                            </span>
+                                            <span className="text-[10px] text-slate-500">{t.language}</span>
+                                        </div>
+                                    </div>
+                                    <AdminDeleteLibraryTemplateButton templateId={t._id!.toString()} templateName={t.name} />
+                                </div>
+                            ))
+                        ) : (
+                            <div className="px-6 py-10 text-center text-slate-500 text-sm">
+                                No custom templates added yet.
+                            </div>
+                        )}
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+
+                {/* Pre-made templates */}
+                <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-2">
+                        <Lock className="h-4 w-4 text-slate-500" />
+                        <h2 className="font-semibold text-slate-900 text-sm">Pre-made Templates</h2>
+                        <span className="ml-auto text-xs text-slate-500">{premadeTemplates.length} total</span>
+                    </div>
+                    <div className="divide-y divide-slate-200 max-h-96 overflow-y-auto">
+                        {isLoading ? (
+                            [...Array(4)].map((_, i) => (
+                                <div key={i} className="px-6 py-3">
+                                    <div className="h-4 rounded bg-slate-100 animate-pulse" />
+                                </div>
+                            ))
+                        ) : premadeTemplates.map((t, i) => (
+                            <div key={i} className="px-6 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm text-slate-900 truncate">{t.name}</p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                                            {t.category}
+                                        </span>
+                                        <span className="text-[10px] text-slate-500">{t.language}</span>
+                                    </div>
+                                </div>
+                                <Lock className="h-3 w-3 text-slate-400 shrink-0" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
-import { AlertCircle, Users, Clapperboard, Newspaper, MessageSquare } from 'lucide-react';
+import { AlertCircle, Users, Clapperboard, Newspaper, MessageSquare, Video } from 'lucide-react';
 import type { WithId } from 'mongodb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';

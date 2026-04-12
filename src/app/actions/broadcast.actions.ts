@@ -4,7 +4,9 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, type Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
+import { enqueueBroadcastControl } from '@/lib/queue/broadcast-queue';
 import { getProjectById } from '@/app/actions/project.actions';
+import { getAdminSession } from '@/app/actions/admin.actions';
 import { handleManualWachatSetup } from '@/app/actions/whatsapp.actions';
 import { getErrorMessage, validateFile } from '@/lib/utils';
 import type { Project, Template, BroadcastJob, Contact } from '@/lib/definitions';
@@ -14,13 +16,28 @@ import { nanoid } from 'nanoid';
 import axios from 'axios';
 import NodeFormData from 'form-data';
 
-const API_VERSION = 'v21.0';
+// Aligned with the rest of the Wachat module (whatsapp.actions.ts,
+// facebook.actions.ts, instagram.actions.ts, user.actions.ts, and the
+// broadcast send-message.js worker) — they all target v23.0. Leaving this
+// at v21.0 meant media uploads from the broadcast CSV path went to an older
+// Meta API endpoint than every other send path, and any v21-only bug would
+// silently affect broadcasts only.
+const API_VERSION = 'v23.0';
 
 
 export async function getAllBroadcasts(
     page: number = 1,
     limit: number = 20
 ): Promise<{ broadcasts: WithId<BroadcastJob>[], total: number }> {
+    // P0 fix: this is a cross-tenant action (returns broadcasts across every
+    // project). A 'use server' action is callable from any client in the app
+    // via a crafted POST, so guarding only at the admin page layer is not
+    // enough. We verify the admin session cookie inside the action itself.
+    const session = await getAdminSession();
+    if (!session.isAdmin) {
+        return { broadcasts: [], total: 0 };
+    }
+
     try {
         const { db } = await connectToDatabase();
         const skip = (page - 1) * limit;
@@ -233,6 +250,15 @@ export async function handleStartBroadcast(
         const templateId = formData.get('templateId') as string;
         template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) });
         if (!template) return { error: 'Template not found for this project.' };
+        // J3 P1-1 fix: surface approval status at enqueue time instead of at
+        // worker send time. Previously a broadcast with a PENDING or REJECTED
+        // template would enqueue successfully and fail later when Meta
+        // returned error #132015, leaving users confused about why their
+        // campaign "just broke". `send-template.actions.ts:45` already does
+        // this check — mirroring it here.
+        if (template.status !== 'APPROVED') {
+            return { error: `Template '${template.name}' is ${template.status || 'not approved'}. Only APPROVED templates can be broadcast.` };
+        }
     } else {
         const flowId = formData.get('flowId') as string;
         flow = await db.collection('meta_flows').findOne({ _id: new ObjectId(flowId), projectId: new ObjectId(projectId) });
@@ -266,23 +292,41 @@ export async function handleStartBroadcast(
         return { error: 'No contacts found for the selected audience.' };
     }
 
+    // Per-broadcast rate limit. The form may override the project default; the
+    // worker reads broadcast.messagesPerSecond first, then projectMessagesPerSecond,
+    // then falls back to BROADCAST_DEFAULT_MPS (80).
+    const formMps = parseInt(formData.get('messagesPerSecond') as string, 10);
+    const broadcastMps =
+        Number.isFinite(formMps) && formMps > 0
+            ? formMps
+            : (project as any).messagesPerSecond || undefined;
+
     const broadcastData: any = {
         projectId: new ObjectId(projectId),
         phoneNumberId,
         status: 'PENDING_PROCESSING',
         contactCount: contacts.length,
+        successCount: 0,
+        errorCount: 0,
+        enqueuedCount: 0,
         fileName: audienceType === 'file' ? (formData.get('csvFile') as File).name : 'Audience Tag',
         audienceType: audienceType,
         tagIds: audienceType === 'tags' ? tagIds.map(id => new ObjectId(id)) : [],
         accessToken: project.accessToken,
         createdAt: new Date(),
         broadcastType,
+        // Always carry the template definition so the worker doesn't need to
+        // re-fetch it (and so resends after template edits stay reproducible).
+        components: broadcastType === 'template' && template ? [...(template.components || [])] : [],
+        messagesPerSecond: broadcastMps,
+        projectMessagesPerSecond: (project as any).messagesPerSecond || undefined,
     };
 
     if (broadcastType === 'template' && template) {
         broadcastData.name = `${template.name} - ${new Date().toLocaleString()}`;
         broadcastData.templateName = template.name;
         broadcastData.templateId = template._id;
+        broadcastData.language = template.language || 'en_US';
         // --- HEADER ---
         const headerComponentDef = template.components?.find(c => c.type === 'HEADER');
         if (headerComponentDef) {
@@ -604,6 +648,17 @@ export async function handleStartBroadcast(
 
     const contactsInserted = await createBroadcastContacts(db, broadcastId, contacts);
 
+    // Hand off to the BullMQ control queue. The control worker will stream
+    // contacts in batches and the send workers will fan out at the configured
+    // MPS. A queue failure here is non-fatal — the broadcast doc still has
+    // status PENDING_PROCESSING and the next worker boot will pick it up via
+    // the legacy poller fallback (if BROADCAST_USE_BULLMQ is unset).
+    try {
+        await enqueueBroadcastControl(broadcastId.toString());
+    } catch (e) {
+        console.error('Failed to enqueue broadcast control job:', e);
+    }
+
     revalidatePath('/dashboard/broadcasts');
 
     return { message: `Broadcast successfully queued for ${contactsInserted} contacts. Sending will begin shortly.` };
@@ -679,6 +734,11 @@ export async function handleBulkBroadcast(
             const broadcastId = broadcastResult.insertedId;
 
             await createBroadcastContacts(db, broadcastId, projectContacts);
+            try {
+                await enqueueBroadcastControl(broadcastId.toString());
+            } catch (e) {
+                console.error('Failed to enqueue bulk broadcast control job:', e);
+            }
             successCount++;
         }
 
@@ -737,6 +797,12 @@ export async function handleStartApiBroadcast(data: {
 
     await createBroadcastContacts(db, broadcastId, contacts);
 
+    try {
+        await enqueueBroadcastControl(broadcastId.toString());
+    } catch (e) {
+        console.error('Failed to enqueue API broadcast control job:', e);
+    }
+
     return { message: `Broadcast successfully queued via API for ${contacts.length} contacts. Sending will begin shortly.` };
 }
 
@@ -750,16 +816,31 @@ export async function handleRequeueBroadcast(prevState: { message?: string; erro
     if (!broadcastId) return { error: 'Original broadcast ID is missing.' };
 
     const { db } = await connectToDatabase();
+    if (!ObjectId.isValid(broadcastId)) return { error: 'Invalid broadcast id.' };
     const originalBroadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
     if (!originalBroadcast) return { error: 'Original broadcast not found.' };
 
+    // J3 P0-2-adjacent: derive projectId from the broadcast (trusted server
+    // state) and gate via getProjectById. This matches the payment-request
+    // helper pattern and prevents a caller from requeueing another tenant's
+    // broadcast by guessing a broadcastId.
     const projectId = originalBroadcast.projectId.toString();
     const project = await getProjectById(projectId);
     if (!project) return { error: 'Project not found.' };
 
     const templateId = newTemplateId || originalBroadcast.templateId.toString();
-    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) });
-    if (!template) return { error: 'Template not found.' };
+    if (!ObjectId.isValid(templateId)) return { error: 'Invalid template id.' };
+    // J3 P0-1-adjacent: scope template lookup by the broadcast's project so a
+    // requeue can't pick up a template from a different tenant.
+    const template = await db.collection<Template>('templates').findOne({
+        _id: new ObjectId(templateId),
+        projectId: originalBroadcast.projectId,
+    });
+    if (!template) return { error: 'Template not found in this project.' };
+    // J3 P1-1-adjacent: same approval gate as the primary broadcast path.
+    if (template.status !== 'APPROVED') {
+        return { error: `Template '${template.name}' is ${template.status || 'not approved'}. Only APPROVED templates can be broadcast.` };
+    }
 
     const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
     if (requeueScope === 'FAILED') {
@@ -788,6 +869,12 @@ export async function handleRequeueBroadcast(prevState: { message?: string; erro
 
     const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData as any);
     await createBroadcastContacts(db, newBroadcastResult.insertedId, contacts);
+
+    try {
+        await enqueueBroadcastControl(newBroadcastResult.insertedId.toString());
+    } catch (e) {
+        console.error('Failed to enqueue requeue broadcast control job:', e);
+    }
 
     revalidatePath('/dashboard/broadcasts');
     return { message: `${contacts.length} contacts have been re-queued for broadcast.` };

@@ -37,7 +37,7 @@ export async function getLeadsForApi(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(userId);
         
-        const filter: Filter<CrmLead> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
             filter.$or = [
@@ -79,14 +79,14 @@ export async function createLeadForApi(
 
     try {
         const { db } = await connectToDatabase();
-        const newLead: Omit<CrmLead, '_id'> = {
+        const newLead: Omit<CrmLead, '_id'> = ({
             userId: new ObjectId(userId),
             createdAt: new Date(),
             updatedAt: new Date(),
             ...validatedFields.data,
             value: validatedFields.data.value || 0,
             currency: validatedFields.data.currency || 'INR',
-        };
+        } as any);
 
         const result = await db.collection('crm_leads').insertOne(newLead as CrmLead);
         const createdLead = await db.collection<CrmLead>('crm_leads').findOne({ _id: result.insertedId });

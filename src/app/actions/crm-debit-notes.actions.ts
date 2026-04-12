@@ -45,7 +45,7 @@ export async function getDebitNotes(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const filter: Filter<CrmDebitNote> = { userId: userObjectId };
+        const filter: any = { userId: userObjectId };
 
         const skip = (page - 1) * limit;
 

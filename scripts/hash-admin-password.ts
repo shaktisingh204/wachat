@@ -16,8 +16,8 @@ async function hashPassword() {
 
   try {
     // Generate the salt with the '$2b$' prefix for maximum compatibility.
-    const salt = await bcrypt.genSalt(SALT_ROUNDS, 'b');
-    const hash = await bcrypt.hash(password, salt);
+    const salt = await (bcrypt.genSalt as any)(SALT_ROUNDS, 'b');
+    const hash = await (bcrypt.hash as any)(password, salt);
     
     console.log('\nGenerated Hash:');
     console.log(hash);

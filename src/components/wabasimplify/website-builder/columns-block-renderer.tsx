@@ -72,10 +72,10 @@ export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props)
                     }
                 }
                 
-                const animationClass = {
+                const animationClass = ({
                     fade: 'animate-fade-in',
                     slide: 'animate-slide-in-up',
-                }[columnSettings.animation || 'none'];
+                } as Record<string, string>)[columnSettings.animation || 'none'] || '';
                 
                 const responsiveClasses = cn({
                     'hidden': columnSettings.responsiveVisibility?.desktop === false,

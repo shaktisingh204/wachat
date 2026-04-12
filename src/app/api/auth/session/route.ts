@@ -42,9 +42,16 @@ export async function POST(request: NextRequest) {
             email: decodedToken.email,
             authProvider: decodedToken.firebase.sign_in_provider,
             createdAt: now,
-            isApproved: false, 
+            isApproved: false,
+            // New signups enter the onboarding wizard at the profile step.
+            // `handleWabaOnboarding`, `handleMetaConnection`, and
+            // `completeOnboarding` advance/complete this state.
+            onboarding: {
+                status: 'profile',
+                startedAt: now,
+            },
         };
-        
+
         if (defaultPlan) {
             setOnInsertData.planId = defaultPlan._id;
             setOnInsertData.credits = defaultPlan.signupCredits || 0;
@@ -75,13 +82,13 @@ export async function POST(request: NextRequest) {
         console.log('[API_SESSION] User upserted successfully.');
 
         // Create a custom session token for our app
-        const sessionPayload: Omit<SessionPayload, 'jti' | 'exp'> = {
+        const sessionPayload: Omit<SessionPayload, 'jti' | 'exp'> = ({
             userId: user._id.toString(),
             email: user.email,
             name: user.name,
-            isApproved: user.isApproved || false,
-        };
-        const customSessionToken = await createSessionToken(sessionPayload);
+            isApproved: (user as any).isApproved || false,
+        } as any);
+        const customSessionToken = await createSessionToken(sessionPayload as any);
         console.log('[API_SESSION] Custom session token created.');
 
         const response = NextResponse.json({ success: true, user: user });

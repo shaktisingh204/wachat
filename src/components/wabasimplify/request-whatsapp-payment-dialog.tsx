@@ -41,7 +41,7 @@ function SubmitButton() {
 }
 
 export function RequestWhatsAppPaymentDialog({ isOpen, onOpenChange, contact }: RequestWhatsAppPaymentDialogProps) {
-    const [state, formAction] = useActionState(handleRequestWhatsAppPayment, initialState);
+    const [state, formAction] = useActionState(handleRequestWhatsAppPayment as any, initialState as any);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 

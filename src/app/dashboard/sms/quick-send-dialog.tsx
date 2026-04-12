@@ -16,7 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 import { sendQuickSms } from "@/app/actions/sms-quick.actions";
-import { toast } from "sonner"; // If sonner is available, else use alert or custom toast
+// import { toast } from "sonner"; // If sonner is available, else use alert or custom toast
+const toast: any = { error: (m: string) => alert(m), success: (m: string) => console.log(m) };
 
 export function QuickSendDialog() {
     const [open, setOpen] = useState(false);

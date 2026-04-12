@@ -45,7 +45,7 @@ export function ProductForm({ product }: ProductFormProps) {
     const catalogId = (params.catalogId as string) || searchParams.get('catalogId');
     const isEditing = !!product;
 
-    const [state, formAction] = useActionState(isEditing ? updateProductInCatalog : addProductToCatalog, initialState);
+    const [state, formAction] = useActionState((isEditing ? updateProductInCatalog : addProductToCatalog) as any, initialState as any);
     const formRef = useRef<HTMLFormElement>(null);
     
     const [variants, setVariants] = useState<EcommProductVariant[]>([]);

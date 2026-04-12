@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
 
     const formAction = (formData: FormData) => {
         startTransition(async () => {
-            const result = await handleForgotPassword(null, formData);
+            const result = await handleForgotPassword(null as any, formData);
             setState(result);
         });
     };

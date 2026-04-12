@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ObjectId } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getCrmAutomationById } from '@/app/actions/crm-automations.actions';
 import { addCrmContact } from '@/app/actions/crm.actions';
@@ -7,10 +7,8 @@ import type { CrmContact, CrmAutomation } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
 
-export async function POST(
-    request: NextRequest,
-    { params }: { params: { automationId: string } }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ automationId: string }> }) {
+    const params = await props.params;
     const { automationId } = params;
     if (!ObjectId.isValid(automationId)) {
         return NextResponse.json({ error: 'Invalid Automation ID format.' }, { status: 400 });
@@ -78,7 +76,7 @@ export async function POST(
         // This endpoint's responsibility is just to add the tag to the right contact.
         // A separate process would monitor the 'crm_contacts' collection for changes.
 
-        return NextResponse.json({ success: true, message: `Automation triggered for ${contact.email}.`, contactId: contact._id.toString() });
+        return NextResponse.json({ success: true, message: `Automation triggered for ${contact!.email}.`, contactId: contact!._id.toString() });
 
     } catch (e) {
         console.error("CRM Webhook Trigger Error:", e);

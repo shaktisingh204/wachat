@@ -319,7 +319,7 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
             role,
             status: 'pending',
             createdAt: new Date(),
-        };
+        } as any;
 
         await db.collection('invitations').insertOne(newInvitation as any);
 
@@ -351,7 +351,7 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
 
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
-            { $pull: { agents: { userId: new ObjectId(agentUserId) } } }
+            { $pull: { agents: { userId: new ObjectId(agentUserId) } } } as any
         );
 
         revalidatePath('/dashboard/settings');

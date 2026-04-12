@@ -78,10 +78,10 @@ export function TabsBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                                     </Button>
                                     <Label>Tab {index + 1}</Label>
                                     <Input placeholder="Tab Label" value={tab.label || ''} onChange={(e) => handleTabChange(index, 'label', e.target.value)} />
-                                    <Select value={tab.icon || ''} onValueChange={(val) => handleTabChange(index, 'icon', val)}>
+                                    <Select value={tab.icon || '__none__'} onValueChange={(val) => handleTabChange(index, 'icon', val === '__none__' ? '' : val)}>
                                         <SelectTrigger><SelectValue placeholder="Select an icon..."/></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">No Icon</SelectItem>
+                                            <SelectItem value="__none__">No Icon</SelectItem>
                                             {iconNames.map(iconName => (
                                                 <SelectItem key={iconName} value={iconName}>{iconName}</SelectItem>
                                             ))}

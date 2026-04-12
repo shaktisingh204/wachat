@@ -7,12 +7,13 @@ import { CartView } from '@/components/wabasimplify/website-builder/cart-view';
 import { CartProvider } from '@/context/cart-context';
 
 
-export default async function CartPage({ params }: { params: { slug: string }}) {
+export default async function CartPage(props: { params: Promise<{ slug: string }>}) {
+    const params = await props.params;
     const shop = await getEcommShopBySlug(params.slug);
     if (!shop) {
         notFound();
     }
-    
+
     // If the cart page has a custom layout, render it.
     if (shop.cartPageLayout && shop.cartPageLayout.length > 0) {
         return (

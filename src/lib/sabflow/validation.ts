@@ -68,7 +68,7 @@ export const validateNode = (node: Node | any, connectedEdges: Edge[] = []): Val
 
             if (action) {
                 // Check required inputs
-                action.inputs?.forEach((input: any) => {
+                (action as any).inputs?.forEach((input: any) => {
                     if (input.required) {
                         const val = data.inputs?.[input.name];
                         if (val === undefined || val === null || (typeof val === 'string' && val.trim() === '')) {

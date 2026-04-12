@@ -117,24 +117,24 @@ export const VideoBlockRenderer: React.FC<VideoBlockRendererProps> = ({ settings
         'max-sm:hidden': responsiveVisibility?.mobile === false,
     });
     
-    const animationClass = {
+    const animationClass = ({
         fadeIn: 'animate-in fade-in duration-500',
         fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
         zoom: 'animate-in zoom-in-75',
         bounce: 'animate-bounce',
-    }[animation || 'none'];
-    
-    const hoverClass = {
+    } as Record<string, string>)[animation || 'none'] || '';
+
+    const hoverClass = ({
         none: '',
         zoom: 'group-hover:scale-105',
         grow: 'group-hover:scale-110',
-    }[hoverAnimation || 'none'];
+    } as Record<string, string>)[hoverAnimation || 'none'];
 
-    const shadowClass = {
+    const shadowClass = ({
         sm: 'shadow-sm',
         md: 'shadow-md',
         lg: 'shadow-lg',
-    }[shadow || 'none'] || '';
+    } as Record<string, string>)[shadow || 'none'] || '';
 
     const wrapperStyle: React.CSSProperties = {
         width: layout.width || '100%',

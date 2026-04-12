@@ -47,7 +47,7 @@ interface BulkImportDialogProps {
 
 export function BulkImportDialog({ onImportComplete }: BulkImportDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(handleBulkCreateShortUrls, initialState);
+  const [state, formAction] = useActionState(handleBulkCreateShortUrls as any, initialState as any);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
