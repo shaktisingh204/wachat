@@ -42,7 +42,7 @@ import {
   LuHash,
   LuCircleAlert,
   LuCheck,
-  LuWand2,
+  LuWand,
   LuEye,
 } from 'react-icons/lu';
 
@@ -269,7 +269,7 @@ function AIBodyGenerator({ onGenerate }: { onGenerate: (text: string) => void })
   if (!open) {
     return (
       <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-[11px] text-clay-accent hover:underline">
-        <LuWand2 className="h-3 w-3" /> Generate with AI
+        <LuWand className="h-3 w-3" /> Generate with AI
       </button>
     );
   }
@@ -685,7 +685,11 @@ function CreateTemplateContent() {
                     <TextInput value={btn.phone_number || ''} onChange={(e: any) => updateButton(i, 'phone_number', e.target.value)} placeholder="+1234567890" />
                   )}
                   {btn.type === 'COPY_CODE' && (
-                    <TextInput value={(btn.example || [''])[0]} onChange={(e: any) => updateButton(i, 'example', [e.target.value])} placeholder="Example code (e.g., ABC123)" />
+                    <TextInput value={(btn.example || [''])[0]} onChange={(e: any) => {
+                      const updated = [...buttons];
+                      updated[i] = { ...updated[i], example: [e.target.value] };
+                      setButtons(updated);
+                    }} placeholder="Example code (e.g., ABC123)" />
                   )}
                 </div>
               ))}
