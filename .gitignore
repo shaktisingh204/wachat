@@ -97,6 +97,7 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+src/lib/firebase/service-account.ts
 src/components/layout/footer.tsx
 src/components/layout/header.tsx
 src/config/site.ts

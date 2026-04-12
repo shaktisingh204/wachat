@@ -13,7 +13,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/project.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { getEcommShopById } from './custom-ecommerce.actions';
-import type { Project, FacebookPage, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse } from '@/lib/definitions';
+import type { Project, FacebookPage, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse, FacebookEvent, FacebookLeadGenForm, FacebookLead } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
 import { _createProjectFromWaba } from './whatsapp.actions';
 
@@ -1594,6 +1594,2333 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
 
         revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/settings`);
         return { success: true, error: undefined };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  EVENTS
+// =================================================================
+
+export async function getFacebookEvents(projectId: string): Promise<{ events?: FacebookEvent[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or is missing Facebook Page ID or access token.' };
+    }
+
+    try {
+        const fields = 'id,name,description,start_time,end_time,place,cover,attending_count,interested_count,maybe_count,is_online,ticket_uri,category';
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/events`, {
+            params: { fields, access_token: project.accessToken, limit: 50 }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { events: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getEventDetails(eventId: string, projectId: string): Promise<{ event?: FacebookEvent, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Access denied or project not configured.' };
+    }
+
+    try {
+        const fields = 'id,name,description,start_time,end_time,place,cover,attending_count,interested_count,maybe_count,is_online,event_times,ticket_uri,category';
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${eventId}`, {
+            params: { fields, access_token: project.accessToken }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { event: response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleCreateFacebookEvent(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    const startDate = formData.get('startDate') as string;
+    const startTime = formData.get('startTime') as string;
+    const endDate = formData.get('endDate') as string;
+    const endTime = formData.get('endTime') as string;
+    const placeName = formData.get('placeName') as string;
+    const isOnline = formData.get('isOnline') === 'on';
+    const ticketUri = formData.get('ticketUri') as string;
+
+    if (!projectId || !name || !startDate || !startTime) {
+        return { error: 'Event name, start date, and start time are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.facebookPageId || !project.accessToken) {
+        return { error: 'Project is not fully configured for Facebook.' };
+    }
+
+    const startDateTime = new Date(`${startDate}T${startTime}`);
+    if (isNaN(startDateTime.getTime())) return { error: 'Invalid start date/time.' };
+
+    try {
+        const payload: any = {
+            name,
+            start_time: startDateTime.toISOString(),
+            access_token: project.accessToken,
+        };
+
+        if (description) payload.description = description;
+        if (endDate && endTime) {
+            const endDateTime = new Date(`${endDate}T${endTime}`);
+            if (!isNaN(endDateTime.getTime())) payload.end_time = endDateTime.toISOString();
+        }
+        if (placeName) payload.place = JSON.stringify({ name: placeName });
+        if (isOnline) payload.is_online = true;
+        if (ticketUri) payload.ticket_uri = ticketUri;
+
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${project.facebookPageId}/events`, payload);
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        revalidatePath('/dashboard/facebook/events');
+        return { message: `Event "${name}" created successfully!` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleUpdateFacebookEvent(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const eventId = formData.get('eventId') as string;
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    const startDate = formData.get('startDate') as string;
+    const startTime = formData.get('startTime') as string;
+    const endDate = formData.get('endDate') as string;
+    const endTime = formData.get('endTime') as string;
+
+    if (!projectId || !eventId) return { success: false, error: 'Missing event or project ID.' };
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied or project not configured.' };
+
+    try {
+        const payload: any = { access_token: project.accessToken };
+        if (name) payload.name = name;
+        if (description) payload.description = description;
+        if (startDate && startTime) {
+            const dt = new Date(`${startDate}T${startTime}`);
+            if (!isNaN(dt.getTime())) payload.start_time = dt.toISOString();
+        }
+        if (endDate && endTime) {
+            const dt = new Date(`${endDate}T${endTime}`);
+            if (!isNaN(dt.getTime())) payload.end_time = dt.toISOString();
+        }
+
+        await axios.post(`https://graph.facebook.com/v23.0/${eventId}`, payload);
+        revalidatePath('/dashboard/facebook/events');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteFacebookEvent(eventId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v23.0/${eventId}`, {
+            params: { access_token: project.accessToken }
+        });
+        revalidatePath('/dashboard/facebook/events');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getEventAttendees(eventId: string, projectId: string, rsvpStatus: 'attending' | 'maybe' | 'declined' = 'attending'): Promise<{ attendees?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${eventId}/${rsvpStatus}`, {
+            params: { fields: 'id,name,picture', access_token: project.accessToken, limit: 100 }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { attendees: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE RATINGS / REVIEWS
+// =================================================================
+
+export async function getPageRatings(projectId: string): Promise<{ ratings?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or is missing Facebook Page ID or access token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/ratings`, {
+            params: {
+                fields: 'created_time,has_rating,has_review,rating,review_text,reviewer{id,name,picture}',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { ratings: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  LEAD GENERATION FORMS & LEADS
+// =================================================================
+
+export async function getLeadGenForms(projectId: string): Promise<{ forms?: FacebookLeadGenForm[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or is missing Facebook Page ID or access token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/leadgen_forms`, {
+            params: {
+                fields: 'id,name,status,leads_count,created_time,expired_leads_count',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { forms: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getLeadsForForm(formId: string, projectId: string): Promise<{ leads?: FacebookLead[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Access denied or project not configured.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${formId}/leads`, {
+            params: {
+                fields: 'id,created_time,field_data',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { leads: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getLeadById(leadId: string, projectId: string): Promise<{ lead?: FacebookLead, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${leadId}`, {
+            params: { fields: 'id,created_time,field_data,form_id', access_token: project.accessToken }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { lead: response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  MESSENGER PROFILE (Greeting, Get Started, Ice Breakers)
+// =================================================================
+
+export async function getMessengerProfile(projectId: string): Promise<{ profile?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or is missing Facebook Page ID or access token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+            params: {
+                fields: 'greeting,get_started,persistent_menu,ice_breakers,whitelisted_domains',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { profile: response.data.data?.[0] || {} };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function setMessengerGreeting(projectId: string, greetingText: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+            greeting: [{ locale: 'default', text: greetingText }],
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function setMessengerGetStarted(projectId: string, payload: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+            get_started: { payload },
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function setMessengerIceBreakers(projectId: string, iceBreakers: { question: string; payload: string }[]): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+            ice_breakers: iceBreakers.map(ib => ({ call_to_actions: [{ question: ib.question, payload: ib.payload }] })),
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function setWhitelistedDomains(projectId: string, domains: string[]): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+            whitelisted_domains: domains,
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteMessengerProfileFields(projectId: string, fields: string[]): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+            params: { access_token: project.accessToken },
+            data: { fields },
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  CUSTOM LABELS (Conversation Labels for Messenger)
+// =================================================================
+
+export async function getCustomLabels(projectId: string): Promise<{ labels?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/custom_labels`, {
+            params: { fields: 'name', access_token: project.accessToken, limit: 100 }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { labels: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function createCustomLabel(projectId: string, name: string): Promise<{ labelId?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${project.facebookPageId}/custom_labels`, {
+            name,
+            access_token: project.accessToken,
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { labelId: response.data.id };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteCustomLabel(labelId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v23.0/${labelId}`, {
+            params: { access_token: project.accessToken }
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function assignLabelToUser(labelId: string, psid: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/${labelId}/label`, {
+            user: psid,
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function removeLabelFromUser(labelId: string, psid: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v23.0/${labelId}/label`, {
+            params: { access_token: project.accessToken },
+            data: { user: psid },
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getLabelsForUser(psid: string, projectId: string): Promise<{ labels?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${psid}/custom_labels`, {
+            params: { fields: 'name', access_token: project.accessToken }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { labels: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PRIVATE REPLIES TO COMMENTS
+// =================================================================
+
+export async function sendPrivateReply(commentId: string, message: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/${commentId}/private_replies`, {
+            message,
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  COMMENT & POST REACTIONS
+// =================================================================
+
+export async function getObjectReactions(objectId: string, projectId: string): Promise<{ reactions?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${objectId}/reactions`, {
+            params: {
+                summary: 'total_count',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { reactions: response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE PHOTOS & ALBUMS
+// =================================================================
+
+export async function getPageAlbums(projectId: string): Promise<{ albums?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/albums`, {
+            params: {
+                fields: 'id,name,count,cover_photo{source},created_time,description,type',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { albums: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getAlbumPhotos(albumId: string, projectId: string): Promise<{ photos?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${albumId}/photos`, {
+            params: {
+                fields: 'id,name,source,images,created_time,likes.summary(true),comments.summary(true)',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { photos: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function createPhotoAlbum(projectId: string, name: string, description?: string): Promise<{ albumId?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const payload: any = { name, access_token: project.accessToken };
+        if (description) payload.message = description;
+
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${project.facebookPageId}/albums`, payload);
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        revalidatePath('/dashboard/facebook/albums');
+        return { albumId: response.data.id };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getPagePhotos(projectId: string): Promise<{ photos?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/photos`, {
+            params: {
+                type: 'uploaded',
+                fields: 'id,name,source,images,created_time,album,likes.summary(true),comments.summary(true)',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { photos: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getPhotoDetails(photoId: string, projectId: string): Promise<{ photo?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${photoId}`, {
+            params: {
+                fields: 'id,name,source,images,created_time,album,likes.summary(true),comments.summary(true),reactions.summary(true)',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { photo: response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getPhotoInsights(photoId: string, projectId: string): Promise<{ insights?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${photoId}/insights`, {
+            params: {
+                metric: 'post_impressions,post_impressions_unique,post_engaged_users,post_clicks',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { insights: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE VIDEOS & VIDEO PLAYLISTS
+// =================================================================
+
+export async function getPageVideos(projectId: string): Promise<{ videos?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/videos`, {
+            params: {
+                fields: 'id,title,description,source,picture,length,created_time,views,likes.summary(true),comments.summary(true)',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { videos: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getVideoDetails(videoId: string, projectId: string): Promise<{ video?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${videoId}`, {
+            params: {
+                fields: 'id,title,description,source,picture,length,created_time,views,likes.summary(true),comments.summary(true),reactions.summary(true)',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { video: response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getVideoInsights(videoId: string, projectId: string): Promise<{ insights?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${videoId}/video_insights`, {
+            params: {
+                metric: 'total_video_views,total_video_views_unique,total_video_impressions,total_video_impressions_unique,total_video_avg_time_watched,total_video_view_total_time',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { insights: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getVideoPlaylists(projectId: string): Promise<{ playlists?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/video_lists`, {
+            params: {
+                fields: 'id,title,description,creation_time,videos_count',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { playlists: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getPlaylistVideos(playlistId: string, projectId: string): Promise<{ videos?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${playlistId}/videos`, {
+            params: {
+                fields: 'id,title,description,source,picture,length,created_time',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { videos: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE ROLES / ASSIGNED USERS
+// =================================================================
+
+export async function getPageRoles(projectId: string): Promise<{ roles?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/roles`, {
+            params: {
+                fields: 'name,role,perms',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { roles: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  BLOCKED PROFILES
+// =================================================================
+
+export async function getBlockedProfiles(projectId: string): Promise<{ profiles?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/blocked`, {
+            params: { access_token: project.accessToken, limit: 100 }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { profiles: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function blockProfile(profileId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/${project.facebookPageId}/blocked`, {
+            user: profileId,
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function unblockProfile(profileId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v23.0/${project.facebookPageId}/blocked`, {
+            params: { access_token: project.accessToken },
+            data: { user: profileId },
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  VISITOR POSTS & TAGGED POSTS
+// =================================================================
+
+export async function getVisitorPosts(projectId: string): Promise<{ posts?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/visitor_posts`, {
+            params: {
+                fields: 'id,message,from{id,name,picture},created_time,full_picture,permalink_url,comments.summary(true),reactions.summary(true)',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { posts: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getTaggedPosts(projectId: string): Promise<{ posts?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/tagged`, {
+            params: {
+                fields: 'id,message,from{id,name,picture},created_time,full_picture,permalink_url',
+                access_token: project.accessToken,
+                limit: 50,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { posts: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  POST INSIGHTS (Individual Post Analytics)
+// =================================================================
+
+export async function getPostInsights(postId: string, projectId: string): Promise<{ insights?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${postId}/insights`, {
+            params: {
+                metric: 'post_impressions,post_impressions_unique,post_engaged_users,post_clicks,post_clicks_unique,post_reactions_by_type_total,post_activity_by_action_type',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { insights: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getPostComments(postId: string, projectId: string): Promise<{ comments?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${postId}/comments`, {
+            params: {
+                fields: 'id,message,from{id,name,picture},created_time,like_count,comment_count,attachment,parent',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { comments: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getCommentReplies(commentId: string, projectId: string): Promise<{ replies?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${commentId}/comments`, {
+            params: {
+                fields: 'id,message,from{id,name,picture},created_time,like_count',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { replies: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  ENHANCED PAGE INSIGHTS (All Metrics)
+// =================================================================
+
+export async function getDetailedPageInsights(
+    projectId: string,
+    opts?: { metrics?: string; period?: 'day' | 'week' | 'days_28' | 'month' | 'lifetime'; since?: string; until?: string }
+): Promise<{ insights?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    const defaultMetrics = [
+        'page_impressions', 'page_impressions_unique',
+        'page_engaged_users', 'page_post_engagements',
+        'page_fan_adds', 'page_fan_removes', 'page_fans',
+        'page_views_total', 'page_actions_post_reactions_total',
+        'page_video_views',
+    ].join(',');
+
+    try {
+        const params: any = {
+            metric: opts?.metrics || defaultMetrics,
+            period: opts?.period || 'days_28',
+            access_token: project.accessToken,
+        };
+        if (opts?.since) params.since = opts.since;
+        if (opts?.until) params.until = opts.until;
+
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/insights`, { params });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { insights: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getPageFanDemographics(projectId: string): Promise<{ demographics?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/insights`, {
+            params: {
+                metric: 'page_fans_city,page_fans_country,page_fans_gender_age',
+                period: 'lifetime',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        const data = response.data.data || [];
+        const demographics: any = {};
+        for (const metric of data) {
+            const lastValue = metric.values?.[metric.values.length - 1]?.value;
+            demographics[metric.name] = lastValue || {};
+        }
+        return { demographics };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  LIVE VIDEOS (Direct Graph API)
+// =================================================================
+
+export async function getPageLiveVideos(projectId: string): Promise<{ liveVideos?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/live_videos`, {
+            params: {
+                fields: 'id,title,description,status,embed_html,creation_time,live_views,permalink_url,video{source,picture,length}',
+                access_token: project.accessToken,
+                limit: 25,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { liveVideos: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function createLiveVideo(projectId: string, title: string, description?: string): Promise<{ liveVideo?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const payload: any = {
+            title,
+            status: 'LIVE_NOW',
+            access_token: project.accessToken,
+        };
+        if (description) payload.description = description;
+
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${project.facebookPageId}/live_videos`, payload);
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { liveVideo: response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function endLiveVideo(liveVideoId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/${liveVideoId}`, {
+            end_live_video: true,
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getLiveVideoComments(liveVideoId: string, projectId: string): Promise<{ comments?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${liveVideoId}/comments`, {
+            params: {
+                fields: 'id,message,from{id,name,picture},created_time',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { comments: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE SETTINGS & LOCATIONS
+// =================================================================
+
+export async function getPageSettings(projectId: string): Promise<{ settings?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/settings`, {
+            params: { access_token: project.accessToken }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { settings: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getPageLocations(projectId: string): Promise<{ locations?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/locations`, {
+            params: {
+                fields: 'id,name,location{city,country,latitude,longitude,street,zip},phone,website',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { locations: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE TABS
+// =================================================================
+
+export async function getPageTabs(projectId: string): Promise<{ tabs?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/tabs`, {
+            params: {
+                fields: 'id,name,link,position,is_permanent,image_url,application',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { tabs: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  TOKEN MANAGEMENT (Debug / Inspect / Refresh)
+// =================================================================
+
+export async function debugAccessToken(projectId: string): Promise<{ tokenInfo?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    const appSecret = process.env.FACEBOOK_APP_SECRET;
+    if (!appId || !appSecret) return { error: 'Server credentials not configured.' };
+
+    try {
+        const appToken = `${appId}|${appSecret}`;
+        const response = await axios.get(`https://graph.facebook.com/v23.0/debug_token`, {
+            params: { input_token: project.accessToken, access_token: appToken }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { tokenInfo: response.data.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function refreshLongLivedToken(projectId: string): Promise<{ success: boolean; newExpiry?: number; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    const appSecret = process.env.FACEBOOK_APP_SECRET;
+    if (!appId || !appSecret) return { success: false, error: 'Server credentials not configured.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/oauth/access_token`, {
+            params: {
+                grant_type: 'fb_exchange_token',
+                client_id: appId,
+                client_secret: appSecret,
+                fb_exchange_token: project.accessToken,
+            }
+        });
+
+        const newToken = response.data.access_token;
+        const expiresIn = response.data.expires_in;
+        if (!newToken) return { success: false, error: 'Failed to refresh token.' };
+
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: project._id },
+            { $set: { accessToken: newToken, tokenRefreshedAt: new Date() } }
+        );
+
+        return { success: true, newExpiry: expiresIn };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  BUSINESS MANAGER UTILITIES
+// =================================================================
+
+export async function getBusinessDetails(projectId: string): Promise<{ business?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.businessId) {
+        return { error: 'Project not found or business ID not linked.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.businessId}`, {
+            params: {
+                fields: 'id,name,primary_page,link,created_time,timezone_id,verification_status,profile_picture_uri',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { business: response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getBusinessOwnedPages(projectId: string): Promise<{ pages?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.businessId) {
+        return { error: 'Project not found or business ID not linked.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.businessId}/owned_pages`, {
+            params: {
+                fields: 'id,name,category,picture{url},fan_count,link',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { pages: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getBusinessOwnedAdAccounts(projectId: string): Promise<{ adAccounts?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.businessId) {
+        return { error: 'Project not found or business ID not linked.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.businessId}/owned_ad_accounts`, {
+            params: {
+                fields: 'id,name,account_id,account_status,currency,amount_spent,balance',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { adAccounts: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getBusinessOwnedInstagramAccounts(projectId: string): Promise<{ accounts?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.businessId) {
+        return { error: 'Project not found or business ID not linked.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.businessId}/owned_instagram_accounts`, {
+            params: {
+                fields: 'id,username,profile_picture_url,followers_count',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { accounts: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getBusinessSystemUsers(projectId: string): Promise<{ systemUsers?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.businessId) {
+        return { error: 'Project not found or business ID not linked.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.businessId}/system_users`, {
+            params: {
+                fields: 'id,name,role,created_by',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { systemUsers: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getBusinessUsers(projectId: string): Promise<{ users?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.businessId) {
+        return { error: 'Project not found or business ID not linked.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.businessId}/business_users`, {
+            params: {
+                fields: 'id,name,email,role,created_time',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { users: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getBusinessPendingUsers(projectId: string): Promise<{ pendingUsers?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.businessId) {
+        return { error: 'Project not found or business ID not linked.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.businessId}/pending_users`, {
+            params: {
+                fields: 'id,email,role,status,created_time',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { pendingUsers: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function inviteBusinessUser(projectId: string, email: string, role: 'ADMIN' | 'EMPLOYEE' | 'FINANCE_EDITOR' | 'FINANCE_ANALYST'): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.businessId) {
+        return { success: false, error: 'Project not found or business ID not linked.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/${project.businessId}/business_users`, {
+            email,
+            role,
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  SEND MEDIA MESSAGES (Messenger - Image, Video, File, Audio)
+// =================================================================
+
+export async function sendFacebookMediaMessage(projectId: string, recipientId: string, mediaType: 'image' | 'video' | 'audio' | 'file', mediaUrl: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messages`, {
+            recipient: { id: recipientId },
+            messaging_type: 'RESPONSE',
+            message: {
+                attachment: {
+                    type: mediaType,
+                    payload: { url: mediaUrl, is_reusable: true },
+                },
+            },
+        }, {
+            params: { access_token: project.accessToken },
+        });
+        revalidatePath('/dashboard/facebook/messages');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function sendFacebookButtonTemplate(
+    projectId: string,
+    recipientId: string,
+    text: string,
+    buttons: { type: 'web_url' | 'postback'; title: string; url?: string; payload?: string }[]
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messages`, {
+            recipient: { id: recipientId },
+            messaging_type: 'RESPONSE',
+            message: {
+                attachment: {
+                    type: 'template',
+                    payload: { template_type: 'button', text, buttons },
+                },
+            },
+        }, {
+            params: { access_token: project.accessToken },
+        });
+        revalidatePath('/dashboard/facebook/messages');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function sendFacebookGenericTemplate(
+    projectId: string,
+    recipientId: string,
+    elements: { title: string; subtitle?: string; image_url?: string; default_action?: any; buttons?: any[] }[]
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messages`, {
+            recipient: { id: recipientId },
+            messaging_type: 'RESPONSE',
+            message: {
+                attachment: {
+                    type: 'template',
+                    payload: { template_type: 'generic', elements },
+                },
+            },
+        }, {
+            params: { access_token: project.accessToken },
+        });
+        revalidatePath('/dashboard/facebook/messages');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function sendFacebookQuickReplies(
+    projectId: string,
+    recipientId: string,
+    text: string,
+    quickReplies: { content_type: 'text' | 'user_phone_number' | 'user_email'; title?: string; payload?: string; image_url?: string }[]
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messages`, {
+            recipient: { id: recipientId },
+            messaging_type: 'RESPONSE',
+            message: { text, quick_replies: quickReplies },
+        }, {
+            params: { access_token: project.accessToken },
+        });
+        revalidatePath('/dashboard/facebook/messages');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PERSONAS (Messenger Bot Personas)
+// =================================================================
+
+export async function getPersonas(projectId: string): Promise<{ personas?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/me/personas`, {
+            params: { access_token: project.accessToken }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { personas: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function createPersona(projectId: string, name: string, profilePictureUrl: string): Promise<{ personaId?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+
+    try {
+        const response = await axios.post(`https://graph.facebook.com/v23.0/me/personas`, {
+            name,
+            profile_picture_url: profilePictureUrl,
+            access_token: project.accessToken,
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { personaId: response.data.id };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deletePersona(personaId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v23.0/${personaId}`, {
+            params: { access_token: project.accessToken }
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  SEARCH CONVERSATIONS (Messenger)
+// =================================================================
+
+export async function searchFacebookConversations(projectId: string, query: string): Promise<{ conversations?: FacebookConversation[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        // Facebook doesn't have a direct search endpoint for conversations,
+        // so we fetch all and filter by participant name or snippet
+        const { conversations, error } = await getFacebookConversations(projectId);
+        if (error) return { error };
+
+        const lowerQuery = query.toLowerCase();
+        const filtered = (conversations || []).filter(c => {
+            const participantMatch = c.participants?.data?.some(
+                (p: any) => p.name?.toLowerCase().includes(lowerQuery)
+            );
+            const snippetMatch = c.snippet?.toLowerCase().includes(lowerQuery);
+            return participantMatch || snippetMatch;
+        });
+
+        return { conversations: filtered };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE PUBLISHED POSTS (with pagination)
+// =================================================================
+
+export async function getPublishedPosts(projectId: string, limit: number = 25, after?: string): Promise<{ posts?: FacebookPost[], paging?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or is missing Facebook Page ID or access token.' };
+    }
+
+    try {
+        const params: any = {
+            fields: 'id,message,permalink_url,created_time,full_picture,type,status_type,attachments{media,media_type,url,title,description},reactions.summary(true),comments.summary(true),shares',
+            access_token: project.accessToken,
+            limit,
+        };
+        if (after) params.after = after;
+
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/published_posts`, { params });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { posts: response.data.data || [], paging: response.data.paging };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  WEBHOOK SUBSCRIPTION MANAGEMENT
+// =================================================================
+
+export async function getSubscribedApps(projectId: string): Promise<{ apps?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/subscribed_apps`, {
+            params: { access_token: project.accessToken }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { apps: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function updateWebhookSubscription(projectId: string, subscribedFields: string[]): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { success: false, error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${project.facebookPageId}/subscribed_apps`, {
+            subscribed_fields: subscribedFields.join(','),
+            access_token: project.accessToken,
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { success: response.data.success === true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function unsubscribeApp(projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { success: false, error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v23.0/${project.facebookPageId}/subscribed_apps`, {
+            params: { access_token: project.accessToken }
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE CALL-TO-ACTION BUTTON
+// =================================================================
+
+export async function getPageCallToAction(projectId: string): Promise<{ cta?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}`, {
+            params: {
+                fields: 'call_to_actions',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { cta: response.data.call_to_actions?.data?.[0] || null };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function setPageCallToAction(
+    projectId: string,
+    type: 'BOOK_NOW' | 'CALL_NOW' | 'CONTACT_US' | 'GET_QUOTE' | 'MESSAGE_PAGE' | 'ORDER_FOOD' | 'SHOP_NOW' | 'SIGN_UP' | 'WATCH_VIDEO' | 'SEND_EMAIL' | 'LEARN_MORE',
+    webUrl?: string,
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { success: false, error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const payload: any = {
+            type,
+            access_token: project.accessToken,
+        };
+        if (webUrl) payload.web_url = webUrl;
+
+        await axios.post(`https://graph.facebook.com/v23.0/${project.facebookPageId}/call_to_actions`, payload);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  SAVED RESPONSES (Messenger Quick Replies)
+// =================================================================
+
+export async function getSavedResponses(projectId: string): Promise<{ responses?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/me/saved_message_responses`, {
+            params: {
+                fields: 'id,title,message,is_enabled,image',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { responses: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function createSavedResponse(
+    prevState: { message?: string; error?: string },
+    formData: FormData
+): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const title = formData.get('title') as string;
+    const message = formData.get('message') as string;
+    const image = formData.get('image') as string;
+
+    if (!projectId || !title || !message) {
+        return { error: 'Project ID, title, and message are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project is not fully configured for Facebook.' };
+    }
+
+    try {
+        const payload: any = {
+            title,
+            message,
+            access_token: project.accessToken,
+        };
+        if (image) payload.image = image;
+
+        await axios.post(`https://graph.facebook.com/v23.0/${project.facebookPageId}/saved_message_responses`, payload);
+        return { message: 'Saved response created successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function updateSavedResponse(
+    responseId: string,
+    projectId: string,
+    title: string,
+    message: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/${responseId}`, {
+            title,
+            message,
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteSavedResponse(
+    responseId: string,
+    projectId: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v23.0/${responseId}`, {
+            params: { access_token: project.accessToken }
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  REUSABLE MESSAGE ATTACHMENTS
+// =================================================================
+
+export async function uploadReusableAttachment(
+    projectId: string,
+    type: 'image' | 'video' | 'audio' | 'file',
+    url: string
+): Promise<{ attachmentId?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.post(`https://graph.facebook.com/v23.0/me/message_attachments`, {
+            message: {
+                attachment: {
+                    type,
+                    payload: {
+                        is_reusable: true,
+                        url,
+                    }
+                }
+            },
+            access_token: project.accessToken,
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { attachmentId: response.data.attachment_id };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  HANDOVER PROTOCOL (Bot ↔ Human Agent)
+// =================================================================
+
+export async function passThreadControl(
+    projectId: string,
+    psid: string,
+    targetAppId: string,
+    metadata?: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        const payload: any = {
+            recipient: { id: psid },
+            target_app_id: targetAppId,
+            access_token: project.accessToken,
+        };
+        if (metadata) payload.metadata = metadata;
+
+        await axios.post(`https://graph.facebook.com/v23.0/me/pass_thread_control`, payload);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function takeThreadControl(
+    projectId: string,
+    psid: string,
+    metadata?: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        const payload: any = {
+            recipient: { id: psid },
+            access_token: project.accessToken,
+        };
+        if (metadata) payload.metadata = metadata;
+
+        await axios.post(`https://graph.facebook.com/v23.0/me/take_thread_control`, payload);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function requestThreadControl(
+    projectId: string,
+    psid: string,
+    metadata?: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        const payload: any = {
+            recipient: { id: psid },
+            access_token: project.accessToken,
+        };
+        if (metadata) payload.metadata = metadata;
+
+        await axios.post(`https://graph.facebook.com/v23.0/me/request_thread_control`, payload);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getSecondaryReceivers(projectId: string): Promise<{ receivers?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Access denied.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/me/secondary_receivers`, {
+            params: {
+                fields: 'id,name',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { receivers: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  ONE-TIME NOTIFICATION
+// =================================================================
+
+export async function sendOneTimeNotifRequest(
+    projectId: string,
+    psid: string,
+    title: string,
+    payload: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messages`, {
+            recipient: { id: psid },
+            message: {
+                attachment: {
+                    type: 'template',
+                    payload: {
+                        template_type: 'one_time_notif_req',
+                        title,
+                        payload,
+                    }
+                }
+            },
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function sendOneTimeNotification(
+    projectId: string,
+    token: string,
+    messageText: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messages`, {
+            recipient: { one_time_notif_token: token },
+            message: { text: messageText },
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  RECURRING NOTIFICATIONS
+// =================================================================
+
+export async function sendRecurringNotifOptIn(
+    projectId: string,
+    psid: string,
+    title: string,
+    imageUrl: string,
+    payload: string,
+    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY'
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messages`, {
+            recipient: { id: psid },
+            message: {
+                attachment: {
+                    type: 'template',
+                    payload: {
+                        template_type: 'notification_messages',
+                        title,
+                        image_url: imageUrl,
+                        payload,
+                        notification_messages_frequency: frequency,
+                    }
+                }
+            },
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function sendRecurringNotification(
+    projectId: string,
+    token: string,
+    messageText: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/me/messages`, {
+            recipient: { notification_messages_token: token },
+            message: { text: messageText },
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE REELS
+// =================================================================
+
+export async function getPageReels(projectId: string): Promise<{ reels?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/video_reels`, {
+            params: {
+                fields: 'id,description,created_time,updated_time,length,permalink_url,picture,source',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { reels: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function publishPageReel(
+    prevState: { message?: string; error?: string },
+    formData: FormData
+): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const description = formData.get('description') as string;
+    const videoFile = formData.get('videoFile') as File;
+
+    if (!projectId || !videoFile || videoFile.size === 0) {
+        return { error: 'Project ID and a video file are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project is not fully configured for Facebook.' };
+    }
+
+    const { facebookPageId, accessToken } = project;
+
+    try {
+        // Phase 1: Start upload session
+        const startResponse = await axios.post(`https://graph.facebook.com/v23.0/${facebookPageId}/video_reels`, {
+            upload_phase: 'start',
+            access_token: accessToken,
+        });
+        if (startResponse.data.error) throw new Error(getErrorMessage({ response: startResponse }));
+        const videoId = startResponse.data.video_id;
+
+        // Phase 2: Upload binary to rupload endpoint
+        const videoBuffer = Buffer.from(await videoFile.arrayBuffer());
+        const uploadForm = new NodeFormData();
+        uploadForm.append('access_token', accessToken);
+        uploadForm.append('source', videoBuffer, { filename: videoFile.name, contentType: videoFile.type });
+
+        await axios.post(`https://rupload.facebook.com/video-upload/v23.0/${videoId}`, uploadForm, {
+            headers: {
+                ...uploadForm.getHeaders(),
+                'offset': '0',
+                'file_size': String(videoBuffer.length),
+            }
+        });
+
+        // Phase 3: Finish and publish
+        const finishPayload: any = {
+            upload_phase: 'finish',
+            video_id: videoId,
+            access_token: accessToken,
+        };
+        if (description) finishPayload.description = description;
+
+        await axios.post(`https://graph.facebook.com/v23.0/${facebookPageId}/video_reels`, finishPayload);
+        revalidatePath('/dashboard/facebook');
+        return { message: 'Reel published successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PAGE STORIES
+// =================================================================
+
+export async function getPageStories(projectId: string): Promise<{ stories?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/stories`, {
+            params: {
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { stories: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function publishPhotoStory(
+    projectId: string,
+    photoUrl: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { success: false, error: 'Project not found or missing configuration.' };
+    }
+
+    const { facebookPageId, accessToken } = project;
+
+    try {
+        // Step 1: Upload photo as unpublished
+        const photoResponse = await axios.post(`https://graph.facebook.com/v23.0/${facebookPageId}/photos`, {
+            url: photoUrl,
+            published: false,
+            access_token: accessToken,
+        });
+        if (photoResponse.data.error) throw new Error(getErrorMessage({ response: photoResponse }));
+        const photoId = photoResponse.data.id;
+
+        // Step 2: Create photo story
+        await axios.post(`https://graph.facebook.com/v23.0/${facebookPageId}/photo_stories`, {
+            photo_id: photoId,
+            access_token: accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function publishVideoStory(
+    projectId: string,
+    videoUrl: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { success: false, error: 'Project not found or missing configuration.' };
+    }
+
+    const { facebookPageId, accessToken } = project;
+
+    try {
+        // Phase 1: Start upload session
+        const startResponse = await axios.post(`https://graph.facebook.com/v23.0/${facebookPageId}/video_stories`, {
+            upload_phase: 'start',
+            access_token: accessToken,
+        });
+        if (startResponse.data.error) throw new Error(getErrorMessage({ response: startResponse }));
+        const videoId = startResponse.data.video_id;
+
+        // Phase 2: Upload video by URL
+        await axios.post(`https://rupload.facebook.com/video-upload/v23.0/${videoId}`, null, {
+            params: {
+                access_token: accessToken,
+                file_url: videoUrl,
+            }
+        });
+
+        // Phase 3: Finish and publish
+        await axios.post(`https://graph.facebook.com/v23.0/${facebookPageId}/video_stories`, {
+            upload_phase: 'finish',
+            video_id: videoId,
+            access_token: accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  MESSAGING FEATURE REVIEW
+// =================================================================
+
+export async function getMessagingFeatureReview(projectId: string): Promise<{ features?: { feature: string; status: string }[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Access denied.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/me/messaging_feature_review`, {
+            params: {
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { features: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  PUBLISHING AUTHORIZATION
+// =================================================================
+
+export async function getPublishingAuthStatus(projectId: string): Promise<{ data?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or missing configuration.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}`, {
+            params: {
+                fields: 'publishing_authorization_status,is_published,verification_status',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { data: response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  COMMERCE — ORDER MANAGEMENT
+// =================================================================
+
+export async function fulfillOrder(
+    orderId: string,
+    projectId: string,
+    trackingInfo: { carrier: string; tracking_number: string }
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v23.0/${orderId}/shipments`, {
+            tracking: trackingInfo,
+            access_token: project.accessToken,
+        });
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function cancelOrder(
+    orderId: string,
+    projectId: string,
+    reason?: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        const payload: any = {
+            access_token: project.accessToken,
+        };
+        if (reason) payload.reason = reason;
+
+        await axios.post(`https://graph.facebook.com/v23.0/${orderId}/cancellations`, payload);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function refundOrder(
+    orderId: string,
+    projectId: string,
+    reason?: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    try {
+        const payload: any = {
+            access_token: project.accessToken,
+        };
+        if (reason) payload.reason = reason;
+
+        await axios.post(`https://graph.facebook.com/v23.0/${orderId}/refunds`, payload);
+        return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }

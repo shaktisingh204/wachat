@@ -1767,6 +1767,80 @@ export type MetaFlow = {
     updatedAt: Date;
 };
 
+// ---- Threads API Types ----
+
+export type ThreadsProfile = {
+    id: string;
+    username: string;
+    name?: string;
+    threads_profile_picture_url?: string;
+    threads_biography?: string;
+    is_verified?: boolean;
+    follower_count?: number;
+};
+
+export type ThreadsMedia = {
+    id: string;
+    media_type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'CAROUSEL_ALBUM';
+    media_url?: string;
+    permalink?: string;
+    text?: string;
+    timestamp?: string;
+    shortcode?: string;
+    thumbnail_url?: string;
+    children?: { data: ThreadsMedia[] };
+    is_quote_post?: boolean;
+    username?: string;
+    owner?: { id: string };
+};
+
+export type ThreadsInsight = {
+    name: string;
+    period: string;
+    values: { value: number }[];
+    title: string;
+    description: string;
+    id: string;
+};
+
+// ---- Facebook Events ----
+
+export type FacebookEvent = {
+    id: string;
+    name: string;
+    description?: string;
+    start_time: string;
+    end_time?: string;
+    place?: { name?: string; location?: { city?: string; country?: string; latitude?: number; longitude?: number; street?: string; zip?: string } };
+    cover?: { source: string };
+    attending_count?: number;
+    interested_count?: number;
+    maybe_count?: number;
+    is_online?: boolean;
+    event_times?: any[];
+    ticket_uri?: string;
+    category?: string;
+};
+
+// ---- Facebook Lead Gen Form ----
+
+export type FacebookLeadGenForm = {
+    id: string;
+    name: string;
+    status: string;
+    leads_count?: number;
+    created_time: string;
+    expired_leads_count?: number;
+    page?: { id: string; name: string };
+};
+
+export type FacebookLead = {
+    id: string;
+    created_time: string;
+    field_data: { name: string; values: string[] }[];
+    form_id?: string;
+};
+
 export type PlanFeaturePermissions = {
     overview: boolean;
     campaigns: boolean;

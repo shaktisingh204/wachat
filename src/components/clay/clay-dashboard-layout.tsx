@@ -79,6 +79,15 @@ import {
   LuShoppingCart,
   LuStore,
   LuMap,
+  LuCalendarDays,
+  LuContact,
+  LuStar,
+  LuImagePlay,
+  LuMessageSquareDashed,
+  LuShieldCheck,
+  LuClapperboard,
+  LuCirclePlay,
+  LuUserCheck,
 } from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
@@ -446,6 +455,8 @@ const metaFbContent: NavEntry[] = [
   { key: 'ms-scheduled', label: 'Scheduled', icon: <LuCalendarClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/scheduled', matches: ['/dashboard/facebook/scheduled'] },
   { key: 'ms-live', label: 'Live Studio', icon: <LuRadio className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/live-studio', matches: ['/dashboard/facebook/live-studio'] },
   { key: 'ms-randomizer', label: 'Post Randomizer', icon: <LuZap className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/post-randomizer', matches: ['/dashboard/facebook/post-randomizer'] },
+  { key: 'ms-reels', label: 'Reels', icon: <LuClapperboard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/reels', matches: ['/dashboard/facebook/reels'] },
+  { key: 'ms-stories', label: 'Stories', icon: <LuCirclePlay className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/stories', matches: ['/dashboard/facebook/stories'] },
 ];
 
 const metaFbEngage: NavEntry[] = [
@@ -454,6 +465,16 @@ const metaFbEngage: NavEntry[] = [
   { key: 'ms-broadcasts', label: 'Broadcasts', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/broadcasts', matches: ['/dashboard/facebook/broadcasts'] },
   { key: 'ms-subscribers', label: 'Subscribers', icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/subscribers', matches: ['/dashboard/facebook/subscribers'] },
   { key: 'ms-auto-reply', label: 'Auto Reply', icon: <LuReply className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/auto-reply', matches: ['/dashboard/facebook/auto-reply'] },
+  { key: 'ms-messenger-settings', label: 'Messenger Settings', icon: <LuMessageSquareDashed className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/messenger-settings', matches: ['/dashboard/facebook/messenger-settings'] },
+];
+
+const metaFbGrowth: NavEntry[] = [
+  { key: 'ms-events', label: 'Events', icon: <LuCalendarDays className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/events', matches: ['/dashboard/facebook/events'] },
+  { key: 'ms-leads', label: 'Lead Forms', icon: <LuContact className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/leads', matches: ['/dashboard/facebook/leads'] },
+  { key: 'ms-reviews', label: 'Reviews', icon: <LuStar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/reviews', matches: ['/dashboard/facebook/reviews'] },
+  { key: 'ms-insights', label: 'Insights', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/insights', matches: ['/dashboard/facebook/insights'] },
+  { key: 'ms-media', label: 'Media Library', icon: <LuImagePlay className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/media', matches: ['/dashboard/facebook/media'] },
+  { key: 'ms-visitor-posts', label: 'Visitor Posts', icon: <LuUserCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/visitor-posts', matches: ['/dashboard/facebook/visitor-posts'] },
 ];
 
 const metaFbCommerce: NavEntry[] = [
@@ -466,6 +487,7 @@ const metaFbAdvanced: NavEntry[] = [
   { key: 'ms-flows', label: 'Flow Builder', icon: <LuWorkflow className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/flow-builder', matches: ['/dashboard/facebook/flow-builder'] },
   { key: 'ms-agents', label: 'AI Agents', icon: <LuBot className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/agents', matches: ['/dashboard/facebook/agents'] },
   { key: 'ms-webhooks', label: 'Webhooks', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/webhooks', matches: ['/dashboard/facebook/webhooks'] },
+  { key: 'ms-page-roles', label: 'Page Roles', icon: <LuShieldCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/page-roles', matches: ['/dashboard/facebook/page-roles'] },
   { key: 'ms-fb-settings', label: 'Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/settings', matches: ['/dashboard/facebook/settings'] },
 ];
 
@@ -531,7 +553,7 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
       : context === 'instagram'
         ? [igPrimary, igContent, igEngage, igGrowth]
         : context === 'meta-suite'
-          ? [metaFbPrimary, metaFbContent, metaFbEngage, metaFbCommerce, metaFbAdvanced]
+          ? [metaFbPrimary, metaFbContent, metaFbEngage, metaFbGrowth, metaFbCommerce, metaFbAdvanced]
           : context === 'wachat'
             ? [wachatPrimary, wachatTools, wachatConfigure]
             : [primaryNav, appsNav];
@@ -880,6 +902,7 @@ export function ClayDashboardLayout({
                       { items: metaFbPrimary.map(toNavItem) },
                       { title: 'Content', addable: false, items: metaFbContent.map(toNavItem) },
                       { title: 'Engagement', addable: false, items: metaFbEngage.map(toNavItem) },
+                      { title: 'Growth', addable: false, items: metaFbGrowth.map(toNavItem) },
                       { title: 'Commerce', addable: false, items: metaFbCommerce.map(toNavItem) },
                       { title: 'Advanced', addable: false, items: metaFbAdvanced.map(toNavItem) },
                     ]

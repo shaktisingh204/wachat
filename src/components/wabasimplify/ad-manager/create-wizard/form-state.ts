@@ -52,7 +52,7 @@ export type CreateFormState = {
     minAge: number;
     maxAge: number;
     gender: 'all' | 'male' | 'female';
-    languages: string[];
+    languages: number[];
     detailedTargeting: Array<{ id: string; name: string; type?: string }>;
     detailedExclusions: Array<{ id: string; name: string; type?: string }>;
     detailedNarrow: Array<{ id: string; name: string; type?: string }>;
