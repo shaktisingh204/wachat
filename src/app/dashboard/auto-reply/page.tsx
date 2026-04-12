@@ -13,7 +13,7 @@ export default function DeprecatedAutoReplyPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/dashboard/settings?tab=auto-reply');
+    router.replace('/dashboard/settings/general');
   }, [router]);
 
   return (

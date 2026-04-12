@@ -301,6 +301,9 @@ export async function handleStartBroadcast(
             ? formMps
             : (project as any).messagesPerSecond || undefined;
 
+    // Option to create contacts from broadcast — default NO to avoid polluting CRM
+    const createContacts = formData.get('createContacts') === 'true';
+
     const broadcastData: any = {
         projectId: new ObjectId(projectId),
         phoneNumberId,
@@ -315,6 +318,7 @@ export async function handleStartBroadcast(
         accessToken: project.accessToken,
         createdAt: new Date(),
         broadcastType,
+        createContacts,
         // Always carry the template definition so the worker doesn't need to
         // re-fetch it (and so resends after template edits stay reproducible).
         components: broadcastType === 'template' && template ? [...(template.components || [])] : [],

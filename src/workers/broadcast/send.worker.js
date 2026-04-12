@@ -80,11 +80,8 @@ async function syncSuccessfulSends(db, broadcast, results) {
 
   const projectObjId = new ObjectId(String(broadcast.projectId));
   const now = new Date();
+  const shouldCreateContacts = broadcast.createContacts === true;
 
-  // 1) Upsert each unique waId into the project's CRM contacts and grab the ids.
-  //    We need the resulting contactId for the outgoing_messages insert, so a
-  //    single bulkWrite isn't enough — we need findOneAndUpdate per unique
-  //    phone. We dedupe to one upsert per phone within the batch.
   const lastMessage = (
     broadcast.broadcastType === 'flow'
       ? `[Flow]: ${broadcast.flowName || broadcast.templateName}`
@@ -92,45 +89,64 @@ async function syncSuccessfulSends(db, broadcast, results) {
   ).substring(0, 50);
 
   const phoneToContactId = new Map();
-  const uniquePhones = new Map(); // phone -> first contact obj
+  const uniquePhones = new Map();
   for (const { contact } of results) {
     if (!uniquePhones.has(contact.phone)) uniquePhones.set(contact.phone, contact);
   }
 
-  await Promise.all(
-    Array.from(uniquePhones.values()).map(async (contact) => {
+  if (shouldCreateContacts) {
+    // Create/update CRM contacts for each recipient
+    await Promise.all(
+      Array.from(uniquePhones.values()).map(async (contact) => {
+        try {
+          const r = await db.collection('contacts').findOneAndUpdate(
+            { projectId: projectObjId, waId: contact.phone },
+            {
+              $setOnInsert: {
+                projectId: projectObjId,
+                phoneNumberId: broadcast.phoneNumberId,
+                name: contact.name || `User (${contact.phone.slice(-4)})`,
+                waId: contact.phone,
+                createdAt: now,
+                status: 'open',
+                source: 'broadcast',
+              },
+              $set: {
+                lastMessage,
+                lastMessageTimestamp: now,
+              },
+            },
+            { upsert: true, returnDocument: 'after' },
+          );
+          const doc = r && (r.value || r);
+          if (doc && doc._id) phoneToContactId.set(contact.phone, doc._id);
+        } catch (e) {
+          console.error(`${LOG_PREFIX} contact upsert failed for ${contact.phone}:`, e.message);
+        }
+      }),
+    );
+  } else {
+    // Only update lastMessage for EXISTING contacts, don't create new ones
+    const phones = Array.from(uniquePhones.keys());
+    if (phones.length > 0) {
       try {
-        // P1-3 fix: `status` moved from $set to $setOnInsert so an existing
-        // contact's status (e.g. 'archived', 'vip', 'customer' — whatever the
-        // user or CRM set it to) is not wiped back to 'open' every time a
-        // broadcast goes out. Only brand-new contacts created by this upsert
-        // get the default 'open' status.
-        const r = await db.collection('contacts').findOneAndUpdate(
-          { projectId: projectObjId, waId: contact.phone },
-          {
-            $setOnInsert: {
-              projectId: projectObjId,
-              phoneNumberId: broadcast.phoneNumberId,
-              name: contact.name,
-              waId: contact.phone,
-              createdAt: now,
-              status: 'open',
-            },
-            $set: {
-              lastMessage,
-              lastMessageTimestamp: now,
-            },
-          },
-          { upsert: true, returnDocument: 'after' },
+        await db.collection('contacts').updateMany(
+          { projectId: projectObjId, waId: { $in: phones } },
+          { $set: { lastMessage, lastMessageTimestamp: now } },
         );
-        const doc = r && (r.value || r);
-        if (doc && doc._id) phoneToContactId.set(contact.phone, doc._id);
+        // Resolve contactIds for existing contacts
+        const existing = await db.collection('contacts').find(
+          { projectId: projectObjId, waId: { $in: phones } },
+          { projection: { _id: 1, waId: 1 } },
+        ).toArray();
+        for (const doc of existing) {
+          phoneToContactId.set(doc.waId, doc._id);
+        }
       } catch (e) {
-        // Non-fatal: a CRM upsert failure should not fail the broadcast.
-        console.error(`${LOG_PREFIX} contact upsert failed for ${contact.phone}:`, e.message);
+        console.error(`${LOG_PREFIX} existing contact update failed:`, e.message);
       }
-    }),
-  );
+    }
+  }
 
   // 2) Bulk-insert outgoing_messages for everyone whose contactId we resolved.
   //

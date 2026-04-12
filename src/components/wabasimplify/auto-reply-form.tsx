@@ -131,6 +131,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
       <form action={formAction} ref={formRef}>
         <input type="hidden" name="projectId" value={project._id.toString()} />
         <input type="hidden" name="replyType" value={type} />
+        <input type="hidden" name="enabled" value={isEnabled ? 'true' : 'false'} />
         {type === 'general' && <input type="hidden" name="replies" value={JSON.stringify(replies)} />}
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -138,7 +139,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                 <CardTitle>{formDetails[type].title}</CardTitle>
                 <CardDescription>{formDetails[type].description}</CardDescription>
             </div>
-            <Switch name="enabled" checked={isEnabled} onCheckedChange={setIsEnabled} />
+            <Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
           </div>
         </CardHeader>
         <CardContent className={cn(!isEnabled && 'opacity-50 pointer-events-none')}>

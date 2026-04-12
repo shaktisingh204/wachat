@@ -220,6 +220,7 @@ export function BroadcastForm({
   const formRef = useRef<HTMLFormElement>(null);
 
   const [audienceType, setAudienceType] = useState<'file' | 'tags'>('file');
+  const [createContacts, setCreateContacts] = useState(false);
   const [broadcastType, setBroadcastType] = useState<'template' | 'flow'>(
     'template',
   );
@@ -344,6 +345,7 @@ export function BroadcastForm({
         value={activeProject?._id?.toString()}
       />
       <input type="hidden" name="broadcastType" value={broadcastType} />
+      <input type="hidden" name="createContacts" value={createContacts ? 'true' : 'false'} />
       {selectedTagIds.map((id) => (
         <input key={id} type="hidden" name="tagIds" value={id} />
       ))}
@@ -714,6 +716,24 @@ export function BroadcastForm({
           </div>
         </div>
       )}
+
+      {/* ── Options ── */}
+      <div className="flex items-center gap-3 rounded-[14px] border border-clay-border bg-clay-surface-2 px-5 py-3">
+        <label className="flex items-center gap-2.5 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={createContacts}
+            onChange={(e) => setCreateContacts(e.target.checked)}
+            className="h-4 w-4 rounded border-clay-border text-clay-accent focus:ring-clay-accent"
+          />
+          <span className="text-[12px] text-clay-ink font-medium">Create contacts in CRM</span>
+        </label>
+        <span className="text-[10px] text-clay-ink-muted">
+          {createContacts
+            ? 'New contacts will be added for each recipient not already in your CRM.'
+            : 'Off — only existing contacts will be updated. No new contacts created.'}
+        </span>
+      </div>
 
       {/* ── Submit ── */}
       <div className="flex flex-col items-stretch gap-3 border-t border-clay-border pt-5 sm:flex-row sm:items-center sm:justify-between">

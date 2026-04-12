@@ -535,7 +535,6 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
         );
 
         if (contactResult) {
-            revalidatePath('/dashboard/chat');
             revalidatePath('/dashboard/contacts');
             return { contact: JSON.parse(JSON.stringify(contactResult)) };
         } else {
@@ -1102,7 +1101,6 @@ export async function handleSendCatalogMessage(prevState: any, formData: FormDat
 
         if (response.data.error) throw new Error(getErrorMessage({ response }));
 
-        revalidatePath('/dashboard/chat');
         return { message: 'Catalog message sent successfully.' };
 
     } catch (e: any) {
@@ -1558,7 +1556,6 @@ export async function handleSendCtaUrlMessage(
             { $set: { lastMessage: `[CTA: ${data.displayText}]`.substring(0, 50), lastMessageTimestamp: now } }
         );
 
-        revalidatePath('/dashboard/chat');
         return { message: 'CTA URL message sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -1610,7 +1607,6 @@ export async function handleSendLocationRequestMessage(
             { $set: { lastMessage: '[Location Request]', lastMessageTimestamp: now } }
         );
 
-        revalidatePath('/dashboard/chat');
         return { message: 'Location request sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -1674,7 +1670,6 @@ export async function handleSendAddressMessage(
             { $set: { lastMessage: '[Address Request]', lastMessageTimestamp: now } }
         );
 
-        revalidatePath('/dashboard/chat');
         return { message: 'Address message sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -1759,7 +1754,6 @@ export async function handleSendOrderDetailsMessage(
             { $set: { lastMessage: `[Order: ${data.referenceId}]`.substring(0, 50), lastMessageTimestamp: now } }
         );
 
-        revalidatePath('/dashboard/chat');
         return { message: 'Order details message sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -1826,7 +1820,6 @@ export async function handleSendOrderStatusMessage(
             { $set: { lastMessage: `[Order Status: ${data.status}]`.substring(0, 50), lastMessageTimestamp: now } }
         );
 
-        revalidatePath('/dashboard/chat');
         return { message: 'Order status message sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

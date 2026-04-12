@@ -291,12 +291,11 @@ export default function BroadcastReportPage() {
 
   useEffect(() => {
     if (!broadcast || isPageLoading) return;
-    const live =
-      broadcast.status === 'QUEUED' || broadcast.status === 'PROCESSING';
+    const live = ['QUEUED', 'PROCESSING', 'PENDING_PROCESSING'].includes(broadcast.status);
     if (!live) return;
     const interval = setInterval(() => {
       fetchPageData(broadcastId, currentPage, filter, false);
-    }, 5000);
+    }, 10000); // Poll every 10s to reduce server load
     return () => clearInterval(interval);
   }, [broadcast, isPageLoading, fetchPageData, currentPage, filter, broadcastId]);
 

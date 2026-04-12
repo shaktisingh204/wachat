@@ -182,7 +182,7 @@ function ISTClock() {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     setNow(new Date());
-    const id = setInterval(() => setNow(new Date()), 1000);
+    const id = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(id);
   }, []);
   if (!now) return null;
@@ -272,7 +272,7 @@ export default function BroadcastPage() {
     if (!hasActive) return;
     const interval = setInterval(() => {
       fetchData(activeProjectId, currentPage, false);
-    }, 5000);
+    }, 15000); // Poll every 15s to reduce server load
     return () => clearInterval(interval);
   }, [history, activeProjectId, currentPage, fetchData, isRefreshing]);
 

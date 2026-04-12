@@ -227,7 +227,8 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
 
-    let updatePayload: any = { enabled: formData.get('enabled') === 'on' };
+    const enabledVal = formData.get('enabled');
+    let updatePayload: any = { enabled: enabledVal === 'on' || enabledVal === 'true' };
 
     if (replyType === 'welcomeMessage') {
         updatePayload.message = formData.get('message') as string;
@@ -245,15 +246,20 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
     if (replyType === 'inactiveHours') {
         updatePayload = {
             ...updatePayload,
+            message: formData.get('message') as string,
             startTime: formData.get('startTime'),
             endTime: formData.get('endTime'),
             timezone: formData.get('timezone'),
-            days: [0, 1, 2, 3, 4, 5, 6].filter(day => formData.get(`day_${day}`) === 'on')
+            days: [0, 1, 2, 3, 4, 5, 6].filter(day => {
+                const val = formData.get(`day_${day}`);
+                return val === 'on' || val === 'true';
+            })
         }
     }
     if (replyType === 'aiAssistant') {
         updatePayload.context = formData.get('context');
-        updatePayload.autoTranslate = formData.get('autoTranslate') === 'on';
+        const autoTransVal = formData.get('autoTranslate');
+        updatePayload.autoTranslate = autoTransVal === 'on' || autoTransVal === 'true';
         delete updatePayload.message;
     }
 

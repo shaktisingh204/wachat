@@ -43,19 +43,33 @@ export function ChatContactList({
     onPhoneNumberChange
 }: ChatContactListProps) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [chatFilter, setChatFilter] = useState<'all' | 'unread'>('all');
 
     const handleSearch = useDebouncedCallback((term: string) => {
         setSearchQuery(term);
     }, 300);
 
     const filteredContacts = useMemo(() => {
-        if (!searchQuery) return contacts;
-        const lowercasedQuery = searchQuery.toLowerCase();
-        return contacts.filter(contact =>
-            contact.name.toLowerCase().includes(lowercasedQuery) ||
-            contact.waId.includes(searchQuery)
-        );
-    }, [contacts, searchQuery]);
+        let result = contacts;
+
+        // Apply unread filter
+        if (chatFilter === 'unread') {
+            result = result.filter(contact => (contact.unreadCount || 0) > 0);
+        }
+
+        // Apply search filter
+        if (searchQuery) {
+            const lowercasedQuery = searchQuery.toLowerCase();
+            result = result.filter(contact =>
+                contact.name.toLowerCase().includes(lowercasedQuery) ||
+                contact.waId.includes(searchQuery)
+            );
+        }
+
+        return result;
+    }, [contacts, searchQuery, chatFilter]);
+
+    const unreadCount = useMemo(() => contacts.filter(c => (c.unreadCount || 0) > 0).length, [contacts]);
 
     const getStatusVariant = (status?: string) => {
         if (!status) return 'secondary';
@@ -132,6 +146,35 @@ export function ChatContactList({
                     </SelectContent>
                 </Select>
             </div>
+
+            {/* All / Unread filter pills */}
+            <div className="px-3 py-2 border-b flex-shrink-0 flex items-center gap-1.5">
+                <button
+                    type="button"
+                    onClick={() => setChatFilter('all')}
+                    className={cn(
+                        'rounded-full px-3 py-1 text-[11px] font-semibold transition-colors',
+                        chatFilter === 'all'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground hover:bg-accent'
+                    )}
+                >
+                    All
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setChatFilter('unread')}
+                    className={cn(
+                        'rounded-full px-3 py-1 text-[11px] font-semibold transition-colors',
+                        chatFilter === 'unread'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground hover:bg-accent'
+                    )}
+                >
+                    Unread{unreadCount > 0 && ` (${unreadCount})`}
+                </button>
+            </div>
+
             <ScrollArea className="flex-1">
                 {isLoading ? (
                     <div className="p-2 space-y-1">

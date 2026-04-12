@@ -1258,23 +1258,35 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
         }
     }
 
-    // 2. Inactive Hours Reply
+    // 2. Inactive Hours Reply (away message)
+    // startTime = when inactive period STARTS (e.g., 20:00 = 8 PM)
+    // endTime = when inactive period ENDS (e.g., 08:00 = 8 AM next day)
+    // If current time is between start and end → user is away → send message
     if (settings.inactiveHours?.enabled && settings.inactiveHours.message) {
         const { startTime, endTime, timezone, days, message: inactiveMessage } = settings.inactiveHours;
         try {
-            const nowInTZ = new Date(new Date().toLocaleString('en-US', { timeZone: timezone }));
+            const tz = timezone || 'UTC';
+            const nowInTZ = new Date(new Date().toLocaleString('en-US', { timeZone: tz }));
             const currentDay = nowInTZ.getDay();
             const currentTime = nowInTZ.getHours() * 60 + nowInTZ.getMinutes();
-            const [startHour, startMinute] = startTime.split(':').map(Number);
-            const startTimeInMinutes = startHour * 60 + startMinute;
-            const [endHour, endMinute] = endTime.split(':').map(Number);
-            const endTimeInMinutes = endHour * 60 + endMinute;
+            const [startHour, startMinute] = (startTime || '20:00').split(':').map(Number);
+            const startMins = startHour * 60 + startMinute;
+            const [endHour, endMinute] = (endTime || '08:00').split(':').map(Number);
+            const endMins = endHour * 60 + endMinute;
 
-            let isInactive = (startTimeInMinutes > endTimeInMinutes)
-                ? (currentTime >= startTimeInMinutes || currentTime < endTimeInMinutes)
-                : (currentTime >= endTimeInMinutes || currentTime < startTimeInMinutes);
+            // Check if current time falls within the inactive window
+            let isInactive = false;
+            if (startMins > endMins) {
+                // Overnight: e.g., 20:00 to 08:00 — inactive if after 20:00 OR before 08:00
+                isInactive = currentTime >= startMins || currentTime < endMins;
+            } else if (startMins < endMins) {
+                // Same day: e.g., 12:00 to 14:00 — inactive if between 12:00 and 14:00
+                isInactive = currentTime >= startMins && currentTime < endMins;
+            }
 
-            if (days.includes(currentDay) && isInactive) {
+            const isDayActive = !days || days.length === 0 || days.includes(currentDay);
+
+            if (isDayActive && isInactive) {
                 replyMessage = inactiveMessage;
             }
         } catch (e) { console.error("Error processing inactive hours:", e); }
@@ -1293,8 +1305,8 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
         } catch (e: any) { console.error("Error generating AI reply:", e.message); }
     }
 
-    // 4. Keyword-based General Reply (only for new contacts)
-    if (!replyMessage && contact.hasReceivedWelcome === false && settings.general?.enabled && Array.isArray(settings.general.replies)) {
+    // 4. Keyword-based General Reply (for all contacts)
+    if (!replyMessage && settings.general?.enabled && Array.isArray(settings.general.replies) && message.type === 'text') {
         const messageText = message.text?.body?.trim().toLowerCase();
         if (messageText) {
             for (const rule of settings.general.replies) {
@@ -1374,12 +1386,30 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
         }
     }
 
+    // Build the $set fields. Only overwrite name if we have a real name from
+    // WhatsApp (not 'Unknown User'), so we don't regress a name that was
+    // set during broadcast or manual contact creation.
+    const setFields: any = {
+        phoneNumberId: phoneNumberId,
+        lastMessage: lastMessageText,
+        lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+    };
+    if (senderName && senderName !== 'Unknown User') {
+        setFields.name = senderName;
+    }
+
     const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
-        { waId: senderWaId, projectId: project._id, phoneNumberId: phoneNumberId }, // Fixed: Strict segregation by phone number
+        { waId: senderWaId, projectId: project._id, phoneNumberId: phoneNumberId },
         {
-            $set: { name: senderName, phoneNumberId: phoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
+            $set: setFields,
             $inc: { unreadCount: 1 },
-            $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date(), hasReceivedWelcome: false }
+            $setOnInsert: {
+                waId: senderWaId,
+                projectId: project._id,
+                name: senderName || `User (${senderWaId.slice(-4)})`,
+                createdAt: new Date(),
+                hasReceivedWelcome: false,
+            },
         },
         { upsert: true, returnDocument: 'after' }
     );
@@ -1524,48 +1554,58 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
         const wamids = statuses.map(s => s.id).filter(Boolean);
         if (wamids.length === 0) return { success: 0, failed: 0 };
 
+        // 1) Bulk update outgoing_messages — single bulkWrite for all statuses
+        const liveChatOps = statuses
+            .filter(s => s.id && s.status)
+            .map(status => ({
+                updateOne: {
+                    filter: { wamid: status.id },
+                    update: {
+                        $set: {
+                            status: status.status,
+                            [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000),
+                        },
+                    },
+                },
+            }));
+
+        // 2) Batch-lookup broadcast contacts — ONE query instead of N findOne calls
+        const broadcastContacts = await db.collection('broadcast_contacts')
+            .find({ messageId: { $in: wamids } }, { projection: { _id: 1, messageId: 1, broadcastId: 1, status: 1 } })
+            .toArray();
+
+        const bcByWamid = new Map(broadcastContacts.map(bc => [bc.messageId, bc]));
+        const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3, FAILED: 4 };
+
         const broadcastContactOps: any[] = [];
-        const liveChatOps: any[] = [];
-        const broadcastCounterUpdates: Record<string, { delivered: number; read: number; }> = {};
+        const broadcastCounterUpdates: Record<string, { delivered: number; read: number }> = {};
 
         for (const status of statuses) {
-            const wamid = status.id;
+            const bc = bcByWamid.get(status.id);
+            if (!bc) continue;
+
             const newStatus = (status.status || 'unknown').toUpperCase();
-            const statusTimestamp = new Date(parseInt(status.timestamp, 10) * 1000);
+            const currentStatus = (bc.status || 'PENDING').toUpperCase();
+            const broadcastIdStr = bc.broadcastId.toString();
 
-            // Prepare update for live chat messages
-            liveChatOps.push({
-                updateOne: {
-                    filter: { wamid },
-                    update: { $set: { status: status.status, [`statusTimestamps.${status.status}`]: statusTimestamp } }
-                }
-            });
-
-            // Find broadcast contacts that match this wamid
-            const broadcastContact = await db.collection('broadcast_contacts').findOne({ messageId: wamid });
-            if (!broadcastContact) continue;
-
-            const broadcastIdStr = broadcastContact.broadcastId.toString();
-            if (!broadcastCounterUpdates[broadcastIdStr]) {
-                broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0 };
-            }
-
-            const currentStatus = (broadcastContact.status || 'PENDING').toUpperCase();
-            const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3, FAILED: 4 };
-
-            if (statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
+            if ((statusHierarchy[newStatus] || 0) > (statusHierarchy[currentStatus] || 0)) {
                 broadcastContactOps.push({
                     updateOne: {
-                        filter: { _id: broadcastContact._id },
-                        update: { $set: { status: newStatus } }
-                    }
+                        filter: { _id: bc._id },
+                        update: { $set: { status: newStatus } },
+                    },
                 });
+
+                if (!broadcastCounterUpdates[broadcastIdStr]) {
+                    broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0 };
+                }
                 if (newStatus === 'DELIVERED') broadcastCounterUpdates[broadcastIdStr].delivered += 1;
                 if (newStatus === 'READ') broadcastCounterUpdates[broadcastIdStr].read += 1;
             }
         }
 
-        const promises = [];
+        // 3) Execute all writes in parallel
+        const promises: Promise<any>[] = [];
         if (liveChatOps.length > 0) promises.push(db.collection('outgoing_messages').bulkWrite(liveChatOps, { ordered: false }));
         if (broadcastContactOps.length > 0) promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
 
@@ -1574,15 +1614,15 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
             .map(([broadcastId, counts]) => ({
                 updateOne: {
                     filter: { _id: new ObjectId(broadcastId) },
-                    update: { $inc: { deliveredCount: counts.delivered, readCount: counts.read } }
-                }
+                    update: { $inc: { deliveredCount: counts.delivered, readCount: counts.read } },
+                },
             }));
         if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
 
         if (promises.length > 0) await Promise.all(promises);
 
-        revalidatePath('/dashboard/chat');
-        revalidatePath('/dashboard/broadcasts');
+        // No revalidatePath here — webhook processing should not trigger client re-renders.
+        // The chat UI polls or uses real-time events for updates.
 
         return { success: statuses.length, failed: 0 };
     } catch (e: any) {
