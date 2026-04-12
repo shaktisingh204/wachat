@@ -334,6 +334,47 @@ export async function completeOnboarding(args: {
 }
 
 /**
+ * Skips the remaining onboarding steps. Marks status as 'complete' and
+ * assigns the default free plan (if any). Called when the user clicks
+ * "Skip for now" in the wizard header.
+ */
+export async function skipOnboarding(): Promise<ActionResult> {
+    try {
+        const auth = await requireUserId();
+        if (!auth.ok) return { success: false, error: auth.error };
+
+        const { db } = await connectToDatabase();
+
+        // Find the default/free plan so the user isn't left without one
+        const defaultPlan = await db
+            .collection<Plan>('plans')
+            .findOne({ $or: [{ isDefault: true }, { price: { $lte: 0 } }] });
+
+        const update: Record<string, unknown> = {
+            'onboarding.status': 'complete',
+            'onboarding.completedAt': new Date(),
+            'onboarding.skippedAt': new Date(),
+        };
+        if (defaultPlan) {
+            update.planId = defaultPlan._id;
+            update['onboarding.selectedPlanId'] = defaultPlan._id.toString();
+        }
+
+        await db
+            .collection('users')
+            .updateOne({ _id: auth.userId }, { $set: update });
+
+        revalidatePath('/onboarding');
+        revalidatePath('/dashboard');
+        revalidatePath('/home');
+        return { success: true };
+    } catch (e) {
+        console.error('[ONBOARDING] skipOnboarding failed', e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
  * Allows the wizard to jump to any earlier step for editing.
  */
 export async function rewindOnboardingTo(

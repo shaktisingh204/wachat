@@ -41,6 +41,9 @@ import {
   LuLayoutTemplate,
   LuMegaphone,
   LuEarth,
+  LuCircleCheck,
+  LuCircleDashed,
+  LuRocket,
 } from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
@@ -49,6 +52,10 @@ import {
   type AccountHomeData,
 } from '@/app/actions/home.actions';
 import { getSession } from '@/app/actions/user.actions';
+import {
+  getOnboardingState,
+  type OnboardingState,
+} from '@/app/actions/onboarding-flow.actions';
 
 import {
   ClayBreadcrumbs,
@@ -157,6 +164,84 @@ function HomeSkeleton() {
   );
 }
 
+/* ── onboarding setup card ──────────────────────────────────────── */
+
+const ONBOARDING_STEPS = [
+  { key: 'profile', label: 'Tell us about you' },
+  { key: 'business', label: 'Your business details' },
+  { key: 'requirements', label: 'Choose your modules' },
+  { key: 'plan', label: 'Pick a plan' },
+] as const;
+
+function OnboardingSetupCard({
+  status,
+}: {
+  status: 'profile' | 'business' | 'requirements' | 'plan' | 'complete';
+}) {
+  const router = useRouter();
+  const statusOrder = ['profile', 'business', 'requirements', 'plan', 'complete'];
+  const currentIdx = statusOrder.indexOf(status);
+  const completedCount = currentIdx;
+  const totalSteps = ONBOARDING_STEPS.length;
+
+  return (
+    <div className="mt-6 rounded-[14px] border border-clay-border bg-clay-bg-1 p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+            <LuRocket className="h-5 w-5 text-primary" strokeWidth={2} />
+          </div>
+          <div>
+            <h3 className="text-[15px] font-semibold text-clay-ink">
+              Complete your setup
+            </h3>
+            <p className="mt-0.5 text-[13px] text-clay-ink-muted">
+              {completedCount} of {totalSteps} steps done — finish setting up to unlock your full workspace.
+            </p>
+          </div>
+        </div>
+        <ClayButton
+          variant="obsidian"
+          size="md"
+          trailing={<LuArrowRight className="h-3.5 w-3.5" />}
+          onClick={() => router.push('/onboarding')}
+        >
+          Continue setup
+        </ClayButton>
+      </div>
+
+      {/* Step progress */}
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {ONBOARDING_STEPS.map((step, idx) => {
+          const isDone = idx < currentIdx;
+          const isCurrent = idx === currentIdx;
+          return (
+            <div
+              key={step.key}
+              className={cn(
+                'flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px] transition',
+                isDone && 'border-primary/30 bg-primary/5 text-clay-ink',
+                isCurrent && 'border-primary bg-primary/10 text-clay-ink font-medium',
+                !isDone && !isCurrent && 'border-clay-border text-clay-ink-muted',
+              )}
+            >
+              {isDone ? (
+                <LuCircleCheck className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
+              ) : (
+                <LuCircleDashed
+                  className={cn('h-4 w-4 shrink-0', isCurrent ? 'text-primary' : 'text-clay-ink-muted/50')}
+                  strokeWidth={2}
+                />
+              )}
+              {step.label}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ── page ───────────────────────────────────────────────────────── */
 
 type TimeRange = '24h' | '7d' | '30d' | 'all';
@@ -174,6 +259,8 @@ export default function HomePage() {
   const [userName, setUserName] = useState<string>('there');
   const [loading, startTransition] = useTransition();
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
+  const [onboardingStatus, setOnboardingStatus] = useState<OnboardingState | null>(null);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   useEffect(() => {
     document.title = 'Home · SabNode';
@@ -181,13 +268,15 @@ export default function HomePage() {
 
   const fetchHome = React.useCallback(() => {
     startTransition(() => {
-      Promise.all([getAccountHomeData(), getSession()]).then(
-        ([home, session]) => {
+      Promise.all([getAccountHomeData(), getSession(), getOnboardingState()]).then(
+        ([home, session, obState]) => {
           setData(home);
           const u: any = session?.user;
           if (u) {
             setUserName(u.name || u.email?.split('@')[0] || 'there');
           }
+          setOnboardingStatus(obState.onboarding);
+          setOnboardingChecked(true);
         },
       );
     });
@@ -421,6 +510,11 @@ export default function HomePage() {
           </DropdownMenu>
         </div>
       </div>
+
+      {/* ── Onboarding pending banner ── */}
+      {onboardingChecked && onboardingStatus && onboardingStatus.status !== 'complete' && (
+        <OnboardingSetupCard status={onboardingStatus.status} />
+      )}
 
       {/* ── Big cards row ── */}
       <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">

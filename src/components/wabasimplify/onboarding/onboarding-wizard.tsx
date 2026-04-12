@@ -2,23 +2,22 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Check } from 'lucide-react';
+import { Check, LoaderCircle, SkipForward } from 'lucide-react';
 
 import type { Plan } from '@/lib/definitions';
 import type {
     OnboardingState,
 } from '@/app/actions/onboarding-flow.actions';
+import { skipOnboarding } from '@/app/actions/onboarding-flow.actions';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 import { AccountStep } from './steps/account-step';
 import { ProfileStep } from './steps/profile-step';
 import { BusinessStep } from './steps/business-step';
-// import { RequirementsStep } from './steps/requirements-step';
-// import { PlanStep } from './steps/plan-step';
-// import { CompleteStep } from './steps/complete-step';
-const RequirementsStep: any = () => null;
-const PlanStep: any = () => null;
-const CompleteStep: any = () => null;
+import { RequirementsStep } from './steps/requirements-step';
+import { PlanStep } from './steps/plan-step';
+import { CompleteStep } from './steps/complete-step';
 
 type WizardStep =
     | 'account'
@@ -107,6 +106,7 @@ export function OnboardingWizard({
         initialOnboarding
     );
     const [signedInUser, setSignedInUser] = React.useState(initialUser);
+    const [isSkipping, startSkipTransition] = React.useTransition();
 
     const currentIndex = STEP_ORDER.indexOf(step);
 
@@ -127,6 +127,15 @@ export function OnboardingWizard({
         []
     );
 
+    const handleSkip = React.useCallback(() => {
+        startSkipTransition(async () => {
+            const res = await skipOnboarding();
+            if (res.success) {
+                router.push('/home');
+            }
+        });
+    }, [router]);
+
     const handleAccountCreated = React.useCallback(
         (user: { _id: string; name: string; email: string }) => {
             setSignedInUser(user);
@@ -144,9 +153,27 @@ export function OnboardingWizard({
 
             <section className="space-y-6">
                 <header className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                        Step {currentIndex + 1} of {STEP_ORDER.length}
-                    </p>
+                    <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                            Step {currentIndex + 1} of {STEP_ORDER.length}
+                        </p>
+                        {signedInUser && step !== 'account' && step !== 'complete' && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-muted-foreground"
+                                onClick={handleSkip}
+                                disabled={isSkipping}
+                            >
+                                {isSkipping ? (
+                                    <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                    <SkipForward className="mr-1.5 h-3.5 w-3.5" />
+                                )}
+                                Skip for now
+                            </Button>
+                        )}
+                    </div>
                     <h1 className="text-3xl font-bold tracking-tight">
                         {STEP_META[step].title}
                     </h1>
