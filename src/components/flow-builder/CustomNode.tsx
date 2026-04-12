@@ -1,110 +1,104 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { ALL_BLOCK_TYPES } from './Sidebar';
 import {
-    MessageSquare,
-    ImageIcon,
-    ToggleRight,
-    Type,
-    Clock,
-    GitFork,
-    Code,
-    Send,
-    Bot,
-    Smartphone,
-    Mail,
-    UserPlus,
-    Link as LinkIcon,
-    QrCode,
-    Play,
-} from 'lucide-react';
-
-const blockTypes = [
-    { type: 'text', label: 'Send Message', icon: MessageSquare },
-    { type: 'image', label: 'Send Image', icon: ImageIcon },
-    { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'input', label: 'Get User Input', icon: Type },
-    { type: 'delay', label: 'Add Delay', icon: Clock },
-    { type: 'condition', label: 'Condition', icon: GitFork },
-    { type: 'api', label: 'Call API', icon: Code },
-    { type: 'sendTemplate', label: 'Send Template', icon: Send },
-    { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: Bot },
-    { type: 'sendSms', label: 'Send SMS', icon: Smartphone },
-    { type: 'sendEmail', label: 'Send Email', icon: Mail },
-    { type: 'createCrmLead', label: 'Create CRM Lead', icon: UserPlus },
-    { type: 'generateShortLink', label: 'Create Short Link', icon: LinkIcon },
-    { type: 'generateQrCode', label: 'Generate QR Code', icon: QrCode },
-    { type: 'start', label: 'Start Flow', icon: Play },
-];
+    LuPlay,
+    LuMessageSquare,
+} from 'react-icons/lu';
 
 const NodePreview = ({ data, type }: { data: any; type: string }) => {
-    const renderTextWithVariables = (text?: string) => {
-        if (!text) return <span className="italic opacity-50">Enter message...</span>;
-        // Basic regex for {{variable}} highlighting
-        // Note: React Flow nodes are rendered often, keep this lightweight
-        return text;
-    };
-
     switch (type) {
         case 'text':
         case 'input':
-            return <p className="whitespace-pre-wrap text-xs line-clamp-3">{renderTextWithVariables(data.text)}</p>;
+            return <p className="whitespace-pre-wrap text-[10px] line-clamp-3 text-clay-ink-muted">{data.text || 'Enter message...'}</p>;
         case 'image':
+        case 'video':
+        case 'audio':
+        case 'document':
+        case 'sticker':
             return (
                 <div className="space-y-1">
-                    <div className="aspect-video bg-muted/50 rounded-md flex items-center justify-center">
-                        <ImageIcon className="h-6 w-6 text-muted-foreground/50" />
-                    </div>
-                    {data.caption && <p className="text-xs truncate">{data.caption}</p>}
+                    <div className="h-8 bg-clay-bg-2/50 rounded flex items-center justify-center text-[9px] text-clay-ink-muted uppercase">{type}</div>
+                    {data.caption && <p className="text-[10px] truncate text-clay-ink-muted">{data.caption}</p>}
                 </div>
             );
         case 'buttons':
             return (
                 <div className="space-y-1">
-                    <p className="text-xs line-clamp-2">{data.text || 'Question text...'}</p>
-                    <div className="space-y-1 pt-1">
-                        {((data.buttons as any[]) || []).map((btn: any, i: number) => (
-                            <div key={i} className="text-[10px] text-center bg-muted rounded px-1 py-0.5 truncate">
-                                {btn.text || `Button ${i + 1}`}
-                            </div>
-                        ))}
-                    </div>
+                    <p className="text-[10px] line-clamp-1 text-clay-ink-muted">{data.text || 'Question text...'}</p>
+                    {((data.buttons as any[]) || []).slice(0, 3).map((btn: any, i: number) => (
+                        <div key={i} className="text-[9px] text-center bg-clay-bg-2/50 rounded px-1 py-0.5 truncate">{btn.text || `Button ${i + 1}`}</div>
+                    ))}
                 </div>
             );
+        case 'listMessage':
+            return <p className="text-[10px] text-clay-ink-muted">{data.buttonText || 'View Options'}</p>;
+        case 'condition':
+            return <p className="text-[10px] text-clay-ink-muted">{data.variable || 'Set condition...'} {data.operator || '='} {data.value || '?'}</p>;
+        case 'delay':
+            return <p className="text-[10px] text-clay-ink-muted">{data.duration || '5'} {data.unit || 'seconds'}</p>;
+        case 'setVariable':
+            return <p className="text-[10px] text-clay-ink-muted font-mono">{data.variableName || 'var'} = {data.variableValue || '...'}</p>;
+        case 'sendTemplate':
+            return <p className="text-[10px] text-clay-ink-muted">{data.templateName || 'Select template...'}</p>;
+        case 'sendLocation':
+            return <p className="text-[10px] text-clay-ink-muted">{data.name || 'Location'}</p>;
+        case 'assignAgent':
+            return <p className="text-[10px] text-clay-ink-muted">{data.agentName || 'Select agent...'}</p>;
+        case 'addTag':
+            return <p className="text-[10px] text-clay-ink-muted">{data.tagName || 'Select tag...'}</p>;
+        case 'api':
+        case 'webhook':
+            return <p className="text-[10px] text-clay-ink-muted font-mono truncate">{data.url || 'https://...'}</p>;
         default:
             return null;
     }
 };
 
 const CustomNode = ({ data, type, selected }: NodeProps) => {
-    const blockInfo = blockTypes.find((b) => b.type === type) || blockTypes[0];
-    const Icon = blockInfo.icon;
+    const blockInfo = ALL_BLOCK_TYPES.find((b) => b.type === type);
+    const Icon = blockInfo?.icon || (type === 'start' ? LuPlay : LuMessageSquare);
+    const label = (data.label as string) || blockInfo?.label || type;
+    const hasPreview = ['text', 'image', 'video', 'audio', 'document', 'sticker', 'buttons', 'listMessage',
+        'input', 'condition', 'delay', 'setVariable', 'sendTemplate', 'sendLocation', 'assignAgent',
+        'addTag', 'api', 'webhook'].includes(type);
+
+    // Node color based on category
+    const getColor = () => {
+        if (type === 'start') return 'border-emerald-500/50 bg-emerald-500/5';
+        if (type === 'condition') return 'border-amber-500/50 bg-amber-500/5';
+        if (['delay', 'input', 'setVariable', 'triggerFlow'].includes(type)) return 'border-purple-500/50 bg-purple-500/5';
+        if (['api', 'webhook', 'sendSms', 'sendEmail'].includes(type)) return 'border-blue-500/50 bg-blue-500/5';
+        if (['createCrmLead', 'assignAgent', 'addTag', 'sendOrder', 'notification'].includes(type)) return 'border-orange-500/50 bg-orange-500/5';
+        return 'border-clay-border bg-clay-surface';
+    };
 
     return (
         <div className="relative">
-            <Card
-                className={cn(
-                    'w-64 shadow-md transition-all duration-200',
-                    selected ? 'ring-2 ring-primary shadow-lg' : 'hover:shadow-lg'
-                )}
-            >
-                <CardHeader className="flex flex-row items-center gap-3 p-3 pb-2 space-y-0">
-                    <div className={cn("p-1.5 rounded-md bg-muted", selected && "bg-primary/10 text-primary")}>
-                        <Icon className="h-4 w-4" />
+            <div className={cn(
+                'w-56 rounded-xl border shadow-sm transition-all',
+                getColor(),
+                selected && 'ring-2 ring-clay-accent shadow-md',
+            )}>
+                {/* Header */}
+                <div className="flex items-center gap-2.5 px-3 py-2.5">
+                    <div className={cn(
+                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg',
+                        type === 'start' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-clay-bg-2 text-clay-ink-muted',
+                    )}>
+                        <Icon className="h-3.5 w-3.5" />
                     </div>
-                    <CardTitle className="text-sm font-medium leading-none">
-                        {(data.label as any) || blockInfo.label}
-                    </CardTitle>
-                </CardHeader>
+                    <span className="text-[12px] font-semibold text-clay-ink truncate leading-tight">{label}</span>
+                </div>
 
-                {(type === 'text' || type === 'image' || type === 'input' || type === 'buttons') && (
-                    <CardContent className="p-3 pt-0">
-                        <div className="rounded-md bg-muted/30 p-2 text-sm text-muted-foreground">
+                {/* Preview */}
+                {hasPreview && (
+                    <div className="px-3 pb-2.5">
+                        <div className="rounded-lg bg-white/50 dark:bg-black/10 p-2">
                             <NodePreview data={data} type={type} />
                         </div>
-                    </CardContent>
+                    </div>
                 )}
 
                 {/* Handles */}
@@ -112,53 +106,37 @@ const CustomNode = ({ data, type, selected }: NodeProps) => {
                     <Handle
                         type="target"
                         position={Position.Left}
-                        className="w-3 h-3 bg-muted-foreground border-2 border-background"
+                        className="!w-2.5 !h-2.5 !bg-clay-ink-muted !border-2 !border-white"
                     />
                 )}
 
                 {type === 'condition' ? (
-                    <div className="absolute -right-3 top-1/2 -translate-y-1/2 flex flex-col gap-4">
+                    <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-4">
                         <div className="relative">
-                            <Handle
-                                type="source"
-                                position={Position.Right}
-                                id="output-yes"
-                                className="w-3 h-3 bg-green-500 border-2 border-background !right-0 !relative !transform-none"
-                            />
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-green-600 bg-background px-1 rounded shadow-sm border">YES</span>
+                            <Handle type="source" position={Position.Right} id="output-yes"
+                                className="!w-2.5 !h-2.5 !bg-emerald-500 !border-2 !border-white !right-0 !relative !transform-none" />
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[8px] font-bold text-emerald-600 bg-white px-1 rounded shadow-sm border">YES</span>
                         </div>
                         <div className="relative">
-                            <Handle
-                                type="source"
-                                position={Position.Right}
-                                id="output-no"
-                                className="w-3 h-3 bg-red-500 border-2 border-background !right-0 !relative !transform-none"
-                            />
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-red-600 bg-background px-1 rounded shadow-sm border">NO</span>
+                            <Handle type="source" position={Position.Right} id="output-no"
+                                className="!w-2.5 !h-2.5 !bg-red-500 !border-2 !border-white !right-0 !relative !transform-none" />
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[8px] font-bold text-red-600 bg-white px-1 rounded shadow-sm border">NO</span>
                         </div>
                     </div>
-                ) : type === 'buttons' ? (
-                    <div className="absolute -right-3 top-12 flex flex-col gap-2">
-                        {((data.buttons as any[]) || []).map((btn: any, i: number) => (
-                            <div key={i} className="relative h-6 flex items-center">
-                                <Handle
-                                    type="source"
-                                    position={Position.Right}
-                                    id={`btn-${i}`}
-                                    className="w-3 h-3 bg-primary border-2 border-background !right-0 !relative !transform-none"
-                                />
-                            </div>
+                ) : type === 'buttons' || type === 'listMessage' ? (
+                    <div className="absolute -right-2.5 top-10 flex flex-col gap-1.5">
+                        {((data.buttons as any[]) || []).slice(0, 5).map((_: any, i: number) => (
+                            <Handle key={i} type="source" position={Position.Right} id={`btn-${i}`}
+                                className="!w-2.5 !h-2.5 !bg-blue-500 !border-2 !border-white !right-0 !relative !transform-none" />
                         ))}
+                        <Handle type="source" position={Position.Right} id="output-main"
+                            className="!w-2.5 !h-2.5 !bg-clay-ink-muted !border-2 !border-white !right-0 !relative !transform-none" />
                     </div>
                 ) : (
-                    <Handle
-                        type="source"
-                        position={Position.Right}
-                        id="output-main"
-                        className="w-3 h-3 bg-muted-foreground border-2 border-background"
-                    />
+                    <Handle type="source" position={Position.Right} id="output-main"
+                        className="!w-2.5 !h-2.5 !bg-clay-ink-muted !border-2 !border-white" />
                 )}
-            </Card>
+            </div>
         </div>
     );
 };

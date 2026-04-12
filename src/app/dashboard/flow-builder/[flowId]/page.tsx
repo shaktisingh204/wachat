@@ -86,22 +86,43 @@ import {
 
 /* ── node type registry ─────────────────────────────────────────── */
 
-const nodeTypes = {
+const nodeTypes: Record<string, typeof CustomNode> = {
+  start: CustomNode,
+  // Messages
   text: CustomNode,
   image: CustomNode,
+  video: CustomNode,
+  audio: CustomNode,
+  document: CustomNode,
+  sticker: CustomNode,
+  sendLocation: CustomNode,
+  sendContact: CustomNode,
+  reaction: CustomNode,
+  // Interactive
   buttons: CustomNode,
-  input: CustomNode,
-  delay: CustomNode,
-  condition: CustomNode,
-  api: CustomNode,
+  listMessage: CustomNode,
+  ctaUrl: CustomNode,
   sendTemplate: CustomNode,
   triggerMetaFlow: CustomNode,
+  // Logic
+  input: CustomNode,
+  condition: CustomNode,
+  delay: CustomNode,
+  setVariable: CustomNode,
+  triggerFlow: CustomNode,
+  // Integrations
+  api: CustomNode,
+  webhook: CustomNode,
   sendSms: CustomNode,
   sendEmail: CustomNode,
+  // CRM & Commerce
   createCrmLead: CustomNode,
+  assignAgent: CustomNode,
+  addTag: CustomNode,
+  sendOrder: CustomNode,
   generateShortLink: CustomNode,
   generateQrCode: CustomNode,
-  start: CustomNode,
+  notification: CustomNode,
 };
 
 let dndId = 0;
