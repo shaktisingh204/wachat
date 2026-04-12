@@ -112,15 +112,58 @@ export default function ReportsPage() {
 
             <div>
                 <h2 className="text-sm font-semibold mb-2">Saved reports</h2>
-                <Card className="border-dashed">
-                    <CardContent className="py-12 text-center">
-                        <Calendar className="h-10 w-10 mx-auto text-muted-foreground" />
-                        <p className="mt-3 font-medium">No saved reports yet</p>
-                        <p className="text-sm text-muted-foreground">
-                            Save a template to reuse it.
-                        </p>
-                    </CardContent>
-                </Card>
+                {savedReports.length === 0 ? (
+                    <Card className="border-dashed">
+                        <CardContent className="py-12 text-center">
+                            <Calendar className="h-10 w-10 mx-auto text-muted-foreground" />
+                            <p className="mt-3 font-medium">No saved reports yet</p>
+                            <p className="text-sm text-muted-foreground">
+                                Create and save a custom report to see it here.
+                            </p>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {savedReports.map((r) => (
+                            <Card key={r.id} className="hover:border-[#1877F2]/50 transition-colors">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-start justify-between">
+                                        <CardTitle className="text-base">{r.name}</CardTitle>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-7 w-7 text-muted-foreground hover:text-red-600"
+                                            onClick={() => {
+                                                const updated = savedReports.filter((s) => s.id !== r.id);
+                                                setSavedReports(updated);
+                                                saveSavedReports(updated);
+                                                toast({ title: 'Report deleted' });
+                                            }}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-xs text-muted-foreground">
+                                        {r.dateRange.replace(/_/g, ' ')} &middot; {r.level} level
+                                    </p>
+                                    <p className="text-[10px] text-muted-foreground mt-1">
+                                        Saved {new Date(r.createdAt).toLocaleDateString()}
+                                    </p>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="mt-2 w-full"
+                                        onClick={() => router.push('/dashboard/ad-manager/insights')}
+                                    >
+                                        Open
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
@@ -132,11 +175,15 @@ export default function ReportsPage() {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label>Report Name</Label>
-                            <Input placeholder="e.g. Weekly Performance Summary" />
+                            <Input
+                                placeholder="e.g. Weekly Performance Summary"
+                                value={newReportName}
+                                onChange={(e) => setNewReportName(e.target.value)}
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label>Date Range</Label>
-                            <Select defaultValue="last_7d">
+                            <Select value={newReportDateRange} onValueChange={setNewReportDateRange}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="today">Today</SelectItem>
@@ -150,7 +197,7 @@ export default function ReportsPage() {
                         </div>
                         <div className="space-y-2">
                             <Label>Level</Label>
-                            <Select defaultValue="campaign">
+                            <Select value={newReportLevel} onValueChange={setNewReportLevel}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="account">Account</SelectItem>
@@ -163,6 +210,29 @@ export default function ReportsPage() {
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                if (!newReportName.trim()) {
+                                    toast({ title: 'Enter a report name', variant: 'destructive' });
+                                    return;
+                                }
+                                const report: SavedReport = {
+                                    id: Date.now().toString(),
+                                    name: newReportName,
+                                    dateRange: newReportDateRange,
+                                    level: newReportLevel,
+                                    createdAt: new Date().toISOString(),
+                                };
+                                const updated = [...savedReports, report];
+                                setSavedReports(updated);
+                                saveSavedReports(updated);
+                                toast({ title: 'Report saved' });
+                                setNewReportName('');
+                            }}
+                        >
+                            <Save className="h-4 w-4 mr-1" /> Save
+                        </Button>
                         <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => { setCreateOpen(false); router.push('/dashboard/ad-manager/insights'); }}>
                             Generate Report
                         </Button>

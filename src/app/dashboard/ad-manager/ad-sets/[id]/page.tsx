@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LuArrowLeft, LuImage, LuAlertCircle, LuRefreshCw, LuMoreVertical, LuPause, LuPlay, LuCopy, LuTrash2, LuChevronRight } from 'react-icons/lu';
+import { LuArrowLeft, LuImage, LuCircleAlert, LuRefreshCw, LuEllipsisVertical, LuPause, LuPlay, LuCopy, LuTrash2, LuChevronRight } from 'react-icons/lu';
 import { getAds, updateEntityStatus, duplicateAd, deleteAd } from '@/app/actions/ad-manager.actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -119,7 +119,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
 
             {error && (
                 <Alert variant="destructive">
-                    <LuAlertCircle className="h-4 w-4" />
+                    <LuCircleAlert className="h-4 w-4" />
                     <AlertTitle>Error fetching Ads</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
@@ -163,7 +163,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                    <LuMoreVertical className="h-4 w-4" />
+                                                    <LuEllipsisVertical className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">

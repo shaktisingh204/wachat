@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LuGitCompareArrows, LuAlertCircle, LuX } from 'react-icons/lu';
+import { LuGitCompareArrows, LuCircleAlert, LuX } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -79,7 +79,7 @@ export default function CampaignComparePage() {
         return (
             <div className="p-8">
                 <Alert>
-                    <LuAlertCircle className="h-4 w-4" />
+                    <LuCircleAlert className="h-4 w-4" />
                     <AlertTitle>No ad account selected</AlertTitle>
                     <AlertDescription>Pick an ad account to compare campaigns.</AlertDescription>
                 </Alert>

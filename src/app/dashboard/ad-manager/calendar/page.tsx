@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LuCalendarDays, LuChevronLeft, LuChevronRight, LuAlertCircle } from 'react-icons/lu';
+import { LuCalendarDays, LuChevronLeft, LuChevronRight, LuCircleAlert } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -81,7 +81,7 @@ export default function CampaignCalendarPage() {
         return (
             <div className="p-8">
                 <Alert>
-                    <LuAlertCircle className="h-4 w-4" />
+                    <LuCircleAlert className="h-4 w-4" />
                     <AlertTitle>No ad account selected</AlertTitle>
                     <AlertDescription>Pick an ad account to view the campaign calendar.</AlertDescription>
                 </Alert>
@@ -91,9 +91,10 @@ export default function CampaignCalendarPage() {
 
     const monthLabel = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const cells: (number | null)[] = Array.from({ length: startDay }, () => null).concat(
-        Array.from({ length: totalDays }, (_, i) => i + 1)
-    );
+    const cells: (number | null)[] = [
+        ...Array.from<null>({ length: startDay }, () => null),
+        ...Array.from({ length: totalDays }, (_, i) => i + 1),
+    ];
     while (cells.length % 7 !== 0) cells.push(null);
 
     return (

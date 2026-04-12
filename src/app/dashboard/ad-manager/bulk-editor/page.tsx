@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Table2, Upload, Download, Save, AlertCircle } from 'lucide-react';
+import { Table2, Upload, Download, Save, AlertCircle, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import { listCampaigns, batchUpdateStatus, updateCampaign } from '@/app/actions/ad-manager.actions';
@@ -26,8 +27,10 @@ export default function BulkEditorPage() {
     const { activeAccount } = useAdManager();
     const { toast } = useToast();
     const [rows, setRows] = React.useState<EditableRow[]>([]);
+    const [originalRows, setOriginalRows] = React.useState<EditableRow[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [saving, setSaving] = React.useState(false);
+    const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
     const csvRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
@@ -42,9 +45,28 @@ export default function BulkEditorPage() {
                 daily_budget: c.daily_budget ? Number(c.daily_budget) / 100 : 0,
             }));
             setRows(mapped);
+            setOriginalRows(mapped.map((r) => ({ ...r })));
+            setSelectedIds(new Set());
             setLoading(false);
         })();
     }, [activeAccount]);
+
+    const allSelected = rows.length > 0 && selectedIds.size === rows.length;
+    const toggleSelectAll = () => {
+        if (allSelected) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(rows.map((r) => r.id)));
+        }
+    };
+    const toggleSelect = (id: string) => {
+        setSelectedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
 
     const updateRow = (id: string, patch: Partial<EditableRow>) => {
         setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch, dirty: true } : r)));
@@ -165,6 +187,17 @@ export default function BulkEditorPage() {
                         </Button>
                     </>
                     <Button
+                        variant="outline"
+                        onClick={() => {
+                            setRows(originalRows.map((r) => ({ ...r })));
+                            setSelectedIds(new Set());
+                            toast({ title: 'Changes reset', description: 'All edits have been reverted to original data.' });
+                        }}
+                        disabled={saving || dirtyCount === 0}
+                    >
+                        <RotateCcw className="h-4 w-4 mr-1" /> Reset Changes
+                    </Button>
+                    <Button
                         className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                         onClick={saveAll}
                         disabled={saving || dirtyCount === 0}
@@ -187,6 +220,13 @@ export default function BulkEditorPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-10">
+                                        <Checkbox
+                                            checked={allSelected}
+                                            onCheckedChange={toggleSelectAll}
+                                            aria-label="Select all"
+                                        />
+                                    </TableHead>
                                     <TableHead>ID</TableHead>
                                     <TableHead>Name</TableHead>
                                     <TableHead>Status</TableHead>
@@ -196,6 +236,13 @@ export default function BulkEditorPage() {
                             <TableBody>
                                 {rows.map((r) => (
                                     <TableRow key={r.id} className={r.dirty ? 'bg-amber-50 dark:bg-amber-950/20' : ''}>
+                                        <TableCell className="w-10">
+                                            <Checkbox
+                                                checked={selectedIds.has(r.id)}
+                                                onCheckedChange={() => toggleSelect(r.id)}
+                                                aria-label={`Select ${r.name}`}
+                                            />
+                                        </TableCell>
                                         <TableCell className="text-xs font-mono text-muted-foreground">{r.id}</TableCell>
                                         <TableCell>
                                             <Input

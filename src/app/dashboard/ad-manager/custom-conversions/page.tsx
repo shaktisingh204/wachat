@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LuTarget, LuPlus, LuAlertCircle, LuRefreshCw, LuTrash2 } from 'react-icons/lu';
+import { LuTarget, LuPlus, LuCircleAlert, LuRefreshCw, LuTrash2 } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -105,7 +105,7 @@ export default function CustomConversionsPage() {
         return (
             <div className="p-8">
                 <Alert>
-                    <LuAlertCircle className="h-4 w-4" />
+                    <LuCircleAlert className="h-4 w-4" />
                     <AlertTitle>No ad account selected</AlertTitle>
                     <AlertDescription>Pick an ad account to view custom conversions.</AlertDescription>
                 </Alert>
