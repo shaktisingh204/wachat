@@ -97,6 +97,8 @@ const WACHAT_PREFIXES = [
 
 function isWachatRoute(pathname: string | null): boolean {
   if (!pathname) return false;
+  // /dashboard itself is the Wachat project selector (Clay chrome)
+  if (pathname === '/dashboard' || pathname === '/dashboard/') return true;
   return WACHAT_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(p + '/'),
   );
