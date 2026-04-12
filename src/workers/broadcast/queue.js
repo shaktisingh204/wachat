@@ -77,7 +77,7 @@ async function enqueueControl(broadcastId, opts = {}) {
     'process-broadcast',
     { broadcastId: String(broadcastId) },
     {
-      jobId: `bcast:${broadcastId}`, // de-dupe: re-queueing the same broadcast is a no-op
+      jobId: `bcast_${broadcastId}`, // de-dupe: re-queueing the same broadcast is a no-op
       priority: opts.priority || 1000,
     }
   );

@@ -58,11 +58,26 @@ async function processStuckBroadcasts() {
 
 export async function GET(request: NextRequest) {
     try {
+        // Quick Redis health check first
+        let redisOk = false;
+        try {
+            const { broadcastControlQueue } = await import('@/lib/queue/broadcast-queue');
+            const client = await broadcastControlQueue.client;
+            const pong = await client.ping();
+            redisOk = pong === 'PONG';
+        } catch (redisErr: any) {
+            return NextResponse.json({
+                message: 'Redis connection failed',
+                error: redisErr.message,
+                redisUrl: process.env.REDIS_URL ? '(set)' : '(NOT SET)',
+            }, { status: 500 });
+        }
+
         const result = await processStuckBroadcasts();
-        return NextResponse.json(result);
+        return NextResponse.json({ ...result, redisOk });
     } catch (error: any) {
         console.error('[BCAST-CRON] Error:', error);
-        return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
+        return NextResponse.json({ message: 'Error', error: error.message, stack: error.stack?.split('\n').slice(0, 5) }, { status: 500 });
     }
 }
 
