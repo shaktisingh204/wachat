@@ -66,7 +66,7 @@ const STEP_META: Record<WizardStep, { title: string; subtitle: string }> = {
 };
 
 function initialStep(onboarding: OnboardingState | null | undefined): WizardStep {
-    if (!onboarding) return 'account';
+    if (!onboarding) return 'profile';
     switch (onboarding.status) {
         case 'profile':
             return 'profile';

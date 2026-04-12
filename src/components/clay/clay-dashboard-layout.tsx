@@ -52,6 +52,33 @@ import {
   LuHash,
   LuPuzzle,
   LuReply,
+  LuMegaphone,
+  LuTarget,
+  LuImage,
+  LuChartBar,
+  LuFileText,
+  LuZap,
+  LuFlaskConical,
+  LuPackage,
+  LuScanLine,
+  LuRadar,
+  LuListChecks,
+  LuReceipt,
+  LuWrench,
+  LuSplit,
+  LuTrendingUp,
+  LuEye,
+  LuMousePointerClick,
+  LuFacebook,
+  LuInstagram,
+  LuSquarePen,
+  LuCalendarClock,
+  LuRadio,
+  LuMessageCircle,
+  LuColumns3,
+  LuShoppingCart,
+  LuStore,
+  LuMap,
 } from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
@@ -96,7 +123,7 @@ export type ClayLayoutPlan = {
   credits?: number;
 };
 
-export type ClayLayoutContext = 'sabnode' | 'wachat';
+export type ClayLayoutContext = 'sabnode' | 'wachat' | 'meta-suite' | 'instagram' | 'ad-manager';
 
 export interface ClayDashboardLayoutProps {
   user?: ClayLayoutUser;
@@ -358,6 +385,118 @@ const wachatConfigure: NavEntry[] = [
   },
 ];
 
+/* ═══════════════════════════════════════════════════════════════════
+ *  Ad Manager nav registry — loaded when context="ad-manager".
+ *  Dedicated sidebar for Meta Ads Manager (campaigns, audiences,
+ *  pixels, insights, etc.). Separate from Meta Suite.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const admPrimary: NavEntry[] = [
+  { key: 'adm-overview', label: 'Overview', icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager', matches: ['/dashboard/ad-manager'] },
+  { key: 'adm-insights', label: 'Performance', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/insights', matches: ['/dashboard/ad-manager/insights'] },
+  { key: 'adm-reports', label: 'Reports', icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/reports', matches: ['/dashboard/ad-manager/reports'] },
+];
+
+const admAdvertise: NavEntry[] = [
+  { key: 'adm-campaigns', label: 'Campaigns', icon: <LuMegaphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/campaigns', matches: ['/dashboard/ad-manager/campaigns'] },
+  { key: 'adm-adsets', label: 'Ad Sets', icon: <LuTarget className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/ad-sets', matches: ['/dashboard/ad-manager/ad-sets'] },
+  { key: 'adm-ads', label: 'Ads', icon: <LuMousePointerClick className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/ads', matches: ['/dashboard/ad-manager/ads'] },
+  { key: 'adm-bulk', label: 'Bulk Editor', icon: <LuListChecks className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/bulk-editor', matches: ['/dashboard/ad-manager/bulk-editor'] },
+  { key: 'adm-split', label: 'A/B Tests', icon: <LuSplit className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/split-tests', matches: ['/dashboard/ad-manager/split-tests'] },
+];
+
+const admCreative: NavEntry[] = [
+  { key: 'adm-creative', label: 'Creative Library', icon: <LuImage className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/creative-library', matches: ['/dashboard/ad-manager/creative-library'] },
+  { key: 'adm-ai-lab', label: 'AI Creative Lab', icon: <LuFlaskConical className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/ai-lab', matches: ['/dashboard/ad-manager/ai-lab'] },
+  { key: 'adm-catalogs', label: 'Product Catalogs', icon: <LuPackage className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/catalogs', matches: ['/dashboard/ad-manager/catalogs'] },
+  { key: 'adm-rules', label: 'Automated Rules', icon: <LuZap className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/automated-rules', matches: ['/dashboard/ad-manager/automated-rules'] },
+];
+
+const admAudiences: NavEntry[] = [
+  { key: 'adm-audiences', label: 'Audiences', icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/audiences', matches: ['/dashboard/ad-manager/audiences'] },
+  { key: 'adm-customer-lists', label: 'Customer Lists', icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/customer-lists', matches: ['/dashboard/ad-manager/customer-lists'] },
+  { key: 'adm-lead-forms', label: 'Lead Forms', icon: <LuInbox className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/lead-forms', matches: ['/dashboard/ad-manager/lead-forms'] },
+];
+
+const admMeasurement: NavEntry[] = [
+  { key: 'adm-pixels', label: 'Pixels & Datasets', icon: <LuScanLine className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/pixels', matches: ['/dashboard/ad-manager/pixels'] },
+  { key: 'adm-events', label: 'Events Manager', icon: <LuRadar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/events-manager', matches: ['/dashboard/ad-manager/events-manager'] },
+  { key: 'adm-conversions', label: 'Custom Conversions', icon: <LuTrendingUp className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/custom-conversions', matches: ['/dashboard/ad-manager/custom-conversions'] },
+  { key: 'adm-capi', label: 'Conversions API', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/capi', matches: ['/dashboard/ad-manager/capi'] },
+];
+
+const admSettings: NavEntry[] = [
+  { key: 'adm-accounts', label: 'Ad Accounts', icon: <LuServerCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/ad-accounts', matches: ['/dashboard/ad-manager/ad-accounts'] },
+  { key: 'adm-billing', label: 'Billing', icon: <LuReceipt className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/billing', matches: ['/dashboard/ad-manager/billing'] },
+  { key: 'adm-settings', label: 'Settings', icon: <LuWrench className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/settings', matches: ['/dashboard/ad-manager/settings'] },
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Meta Suite nav registry — loaded when context="meta-suite".
+ *  Facebook pages, posts, messaging, broadcasts, subscribers,
+ *  commerce + Instagram feed, stories, reels, DMs.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const metaFbPrimary: NavEntry[] = [
+  { key: 'ms-dashboard', label: 'Dashboard', icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook', matches: ['/dashboard/facebook'] },
+  { key: 'ms-projects', label: 'Pages & Projects', icon: <LuGlobe className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/all-projects', matches: ['/dashboard/facebook/all-projects', '/dashboard/facebook/pages'] },
+];
+
+const metaFbContent: NavEntry[] = [
+  { key: 'ms-posts', label: 'Posts', icon: <LuSquarePen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/posts', matches: ['/dashboard/facebook/posts', '/dashboard/facebook/create-post'] },
+  { key: 'ms-scheduled', label: 'Scheduled', icon: <LuCalendarClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/scheduled', matches: ['/dashboard/facebook/scheduled'] },
+  { key: 'ms-live', label: 'Live Studio', icon: <LuRadio className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/live-studio', matches: ['/dashboard/facebook/live-studio'] },
+  { key: 'ms-randomizer', label: 'Post Randomizer', icon: <LuZap className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/post-randomizer', matches: ['/dashboard/facebook/post-randomizer'] },
+];
+
+const metaFbEngage: NavEntry[] = [
+  { key: 'ms-messages', label: 'Messages', icon: <LuMessageCircle className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/messages', matches: ['/dashboard/facebook/messages'] },
+  { key: 'ms-kanban', label: 'Kanban', icon: <LuColumns3 className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/kanban', matches: ['/dashboard/facebook/kanban'] },
+  { key: 'ms-broadcasts', label: 'Broadcasts', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/broadcasts', matches: ['/dashboard/facebook/broadcasts'] },
+  { key: 'ms-subscribers', label: 'Subscribers', icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/subscribers', matches: ['/dashboard/facebook/subscribers'] },
+  { key: 'ms-auto-reply', label: 'Auto Reply', icon: <LuReply className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/auto-reply', matches: ['/dashboard/facebook/auto-reply'] },
+];
+
+const metaFbCommerce: NavEntry[] = [
+  { key: 'ms-shops', label: 'Shops', icon: <LuStore className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/custom-ecommerce', matches: ['/dashboard/facebook/custom-ecommerce'] },
+  { key: 'ms-products', label: 'Products', icon: <LuPackage className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/commerce/products', matches: ['/dashboard/facebook/commerce'] },
+  { key: 'ms-orders', label: 'Orders', icon: <LuShoppingCart className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/commerce/orders', matches: ['/dashboard/facebook/commerce/orders'] },
+];
+
+const metaFbAdvanced: NavEntry[] = [
+  { key: 'ms-flows', label: 'Flow Builder', icon: <LuWorkflow className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/flow-builder', matches: ['/dashboard/facebook/flow-builder'] },
+  { key: 'ms-agents', label: 'AI Agents', icon: <LuBot className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/agents', matches: ['/dashboard/facebook/agents'] },
+  { key: 'ms-webhooks', label: 'Webhooks', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/webhooks', matches: ['/dashboard/facebook/webhooks'] },
+  { key: 'ms-fb-settings', label: 'Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/settings', matches: ['/dashboard/facebook/settings'] },
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Instagram nav registry — loaded when context="instagram".
+ *  Dedicated module for Instagram Graph API: feed, stories, reels,
+ *  DMs, discovery, hashtag search, and account connections.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const igPrimary: NavEntry[] = [
+  { key: 'ig-dashboard', label: 'Dashboard', icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram', matches: ['/dashboard/instagram'] },
+  { key: 'ig-connections', label: 'Connections', icon: <LuPuzzle className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram/connections', matches: ['/dashboard/instagram/connections', '/dashboard/instagram/setup'] },
+];
+
+const igContent: NavEntry[] = [
+  { key: 'ig-feed', label: 'Feed', icon: <LuImage className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram/feed', matches: ['/dashboard/instagram/feed'] },
+  { key: 'ig-stories', label: 'Stories', icon: <LuEye className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram/stories', matches: ['/dashboard/instagram/stories'] },
+  { key: 'ig-reels', label: 'Reels', icon: <LuRadio className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram/reels', matches: ['/dashboard/instagram/reels'] },
+  { key: 'ig-create', label: 'Create Post', icon: <LuSquarePen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram/create-post', matches: ['/dashboard/instagram/create-post'] },
+];
+
+const igEngage: NavEntry[] = [
+  { key: 'ig-messages', label: 'Messages', icon: <LuMessageCircle className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram/messages', matches: ['/dashboard/instagram/messages'] },
+];
+
+const igGrowth: NavEntry[] = [
+  { key: 'ig-discovery', label: 'Discovery', icon: <LuMap className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram/discovery', matches: ['/dashboard/instagram/discovery'] },
+  { key: 'ig-hashtags', label: 'Hashtag Search', icon: <LuHash className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram/hashtag-search', matches: ['/dashboard/instagram/hashtag-search'] },
+];
+
 /**
  * Routes that should render without the Clay wachat container (no
  * padding, no max-width cap, no `overflow-y-auto` on main). Pages
@@ -388,11 +527,20 @@ function isFullBleed(pathname: string | null): boolean {
 function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
   const pathname = usePathname() || '';
   const registry =
-    context === 'wachat'
-      ? [wachatPrimary, wachatTools, wachatConfigure]
-      : [primaryNav, appsNav];
-  // Longest-match wins so /dashboard/settings doesn't match /dashboard first
-  let bestKey = context === 'wachat' ? 'wachat-chat' : 'home';
+    context === 'ad-manager'
+      ? [admPrimary, admAdvertise, admCreative, admAudiences, admMeasurement, admSettings]
+      : context === 'instagram'
+        ? [igPrimary, igContent, igEngage, igGrowth]
+        : context === 'meta-suite'
+          ? [metaFbPrimary, metaFbContent, metaFbEngage, metaFbCommerce, metaFbAdvanced]
+          : context === 'wachat'
+            ? [wachatPrimary, wachatTools, wachatConfigure]
+            : [primaryNav, appsNav];
+  let bestKey =
+    context === 'ad-manager' ? 'adm-overview' :
+    context === 'instagram' ? 'ig-dashboard' :
+    context === 'meta-suite' ? 'ms-dashboard' :
+    context === 'wachat' ? 'wachat-chat' : 'home';
   let bestLen = 0;
   for (const group of registry) {
     for (const item of group) {
@@ -702,33 +850,68 @@ export function ClayDashboardLayout({
       {/* ── BODY ── */}
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <ClaySidebar
-          groupTitle={context === 'wachat' ? 'Wachat' : 'SabNode'}
-          brand={context === 'wachat' ? <ClayWachatBrand /> : undefined}
+          groupTitle={
+            context === 'ad-manager' ? 'Ad Manager' :
+            context === 'instagram' ? 'Instagram' :
+            context === 'meta-suite' ? 'Meta Suite' :
+            context === 'wachat' ? 'Wachat' : 'SabNode'
+          }
+          brand={
+            context === 'ad-manager' ? <ClayAdManagerBrand /> :
+            context === 'instagram' ? <ClayInstagramBrand /> :
+            context === 'meta-suite' ? <ClayMetaBrand /> :
+            context === 'wachat' ? <ClayWachatBrand /> :
+            undefined
+          }
           groups={
-            context === 'wachat'
+            context === 'ad-manager'
               ? [
-                  { items: wachatPrimary.map(toNavItem) },
-                  {
-                    title: 'Tools',
-                    addable: false,
-                    items: wachatTools.map(toNavItem),
-                  },
-                  {
-                    title: 'Configure',
-                    addable: true,
-                    onAdd: () => router.push('/dashboard/integrations'),
-                    items: wachatConfigure.map(toNavItem),
-                  },
+                  { items: admPrimary.map(toNavItem) },
+                  { title: 'Advertise', addable: false, items: admAdvertise.map(toNavItem) },
+                  { title: 'Creative & Planning', addable: false, items: admCreative.map(toNavItem) },
+                  { title: 'Audiences', addable: false, items: admAudiences.map(toNavItem) },
+                  { title: 'Measurement', addable: false, items: admMeasurement.map(toNavItem) },
+                  { title: 'Settings', addable: false, items: admSettings.map(toNavItem) },
                 ]
-              : [
-                  { items: primaryNav.map(toNavItem) },
-                  {
-                    title: 'Apps',
-                    addable: true,
-                    onAdd: () => router.push('/dashboard/integrations'),
-                    items: appsNav.map(toNavItem),
-                  },
-                ]
+              : context === 'instagram'
+                ? [
+                    { items: igPrimary.map(toNavItem) },
+                    { title: 'Content', addable: false, items: igContent.map(toNavItem) },
+                    { title: 'Engagement', addable: false, items: igEngage.map(toNavItem) },
+                    { title: 'Growth', addable: false, items: igGrowth.map(toNavItem) },
+                  ]
+                : context === 'meta-suite'
+                  ? [
+                      { items: metaFbPrimary.map(toNavItem) },
+                      { title: 'Content', addable: false, items: metaFbContent.map(toNavItem) },
+                      { title: 'Engagement', addable: false, items: metaFbEngage.map(toNavItem) },
+                      { title: 'Commerce', addable: false, items: metaFbCommerce.map(toNavItem) },
+                      { title: 'Advanced', addable: false, items: metaFbAdvanced.map(toNavItem) },
+                    ]
+                  : context === 'wachat'
+                ? [
+                    { items: wachatPrimary.map(toNavItem) },
+                    {
+                      title: 'Tools',
+                      addable: false,
+                      items: wachatTools.map(toNavItem),
+                    },
+                    {
+                      title: 'Configure',
+                      addable: true,
+                      onAdd: () => router.push('/dashboard/integrations'),
+                      items: wachatConfigure.map(toNavItem),
+                    },
+                  ]
+                : [
+                    { items: primaryNav.map(toNavItem) },
+                    {
+                      title: 'Apps',
+                      addable: true,
+                      onAdd: () => router.push('/dashboard/integrations'),
+                      items: appsNav.map(toNavItem),
+                    },
+                  ]
           }
           footer={
             <>
@@ -768,10 +951,10 @@ export function ClayDashboardLayout({
             !fullBleed && 'overflow-y-auto',
             // Full-bleed: page fills the panel edge-to-edge, manages own scroll
             fullBleed && 'flex h-full min-h-0 overflow-hidden',
-            // Wachat pages get generous consistent padding by default.
+            // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            context === 'wachat' && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -779,7 +962,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : context === 'wachat' ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
@@ -914,6 +1097,99 @@ function ClayWachatBrand() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+    </div>
+  );
+}
+
+/* ── Ad Manager sidebar brand ──────────────────────────────────── */
+
+function ClayAdManagerBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #C7D2FE 0%, #4F46E5 100%)' }}
+        >
+          <LuMegaphone className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">Ad Manager</p>
+          <p className="text-[11px] text-clay-ink-muted">Facebook & Instagram Ads</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Instagram sidebar brand ──────────────────────────────────── */
+
+function ClayInstagramBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #F9CE34 0%, #EE2A7B 50%, #6228D7 100%)' }}
+        >
+          <LuImage className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">Instagram</p>
+          <p className="text-[11px] text-clay-ink-muted">Feed, Stories & Reels</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Meta Suite sidebar brand ─────────────────────────────────── */
+
+function ClayMetaBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #60A5FA 0%, #1877F2 100%)' }}
+        >
+          <LuGlobe className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">Meta Suite</p>
+          <p className="text-[11px] text-clay-ink-muted">Facebook & Instagram</p>
+        </div>
+      </div>
     </div>
   );
 }

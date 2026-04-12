@@ -12,7 +12,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { DragDropContext } from 'react-beautiful-dnd';
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 
 type FacebookKanbanColumnData = {
     name: string;
@@ -77,6 +77,10 @@ export function FacebookKanbanBoard() {
     const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
 
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    );
+
     const fetchData = () => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
@@ -92,7 +96,7 @@ export function FacebookKanbanBoard() {
         setIsClient(true);
         fetchData();
     }, []);
-    
+
     const handleAddList = (name: string) => {
         if (!project) return;
         const newBoardData = [...boardData, { name, conversations: [] }];
@@ -110,34 +114,37 @@ export function FacebookKanbanBoard() {
         });
     };
 
-    const handleOnDragEnd = (result: any) => {
-        if (!result.destination) return;
-        
-        const { source, destination, draggableId } = result;
+    const handleOnDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over) return;
 
-        if (source.droppableId === destination.droppableId) return;
+        const draggableId = active.id as string;
+        const destinationColumnName = over.id as string;
 
-        let movedSubscriber: WithId<FacebookSubscriber> | undefined;
-        let sourceColumnIndex = boardData.findIndex(col => col.name === source.droppableId);
-        let destColumnIndex = boardData.findIndex(col => col.name === destination.droppableId);
+        const sourceColumn = boardData.find(col => col.conversations.some(c => c._id.toString() === draggableId));
+        if (!sourceColumn) return;
 
+        if (sourceColumn.name === destinationColumnName) return;
+
+        const sourceColumnIndex = boardData.findIndex(col => col.name === sourceColumn.name);
+        const destColumnIndex = boardData.findIndex(col => col.name === destinationColumnName);
         if (sourceColumnIndex === -1 || destColumnIndex === -1) return;
 
-        const sourceColumn = boardData[sourceColumnIndex];
         const destColumn = boardData[destColumnIndex];
-        
+
         const sourceConversations = Array.from(sourceColumn.conversations);
-        [movedSubscriber] = sourceConversations.splice(source.index, 1);
-        
+        const movedIndex = sourceConversations.findIndex(c => c._id.toString() === draggableId);
+        const [movedSubscriber] = sourceConversations.splice(movedIndex, 1);
+
         const destConversations = Array.from(destColumn.conversations);
-        destConversations.splice(destination.index, 0, movedSubscriber);
-        
+        destConversations.push(movedSubscriber);
+
         const newBoardData = [...boardData];
         newBoardData[sourceColumnIndex] = { ...sourceColumn, conversations: sourceConversations };
         newBoardData[destColumnIndex] = { ...destColumn, conversations: destConversations };
         setBoardData(newBoardData);
-        
-        handleUpdateFacebookSubscriberStatus(draggableId, destination.droppableId);
+
+        handleUpdateFacebookSubscriberStatus(draggableId, destinationColumnName);
     };
 
     if (!isClient || isLoading) {
@@ -157,15 +164,15 @@ export function FacebookKanbanBoard() {
              </div>
         );
     }
-    
+
     return (
-        <DragDropContext onDragEnd={handleOnDragEnd}>
+        <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleOnDragEnd}>
             <div className="h-full w-full">
                 <ScrollArea className="h-full w-full">
                     <div style={{minWidth: "100%", display: "table", height: '100%'}}>
                         <div className="flex h-full w-max p-4 gap-4">
                             {boardData.map(column => (
-                                <FacebookKanbanColumn key={column.name} {...({ title: column.name, conversations: column.conversations } as any)} />
+                                <FacebookKanbanColumn key={column.name} title={column.name} conversations={column.conversations} />
                             ))}
                             <AddList onAddList={handleAddList} />
                         </div>
@@ -173,6 +180,6 @@ export function FacebookKanbanBoard() {
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
             </div>
-        </DragDropContext>
+        </DndContext>
     );
 }

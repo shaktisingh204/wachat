@@ -106,6 +106,33 @@ function isWachatRoute(pathname: string | null): boolean {
   );
 }
 
+/**
+ * Ad Manager routes get their own Clay context="ad-manager" with
+ * a dedicated sidebar for campaigns, audiences, pixels, etc.
+ */
+function isAdManagerRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/ad-manager' || pathname.startsWith('/dashboard/ad-manager/');
+}
+
+/**
+ * Meta Suite routes (Facebook pages/posts/messaging/commerce).
+ * Gets Clay context="meta-suite".
+ */
+function isMetaSuiteRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/facebook' || pathname.startsWith('/dashboard/facebook/');
+}
+
+/**
+ * Instagram routes get their own Clay context="instagram" with
+ * sidebar for feed, stories, reels, DMs, discovery, hashtags.
+ */
+function isInstagramRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/instagram' || pathname.startsWith('/dashboard/instagram/');
+}
+
 export interface DashboardChromeDispatcherProps {
   user?: ClayLayoutUser;
   plan?: ClayLayoutPlan;
@@ -135,7 +162,10 @@ export function DashboardChromeDispatcher({
 }: DashboardChromeDispatcherProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const onWachat = isWachatRoute(pathname);
+  const onAdManager = isAdManagerRoute(pathname);
+  const onInstagram = !onAdManager && isInstagramRoute(pathname);
+  const onMetaSuite = !onAdManager && !onInstagram && isMetaSuiteRoute(pathname);
+  const onWachat = !onAdManager && !onInstagram && !onMetaSuite && isWachatRoute(pathname);
 
   /* ── Wachat branch: fetch projects + session so context providers
         match what the legacy DashboardClientLayout supplies.
@@ -145,8 +175,10 @@ export function DashboardChromeDispatcher({
     () => bootstrapCache,
   );
 
+  const needsBootstrap = onWachat || onAdManager || onMetaSuite || onInstagram;
+
   useEffect(() => {
-    if (!onWachat) return;
+    if (!needsBootstrap) return;
 
     // If cache is fresh, don't refetch — the sidebar already has
     // the data and a background refresh would cause needless flicker.
@@ -189,7 +221,64 @@ export function DashboardChromeDispatcher({
     // `wachatData` intentionally omitted — we only want this to run when
     // the route context switches, not on every state change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onWachat, router]);
+  }, [needsBootstrap, router]);
+
+  // ── Ad Manager branch: Clay chrome with AdManagerProvider.
+  if (onAdManager) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="ad-manager" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── Instagram branch: Clay chrome for Instagram Graph API.
+  if (onInstagram) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="instagram" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── Meta Suite branch: Facebook pages/posts/messaging/commerce.
+  if (onMetaSuite) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="meta-suite" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
 
   if (onWachat) {
     if (!wachatData) {

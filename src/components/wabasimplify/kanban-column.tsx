@@ -1,24 +1,23 @@
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import type { DroppableProvided } from 'react-beautiful-dnd';
+import { useDroppable } from '@dnd-kit/core';
 import { ReactNode } from 'react';
 
 interface KanbanColumnProps {
     title: string;
     children: ReactNode;
-    innerRef: DroppableProvided['innerRef'];
-    droppableProps: DroppableProvided['droppableProps'];
-    isDraggingOver: boolean;
+    columnId: string;
     count?: number;
 }
 
-export function KanbanColumn({ title, children, innerRef, droppableProps, isDraggingOver, count = 0 }: KanbanColumnProps) {
+export function KanbanColumn({ title, children, columnId, count = 0 }: KanbanColumnProps) {
+    const { setNodeRef, isOver } = useDroppable({ id: columnId });
+
     return (
         <div
-            ref={innerRef}
-            {...droppableProps}
-            className={cn("w-80 flex-shrink-0 h-full flex flex-col rounded-lg bg-muted/50 transition-colors", isDraggingOver && 'bg-primary/10')}
+            ref={setNodeRef}
+            className={cn("w-80 flex-shrink-0 h-full flex flex-col rounded-lg bg-muted/50 transition-colors", isOver && 'bg-primary/10')}
         >
             <CardHeader className="flex-shrink-0">
                 <CardTitle className="flex items-center gap-2 capitalize">

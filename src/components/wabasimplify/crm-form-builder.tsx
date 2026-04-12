@@ -2,7 +2,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useTransition } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -55,6 +57,22 @@ function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
     );
 }
 
+function SortableFieldItem({ field, isSelected, onClick }: { field: FormField; isSelected: boolean; onClick: () => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id });
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick}>
+            <Card className={`p-3 cursor-pointer hover:bg-muted ${isSelected ? 'ring-2 ring-primary' : ''}`}>
+                <p className="font-semibold text-sm">{field.label || 'Untitled Field'}</p>
+                <p className="text-xs text-muted-foreground">{field.type} {field.required && '*'}</p>
+            </Card>
+        </div>
+    );
+}
 
 export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> }) {
     const router = useRouter();
@@ -66,12 +84,16 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
     const [settings, setSettings] = useState(initialForm?.settings || { title: 'Contact Us', submitButtonText: 'Send Message' });
     const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
 
-    const onDragEnd = (result: DropResult) => {
-        if (!result.destination) return;
-        const items = Array.from(fields);
-        const [reorderedItem] = items.splice(result.source.index, 1);
-        items.splice(result.destination.index, 0, reorderedItem);
-        setFields(items);
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    );
+
+    const onDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        const oldIndex = fields.findIndex(f => f.id === active.id);
+        const newIndex = fields.findIndex(f => f.id === over.id);
+        setFields(arrayMove(fields, oldIndex, newIndex));
     };
 
     const addField = (type: FormField['type']) => {
@@ -84,7 +106,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
         };
         setFields([...fields, newField]);
     };
-    
+
     const removeField = (id: string) => {
         setFields(fields.filter(f => f.id !== id));
         if (selectedFieldId === id) setSelectedFieldId(null);
@@ -113,9 +135,9 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
             }
         });
     };
-    
+
     const selectedField = fields.find(f => f.id === selectedFieldId);
-    
+
     const embedScript = `<div data-sabnode-form-id="${initialForm?._id.toString()}"></div>\n<script src="${process.env.NEXT_PUBLIC_APP_URL}/api/crm/forms/embed/${initialForm?._id.toString()}.js" async defer></script>`;
 
     return (
@@ -147,32 +169,20 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                     <div className="space-y-4">
                         <h2 className="text-lg font-semibold">Form Fields</h2>
                         <Button variant="outline" size="sm" onClick={() => addField('text')}><Plus className="mr-2 h-4 w-4"/>Add Field</Button>
-                         <DragDropContext onDragEnd={onDragEnd}>
-                            <Droppable droppableId="form-fields">
-                                {(provided) => (
-                                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                                        {fields.map((field, index) => (
-                                            <Draggable key={field.id} draggableId={field.id} index={index}>
-                                                {(provided) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        onClick={() => setSelectedFieldId(field.id)}
-                                                    >
-                                                        <Card className={`p-3 cursor-pointer hover:bg-muted ${selectedFieldId === field.id ? 'ring-2 ring-primary' : ''}`}>
-                                                            <p className="font-semibold text-sm">{field.label || 'Untitled Field'}</p>
-                                                            <p className="text-xs text-muted-foreground">{field.type} {field.required && '*'}</p>
-                                                        </Card>
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        ))}
-                                        {provided.placeholder}
-                                    </div>
-                                )}
-                            </Droppable>
-                        </DragDropContext>
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                            <SortableContext items={fields.map(f => f.id)} strategy={verticalListSortingStrategy}>
+                                <div className="space-y-2">
+                                    {fields.map((field) => (
+                                        <SortableFieldItem
+                                            key={field.id}
+                                            field={field}
+                                            isSelected={selectedFieldId === field.id}
+                                            onClick={() => setSelectedFieldId(field.id)}
+                                        />
+                                    ))}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
                     </div>
                 </div>
                 <main className="col-span-6 bg-muted/50 overflow-y-auto p-4 md:p-8">

@@ -1,266 +1,450 @@
 'use client';
 
+/**
+ * /dashboard/ad-manager/ad-accounts — Manage connected Meta ad accounts.
+ *
+ * Clay design system rewrite.
+ * Select, disconnect, or connect new Meta ad accounts.
+ */
+
+import * as React from 'react';
 import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAdAccounts, deleteAdAccount } from '@/app/actions/ad-manager.actions';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, Megaphone, Wrench, Facebook, Trash2, Plus, AlertTriangle, LoaderCircle, ExternalLink } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { useAdManager } from '@/context/ad-manager-context';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
+  LuTrash2,
+  LuPlus,
+  LuMegaphone,
+  LuExternalLink,
+  LuLoaderCircle,
+  LuTriangleAlert,
+  LuInfo,
+  LuShieldCheck,
+} from 'react-icons/lu';
+
+import { cn } from '@/lib/utils';
+import { useAdManager } from '@/context/ad-manager-context';
+import { getAdAccounts, deleteAdAccount } from '@/app/actions/ad-manager.actions';
+import {
+  ClayBreadcrumbs,
+  ClayButton,
+  ClayCard,
+  ClayBadge,
+} from '@/components/clay';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils'; // Assuming this exists
+
+/* ── loading skeleton ──────────────────────────────────────────── */
 
 function PageSkeleton() {
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-96 mt-2" />
+  return (
+    <>
+      <div className="h-4 w-48 animate-pulse rounded-full bg-clay-bg-2" />
+      <div className="mt-5">
+        <div className="h-7 w-40 animate-pulse rounded bg-clay-bg-2" />
+        <div className="mt-2 h-4 w-72 animate-pulse rounded bg-clay-bg-2" />
+      </div>
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <ClayCard key={i} className="!p-0">
+            <div className="p-5">
+              <div className="h-5 w-36 animate-pulse rounded bg-clay-bg-2" />
+              <div className="mt-2 h-3.5 w-28 animate-pulse rounded bg-clay-bg-2" />
             </div>
-            <div className="space-y-4">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
+            <div className="border-t border-clay-border px-5 py-3">
+              <div className="h-8 w-24 animate-pulse rounded-full bg-clay-bg-2" />
             </div>
+          </ClayCard>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ── disconnect confirmation dialog ────────────────────────────── */
+
+function DisconnectDialog({
+  account,
+  onDisconnect,
+}: {
+  account: any;
+  onDisconnect: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [isDeleting, startDelete] = useTransition();
+
+  const handleConfirm = () => {
+    startDelete(async () => {
+      await onDisconnect();
+      setOpen(false);
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <ClayButton
+          variant="ghost"
+          size="icon"
+          className="text-clay-ink-muted hover:text-clay-red"
+          aria-label={`Disconnect ${account.name}`}
+        >
+          <LuTrash2 className="h-3.5 w-3.5" />
+        </ClayButton>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[420px]">
+        <DialogHeader>
+          <DialogTitle className="text-[16px] font-semibold text-clay-ink">
+            Disconnect ad account?
+          </DialogTitle>
+          <DialogDescription className="text-[13px] text-clay-ink-muted">
+            Are you sure you want to disconnect{' '}
+            <strong className="text-clay-ink">{account.name}</strong>? This
+            will remove it from your dashboard but will not affect the account
+            on Facebook.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex items-center gap-3 rounded-clay-lg bg-clay-red-soft/40 p-3.5 text-[12px] text-clay-red">
+          <LuTriangleAlert className="h-4 w-4 shrink-0" />
+          <span>
+            You will need to re-connect via Facebook to access this account
+            again.
+          </span>
         </div>
-    );
+
+        <DialogFooter className="gap-2 sm:gap-0">
+          <ClayButton
+            variant="pill"
+            size="sm"
+            onClick={() => setOpen(false)}
+            disabled={isDeleting}
+          >
+            Cancel
+          </ClayButton>
+          <ClayButton
+            variant="rose"
+            size="sm"
+            onClick={handleConfirm}
+            disabled={isDeleting}
+            leading={
+              isDeleting ? (
+                <LuLoaderCircle className="h-3.5 w-3.5 animate-spin" />
+              ) : undefined
+            }
+          >
+            Disconnect
+          </ClayButton>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
-function ConnectAccountDialog() {
-    return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Connect Account
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Connect Meta Ad Account</DialogTitle>
-                    <DialogDescription>
-                        You will be redirected to Facebook to authorize SabNode to access your Ad Accounts.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="py-4">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 p-4 rounded-lg flex items-start gap-3">
-                        <Facebook className="h-5 w-5 mt-0.5 shrink-0" />
-                        <div className="text-sm">
-                            <p className="font-medium mb-1">Permissions Required</p>
-                            <ul className="list-disc list-inside space-y-1 opacity-90">
-                                <li>Read Ad Accounts</li>
-                                <li>Manage Campaigns</li>
-                                <li>Access Insights</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Link href={`/api/auth/ad-manager/login`} className="w-full sm:w-auto">
-                        <Button className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
-                            <Facebook className="mr-2 h-4 w-4" />
-                            Continue with Facebook
-                        </Button>
-                    </Link>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    )
+/* ── account card ──────────────────────────────────────────────── */
+
+function AccountCard({
+  account,
+  isActive,
+  onSelect,
+  onDisconnect,
+}: {
+  account: any;
+  isActive: boolean;
+  onSelect: () => void;
+  onDisconnect: () => void;
+}) {
+  return (
+    <ClayCard
+      padded={false}
+      className={cn(
+        'group cursor-pointer transition-all duration-200',
+        isActive
+          ? 'border-indigo-500 ring-2 ring-indigo-500/15'
+          : 'hover:border-clay-border-strong hover:shadow-clay-float',
+      )}
+      onClick={onSelect}
+    >
+      {/* Card body */}
+      <div className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="truncate text-[14px] font-semibold text-clay-ink">
+                {account.name}
+              </h3>
+              {isActive && (
+                <ClayBadge tone="blue" dot className="shrink-0">
+                  Active
+                </ClayBadge>
+              )}
+            </div>
+            <p className="mt-1.5 font-mono text-[11px] text-clay-ink-muted tracking-wide">
+              {account.account_id}
+            </p>
+          </div>
+
+          {/* Status dot */}
+          <span
+            className={cn(
+              'mt-1 h-2.5 w-2.5 shrink-0 rounded-full',
+              isActive ? 'bg-emerald-500' : 'bg-clay-ink-soft/30',
+            )}
+          />
+        </div>
+
+        {/* Meta tags */}
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <ClayBadge tone="neutral">
+            <LuShieldCheck className="mr-0.5 h-3 w-3" />
+            Connected
+          </ClayBadge>
+          {account.currency && (
+            <ClayBadge tone="neutral">{account.currency}</ClayBadge>
+          )}
+        </div>
+      </div>
+
+      {/* Card footer */}
+      <div className="flex items-center justify-between border-t border-clay-border px-5 py-3">
+        <ClayButton
+          variant={isActive ? 'obsidian' : 'pill'}
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
+          leading={<LuMegaphone className="h-3 w-3" />}
+        >
+          {isActive ? 'Manage campaigns' : 'Select account'}
+        </ClayButton>
+
+        <div className="flex items-center gap-1">
+          <a
+            href={`https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=${account.account_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ClayButton
+              variant="ghost"
+              size="icon"
+              className="text-clay-ink-muted hover:text-clay-ink"
+              aria-label="View on Facebook"
+            >
+              <LuExternalLink className="h-3.5 w-3.5" />
+            </ClayButton>
+          </a>
+          <div onClick={(e) => e.stopPropagation()}>
+            <DisconnectDialog account={account} onDisconnect={onDisconnect} />
+          </div>
+        </div>
+      </div>
+    </ClayCard>
+  );
 }
 
-function DisconnectAccountDialog({ account, onDisconnect }: { account: any, onDisconnect: () => void }) {
-    const [open, setOpen] = useState(false);
-    const [isDeleting, startDeleteTransition] = useTransition();
+/* ── empty state ───────────────────────────────────────────────── */
 
-    const handleDisconnect = () => {
-        startDeleteTransition(async () => {
-            await onDisconnect();
-            setOpen(false);
-        });
-    }
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
-                    <Trash2 className="h-4 w-4" />
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Disconnect Ad Account?</DialogTitle>
-                    <DialogDescription>
-                        Are you sure you want to disconnect <strong>{account.name}</strong>? This will remove it from your dashboard but will not affect the account on Facebook.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg flex items-center gap-3 my-2">
-                    <AlertTriangle className="h-5 w-5 shrink-0" />
-                    <p className="text-sm">You will need to re-connect via Facebook to access this account again.</p>
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)} disabled={isDeleting}>Cancel</Button>
-                    <Button variant="destructive" onClick={handleDisconnect} disabled={isDeleting}>
-                        {isDeleting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                        Disconnect
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    );
+function EmptyState() {
+  return (
+    <ClayCard
+      variant="soft"
+      className="flex flex-col items-center justify-center gap-5 border-2 border-dashed border-clay-border py-16 text-center"
+    >
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50">
+        <LuMegaphone className="h-7 w-7 text-indigo-600" strokeWidth={1.75} />
+      </div>
+      <div>
+        <h3 className="text-[16px] font-semibold text-clay-ink">
+          No ad accounts connected
+        </h3>
+        <p className="mt-1.5 max-w-md text-[13px] text-clay-ink-muted leading-relaxed">
+          Connect your Facebook Ad Account to start creating and managing
+          campaigns directly from SabNode.
+        </p>
+      </div>
+      <Link href="/api/auth/ad-manager/login">
+        <ClayButton
+          variant="obsidian"
+          size="md"
+          leading={<LuPlus className="h-3.5 w-3.5" />}
+        >
+          Connect ad account
+        </ClayButton>
+      </Link>
+    </ClayCard>
+  );
 }
 
-function AdAccountCard({ account, isActive, onSelect, onDisconnect }: { account: any, isActive: boolean, onSelect: () => void, onDisconnect: () => void }) {
-    return (
-        <Card className={cn(
-            "transition-all duration-200 border-2",
-            isActive ? "border-primary shadow-md bg-primary/5" : "hover:border-primary/50"
-        )}>
-            <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                    <div>
-                        <CardTitle className="text-lg">{account.name}</CardTitle>
-                        <CardDescription className="mt-1 font-mono text-xs">{account.account_id}</CardDescription>
-                    </div>
-                    {isActive && <Badge variant="default" className="ml-2">Active</Badge>}
-                </div>
-            </CardHeader>
-            <CardContent>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Badge variant="secondary" className="font-normal">
-                        <CheckCircle className="mr-1 h-3 w-3 text-green-500" />
-                        Connected
-                    </Badge>
-                    {account.currency && (
-                        <Badge variant="outline" className="font-normal">
-                            {account.currency}
-                        </Badge>
-                    )}
-                </div>
-            </CardContent>
-            <CardFooter className="flex justify-between items-center pt-2 border-t bg-muted/20">
-                <Button variant={isActive ? "default" : "secondary"} size="sm" onClick={onSelect}>
-                    <Megaphone className="mr-2 h-4 w-4" />
-                    {isActive ? 'Manage Campaigns' : 'Select Account'}
-                </Button>
-                <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" asChild title="View on Facebook">
-                        <a href={`https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=${account.account_id}`} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4" />
-                        </a>
-                    </Button>
-                    <DisconnectAccountDialog account={account} onDisconnect={onDisconnect} />
-                </div>
-            </CardFooter>
-        </Card>
-    );
+/* ── info card ─────────────────────────────────────────────────── */
+
+function InfoCard() {
+  return (
+    <ClayCard variant="soft" className="!p-4">
+      <div className="flex items-start gap-3">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50">
+          <LuInfo className="h-4 w-4 text-indigo-600" />
+        </div>
+        <div>
+          <p className="text-[13px] font-semibold text-clay-ink">
+            How to connect accounts
+          </p>
+          <p className="mt-1 text-[12px] text-clay-ink-muted leading-relaxed">
+            When you click "Connect ad account", you will be redirected to
+            Facebook to authorize SabNode. Make sure you have admin access to the
+            ad accounts you want to connect. You can manage permissions anytime
+            from{' '}
+            <a
+              href="https://business.facebook.com/settings/ad-accounts"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-indigo-600 hover:underline"
+            >
+              Meta Business Settings
+            </a>
+            .
+          </p>
+        </div>
+      </div>
+    </ClayCard>
+  );
 }
+
+/* ── page ───────────────────────────────────────────────────────── */
 
 export default function AdAccountsPage() {
-    const [accounts, setAccounts] = useState<any[]>([]);
-    const [isPageLoading, startPageLoad] = useTransition();
-    const { activeAccount, selectAccount } = useAdManager();
-    const { toast } = useToast();
-    const router = useRouter();
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [isPageLoading, startPageLoad] = useTransition();
+  const { activeAccount, selectAccount } = useAdManager();
+  const { toast } = useToast();
+  const router = useRouter();
 
-    const fetchAccounts = () => {
-        startPageLoad(async () => {
-            const { accounts: accountsData, error } = await getAdAccounts();
-            if (error) {
-                toast({ title: 'Error fetching accounts', description: error, variant: 'destructive' });
-            } else {
-                setAccounts(accountsData || []);
-            }
+  const fetchAccounts = () => {
+    startPageLoad(async () => {
+      const { accounts: data, error } = await getAdAccounts();
+      if (error) {
+        toast({
+          title: 'Error fetching accounts',
+          description: error,
+          variant: 'destructive',
         });
+      } else {
+        setAccounts(data || []);
+      }
+    });
+  };
+
+  useEffect(() => {
+    fetchAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSelect = (account: any) => {
+    selectAccount({
+      id: account.id,
+      name: account.name,
+      account_id: account.account_id || account.id?.replace(/^act_/, ''),
+    });
+    toast({
+      title: 'Account selected',
+      description: `Now managing ${account.name}`,
+    });
+    router.push('/dashboard/ad-manager/campaigns');
+  };
+
+  const handleDisconnect = async (accountId: string) => {
+    const res = await deleteAdAccount(accountId);
+    if (res.success) {
+      toast({
+        title: 'Account disconnected',
+        description: 'The ad account has been removed.',
+      });
+      if (activeAccount?.id === accountId) {
+        selectAccount(null);
+      }
+      fetchAccounts();
+    } else {
+      toast({
+        title: 'Error',
+        description: res.error,
+        variant: 'destructive',
+      });
     }
+  };
 
-    useEffect(() => {
-        fetchAccounts();
-    }, []);
+  /* Loading state */
+  if (isPageLoading && accounts.length === 0) {
+    return <PageSkeleton />;
+  }
 
-    const handleSelect = (account: any) => {
-        // Meta returns two distinct fields:
-        //   account.id         e.g. "act_123456789"  (Graph API node id, prefixed)
-        //   account.account_id e.g. "123456789"      (bare numeric account id)
-        // Keep them separate so downstream code can pick the right form.
-        selectAccount({
-            id: account.id,
-            name: account.name,
-            account_id: account.account_id || account.id?.replace(/^act_/, ''),
-        });
-        toast({ title: 'Account Selected', description: `Now managing ${account.name}` });
-        router.push('/dashboard/ad-manager/campaigns');
-    };
+  return (
+    <>
+      {/* Breadcrumbs */}
+      <ClayBreadcrumbs
+        items={[
+          { label: 'SabNode', href: '/home' },
+          { label: 'Meta Suite', href: '/dashboard/ad-manager' },
+          { label: 'Ad Accounts' },
+        ]}
+      />
 
-    const handleDisconnect = async (accountId: string) => {
-        const res = await deleteAdAccount(accountId);
-        if (res.success) {
-            toast({ title: 'Account Disconnected', description: 'The ad account has been removed.' });
-            if (activeAccount?.id === accountId) {
-                selectAccount(null);
-            }
-            fetchAccounts();
-        } else {
-            toast({ title: 'Error', description: res.error, variant: 'destructive' });
-        }
-    };
+      {/* Header */}
+      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.15]">
+            Ad Accounts
+          </h1>
+          <p className="mt-1 text-[13px] text-clay-ink-muted">
+            Connect and manage your Meta ad accounts to run campaigns.
+          </p>
+        </div>
+        <Link href="/api/auth/ad-manager/login" className="shrink-0">
+          <ClayButton
+            variant="obsidian"
+            size="md"
+            leading={<LuPlus className="h-3.5 w-3.5" />}
+          >
+            Connect account
+          </ClayButton>
+        </Link>
+      </div>
 
-    if (isPageLoading && accounts.length === 0) {
-        return <PageSkeleton />;
-    }
-
-    return (
-        <div className="flex flex-col gap-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Wrench className="h-8 w-8 text-primary" />
-                        Ad Accounts
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Connect and manage your Meta Ad Accounts to run campaigns.
-                    </p>
-                </div>
-                <ConnectAccountDialog />
+      {/* Content */}
+      <div className="mt-6">
+        {accounts.length === 0 ? (
+          <div className="space-y-5">
+            <EmptyState />
+            <InfoCard />
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {/* Account grid */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {accounts.map((acc) => (
+                <AccountCard
+                  key={acc.id}
+                  account={acc}
+                  isActive={activeAccount?.id === acc.id}
+                  onSelect={() => handleSelect(acc)}
+                  onDisconnect={() => handleDisconnect(acc.id)}
+                />
+              ))}
             </div>
 
-            {accounts.length === 0 ? (
-                <Card className="border-dashed border-2 py-12">
-                    <div className="flex flex-col items-center justify-center text-center gap-4">
-                        <div className="bg-primary/10 p-4 rounded-full">
-                            <Megaphone className="h-12 w-12 text-primary" />
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-semibold">No Ad Accounts Connected</h3>
-                            <p className="text-muted-foreground mt-1 max-w-md mx-auto">
-                                Connect your Facebook Ad Account to start creating and managing campaigns directly from SabNode.
-                            </p>
-                        </div>
-                        <ConnectAccountDialog />
-                    </div>
-                </Card>
-            ) : (
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {accounts.map(acc => (
-                        <AdAccountCard
-                            key={acc.id}
-                            account={acc}
-                            isActive={activeAccount?.id === acc.id}
-                            onSelect={() => handleSelect(acc)}
-                            onDisconnect={() => handleDisconnect(acc.id)}
-                        />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+            {/* Info card */}
+            <InfoCard />
+          </div>
+        )}
+      </div>
+    </>
+  );
 }

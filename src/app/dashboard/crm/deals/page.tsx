@@ -13,7 +13,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { CrmDealCard } from '@/components/wabasimplify/crm-deal-card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +21,7 @@ import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
 import { KanbanColumn } from '@/components/wabasimplify/kanban-column';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 
 function DealsPageSkeleton() {
     return (
@@ -47,6 +47,10 @@ export default function DealsPage() {
     const [isLoading, startLoading] = useTransition();
     const { toast } = useToast();
     const router = useRouter();
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    );
 
     const fetchData = () => {
         startLoading(async () => {
@@ -79,18 +83,24 @@ export default function DealsPage() {
     // Determine current stages based on selected pipeline or fallback to industry defaults
     const currentStages = pipelines.find(p => p.id === selectedPipelineId)?.stages.map(s => s.name) || defaultStages || [];
 
-    const onDragEnd = (result: any) => {
-        const { destination, source, draggableId } = result;
-        if (!destination || (destination.droppableId === source.droppableId)) return;
+    const onDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over) return;
+
+        const draggableId = active.id as string;
+        const destinationStage = over.id as string;
 
         const dealToMove = deals.find(d => d._id.toString() === draggableId);
         if (!dealToMove) return;
 
-        const newDeals = deals.map(d => d._id.toString() === draggableId ? { ...d, stage: destination.droppableId as any } : d);
+        // If dropped on the same stage, do nothing
+        if (dealToMove.stage === destinationStage) return;
+
+        const newDeals = deals.map(d => d._id.toString() === draggableId ? { ...d, stage: destinationStage as any } : d);
         setDeals(newDeals);
 
         startLoading(async () => {
-            const updateResult = await updateCrmDealStage(draggableId, destination.droppableId);
+            const updateResult = await updateCrmDealStage(draggableId, destinationStage);
             if (!updateResult.success) {
                 toast({ title: "Error", description: "Failed to update deal stage.", variant: "destructive" });
                 setDeals(deals);
@@ -146,38 +156,32 @@ export default function DealsPage() {
                 </div>
             </div>
 
-            <DragDropContext onDragEnd={onDragEnd}>
+            <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={onDragEnd}>
                 <ScrollArea className="flex-1 w-full">
                     <div className="flex h-full w-max p-1 gap-4">
                         {currentStages.map(stage => (
-                            <Droppable key={stage} droppableId={stage}>
-                                {(provided, snapshot) => (
-                                    <KanbanColumn
-                                        title={stage}
-                                        innerRef={provided.innerRef}
-                                        droppableProps={provided.droppableProps}
-                                        isDraggingOver={snapshot.isDraggingOver}
-                                        count={deals.filter(d => d.stage === stage).length}
-                                    >
-                                        {deals.filter(d => d.stage === stage).map((deal, index) => (
-                                            <CrmDealCard
-                                                key={deal._id.toString()}
-                                                deal={deal}
-                                                index={index}
-                                                contact={contacts.find(c => deal.contactIds?.map(id => id.toString()).includes(c._id.toString()))}
-                                                account={accounts.find(a => a._id.toString() === deal.accountId?.toString())}
-                                                taskCount={tasks.filter(t => t.dealId?.toString() === deal._id.toString()).length}
-                                            />
-                                        ))}
-                                        {provided.placeholder}
-                                    </KanbanColumn>
-                                )}
-                            </Droppable>
+                            <KanbanColumn
+                                key={stage}
+                                columnId={stage}
+                                title={stage}
+                                count={deals.filter(d => d.stage === stage).length}
+                            >
+                                {deals.filter(d => d.stage === stage).map((deal, index) => (
+                                    <CrmDealCard
+                                        key={deal._id.toString()}
+                                        deal={deal}
+                                        index={index}
+                                        contact={contacts.find(c => deal.contactIds?.map(id => id.toString()).includes(c._id.toString()))}
+                                        account={accounts.find(a => a._id.toString() === deal.accountId?.toString())}
+                                        taskCount={tasks.filter(t => t.dealId?.toString() === deal._id.toString()).length}
+                                    />
+                                ))}
+                            </KanbanColumn>
                         ))}
                     </div>
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
-            </DragDropContext>
+            </DndContext>
         </div>
     );
 }

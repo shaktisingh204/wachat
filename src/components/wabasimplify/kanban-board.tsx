@@ -6,6 +6,7 @@ import { getKanbanData, saveKanbanStatuses } from '@/app/actions/project.actions
 import { handleUpdateContactStatus } from '@/app/actions/contact.actions';
 import type { WithId, Contact, Project, KanbanColumnData } from '@/lib/definitions';
 import { KanbanColumn } from '@/components/wabasimplify/kanban-column';
+import { KanbanCard } from '@/components/wabasimplify/kanban-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Plus } from 'lucide-react';
@@ -13,7 +14,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { DragDropContext } from 'react-beautiful-dnd';
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 
 function KanbanPageSkeleton() {
     return (
@@ -73,6 +74,10 @@ export function KanbanBoard() {
     const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
 
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    );
+
     const fetchData = () => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
@@ -106,35 +111,39 @@ export function KanbanBoard() {
         });
     };
 
-    const handleOnDragEnd = (result: any) => {
-        if (!result.destination) return;
+    const handleOnDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over) return;
 
-        const { source, destination, draggableId } = result;
+        const draggableId = active.id as string;
+        const destinationColumnName = over.id as string;
 
-        if (source.droppableId === destination.droppableId) return;
+        // Find which column the dragged contact is currently in
+        const sourceColumn = boardData.find(col => col.contacts.some(c => c._id.toString() === draggableId));
+        if (!sourceColumn) return;
 
-        let movedContact: WithId<Contact> | undefined;
-        let sourceColumnIndex = boardData.findIndex(col => col.name === source.droppableId);
-        let destColumnIndex = boardData.findIndex(col => col.name === destination.droppableId);
+        // If dropped on the same column, do nothing
+        if (sourceColumn.name === destinationColumnName) return;
 
+        const sourceColumnIndex = boardData.findIndex(col => col.name === sourceColumn.name);
+        const destColumnIndex = boardData.findIndex(col => col.name === destinationColumnName);
         if (sourceColumnIndex === -1 || destColumnIndex === -1) return;
 
-        const sourceColumn = boardData[sourceColumnIndex];
         const destColumn = boardData[destColumnIndex];
 
         const sourceContacts = Array.from(sourceColumn.contacts);
-        [movedContact] = sourceContacts.splice(source.index, 1);
+        const movedIndex = sourceContacts.findIndex(c => c._id.toString() === draggableId);
+        const [movedContact] = sourceContacts.splice(movedIndex, 1);
 
         const destContacts = Array.from(destColumn.contacts);
-        destContacts.splice(destination.index, 0, movedContact);
+        destContacts.push(movedContact);
 
         const newBoardData = [...boardData];
         newBoardData[sourceColumnIndex] = { ...sourceColumn, contacts: sourceContacts };
         newBoardData[destColumnIndex] = { ...destColumn, contacts: destContacts };
         setBoardData(newBoardData);
 
-        // Call the server action to persist the change
-        handleUpdateContactStatus(draggableId, destination.droppableId, movedContact?.assignedAgentId || '');
+        handleUpdateContactStatus(draggableId, destinationColumnName, movedContact?.assignedAgentId || '');
     };
 
     if (!isClient || isLoading) {
@@ -156,13 +165,17 @@ export function KanbanBoard() {
     }
 
     return (
-        <DragDropContext onDragEnd={handleOnDragEnd}>
+        <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleOnDragEnd}>
             <div className="h-full w-full">
                 <ScrollArea className="h-full w-full">
                     <div style={{ minWidth: "100%", display: "table", height: '100%' }}>
                         <div className="flex h-full w-max p-4 gap-4">
                             {boardData.map(column => (
-                                <KanbanColumn key={column.name} {...({ title: column.name, contacts: column.contacts } as any)} />
+                                <KanbanColumn key={column.name} columnId={column.name} title={column.name} count={column.contacts.length}>
+                                    {column.contacts.map((contact, index) => (
+                                        <KanbanCard key={contact._id.toString()} contact={contact} index={index} />
+                                    ))}
+                                </KanbanColumn>
                             ))}
                             <AddList onAddList={handleAddList} />
                         </div>
@@ -170,6 +183,6 @@ export function KanbanBoard() {
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
             </div>
-        </DragDropContext>
+        </DndContext>
     );
 }

@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 import { saveWebsitePage, getWebsitePages } from '@/app/actions/portfolio.actions';
 import type { WithId, Website, WebsitePage, EcommProduct, WebsiteBlock, EcommShop, EcommPage } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
@@ -58,6 +59,10 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
     const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    );
 
     useEffect(() => {
         const homepage = pages.find(p => p.isHomepage) || pages[0];
@@ -179,20 +184,17 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         if (selectedBlockId === idToRemove) setSelectedBlockId(null);
     };
 
-    const onDragEnd = (result: DropResult) => {
-        const { source, destination, type } = result;
-        if (!destination) return;
+    const onDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
 
-        const layoutCopy = JSON.parse(JSON.stringify(layout));
-        const sourceList = findList(layoutCopy, source.droppableId);
-        const destList = findList(layoutCopy, destination.droppableId);
+        // For sortable reordering within the same list
+        const oldIndex = layout.findIndex(b => b.id === active.id);
+        const newIndex = layout.findIndex(b => b.id === over.id);
 
-        if (!sourceList || !destList) return;
-
-        const [removed] = sourceList.splice(source.index, 1);
-        destList.splice(destination.index, 0, removed);
-
-        setLayout(layoutCopy);
+        if (oldIndex !== -1 && newIndex !== -1) {
+            setLayout(arrayMove(layout, oldIndex, newIndex));
+        }
     };
 
     const handleSelectSurface = (surfaceId: string) => {
@@ -225,7 +227,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
     const [isBlockPaletteOpen, setIsBlockPaletteOpen] = useState(false);
 
     return (
-        <DragDropContext onDragEnd={onDragEnd}>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             {/* Root Container: Full Viewport, Fixed Layout */}
             <div className="flex flex-col h-screen w-full bg-[#FAFAFA] dark:bg-zinc-950 overflow-hidden relative">
                 <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
@@ -317,7 +319,6 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
 
                 </div>
             </div>
-        </DragDropContext>
+        </DndContext>
     );
 }
-

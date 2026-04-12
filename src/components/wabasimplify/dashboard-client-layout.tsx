@@ -37,14 +37,19 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 }
                 // Gate: if the user has an onboarding record that hasn't
                 // been completed yet, push them back into the wizard.
-                // Users created before the onboarding feature (no
-                // `onboarding` field at all) are grandfathered through.
                 const onboarding = (session.user as any).onboarding;
                 if (onboarding && onboarding.status !== 'complete') {
                     router.push('/onboarding');
                     return;
                 }
                 const projects = await getProjects() || [];
+                // If user has zero projects and hasn't completed
+                // onboarding (including legacy users without the field),
+                // route them through the wizard so they get properly set up.
+                if (projects.length === 0 && onboarding?.status !== 'complete') {
+                    router.push('/onboarding');
+                    return;
+                }
                 setInitialData({ user: session.user, projects });
             } catch (error) {
                 console.error("Initialization failed:", error);

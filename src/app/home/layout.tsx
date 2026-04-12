@@ -9,6 +9,7 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/app/actions/user.actions';
+import { getProjects } from '@/app/actions/project.actions';
 import { RBACGuard } from '@/components/wabasimplify/rbac-guard';
 import { ClayDashboardLayout } from '@/components/clay';
 
@@ -23,6 +24,19 @@ export default async function HomeLayout({
   }
 
   const user = session.user as any;
+
+  // Redirect to onboarding if the user hasn't completed it
+  const onboarding = user.onboarding;
+  if (onboarding && onboarding.status !== 'complete') {
+    redirect('/onboarding');
+  }
+  // Legacy users without onboarding field who have no projects
+  if (!onboarding || onboarding.status !== 'complete') {
+    const projects = await getProjects();
+    if (!projects || projects.length === 0) {
+      redirect('/onboarding');
+    }
+  }
 
   // session.user.credits is an object keyed by channel
   // ({ broadcast, sms, meta, email }) — collapse to a single total
