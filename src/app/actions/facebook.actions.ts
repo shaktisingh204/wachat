@@ -16,6 +16,7 @@ import { getEcommShopById } from './custom-ecommerce.actions';
 import type { Project, FacebookPage, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User, MetaWabasResponse, FacebookEvent, FacebookLeadGenForm, FacebookLead } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
 import { _createProjectFromWaba } from './whatsapp.actions';
+import { getInstagramAccountForPage as _getInstagramAccountForPage } from './instagram.actions';
 
 
 async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToken: string): Promise<{ success: boolean, error?: string }> {
@@ -1440,31 +1441,8 @@ export async function saveFacebookKanbanStatuses(projectId: string, statuses: st
     }
 }
 
-export async function getInstagramAccountForPage(projectId: string): Promise<{ instagramAccount?: any; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.facebookPageId || !project.accessToken) {
-        return { error: 'Project not found or is not configured for Facebook.' };
-    }
-
-    try {
-        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}`, {
-            params: {
-                fields: 'instagram_business_account{name,username,profile_picture_url,followers_count,media_count,id}',
-                access_token: project.accessToken,
-            }
-        });
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        const instagramAccount = response.data.instagram_business_account;
-        return { instagramAccount };
-
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
-}
+// Re-exported from instagram.actions.ts to avoid duplication
+export const getInstagramAccountForPage = _getInstagramAccountForPage;
 
 export async function getCommerceMerchantSettings(projectId: string): Promise<{ settings?: any, error?: string }> {
     const project = await getProjectById(projectId);

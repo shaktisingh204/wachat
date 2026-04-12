@@ -386,6 +386,98 @@ export async function executeWachatAction(actionName: string, inputs: any, user:
                 if (!result.success) throw new Error('Failed to mark as unread.');
                 return { output: { success: true } };
             }
+            case 'sendCtaUrl': {
+                if (!inputs.displayText || !inputs.url || !inputs.body) throw new Error('Display Text, URL, and Body are required.');
+                const payload = {
+                    messaging_product: 'whatsapp', to, type: 'interactive',
+                    interactive: {
+                        type: 'cta_url',
+                        ...(inputs.header && { header: { type: 'text', text: inputs.header } }),
+                        body: { text: inputs.body },
+                        ...(inputs.footer && { footer: { text: inputs.footer } }),
+                        action: {
+                            name: 'cta_url',
+                            parameters: { display_text: inputs.displayText, url: inputs.url },
+                        },
+                    },
+                };
+                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true, wamid: response.data.messages?.[0]?.id } };
+            }
+            case 'sendLocationRequest': {
+                if (!inputs.body) throw new Error('Body text is required.');
+                const payload = {
+                    messaging_product: 'whatsapp', to, type: 'interactive',
+                    interactive: {
+                        type: 'location_request_message',
+                        body: { text: inputs.body },
+                        action: { name: 'send_location' },
+                    },
+                };
+                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true, wamid: response.data.messages?.[0]?.id } };
+            }
+            case 'sendAddressMessage': {
+                if (!inputs.body || !inputs.country) throw new Error('Body and Country are required.');
+                const parameters: any = { country: inputs.country };
+                if (inputs.values) {
+                    parameters.values = typeof inputs.values === 'string' ? JSON.parse(inputs.values) : inputs.values;
+                }
+                const payload = {
+                    messaging_product: 'whatsapp', to, type: 'interactive',
+                    interactive: {
+                        type: 'address_message',
+                        body: { text: inputs.body },
+                        action: { name: 'address_message', parameters },
+                    },
+                };
+                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true, wamid: response.data.messages?.[0]?.id } };
+            }
+            case 'sendOrderDetails': {
+                if (!inputs.referenceId || !inputs.orderItems || !inputs.totalAmount || !inputs.currency)
+                    throw new Error('Reference ID, Order Items, Total Amount, and Currency are required.');
+                const items = typeof inputs.orderItems === 'string' ? JSON.parse(inputs.orderItems) : inputs.orderItems;
+                const payload = {
+                    messaging_product: 'whatsapp', to, type: 'interactive',
+                    interactive: {
+                        type: 'order_details',
+                        body: { text: inputs.body || `Order ${inputs.referenceId}` },
+                        action: {
+                            name: 'review_and_pay',
+                            parameters: {
+                                reference_id: inputs.referenceId,
+                                type: inputs.goodsType || 'digital-goods',
+                                payment_type: inputs.paymentType || 'digital-goods',
+                                currency: inputs.currency,
+                                total_amount: { value: parseInt(inputs.totalAmount), offset: 100 },
+                                order: { status: 'pending', items },
+                            },
+                        },
+                    },
+                };
+                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true, wamid: response.data.messages?.[0]?.id } };
+            }
+            case 'sendOrderStatus': {
+                if (!inputs.referenceId || !inputs.status) throw new Error('Reference ID and Status are required.');
+                const payload = {
+                    messaging_product: 'whatsapp', to, type: 'interactive',
+                    interactive: {
+                        type: 'order_status',
+                        body: { text: inputs.description || `Order ${inputs.referenceId} status: ${inputs.status}` },
+                        action: {
+                            name: 'review_order',
+                            parameters: {
+                                reference_id: inputs.referenceId,
+                                order: { status: inputs.status, ...(inputs.description && { description: inputs.description }) },
+                            },
+                        },
+                    },
+                };
+                const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+                return { output: { success: true, wamid: response.data.messages?.[0]?.id } };
+            }
             default:
                 throw new Error(`Wachat action "${actionName}" is not implemented.`);
         }

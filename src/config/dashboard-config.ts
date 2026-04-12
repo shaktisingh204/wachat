@@ -60,7 +60,11 @@ export const wachatMenuItems: MenuItem[] = [
     { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_flows' },
     { href: '/dashboard/integrations', label: 'Integrations', icon: Bolt, roles: ['owner', 'admin'], permissionKey: 'wachat_integrations' },
     { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'], permissionKey: 'wachat_whatsapp_pay' },
+    { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart, roles: ['owner', 'admin'], permissionKey: 'wachat_analytics' },
     { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'], permissionKey: 'wachat_numbers' },
+    { href: '/dashboard/qr-codes', label: 'QR Codes', icon: QrCode, roles: ['owner', 'admin'], permissionKey: 'wachat_qr_codes' },
+    { href: '/dashboard/automation', label: 'Automation', icon: Bot, roles: ['owner', 'admin'], permissionKey: 'wachat_automation' },
+    { href: '/dashboard/health', label: 'Account Health', icon: Activity, roles: ['owner', 'admin'], permissionKey: 'wachat_health' },
     { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'], permissionKey: 'wachat_webhooks' },
     { href: '/dashboard/settings', label: 'Project Settings', icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
 ];

@@ -877,3 +877,211 @@ export async function handleApplyTemplateToProjects(sourceTemplateId: string, ta
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+
+// --- TEMPLATE EDIT & DELETE VIA META API ---
+
+export async function handleEditTemplate(
+    prevState: any,
+    formData: FormData
+): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const metaTemplateId = formData.get('metaTemplateId') as string;
+
+    if (!projectId || !metaTemplateId) {
+        return { error: 'Project ID and Meta Template ID are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
+
+    const { accessToken } = project;
+
+    try {
+        const components: any[] = [];
+
+        // Parse updated components from form
+        const headerFormat = formData.get('headerFormat') as string;
+        const headerText = formData.get('headerText') as string;
+        const bodyText = formData.get('body') as string;
+        const footerText = formData.get('footer') as string;
+        const buttonsJson = formData.get('buttons') as string;
+
+        if (headerFormat && headerFormat !== 'NONE') {
+            const headerComponent: any = { type: 'HEADER', format: headerFormat };
+            if (headerFormat === 'TEXT' && headerText) {
+                headerComponent.text = headerText.trim();
+            }
+            // For media headers, we need to re-upload if changed
+            const headerSampleFile = formData.get('headerSampleFile') as File;
+            const headerSampleUrl = formData.get('headerSampleUrl') as string;
+            if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat)) {
+                const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
+                if (appId && (headerSampleFile?.size > 0 || headerSampleUrl)) {
+                    const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, headerSampleUrl, accessToken, appId);
+                    if (error) return { error };
+                    if (handle) headerComponent.example = { header_handle: [handle] };
+                }
+            }
+            components.push(headerComponent);
+        }
+
+        if (bodyText) {
+            const bodyComponent: any = { type: 'BODY', text: bodyText.trim() };
+            const bodyVarMatches = bodyText.match(/{{\s*(\d+)\s*}}/g);
+            if (bodyVarMatches) {
+                const bodyVarNumbers = [...new Set(bodyVarMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a, b) => a - b);
+                const bodyExamples = [];
+                for (const varNum of bodyVarNumbers) {
+                    const exampleValue = formData.get(`body_example_${varNum}`) as string;
+                    if (exampleValue) bodyExamples.push(exampleValue);
+                }
+                if (bodyExamples.length > 0) {
+                    bodyComponent.example = { body_text: [bodyExamples] };
+                }
+            }
+            components.push(bodyComponent);
+        }
+
+        if (footerText) {
+            components.push({ type: 'FOOTER', text: footerText.trim() });
+        }
+
+        if (buttonsJson) {
+            const buttons = JSON.parse(buttonsJson);
+            if (buttons.length > 0) {
+                const formattedButtons = buttons.map((button: any) => ({
+                    type: button.type,
+                    text: button.text,
+                    ...(button.url && { url: button.url, example: button.example }),
+                    ...(button.phone_number && { phone_number: button.phone_number }),
+                }));
+                components.push({ type: 'BUTTONS', buttons: formattedButtons });
+            }
+        }
+
+        const payload: any = {};
+        if (components.length > 0) payload.components = components;
+
+        // Category can be edited on certain template statuses
+        const category = formData.get('category') as string;
+        if (category) payload.category = category;
+
+        const response = await fetch(
+            `https://graph.facebook.com/${API_VERSION}/${metaTemplateId}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            }
+        );
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            const errorMessage = responseData?.error?.message || 'Unknown API error';
+            return { error: `Failed to edit template: ${errorMessage}` };
+        }
+
+        // Update local DB
+        const { db } = await connectToDatabase();
+        const updateFields: any = { status: responseData?.status || 'PENDING' };
+        if (components.length > 0) updateFields.components = components;
+        if (bodyText) updateFields.body = bodyText.trim();
+
+        await db.collection('templates').updateOne(
+            { metaId: metaTemplateId, projectId: new ObjectId(projectId) },
+            { $set: updateFields }
+        );
+
+        revalidatePath('/dashboard/templates');
+        return { message: 'Template updated successfully and resubmitted for approval.' };
+
+    } catch (e: any) {
+        console.error('Error editing template:', e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleDeleteTemplate(
+    projectId: string,
+    templateName: string,
+    metaTemplateId?: string
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
+
+    const { wabaId, accessToken } = project;
+
+    try {
+        // Delete from Meta API (by name deletes all languages of the template)
+        const response = await fetch(
+            `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates?name=${encodeURIComponent(templateName)}`,
+            {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${accessToken}` },
+            }
+        );
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            const errorMessage = responseData?.error?.message || 'Unknown API error';
+            return { error: `Failed to delete template from Meta: ${errorMessage}` };
+        }
+
+        // Delete from local DB (all language variants)
+        const { db } = await connectToDatabase();
+        await db.collection('templates').deleteMany({
+            projectId: new ObjectId(projectId),
+            name: templateName,
+        });
+
+        revalidatePath('/dashboard/templates');
+        return { message: `Template "${templateName}" deleted successfully from Meta and local database.` };
+
+    } catch (e: any) {
+        console.error('Error deleting template:', e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleDeleteTemplateById(
+    projectId: string,
+    metaTemplateId: string
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
+
+    try {
+        const response = await fetch(
+            `https://graph.facebook.com/${API_VERSION}/${metaTemplateId}`,
+            {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${project.accessToken}` },
+            }
+        );
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            const errorMessage = responseData?.error?.message || 'Unknown API error';
+            return { error: `Failed to delete template: ${errorMessage}` };
+        }
+
+        const { db } = await connectToDatabase();
+        await db.collection('templates').deleteOne({
+            metaId: metaTemplateId,
+            projectId: new ObjectId(projectId),
+        });
+
+        revalidatePath('/dashboard/templates');
+        return { message: 'Template deleted successfully.' };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}

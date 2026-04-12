@@ -1104,3 +1104,704 @@ export async function registerPhoneNumber(projectId: string, phoneNumberId: stri
         return { success: false, error: errorMessage };
     }
 }
+
+
+// --- PHONE NUMBER VERIFICATION ---
+
+export async function handleRequestVerificationCode(
+    projectId: string,
+    phoneNumberId: string,
+    codeMethod: 'SMS' | 'VOICE'
+): Promise<{ success: boolean; message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/request_code`,
+            { code_method: codeMethod, language: 'en' },
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+        return { success: true, message: `Verification code sent via ${codeMethod}.` };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function handleVerifyCode(
+    projectId: string,
+    phoneNumberId: string,
+    code: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/verify_code`,
+            { code },
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+        return { success: true, message: 'Phone number verified successfully.' };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function deregisterPhoneNumber(
+    projectId: string,
+    phoneNumberId: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/deregister`,
+            { messaging_product: 'whatsapp' },
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+        return { success: true, message: 'Phone number deregistered from Cloud API.' };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// --- TWO-STEP VERIFICATION ---
+
+export async function handleSetTwoStepVerificationPin(
+    projectId: string,
+    phoneNumberId: string,
+    pin: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Project not found or access token is missing.' };
+    }
+
+    if (!pin || pin.length !== 6 || !/^\d+$/.test(pin)) {
+        return { success: false, error: 'PIN must be a 6-digit number.' };
+    }
+
+    try {
+        await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
+            { pin },
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+        return { success: true, message: 'Two-step verification PIN set successfully.' };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// --- QR CODE MANAGEMENT ---
+
+export async function getQrCodes(
+    projectId: string,
+    phoneNumberId: string
+): Promise<{ qrCodes: any[]; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { qrCodes: [], error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        const response = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/message_qrdls`,
+            { params: { access_token: project.accessToken } }
+        );
+        return { qrCodes: response.data.data || [] };
+    } catch (e: any) {
+        return { qrCodes: [], error: getErrorMessage(e) };
+    }
+}
+
+export async function handleCreateQrCode(
+    projectId: string,
+    phoneNumberId: string,
+    prefilledMessage: string
+): Promise<{ qrCode?: any; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token is missing.' };
+    }
+
+    if (!prefilledMessage?.trim()) {
+        return { error: 'Prefilled message is required.' };
+    }
+
+    try {
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/message_qrdls`,
+            { prefilled_message: prefilledMessage.trim(), generate_qr_image: 'SVG' },
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+        return { qrCode: response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleUpdateQrCode(
+    projectId: string,
+    qrCodeId: string,
+    prefilledMessage: string
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${qrCodeId}`,
+            { prefilled_message: prefilledMessage.trim() },
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+        return { message: 'QR code updated successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleDeleteQrCode(
+    projectId: string,
+    qrCodeId: string
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        await axios.delete(
+            `https://graph.facebook.com/${API_VERSION}/${qrCodeId}`,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// --- HEALTH STATUS ---
+
+export async function getWabaHealthStatus(
+    projectId: string
+): Promise<{ healthStatus?: any; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { error: 'Project not found or WABA not configured.' };
+    }
+
+    try {
+        const response = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}`,
+            { params: { fields: 'health_status', access_token: project.accessToken } }
+        );
+        return { healthStatus: response.data.health_status };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getPhoneNumberHealthStatus(
+    projectId: string,
+    phoneNumberId: string
+): Promise<{ healthStatus?: any; messagingLimitTier?: string; nameStatus?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        const response = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
+            { params: { fields: 'health_status,messaging_limit_tier,name_status,quality_rating', access_token: project.accessToken } }
+        );
+        return {
+            healthStatus: response.data.health_status,
+            messagingLimitTier: response.data.messaging_limit_tier,
+            nameStatus: response.data.name_status,
+        };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// --- CONVERSATIONAL AUTOMATION ---
+
+export async function getConversationalAutomation(
+    projectId: string,
+    phoneNumberId: string
+): Promise<{ automation?: any; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        const response = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/conversational_automation`,
+            { params: { access_token: project.accessToken } }
+        );
+        return { automation: response.data.data || response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleUpdateConversationalAutomation(
+    projectId: string,
+    phoneNumberId: string,
+    settings: {
+        enable_welcome_message?: boolean;
+        prompts?: string[];
+        commands?: Array<{ command_name: string; command_description: string }>;
+    }
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        const payload: any = {};
+
+        if (settings.enable_welcome_message !== undefined) {
+            payload.enable_welcome_message = settings.enable_welcome_message;
+        }
+
+        if (settings.prompts) {
+            payload.prompts = settings.prompts;
+        }
+
+        if (settings.commands) {
+            payload.commands = settings.commands;
+        }
+
+        await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/conversational_automation`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        return { message: 'Conversational automation settings updated successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleDeleteConversationalAutomation(
+    projectId: string,
+    phoneNumberId: string,
+    fields: string[]
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        await axios.delete(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/conversational_automation`,
+            {
+                headers: { 'Authorization': `Bearer ${project.accessToken}` },
+                data: { fields },
+            }
+        );
+        return { message: 'Conversational automation settings removed.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// --- COMMERCE SETTINGS ---
+
+export async function getCommerceSettings(
+    projectId: string,
+    phoneNumberId: string
+): Promise<{ settings?: any; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        const response = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_commerce_settings`,
+            { params: { access_token: project.accessToken } }
+        );
+        return { settings: response.data.data?.[0] || response.data };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleUpdateCommerceSettings(
+    projectId: string,
+    phoneNumberId: string,
+    settings: {
+        is_cart_enabled?: boolean;
+        is_catalog_visible?: boolean;
+    }
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_commerce_settings`,
+            settings,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+        return { message: 'Commerce settings updated successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+// --- INTERACTIVE MESSAGE TYPES ---
+
+export async function handleSendCtaUrlMessage(
+    projectId: string,
+    contactId: string,
+    phoneNumberId: string,
+    waId: string,
+    data: { displayText: string; url: string; headerText?: string; bodyText: string; footerText?: string }
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const payload: any = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: waId,
+            type: 'interactive',
+            interactive: {
+                type: 'cta_url',
+                ...(data.headerText && { header: { type: 'text', text: data.headerText } }),
+                body: { text: data.bodyText },
+                ...(data.footerText && { footer: { text: data.footerText } }),
+                action: {
+                    name: 'cta_url',
+                    parameters: {
+                        display_text: data.displayText,
+                        url: data.url,
+                    },
+                },
+            },
+        };
+
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
+            wamid, messageTimestamp: now, type: 'interactive', content: payload,
+            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        } as OutgoingMessage);
+
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
+            { $set: { lastMessage: `[CTA: ${data.displayText}]`.substring(0, 50), lastMessageTimestamp: now } }
+        );
+
+        revalidatePath('/dashboard/chat');
+        return { message: 'CTA URL message sent successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleSendLocationRequestMessage(
+    projectId: string,
+    contactId: string,
+    phoneNumberId: string,
+    waId: string,
+    bodyText: string
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const payload = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: waId,
+            type: 'interactive',
+            interactive: {
+                type: 'location_request_message',
+                body: { text: bodyText },
+                action: { name: 'send_location' },
+            },
+        };
+
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
+            wamid, messageTimestamp: now, type: 'interactive', content: payload,
+            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        } as OutgoingMessage);
+
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
+            { $set: { lastMessage: '[Location Request]', lastMessageTimestamp: now } }
+        );
+
+        revalidatePath('/dashboard/chat');
+        return { message: 'Location request sent successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleSendAddressMessage(
+    projectId: string,
+    contactId: string,
+    phoneNumberId: string,
+    waId: string,
+    data: {
+        bodyText: string;
+        country: string;
+        values?: Record<string, string>;
+        savedAddressId?: string;
+    }
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const parameters: any = { country: data.country };
+        if (data.values) parameters.values = data.values;
+        if (data.savedAddressId) parameters.saved_address_id = data.savedAddressId;
+
+        const payload = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: waId,
+            type: 'interactive',
+            interactive: {
+                type: 'address_message',
+                body: { text: data.bodyText },
+                action: {
+                    name: 'address_message',
+                    parameters,
+                },
+            },
+        };
+
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
+            wamid, messageTimestamp: now, type: 'interactive', content: payload,
+            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        } as OutgoingMessage);
+
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
+            { $set: { lastMessage: '[Address Request]', lastMessageTimestamp: now } }
+        );
+
+        revalidatePath('/dashboard/chat');
+        return { message: 'Address message sent successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleSendOrderDetailsMessage(
+    projectId: string,
+    contactId: string,
+    phoneNumberId: string,
+    waId: string,
+    data: {
+        referenceId: string;
+        type: 'digital-goods' | 'physical-goods';
+        paymentType: string;
+        paymentLink?: string;
+        totalAmount: number;
+        currency: string;
+        order: {
+            status: string;
+            catalog_id?: string;
+            items: Array<{
+                retailer_id: string;
+                name: string;
+                amount: { value: number; offset?: number };
+                quantity: number;
+                sale_amount?: { value: number; offset?: number };
+            }>;
+            subtotal?: { value: number; offset?: number };
+            tax?: { value: number; offset?: number; description?: string };
+            shipping?: { value: number; offset?: number; description?: string };
+            discount?: { value: number; offset?: number; description?: string; discount_program_name?: string };
+        };
+    }
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const payload = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: waId,
+            type: 'interactive',
+            interactive: {
+                type: 'order_details',
+                body: { text: `Order ${data.referenceId}` },
+                action: {
+                    name: 'review_and_pay',
+                    parameters: {
+                        reference_id: data.referenceId,
+                        type: data.type,
+                        payment_type: data.paymentType,
+                        ...(data.paymentLink && { payment_configuration: data.paymentLink }),
+                        currency: data.currency,
+                        total_amount: { value: data.totalAmount, offset: 100 },
+                        order: data.order,
+                    },
+                },
+            },
+        };
+
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
+            wamid, messageTimestamp: now, type: 'order' as any, content: payload,
+            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        } as OutgoingMessage);
+
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
+            { $set: { lastMessage: `[Order: ${data.referenceId}]`.substring(0, 50), lastMessageTimestamp: now } }
+        );
+
+        revalidatePath('/dashboard/chat');
+        return { message: 'Order details message sent successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleSendOrderStatusMessage(
+    projectId: string,
+    contactId: string,
+    phoneNumberId: string,
+    waId: string,
+    data: {
+        referenceId: string;
+        status: 'payment_request' | 'accepted' | 'pending' | 'completed' | 'canceled' | 'shipped' | 'delivered';
+        description?: string;
+    }
+): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const payload = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: waId,
+            type: 'interactive',
+            interactive: {
+                type: 'order_status',
+                body: {
+                    text: data.description || `Order ${data.referenceId} status: ${data.status}`,
+                },
+                action: {
+                    name: 'review_order',
+                    parameters: {
+                        reference_id: data.referenceId,
+                        order: {
+                            status: data.status,
+                            ...(data.description && { description: data.description }),
+                        },
+                    },
+                },
+            },
+        };
+
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
+            wamid, messageTimestamp: now, type: 'order' as any, content: payload,
+            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        } as OutgoingMessage);
+
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
+            { $set: { lastMessage: `[Order Status: ${data.status}]`.substring(0, 50), lastMessageTimestamp: now } }
+        );
+
+        revalidatePath('/dashboard/chat');
+        return { message: 'Order status message sent successfully.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
