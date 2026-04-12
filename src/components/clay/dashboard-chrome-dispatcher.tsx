@@ -95,6 +95,7 @@ const WACHAT_PREFIXES = [
   '/dashboard/integrations',
   '/dashboard/setup',
   '/dashboard/wachat',
+  '/dashboard/settings',
 ];
 
 function isWachatRoute(pathname: string | null): boolean {
