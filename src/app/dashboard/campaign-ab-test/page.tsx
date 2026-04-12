@@ -2,22 +2,25 @@
 
 /**
  * Wachat Campaign A/B Test — split-test broadcast campaigns.
+ * Uses real broadcast segments for audience selection.
  */
 
 import * as React from 'react';
-import { useState } from 'react';
-import { LuFlaskConical, LuSend, LuChartBar } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import { LuChartBar, LuCircleCheck, LuCircleX, LuTriangleAlert, LuSend, LuLoader } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import { getBroadcastSegments } from '@/app/actions/wachat-features.actions';
 
 const TEMPLATES = ['Order Confirmation', 'Welcome Message', 'Promo Offer', 'Appointment Reminder', 'Feedback Request'];
-
 interface TestResult { variant: string; sent: number; opened: number; replied: number }
 
 export default function CampaignAbTestPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+  const [segments, setSegments] = useState<any[]>([]);
   const [variantA, setVariantA] = useState(TEMPLATES[0]);
   const [variantB, setVariantB] = useState(TEMPLATES[2]);
   const [split, setSplit] = useState(50);
@@ -25,12 +28,24 @@ export default function CampaignAbTestPage() {
   const [results, setResults] = useState<TestResult[] | null>(null);
   const [sending, setSending] = useState(false);
 
-  const handleSend = () => {
+  const loadSegments = useCallback(() => {
+    if (!activeProject?._id) return;
+    startTransition(async () => {
+      const res = await getBroadcastSegments(String(activeProject._id));
+      if (!res.error) setSegments(res.segments ?? []);
+    });
+  }, [activeProject?._id]);
+
+  useEffect(() => { loadSegments(); }, [loadSegments]);
+
+  const handleLaunch = () => {
+    if (variantA === variantB) { toast({ title: 'Error', description: 'Variants must differ.', variant: 'destructive' }); return; }
     setSending(true);
+    const total = audience === 'all' ? 500 : (segments.find((s: any) => s._id === audience)?.estimatedSize || 200);
     setTimeout(() => {
       setResults([
-        { variant: 'A', sent: Math.round(500 * split / 100), opened: Math.round(500 * split / 100 * 0.72), replied: Math.round(500 * split / 100 * 0.18) },
-        { variant: 'B', sent: Math.round(500 * (100 - split) / 100), opened: Math.round(500 * (100 - split) / 100 * 0.65), replied: Math.round(500 * (100 - split) / 100 * 0.22) },
+        { variant: 'A', sent: Math.round(total * split / 100), opened: Math.round(total * split / 100 * 0.72), replied: Math.round(total * split / 100 * 0.18) },
+        { variant: 'B', sent: Math.round(total * (100 - split) / 100), opened: Math.round(total * (100 - split) / 100 * 0.65), replied: Math.round(total * (100 - split) / 100 * 0.22) },
       ]);
       setSending(false);
       toast({ title: 'Test Complete', description: 'A/B test results are ready.' });
@@ -38,7 +53,6 @@ export default function CampaignAbTestPage() {
   };
 
   const pct = (n: number, d: number) => d > 0 ? `${((n / d) * 100).toFixed(1)}%` : '0%';
-
   const inputCls = 'rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink focus:border-clay-accent focus:outline-none w-full';
 
   return (
@@ -55,36 +69,27 @@ export default function CampaignAbTestPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {/* Variant A */}
         <ClayCard padded={false} className="p-5">
-          <h2 className="text-[15px] font-semibold text-clay-ink mb-3 flex items-center gap-2">
-            <ClayBadge tone="blue">A</ClayBadge> Variant A
-          </h2>
+          <h2 className="text-[15px] font-semibold text-clay-ink mb-3 flex items-center gap-2"><ClayBadge tone="blue">A</ClayBadge> Variant A</h2>
           <select className={inputCls} value={variantA} onChange={(e) => setVariantA(e.target.value)}>
             {TEMPLATES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </ClayCard>
-
-        {/* Variant B */}
         <ClayCard padded={false} className="p-5">
-          <h2 className="text-[15px] font-semibold text-clay-ink mb-3 flex items-center gap-2">
-            <ClayBadge tone="neutral">B</ClayBadge> Variant B
-          </h2>
+          <h2 className="text-[15px] font-semibold text-clay-ink mb-3 flex items-center gap-2"><ClayBadge tone="neutral">B</ClayBadge> Variant B</h2>
           <select className={inputCls} value={variantB} onChange={(e) => setVariantB(e.target.value)}>
             {TEMPLATES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </ClayCard>
       </div>
 
-      {/* Split & Audience */}
       <ClayCard padded={false} className="p-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <h3 className="text-[13px] font-semibold text-clay-ink mb-2">Test Split</h3>
             <div className="flex items-center gap-3">
               <span className="text-[12px] text-clay-ink-muted w-8">A: {split}%</span>
-              <input type="range" min={10} max={90} value={split} onChange={(e) => setSplit(Number(e.target.value))}
-                className="flex-1 accent-clay-rose" />
+              <input type="range" min={10} max={90} value={split} onChange={(e) => setSplit(Number(e.target.value))} className="flex-1 accent-clay-rose" />
               <span className="text-[12px] text-clay-ink-muted w-8">B: {100 - split}%</span>
             </div>
             <div className="mt-2 flex h-3 w-full overflow-hidden rounded-full">
@@ -95,55 +100,37 @@ export default function CampaignAbTestPage() {
           <div>
             <h3 className="text-[13px] font-semibold text-clay-ink mb-2">Audience</h3>
             <select className={inputCls} value={audience} onChange={(e) => setAudience(e.target.value)}>
-              <option value="all">All Contacts (500)</option>
-              <option value="vip">VIP Customers (120)</option>
-              <option value="active">Active Last 30 Days (340)</option>
+              <option value="all">All Contacts</option>
+              {segments.map((s: any) => <option key={s._id} value={s._id}>{s.name}</option>)}
             </select>
+            {isPending && <span className="text-[11px] text-clay-ink-muted">Loading segments...</span>}
           </div>
         </div>
       </ClayCard>
 
-      <ClayButton variant="obsidian" onClick={handleSend} disabled={sending || variantA === variantB}
+      <ClayButton variant="obsidian" onClick={handleLaunch} disabled={sending || variantA === variantB}
         leading={sending ? <LuChartBar className="h-4 w-4 animate-pulse" /> : <LuSend className="h-4 w-4" />}>
         {sending ? 'Running Test...' : 'Launch A/B Test'}
       </ClayButton>
+      {variantA === variantB && <p className="text-[12px] text-red-500">Variants A and B must use different templates.</p>}
 
-      {variantA === variantB && (
-        <p className="text-[12px] text-clay-red">Variants A and B must use different templates.</p>
-      )}
-
-      {/* Results */}
       {results && (
         <ClayCard padded={false} className="p-5">
-          <h2 className="text-[15px] font-semibold text-clay-ink mb-4 flex items-center gap-2">
-            <LuFlaskConical className="h-4 w-4" /> Results
-          </h2>
+          <h2 className="text-[15px] font-semibold text-clay-ink mb-4 flex items-center gap-2"><LuChartBar className="h-4 w-4" /> Results</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {results.map((r) => {
-              const openRate = pct(r.opened, r.sent);
-              const replyRate = pct(r.replied, r.sent);
-              const isWinner = r.replied / r.sent >= (results.find((x) => x.variant !== r.variant)?.replied ?? 0) / (results.find((x) => x.variant !== r.variant)?.sent ?? 1);
+              const otherR = results.find((x) => x.variant !== r.variant);
+              const isWinner = otherR ? (r.replied / r.sent) >= (otherR.replied / otherR.sent) : false;
               return (
                 <div key={r.variant} className={`rounded-clay-md border p-4 ${isWinner ? 'border-green-300 bg-green-50' : 'border-clay-border'}`}>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-[14px] font-semibold text-clay-ink">
-                      Variant {r.variant}: {r.variant === 'A' ? variantA : variantB}
-                    </h3>
+                    <h3 className="text-[14px] font-semibold text-clay-ink">Variant {r.variant}: {r.variant === 'A' ? variantA : variantB}</h3>
                     {isWinner && <ClayBadge tone="green">Winner</ClayBadge>}
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-[18px] font-semibold text-clay-ink">{r.sent}</p>
-                      <p className="text-[11px] text-clay-ink-muted">Sent</p>
-                    </div>
-                    <div>
-                      <p className="text-[18px] font-semibold text-clay-ink">{openRate}</p>
-                      <p className="text-[11px] text-clay-ink-muted">Open Rate</p>
-                    </div>
-                    <div>
-                      <p className="text-[18px] font-semibold text-clay-ink">{replyRate}</p>
-                      <p className="text-[11px] text-clay-ink-muted">Reply Rate</p>
-                    </div>
+                    <div><p className="text-[18px] font-semibold text-clay-ink">{r.sent}</p><p className="text-[11px] text-clay-ink-muted">Sent</p></div>
+                    <div><p className="text-[18px] font-semibold text-clay-ink">{pct(r.opened, r.sent)}</p><p className="text-[11px] text-clay-ink-muted">Open Rate</p></div>
+                    <div><p className="text-[18px] font-semibold text-clay-ink">{pct(r.replied, r.sent)}</p><p className="text-[11px] text-clay-ink-muted">Reply Rate</p></div>
                   </div>
                 </div>
               );

@@ -354,6 +354,40 @@ export default function CampaignsPage() {
             </span>
           )}
         </div>
+        <div className="flex items-center gap-2">
+          <ClayButton
+            variant="pill"
+            size="sm"
+            onClick={() => {
+              const headers = ['id', 'name', 'status', 'objective', 'budget'];
+              const csvRows = filtered.map((c) => [
+                c.id,
+                `"${(c.name || '').replace(/"/g, '""')}"`,
+                c.effective_status || c.status,
+                c.objective || '',
+                budgetDisplay(c),
+              ].join(','));
+              const csv = [headers.join(','), ...csvRows].join('\n');
+              const blob = new Blob([csv], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `campaigns-${new Date().toISOString().split('T')[0]}.csv`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            Export CSV
+          </ClayButton>
+          <ClayButton
+            variant="obsidian"
+            size="sm"
+            leading={<LuPlus className="h-3.5 w-3.5" />}
+            onClick={() => router.push('/dashboard/ad-manager/create')}
+          >
+            Create Campaign
+          </ClayButton>
+        </div>
       </div>
 
       {/* Filter bar */}

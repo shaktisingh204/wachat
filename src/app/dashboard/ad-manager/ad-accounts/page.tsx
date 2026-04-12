@@ -210,7 +210,22 @@ function AccountCard({
           {account.currency && (
             <ClayBadge tone="neutral">{account.currency}</ClayBadge>
           )}
+          {/* Account health indicator */}
+          <ClayBadge tone={account.account_status === 1 ? 'green' : 'neutral'}>
+            {account.account_status === 1 ? 'Active' : account.account_status === 2 ? 'Disabled' : 'Unknown'}
+          </ClayBadge>
         </div>
+        {/* Last used timestamp */}
+        {account.last_used_time && (
+          <p className="mt-2 text-[10px] text-clay-ink-muted">
+            Last used: {new Date(account.last_used_time).toLocaleString()}
+          </p>
+        )}
+        {!account.last_used_time && account.created_time && (
+          <p className="mt-2 text-[10px] text-clay-ink-muted">
+            Created: {new Date(account.created_time).toLocaleString()}
+          </p>
+        )}
       </div>
 
       {/* Card footer */}

@@ -28,11 +28,17 @@ export default function CustomerListsPage() {
     const [csv, setCsv] = React.useState('');
     const [uploading, setUploading] = React.useState(false);
 
+    const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+    const allLines = csv.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const validEmails = allLines.filter(isValidEmail);
+    const invalidCount = allLines.length - validEmails.length;
+
     const upload = async () => {
         if (!activeAccount) return;
-        const lines = csv.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+        const lines = validEmails;
         if (lines.length === 0) {
-            toast({ title: 'Paste emails first', variant: 'destructive' });
+            toast({ title: 'No valid emails found', description: 'Make sure each line has a valid email address.', variant: 'destructive' });
             return;
         }
         setUploading(true);
@@ -116,13 +122,22 @@ export default function CustomerListsPage() {
                             className="min-h-64 font-mono text-xs"
                         />
                     </div>
+                    {/* Valid email count display */}
+                    {allLines.length > 0 && (
+                        <div className="flex items-center gap-3 text-sm">
+                            <Badge className="bg-green-600 text-white">{validEmails.length} valid email{validEmails.length !== 1 ? 's' : ''} ready to upload</Badge>
+                            {invalidCount > 0 && (
+                                <Badge variant="destructive">{invalidCount} invalid</Badge>
+                            )}
+                        </div>
+                    )}
                     <Button
                         className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                         onClick={upload}
-                        disabled={uploading}
+                        disabled={uploading || validEmails.length === 0}
                     >
                         <Upload className="h-4 w-4 mr-1" />
-                        {uploading ? 'Hashing & uploading…' : 'Hash & upload'}
+                        {uploading ? 'Hashing & uploading…' : `Hash & upload${validEmails.length > 0 ? ` (${validEmails.length})` : ''}`}
                     </Button>
                 </CardContent>
             </Card>

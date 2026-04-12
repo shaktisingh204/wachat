@@ -554,25 +554,27 @@ function FlowBuilder({ flowId }: { flowId: string }) {
         ) : null}
       </div>
 
-      {/* Properties panel — mobile sheet */}
-      <Sheet open={isPropsOpen} onOpenChange={setIsPropsOpen}>
-        <SheetContent
-          side="right"
-          className="w-full p-0 sm:max-w-md md:hidden"
-        >
-          <SheetHeader className="sr-only">
-            <SheetTitle>Properties</SheetTitle>
-          </SheetHeader>
-          {selectedNode ? (
-            <PropertiesPanel
-              node={selectedNode}
-              onUpdate={onNodeUpdate}
-              deleteNode={onDeleteNode}
-              availableVariables={[]}
-            />
-          ) : null}
-        </SheetContent>
-      </Sheet>
+      {/* Properties panel — mobile sheet (only rendered below md breakpoint) */}
+      <div className="md:hidden">
+        <Sheet open={isPropsOpen && !!selectedNode} onOpenChange={setIsPropsOpen}>
+          <SheetContent
+            side="right"
+            className="w-full p-0 sm:max-w-md"
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>Properties</SheetTitle>
+            </SheetHeader>
+            {selectedNode ? (
+              <PropertiesPanel
+                node={selectedNode}
+                onUpdate={onNodeUpdate}
+                deleteNode={onDeleteNode}
+                availableVariables={[]}
+              />
+            ) : null}
+          </SheetContent>
+        </Sheet>
+      </div>
     </div>
   );
 }

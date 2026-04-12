@@ -1,24 +1,12 @@
 'use client';
 
-/**
- * Wachat Contact Import History — view past CSV import records.
- */
-
 import * as React from 'react';
-import { LuFileSpreadsheet, LuCircleCheck, LuCircleX, LuClock } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import { LuFileSpreadsheet, LuCircleCheck, LuCircleX, LuClock, LuLoader } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayCard, ClayBadge } from '@/components/clay';
-
-const IMPORTS = [
-  { id: '1', filename: 'customers_march.csv', date: '2026-04-10 14:30', total: 1250, success: 1230, failed: 20, status: 'completed' },
-  { id: '2', filename: 'leads_q1.csv', date: '2026-04-05 09:15', total: 850, success: 842, failed: 8, status: 'completed' },
-  { id: '3', filename: 'newsletter_subs.csv', date: '2026-03-28 11:00', total: 3200, success: 3150, failed: 50, status: 'completed' },
-  { id: '4', filename: 'partner_contacts.csv', date: '2026-03-20 16:45', total: 420, success: 420, failed: 0, status: 'completed' },
-  { id: '5', filename: 'event_attendees.csv', date: '2026-03-15 10:20', total: 680, success: 0, failed: 680, status: 'failed' },
-  { id: '6', filename: 'vip_customers.csv', date: '2026-03-10 08:30', total: 150, success: 148, failed: 2, status: 'completed' },
-  { id: '7', filename: 'bulk_import_apr.csv', date: '2026-04-12 13:00', total: 2000, success: 1450, failed: 0, status: 'processing' },
-];
+import { getImportHistory } from '@/app/actions/wachat-features.actions';
 
 function statusBadge(status: string) {
   switch (status) {
@@ -29,15 +17,37 @@ function statusBadge(status: string) {
     case 'processing':
       return <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700"><LuClock className="h-3 w-3" /> Processing</span>;
     default:
-      return <ClayBadge>{status}</ClayBadge>;
+      return <ClayBadge tone="neutral">{status}</ClayBadge>;
   }
 }
 
 export default function ContactImportHistoryPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
+  const projectId = activeProject?._id?.toString();
+  const [imports, setImports] = useState<any[]>([]);
+  const [isLoading, startTransition] = useTransition();
 
-  const totalImported = IMPORTS.reduce((s, i) => s + i.success, 0);
+  const fetchData = useCallback(() => {
+    if (!projectId) return;
+    startTransition(async () => {
+      const res = await getImportHistory(projectId);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      setImports(res.imports ?? []);
+    });
+  }, [projectId]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const totalImported = imports.reduce((s, i) => s + (i.success ?? 0), 0);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+      </div>
+    );
+  }
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
@@ -55,7 +65,7 @@ export default function ContactImportHistoryPage() {
       <div className="flex gap-4">
         <ClayCard className="p-5">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">Total Imports</div>
-          <div className="mt-1 text-[28px] font-semibold text-clay-ink tabular-nums">{IMPORTS.length}</div>
+          <div className="mt-1 text-[28px] font-semibold text-clay-ink tabular-nums">{imports.length}</div>
         </ClayCard>
         <ClayCard className="p-5">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">Contacts Imported</div>
@@ -63,35 +73,44 @@ export default function ContactImportHistoryPage() {
         </ClayCard>
       </div>
 
-      <ClayCard padded={false} className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
-              <th className="px-5 py-3">Filename</th>
-              <th className="px-5 py-3">Date</th>
-              <th className="px-5 py-3 text-right">Total</th>
-              <th className="px-5 py-3 text-right">Success</th>
-              <th className="px-5 py-3 text-right">Failed</th>
-              <th className="px-5 py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {IMPORTS.map((imp) => (
-              <tr key={imp.id} className="border-b border-clay-border last:border-0">
-                <td className="px-5 py-3 text-[13px] text-clay-ink font-medium flex items-center gap-2">
-                  <LuFileSpreadsheet className="h-4 w-4 text-clay-ink-muted shrink-0" />
-                  {imp.filename}
-                </td>
-                <td className="px-5 py-3 text-[12px] text-clay-ink-muted whitespace-nowrap">{imp.date}</td>
-                <td className="px-5 py-3 text-right text-[13px] text-clay-ink tabular-nums">{imp.total.toLocaleString()}</td>
-                <td className="px-5 py-3 text-right text-[13px] text-emerald-600 tabular-nums">{imp.success.toLocaleString()}</td>
-                <td className="px-5 py-3 text-right text-[13px] text-red-500 tabular-nums">{imp.failed}</td>
-                <td className="px-5 py-3">{statusBadge(imp.status)}</td>
+      {imports.length > 0 ? (
+        <ClayCard padded={false} className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                <th className="px-5 py-3">Filename</th>
+                <th className="px-5 py-3">Date</th>
+                <th className="px-5 py-3 text-right">Total</th>
+                <th className="px-5 py-3 text-right">Success</th>
+                <th className="px-5 py-3 text-right">Failed</th>
+                <th className="px-5 py-3">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </ClayCard>
+            </thead>
+            <tbody>
+              {imports.map((imp) => (
+                <tr key={imp._id} className="border-b border-clay-border last:border-0">
+                  <td className="px-5 py-3 text-[13px] text-clay-ink font-medium flex items-center gap-2">
+                    <LuFileSpreadsheet className="h-4 w-4 text-clay-ink-muted shrink-0" />
+                    {imp.filename || 'Unknown'}
+                  </td>
+                  <td className="px-5 py-3 text-[12px] text-clay-ink-muted whitespace-nowrap">
+                    {imp.importedAt ? new Date(imp.importedAt).toLocaleString() : '-'}
+                  </td>
+                  <td className="px-5 py-3 text-right text-[13px] text-clay-ink tabular-nums">{(imp.total ?? 0).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right text-[13px] text-emerald-600 tabular-nums">{(imp.success ?? 0).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right text-[13px] text-red-500 tabular-nums">{imp.failed ?? 0}</td>
+                  <td className="px-5 py-3">{statusBadge(imp.status || 'completed')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ClayCard>
+      ) : (
+        <ClayCard className="p-12 text-center">
+          <LuFileSpreadsheet className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
+          <p className="text-sm text-clay-ink-muted">No import records found.</p>
+        </ClayCard>
+      )}
       <div className="h-6" />
     </div>
   );

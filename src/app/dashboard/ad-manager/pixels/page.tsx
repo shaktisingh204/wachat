@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Target, Plus, Copy, AlertCircle, RefreshCw } from 'lucide-react';
+import { Target, Plus, Copy, AlertCircle, RefreshCw, Eye, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -142,6 +143,24 @@ export default function PixelsPage() {
                                         Last event: {new Date(p.last_fired_time).toLocaleString()}
                                     </div>
                                 )}
+                                <div className="flex items-center gap-2 pt-2">
+                                    <Button variant="outline" size="sm" asChild>
+                                        <Link href={`/dashboard/ad-manager/events-manager?pixel=${p.id}`}>
+                                            <Eye className="h-3 w-3 mr-1" /> View Events
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        onClick={() => {
+                                            setPixels((prev) => prev.filter((px) => px.id !== p.id));
+                                            toast({ title: 'Pixel deleted', description: `${p.name} has been removed.` });
+                                        }}
+                                    >
+                                        <Trash2 className="h-3 w-3 mr-1" /> Delete
+                                    </Button>
+                                </div>
                             </CardContent>
                         </Card>
                     ))}

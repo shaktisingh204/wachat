@@ -1,84 +1,93 @@
 'use client';
 
-/**
- * Wachat Away Messages — configure out-of-office auto-reply messages.
- */
-
 import * as React from 'react';
-import { useState } from 'react';
-import { LuMoonStar, LuSave } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import { LuSave, LuLoader } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
+import { getAwayMessage, saveAwayMessage } from '@/app/actions/wachat-features.actions';
 
 type Schedule = 'always' | 'outside_hours' | 'custom';
 
 export default function AwayMessagesPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
+  const projectId = activeProject?._id?.toString();
   const [enabled, setEnabled] = useState(false);
-  const [message, setMessage] = useState(
-    "Thanks for reaching out! We're currently away and will get back to you soon.",
-  );
+  const [message, setMessage] = useState('');
   const [schedule, setSchedule] = useState<Schedule>('outside_hours');
   const [customStart, setCustomStart] = useState('18:00');
   const [customEnd, setCustomEnd] = useState('09:00');
+  const [isLoading, startTransition] = useTransition();
+  const [isSaving, startSaveTransition] = useTransition();
+
+  const fetchData = useCallback(() => {
+    if (!projectId) return;
+    startTransition(async () => {
+      const res = await getAwayMessage(projectId);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      if (res.config) {
+        setEnabled(res.config.enabled ?? false);
+        setMessage(res.config.message ?? '');
+        setSchedule((res.config.schedule as Schedule) || 'outside_hours');
+        if (res.config.timeFrom) setCustomStart(res.config.timeFrom);
+        if (res.config.timeTo) setCustomEnd(res.config.timeTo);
+      }
+    });
+  }, [projectId]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleSave = () => {
-    toast({ title: 'Saved', description: 'Away message settings updated.' });
+    if (!projectId) return;
+    startSaveTransition(async () => {
+      const res = await saveAwayMessage(projectId, enabled, message, schedule, customStart, customEnd);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      toast({ title: 'Saved', description: 'Away message settings updated.' });
+    });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+      </div>
+    );
+  }
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/home' },
-          { label: activeProject?.name || 'Project', href: '/dashboard' },
-          { label: 'Away Messages' },
-        ]}
-      />
+      <ClayBreadcrumbs items={[
+        { label: 'Wachat', href: '/home' },
+        { label: activeProject?.name || 'Project', href: '/dashboard' },
+        { label: 'Away Messages' },
+      ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
-          Away Messages
-        </h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">
-          Set an auto-reply for when you are unavailable or outside business hours.
-        </p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Away Messages</h1>
+        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Set an auto-reply for when you are unavailable or outside business hours.</p>
       </div>
 
-      {/* Enable toggle */}
       <ClayCard padded={false} className="p-5">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-[15px] font-semibold text-clay-ink">Enable Away Message</h2>
-            <p className="text-[12px] text-clay-ink-muted mt-0.5">
-              Automatically reply when you are not available.
-            </p>
+            <p className="text-[12px] text-clay-ink-muted mt-0.5">Automatically reply when you are not available.</p>
           </div>
-          <button
-            type="button"
-            onClick={() => setEnabled(!enabled)}
-            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${enabled ? 'bg-clay-rose' : 'bg-clay-border'}`}
-          >
+          <button type="button" onClick={() => setEnabled(!enabled)}
+            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${enabled ? 'bg-clay-rose' : 'bg-clay-border'}`}>
             <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${enabled ? 'left-[22px]' : 'left-0.5'}`} />
           </button>
         </div>
       </ClayCard>
 
-      {/* Message */}
       <ClayCard padded={false} className="p-5">
         <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Message</h2>
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          rows={4}
-          placeholder="Type your away message..."
-          className="clay-input min-h-[96px] resize-y py-2.5 w-full"
-        />
+        <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4}
+          placeholder="Type your away message..." className="clay-input min-h-[96px] resize-y py-2.5 w-full" />
       </ClayCard>
 
-      {/* Schedule */}
       <ClayCard padded={false} className="p-5">
         <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Schedule</h2>
         <div className="space-y-2">
@@ -87,20 +96,10 @@ export default function AwayMessagesPage() {
             { value: 'outside_hours', label: 'Outside business hours', desc: 'Uses your configured business hours' },
             { value: 'custom', label: 'Custom times', desc: 'Set specific active hours' },
           ] as const).map((opt) => (
-            <label
-              key={opt.value}
-              className={`flex cursor-pointer items-start gap-3 rounded-clay-md border p-3 transition-colors ${
-                schedule === opt.value ? 'border-clay-rose bg-clay-rose/5' : 'border-clay-border'
-              }`}
-            >
-              <input
-                type="radio"
-                name="schedule"
-                value={opt.value}
-                checked={schedule === opt.value}
-                onChange={() => setSchedule(opt.value)}
-                className="mt-0.5 accent-clay-rose"
-              />
+            <label key={opt.value}
+              className={`flex cursor-pointer items-start gap-3 rounded-clay-md border p-3 transition-colors ${schedule === opt.value ? 'border-clay-rose bg-clay-rose/5' : 'border-clay-border'}`}>
+              <input type="radio" name="schedule" value={opt.value} checked={schedule === opt.value}
+                onChange={() => setSchedule(opt.value)} className="mt-0.5 accent-clay-rose" />
               <div>
                 <span className="text-[13px] font-medium text-clay-ink">{opt.label}</span>
                 <p className="text-[11.5px] text-clay-ink-muted">{opt.desc}</p>
@@ -121,8 +120,8 @@ export default function AwayMessagesPage() {
       </ClayCard>
 
       <div className="flex items-center gap-3">
-        <ClayButton variant="obsidian" onClick={handleSave} leading={<LuSave className="h-4 w-4" />}>
-          Save Away Message
+        <ClayButton variant="obsidian" onClick={handleSave} disabled={isSaving} leading={<LuSave className="h-4 w-4" />}>
+          {isSaving ? 'Saving...' : 'Save Away Message'}
         </ClayButton>
       </div>
       <div className="h-6" />

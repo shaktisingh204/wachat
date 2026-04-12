@@ -1,58 +1,61 @@
 'use client';
 
 /**
- * Wachat Broadcast Scheduler — schedule broadcasts for future delivery.
+ * Wachat Broadcast Scheduler -- schedule broadcasts for future delivery.
  */
 
 import * as React from 'react';
-import { useState } from 'react';
-import { LuCalendarClock, LuSave, LuRepeat } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback, useActionState } from 'react';
+import { LuCalendarClock, LuLoader, LuCircleX } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import {
+  getScheduledBroadcasts,
+  scheduleBroadcast,
+  cancelScheduledBroadcast,
+} from '@/app/actions/wachat-features.actions';
 
-type Recurrence = 'none' | 'daily' | 'weekly' | 'monthly';
-
-interface ScheduledBroadcast {
-  id: string;
-  name: string;
-  template: string;
-  audience: string;
-  date: string;
-  time: string;
-  timezone: string;
-  recurrence: Recurrence;
-}
-
-const TEMPLATES = ['Order Confirmation', 'Welcome Message', 'Promo Offer', 'Appointment Reminder'];
-const TIMEZONES = ['UTC', 'Asia/Kolkata', 'America/New_York', 'Europe/London', 'Asia/Dubai'];
+const TIMEZONES = ['UTC', 'Asia/Kolkata', 'America/New_York', 'Europe/London'];
 
 export default function BroadcastSchedulerPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
+  const projectId = activeProject?._id?.toString();
 
-  const [schedules, setSchedules] = useState<ScheduledBroadcast[]>([
-    { id: '1', name: 'Weekly Promo', template: 'Promo Offer', audience: 'tag:vip', date: '2026-04-15', time: '10:00', timezone: 'UTC', recurrence: 'weekly' },
-  ]);
+  const [schedules, setSchedules] = useState<any[]>([]);
+  const [isLoading, startLoading] = useTransition();
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
-  const [form, setForm] = useState({
-    name: '', template: TEMPLATES[0], audience: 'all', date: '', time: '09:00', timezone: 'UTC', recurrence: 'none' as Recurrence,
-  });
+  const [formState, formAction, isPending] = useActionState(scheduleBroadcast, null);
 
-  const handleSave = () => {
-    if (!form.name.trim() || !form.date) {
-      toast({ title: 'Missing fields', description: 'Name and date are required.', variant: 'destructive' });
-      return;
+  const fetchSchedules = useCallback((pid: string) => {
+    startLoading(async () => {
+      const res = await getScheduledBroadcasts(pid);
+      if (res.error) toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      else setSchedules(res.schedules || []);
+    });
+  }, [toast]);
+
+  useEffect(() => { if (projectId) fetchSchedules(projectId); }, [projectId, fetchSchedules]);
+
+  useEffect(() => {
+    if (formState?.message) {
+      toast({ title: 'Scheduled', description: formState.message });
+      if (projectId) fetchSchedules(projectId);
     }
-    const newItem: ScheduledBroadcast = { ...form, id: Date.now().toString() };
-    setSchedules((prev) => [...prev, newItem]);
-    setForm({ name: '', template: TEMPLATES[0], audience: 'all', date: '', time: '09:00', timezone: 'UTC', recurrence: 'none' });
-    toast({ title: 'Scheduled', description: `"${form.name}" has been scheduled.` });
-  };
+    if (formState?.error) toast({ title: 'Error', description: formState.error, variant: 'destructive' });
+  }, [formState, toast, projectId, fetchSchedules]);
 
-  const handleDelete = (id: string) => {
-    setSchedules((prev) => prev.filter((s) => s.id !== id));
-    toast({ title: 'Removed', description: 'Schedule deleted.' });
+  const handleCancel = async (id: string) => {
+    setCancellingId(id);
+    const res = await cancelScheduledBroadcast(id);
+    setCancellingId(null);
+    if (res.error) toast({ title: 'Error', description: res.error, variant: 'destructive' });
+    else {
+      setSchedules((prev) => prev.map((s) => s._id === id ? { ...s, status: 'cancelled' } : s));
+      toast({ title: 'Cancelled', description: 'Broadcast schedule cancelled.' });
+    }
   };
 
   const inputCls = 'rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none w-full';
@@ -67,73 +70,65 @@ export default function BroadcastSchedulerPage() {
 
       <div>
         <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Broadcast Scheduler</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Schedule broadcasts for future delivery with optional recurring patterns.</p>
+        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Schedule broadcasts for future delivery.</p>
       </div>
 
-      {/* Form */}
       <ClayCard padded={false} className="p-5">
         <h2 className="text-[15px] font-semibold text-clay-ink mb-4">New Schedule</h2>
-        <div className="grid gap-3 sm:grid-cols-2 max-w-2xl">
-          <input className={inputCls} placeholder="Broadcast name *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          <select className={inputCls} value={form.template} onChange={(e) => setForm({ ...form, template: e.target.value })}>
-            {TEMPLATES.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
-          <select className={inputCls} value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })}>
-            <option value="all">All Contacts</option>
-            <option value="tag:vip">Tag: VIP</option>
-            <option value="tag:new">Tag: New</option>
-            <option value="segment:active">Segment: Active Users</option>
-          </select>
-          <select className={inputCls} value={form.timezone} onChange={(e) => setForm({ ...form, timezone: e.target.value })}>
+        <form action={formAction} className="grid gap-3 sm:grid-cols-2 max-w-2xl">
+          <input type="hidden" name="projectId" value={projectId || ''} />
+          <input className={inputCls} name="name" placeholder="Broadcast name *" required />
+          <input className={inputCls} name="templateName" placeholder="Template name *" required />
+          <input className={inputCls} name="audience" placeholder="Audience (default: all)" />
+          <select className={inputCls} name="timezone">
             {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz}</option>)}
           </select>
-          <input type="date" className={inputCls} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-          <input type="time" className={inputCls} value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} />
+          <input type="datetime-local" className={inputCls} name="scheduledAt" required />
+          <select className={inputCls} name="recurring">
+            <option value="none">One-time</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
           <div className="sm:col-span-2">
-            <label className="text-[12px] text-clay-ink-muted mb-1.5 block">Recurrence</label>
-            <div className="flex gap-2">
-              {(['none', 'daily', 'weekly', 'monthly'] as const).map((r) => (
-                <button key={r} onClick={() => setForm({ ...form, recurrence: r })}
-                  className={`rounded-md px-3 py-1.5 text-[12px] font-medium capitalize transition-colors ${
-                    form.recurrence === r ? 'bg-clay-ink text-white' : 'bg-clay-bg text-clay-ink-muted border border-clay-border hover:bg-clay-bg-2'
-                  }`}>{r === 'none' ? 'One-time' : r}</button>
-              ))}
-            </div>
+            <ClayButton type="submit" variant="obsidian" disabled={isPending || !projectId}>
+              {isPending ? 'Scheduling...' : 'Save Schedule'}
+            </ClayButton>
           </div>
-        </div>
-        <div className="mt-4">
-          <ClayButton variant="obsidian" onClick={handleSave} leading={<LuSave className="h-4 w-4" />}>Save Schedule</ClayButton>
-        </div>
+        </form>
       </ClayCard>
 
-      {/* Scheduled list */}
-      {schedules.length > 0 ? (
+      {isLoading && schedules.length === 0 ? (
+        <div className="flex h-20 items-center justify-center">
+          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
+        </div>
+      ) : schedules.length > 0 ? (
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
                 <th className="px-5 py-3">Name</th>
                 <th className="px-5 py-3">Template</th>
-                <th className="px-5 py-3">Audience</th>
-                <th className="px-5 py-3">Date / Time</th>
-                <th className="px-5 py-3">Recurrence</th>
+                <th className="px-5 py-3">Scheduled At</th>
+                <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody>
               {schedules.map((s) => (
-                <tr key={s.id} className="border-b border-clay-border last:border-0">
+                <tr key={s._id} className="border-b border-clay-border last:border-0">
                   <td className="px-5 py-3 text-[13px] font-medium text-clay-ink">{s.name}</td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">{s.template}</td>
-                  <td className="px-5 py-3"><ClayBadge tone="neutral">{s.audience}</ClayBadge></td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">{s.date} {s.time} ({s.timezone})</td>
+                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">{s.templateName}</td>
+                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">{s.scheduledAt ? new Date(s.scheduledAt).toLocaleString() : '--'}</td>
                   <td className="px-5 py-3">
-                    {s.recurrence !== 'none' ? (
-                      <span className="inline-flex items-center gap-1 text-[12px] text-clay-ink-muted"><LuRepeat className="h-3 w-3" />{s.recurrence}</span>
-                    ) : <span className="text-[12px] text-clay-ink-muted">One-time</span>}
+                    <ClayBadge tone={s.status === 'scheduled' ? 'blue' : s.status === 'cancelled' ? 'red' : 'neutral'}>{s.status}</ClayBadge>
                   </td>
                   <td className="px-5 py-3 text-right">
-                    <ClayButton size="sm" variant="ghost" onClick={() => handleDelete(s.id)}>Delete</ClayButton>
+                    {s.status === 'scheduled' && (
+                      <ClayButton size="sm" variant="ghost" onClick={() => handleCancel(s._id)} disabled={cancellingId === s._id}>
+                        {cancellingId === s._id ? 'Cancelling...' : 'Cancel'}
+                      </ClayButton>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Image as ImageIcon, Upload, AlertCircle } from 'lucide-react';
+import { Image as ImageIcon, Upload, AlertCircle, Trash2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -101,14 +101,37 @@ export default function CreativeLibraryPage() {
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                             {images.map((img) => (
-                                <Card key={img.hash} className="overflow-hidden group">
-                                    <div className="aspect-square bg-muted">
+                                <Card key={img.hash} className="overflow-hidden group relative">
+                                    <div
+                                        className="aspect-square bg-muted cursor-pointer"
+                                        onClick={() => window.open(img.url, '_blank')}
+                                        title="Click to preview"
+                                    >
                                         <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                            <ExternalLink className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        </div>
                                     </div>
                                     <CardContent className="p-2">
-                                        <div className="text-xs font-medium truncate">{img.name}</div>
-                                        <div className="text-[10px] text-muted-foreground">
-                                            {img.width}×{img.height}
+                                        <div className="flex items-center justify-between gap-1">
+                                            <div className="min-w-0">
+                                                <div className="text-xs font-medium truncate">{img.name}</div>
+                                                <div className="text-[10px] text-muted-foreground">
+                                                    {img.width}×{img.height}
+                                                </div>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-6 w-6 shrink-0 text-muted-foreground hover:text-red-600"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setImages((prev) => prev.filter((i) => i.hash !== img.hash));
+                                                    toast({ title: 'Image removed from library' });
+                                                }}
+                                            >
+                                                <Trash2 className="h-3 w-3" />
+                                            </Button>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -135,12 +158,33 @@ export default function CreativeLibraryPage() {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                         {videos.map((v) => (
-                            <Card key={v.id}>
-                                <div className="aspect-video bg-muted relative">
+                            <Card key={v.id} className="overflow-hidden group relative">
+                                <div
+                                    className="aspect-video bg-muted relative cursor-pointer"
+                                    onClick={() => v.source ? window.open(v.source, '_blank') : v.picture && window.open(v.picture, '_blank')}
+                                    title="Click to preview"
+                                >
                                     {v.picture && <img src={v.picture} alt="" className="w-full h-full object-cover" />}
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                        <ExternalLink className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </div>
                                 </div>
                                 <CardContent className="p-2">
-                                    <div className="text-xs font-medium truncate">{v.title || 'Untitled'}</div>
+                                    <div className="flex items-center justify-between gap-1">
+                                        <div className="text-xs font-medium truncate">{v.title || 'Untitled'}</div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6 shrink-0 text-muted-foreground hover:text-red-600"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setVideos((prev) => prev.filter((vid) => vid.id !== v.id));
+                                                toast({ title: 'Video removed from library' });
+                                            }}
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                    </div>
                                 </CardContent>
                             </Card>
                         ))}

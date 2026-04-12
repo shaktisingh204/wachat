@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { FileText, Plus, Download } from 'lucide-react';
+import { FileText, Plus, Download, RefreshCw, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -108,6 +108,23 @@ export default function LeadFormsPage() {
                     </SelectContent>
                 </Select>
             </div>
+
+            {/* Total leads count stat card */}
+            {!loading && forms.length > 0 && (
+                <Card>
+                    <CardContent className="p-4 flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2]">
+                            <Users className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-muted-foreground">Total leads across all forms</p>
+                            <p className="text-2xl font-bold tabular-nums">
+                                {forms.reduce((sum: number, f: any) => sum + (f.leads_count || 0), 0)}
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             <Card>
                 <CardContent className="p-0">

@@ -1,14 +1,18 @@
 'use client';
 
 import * as React from 'react';
-import { ShieldCheck, Copy, ExternalLink } from 'lucide-react';
+import { ShieldCheck, Copy, ExternalLink, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import { listPixels } from '@/app/actions/ad-manager.actions';
+import { sendTestConversionEvent } from '@/app/actions/ad-manager-features.actions';
 
 const SAMPLE_PAYLOAD = `{
   "event_name": "Purchase",
@@ -32,6 +36,8 @@ export default function CapiPage() {
     const { activeAccount } = useAdManager();
     const [pixels, setPixels] = React.useState<any[]>([]);
     const [selectedPixelId, setSelectedPixelId] = React.useState<string>('');
+    const [testEventName, setTestEventName] = React.useState<string>('PageView');
+    const [sendingTest, setSendingTest] = React.useState(false);
 
     React.useEffect(() => {
         if (!activeAccount) return;
@@ -132,11 +138,44 @@ export default function CapiPage() {
                 <CardHeader>
                     <CardTitle className="text-base">4. Send a test event from SabNode</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
+                <CardContent className="space-y-4 text-sm">
                     <p>
                         SabNode provides a server action <code className="px-1 py-0.5 bg-muted rounded">sendConversionApiEvent</code> you can
                         call from your e-commerce checkout, CRM webhook, or backend.
                     </p>
+                    <div className="flex items-end gap-3">
+                        <div className="space-y-1.5">
+                            <p className="text-xs font-medium text-muted-foreground">Event name</p>
+                            <Select value={testEventName} onValueChange={setTestEventName}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="PageView">PageView</SelectItem>
+                                    <SelectItem value="Purchase">Purchase</SelectItem>
+                                    <SelectItem value="Lead">Lead</SelectItem>
+                                    <SelectItem value="AddToCart">AddToCart</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Button
+                            disabled={!selectedPixelId || sendingTest}
+                            onClick={async () => {
+                                if (!selectedPixelId) return;
+                                setSendingTest(true);
+                                const res = await sendTestConversionEvent(selectedPixelId, testEventName);
+                                setSendingTest(false);
+                                if (res.error) {
+                                    toast({ title: 'Test event failed', description: res.error, variant: 'destructive' });
+                                } else {
+                                    toast({ title: 'Test event sent', description: `${testEventName} event sent to pixel ${selectedPixelId}` });
+                                }
+                            }}
+                        >
+                            <Send className="h-4 w-4 mr-1" />
+                            {sendingTest ? 'Sending...' : 'Send Test Event'}
+                        </Button>
+                    </div>
                     <Button variant="outline" asChild>
                         <a
                             href="https://developers.facebook.com/docs/marketing-api/conversions-api"

@@ -1,28 +1,33 @@
 'use client';
 
 import * as React from 'react';
-import { Wallet, AlertCircle, DollarSign, Calendar } from 'lucide-react';
+import { Wallet, AlertCircle, DollarSign, Calendar, RefreshCw, Copy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import { getAdAccountDetails } from '@/app/actions/ad-manager.actions';
 import { formatMoney } from '@/components/wabasimplify/ad-manager/constants';
 
 export default function BillingPage() {
     const { activeAccount } = useAdManager();
+    const { toast } = useToast();
     const [loading, setLoading] = React.useState(true);
     const [details, setDetails] = React.useState<any>(null);
+    const [refreshKey, setRefreshKey] = React.useState(0);
 
     React.useEffect(() => {
         if (!activeAccount) return;
+        setLoading(true);
         (async () => {
             const res = await getAdAccountDetails(activeAccount.account_id);
             setDetails(res.data);
             setLoading(false);
         })();
-    }, [activeAccount]);
+    }, [activeAccount, refreshKey]);
 
     if (!activeAccount) {
         return (
@@ -38,13 +43,34 @@ export default function BillingPage() {
 
     return (
         <div className="p-6 space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                    <Wallet className="h-6 w-6" /> Billing
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Payment methods, spend and account balance for {activeAccount.name}.
-                </p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                        <Wallet className="h-6 w-6" /> Billing
+                    </h1>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Payment methods, spend and account balance for {activeAccount.name}.
+                    </p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                            navigator.clipboard.writeText(activeAccount.account_id);
+                            toast({ title: 'Copied', description: `Account ID ${activeAccount.account_id} copied to clipboard.` });
+                        }}
+                    >
+                        <Copy className="h-3.5 w-3.5 mr-1" /> Copy Account ID
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setRefreshKey((k) => k + 1)}
+                    >
+                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    </Button>
+                </div>
             </div>
 
             <div className="grid md:grid-cols-3 gap-3">

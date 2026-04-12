@@ -1,64 +1,77 @@
 'use client';
 
-/**
- * Wachat API Keys — manage API keys for WhatsApp API access.
- */
-
 import * as React from 'react';
-import { useState } from 'react';
-import { LuKey, LuPlus, LuCopy, LuTrash2, LuCheck, LuShieldAlert } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import { LuKey, LuPlus, LuCopy, LuTrash2, LuCheck, LuShieldAlert, LuLoader } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
-
-type ApiKeyItem = { id: string; name: string; key: string; created: string; lastUsed: string };
+import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
+import { getApiKeys, createApiKey, revokeApiKey } from '@/app/actions/wachat-features.actions';
 
 function maskKey(key: string) {
+  if (key.length <= 12) return key;
   return key.slice(0, 8) + '...' + key.slice(-4);
-}
-
-function generateKey() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  return 'wk_' + Array.from({ length: 40 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
 export default function ApiKeysPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
-  const [keys, setKeys] = useState<ApiKeyItem[]>([
-    { id: '1', name: 'Production Key', key: 'wk_a8f3kJ29xMp5qL7nR2vT0wYz4bC6dE1gH', created: '2026-03-15', lastUsed: '2026-04-12' },
-    { id: '2', name: 'Development Key', key: 'wk_m9n2oP4qR6sT8uV0wX3yZ5aB7cD1eF2gH', created: '2026-02-20', lastUsed: '2026-04-10' },
-  ]);
+  const projectId = activeProject?._id?.toString();
+  const [keys, setKeys] = useState<any[]>([]);
   const [newName, setNewName] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
+  const [isLoading, startTransition] = useTransition();
+  const [isMutating, startMutateTransition] = useTransition();
+
+  const fetchData = useCallback(() => {
+    if (!projectId) return;
+    startTransition(async () => {
+      const res = await getApiKeys(projectId);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      setKeys(res.keys ?? []);
+    });
+  }, [projectId]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleCreate = () => {
-    if (!newName.trim()) return;
-    const newKey: ApiKeyItem = {
-      id: Date.now().toString(),
-      name: newName.trim(),
-      key: generateKey(),
-      created: new Date().toISOString().slice(0, 10),
-      lastUsed: 'Never',
-    };
-    setKeys((prev) => [newKey, ...prev]);
-    setNewName('');
-    setShowCreate(false);
-    toast({ title: 'Key Created', description: `API key "${newKey.name}" has been created.` });
+    if (!newName.trim() || !projectId) return;
+    startMutateTransition(async () => {
+      const res = await createApiKey(projectId, newName.trim());
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      toast({ title: 'Key Created', description: res.message });
+      if (res.key) setNewlyCreatedKey(res.key);
+      setNewName('');
+      setShowCreate(false);
+      fetchData();
+    });
   };
 
-  const handleCopy = async (item: ApiKeyItem) => {
-    await navigator.clipboard.writeText(item.key);
-    setCopiedId(item.id);
+  const handleCopy = async (key: string, id: string) => {
+    await navigator.clipboard.writeText(key);
+    setCopiedId(id);
     toast({ title: 'Copied', description: 'API key copied to clipboard.' });
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleRevoke = (id: string) => {
-    setKeys((prev) => prev.filter((k) => k.id !== id));
-    toast({ title: 'Revoked', description: 'API key has been revoked.' });
+  const handleRevoke = (keyId: string) => {
+    startMutateTransition(async () => {
+      const res = await revokeApiKey(keyId);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      toast({ title: 'Revoked', description: 'API key has been revoked.' });
+      fetchData();
+    });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+      </div>
+    );
+  }
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
@@ -87,10 +100,24 @@ export default function ApiKeysPage() {
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
               placeholder="Key name (e.g. Production)"
               className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
-            <ClayButton size="sm" onClick={handleCreate} disabled={!newName.trim()}>Create</ClayButton>
+            <ClayButton size="sm" onClick={handleCreate} disabled={!newName.trim() || isMutating}>Create</ClayButton>
             <ClayButton size="sm" variant="pill" onClick={() => setShowCreate(false)}>Cancel</ClayButton>
           </div>
         </ClayCard>
+      )}
+
+      {newlyCreatedKey && (
+        <div className="rounded-[12px] border border-emerald-200 bg-emerald-50 p-4 flex items-start gap-3">
+          <LuKey className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[12.5px] text-emerald-800 font-medium">New key created. Copy it now - it will not be shown in full again.</p>
+            <code className="mt-1 block text-[12px] font-mono text-emerald-900 break-all">{newlyCreatedKey}</code>
+          </div>
+          <button onClick={() => { handleCopy(newlyCreatedKey, 'new'); setNewlyCreatedKey(null); }}
+            className="shrink-0 rounded-md bg-emerald-200 px-2 py-1 text-[11px] text-emerald-800 hover:bg-emerald-300">
+            Copy
+          </button>
+        </div>
       )}
 
       <div className="rounded-[12px] border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
@@ -105,26 +132,35 @@ export default function ApiKeysPage() {
               <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
                 <th className="px-5 py-3">Name</th>
                 <th className="px-5 py-3">Key</th>
+                <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3">Created</th>
-                <th className="px-5 py-3">Last Used</th>
                 <th className="px-5 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {keys.map((k) => (
-                <tr key={k.id} className="border-b border-clay-border last:border-0">
+                <tr key={k._id} className="border-b border-clay-border last:border-0">
                   <td className="px-5 py-3 font-medium text-[13px] text-clay-ink">{k.name}</td>
                   <td className="px-5 py-3 text-[13px] text-clay-ink font-mono">{maskKey(k.key)}</td>
-                  <td className="px-5 py-3 text-[12px] text-clay-ink-muted">{k.created}</td>
-                  <td className="px-5 py-3 text-[12px] text-clay-ink-muted">{k.lastUsed}</td>
+                  <td className="px-5 py-3">
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${k.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                      {k.isActive ? 'Active' : 'Revoked'}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3 text-[12px] text-clay-ink-muted">
+                    {k.createdAt ? new Date(k.createdAt).toLocaleDateString() : '-'}
+                  </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => handleCopy(k)} className="p-1.5 rounded-md hover:bg-clay-surface-2 transition-colors" title="Copy">
-                        {copiedId === k.id ? <LuCheck className="h-3.5 w-3.5 text-emerald-600" /> : <LuCopy className="h-3.5 w-3.5 text-clay-ink-muted" />}
+                      <button onClick={() => handleCopy(k.key, k._id)} className="p-1.5 rounded-md hover:bg-clay-surface-2 transition-colors" title="Copy">
+                        {copiedId === k._id ? <LuCheck className="h-3.5 w-3.5 text-emerald-600" /> : <LuCopy className="h-3.5 w-3.5 text-clay-ink-muted" />}
                       </button>
-                      <button onClick={() => handleRevoke(k.id)} className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-red-500" title="Revoke">
-                        <LuTrash2 className="h-3.5 w-3.5" />
-                      </button>
+                      {k.isActive && (
+                        <button onClick={() => handleRevoke(k._id)} disabled={isMutating}
+                          className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-red-500" title="Revoke">
+                          <LuTrash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -2,21 +2,27 @@
 
 /**
  * Wachat WhatsApp Link Generator — generate wa.me links with pre-filled messages.
+ * Self-contained client-side tool. Uses project phone number as default.
  */
 
 import * as React from 'react';
 import { useState, useMemo } from 'react';
-import { LuLink, LuCopy, LuCheck, LuQrCode } from 'react-icons/lu';
+import { LuChartBar, LuCircleCheck, LuCircleX, LuTriangleAlert, LuLink, LuCopy, LuCheck, LuQrCode } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
+import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
 
 export default function WhatsAppLinkGeneratorPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
+  const projectPhone = (activeProject as any)?.phoneNumber || (activeProject as any)?.whatsappNumber || '';
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
+
+  React.useEffect(() => {
+    if (projectPhone && !phone) setPhone(projectPhone.replace(/[^0-9]/g, ''));
+  }, [projectPhone, phone]);
 
   const generatedLink = useMemo(() => {
     const cleanPhone = phone.replace(/[^0-9]/g, '');
@@ -58,12 +64,19 @@ export default function WhatsAppLinkGeneratorPage() {
             <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
               placeholder="919876543210"
               className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2.5 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none font-mono" />
+            {projectPhone && (
+              <button onClick={() => setPhone(projectPhone.replace(/[^0-9]/g, ''))}
+                className="mt-1 text-[11px] text-clay-accent hover:underline">
+                Use project number
+              </button>
+            )}
           </div>
           <div>
             <label className="text-[13px] font-medium text-clay-ink mb-1.5 block">Pre-filled Message (optional)</label>
             <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4}
               placeholder="Hi! I am interested in your services..."
               className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none resize-none" />
+            <div className="text-right text-[11px] text-clay-ink-muted">{message.length}/1024</div>
           </div>
 
           {generatedLink && (
@@ -82,7 +95,7 @@ export default function WhatsAppLinkGeneratorPage() {
           <div className="flex gap-3">
             <ClayButton variant="obsidian" size="md" onClick={handleCopy} disabled={!generatedLink}
               leading={<LuLink className="h-3.5 w-3.5" />}>
-              Copy Link
+              {copied ? 'Copied!' : 'Copy Link'}
             </ClayButton>
             {generatedLink && (
               <ClayButton variant="pill" size="md" onClick={() => window.open(generatedLink, '_blank')}>
@@ -101,6 +114,9 @@ export default function WhatsAppLinkGeneratorPage() {
               <p className="mt-4 text-[12px] text-clay-ink-muted text-center max-w-[240px]">
                 Share this QR code so customers can start chatting with you instantly.
               </p>
+              <ClayButton variant="pill" size="sm" className="mt-3" onClick={() => { window.open(qrUrl, '_blank'); }}>
+                Download QR
+              </ClayButton>
             </>
           ) : (
             <div className="text-center py-8">

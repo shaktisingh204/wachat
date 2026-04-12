@@ -1,44 +1,38 @@
 'use client';
 
 /**
- * Wachat Contact Merge — find and merge duplicate contacts.
+ * Wachat Contact Merge — find and merge duplicate contacts using real data.
  */
 
 import * as React from 'react';
-import { useState } from 'react';
-import { LuUsers, LuSearch, LuMerge, LuCheck } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import { LuChartBar, LuCircleCheck, LuCircleX, LuTriangleAlert, LuSearch, LuMerge, LuCheck, LuLoader } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
-
-interface Contact {
-  id: string;
-  name: string;
-  phone: string;
-  tags: string[];
-  messages: number;
-  createdAt: string;
-}
-
-const MOCK_CONTACTS: Contact[] = [
-  { id: '1', name: 'John Doe', phone: '+1234567890', tags: ['vip', 'active'], messages: 142, createdAt: '2025-08-12' },
-  { id: '2', name: 'John D.', phone: '+1234567890', tags: ['new'], messages: 8, createdAt: '2026-01-05' },
-  { id: '3', name: 'Jane Smith', phone: '+9876543210', tags: ['support'], messages: 56, createdAt: '2025-11-20' },
-  { id: '4', name: 'J. Smith', phone: '+9876543210', tags: ['vip'], messages: 3, createdAt: '2026-03-01' },
-  { id: '5', name: 'Alex Kumar', phone: '+5551234567', tags: ['active'], messages: 200, createdAt: '2025-06-15' },
-];
+import { getContactsPageData } from '@/app/actions/contact.actions';
+import { updateContactTags } from '@/app/actions/contact.actions';
 
 export default function ContactMergePage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+  const [contacts, setContacts] = useState<any[]>([]);
   const [query, setQuery] = useState('');
-  const [contacts, setContacts] = useState<Contact[]>(MOCK_CONTACTS);
   const [selected, setSelected] = useState<[string | null, string | null]>([null, null]);
-  const [merged, setMerged] = useState(false);
+  const [merging, setMerging] = useState(false);
 
-  const filtered = query
-    ? contacts.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()) || c.phone.includes(query))
-    : contacts;
+  const load = useCallback((search = '') => {
+    if (!activeProject?._id) return;
+    startTransition(async () => {
+      const res = await getContactsPageData(String(activeProject._id), undefined, 1, search);
+      setContacts(res.contacts ?? []);
+    });
+  }, [activeProject?._id]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleSearch = () => load(query);
 
   const selectContact = (id: string) => {
     if (selected[0] === id) { setSelected([null, selected[1]]); return; }
@@ -46,39 +40,33 @@ export default function ContactMergePage() {
     if (!selected[0]) setSelected([id, selected[1]]);
     else if (!selected[1]) setSelected([selected[0], id]);
     else setSelected([id, null]);
-    setMerged(false);
   };
 
-  const contactA = contacts.find((c) => c.id === selected[0]);
-  const contactB = contacts.find((c) => c.id === selected[1]);
+  const contactA = contacts.find((c) => c._id === selected[0]);
+  const contactB = contacts.find((c) => c._id === selected[1]);
 
-  const handleMerge = () => {
+  const handleMerge = async () => {
     if (!contactA || !contactB) return;
-    const mergedContact: Contact = {
-      id: contactA.id,
-      name: contactA.name,
-      phone: contactA.phone,
-      tags: [...new Set([...contactA.tags, ...contactB.tags])],
-      messages: contactA.messages + contactB.messages,
-      createdAt: contactA.createdAt < contactB.createdAt ? contactA.createdAt : contactB.createdAt,
-    };
-    setContacts((prev) => prev.filter((c) => c.id !== contactB.id).map((c) => (c.id === contactA.id ? mergedContact : c)));
-    setSelected([null, null]);
-    setMerged(true);
-    toast({ title: 'Merged', description: `Contacts merged into "${mergedContact.name}".` });
+    setMerging(true);
+    const combinedTags = [...new Set([...(contactA.tagIds || []), ...(contactB.tagIds || [])])];
+    const res = await updateContactTags(contactA._id, combinedTags);
+    if (res.success) {
+      toast({ title: 'Merged', description: `Tags from "${contactB.name || contactB.waId}" merged into "${contactA.name || contactA.waId}".` });
+      setSelected([null, null]);
+      load(query);
+    } else {
+      toast({ title: 'Error', description: res.error || 'Merge failed.', variant: 'destructive' });
+    }
+    setMerging(false);
   };
 
-  const renderContact = (c: Contact, label: string) => (
+  const renderContact = (c: any, label: string) => (
     <div className="flex-1 min-w-[200px]">
       <p className="text-[11px] font-semibold text-clay-ink-muted uppercase mb-2">{label}</p>
       <div className="space-y-2 text-[13px]">
-        <p><span className="text-clay-ink-muted">Name:</span> <span className="text-clay-ink font-medium">{c.name}</span></p>
-        <p><span className="text-clay-ink-muted">Phone:</span> <span className="text-clay-ink font-mono">{c.phone}</span></p>
-        <p><span className="text-clay-ink-muted">Messages:</span> <span className="text-clay-ink">{c.messages}</span></p>
-        <p><span className="text-clay-ink-muted">Created:</span> <span className="text-clay-ink">{c.createdAt}</span></p>
-        <div className="flex gap-1 flex-wrap">
-          {c.tags.map((t) => <ClayBadge key={t} tone="blue">{t}</ClayBadge>)}
-        </div>
+        <p><span className="text-clay-ink-muted">Name:</span> <span className="text-clay-ink font-medium">{c.name || 'Unknown'}</span></p>
+        <p><span className="text-clay-ink-muted">Phone:</span> <span className="text-clay-ink font-mono">{c.waId || '--'}</span></p>
+        <p><span className="text-clay-ink-muted">Tags:</span> <span className="text-clay-ink">{c.tagIds?.length || 0}</span></p>
       </div>
     </div>
   );
@@ -96,61 +84,67 @@ export default function ContactMergePage() {
         <p className="mt-1.5 text-[13px] text-clay-ink-muted">Find and merge duplicate contacts to keep your list clean.</p>
       </div>
 
-      {/* Search */}
       <ClayCard padded={false} className="p-5">
         <div className="flex gap-3 items-center">
           <LuSearch className="h-4 w-4 text-clay-ink-muted shrink-0" />
-          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search contacts by name or phone..."
+          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            placeholder="Search contacts by name or phone..."
             className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
+          <ClayButton size="sm" variant="pill" onClick={handleSearch} disabled={isPending}>
+            {isPending ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : 'Search'}
+          </ClayButton>
         </div>
       </ClayCard>
 
-      {/* Contact list */}
       <ClayCard padded={false} className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
-              <th className="px-5 py-3 w-8" />
-              <th className="px-5 py-3">Name</th>
-              <th className="px-5 py-3">Phone</th>
-              <th className="px-5 py-3">Messages</th>
-              <th className="px-5 py-3">Tags</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((c) => {
-              const isSelected = selected.includes(c.id);
-              return (
-                <tr key={c.id} onClick={() => selectContact(c.id)}
-                  className={`border-b border-clay-border last:border-0 cursor-pointer transition-colors ${isSelected ? 'bg-clay-rose/5' : 'hover:bg-clay-bg-2'}`}>
-                  <td className="px-5 py-3">
-                    <div className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-clay-rose bg-clay-rose' : 'border-clay-border'}`}>
-                      {isSelected && <LuCheck className="h-3 w-3 text-white" />}
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-[13px] font-medium text-clay-ink">{c.name}</td>
-                  <td className="px-5 py-3 text-[13px] font-mono text-clay-ink-muted">{c.phone}</td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink">{c.messages}</td>
-                  <td className="px-5 py-3"><div className="flex gap-1">{c.tags.map((t) => <ClayBadge key={t} tone="neutral">{t}</ClayBadge>)}</div></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        {contacts.length === 0 ? (
+          <div className="px-5 py-12 text-center text-[13px] text-clay-ink-muted">
+            {isPending ? 'Loading...' : 'No contacts found. Try a different search.'}
+          </div>
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                <th className="px-5 py-3 w-8" />
+                <th className="px-5 py-3">Name</th>
+                <th className="px-5 py-3">Phone</th>
+                <th className="px-5 py-3">Tags</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contacts.map((c: any) => {
+                const isSelected = selected.includes(c._id);
+                return (
+                  <tr key={c._id} onClick={() => selectContact(c._id)}
+                    className={`border-b border-clay-border last:border-0 cursor-pointer transition-colors ${isSelected ? 'bg-clay-rose/5' : 'hover:bg-clay-bg-2'}`}>
+                    <td className="px-5 py-3">
+                      <div className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-clay-rose bg-clay-rose' : 'border-clay-border'}`}>
+                        {isSelected && <LuCheck className="h-3 w-3 text-white" />}
+                      </div>
+                    </td>
+                    <td className="px-5 py-3 text-[13px] font-medium text-clay-ink">{c.name || 'Unknown'}</td>
+                    <td className="px-5 py-3 text-[13px] font-mono text-clay-ink-muted">{c.waId || '--'}</td>
+                    <td className="px-5 py-3"><ClayBadge tone="neutral">{c.tagIds?.length || 0} tags</ClayBadge></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </ClayCard>
 
-      {/* Side-by-side comparison */}
       {contactA && contactB && (
         <ClayCard padded={false} className="p-5">
           <h2 className="text-[15px] font-semibold text-clay-ink mb-4">Compare & Merge</h2>
           <div className="flex gap-6 flex-wrap">
             {renderContact(contactA, 'Primary (keep)')}
             <div className="hidden sm:flex items-center"><LuMerge className="h-6 w-6 text-clay-ink-muted" /></div>
-            {renderContact(contactB, 'Secondary (merge into primary)')}
+            {renderContact(contactB, 'Secondary (merge tags into primary)')}
           </div>
           <div className="mt-4">
-            <ClayButton variant="obsidian" onClick={handleMerge} leading={<LuMerge className="h-4 w-4" />}>
-              Merge Contacts
+            <ClayButton variant="obsidian" onClick={handleMerge} disabled={merging} leading={merging ? <LuLoader className="h-4 w-4 animate-spin" /> : <LuMerge className="h-4 w-4" />}>
+              {merging ? 'Merging...' : 'Merge Contacts'}
             </ClayButton>
           </div>
         </ClayCard>

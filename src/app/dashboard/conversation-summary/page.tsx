@@ -1,68 +1,55 @@
 'use client';
 
 /**
- * Wachat Conversation Summary — AI-powered conversation summarizer.
+ * Wachat Conversation Summary — aggregate real timeline data into a readable summary.
  */
 
 import * as React from 'react';
-import { useState } from 'react';
-import { LuBrain, LuSearch, LuLoader, LuMessageSquare, LuSmile, LuListChecks, LuTag } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import { LuChartBar, LuCircleCheck, LuCircleX, LuTriangleAlert, LuSearch, LuLoader, LuMessageSquare } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
-
-interface Summary {
-  contactName: string;
-  phone: string;
-  messageCount: number;
-  summary: string;
-  topics: string[];
-  sentiment: 'positive' | 'neutral' | 'negative';
-  actionItems: string[];
-}
-
-const MOCK_SUMMARY: Summary = {
-  contactName: 'John Doe',
-  phone: '+1234567890',
-  messageCount: 47,
-  summary: 'Customer inquired about pricing for the Enterprise plan, requested a demo, and followed up on invoice #1042. Agent provided pricing details, scheduled a demo for next Tuesday, and escalated the invoice issue to billing.',
-  topics: ['Pricing', 'Demo Request', 'Billing Issue', 'Enterprise Plan'],
-  sentiment: 'positive',
-  actionItems: [
-    'Send Enterprise plan comparison PDF',
-    'Confirm demo slot for Tuesday 2pm',
-    'Follow up with billing on invoice #1042',
-    'Send post-demo feedback form',
-  ],
-};
-
-const SENTIMENT_CONFIG = {
-  positive: { label: 'Positive', color: 'bg-green-100 text-green-700', icon: '😊' },
-  neutral:  { label: 'Neutral',  color: 'bg-zinc-100 text-zinc-600',  icon: '😐' },
-  negative: { label: 'Negative', color: 'bg-red-100 text-red-700',    icon: '😟' },
-};
+import { getContactTimeline } from '@/app/actions/wachat-features.actions';
+import { getContactsPageData } from '@/app/actions/contact.actions';
 
 export default function ConversationSummaryPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
-  const [contactId, setContactId] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [summary, setSummary] = useState<Summary | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [contacts, setContacts] = useState<any[]>([]);
+  const [searchQ, setSearchQ] = useState('');
+  const [selectedId, setSelectedId] = useState('');
+  const [events, setEvents] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
-  const handleSearch = () => {
-    if (!contactId.trim()) {
-      toast({ title: 'Required', description: 'Enter a contact ID or phone number.', variant: 'destructive' });
-      return;
-    }
-    setLoading(true);
-    setSummary(null);
-    setTimeout(() => {
-      setSummary(MOCK_SUMMARY);
-      setLoading(false);
-    }, 1500);
+  const loadContacts = useCallback((q = '') => {
+    if (!activeProject?._id) return;
+    startTransition(async () => {
+      const res = await getContactsPageData(String(activeProject._id), undefined, 1, q);
+      setContacts(res.contacts ?? []);
+    });
+  }, [activeProject?._id]);
+
+  useEffect(() => { loadContacts(); }, [loadContacts]);
+
+  const handleSearch = () => loadContacts(searchQ);
+
+  const loadTimeline = (contactId: string) => {
+    if (!activeProject?._id) return;
+    setSelectedId(contactId);
+    startTransition(async () => {
+      const res = await getContactTimeline(String(activeProject._id), contactId);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      setEvents(res.events ?? []);
+      setLoaded(true);
+    });
   };
 
-  const sentimentCfg = summary ? SENTIMENT_CONFIG[summary.sentiment] : null;
+  const selectedContact = contacts.find((c: any) => c._id === selectedId);
+  const inbound = events.filter((e: any) => e.type === 'message' && e.direction === 'in');
+  const outbound = events.filter((e: any) => e.type === 'message' && e.direction === 'out');
+  const notes = events.filter((e: any) => e.type === 'note');
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
@@ -73,103 +60,112 @@ export default function ConversationSummaryPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
-          Conversation Summary
-        </h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">
-          Get AI-generated summaries of any conversation with key topics, sentiment, and action items.
-        </p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Conversation Summary</h1>
+        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Select a contact to see an aggregated summary of their conversation timeline.</p>
       </div>
 
-      {/* Search */}
       <ClayCard padded={false} className="p-5">
-        <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Select Conversation</h2>
-        <div className="flex gap-3">
-          <input
-            type="text" value={contactId} onChange={(e) => setContactId(e.target.value)}
+        <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Select Contact</h2>
+        <div className="flex gap-3 mb-3">
+          <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            placeholder="Contact ID or phone number..."
-            className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
-          />
-          <ClayButton size="sm" variant="obsidian" onClick={handleSearch} disabled={loading}>
-            {loading ? <LuLoader className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <LuSearch className="mr-1.5 h-3.5 w-3.5" />}
-            Summarize
+            placeholder="Search by name or phone..."
+            className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
+          <ClayButton size="sm" variant="pill" onClick={handleSearch} disabled={isPending}>
+            {isPending ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : <LuSearch className="h-3.5 w-3.5" />}
           </ClayButton>
         </div>
+        {contacts.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {contacts.slice(0, 10).map((c: any) => (
+              <ClayButton key={c._id} variant={selectedId === c._id ? 'obsidian' : 'pill'} size="sm"
+                onClick={() => loadTimeline(c._id)}>
+                {c.name || c.waId || 'Unknown'}
+              </ClayButton>
+            ))}
+          </div>
+        )}
       </ClayCard>
 
-      {loading && (
+      {isPending && selectedId && (
         <div className="flex h-32 items-center justify-center gap-3">
           <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
-          <p className="text-[13px] text-clay-ink-muted">Generating summary with AI...</p>
+          <p className="text-[13px] text-clay-ink-muted">Loading timeline...</p>
         </div>
       )}
 
-      {summary && !loading && (
+      {loaded && !isPending && (
         <>
-          {/* Summary */}
           <ClayCard padded={false} className="p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h2 className="text-[15px] font-semibold text-clay-ink">{summary.contactName}</h2>
-                <p className="text-[12px] text-clay-ink-muted font-mono">{summary.phone}</p>
+                <h2 className="text-[15px] font-semibold text-clay-ink">{selectedContact?.name || selectedContact?.waId || 'Contact'}</h2>
+                <p className="text-[12px] text-clay-ink-muted font-mono">{selectedContact?.waId}</p>
               </div>
               <div className="flex items-center gap-2">
                 <LuMessageSquare className="h-4 w-4 text-clay-ink-muted" />
-                <span className="text-[13px] text-clay-ink">{summary.messageCount} messages</span>
+                <span className="text-[13px] text-clay-ink">{events.length} events</span>
               </div>
             </div>
             <div className="rounded-clay-md border border-clay-border bg-clay-bg p-4">
-              <LuBrain className="h-4 w-4 text-clay-rose mb-2" />
-              <p className="text-[13px] text-clay-ink leading-relaxed">{summary.summary}</p>
+              {events.length === 0 ? (
+                <p className="text-[13px] text-clay-ink-muted">No messages found for this contact.</p>
+              ) : (
+                <p className="text-[13px] text-clay-ink leading-relaxed">
+                  This conversation has {inbound.length} inbound and {outbound.length} outbound messages
+                  {notes.length > 0 ? `, plus ${notes.length} internal note(s)` : ''}.
+                  {events[0]?.timestamp && ` Most recent activity: ${new Date(events[0].timestamp).toLocaleDateString()}.`}
+                  {events[events.length - 1]?.timestamp && ` First recorded activity: ${new Date(events[events.length - 1].timestamp).toLocaleDateString()}.`}
+                </p>
+              )}
             </div>
           </ClayCard>
 
           <div className="grid gap-4 sm:grid-cols-3">
-            {/* Topics */}
-            <ClayCard padded={false} className="p-5">
-              <h3 className="text-[13px] font-semibold text-clay-ink mb-3 flex items-center gap-1.5">
-                <LuTag className="h-3.5 w-3.5" /> Key Topics
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {summary.topics.map((t) => <ClayBadge key={t} tone="blue">{t}</ClayBadge>)}
-              </div>
+            <ClayCard padded={false} className="p-5 text-center">
+              <div className="text-[12px] text-clay-ink-muted mb-1">Inbound</div>
+              <div className="text-[28px] font-bold text-clay-ink">{inbound.length}</div>
+              <ClayBadge tone="blue">Customer</ClayBadge>
             </ClayCard>
-
-            {/* Sentiment */}
-            <ClayCard padded={false} className="p-5">
-              <h3 className="text-[13px] font-semibold text-clay-ink mb-3 flex items-center gap-1.5">
-                <LuSmile className="h-3.5 w-3.5" /> Sentiment
-              </h3>
-              {sentimentCfg && (
-                <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[13px] font-medium ${sentimentCfg.color}`}>
-                  {sentimentCfg.icon} {sentimentCfg.label}
-                </span>
-              )}
+            <ClayCard padded={false} className="p-5 text-center">
+              <div className="text-[12px] text-clay-ink-muted mb-1">Outbound</div>
+              <div className="text-[28px] font-bold text-clay-ink">{outbound.length}</div>
+              <ClayBadge tone="green">Agent</ClayBadge>
             </ClayCard>
-
-            {/* Action Items */}
-            <ClayCard padded={false} className="p-5">
-              <h3 className="text-[13px] font-semibold text-clay-ink mb-3 flex items-center gap-1.5">
-                <LuListChecks className="h-3.5 w-3.5" /> Action Items
-              </h3>
-              <ul className="space-y-1.5">
-                {summary.actionItems.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12px] text-clay-ink">
-                    <span className="mt-0.5 h-4 w-4 shrink-0 rounded border border-clay-border bg-clay-bg flex items-center justify-center text-[10px] text-clay-ink-muted">{i + 1}</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+            <ClayCard padded={false} className="p-5 text-center">
+              <div className="text-[12px] text-clay-ink-muted mb-1">Notes</div>
+              <div className="text-[28px] font-bold text-clay-ink">{notes.length}</div>
+              <ClayBadge tone="amber">Internal</ClayBadge>
             </ClayCard>
           </div>
+
+          {events.length > 0 && (
+            <ClayCard padded={false} className="overflow-x-auto">
+              <div className="px-5 py-4 border-b border-clay-border">
+                <h2 className="text-[15px] font-semibold text-clay-ink">Recent Activity</h2>
+              </div>
+              <div className="divide-y divide-clay-border">
+                {events.slice(0, 15).map((e: any, i: number) => (
+                  <div key={i} className="px-5 py-3 flex items-start gap-3">
+                    <ClayBadge tone={e.type === 'note' ? 'amber' : e.direction === 'in' ? 'blue' : 'green'}>
+                      {e.type === 'note' ? 'Note' : e.direction === 'in' ? 'In' : 'Out'}
+                    </ClayBadge>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12.5px] text-clay-ink truncate">{e.content || '--'}</p>
+                      <span className="text-[11px] text-clay-ink-muted">{e.timestamp ? new Date(e.timestamp).toLocaleString() : ''}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ClayCard>
+          )}
         </>
       )}
 
-      {!summary && !loading && (
+      {!loaded && !isPending && (
         <ClayCard className="p-12 text-center">
-          <LuBrain className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">Enter a contact ID to generate a conversation summary.</p>
+          <LuCircleX className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
+          <p className="text-sm text-clay-ink-muted">Select a contact above to generate a conversation summary.</p>
         </ClayCard>
       )}
       <div className="h-6" />

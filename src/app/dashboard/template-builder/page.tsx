@@ -2,18 +2,18 @@
 
 /**
  * Wachat Template Builder — visual WhatsApp message template builder.
+ * Save shows a toast with the full JSON payload.
  */
 
 import * as React from 'react';
 import { useState } from 'react';
-import { LuLayoutTemplate, LuPlus, LuEye } from 'react-icons/lu';
+import { LuChartBar, LuCircleCheck, LuCircleX, LuTriangleAlert, LuPlus, LuEye, LuCopy } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
+import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
 
 type HeaderType = 'none' | 'text' | 'image' | 'video' | 'document';
 type BtnType = 'quick_reply' | 'url' | 'phone';
-
 interface TplButton { type: BtnType; text: string; value: string }
 
 export default function TemplateBuilderPage() {
@@ -27,22 +27,30 @@ export default function TemplateBuilderPage() {
   const [buttons, setButtons] = useState<TplButton[]>([]);
 
   const insertVar = (n: number) => setBody((p) => p + ` {{${n}}}`);
-
-  const addButton = () => {
-    if (buttons.length >= 3) return;
-    setButtons((p) => [...p, { type: 'quick_reply', text: '', value: '' }]);
-  };
-
-  const updateButton = (i: number, patch: Partial<TplButton>) => {
-    setButtons((p) => p.map((b, idx) => (idx === i ? { ...b, ...patch } : b)));
-  };
-
+  const addButton = () => { if (buttons.length < 3) setButtons((p) => [...p, { type: 'quick_reply', text: '', value: '' }]); };
+  const updateButton = (i: number, patch: Partial<TplButton>) => setButtons((p) => p.map((b, idx) => (idx === i ? { ...b, ...patch } : b)));
   const removeButton = (i: number) => setButtons((p) => p.filter((_, idx) => idx !== i));
 
-  const handleSave = () => toast({ title: 'Template Saved', description: 'Your template has been created.' });
+  const buildPayload = () => {
+    const components: any[] = [];
+    if (headerType === 'text' && headerText) components.push({ type: 'HEADER', format: 'TEXT', text: headerText });
+    else if (headerType !== 'none') components.push({ type: 'HEADER', format: headerType.toUpperCase() });
+    components.push({ type: 'BODY', text: body });
+    if (footer) components.push({ type: 'FOOTER', text: footer });
+    if (buttons.length > 0) {
+      components.push({ type: 'BUTTONS', buttons: buttons.map((b) => ({ type: b.type === 'quick_reply' ? 'QUICK_REPLY' : b.type.toUpperCase(), text: b.text, ...(b.type !== 'quick_reply' ? { [b.type]: b.value } : {}) })) });
+    }
+    return { name: `template_${Date.now()}`, category: category.toUpperCase(), language: 'en_US', components };
+  };
+
+  const handleSave = async () => {
+    const payload = buildPayload();
+    const json = JSON.stringify(payload, null, 2);
+    await navigator.clipboard.writeText(json);
+    toast({ title: 'Template JSON Copied', description: `Template payload (${json.length} chars) copied to clipboard. Submit to Meta for approval.` });
+  };
 
   const inputCls = 'rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none w-full';
-  const selectCls = inputCls;
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
@@ -51,18 +59,16 @@ export default function TemplateBuilderPage() {
         { label: activeProject?.name || 'Project', href: '/dashboard' },
         { label: 'Template Builder' },
       ]} />
-
       <div>
         <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Template Builder</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Build WhatsApp message templates visually.</p>
+        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Build WhatsApp message templates visually. Save copies JSON to clipboard.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        {/* Editor */}
         <div className="flex flex-col gap-4">
           <ClayCard padded={false} className="p-5">
             <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Category</h2>
-            <select className={selectCls} value={category} onChange={(e) => setCategory(e.target.value)}>
+            <select className={inputCls} value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="marketing">Marketing</option>
               <option value="utility">Utility</option>
               <option value="authentication">Authentication</option>
@@ -74,14 +80,10 @@ export default function TemplateBuilderPage() {
             <div className="flex gap-2 mb-3">
               {(['none', 'text', 'image', 'video', 'document'] as const).map((t) => (
                 <button key={t} onClick={() => setHeaderType(t)}
-                  className={`rounded-md px-3 py-1.5 text-[12px] font-medium capitalize transition-colors ${
-                    headerType === t ? 'bg-clay-ink text-white' : 'bg-clay-bg text-clay-ink-muted hover:bg-clay-bg-2 border border-clay-border'
-                  }`}>{t}</button>
+                  className={`rounded-md px-3 py-1.5 text-[12px] font-medium capitalize transition-colors ${headerType === t ? 'bg-clay-ink text-white' : 'bg-clay-bg text-clay-ink-muted hover:bg-clay-bg-2 border border-clay-border'}`}>{t}</button>
               ))}
             </div>
-            {headerType === 'text' && (
-              <input className={inputCls} placeholder="Header text" value={headerText} onChange={(e) => setHeaderText(e.target.value)} />
-            )}
+            {headerType === 'text' && <input className={inputCls} placeholder="Header text" value={headerText} onChange={(e) => setHeaderText(e.target.value)} />}
             {(headerType === 'image' || headerType === 'video' || headerType === 'document') && (
               <p className="text-[12px] text-clay-ink-muted">Upload {headerType} when submitting for approval.</p>
             )}
@@ -106,9 +108,7 @@ export default function TemplateBuilderPage() {
           <ClayCard padded={false} className="p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-[15px] font-semibold text-clay-ink">Buttons ({buttons.length}/3)</h2>
-              <ClayButton size="sm" variant="ghost" onClick={addButton} disabled={buttons.length >= 3}>
-                <LuPlus className="mr-1 h-3.5 w-3.5" /> Add
-              </ClayButton>
+              <ClayButton size="sm" variant="ghost" onClick={addButton} disabled={buttons.length >= 3}><LuPlus className="mr-1 h-3.5 w-3.5" /> Add</ClayButton>
             </div>
             {buttons.map((btn, i) => (
               <div key={i} className="flex flex-wrap items-center gap-2 mb-2 rounded-clay-md border border-clay-border p-3">
@@ -126,10 +126,9 @@ export default function TemplateBuilderPage() {
             ))}
           </ClayCard>
 
-          <ClayButton variant="obsidian" onClick={handleSave} leading={<LuLayoutTemplate className="h-4 w-4" />}>Save Template</ClayButton>
+          <ClayButton variant="obsidian" onClick={handleSave} leading={<LuCopy className="h-4 w-4" />}>Save Template (Copy JSON)</ClayButton>
         </div>
 
-        {/* Preview */}
         <ClayCard padded={false} className="p-5 self-start sticky top-6">
           <h2 className="text-[15px] font-semibold text-clay-ink mb-3"><LuEye className="inline mr-1.5 h-4 w-4" />Preview</h2>
           <div className="rounded-xl bg-[#e5ddd5] p-4">
@@ -140,9 +139,7 @@ export default function TemplateBuilderPage() {
               {footer && <p className="mt-2 text-[11px] text-gray-400">{footer}</p>}
               {buttons.length > 0 && (
                 <div className="mt-2 border-t border-gray-200 pt-2 flex flex-col gap-1">
-                  {buttons.map((b, i) => (
-                    <div key={i} className="text-center text-[12px] font-medium text-blue-600 py-1">{b.text || 'Button'}</div>
-                  ))}
+                  {buttons.map((b, i) => <div key={i} className="text-center text-[12px] font-medium text-blue-600 py-1">{b.text || 'Button'}</div>)}
                 </div>
               )}
             </div>

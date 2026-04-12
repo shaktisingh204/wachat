@@ -1,26 +1,26 @@
 'use client';
 
 /**
- * Wachat Bulk Messaging — send messages to multiple numbers at once.
+ * Wachat Bulk Messaging -- send messages to multiple numbers at once.
  */
 
 import * as React from 'react';
-import { useState, useRef } from 'react';
-import { LuSend, LuLoader, LuCircleCheck, LuCircleX, LuImage } from 'react-icons/lu';
+import { useState } from 'react';
+import { LuSend, LuLoader, LuCircleCheck, LuCircleX } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
+import { sendBulkMessages } from '@/app/actions/wachat-features.actions';
 
 export default function BulkMessagingPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
+  const projectId = activeProject?._id?.toString();
 
   const [numbers, setNumbers] = useState('');
   const [message, setMessage] = useState('');
-  const [mediaUrl, setMediaUrl] = useState('');
   const [sending, setSending] = useState(false);
-  const [progress, setProgress] = useState({ sent: 0, failed: 0, total: 0 });
-  const abortRef = useRef(false);
+  const [result, setResult] = useState<{ success: number; failed: number; total: number } | null>(null);
 
   const handleSend = async () => {
     const lines = numbers.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -28,28 +28,21 @@ export default function BulkMessagingPage() {
       toast({ title: 'Missing info', description: 'Add phone numbers and a message.', variant: 'destructive' });
       return;
     }
-    setSending(true);
-    abortRef.current = false;
-    setProgress({ sent: 0, failed: 0, total: lines.length });
-
-    for (let i = 0; i < lines.length; i++) {
-      if (abortRef.current) break;
-      // Simulate sending with a short delay
-      await new Promise((r) => setTimeout(r, 300));
-      const success = Math.random() > 0.1;
-      setProgress((p) => ({
-        ...p,
-        sent: p.sent + (success ? 1 : 0),
-        failed: p.failed + (success ? 0 : 1),
-      }));
+    if (!projectId) {
+      toast({ title: 'Error', description: 'No project selected.', variant: 'destructive' });
+      return;
     }
+    setSending(true);
+    setResult(null);
+    const res = await sendBulkMessages(projectId, lines, message.trim());
     setSending(false);
-    toast({ title: 'Complete', description: 'Bulk send finished.' });
+    if (res.error) {
+      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+    } else {
+      setResult({ success: res.success || 0, failed: res.failed || 0, total: res.total || lines.length });
+      toast({ title: 'Complete', description: `Sent ${res.success} of ${res.total} messages.` });
+    }
   };
-
-  const handleStop = () => { abortRef.current = true; };
-
-  const processed = progress.sent + progress.failed;
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
@@ -79,41 +72,34 @@ export default function BulkMessagingPage() {
               className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none resize-none" />
           </div>
           <div>
-            <label className="text-[13px] font-medium text-clay-ink mb-1.5 flex items-center gap-1.5">
-              <LuImage className="h-3.5 w-3.5" /> Media URL (optional)
-            </label>
-            <input type="url" value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} disabled={sending}
-              placeholder="https://example.com/image.jpg"
-              className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
-          </div>
-          <div className="flex gap-3">
-            <ClayButton variant="obsidian" size="md" onClick={handleSend} disabled={sending}
+            <ClayButton variant="obsidian" size="md" onClick={handleSend} disabled={sending || !projectId}
               leading={sending ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : <LuSend className="h-3.5 w-3.5" />}>
               {sending ? 'Sending...' : 'Send All'}
             </ClayButton>
-            {sending && (
-              <ClayButton variant="pill" size="md" onClick={handleStop}>Stop</ClayButton>
-            )}
           </div>
         </ClayCard>
 
         <ClayCard padded={false} className="p-6">
-          <h2 className="text-[16px] font-semibold text-clay-ink mb-4">Progress</h2>
-          {progress.total > 0 ? (
+          <h2 className="text-[16px] font-semibold text-clay-ink mb-4">Result</h2>
+          {sending ? (
+            <div className="flex h-20 items-center justify-center gap-3">
+              <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
+              <p className="text-[13px] text-clay-ink-muted">Sending messages...</p>
+            </div>
+          ) : result ? (
             <>
               <div className="h-3 w-full overflow-hidden rounded-full bg-clay-surface-2 mb-4">
-                <div className="h-full rounded-full bg-clay-rose transition-all"
-                  style={{ width: `${(processed / progress.total) * 100}%` }} />
+                <div className="h-full rounded-full bg-clay-rose" style={{ width: '100%' }} />
               </div>
-              <p className="text-[13px] text-clay-ink mb-4">{processed} / {progress.total} processed</p>
+              <p className="text-[13px] text-clay-ink mb-4">{result.total} processed</p>
               <div className="flex gap-6">
                 <div className="flex items-center gap-2">
                   <LuCircleCheck className="h-4 w-4 text-emerald-600" />
-                  <span className="text-[13px] text-clay-ink">{progress.sent} sent</span>
+                  <span className="text-[13px] text-clay-ink">{result.success} sent</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <LuCircleX className="h-4 w-4 text-red-500" />
-                  <span className="text-[13px] text-clay-ink">{progress.failed} failed</span>
+                  <span className="text-[13px] text-clay-ink">{result.failed} failed</span>
                 </div>
               </div>
             </>

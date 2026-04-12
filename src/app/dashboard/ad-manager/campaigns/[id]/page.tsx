@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ArrowLeft, Layers, ChevronRight } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Layers, ChevronRight, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +31,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
     const [isLoading, startLoadingTransition] = useTransition();
     const { toast } = useToast();
     const [error, setError] = useState<string | null>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         startLoadingTransition(async () => {
@@ -38,7 +39,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
             if (result.error) setError(result.error);
             setAdSets(result.adSets || []);
         });
-    }, [campaignId]);
+    }, [campaignId, refreshKey]);
 
     const handleStatusToggle = async (id: string, currentStatus: string) => {
         const newStatus = currentStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
@@ -62,18 +63,30 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
 
     return (
         <div className="flex flex-col gap-6">
+            {/* Breadcrumb */}
+            <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Link href="/dashboard/ad-manager" className="hover:underline">Ad Manager</Link>
+                <ChevronRight className="h-3.5 w-3.5" />
+                <Link href="/dashboard/ad-manager/campaigns" className="hover:underline">Campaigns</Link>
+                <ChevronRight className="h-3.5 w-3.5" />
+                <span className="text-foreground font-medium truncate max-w-[200px]">Campaign {campaignId}</span>
+            </nav>
+
             <div className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" asChild>
                     <Link href="/dashboard/ad-manager/campaigns">
                         <ArrowLeft className="h-4 w-4" />
                     </Link>
                 </Button>
-                <div>
+                <div className="flex-1">
                     <h1 className="text-2xl font-bold font-headline flex items-center gap-2">
                         <Layers className="h-6 w-6" /> Ad Sets
                     </h1>
                     <p className="text-muted-foreground text-sm">Campaign ID: {campaignId}</p>
                 </div>
+                <Button variant="outline" size="icon" onClick={() => setRefreshKey((k) => k + 1)}>
+                    <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                </Button>
             </div>
 
             {error && (

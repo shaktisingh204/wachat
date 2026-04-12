@@ -1,26 +1,38 @@
 'use client';
 
-/**
- * Wachat Greeting Messages — configure welcome messages for new conversations.
- */
-
 import * as React from 'react';
-import { useState } from 'react';
-import { LuMessageSquareHeart, LuSave, LuEye } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import { LuMessageSquareHeart, LuSave, LuEye, LuLoader } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
+import { getGreetingMessage, saveGreetingMessage } from '@/app/actions/wachat-features.actions';
 
 const VARIABLES = ['{name}', '{phone}', '{email}', '{company}'];
 
 export default function GreetingMessagesPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
-  const [enabled, setEnabled] = useState(true);
-  const [greeting, setGreeting] = useState(
-    'Hi {name}! Welcome to our support. How can we help you today?',
-  );
+  const projectId = activeProject?._id?.toString();
+  const [enabled, setEnabled] = useState(false);
+  const [greeting, setGreeting] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [isLoading, startTransition] = useTransition();
+  const [isSaving, startSaveTransition] = useTransition();
+
+  const fetchData = useCallback(() => {
+    if (!projectId) return;
+    startTransition(async () => {
+      const res = await getGreetingMessage(projectId);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      if (res.config) {
+        setEnabled(res.config.enabled ?? false);
+        setGreeting(res.config.message ?? '');
+      }
+    });
+  }, [projectId]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const rendered = greeting
     .replace(/\{name\}/g, 'John Doe')
@@ -28,13 +40,22 @@ export default function GreetingMessagesPage() {
     .replace(/\{email\}/g, 'john@example.com')
     .replace(/\{company\}/g, activeProject?.name || 'Acme Inc');
 
-  const insertVariable = (v: string) => {
-    setGreeting((prev) => prev + ' ' + v);
+  const handleSave = () => {
+    if (!projectId) return;
+    startSaveTransition(async () => {
+      const res = await saveGreetingMessage(projectId, enabled, greeting);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      toast({ title: 'Saved', description: 'Greeting message updated successfully.' });
+    });
   };
 
-  const handleSave = () => {
-    toast({ title: 'Saved', description: 'Greeting message updated successfully.' });
-  };
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+      </div>
+    );
+  }
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
@@ -55,7 +76,6 @@ export default function GreetingMessagesPage() {
         </p>
       </div>
 
-      {/* Enable toggle */}
       <ClayCard padded={false} className="p-5">
         <div className="flex items-center justify-between">
           <div>
@@ -74,7 +94,6 @@ export default function GreetingMessagesPage() {
         </div>
       </ClayCard>
 
-      {/* Message editor */}
       <ClayCard padded={false} className="p-5">
         <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Message</h2>
         <textarea
@@ -90,7 +109,7 @@ export default function GreetingMessagesPage() {
             <button
               key={v}
               type="button"
-              onClick={() => insertVariable(v)}
+              onClick={() => setGreeting((prev) => prev + ' ' + v)}
               className="rounded-md border border-clay-border bg-clay-bg px-2 py-1 text-[11px] font-mono text-clay-ink hover:bg-clay-bg-2 transition-colors"
             >
               {v}
@@ -99,7 +118,6 @@ export default function GreetingMessagesPage() {
         </div>
       </ClayCard>
 
-      {/* Preview */}
       <ClayCard padded={false} className="p-5">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-[15px] font-semibold text-clay-ink">Preview</h2>
@@ -117,8 +135,8 @@ export default function GreetingMessagesPage() {
       </ClayCard>
 
       <div className="flex items-center gap-3">
-        <ClayButton variant="obsidian" onClick={handleSave} leading={<LuSave className="h-4 w-4" />}>
-          Save Greeting
+        <ClayButton variant="obsidian" onClick={handleSave} disabled={isSaving} leading={<LuSave className="h-4 w-4" />}>
+          {isSaving ? 'Saving...' : 'Save Greeting'}
         </ClayButton>
       </div>
       <div className="h-6" />

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { BarChart3, AlertCircle, TrendingUp, DollarSign, Eye, MousePointerClick, Users } from 'lucide-react';
+import { BarChart3, AlertCircle, TrendingUp, DollarSign, Eye, MousePointerClick, Users, Download } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,6 +10,9 @@ import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useAdManagerShell } from '@/components/wabasimplify/ad-manager/ad-manager-shell';
 import { getInsights } from '@/app/actions/ad-manager.actions';
@@ -19,6 +22,8 @@ export default function InsightsPage() {
     const { activeAccount } = useAdManager();
     const { preset, date } = useAdManagerShell();
     const [loading, setLoading] = React.useState(true);
+    const [customSince, setCustomSince] = React.useState('');
+    const [customUntil, setCustomUntil] = React.useState('');
     const [accountAgg, setAccountAgg] = React.useState<any>(null);
     const [byDay, setByDay] = React.useState<any[]>([]);
     const [byPlacement, setByPlacement] = React.useState<any[]>([]);
@@ -78,15 +83,91 @@ export default function InsightsPage() {
         { icon: BarChart3, label: 'CPC', value: formatMoney(accountAgg?.cpc || 0) },
     ];
 
+    const exportInsightsCsv = () => {
+        const allRows = [...byDay, ...byPlacement, ...byDevice, ...byAgeGender, ...byCountry];
+        if (allRows.length === 0) return;
+        const headers = Object.keys(allRows[0]);
+        const csv = [
+            headers.join(','),
+            ...allRows.map((r: any) => headers.map((h) => JSON.stringify(r[h] ?? '')).join(',')),
+        ].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `insights-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="p-6 space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                    <BarChart3 className="h-6 w-6" /> Performance insights
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Deep dive into your account performance with breakdown-level insights.
-                </p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                        <BarChart3 className="h-6 w-6" /> Performance insights
+                    </h1>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Deep dive into your account performance with breakdown-level insights.
+                    </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={exportInsightsCsv} disabled={loading}>
+                    <Download className="h-4 w-4 mr-1" /> Export CSV
+                </Button>
+            </div>
+
+            {/* Custom date range inputs */}
+            <div className="flex items-end gap-3">
+                <div className="space-y-1">
+                    <Label className="text-xs">Since</Label>
+                    <Input
+                        type="date"
+                        value={customSince}
+                        onChange={(e) => setCustomSince(e.target.value)}
+                        className="h-8 w-40 text-xs"
+                    />
+                </div>
+                <div className="space-y-1">
+                    <Label className="text-xs">Until</Label>
+                    <Input
+                        type="date"
+                        value={customUntil}
+                        onChange={(e) => setCustomUntil(e.target.value)}
+                        className="h-8 w-40 text-xs"
+                    />
+                </div>
+                <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!customSince || !customUntil || loading}
+                    onClick={() => {
+                        if (!activeAccount || !customSince || !customUntil) return;
+                        setLoading(true);
+                        const actId = `act_${activeAccount.account_id.replace(/^act_/, '')}`;
+                        const common = {
+                            level: 'account' as const,
+                            time_range: { since: customSince, until: customUntil },
+                        };
+                        Promise.all([
+                            getInsights(actId, common),
+                            getInsights(actId, { ...common, time_increment: 1 }),
+                            getInsights(actId, { ...common, breakdowns: ['publisher_platform'] }),
+                            getInsights(actId, { ...common, breakdowns: ['device_platform'] }),
+                            getInsights(actId, { ...common, breakdowns: ['age', 'gender'] }),
+                            getInsights(actId, { ...common, breakdowns: ['country'] }),
+                        ]).then(([agg, day, pla, dev, ag, cnt]) => {
+                            setAccountAgg(agg.data?.[0] || null);
+                            setByDay(day.data || []);
+                            setByPlacement(pla.data || []);
+                            setByDevice(dev.data || []);
+                            setByAgeGender(ag.data || []);
+                            setByCountry(cnt.data || []);
+                            setLoading(false);
+                        });
+                    }}
+                >
+                    Apply
+                </Button>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">

@@ -1,17 +1,12 @@
 'use client';
 
-/**
- * Wachat Message Tags — create and manage tags for messages.
- */
-
 import * as React from 'react';
-import { useState } from 'react';
-import { LuTag, LuPlus, LuTrash2 } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import { LuTag, LuPlus, LuTrash2, LuLoader } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
-
-type TagItem = { id: string; name: string; color: string; count: number };
+import { getMessageTags, saveMessageTag, deleteMessageTag } from '@/app/actions/wachat-features.actions';
 
 const COLORS = [
   { label: 'Red', value: '#ef4444' },
@@ -23,33 +18,54 @@ const COLORS = [
   { label: 'Pink', value: '#ec4899' },
 ];
 
-const INITIAL_TAGS: TagItem[] = [
-  { id: '1', name: 'Urgent', color: '#ef4444', count: 45 },
-  { id: '2', name: 'VIP Customer', color: '#f59e0b', count: 23 },
-  { id: '3', name: 'Follow Up', color: '#3b82f6', count: 67 },
-  { id: '4', name: 'Resolved', color: '#22c55e', count: 134 },
-  { id: '5', name: 'Billing', color: '#8b5cf6', count: 18 },
-];
-
 export default function MessageTagsPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
-  const [tags, setTags] = useState<TagItem[]>(INITIAL_TAGS);
+  const projectId = activeProject?._id?.toString();
+  const [tags, setTags] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [color, setColor] = useState(COLORS[0].value);
+  const [isLoading, startTransition] = useTransition();
+  const [isMutating, startMutateTransition] = useTransition();
+
+  const fetchData = useCallback(() => {
+    if (!projectId) return;
+    startTransition(async () => {
+      const res = await getMessageTags(projectId);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      setTags(res.tags ?? []);
+    });
+  }, [projectId]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleAdd = () => {
-    if (!name.trim()) return;
-    const newTag: TagItem = { id: Date.now().toString(), name: name.trim(), color, count: 0 };
-    setTags((prev) => [...prev, newTag]);
-    setName('');
-    toast({ title: 'Tag Created', description: `Tag "${newTag.name}" added.` });
+    if (!name.trim() || !projectId) return;
+    startMutateTransition(async () => {
+      const res = await saveMessageTag(projectId, name.trim(), color);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      toast({ title: 'Tag Created', description: res.message });
+      setName('');
+      fetchData();
+    });
   };
 
-  const handleDelete = (id: string) => {
-    setTags((prev) => prev.filter((t) => t.id !== id));
-    toast({ title: 'Deleted', description: 'Tag removed.' });
+  const handleDelete = (tagId: string) => {
+    startMutateTransition(async () => {
+      const res = await deleteMessageTag(tagId);
+      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      toast({ title: 'Deleted', description: 'Tag removed.' });
+      fetchData();
+    });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+      </div>
+    );
+  }
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
@@ -70,8 +86,7 @@ export default function MessageTagsPage() {
           <div className="flex-1 min-w-[180px]">
             <label className="text-[12px] text-clay-ink-muted mb-1 block">Name</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-              placeholder="Tag name"
+              onKeyDown={(e) => e.key === 'Enter' && handleAdd()} placeholder="Tag name"
               className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
           </div>
           <div>
@@ -84,7 +99,7 @@ export default function MessageTagsPage() {
               ))}
             </div>
           </div>
-          <ClayButton size="sm" onClick={handleAdd} disabled={!name.trim()}
+          <ClayButton size="sm" onClick={handleAdd} disabled={!name.trim() || isMutating}
             leading={<LuPlus className="h-3.5 w-3.5" />}>
             Add Tag
           </ClayButton>
@@ -94,11 +109,11 @@ export default function MessageTagsPage() {
       {tags.length > 0 ? (
         <ClayCard padded={false} className="divide-y divide-clay-border">
           {tags.map((tag) => (
-            <div key={tag.id} className="flex items-center gap-4 px-5 py-3">
+            <div key={tag._id} className="flex items-center gap-4 px-5 py-3">
               <span className="h-4 w-4 rounded-full shrink-0" style={{ backgroundColor: tag.color }} />
               <span className="flex-1 text-[14px] font-medium text-clay-ink">{tag.name}</span>
-              <span className="text-[12px] text-clay-ink-muted tabular-nums">{tag.count} messages</span>
-              <button onClick={() => handleDelete(tag.id)}
+              <span className="text-[12px] text-clay-ink-muted tabular-nums">{tag.usageCount ?? 0} messages</span>
+              <button onClick={() => handleDelete(tag._id)} disabled={isMutating}
                 className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-red-500" title="Delete">
                 <LuTrash2 className="h-3.5 w-3.5" />
               </button>

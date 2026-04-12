@@ -23,6 +23,8 @@ import {
   LuCircle,
   LuPause,
   LuPlay,
+  LuRefreshCw,
+  LuDownload,
 } from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
@@ -326,7 +328,59 @@ export default function AdManagerOverviewPage() {
 
         {/* Quick actions sidebar */}
         <div className="space-y-4">
-          <p className="text-[13px] font-semibold text-clay-ink">Quick actions</p>
+          <div className="flex items-center justify-between">
+            <p className="text-[13px] font-semibold text-clay-ink">Quick actions</p>
+            <div className="flex items-center gap-1.5">
+              <ClayButton
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => {
+                  setLoading(true);
+                  (async () => {
+                    const actId = `act_${activeAccount.account_id.replace(/^act_/, '')}`;
+                    const [insightsRes, campaignsRes] = await Promise.all([
+                      getInsights(actId, {
+                        level: 'account',
+                        date_preset: preset && preset !== 'custom' ? preset : 'last_7d',
+                      }),
+                      listCampaigns(activeAccount.account_id),
+                    ]);
+                    const agg = insightsRes.data?.[0] || {};
+                    setKpis([
+                      { id: 'spend', label: 'Amount spent', value: formatMoney(agg.spend || 0), icon: LuDollarSign, color: 'text-emerald-600' },
+                      { id: 'impressions', label: 'Impressions', value: formatNumber(agg.impressions || 0), icon: LuEye, color: 'text-blue-600' },
+                      { id: 'reach', label: 'Reach', value: formatNumber(agg.reach || 0), icon: LuUsers, color: 'text-violet-600' },
+                      { id: 'clicks', label: 'Link clicks', value: formatNumber(agg.inline_link_clicks || agg.clicks || 0), icon: LuMousePointerClick, color: 'text-indigo-600' },
+                      { id: 'ctr', label: 'CTR', value: formatPercent(agg.ctr || 0), icon: LuTrendingUp, color: 'text-amber-600' },
+                      { id: 'cpc', label: 'CPC', value: formatMoney(agg.cpc || 0), icon: LuTrendingDown, color: 'text-rose-600' },
+                    ]);
+                    setTopCampaigns((campaignsRes.data || []).slice(0, 6));
+                    setLoading(false);
+                  })();
+                }}
+              >
+                <LuRefreshCw className={cn('h-3.5 w-3.5 text-clay-ink-muted', loading && 'animate-spin')} strokeWidth={2} />
+              </ClayButton>
+              <ClayButton
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => {
+                  const data = kpis.map((k) => ({ id: k.id, label: k.label, value: k.value }));
+                  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `kpi-export-${new Date().toISOString().split('T')[0]}.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <LuDownload className="h-3.5 w-3.5 text-clay-ink-muted" strokeWidth={2} />
+              </ClayButton>
+            </div>
+          </div>
 
           <ClayCard className="space-y-2 !p-4">
             <QuickAction

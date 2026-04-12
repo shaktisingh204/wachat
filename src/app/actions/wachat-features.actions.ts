@@ -700,3 +700,518 @@ export async function deleteMediaItem(mediaId: string) {
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
+
+
+// =================================================================
+//  GREETING & AWAY MESSAGES
+// =================================================================
+
+export async function getGreetingMessage(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const config = await db.collection('wa_greeting_config').findOne({ projectId: new ObjectId(projectId) });
+        return { config: config ? JSON.parse(JSON.stringify(config)) : { enabled: false, message: '' } };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function saveGreetingMessage(projectId: string, enabled: boolean, message: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_greeting_config').updateOne(
+            { projectId: new ObjectId(projectId) },
+            { $set: { enabled, message, updatedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), createdAt: new Date() } },
+            { upsert: true }
+        );
+        return { message: 'Greeting message saved.' };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function getAwayMessage(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const config = await db.collection('wa_away_config').findOne({ projectId: new ObjectId(projectId) });
+        return { config: config ? JSON.parse(JSON.stringify(config)) : { enabled: false, message: '', schedule: 'always' } };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function saveAwayMessage(projectId: string, enabled: boolean, message: string, schedule: string, timeFrom?: string, timeTo?: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_away_config').updateOne(
+            { projectId: new ObjectId(projectId) },
+            { $set: { enabled, message, schedule, timeFrom: timeFrom || '', timeTo: timeTo || '', updatedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), createdAt: new Date() } },
+            { upsert: true }
+        );
+        return { message: 'Away message saved.' };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  CONTACT BLACKLIST
+// =================================================================
+
+export async function getBlacklist(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const list = await db.collection('wa_blacklist').find({ projectId: new ObjectId(projectId) }).sort({ addedAt: -1 }).toArray();
+        return { numbers: JSON.parse(JSON.stringify(list)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function addToBlacklist(projectId: string, phone: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { success: false, error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_blacklist').updateOne(
+            { projectId: new ObjectId(projectId), phone },
+            { $set: { addedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), phone } },
+            { upsert: true }
+        );
+        return { success: true };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+export async function removeFromBlacklist(blacklistId: string) {
+    if (!ObjectId.isValid(blacklistId)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_blacklist').deleteOne({ _id: new ObjectId(blacklistId) });
+        return { success: true };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+export async function bulkAddToBlacklist(projectId: string, phones: string[]) {
+    const project = await getProjectById(projectId);
+    if (!project) return { success: false, error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const ops = phones.filter(p => p.trim()).map(phone => ({
+            updateOne: { filter: { projectId: new ObjectId(projectId), phone: phone.trim() }, update: { $set: { addedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), phone: phone.trim() } }, upsert: true }
+        }));
+        if (ops.length > 0) await db.collection('wa_blacklist').bulkWrite(ops);
+        return { success: true, count: ops.length };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  NOTIFICATION PREFERENCES
+// =================================================================
+
+export async function getNotificationPreferences(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const prefs = await db.collection('wa_notification_prefs').findOne({ projectId: new ObjectId(projectId) });
+        return { prefs: prefs ? JSON.parse(JSON.stringify(prefs)) : null };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function saveNotificationPreferences(projectId: string, prefs: Record<string, boolean>) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_notification_prefs').updateOne(
+            { projectId: new ObjectId(projectId) },
+            { $set: { ...prefs, updatedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), createdAt: new Date() } },
+            { upsert: true }
+        );
+        return { message: 'Preferences saved.' };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  MESSAGE TAGS
+// =================================================================
+
+export async function getMessageTags(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const tags = await db.collection('wa_message_tags').find({ projectId: new ObjectId(projectId) }).sort({ name: 1 }).toArray();
+        return { tags: JSON.parse(JSON.stringify(tags)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function saveMessageTag(projectId: string, name: string, color: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_message_tags').insertOne({ projectId: new ObjectId(projectId), name, color, usageCount: 0, createdAt: new Date() });
+        return { message: `Tag "${name}" created.` };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function deleteMessageTag(tagId: string) {
+    if (!ObjectId.isValid(tagId)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_message_tags').deleteOne({ _id: new ObjectId(tagId) });
+        return { success: true };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  DELIVERY REPORTS
+// =================================================================
+
+export async function getDeliveryReport(projectId: string, days: number = 7) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const since = new Date(); since.setDate(since.getDate() - days);
+        const pipeline = [
+            { $match: { projectId: new ObjectId(projectId), direction: 'out', timestamp: { $gte: since } } },
+            { $group: { _id: '$status', count: { $sum: 1 } } },
+        ];
+        const stats = await db.collection('messages').aggregate(pipeline).toArray();
+        const failedMessages = await db.collection('messages').find({
+            projectId: new ObjectId(projectId), direction: 'out', status: 'failed', timestamp: { $gte: since }
+        }).sort({ timestamp: -1 }).limit(20).toArray();
+        return { stats: JSON.parse(JSON.stringify(stats)), failedMessages: JSON.parse(JSON.stringify(failedMessages)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  IMPORT HISTORY
+// =================================================================
+
+export async function getImportHistory(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const imports = await db.collection('wa_import_history').find({ projectId: new ObjectId(projectId) }).sort({ importedAt: -1 }).limit(50).toArray();
+        return { imports: JSON.parse(JSON.stringify(imports)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  CONVERSATION FILTERS
+// =================================================================
+
+export async function getConversationFilters(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const filters = await db.collection('wa_conversation_filters').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
+        return { filters: JSON.parse(JSON.stringify(filters)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function saveConversationFilter(projectId: string, name: string, conditions: Record<string, any>) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_conversation_filters').insertOne({ projectId: new ObjectId(projectId), name, conditions, createdAt: new Date() });
+        return { message: `Filter "${name}" saved.` };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function deleteConversationFilter(filterId: string) {
+    if (!ObjectId.isValid(filterId)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_conversation_filters').deleteOne({ _id: new ObjectId(filterId) });
+        return { success: true };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  API KEYS
+// =================================================================
+
+export async function getApiKeys(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const keys = await db.collection('wa_api_keys').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
+        return { keys: JSON.parse(JSON.stringify(keys)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function createApiKey(projectId: string, name: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const key = 'sk_' + Array.from({ length: 32 }, () => 'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]).join('');
+        await db.collection('wa_api_keys').insertOne({ projectId: new ObjectId(projectId), name, key, isActive: true, createdAt: new Date() });
+        return { key, message: `API key "${name}" created.` };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function revokeApiKey(keyId: string) {
+    if (!ObjectId.isValid(keyId)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_api_keys').updateOne({ _id: new ObjectId(keyId) }, { $set: { isActive: false, revokedAt: new Date() } });
+        return { success: true };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  BROADCAST SCHEDULING
+// =================================================================
+
+export async function getScheduledBroadcasts(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const schedules = await db.collection('wa_scheduled_broadcasts').find({ projectId: new ObjectId(projectId) }).sort({ scheduledAt: 1 }).toArray();
+        return { schedules: JSON.parse(JSON.stringify(schedules)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function scheduleBroadcast(prevState: any, formData: FormData) {
+    const projectId = formData.get('projectId') as string;
+    const name = formData.get('name') as string;
+    const templateName = formData.get('templateName') as string;
+    const audience = formData.get('audience') as string;
+    const scheduledAt = formData.get('scheduledAt') as string;
+    const timezone = formData.get('timezone') as string;
+    const recurring = formData.get('recurring') as string;
+    if (!projectId || !name || !templateName || !scheduledAt) return { error: 'All fields required.' };
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_scheduled_broadcasts').insertOne({
+            projectId: new ObjectId(projectId), name, templateName, audience: audience || 'all',
+            scheduledAt: new Date(scheduledAt), timezone: timezone || 'UTC', recurring: recurring || 'none',
+            status: 'scheduled', createdAt: new Date(),
+        });
+        return { message: 'Broadcast scheduled.' };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function cancelScheduledBroadcast(scheduleId: string) {
+    if (!ObjectId.isValid(scheduleId)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('wa_scheduled_broadcasts').updateOne({ _id: new ObjectId(scheduleId) }, { $set: { status: 'cancelled' } });
+        return { success: true };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  AGENT AVAILABILITY
+// =================================================================
+
+export async function getAgentStatuses(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const agents = await db.collection('agents').find({ projectId: new ObjectId(projectId) }).toArray();
+        return { agents: JSON.parse(JSON.stringify(agents)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function setAgentStatus(agentId: string, status: string) {
+    if (!ObjectId.isValid(agentId)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('agents').updateOne({ _id: new ObjectId(agentId) }, { $set: { status, statusUpdatedAt: new Date() } });
+        return { success: true };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  CONVERSATION SEARCH
+// =================================================================
+
+export async function searchConversations(projectId: string, query: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const messages = await db.collection('messages').find({
+            projectId: new ObjectId(projectId),
+            'content.text': { $regex: query, $options: 'i' },
+        }).sort({ timestamp: -1 }).limit(50).toArray();
+        return { messages: JSON.parse(JSON.stringify(messages)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  MESSAGE STATISTICS
+// =================================================================
+
+export async function getMessageStatistics(projectId: string, period: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const days = period === 'monthly' ? 30 : period === 'weekly' ? 7 : 1;
+        const since = new Date(); since.setDate(since.getDate() - days);
+        const pipeline = [
+            { $match: { projectId: new ObjectId(projectId), timestamp: { $gte: since } } },
+            { $group: { _id: { direction: '$direction', hasMedia: { $cond: [{ $in: ['$type', ['image', 'video', 'document', 'audio']] }, true, false] } }, count: { $sum: 1 } } },
+        ];
+        const data = await db.collection('messages').aggregate(pipeline).toArray();
+        let incoming = 0, outgoing = 0, media = 0;
+        for (const d of data) {
+            if (d._id.direction === 'in') incoming += d.count;
+            else outgoing += d.count;
+            if (d._id.hasMedia) media += d.count;
+        }
+        return { stats: { total: incoming + outgoing, incoming, outgoing, media } };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  CONTACT TIMELINE
+// =================================================================
+
+export async function getContactTimeline(projectId: string, contactId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const messages = await db.collection('messages').find({ projectId: new ObjectId(projectId), contactId }).sort({ timestamp: -1 }).limit(50).toArray();
+        const notes = await db.collection('wa_contact_notes').find({ contactId, projectId }).sort({ createdAt: -1 }).toArray();
+        const events = [
+            ...messages.map((m: any) => ({ type: 'message', direction: m.direction, content: m.content?.text || m.type, timestamp: m.timestamp })),
+            ...notes.map((n: any) => ({ type: 'note', content: n.text, timestamp: n.createdAt })),
+        ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        return { events: JSON.parse(JSON.stringify(events)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  CHAT TRANSFER
+// =================================================================
+
+export async function transferConversation(contactId: string, fromAgentId: string, toAgentId: string, note?: string) {
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { assignedAgentId: toAgentId, transferredAt: new Date() } });
+        await db.collection('wa_transfer_history').insertOne({ contactId, fromAgentId, toAgentId, note: note || '', transferredAt: new Date() });
+        return { success: true };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+export async function getTransferHistory(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const history = await db.collection('wa_transfer_history').find({}).sort({ transferredAt: -1 }).limit(50).toArray();
+        return { history: JSON.parse(JSON.stringify(history)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  WEBHOOK LOGS
+// =================================================================
+
+export async function getWebhookLogs(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const logs = await db.collection('webhook_logs').find({ projectId: new ObjectId(projectId) }).sort({ receivedAt: -1 }).limit(100).toArray();
+        return { logs: JSON.parse(JSON.stringify(logs)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  CREDIT USAGE
+// =================================================================
+
+export async function getCreditUsage(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    try {
+        const { db } = await connectToDatabase();
+        const since = new Date(); since.setDate(since.getDate() - 30);
+        const pipeline = [
+            { $match: { projectId: new ObjectId(projectId), timestamp: { $gte: since }, direction: 'out' } },
+            { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } }, count: { $sum: 1 } } },
+            { $sort: { _id: 1 } },
+        ];
+        const dailyUsage = await db.collection('messages').aggregate(pipeline).toArray();
+        return { credits: project.credits || 0, dailyUsage: JSON.parse(JSON.stringify(dailyUsage)) };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+
+// =================================================================
+//  BULK MESSAGING
+// =================================================================
+
+export async function sendBulkMessages(projectId: string, phones: string[], message: string) {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+    let success = 0, failed = 0;
+    const phoneNumberId = project.phoneNumbers?.[0]?.id;
+    if (!phoneNumberId) return { error: 'No phone number configured.' };
+    for (const phone of phones) {
+        try {
+            const { default: axios } = await import('axios');
+            await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, {
+                messaging_product: 'whatsapp', to: phone.trim(), type: 'text', text: { body: message },
+            }, { params: { access_token: project.accessToken } });
+            success++;
+        } catch { failed++; }
+    }
+    return { success, failed, total: phones.length };
+}
+
+
+// =================================================================
+//  PHONE NUMBER PROFILES
+// =================================================================
+
+export async function getPhoneNumberProfiles(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+    return { phoneNumbers: JSON.parse(JSON.stringify(project.phoneNumbers || [])) };
+}
+
+export async function updatePhoneProfile(projectId: string, phoneNumberId: string, profile: Record<string, any>) {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Access denied.' };
+    try {
+        const { default: axios } = await import('axios');
+        await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`, {
+            messaging_product: 'whatsapp', ...profile,
+        }, { params: { access_token: project.accessToken } });
+        return { message: 'Profile updated.' };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
