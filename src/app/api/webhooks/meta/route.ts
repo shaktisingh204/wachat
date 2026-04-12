@@ -16,193 +16,197 @@ import { handlePaymentConfigurationUpdate } from '@/app/actions/whatsapp-pay.act
 
 const LOG_PREFIX = '[META WEBHOOK]';
 
-/**
- * Verify Meta's `x-hub-signature-256` HMAC over the raw request body.
- */
-function verifyMetaSignature(rawBody: string, signatureHeader: string | null): boolean {
-    const appSecret = process.env.FACEBOOK_APP_SECRET;
-    if (!appSecret) {
-        if (process.env.NODE_ENV === 'production') {
-            console.error(`${LOG_PREFIX} FACEBOOK_APP_SECRET is not set; refusing webhook.`);
-            return false;
-        }
-        console.warn(`${LOG_PREFIX} FACEBOOK_APP_SECRET not set — skipping signature check (dev only).`);
-        return true;
+/* ── In-memory project cache ────────────────────────────────────────
+ * Avoids a MongoDB findOne per webhook. Cache lives for 60s then
+ * refreshes lazily. At 1000 webhooks/sec this saves ~1000 queries/sec.
+ * ─────────────────────────────────────────────────────────────────── */
+
+type CachedProject = { project: any; expiresAt: number };
+const projectCache = new Map<string, CachedProject>();
+const PROJECT_CACHE_TTL = 60_000; // 60 seconds
+
+async function getCachedProject(db: Db, projectId: ObjectId): Promise<any | null> {
+    const key = projectId.toString();
+    const cached = projectCache.get(key);
+    if (cached && cached.expiresAt > Date.now()) return cached.project;
+
+    const project = await db.collection('projects').findOne(
+        { _id: projectId },
+        { projection: { _id: 1, wabaId: 1, accessToken: 1, phoneNumbers: 1, autoReplySettings: 1, optInOutSettings: 1, facebookPageId: 1, userId: 1, name: 1, connectedCatalogId: 1 } }
+    );
+    if (project) {
+        projectCache.set(key, { project, expiresAt: Date.now() + PROJECT_CACHE_TTL });
     }
-    if (!signatureHeader || !signatureHeader.startsWith('sha256=')) {
-        return false;
-    }
-    const expected = crypto
-        .createHmac('sha256', appSecret)
-        .update(rawBody, 'utf8')
-        .digest('hex');
-    const received = signatureHeader.slice('sha256='.length);
-    const expectedBuf = Buffer.from(expected, 'hex');
-    const receivedBuf = Buffer.from(received, 'hex');
-    if (expectedBuf.length !== receivedBuf.length) return false;
-    try {
-        return crypto.timingSafeEqual(expectedBuf, receivedBuf);
-    } catch {
-        return false;
-    }
+    return project;
 }
 
-const getSearchableText = (payload: any): string => {
-    let text = '';
-    try {
-        if (payload.object === 'whatsapp_business_account' && payload.entry) {
-            for (const entry of payload.entry) {
-                text += ` ${entry.id}`;
-                if (entry.changes) {
-                    for (const change of entry.changes) {
-                        const field = change.field;
-                        text += ` ${field}`;
-                        const value = change.value;
-                        if (!value) continue;
-                        if (value.metadata?.phone_number_id) text += ` ${value.metadata.phone_number_id}`;
-                        if (value.messages) {
-                            for (const message of value.messages) {
-                                text += ` ${message.from || ''} ${message.id || ''} ${message.type || ''}`;
-                            }
-                        }
-                        if (value.statuses) {
-                            for (const status of value.statuses) {
-                                text += ` ${status.id || ''} ${status.recipient_id || ''} ${status.status || ''}`;
-                            }
-                        }
-                    }
-                }
-            }
-        } else if (payload.object === 'page' && payload.entry) {
-            for (const entry of payload.entry) {
-                text += ` page_id:${entry.id}`;
-                if (entry.messaging) {
-                    for (const message of entry.messaging) {
-                        text += ` sender:${message.sender?.id || ''} recipient:${message.recipient?.id || ''} mid:${message.message?.mid || ''}`;
-                    }
-                }
-                if (entry.changes) {
-                    for (const change of entry.changes) {
-                        text += ` field:${change.field} item:${change.value?.item} verb:${change.value?.verb} comment_id:${change.value?.comment_id}`;
-                    }
-                }
-            }
-        }
-    } catch { /* ignore */ }
-    return text.replace(/\s+/g, ' ').trim();
-};
+/* ── Phone→Project index cache ──────────────────────────────────── */
 
-async function findProjectIdFromWebhook(db: Db, payload: any): Promise<ObjectId | null> {
+const phoneToProjectId = new Map<string, { id: ObjectId; expiresAt: number }>();
+const wabaToProjectId = new Map<string, { id: ObjectId; expiresAt: number }>();
+const pageToProjectId = new Map<string, { id: ObjectId; expiresAt: number }>();
+const INDEX_TTL = 120_000; // 2 minutes
+
+async function resolveProjectId(db: Db, payload: any): Promise<ObjectId | null> {
     try {
         const entry = payload?.entry?.[0];
         if (!entry) return null;
 
         if (payload.object === 'whatsapp_business_account') {
+            // Try phone number ID first (most common path)
             const phoneId = entry.changes?.[0]?.value?.metadata?.phone_number_id;
             if (phoneId) {
-                const project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': phoneId }, { projection: { _id: 1 } });
-                if (project) return project._id;
+                const cached = phoneToProjectId.get(phoneId);
+                if (cached && cached.expiresAt > Date.now()) return cached.id;
+
+                const project = await db.collection<Project>('projects').findOne(
+                    { 'phoneNumbers.id': phoneId },
+                    { projection: { _id: 1 } }
+                );
+                if (project) {
+                    phoneToProjectId.set(phoneId, { id: project._id, expiresAt: Date.now() + INDEX_TTL });
+                    return project._id;
+                }
             }
+
+            // Fallback to WABA ID
             const wabaId = entry.id;
             if (wabaId && wabaId !== '0') {
-                const project = await db.collection<Project>('projects').findOne({ wabaId: wabaId }, { projection: { _id: 1 } });
-                if (project) return project._id;
+                const cached = wabaToProjectId.get(wabaId);
+                if (cached && cached.expiresAt > Date.now()) return cached.id;
+
+                const project = await db.collection<Project>('projects').findOne(
+                    { wabaId },
+                    { projection: { _id: 1 } }
+                );
+                if (project) {
+                    wabaToProjectId.set(wabaId, { id: project._id, expiresAt: Date.now() + INDEX_TTL });
+                    return project._id;
+                }
             }
         } else if (payload.object === 'page') {
             const pageId = entry.id;
             if (pageId) {
-                const project = await db.collection<Project>('projects').findOne({ facebookPageId: pageId }, { projection: { _id: 1 } });
-                if (project) return project._id;
+                const cached = pageToProjectId.get(pageId);
+                if (cached && cached.expiresAt > Date.now()) return cached.id;
+
+                const project = await db.collection<Project>('projects').findOne(
+                    { facebookPageId: pageId },
+                    { projection: { _id: 1 } }
+                );
+                if (project) {
+                    pageToProjectId.set(pageId, { id: project._id, expiresAt: Date.now() + INDEX_TTL });
+                    return project._id;
+                }
             }
         }
         return null;
-    } catch (e) {
-        console.error("Error finding project ID from webhook", e);
+    } catch {
         return null;
     }
 }
 
-/**
- * Process a WhatsApp Cloud API webhook payload inline.
- * Handles: messages, statuses, template updates, account updates, payment events.
- */
+/* ── Signature verification ─────────────────────────────────────── */
+
+function verifyMetaSignature(rawBody: string, signatureHeader: string | null): boolean {
+    const appSecret = process.env.FACEBOOK_APP_SECRET;
+    if (!appSecret) {
+        if (process.env.NODE_ENV === 'production') return false;
+        return true;
+    }
+    if (!signatureHeader || !signatureHeader.startsWith('sha256=')) return false;
+    const expected = crypto.createHmac('sha256', appSecret).update(rawBody, 'utf8').digest('hex');
+    const received = signatureHeader.slice(7);
+    const expectedBuf = Buffer.from(expected, 'hex');
+    const receivedBuf = Buffer.from(received, 'hex');
+    if (expectedBuf.length !== receivedBuf.length) return false;
+    try { return crypto.timingSafeEqual(expectedBuf, receivedBuf); } catch { return false; }
+}
+
+/* ── Inline processor ───────────────────────────────────────────── */
+
 async function processWebhookInline(db: Db, project: any, payload: any) {
     if (payload.object === 'whatsapp_business_account') {
+        // Collect all statuses and messages across entries for batch processing
+        const allStatuses: any[] = [];
+        const allMessages: { message: any; contactProfile: any; phoneNumberId: string }[] = [];
+        const otherChanges: { field: string; value: any }[] = [];
+
         for (const entry of payload.entry || []) {
             for (const change of entry.changes || []) {
                 const value = change.value;
                 if (!value) continue;
 
                 if (change.field === 'calls') {
-                    await handleCallWebhook(db, project, value);
+                    // Calls are rare — process inline
+                    handleCallWebhook(db, project, value).catch(e =>
+                        console.error(`${LOG_PREFIX} Call error:`, e.message));
                     continue;
                 }
 
                 if (change.field === 'messages') {
-                    // Process status updates in batch
-                    if (value.statuses && value.statuses.length > 0) {
-                        try {
-                            await processStatusUpdateBatch(db, value.statuses);
-                        } catch (e: any) {
-                            console.error(`${LOG_PREFIX} Status batch error:`, e.message);
-                        }
-                    }
-
-                    // Process incoming messages sequentially
-                    if (value.messages && value.messages.length > 0) {
+                    if (value.statuses) allStatuses.push(...value.statuses);
+                    if (value.messages) {
                         const phoneNumberId = value.metadata?.phone_number_id;
                         const contactProfile = value.contacts?.[0];
-                        for (const message of value.messages) {
-                            try {
-                                await handleSingleMessageEvent(db, project, message, contactProfile, phoneNumberId);
-                            } catch (e: any) {
-                                console.error(`${LOG_PREFIX} Message processing error (${message.id}):`, e.message);
-                            }
+                        for (const msg of value.messages) {
+                            allMessages.push({ message: msg, contactProfile, phoneNumberId });
                         }
                     }
                 } else if (change.field === 'payment_configuration_update') {
-                    try {
-                        await handlePaymentConfigurationUpdate(project, value);
-                    } catch (e: any) {
-                        console.error(`${LOG_PREFIX} Payment config update error:`, e.message);
-                    }
+                    handlePaymentConfigurationUpdate(project, value).catch(e =>
+                        console.error(`${LOG_PREFIX} Payment error:`, e.message));
                 } else {
-                    // account_update, phone_number_quality_update, template_status_update, etc.
-                    try {
-                        await processSingleWebhook(db, project, payload);
-                    } catch (e: any) {
-                        console.error(`${LOG_PREFIX} General webhook error (${change.field}):`, e.message);
-                    }
+                    otherChanges.push({ field: change.field, value });
                 }
             }
         }
+
+        // Process statuses in one batch (fire-and-forget — no await needed)
+        if (allStatuses.length > 0) {
+            processStatusUpdateBatch(db, allStatuses).catch(e =>
+                console.error(`${LOG_PREFIX} Status batch error:`, e.message));
+        }
+
+        // Process other changes (template updates, account updates, etc.)
+        if (otherChanges.length > 0) {
+            processSingleWebhook(db, project, payload).catch(e =>
+                console.error(`${LOG_PREFIX} Other change error:`, e.message));
+        }
+
+        // Process incoming messages — sequential per message to avoid contact race conditions
+        // but don't block statuses from processing
+        for (const { message, contactProfile, phoneNumberId } of allMessages) {
+            try {
+                await handleSingleMessageEvent(db, project, message, contactProfile, phoneNumberId);
+            } catch (e: any) {
+                console.error(`${LOG_PREFIX} Message error (${message.id}):`, e.message);
+            }
+        }
+
     } else if (payload.object === 'page') {
+        const promises: Promise<any>[] = [];
         for (const entry of payload.entry || []) {
-            // Messenger messages
             if (entry.messaging) {
                 for (const event of entry.messaging) {
-                    try {
-                        await processMessengerWebhook(db, project, event);
-                    } catch (e: any) {
-                        console.error(`${LOG_PREFIX} Messenger event error:`, e.message);
-                    }
+                    promises.push(processMessengerWebhook(db, project, event).catch(e =>
+                        console.error(`${LOG_PREFIX} Messenger error:`, e.message)));
                 }
             }
-            // Feed comments
             if (entry.changes) {
                 for (const change of entry.changes) {
                     if (change.field === 'feed' && change.value?.item === 'comment') {
-                        try {
-                            await processCommentWebhook(db, project, change.value);
-                        } catch (e: any) {
-                            console.error(`${LOG_PREFIX} Comment webhook error:`, e.message);
-                        }
+                        promises.push(processCommentWebhook(db, project, change.value).catch(e =>
+                            console.error(`${LOG_PREFIX} Comment error:`, e.message)));
                     }
                 }
             }
         }
+        if (promises.length > 0) await Promise.allSettled(promises);
     }
 }
+
+/* ── Route handlers ─────────────────────────────────────────────── */
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
@@ -211,74 +215,71 @@ export async function GET(request: NextRequest) {
     const challenge = searchParams.get('hub.challenge');
 
     if (mode === 'subscribe' && token === process.env.META_VERIFY_TOKEN) {
-        console.log(`${LOG_PREFIX} Webhook verified successfully!`);
         return new NextResponse(challenge, { status: 200 });
-    } else {
-        console.error(`${LOG_PREFIX} Webhook verification failed.`);
-        return new NextResponse('Forbidden', { status: 403 });
     }
+    return new NextResponse('Forbidden', { status: 403 });
 }
 
 export async function POST(request: NextRequest) {
     try {
         const payloadText = await request.text();
         if (!payloadText) {
-            return NextResponse.json({ status: "ignored_empty_body" }, { status: 200 });
+            return NextResponse.json({ status: "ok" }, { status: 200 });
         }
 
         const signatureHeader = request.headers.get('x-hub-signature-256');
         if (!verifyMetaSignature(payloadText, signatureHeader)) {
-            console.warn(`${LOG_PREFIX} Rejected webhook: invalid or missing signature.`);
             return NextResponse.json({ status: 'invalid_signature' }, { status: 401 });
         }
 
         let payload: any;
-        try {
-            payload = JSON.parse(payloadText);
-        } catch {
-            return NextResponse.json({ status: "ignored_invalid_json" }, { status: 200 });
+        try { payload = JSON.parse(payloadText); } catch {
+            return NextResponse.json({ status: "ok" }, { status: 200 });
         }
 
-        // Process webhooks inline via after() — no cron needed.
-        // after() guarantees the callback completes even after HTTP response ends.
+        // Determine if this is just a status update (most common, highest volume)
+        const isStatusOnly = payload.object === 'whatsapp_business_account'
+            && payload.entry?.length === 1
+            && payload.entry[0].changes?.length === 1
+            && payload.entry[0].changes[0].field === 'messages'
+            && payload.entry[0].changes[0].value?.statuses
+            && !payload.entry[0].changes[0].value?.messages;
+
         after(async () => {
             try {
                 const { db } = await connectToDatabase();
-                const projectId = await findProjectIdFromWebhook(db, payload);
-
-                // Always log the webhook for debugging/audit
-                const searchableText = getSearchableText(payload);
-                await db.collection('webhook_logs').insertOne({
-                    payload,
-                    searchableText,
-                    projectId,
-                    processed: true, // Marked as processed since we handle inline
-                    createdAt: new Date(),
-                });
+                const projectId = await resolveProjectId(db, payload);
 
                 if (!projectId) {
-                    console.warn(`${LOG_PREFIX} No project found for webhook. Logged for manual review.`);
+                    // Only log unresolvable webhooks (rare)
+                    await db.collection('webhook_logs').insertOne({
+                        payload, projectId: null, processed: false,
+                        error: 'No project found', createdAt: new Date(),
+                    });
                     return;
                 }
 
-                const project = await db.collection('projects').findOne({ _id: projectId });
-                if (!project) {
-                    console.warn(`${LOG_PREFIX} Project ${projectId} not found.`);
-                    return;
+                const project = await getCachedProject(db, projectId);
+                if (!project) return;
+
+                // Skip logging for status-only webhooks (90%+ of volume)
+                // They don't need audit trails — the status is on the message doc
+                if (!isStatusOnly) {
+                    db.collection('webhook_logs').insertOne({
+                        payload, projectId, processed: true, createdAt: new Date(),
+                    }).catch(() => {}); // fire-and-forget, don't block processing
                 }
 
-                // Process the webhook immediately — no cron polling needed
                 await processWebhookInline(db, project, payload);
 
             } catch (err) {
-                console.error(`${LOG_PREFIX} Inline webhook processing failed:`, err);
+                console.error(`${LOG_PREFIX} Processing failed:`, err);
             }
         });
 
-        return NextResponse.json({ status: 'received' }, { status: 200 });
+        return NextResponse.json({ status: 'ok' }, { status: 200 });
 
-    } catch (error: any) {
-        console.error(`${LOG_PREFIX} Fatal error in webhook ingestion:`, error);
-        return NextResponse.json({ status: 'error' }, { status: 200 });
+    } catch {
+        return NextResponse.json({ status: 'ok' }, { status: 200 });
     }
 }
