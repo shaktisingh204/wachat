@@ -1386,27 +1386,24 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
         }
     }
 
-    // Build the $set fields. Only overwrite name if we have a real name from
-    // WhatsApp (not 'Unknown User'), so we don't regress a name that was
-    // set during broadcast or manual contact creation.
-    const setFields: any = {
-        phoneNumberId: phoneNumberId,
-        lastMessage: lastMessageText,
-        lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
-    };
-    if (senderName && senderName !== 'Unknown User') {
-        setFields.name = senderName;
-    }
+    // Build update. name goes in $set only for existing docs (real name update),
+    // or in $setOnInsert only for new docs. Never in both — MongoDB rejects that.
+    const hasRealName = senderName && senderName !== 'Unknown User';
 
     const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
         { waId: senderWaId, projectId: project._id, phoneNumberId: phoneNumberId },
         {
-            $set: setFields,
+            $set: {
+                phoneNumberId: phoneNumberId,
+                lastMessage: lastMessageText,
+                lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+                ...(hasRealName ? { name: senderName } : {}),
+            },
             $inc: { unreadCount: 1 },
             $setOnInsert: {
                 waId: senderWaId,
                 projectId: project._id,
-                name: senderName || `User (${senderWaId.slice(-4)})`,
+                ...(!hasRealName ? { name: `User (${senderWaId.slice(-4)})` } : {}),
                 createdAt: new Date(),
                 hasReceivedWelcome: false,
             },
@@ -1662,7 +1659,8 @@ export async function processIncomingMessageBatch(db: Db, project: WithId<Projec
     const contactOps = newMessages.map(item => {
         const { message, contactProfile, phoneNumberId } = item;
         const senderWaId = message.from;
-        const senderName = contactProfile?.profile?.name || 'Unknown User';
+        const senderName = contactProfile?.profile?.name || '';
+        const hasRealName = senderName && senderName !== 'Unknown User';
         let lastMessageText = message.type === 'text' ? message.text.body : `[${message.type}]`;
         if (message.type === 'interactive') {
             lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
@@ -1670,11 +1668,22 @@ export async function processIncomingMessageBatch(db: Db, project: WithId<Projec
 
         return {
             updateOne: {
-                filter: { waId: senderWaId, projectId: project._id, phoneNumberId: phoneNumberId }, // Fixed: Strict phone number segregation
+                filter: { waId: senderWaId, projectId: project._id, phoneNumberId: phoneNumberId },
                 update: {
-                    $set: { name: senderName, phoneNumberId: phoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
+                    $set: {
+                        phoneNumberId: phoneNumberId,
+                        lastMessage: lastMessageText,
+                        lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+                        ...(hasRealName ? { name: senderName } : {}),
+                    },
                     $inc: { unreadCount: 1 },
-                    $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date(), hasReceivedWelcome: false }
+                    $setOnInsert: {
+                        waId: senderWaId,
+                        projectId: project._id,
+                        ...(!hasRealName ? { name: `User (${senderWaId.slice(-4)})` } : {}),
+                        createdAt: new Date(),
+                        hasReceivedWelcome: false,
+                    },
                 },
                 upsert: true
             }
