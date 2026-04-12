@@ -105,40 +105,89 @@ function buildPayload(job, contact) {
     };
   }
 
-  // Template path. Deep-clone components per contact so per-contact variable
-  // interpolation never mutates a shared object across the batch.
-  const finalComponents = (components || [])
-    .map((c) => (c && c.type === 'BUTTONS' ? { ...c, type: 'BUTTON' } : c))
-    .filter((c) => {
-      const t = (c && c.type ? String(c.type) : '').toUpperCase();
-      return ['HEADER', 'BODY', 'FOOTER', 'BUTTON', 'CAROUSEL'].includes(t);
-    })
-    .map((c) => JSON.parse(JSON.stringify(c)));
+  // Build send-format components from the stored template definition.
+  // Template definition uses HEADER/BODY/FOOTER/BUTTONS with text/format fields.
+  // Meta send API expects header/body/button with parameters arrays.
+  const effectiveVars = { ...(globalBodyVars || {}), ...(contact.variables || {}) };
+  const finalComponents = [];
 
-  if (headerMediaId && headerMediaType) {
-    const headerIdx = finalComponents.findIndex(
-      (c) => c.type === 'HEADER' || c.type === 'header',
-    );
-    const lower = headerMediaType.toLowerCase();
-    const mediaParam = { type: lower, [lower]: { id: headerMediaId } };
-    if (headerIdx > -1) {
-      finalComponents[headerIdx] = { type: 'header', parameters: [mediaParam] };
-    } else {
-      finalComponents.unshift({ type: 'header', parameters: [mediaParam] });
-    }
-  }
+  for (const raw of (components || [])) {
+    if (!raw || !raw.type) continue;
+    const t = String(raw.type).toUpperCase();
 
-  for (const c of finalComponents) {
-    delete c.format;
-    delete c.text;
-    delete c.example;
-    delete c.buttons;
-    const effectiveVars = { ...(globalBodyVars || {}), ...(contact.variables || {}) };
-    for (const p of c.parameters || []) {
-      if (p && p.type === 'text') {
-        p.text = interpolateText(p.text, effectiveVars);
+    // Skip components already converted to send format (lowercase type + parameters)
+    if (raw.parameters && Array.isArray(raw.parameters)) {
+      const clone = JSON.parse(JSON.stringify(raw));
+      // Interpolate text parameters
+      for (const p of clone.parameters || []) {
+        if (p && p.type === 'text') {
+          p.text = interpolateText(p.text, effectiveVars);
+        }
       }
+      finalComponents.push(clone);
+      continue;
     }
+
+    if (t === 'HEADER') {
+      // Header with media (overridden by headerMediaId if present)
+      if (headerMediaId && headerMediaType) {
+        const lower = headerMediaType.toLowerCase();
+        finalComponents.push({
+          type: 'header',
+          parameters: [{ type: lower, [lower]: { id: headerMediaId } }],
+        });
+      } else if (raw.format === 'TEXT' && raw.text) {
+        // Text header with variables
+        const matches = raw.text.match(/{{\s*(\d+)\s*}}/g);
+        if (matches && matches.length > 0) {
+          const params = matches.map((m) => {
+            const varNum = m.replace(/\D/g, '');
+            const key = `variable_header_${varNum}`;
+            const val = effectiveVars[key] || effectiveVars[varNum] || '\u200B';
+            return { type: 'text', text: String(val) };
+          });
+          finalComponents.push({ type: 'header', parameters: params });
+        }
+        // No variables in text header = no component needed for send
+      } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(raw.format)) {
+        // Media header without pre-uploaded ID — skip (media should be in headerMediaId)
+      }
+      // LOCATION headers are already converted in broadcast.actions.ts
+    } else if (t === 'BODY') {
+      // Body with variables
+      if (raw.text) {
+        const matches = raw.text.match(/{{\s*(\d+)\s*}}/g);
+        if (matches && matches.length > 0) {
+          const uniqueVars = [...new Set(matches)].sort();
+          const params = uniqueVars.map((m) => {
+            const varNum = m.replace(/\D/g, '');
+            // Try per-contact variable first, then global, then column-mapped
+            const val =
+              effectiveVars[varNum] ||
+              effectiveVars[`variable_body_${varNum}`] ||
+              effectiveVars[`{{${varNum}}}`] ||
+              '\u200B';
+            return { type: 'text', text: interpolateText(String(val), effectiveVars) };
+          });
+          finalComponents.push({ type: 'body', parameters: params });
+        }
+        // No variables = no body component needed for send
+      }
+    } else if (t === 'BUTTONS') {
+      // Buttons are handled separately — each button with dynamic content
+      // gets its own component. Already converted in broadcast.actions.ts.
+      // Raw BUTTONS from template def are skipped here.
+    } else if (t === 'BUTTON') {
+      // Already in send format
+      const clone = JSON.parse(JSON.stringify(raw));
+      for (const p of clone.parameters || []) {
+        if (p && p.type === 'text') {
+          p.text = interpolateText(p.text, effectiveVars);
+        }
+      }
+      finalComponents.push(clone);
+    }
+    // FOOTER has no parameters in send format — skip
   }
 
   return {
@@ -148,7 +197,7 @@ function buildPayload(job, contact) {
     template: {
       name: templateName,
       language: { code: language },
-      components: finalComponents,
+      components: finalComponents.length > 0 ? finalComponents : undefined,
     },
   };
 }
