@@ -25,6 +25,11 @@ type CachedProject = { project: any; expiresAt: number };
 const projectCache = new Map<string, CachedProject>();
 const PROJECT_CACHE_TTL = 60_000; // 60 seconds
 
+/** Invalidate a cached project so the next webhook picks up fresh data. */
+export function invalidateProjectCache(projectId: string) {
+    projectCache.delete(projectId);
+}
+
 async function getCachedProject(db: Db, projectId: ObjectId): Promise<any | null> {
     const key = projectId.toString();
     const cached = projectCache.get(key);

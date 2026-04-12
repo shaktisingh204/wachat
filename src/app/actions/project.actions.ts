@@ -212,6 +212,10 @@ export async function handleUpdateMasterSwitch(projectId: string, isEnabled: boo
             { _id: new ObjectId(projectId) },
             { $set: { "autoReplySettings.masterEnabled": isEnabled } }
         );
+        try {
+            const { invalidateProjectCache } = await import('@/app/api/webhooks/meta/route');
+            invalidateProjectCache(projectId);
+        } catch { /* best-effort */ }
         revalidatePath('/dashboard/settings');
         return { message: `All auto-replies have been ${isEnabled ? 'enabled' : 'disabled'}.` };
     } catch (e: any) {
@@ -269,6 +273,13 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
             { _id: new ObjectId(projectId) },
             { $set: { [`autoReplySettings.${replyType}`]: updatePayload } }
         );
+
+        // Invalidate webhook project cache so new settings take effect immediately
+        try {
+            const { invalidateProjectCache } = await import('@/app/api/webhooks/meta/route');
+            invalidateProjectCache(projectId);
+        } catch { /* cache invalidation is best-effort */ }
+
         revalidatePath('/dashboard/settings');
         return { message: 'Auto-reply settings updated successfully!' };
     } catch (e: any) {

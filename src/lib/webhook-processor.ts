@@ -1244,7 +1244,9 @@ async function handleOptInOut(db: Db, project: WithId<Project>, contact: WithId<
 
 async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string) {
     const settings = project.autoReplySettings;
-    if (!settings || settings.masterEnabled === false) return;
+    if (!settings || settings.masterEnabled === false) {
+        return;
+    }
 
     let replyMessage: string | null = null;
 
