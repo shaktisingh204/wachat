@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LuBarChart3, LuCircleAlert, LuRefreshCw, LuSend, LuRadio } from 'react-icons/lu';
+import { LuChartBar, LuCircleAlert, LuRefreshCw, LuSend, LuRadio } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -91,7 +91,7 @@ export default function EventsManagerPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <LuBarChart3 className="h-6 w-6" /> Events manager
+                        <LuChartBar className="h-6 w-6" /> Events manager
                     </h1>
                     <p className="text-sm text-muted-foreground mt-1">
                         Monitor pixel events, conversion API traffic and offline events.

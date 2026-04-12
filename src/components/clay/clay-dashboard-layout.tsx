@@ -521,6 +521,11 @@ const admAdvertise: NavEntry[] = [
   { key: 'adm-ads', label: 'Ads', icon: <LuMousePointerClick className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/ads', matches: ['/dashboard/ad-manager/ads'] },
   { key: 'adm-bulk', label: 'Bulk Editor', icon: <LuListChecks className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/bulk-editor', matches: ['/dashboard/ad-manager/bulk-editor'] },
   { key: 'adm-split', label: 'A/B Tests', icon: <LuSplit className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/split-tests', matches: ['/dashboard/ad-manager/split-tests'] },
+  { key: 'adm-calendar', label: 'Calendar', icon: <LuCalendar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/calendar', matches: ['/dashboard/ad-manager/calendar'] },
+  { key: 'adm-compare', label: 'Compare', icon: <LuColumns3 className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/compare', matches: ['/dashboard/ad-manager/compare'] },
+  { key: 'adm-budget', label: 'Budget Optimizer', icon: <LuTrendingUp className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/budget-optimizer', matches: ['/dashboard/ad-manager/budget-optimizer'] },
+  { key: 'adm-previews', label: 'Ad Previews', icon: <LuEye className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/ad-previews', matches: ['/dashboard/ad-manager/ad-previews'] },
+  { key: 'adm-funnel', label: 'Conversion Funnel', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/ad-manager/conversion-funnel', matches: ['/dashboard/ad-manager/conversion-funnel'] },
 ];
 
 const admCreative: NavEntry[] = [

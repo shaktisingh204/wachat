@@ -91,10 +91,9 @@ export default function CampaignCalendarPage() {
 
     const monthLabel = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const cells: (number | null)[] = [
-        ...Array.from<null>({ length: startDay }, () => null),
-        ...Array.from({ length: totalDays }, (_, i) => i + 1),
-    ];
+    const nullCells: (number | null)[] = new Array(startDay).fill(null);
+    const dayCells: (number | null)[] = Array.from({ length: totalDays }, (_, i) => i + 1);
+    const cells: (number | null)[] = [...nullCells, ...dayCells];
     while (cells.length % 7 !== 0) cells.push(null);
 
     return (
