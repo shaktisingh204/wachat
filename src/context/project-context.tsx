@@ -34,8 +34,14 @@ export function ProjectProvider({
     user: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null
 }) {
     const [projects, setProjects] = useState<WithId<Project>[]>(initialProjects || []);
-    const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-    const [activeProjectName, setActiveProjectName] = useState<string | null>(null);
+    const [activeProjectId, setActiveProjectId] = useState<string | null>(() => {
+        if (typeof window === 'undefined') return null;
+        try { return localStorage.getItem('activeProjectId'); } catch { return null; }
+    });
+    const [activeProjectName, setActiveProjectName] = useState<string | null>(() => {
+        if (typeof window === 'undefined') return null;
+        try { return localStorage.getItem('activeProjectName'); } catch { return null; }
+    });
     const [isLoadingProject, startProjectLoad] = useTransition();
     const router = useRouter();
     const pathname = usePathname();

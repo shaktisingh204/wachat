@@ -32,16 +32,28 @@ async function processStuckBroadcasts() {
     }
 
     let enqueued = 0;
+    const errors: string[] = [];
     for (const broadcast of stuckBroadcasts) {
         try {
             await enqueueBroadcastControl(broadcast._id.toString());
+            // Also update status to ensure worker picks it up
+            await db.collection('broadcasts').updateOne(
+                { _id: broadcast._id },
+                { $set: { status: 'PENDING_PROCESSING', updatedAt: new Date() } }
+            );
             enqueued++;
+            console.log(`[BCAST-CRON] Re-enqueued broadcast ${broadcast._id}`);
         } catch (e: any) {
-            console.error(`[BCAST-CRON] Failed to re-enqueue broadcast ${broadcast._id}:`, e.message);
+            const msg = e.message || String(e);
+            console.error(`[BCAST-CRON] Failed to re-enqueue broadcast ${broadcast._id}:`, msg);
+            errors.push(`${broadcast._id}: ${msg}`);
         }
     }
 
-    return { message: `Re-enqueued ${enqueued} of ${stuckBroadcasts.length} stuck broadcast(s).` };
+    return {
+        message: `Re-enqueued ${enqueued} of ${stuckBroadcasts.length} stuck broadcast(s).`,
+        errors: errors.length > 0 ? errors : undefined,
+    };
 }
 
 export async function GET(request: NextRequest) {
