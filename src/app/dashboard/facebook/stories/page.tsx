@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import { getPageStories, publishPhotoStory } from '@/app/actions/facebook.actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, CircleDot, Upload, Image as ImageIcon } from 'lucide-react';
+import { AlertCircle, CircleDot, Upload, Image as ImageIcon, Hash } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,6 +99,18 @@ export default function StoriesPage() {
                 </Alert>
             ) : (
                 <>
+                    {/* Aggregate Stats */}
+                    <div className="grid sm:grid-cols-2 gap-4">
+                        <Card className="card-gradient card-gradient-blue">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                                    <Hash className="h-4 w-4" /> Total Stories
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent><p className="text-3xl font-bold">{stories.length}</p></CardContent>
+                        </Card>
+                    </div>
+
                     {/* Publish Section */}
                     <Card className="card-gradient card-gradient-blue">
                         <CardHeader><CardTitle className="text-base">Publish Photo Story</CardTitle></CardHeader>

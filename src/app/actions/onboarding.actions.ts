@@ -181,23 +181,21 @@ export async function handleWabaOnboarding(data: {
       const updatedProject = await db.collection<Project>('projects').findOne({ _id: project._id });
 
       if ((updatedProject?.phoneNumbers?.length ?? 0) > 0) {
-        console.log(`${LOG_PREFIX_WABA} Step 7: Registering verified phone numbers`);
+        console.log(`${LOG_PREFIX_WABA} Step 7: Registering ${updatedProject!.phoneNumbers!.length} phone number(s)`);
         for (const phone of updatedProject!.phoneNumbers!) {
-          if (phone.code_verification_status === 'VERIFIED') {
-            try {
-              await axios.post(
-                `https://graph.facebook.com/${API_VERSION}/${phone.id}/register`,
-                { messaging_product: 'whatsapp', pin: '123456' },
-                { headers: { Authorization: `Bearer ${userAccessToken}` } }
-              );
-              console.log(`${LOG_PREFIX_WABA} Successfully sent registration request for ${phone.display_phone_number} (${phone.id}).`);
-            } catch (regError: any) {
-              const errorMessage = getErrorMessage(regError);
-              if (errorMessage.includes("parameter pin is required")) {
-                console.warn(`${LOG_PREFIX_WABA} Registration for ${phone.display_phone_number} requires a PIN. Please register it manually from the Meta Business Suite or ensure 2FA is disabled if not needed.`);
-              } else {
-                console.warn(`${LOG_PREFIX_WABA} Could not register phone number ${phone.display_phone_number} (${phone.id}). It may already be registered.`, errorMessage);
-              }
+          try {
+            await axios.post(
+              `https://graph.facebook.com/${API_VERSION}/${phone.id}/register`,
+              { messaging_product: 'whatsapp', pin: '123456' },
+              { headers: { Authorization: `Bearer ${userAccessToken}` } }
+            );
+            console.log(`${LOG_PREFIX_WABA} Registered ${phone.display_phone_number} (${phone.id})`);
+          } catch (regError: any) {
+            const errorMessage = getErrorMessage(regError);
+            if (errorMessage.includes('already registered') || errorMessage.includes('already been registered')) {
+              console.log(`${LOG_PREFIX_WABA} ${phone.display_phone_number} is already registered.`);
+            } else {
+              console.warn(`${LOG_PREFIX_WABA} Could not register ${phone.display_phone_number} (${phone.id}): ${errorMessage}`);
             }
           }
         }

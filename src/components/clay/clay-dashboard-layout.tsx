@@ -89,6 +89,9 @@ import {
   LuCirclePlay,
   LuUserCheck,
   LuQrCode,
+  LuKey,
+  LuBookmark,
+  LuUserCog,
 } from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
@@ -383,7 +386,7 @@ const wachatGrow: NavEntry[] = [
   },
 ];
 
-/* ── Configure: Account settings, phone numbers, dev tools ── */
+/* ── Configure: Account, phone numbers, dev tools, project settings ── */
 const wachatConfigure: NavEntry[] = [
   {
     key: 'wachat-numbers',
@@ -421,11 +424,32 @@ const wachatConfigure: NavEntry[] = [
     matches: ['/dashboard/webhooks'],
   },
   {
-    key: 'wachat-settings',
-    label: 'Project Settings',
+    key: 'wachat-general-settings',
+    label: 'General Settings',
     icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/settings',
-    matches: ['/dashboard/settings'],
+    href: '/dashboard/settings/general',
+    matches: ['/dashboard/settings/general', '/dashboard/settings'],
+  },
+  {
+    key: 'wachat-agents',
+    label: 'Agents & Roles',
+    icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/agents',
+    matches: ['/dashboard/settings/agents'],
+  },
+  {
+    key: 'wachat-attributes',
+    label: 'User Attributes',
+    icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/attributes',
+    matches: ['/dashboard/settings/attributes'],
+  },
+  {
+    key: 'wachat-canned',
+    label: 'Canned Messages',
+    icon: <LuBookmark className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/canned',
+    matches: ['/dashboard/settings/canned'],
   },
 ];
 
@@ -489,6 +513,8 @@ const metaFbPrimary: NavEntry[] = [
 const metaFbContent: NavEntry[] = [
   { key: 'ms-posts', label: 'Posts', icon: <LuSquarePen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/posts', matches: ['/dashboard/facebook/posts', '/dashboard/facebook/create-post'] },
   { key: 'ms-scheduled', label: 'Scheduled', icon: <LuCalendarClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/scheduled', matches: ['/dashboard/facebook/scheduled'] },
+  { key: 'ms-calendar', label: 'Calendar', icon: <LuCalendar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/calendar', matches: ['/dashboard/facebook/calendar'] },
+  { key: 'ms-bulk-create', label: 'Bulk Create', icon: <LuPlus className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/bulk-create', matches: ['/dashboard/facebook/bulk-create'] },
   { key: 'ms-live', label: 'Live Studio', icon: <LuRadio className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/live-studio', matches: ['/dashboard/facebook/live-studio'] },
   { key: 'ms-randomizer', label: 'Post Randomizer', icon: <LuZap className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/post-randomizer', matches: ['/dashboard/facebook/post-randomizer'] },
   { key: 'ms-reels', label: 'Reels', icon: <LuClapperboard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/reels', matches: ['/dashboard/facebook/reels'] },
@@ -510,6 +536,9 @@ const metaFbGrowth: NavEntry[] = [
   { key: 'ms-reviews', label: 'Reviews', icon: <LuStar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/reviews', matches: ['/dashboard/facebook/reviews'] },
   { key: 'ms-insights', label: 'Insights', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/insights', matches: ['/dashboard/facebook/insights'] },
   { key: 'ms-media', label: 'Media Library', icon: <LuImagePlay className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/media', matches: ['/dashboard/facebook/media'] },
+  { key: 'ms-moderation', label: 'Moderation', icon: <LuShieldCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/moderation', matches: ['/dashboard/facebook/moderation'] },
+  { key: 'ms-audience', label: 'Audience', icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/audience', matches: ['/dashboard/facebook/audience'] },
+  { key: 'ms-competitors', label: 'Competitors', icon: <LuTarget className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/competitors', matches: ['/dashboard/facebook/competitors'] },
   { key: 'ms-visitor-posts', label: 'Visitor Posts', icon: <LuUserCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/visitor-posts', matches: ['/dashboard/facebook/visitor-posts'] },
 ];
 
@@ -522,6 +551,7 @@ const metaFbCommerce: NavEntry[] = [
 const metaFbAdvanced: NavEntry[] = [
   { key: 'ms-flows', label: 'Flow Builder', icon: <LuWorkflow className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/flow-builder', matches: ['/dashboard/facebook/flow-builder'] },
   { key: 'ms-agents', label: 'AI Agents', icon: <LuBot className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/agents', matches: ['/dashboard/facebook/agents'] },
+  { key: 'ms-knowledge', label: 'Knowledge Base', icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/knowledge', matches: ['/dashboard/facebook/knowledge'] },
   { key: 'ms-webhooks', label: 'Webhooks', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/webhooks', matches: ['/dashboard/facebook/webhooks'] },
   { key: 'ms-page-roles', label: 'Page Roles', icon: <LuShieldCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/page-roles', matches: ['/dashboard/facebook/page-roles'] },
   { key: 'ms-fb-settings', label: 'Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/facebook/settings', matches: ['/dashboard/facebook/settings'] },
@@ -1044,13 +1074,50 @@ function BrandGlyph() {
 
 /* ── Wachat sidebar brand — back-link + project switcher dropdown ── */
 
+function WabaHealthDot({ status }: { status?: string }) {
+  if (!status) return null;
+  const s = status.toLowerCase();
+  const isGreen = s === 'available' || s === 'connected';
+  const isAmber = s === 'limited' || s === 'flagged';
+  const color = isGreen ? 'bg-emerald-500' : isAmber ? 'bg-amber-500' : 'bg-red-500';
+  const label = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  return (
+    <span className={cn(
+      'inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider leading-none',
+      isGreen && 'bg-emerald-500/10 text-emerald-600',
+      isAmber && 'bg-amber-500/10 text-amber-600',
+      !isGreen && !isAmber && 'bg-red-500/10 text-red-600',
+    )}>
+      <span className={cn('h-1.5 w-1.5 rounded-full', color)} />
+      {label}
+    </span>
+  );
+}
+
 function ClayWachatBrand() {
   const router = useRouter();
   const { projects, activeProject, setActiveProjectId } = useProject();
+  const [healthStatus, setHealthStatus] = React.useState<string | undefined>();
+
+  React.useEffect(() => {
+    if (!activeProject?._id) { setHealthStatus(undefined); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const { getWabaHealthStatus } = await import('@/app/actions/whatsapp.actions');
+        const { healthStatus: hs } = await getWabaHealthStatus(activeProject._id.toString());
+        if (!cancelled && hs?.can_send_message) {
+          setHealthStatus(hs.can_send_message);
+        }
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [activeProject?._id]);
 
   const onSelect = React.useCallback(
     (id: string) => {
       setActiveProjectId(id);
+      setHealthStatus(undefined); // reset on switch
       try {
         localStorage.setItem('activeProjectId', id);
       } catch {
@@ -1090,8 +1157,9 @@ function ClayWachatBrand() {
               {(activeProject?.name || '—').slice(0, 2)}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-[10.5px] uppercase tracking-wide text-clay-ink-fade font-medium">
+              <span className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-clay-ink-fade font-medium">
                 Project
+                <WabaHealthDot status={healthStatus} />
               </span>
               <span className="block truncate text-[12.5px] font-semibold text-clay-ink leading-tight">
                 {activeProject?.name || 'Select a project'}

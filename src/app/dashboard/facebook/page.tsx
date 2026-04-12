@@ -87,11 +87,45 @@ const PostColumn = ({ title, count, children }: { title: string, count: number, 
 );
 
 const PostItemCard = ({ post }: { post: FacebookPost }) => {
+    const copyLink = () => {
+        if (post.permalink_url) {
+            navigator.clipboard.writeText(post.permalink_url);
+        }
+    };
+
     return (
         <Card className="hover:shadow-md transition-shadow card-gradient card-gradient-blue">
             <CardHeader className="flex flex-row justify-between items-start p-3">
                 <CardTitle className="text-base font-semibold leading-snug">{post.message || "Media Post"}</CardTitle>
-                <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0"><MoreHorizontal className="h-4 w-4" /></Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0"><MoreHorizontal className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {post.permalink_url && (
+                            <DropdownMenuItem asChild>
+                                <a href={post.permalink_url} target="_blank" rel="noopener noreferrer">
+                                    <ArrowRight className="h-4 w-4 mr-2" /> View on Facebook
+                                </a>
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={copyLink}>
+                            <Share2 className="h-4 w-4 mr-2" /> Copy Link
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <a href={`/dashboard/facebook/posts`}>
+                                <Edit className="h-4 w-4 mr-2" /> Edit Post
+                            </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <a href={`/dashboard/facebook/insights`}>
+                                <TrendingUp className="h-4 w-4 mr-2" /> View Insights
+                            </a>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </CardHeader>
             {post.full_picture && (
                 <CardContent className="p-3 pt-0">

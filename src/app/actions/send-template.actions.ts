@@ -318,8 +318,6 @@ export async function handleSendTemplateMessage(
             payload.template.components = payloadComponents;
         }
 
-        console.log('Sending Template Payload:', JSON.stringify(payload, null, 2));
-
         const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
@@ -332,15 +330,21 @@ export async function handleSendTemplateMessage(
             sent_components: payload.template.components
         };
 
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: contact._id, projectId: hasAccess._id, wamid, messageTimestamp: now, type: 'template',
-            content: { template: finalTemplatePayloadForDb }, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-        } as OutgoingMessage);
-
         const lastMessage = `[Template]: ${template.name}`;
-        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } });
 
-        revalidatePath('/dashboard/chat');
+        // DB writes run in background — return success immediately after Meta confirms
+        Promise.all([
+            db.collection('outgoing_messages').insertOne({
+                direction: 'out', contactId: contact._id, projectId: hasAccess._id, wamid, messageTimestamp: now, type: 'template',
+                content: { template: finalTemplatePayloadForDb }, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+            } as OutgoingMessage),
+            db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } }),
+        ]).then(() => {
+            revalidatePath('/dashboard/chat');
+        }).catch((err) => {
+            console.error('[Template Send] Background DB write failed:', err);
+        });
+
         return { message: `Template "${template.name}" sent successfully.` };
     } catch (e: any) {
         if (e.response && e.response.data) {

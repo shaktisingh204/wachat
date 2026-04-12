@@ -56,19 +56,34 @@ export default function EmailAnalyticsPage() {
     const stats = useMemo(() => {
         const totalCampaigns = campaigns.length;
         const totalRecipients = campaigns.reduce((sum, c) => sum + (c.contacts?.length || 0), 0);
-        // Simulated data for now
-        const avgOpenRate = totalCampaigns > 0 ? 23.5 : 0; 
-        const avgClickRate = totalCampaigns > 0 ? 4.2 : 0;
-        
+
+        // Calculate real averages from campaign tracking data
+        let totalOpens = 0;
+        let totalClicks = 0;
+        let totalBounces = 0;
+        let totalSent = 0;
+
+        for (const c of campaigns) {
+            const sent = c.contacts?.length || 0;
+            totalSent += sent;
+            totalOpens += (c as any).openCount || 0;
+            totalClicks += (c as any).clickCount || 0;
+            totalBounces += (c as any).bounceCount || 0;
+        }
+
+        const avgOpenRate = totalSent > 0 ? Number(((totalOpens / totalSent) * 100).toFixed(1)) : 0;
+        const avgClickRate = totalSent > 0 ? Number(((totalClicks / totalSent) * 100).toFixed(1)) : 0;
+
         return { totalCampaigns, totalRecipients, avgOpenRate, avgClickRate };
     }, [campaigns]);
 
-    // Function to generate plausible but random stats for each campaign
     const getCampaignAnalytics = (campaign: EmailCampaign) => {
-        const seed = campaign._id.toString().charCodeAt(0);
-        const openRate = (15 + (seed % 15) + Math.random() * 5).toFixed(1);
-        const clickRate = (2 + (seed % 3) + Math.random()).toFixed(1);
-        const bounces = Math.floor((campaign.contacts?.length || 0) * (0.01 + (seed % 2) * 0.01));
+        const sent = campaign.contacts?.length || 0;
+        const opens = (campaign as any).openCount || 0;
+        const clicks = (campaign as any).clickCount || 0;
+        const bounces = (campaign as any).bounceCount || 0;
+        const openRate = sent > 0 ? ((opens / sent) * 100).toFixed(1) : '0.0';
+        const clickRate = sent > 0 ? ((clicks / sent) * 100).toFixed(1) : '0.0';
         return { openRate, clickRate, bounces };
     };
 

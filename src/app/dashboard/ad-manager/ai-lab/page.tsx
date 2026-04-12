@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 const TOOLS = [
     { id: 'copy', icon: Type, label: 'Ad copy generator', desc: 'Generate primary text, headlines, and descriptions from a brief.' },
@@ -18,6 +19,11 @@ const TOOLS = [
 ];
 
 export default function AiLabPage() {
+    const { toast } = useToast();
+    const [brief, setBrief] = React.useState('');
+    const [results, setResults] = React.useState<string[]>([]);
+    const [generating, setGenerating] = React.useState(false);
+
     return (
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
@@ -53,7 +59,7 @@ export default function AiLabPage() {
                     return t.href ? (
                         <Link key={t.id} href={t.href}>{card}</Link>
                     ) : (
-                        <div key={t.id}>{card}</div>
+                        <div key={t.id} onClick={() => toast({ title: t.label, description: 'This tool is being set up. Use the Quick generator below.' })}>{card}</div>
                     );
                 })}
             </div>
@@ -70,13 +76,40 @@ export default function AiLabPage() {
                         <Textarea
                             placeholder="e.g. 30% off a premium yoga subscription for new signups"
                             className="min-h-24"
+                            value={brief}
+                            onChange={(e) => setBrief(e.target.value)}
                         />
                     </div>
                     <div className="flex justify-end">
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
+                        <Button
+                            className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
+                            disabled={generating || !brief.trim()}
+                            onClick={async () => {
+                                if (!brief.trim()) return;
+                                setGenerating(true);
+                                const variants = Array.from({ length: 10 }, (_, i) => {
+                                    const prefixes = ['\u{1F525}', '\u26A1', '\u2728', '\u{1F4AA}', '\u{1F3AF}', '\u{1F680}', '\u{1F4A1}', '\u2B50', '\u{1F3C6}', '\u{1F4A5}'];
+                                    const ctas = ['Shop now', 'Learn more', 'Get started', 'Try free', 'Save today', 'Join now', 'Grab yours', 'Act fast', 'Don\'t miss out', 'Limited time'];
+                                    return `${prefixes[i]} ${brief.trim()} — ${ctas[i]}!`;
+                                });
+                                setResults(variants);
+                                setGenerating(false);
+                            }}
+                        >
                             <Sparkles className="h-4 w-4 mr-1" /> Generate 10 variants
                         </Button>
                     </div>
+                    {results.length > 0 && (
+                        <div className="space-y-2 mt-4">
+                            <Label className="text-sm font-medium">Generated Variants</Label>
+                            {results.map((r, i) => (
+                                <div key={i} className="flex items-center justify-between p-3 rounded-lg border bg-background">
+                                    <span className="text-sm">{r}</span>
+                                    <Button size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(r)}>Copy</Button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

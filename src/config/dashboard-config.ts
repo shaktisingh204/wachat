@@ -71,7 +71,10 @@ export const wachatMenuItems: MenuItem[] = [
     { href: '/dashboard/health', label: 'Account Health', icon: Activity, roles: ['owner', 'admin'], permissionKey: 'wachat_health' },
     { href: '/dashboard/integrations', label: 'Integrations', icon: Bolt, roles: ['owner', 'admin'], permissionKey: 'wachat_integrations' },
     { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'], permissionKey: 'wachat_webhooks' },
-    { href: '/dashboard/settings', label: 'Project Settings', icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
+    { href: '/dashboard/settings/general', label: 'General Settings', icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
+    { href: '/dashboard/settings/agents', label: 'Agents & Roles', icon: Users, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
+    { href: '/dashboard/settings/attributes', label: 'User Attributes', icon: Key, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
+    { href: '/dashboard/settings/canned', label: 'Canned Messages', icon: BookCopy, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
 ];
 
 export const crmMenuGroups: MenuGroup[] = [

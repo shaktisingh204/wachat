@@ -28,6 +28,7 @@ export default function BulkEditorPage() {
     const [rows, setRows] = React.useState<EditableRow[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [saving, setSaving] = React.useState(false);
+    const csvRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
         if (!activeAccount) return;
@@ -119,9 +120,50 @@ export default function BulkEditorPage() {
                     <Button variant="outline" onClick={exportCsv}>
                         <Download className="h-4 w-4 mr-1" /> Export CSV
                     </Button>
-                    <Button variant="outline">
-                        <Upload className="h-4 w-4 mr-1" /> Import CSV
-                    </Button>
+                    <>
+                        <input
+                            ref={csvRef}
+                            type="file"
+                            accept=".csv"
+                            className="hidden"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                    const text = ev.target?.result as string;
+                                    if (!text) return;
+                                    const lines = text.split('\n').filter(l => l.trim());
+                                    if (lines.length < 2) { toast({ title: 'Empty CSV' }); return; }
+                                    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+                                    const imported: EditableRow[] = [];
+                                    for (let i = 1; i < lines.length; i++) {
+                                        const vals = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+                                        const row: any = {};
+                                        headers.forEach((h, idx) => { row[h] = vals[idx] || ''; });
+                                        if (row.id) {
+                                            imported.push({
+                                                id: row.id,
+                                                name: row.name || '',
+                                                status: row.status || 'PAUSED',
+                                                daily_budget: Number(row.daily_budget) || 0,
+                                                dirty: true,
+                                            });
+                                        }
+                                    }
+                                    if (imported.length > 0) {
+                                        setRows(imported);
+                                        toast({ title: `Imported ${imported.length} campaigns from CSV` });
+                                    }
+                                };
+                                reader.readAsText(file);
+                                e.target.value = '';
+                            }}
+                        />
+                        <Button variant="outline" onClick={() => csvRef.current?.click()}>
+                            <Upload className="h-4 w-4 mr-1" /> Import CSV
+                        </Button>
+                    </>
                     <Button
                         className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                         onClick={saveAll}

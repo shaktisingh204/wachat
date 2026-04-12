@@ -14,6 +14,9 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { getFacebookPagesForAdCreation, listLeadGenForms, getLeadsFromForm } from '@/app/actions/ad-manager.actions';
 import type { FacebookPage } from '@/lib/definitions';
 
@@ -23,6 +26,7 @@ export default function LeadFormsPage() {
     const [selectedPage, setSelectedPage] = React.useState<string>('');
     const [forms, setForms] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(false);
+    const [createOpen, setCreateOpen] = React.useState(false);
 
     React.useEffect(() => {
         (async () => {
@@ -86,7 +90,7 @@ export default function LeadFormsPage() {
                         Instant forms collected from your Lead Ads. Export to CSV or sync to CRM.
                     </p>
                 </div>
-                <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
+                <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setCreateOpen(true)}>
                     <Plus className="h-4 w-4 mr-1" /> New lead form
                 </Button>
             </div>
@@ -155,6 +159,32 @@ export default function LeadFormsPage() {
                     )}
                 </CardContent>
             </Card>
+
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Create Lead Form</DialogTitle>
+                        <DialogDescription>Lead forms are created through Meta Ads Manager. Use the link below to create one.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground">To create a new lead generation form:</p>
+                        <ol className="text-sm space-y-2 list-decimal list-inside text-muted-foreground">
+                            <li>Go to Meta Ads Manager</li>
+                            <li>Create a new campaign with Lead Generation objective</li>
+                            <li>Build your Instant Form in the ad creation step</li>
+                            <li>The form will appear here automatically</li>
+                        </ol>
+                        <Button asChild className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
+                            <a href="https://business.facebook.com/adsmanager" target="_blank" rel="noopener noreferrer">
+                                Open Meta Ads Manager
+                            </a>
+                        </Button>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setCreateOpen(false)}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

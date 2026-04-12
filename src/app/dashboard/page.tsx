@@ -9,7 +9,7 @@
  */
 
 import * as React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -28,6 +28,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
+import { getWabaHealthStatus } from '@/app/actions/whatsapp.actions';
 import { SyncProjectsDialog } from '@/components/wabasimplify/sync-projects-dialog';
 import {
   ClayBreadcrumbs,
@@ -40,12 +41,38 @@ import {
 
 function formatPhone(id?: string): string {
   if (!id) return '';
-  // Strip leading + if present, add spaces for readability
   const clean = id.replace(/\D/g, '');
   if (clean.length > 10) {
     return `+${clean.slice(0, clean.length - 10)} ${clean.slice(-10, -5)} ${clean.slice(-5)}`;
   }
   return id;
+}
+
+function HealthPill({ status }: { status?: string }) {
+  if (!status) return null;
+  const s = status.toLowerCase();
+  const isGreen = s === 'available' || s === 'connected';
+  const isAmber = s === 'limited' || s === 'flagged';
+  const isRed = s === 'blocked' || s === 'restricted';
+
+  return (
+    <span className={cn(
+      'inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider leading-none',
+      isGreen && 'bg-emerald-500/10 text-emerald-600',
+      isAmber && 'bg-amber-500/10 text-amber-600',
+      isRed && 'bg-red-500/10 text-red-600',
+      !isGreen && !isAmber && !isRed && 'bg-clay-bg-2 text-clay-ink-muted',
+    )}>
+      <span className={cn(
+        'h-1.5 w-1.5 rounded-full',
+        isGreen && 'bg-emerald-500',
+        isAmber && 'bg-amber-500',
+        isRed && 'bg-red-500',
+        !isGreen && !isAmber && !isRed && 'bg-clay-ink-muted',
+      )} />
+      {status}
+    </span>
+  );
 }
 
 /* ── skeleton ──────────────────────────────────────────────────── */
@@ -113,10 +140,12 @@ function ProjectRow({
   project,
   isRecent,
   onSelect,
+  healthStatus,
 }: {
   project: any;
   isRecent?: boolean;
   onSelect: (id: string) => void;
+  healthStatus?: string;
 }) {
   const connected = !!project.wabaId;
   const phone = project.phoneNumbers?.[0]?.display_phone_number || project.wabaId;
@@ -148,6 +177,7 @@ function ProjectRow({
           <p className="truncate text-[14px] font-semibold text-clay-ink">
             {project.name || 'Untitled project'}
           </p>
+          <HealthPill status={healthStatus} />
           {isRecent && (
             <span className="flex items-center gap-1 rounded-full bg-clay-rose/10 px-2 py-0.5 text-[10px] font-medium text-clay-rose">
               <LuClock className="h-2.5 w-2.5" /> Recent
@@ -189,11 +219,15 @@ export default function SelectProjectPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { projects: allProjects, reloadProjects, isLoadingProject, setActiveProjectId } = useProject();
+  const [, startHealthTransition] = useTransition();
 
   const projects = useMemo(() => allProjects.filter((p) => !!p.wabaId), [allProjects]);
 
   const [search, setSearch] = useState(searchParams.get('query') || '');
   const [page, setPage] = useState(1);
+
+  // Health status map: projectId → can_send_message status
+  const [healthMap, setHealthMap] = useState<Record<string, string>>({});
 
   // Recent projects from localStorage
   const [recentIds, setRecentIds] = useState<string[]>([]);
@@ -207,6 +241,25 @@ export default function SelectProjectPage() {
   useEffect(() => {
     document.title = 'Projects · Wachat';
   }, []);
+
+  // Fetch health status for all projects in background
+  useEffect(() => {
+    if (projects.length === 0) return;
+    startHealthTransition(async () => {
+      const results: Record<string, string> = {};
+      await Promise.allSettled(
+        projects.map(async (p) => {
+          try {
+            const { healthStatus } = await getWabaHealthStatus(p._id.toString());
+            if (healthStatus?.can_send_message) {
+              results[p._id.toString()] = healthStatus.can_send_message;
+            }
+          } catch { /* ignore */ }
+        })
+      );
+      setHealthMap(results);
+    });
+  }, [projects]);
 
   const recentProjects = useMemo(
     () => projects.filter((p) => recentIds.includes(p._id.toString())).slice(0, 4),
@@ -298,6 +351,7 @@ export default function SelectProjectPage() {
                 project={p}
                 isRecent
                 onSelect={handleSelect}
+                healthStatus={healthMap[p._id.toString()]}
               />
             ))}
           </div>
@@ -325,6 +379,7 @@ export default function SelectProjectPage() {
                 key={p._id.toString()}
                 project={p}
                 onSelect={handleSelect}
+                healthStatus={healthMap[p._id.toString()]}
               />
             ))}
           </div>

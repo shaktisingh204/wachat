@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition, useCallback, useActionState } from 
 import { getPageReels, publishPageReel } from '@/app/actions/facebook.actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Film, Clock, ExternalLink, Upload } from 'lucide-react';
+import { AlertCircle, Film, Clock, ExternalLink, Upload, Eye, Hash } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -100,6 +100,30 @@ export default function ReelsPage() {
                 </Alert>
             ) : (
                 <>
+                    {/* Aggregate Stats */}
+                    <div className="grid sm:grid-cols-2 gap-4">
+                        <Card className="card-gradient card-gradient-blue">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                                    <Hash className="h-4 w-4" /> Total Reels
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent><p className="text-3xl font-bold">{reels.length}</p></CardContent>
+                        </Card>
+                        <Card className="card-gradient card-gradient-blue">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                                    <Eye className="h-4 w-4" /> Total Views
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold">
+                                    {reels.reduce((sum: number, r: any) => sum + (r.views || 0), 0).toLocaleString()}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </div>
+
                     {/* Upload Section */}
                     {showUpload && (
                         <Card className="card-gradient card-gradient-blue">

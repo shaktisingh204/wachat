@@ -93,7 +93,41 @@ async function _createProjectFromWaba(data: {
             hasCatalogManagement: includeCatalog,
         };
 
-        await db.collection('projects').insertOne(newProject as any);
+        const insertResult = await db.collection('projects').insertOne(newProject as any);
+
+        // Sync phone numbers and register them immediately
+        const projectId = insertResult.insertedId.toString();
+        try {
+            console.log(`[WABA Setup] Syncing phone numbers for project ${projectId}`);
+            await handleSyncPhoneNumbers(projectId);
+
+            const createdProject = await db.collection<Project>('projects').findOne({ _id: insertResult.insertedId });
+            if (createdProject?.phoneNumbers && createdProject.phoneNumbers.length > 0) {
+                console.log(`[WABA Setup] Registering ${createdProject.phoneNumbers.length} phone number(s)`);
+                for (const phone of createdProject.phoneNumbers) {
+                    try {
+                        await axios.post(
+                            `https://graph.facebook.com/${API_VERSION}/${phone.id}/register`,
+                            { messaging_product: 'whatsapp', pin: '123456' },
+                            { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                        );
+                        console.log(`[WABA Setup] Registered ${phone.display_phone_number} (${phone.id})`);
+                    } catch (regError: any) {
+                        const errMsg = getErrorMessage(regError);
+                        if (errMsg.includes('already registered') || errMsg.includes('already been registered')) {
+                            console.log(`[WABA Setup] ${phone.display_phone_number} is already registered.`);
+                        } else {
+                            console.warn(`[WABA Setup] Could not register ${phone.display_phone_number}: ${errMsg}`);
+                        }
+                    }
+                }
+            }
+
+            // Subscribe webhooks
+            await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
+        } catch (syncError) {
+            console.warn('[WABA Setup] Post-creation sync/register failed (non-fatal):', getErrorMessage(syncError));
+        }
 
         revalidatePath('/dashboard');
 
@@ -434,30 +468,32 @@ export async function handleSendMessage(
             messagePayload.text = { body: messageText, preview_url: true };
         }
 
-        console.log('Sending WhatsApp Message Payload:', JSON.stringify(messagePayload, null, 2));
-
+        // Send to Meta — this is the only blocking call the user needs to wait for
         const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
+        // DB writes + revalidation run in background — user sees instant success
         const now = new Date();
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId), wamid, messageTimestamp: now, type: messageType,
-            content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-        } as OutgoingMessage);
-
+        const contactOid = new ObjectId(contactId);
+        const projectOid = new ObjectId(projectId);
         const lastMessage = messageType === 'text' ? messageText : `[${messageType}]`;
-        // J2 P1-1 fix: scope the contact update by both _id AND projectId so
-        // a contactId belonging to a different project (which this caller has
-        // no access to) silently no-ops instead of stomping lastMessage/status.
-        await db
-            .collection('contacts')
-            .updateOne(
-                { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
-                { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now } },
-            );
 
-        revalidatePath('/dashboard/chat');
+        // Fire-and-forget: persist message + update contact + revalidate
+        Promise.all([
+            db.collection('outgoing_messages').insertOne({
+                direction: 'out', contactId: contactOid, projectId: projectOid, wamid, messageTimestamp: now, type: messageType,
+                content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+            } as OutgoingMessage),
+            db.collection('contacts').updateOne(
+                { _id: contactOid, projectId: projectOid },
+                { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now } },
+            ),
+        ]).then(() => {
+            revalidatePath('/dashboard/chat');
+        }).catch((err) => {
+            console.error('[Send] Background DB write failed:', err);
+        });
 
         return { message: 'Message sent successfully.' };
 
@@ -730,36 +766,27 @@ export async function handleRequestWhatsAppPayment(prevState: any, formData: For
         const requestId = response.data.id;
         const now = new Date();
 
-        // Log the message as before
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out',
-            contactId: contact._id,
-            projectId: project._id,
-            wamid: requestId,
-            messageTimestamp: now,
-            type: 'payment_request' as any,
-            content: payload,
-            status: 'sent',
-            statusTimestamps: { sent: now },
-            createdAt: now,
-        } as OutgoingMessage);
+        // DB writes in background — return success immediately
+        Promise.all([
+            db.collection('outgoing_messages').insertOne({
+                direction: 'out', contactId: contact._id, projectId: project._id, wamid: requestId,
+                messageTimestamp: now, type: 'payment_request' as any, content: payload,
+                status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+            } as OutgoingMessage),
+            db.collection('transactions').insertOne({
+                userId: contact.userId, projectId: project._id, type: 'WHATSAPP_PAY',
+                description: `Payment Request: ${description}`,
+                amount: Math.round(parseFloat(amount) * 100),
+                status: 'PENDING', provider: 'meta', providerTransactionId: requestId,
+                createdAt: now, updatedAt: now,
+            } as Transaction),
+        ]).then(() => {
+            revalidatePath('/dashboard/chat');
+            revalidatePath('/dashboard/whatsapp-pay');
+        }).catch((err) => {
+            console.error('[Payment Send] Background DB write failed:', err);
+        });
 
-        // Create a transaction record
-        await db.collection('transactions').insertOne({
-            userId: contact.userId,
-            projectId: project._id,
-            type: 'WHATSAPP_PAY',
-            description: `Payment Request: ${description}`,
-            amount: Math.round(parseFloat(amount) * 100), // Convert to smallest unit (cd)
-            status: 'PENDING',
-            provider: 'meta',
-            providerTransactionId: requestId,
-            createdAt: now,
-            updatedAt: now,
-        } as Transaction);
-
-        revalidatePath('/dashboard/chat');
-        revalidatePath('/dashboard/whatsapp-pay');
         return { message: 'WhatsApp Pay request sent successfully.' };
 
     } catch (e: any) {
@@ -1092,14 +1119,14 @@ export async function registerPhoneNumber(projectId: string, phoneNumberId: stri
     try {
         await axios.post(
             `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/register`,
-            { messaging_product: 'whatsapp' },
+            { messaging_product: 'whatsapp', pin: '123456' },
             { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
         );
-        return { success: true, message: `Registration request sent for phone number ${phoneNumberId}.` };
+        return { success: true, message: 'Phone number registered successfully.' };
     } catch (e: any) {
         const errorMessage = getErrorMessage(e);
-        if (errorMessage.includes('already been registered')) {
-            return { success: true, message: 'This phone number has already been registered.' };
+        if (errorMessage.includes('already registered') || errorMessage.includes('already been registered')) {
+            return { success: true, message: 'This phone number is already registered.' };
         }
         return { success: false, error: errorMessage };
     }

@@ -3933,3 +3933,482 @@ export async function refundOrder(
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+
+// =================================================================
+//  AI AGENTS (Messenger Bot Config)
+// =================================================================
+
+export async function getFacebookAgents(projectId: string): Promise<{ agents?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const agents = await db.collection('facebook_agents')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return { agents: JSON.parse(JSON.stringify(agents)) };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function createFacebookAgent(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const name = formData.get('name') as string;
+    const personality = formData.get('personality') as string;
+    const welcomeMessage = formData.get('welcomeMessage') as string;
+    const fallbackMessage = formData.get('fallbackMessage') as string;
+    const isActive = formData.get('isActive') === 'on';
+
+    if (!projectId || !name) return { error: 'Agent name is required.' };
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('facebook_agents').insertOne({
+            projectId: new ObjectId(projectId),
+            name,
+            personality: personality || 'friendly and helpful',
+            welcomeMessage: welcomeMessage || 'Hi! How can I help you today?',
+            fallbackMessage: fallbackMessage || 'Let me connect you with a human agent.',
+            isActive,
+            knowledgeSources: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        });
+        revalidatePath('/dashboard/facebook/agents');
+        return { message: `Agent "${name}" created successfully!` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function updateFacebookAgent(agentId: string, updates: Record<string, any>): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(agentId)) return { success: false, error: 'Invalid agent ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const agent = await db.collection('facebook_agents').findOne({ _id: new ObjectId(agentId) });
+        if (!agent) return { success: false, error: 'Agent not found.' };
+        const project = await getProjectById(agent.projectId.toString());
+        if (!project) return { success: false, error: 'Access denied.' };
+
+        await db.collection('facebook_agents').updateOne(
+            { _id: new ObjectId(agentId) },
+            { $set: { ...updates, updatedAt: new Date() } }
+        );
+        revalidatePath('/dashboard/facebook/agents');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteFacebookAgent(agentId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(agentId)) return { success: false, error: 'Invalid agent ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const agent = await db.collection('facebook_agents').findOne({ _id: new ObjectId(agentId) });
+        if (!agent) return { success: false, error: 'Agent not found.' };
+        const project = await getProjectById(agent.projectId.toString());
+        if (!project) return { success: false, error: 'Access denied.' };
+
+        await db.collection('facebook_agents').deleteOne({ _id: new ObjectId(agentId) });
+        revalidatePath('/dashboard/facebook/agents');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  KNOWLEDGE BASE
+// =================================================================
+
+export async function getKnowledgeDocs(projectId: string): Promise<{ docs?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const docs = await db.collection('knowledge_docs')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return { docs: JSON.parse(JSON.stringify(docs)) };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function uploadKnowledgeDoc(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const title = formData.get('title') as string;
+    const content = formData.get('content') as string;
+    const docType = formData.get('docType') as string || 'text';
+
+    if (!projectId || !title || !content) return { error: 'Title and content are required.' };
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('knowledge_docs').insertOne({
+            projectId: new ObjectId(projectId),
+            title,
+            content,
+            docType,
+            charCount: content.length,
+            createdAt: new Date(),
+        });
+        revalidatePath('/dashboard/facebook/knowledge');
+        return { message: `Document "${title}" added to knowledge base.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteKnowledgeDoc(docId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(docId)) return { success: false, error: 'Invalid document ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('knowledge_docs').findOne({ _id: new ObjectId(docId) });
+        if (!doc) return { success: false, error: 'Document not found.' };
+        const project = await getProjectById(doc.projectId.toString());
+        if (!project) return { success: false, error: 'Access denied.' };
+
+        await db.collection('knowledge_docs').deleteOne({ _id: new ObjectId(docId) });
+        revalidatePath('/dashboard/facebook/knowledge');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  COMMENT MODERATION RULES
+// =================================================================
+
+export async function getModerationRules(projectId: string): Promise<{ rules?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const rules = await db.collection('fb_moderation_rules')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return { rules: JSON.parse(JSON.stringify(rules)) };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function saveModerationRule(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const ruleId = formData.get('ruleId') as string;
+    const keywords = formData.get('keywords') as string;
+    const action = formData.get('action') as string;
+    const autoReplyText = formData.get('autoReplyText') as string;
+    const isActive = formData.get('isActive') === 'on';
+
+    if (!projectId || !keywords || !action) return { error: 'Keywords and action are required.' };
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const keywordList = keywords.split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
+
+        if (ruleId && ObjectId.isValid(ruleId)) {
+            await db.collection('fb_moderation_rules').updateOne(
+                { _id: new ObjectId(ruleId) },
+                { $set: { keywords: keywordList, action, autoReplyText, isActive, updatedAt: new Date() } }
+            );
+        } else {
+            await db.collection('fb_moderation_rules').insertOne({
+                projectId: new ObjectId(projectId),
+                keywords: keywordList,
+                action,
+                autoReplyText: autoReplyText || '',
+                isActive,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+        }
+        revalidatePath('/dashboard/facebook/moderation');
+        return { message: 'Moderation rule saved.' };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteModerationRule(ruleId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(ruleId)) return { success: false, error: 'Invalid rule ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const rule = await db.collection('fb_moderation_rules').findOne({ _id: new ObjectId(ruleId) });
+        if (!rule) return { success: false, error: 'Rule not found.' };
+        const project = await getProjectById(rule.projectId.toString());
+        if (!project) return { success: false, error: 'Access denied.' };
+
+        await db.collection('fb_moderation_rules').deleteOne({ _id: new ObjectId(ruleId) });
+        revalidatePath('/dashboard/facebook/moderation');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  AUDIENCE SEGMENTS
+// =================================================================
+
+export async function getAudienceSegments(projectId: string): Promise<{ segments?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const segments = await db.collection('fb_audience_segments')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return { segments: JSON.parse(JSON.stringify(segments)) };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function saveAudienceSegment(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    const filterCity = formData.get('filterCity') as string;
+    const filterCountry = formData.get('filterCountry') as string;
+    const filterGender = formData.get('filterGender') as string;
+    const filterAgeMin = formData.get('filterAgeMin') as string;
+    const filterAgeMax = formData.get('filterAgeMax') as string;
+
+    if (!projectId || !name) return { error: 'Segment name is required.' };
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const filters: any = {};
+        if (filterCity) filters.city = filterCity;
+        if (filterCountry) filters.country = filterCountry;
+        if (filterGender && filterGender !== 'all') filters.gender = filterGender;
+        if (filterAgeMin) filters.ageMin = Number(filterAgeMin);
+        if (filterAgeMax) filters.ageMax = Number(filterAgeMax);
+
+        await db.collection('fb_audience_segments').insertOne({
+            projectId: new ObjectId(projectId),
+            name,
+            description: description || '',
+            filters,
+            createdAt: new Date(),
+        });
+        revalidatePath('/dashboard/facebook/audience');
+        return { message: `Segment "${name}" created.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteAudienceSegment(segmentId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(segmentId)) return { success: false, error: 'Invalid segment ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const seg = await db.collection('fb_audience_segments').findOne({ _id: new ObjectId(segmentId) });
+        if (!seg) return { success: false, error: 'Segment not found.' };
+        const project = await getProjectById(seg.projectId.toString());
+        if (!project) return { success: false, error: 'Access denied.' };
+
+        await db.collection('fb_audience_segments').deleteOne({ _id: new ObjectId(segmentId) });
+        revalidatePath('/dashboard/facebook/audience');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+// =================================================================
+//  BULK POST CREATOR
+// =================================================================
+
+export async function bulkCreatePosts(projectId: string, posts: { message: string; imageUrl?: string; scheduledTime?: string }[]): Promise<{ successCount: number; failCount: number; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.facebookPageId || !project.accessToken) {
+        return { successCount: 0, failCount: 0, error: 'Project not configured.' };
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const post of posts) {
+        try {
+            const payload: any = { access_token: project.accessToken };
+            let endpoint = `https://graph.facebook.com/v23.0/${project.facebookPageId}/feed`;
+
+            if (post.imageUrl) {
+                endpoint = `https://graph.facebook.com/v23.0/${project.facebookPageId}/photos`;
+                payload.url = post.imageUrl;
+                if (post.message) payload.caption = post.message;
+            } else {
+                payload.message = post.message;
+            }
+
+            if (post.scheduledTime) {
+                const scheduledDate = new Date(post.scheduledTime);
+                if (!isNaN(scheduledDate.getTime()) && scheduledDate > new Date()) {
+                    payload.scheduled_publish_time = Math.floor(scheduledDate.getTime() / 1000);
+                    payload.published = false;
+                }
+            }
+
+            await axios.post(endpoint, payload);
+            successCount++;
+        } catch {
+            failCount++;
+        }
+    }
+
+    revalidatePath('/dashboard/facebook/posts');
+    return { successCount, failCount };
+}
+
+
+// =================================================================
+//  COMPETITOR TRACKING
+// =================================================================
+
+export async function getTrackedCompetitors(projectId: string): Promise<{ competitors?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const competitors = await db.collection('fb_competitors')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return { competitors: JSON.parse(JSON.stringify(competitors)) };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function addCompetitor(projectId: string, pageId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        // Fetch competitor page info
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${pageId}`, {
+            params: {
+                fields: 'id,name,fan_count,followers_count,about,category,picture.width(100).height(100),link',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        const { db } = await connectToDatabase();
+        await db.collection('fb_competitors').updateOne(
+            { projectId: new ObjectId(projectId), pageId },
+            {
+                $set: {
+                    name: response.data.name,
+                    fanCount: response.data.fan_count,
+                    followersCount: response.data.followers_count,
+                    about: response.data.about,
+                    category: response.data.category,
+                    pictureUrl: response.data.picture?.data?.url,
+                    link: response.data.link,
+                    lastSyncedAt: new Date(),
+                    updatedAt: new Date(),
+                },
+                $setOnInsert: {
+                    projectId: new ObjectId(projectId),
+                    pageId,
+                    createdAt: new Date(),
+                },
+            },
+            { upsert: true }
+        );
+        revalidatePath('/dashboard/facebook/competitors');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function removeCompetitor(competitorId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(competitorId)) return { success: false, error: 'Invalid ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const comp = await db.collection('fb_competitors').findOne({ _id: new ObjectId(competitorId) });
+        if (!comp) return { success: false, error: 'Not found.' };
+        const project = await getProjectById(comp.projectId.toString());
+        if (!project) return { success: false, error: 'Access denied.' };
+
+        await db.collection('fb_competitors').deleteOne({ _id: new ObjectId(competitorId) });
+        revalidatePath('/dashboard/facebook/competitors');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function syncCompetitorData(competitorId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(competitorId)) return { success: false, error: 'Invalid ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const comp = await db.collection('fb_competitors').findOne({ _id: new ObjectId(competitorId) });
+        if (!comp) return { success: false, error: 'Not found.' };
+        const project = await getProjectById(comp.projectId.toString());
+        if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${comp.pageId}`, {
+            params: {
+                fields: 'fan_count,followers_count,name,about,category',
+                access_token: project.accessToken,
+            }
+        });
+
+        await db.collection('fb_competitors').updateOne(
+            { _id: new ObjectId(competitorId) },
+            {
+                $set: {
+                    name: response.data.name,
+                    fanCount: response.data.fan_count,
+                    followersCount: response.data.followers_count,
+                    about: response.data.about,
+                    category: response.data.category,
+                    lastSyncedAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            }
+        );
+        revalidatePath('/dashboard/facebook/competitors');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
