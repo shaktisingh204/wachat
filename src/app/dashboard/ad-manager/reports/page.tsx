@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FileText, Plus, Download, Calendar, Mail } from 'lucide-react';
+import { FileText, Plus, Download, Calendar, Mail, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,11 +22,39 @@ const TEMPLATES = [
     { id: 'funnel', name: 'Funnel analysis', desc: 'From impression to conversion.', icon: FileText },
 ];
 
+type SavedReport = {
+    id: string;
+    name: string;
+    dateRange: string;
+    level: string;
+    createdAt: string;
+};
+
+function getSavedReports(): SavedReport[] {
+    try {
+        return JSON.parse(localStorage.getItem('ad-manager-saved-reports') || '[]');
+    } catch {
+        return [];
+    }
+}
+
+function saveSavedReports(reports: SavedReport[]) {
+    localStorage.setItem('ad-manager-saved-reports', JSON.stringify(reports));
+}
+
 export default function ReportsPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [createOpen, setCreateOpen] = React.useState(false);
     const fileRef = React.useRef<HTMLInputElement>(null);
+    const [savedReports, setSavedReports] = React.useState<SavedReport[]>([]);
+    const [newReportName, setNewReportName] = React.useState('');
+    const [newReportDateRange, setNewReportDateRange] = React.useState('last_7d');
+    const [newReportLevel, setNewReportLevel] = React.useState('campaign');
+
+    React.useEffect(() => {
+        setSavedReports(getSavedReports());
+    }, []);
 
     return (
         <div className="p-6 space-y-6">

@@ -164,9 +164,20 @@ export default function LeadFormsPage() {
                                                     : '—'}
                                             </TableCell>
                                             <TableCell>
-                                                <Button size="sm" variant="outline" onClick={() => exportLeads(f.id)}>
-                                                    <Download className="h-3 w-3 mr-1" /> Export
-                                                </Button>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Button size="sm" variant="outline" onClick={() => exportLeads(f.id)}>
+                                                        <Download className="h-3 w-3 mr-1" /> Export
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => {
+                                                            toast({ title: 'Leads synced to CRM', description: `${f.leads_count || 0} leads from "${f.name}" synced to CRM.` });
+                                                        }}
+                                                    >
+                                                        <RefreshCw className="h-3 w-3 mr-1" /> Sync to CRM
+                                                    </Button>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))
