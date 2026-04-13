@@ -170,13 +170,7 @@ export async function createMetaFlow(input: {
             screens: [],
         };
 
-    if (!input.clone_flow_id) {
-        const quick = quickValidateFlow(flowData);
-        // When starting empty we skip — validator fails on 0 screens.
-        if (flowData.screens?.length && !quick.ok) {
-            return { success: false, error: quick.errors.join('; ') };
-        }
-    }
+    // Let Meta validate — we only sanitise. Empty flows are accepted as DRAFT.
 
     const body: Record<string, any> = { name, categories };
     if (input.endpoint_uri) body.endpoint_uri = input.endpoint_uri;
@@ -245,9 +239,11 @@ export async function saveMetaFlowDraft(input: {
         };
     }
 
+    // Drafts are permissive on purpose — Meta's /assets validator is the
+    // source of truth, and users need to iterate freely while building.
+    // We still clean the JSON to drop builder-only keys and empty strings
+    // Meta would reject outright.
     const cleaned = cleanMetaFlowData(input.flow_data);
-    const quick = quickValidateFlow(cleaned);
-    if (!quick.ok) return { success: false, error: quick.errors.join('; ') };
 
     try {
         // Meta's /assets endpoint expects multipart/form-data.

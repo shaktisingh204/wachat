@@ -28,6 +28,7 @@ import {
     AlertTitle,
 } from '@/components/ui/alert';
 import { auth } from '@/lib/firebase/config';
+import { consumePendingInviteToken } from '@/app/actions/team.actions';
 
 /**
  * Best-effort coarse location. We no longer BLOCK sign-in when the user
@@ -135,7 +136,13 @@ export function LoginForm() {
                 );
                 const idToken = await credential.user.getIdToken();
                 await postSession({ idToken, location });
-                router.push(nextParam);
+                // Carries the /invite/[token] cookie into a team attachment if present.
+                let inviteProjectId: string | undefined;
+                try {
+                    const res = await consumePendingInviteToken();
+                    if (res.consumed && res.projectId) inviteProjectId = res.projectId;
+                } catch { /* non-fatal */ }
+                router.push(inviteProjectId ? '/dashboard' : nextParam);
             } catch (err: any) {
                 setError(friendlyFirebaseError(err));
             }
@@ -158,7 +165,12 @@ export function LoginForm() {
                     name: result.user.displayName,
                     location,
                 });
-                router.push(nextParam);
+                let inviteProjectId: string | undefined;
+                try {
+                    const res = await consumePendingInviteToken();
+                    if (res.consumed && res.projectId) inviteProjectId = res.projectId;
+                } catch { /* non-fatal */ }
+                router.push(inviteProjectId ? '/dashboard' : nextParam);
             } catch (err: any) {
                 setError(friendlyFirebaseError(err));
             }

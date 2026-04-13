@@ -29,7 +29,6 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { useProject } from '@/context/project-context';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
 import {
   AlertDialog,
@@ -228,7 +227,6 @@ function downloadCsv(filename: string, rows: string[][]) {
 }
 
 export default function UrlShortenerPage() {
-  const { activeProject } = useProject();
   const { toast } = useToast();
   const { copy } = useCopyToClipboard();
 
@@ -434,8 +432,7 @@ export default function UrlShortenerPage() {
   const breadcrumbs = (
     <ClayBreadcrumbs
       items={[
-        { label: 'Wachat', href: '/home' },
-        { label: activeProject?.name || 'Project', href: '/dashboard' },
+        { label: 'Home', href: '/home' },
         { label: 'URL Shortener' },
       ]}
     />

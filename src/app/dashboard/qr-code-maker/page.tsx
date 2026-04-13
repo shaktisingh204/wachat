@@ -17,7 +17,6 @@ import {
 import Link from 'next/link';
 import { getSession } from '@/app/actions/index';
 import { deleteManyQrCodes, deleteQrCode, getQrCodes } from '@/app/actions/qr-code.actions';
-import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
@@ -120,7 +119,6 @@ function generateDataString(code: any): string {
 }
 
 export default function QrCodeMakerPage() {
-  const { activeProject } = useProject();
   const { toast } = useToast();
   const { copy } = useCopyToClipboard();
 
@@ -288,8 +286,7 @@ export default function QrCodeMakerPage() {
   const breadcrumbs = (
     <ClayBreadcrumbs
       items={[
-        { label: 'Wachat', href: '/home' },
-        { label: activeProject?.name || 'Project', href: '/dashboard' },
+        { label: 'Home', href: '/home' },
         { label: 'QR Code Maker' },
       ]}
     />

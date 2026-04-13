@@ -44,15 +44,6 @@ const OPEN_ROUTES = new Set<string>([
   '/dashboard/setup/docs',
 ]);
 
-/**
- * Route prefixes that are user-scoped (not tied to a specific WABA
- * project) and should therefore bypass the "pick a project" gate.
- */
-const OPEN_ROUTE_PREFIXES = [
-  '/dashboard/url-shortener',
-  '/dashboard/qr-code-maker',
-];
-
 export interface ClayProjectGateProps {
   children: React.ReactNode;
 }
@@ -67,13 +58,6 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
 
   // Routes like /dashboard (the project list) should never be gated.
   if (OPEN_ROUTES.has(pathname)) {
-    return <>{children}</>;
-  }
-  if (
-    OPEN_ROUTE_PREFIXES.some(
-      (p) => pathname === p || pathname.startsWith(p + '/'),
-    )
-  ) {
     return <>{children}</>;
   }
 

@@ -19,6 +19,7 @@ import {
     AlertTitle,
 } from '@/components/ui/alert';
 import { auth } from '@/lib/firebase/config';
+import { consumePendingInviteToken } from '@/app/actions/team.actions';
 
 interface AccountStepProps {
     onAccountCreated: (user: {
@@ -62,6 +63,8 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 }
                 const idToken = await cred.user.getIdToken(true);
                 const user = await postSession(idToken, name);
+                // If we arrived here via an /invite/[token] link, auto-join the team.
+                try { await consumePendingInviteToken(); } catch { /* non-fatal */ }
                 onAccountCreated({
                     _id: user._id,
                     name: user.name || name,
@@ -87,6 +90,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                     idToken,
                     result.user.displayName ?? undefined
                 );
+                try { await consumePendingInviteToken(); } catch { /* non-fatal */ }
                 onAccountCreated({
                     _id: user._id,
                     name: user.name || result.user.displayName || '',

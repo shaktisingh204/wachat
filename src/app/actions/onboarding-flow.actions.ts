@@ -324,6 +324,14 @@ export async function completeOnboarding(args: {
             .collection('users')
             .updateOne({ _id: auth.userId }, { $set: update });
 
+        // Safety net: if the user arrived via a team invite link, auto-attach
+        // them once onboarding is complete (in case the client-side call in
+        // account-step.tsx failed silently).
+        try {
+            const { consumePendingInviteToken } = await import('./team.actions');
+            await consumePendingInviteToken();
+        } catch { /* non-fatal */ }
+
         revalidatePath('/onboarding');
         revalidatePath('/dashboard');
         return { success: true };

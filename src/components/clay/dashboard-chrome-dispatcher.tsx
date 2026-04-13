@@ -97,8 +97,6 @@ const WACHAT_PREFIXES = [
   '/dashboard/wachat',
   '/dashboard/analytics',
   '/dashboard/qr-codes',
-  '/dashboard/qr-code-maker',
-  '/dashboard/url-shortener',
   '/dashboard/automation',
   '/dashboard/health',
   '/dashboard/settings',
@@ -200,6 +198,24 @@ function isSabFlowRoute(pathname: string | null): boolean {
   return pathname === '/dashboard/sabflow' || pathname.startsWith('/dashboard/sabflow/');
 }
 
+/**
+ * Standalone apps — user-scoped modules that live under /dashboard/*
+ * but are NOT tied to a WABA project. They render inside default Clay
+ * chrome (context="sabnode") with the global sidebar, not the Wachat
+ * sidebar, and skip the "select a project" gate.
+ */
+const STANDALONE_APP_PREFIXES = [
+  '/dashboard/url-shortener',
+  '/dashboard/qr-code-maker',
+];
+
+function isStandaloneAppRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return STANDALONE_APP_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(p + '/'),
+  );
+}
+
 export interface DashboardChromeDispatcherProps {
   user?: ClayLayoutUser;
   plan?: ClayLayoutPlan;
@@ -233,7 +249,15 @@ export function DashboardChromeDispatcher({
   const onInstagram = !onAdManager && isInstagramRoute(pathname);
   const onMetaSuite = !onAdManager && !onInstagram && isMetaSuiteRoute(pathname);
   const onSabFlow = !onAdManager && !onInstagram && !onMetaSuite && isSabFlowRoute(pathname);
-  const onWachat = !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && isWachatRoute(pathname);
+  const onStandaloneApp =
+    !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && isStandaloneAppRoute(pathname);
+  const onWachat =
+    !onAdManager &&
+    !onInstagram &&
+    !onMetaSuite &&
+    !onSabFlow &&
+    !onStandaloneApp &&
+    isWachatRoute(pathname);
 
   /* ── Wachat branch: fetch projects + session so context providers
         match what the legacy DashboardClientLayout supplies.
@@ -243,7 +267,8 @@ export function DashboardChromeDispatcher({
     () => bootstrapCache,
   );
 
-  const needsBootstrap = onWachat || onAdManager || onMetaSuite || onInstagram || onSabFlow;
+  const needsBootstrap =
+    onWachat || onAdManager || onMetaSuite || onInstagram || onSabFlow || onStandaloneApp;
 
   useEffect(() => {
     if (!needsBootstrap) return;
@@ -341,6 +366,29 @@ export function DashboardChromeDispatcher({
       >
         <AdManagerProvider>
           <ClayDashboardLayout context="meta-suite" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── Standalone app branch (URL Shortener, QR Code Maker).
+  //    User-scoped modules that aren't tied to a WABA project. They
+  //    render inside the default Clay chrome (context="sabnode") with
+  //    the global sidebar, so they don't inherit the Wachat sidebar or
+  //    the "select a project" gate.
+  if (onStandaloneApp) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="sabnode" user={user} plan={plan}>
             {children}
           </ClayDashboardLayout>
         </AdManagerProvider>

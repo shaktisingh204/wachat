@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MetaFlowBuilderLayout } from '@/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout';
 import { flowCategories } from '@/components/wabasimplify/meta-flow-templates';
 import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
-import { cleanMetaFlowData, quickValidateFlow } from '@/lib/meta-flow-utils';
+import { cleanMetaFlowData } from '@/lib/meta-flow-utils';
 import { cn } from '@/lib/utils';
 import { getProjectById } from '@/app/actions/project.actions';
 import {
@@ -170,17 +170,14 @@ function CreateMetaFlowPageContent() {
         return false;
     }, [project, toast]);
 
-    const runSaveDraft = useCallback(async (): Promise<string | null> => {
+    const runSaveDraft = useCallback(async (overrideFlowData?: any): Promise<string | null> => {
         if (!projectId) { toast({ title: 'No project selected', variant: 'destructive' }); return null; }
         if (!flowName.trim()) { toast({ title: 'Flow name is required', variant: 'destructive' }); return null; }
         if (!category) { toast({ title: 'Pick a category', variant: 'destructive' }); return null; }
 
-        const cleaned = cleanMetaFlowData(flowData);
-        const quick = quickValidateFlow(cleaned);
-        if (!quick.ok) {
-            toast({ title: 'Flow has issues', description: quick.errors.join(' · '), variant: 'destructive' });
-            return null;
-        }
+        // Drafts are permissive. Meta validates on /assets upload and the
+        // banner below surfaces any validation_errors it returns.
+        const cleaned = cleanMetaFlowData(overrideFlowData ?? flowData);
 
         setSavingDraft(true);
         try {
@@ -237,8 +234,30 @@ function CreateMetaFlowPageContent() {
     }, [projectId, flowName, category, endpointUri, flowData, flowId, router, toast, handleEncryptionError]);
 
     const runPublish = useCallback(async () => {
-        // Save first so the published version reflects the latest canvas.
-        const ensuredId = await runSaveDraft();
+        if (!flowData?.screens?.length) {
+            toast({ title: 'Add a screen first', description: 'A flow needs at least one screen to publish.', variant: 'destructive' });
+            return;
+        }
+
+        // Auto-fix: Meta requires exactly one screen to be marked terminal.
+        // If the user hasn't marked any, flip the last screen — the common
+        // intent when building a linear flow — and keep the canvas in sync.
+        let dataToPublish = flowData;
+        const anyTerminal = flowData.screens.some((s: any) => s?.terminal === true);
+        if (!anyTerminal) {
+            const next = JSON.parse(JSON.stringify(flowData));
+            const last = next.screens[next.screens.length - 1];
+            last.terminal = true;
+            if (last.success === undefined) last.success = true;
+            dataToPublish = next;
+            setFlowData(next);
+            toast({
+                title: 'Marked last screen as terminal',
+                description: `"${last.title || last.id}" is now the final screen. Adjust in the properties panel if that's wrong.`,
+            });
+        }
+
+        const ensuredId = await runSaveDraft(dataToPublish);
         if (!ensuredId) return;
 
         setPublishing(true);
@@ -256,7 +275,7 @@ function CreateMetaFlowPageContent() {
         } finally {
             setPublishing(false);
         }
-    }, [runSaveDraft, toast, handleEncryptionError, validation]);
+    }, [flowData, setFlowData, runSaveDraft, toast, handleEncryptionError, validation]);
 
     const runPreview = useCallback(async () => {
         if (!flowId) {
