@@ -1,33 +1,63 @@
 'use client';
 
 /**
- * /dashboard/auto-reply — deprecated, redirects to the settings tab.
- * Clay-styled loading state for the brief redirect flash.
+ * /dashboard/auto-reply — Auto-Reply settings page.
+ * Manages welcome messages, away/business hours, AI assistant, and keyword rules.
  */
 
-import { useEffect } from 'react';
+import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { LuLoader } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
+import { useProject } from '@/context/project-context';
+import { AutoReplySettingsTab } from '@/components/wabasimplify/auto-reply-settings-tab';
+import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
 
-export default function DeprecatedAutoReplyPage() {
+export const dynamic = 'force-dynamic';
+
+export default function AutoReplyPage() {
   const router = useRouter();
+  const { activeProject, isLoadingProject } = useProject();
 
-  useEffect(() => {
-    router.replace('/dashboard/settings/general');
-  }, [router]);
+  if (isLoadingProject) {
+    return (
+      <div className="clay-enter flex min-h-full flex-col gap-6">
+        <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/home' }, { label: 'Auto Reply' }]} />
+        <div className="h-[420px] animate-pulse rounded-clay-lg bg-clay-bg-2" />
+      </div>
+    );
+  }
+
+  if (!activeProject) {
+    return (
+      <div className="clay-enter flex min-h-full flex-col gap-6">
+        <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/home' }, { label: 'Auto Reply' }]} />
+        <ClayCard className="p-10 text-center">
+          <LuCircleAlert className="mx-auto h-10 w-10 text-clay-ink-muted/30 mb-4" />
+          <p className="text-sm text-clay-ink-muted">Select a project first.</p>
+          <ClayButton variant="obsidian" size="md" onClick={() => router.push('/dashboard')} className="mt-4">Choose a project</ClayButton>
+        </ClayCard>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-[50vh] flex-col items-center justify-center gap-3 text-center clay-enter">
-      <LuLoader
-        className="h-6 w-6 animate-spin text-clay-ink-muted"
-        strokeWidth={1.75}
-      />
-      <h1 className="text-[18px] font-semibold text-clay-ink">
-        This page has moved
-      </h1>
-      <p className="text-[13px] text-clay-ink-muted">
-        Redirecting you to the new settings page…
-      </p>
+    <div className="clay-enter flex min-h-full flex-col gap-6">
+      <ClayBreadcrumbs items={[
+        { label: 'Wachat', href: '/home' },
+        { label: activeProject.name, href: '/dashboard' },
+        { label: 'Auto Reply' },
+      ]} />
+
+      <div>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          Auto Reply
+        </h1>
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          Configure automatic responses: welcome messages, business hours away messages, AI-powered replies, and keyword-based rules.
+        </p>
+      </div>
+
+      <AutoReplySettingsTab project={activeProject} />
     </div>
   );
 }
