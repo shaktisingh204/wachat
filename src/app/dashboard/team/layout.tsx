@@ -14,5 +14,7 @@ export default async function TeamLayout({
     const allowed = await canServer('team_users', 'view');
     if (!allowed) redirect('/dashboard');
 
-    return <div className="flex flex-col gap-6 h-full">{children}</div>;
+    // Clay chrome handles page padding; each page owns its own `clay-enter`
+    // wrapper and vertical rhythm, so this layout is a plain pass-through.
+    return <>{children}</>;
 }

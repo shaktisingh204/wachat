@@ -1,53 +1,75 @@
 'use client';
 
-import { useActionState, useEffect, useTransition, useState, useCallback, useMemo } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { LoaderCircle, Save, ShieldCheck, Plus, Trash2 } from "lucide-react";
-import { useToast } from '@/hooks/use-toast';
-import { getSession } from '@/app/actions/user.actions';
-import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
-import type { WithId, User } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-    Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+    useActionState,
+    useEffect,
+    useMemo,
+    useState,
+    useTransition,
+} from 'react';
+import { useFormStatus } from 'react-dom';
+import {
+    LuShieldCheck,
+    LuPlus,
+    LuSave,
+    LuTrash2,
+    LuLoaderCircle,
+    LuChevronDown,
+    LuCheck,
+} from 'react-icons/lu';
+
+import {
+    ClayBadge,
+    ClayBreadcrumbs,
+    ClayButton,
+    ClayCard,
+    ClayInput,
+    ClaySectionHeader,
+} from '@/components/clay';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { getSession } from '@/app/actions/user.actions';
+import {
+    saveRolePermissions,
+    saveRole,
+    deleteRole,
+} from '@/app/actions/crm-roles.actions';
+import type { WithId, User } from '@/lib/definitions';
+import { cn } from '@/lib/utils';
 
-const initialState = { message: undefined, error: undefined };
+const initialState = { message: undefined, error: undefined } as {
+    message?: string;
+    error?: string;
+};
 
-function SubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Save Permissions
-        </Button>
-    )
-}
+const actions = ['view', 'create', 'edit', 'delete'] as const;
 
-function PageSkeleton() {
-    return (
-        <div className="space-y-4">
-            <Skeleton className="h-10 w-64" />
-            <Skeleton className="h-4 w-96" />
-            <Skeleton className="h-80 w-full" />
-        </div>
-    )
-}
-
-// Full Module Definition mapping 1:1 with dashboard-config.ts
-const permissionCategories = {
-    'wachat': {
+// Full module list mirrors dashboard-config.ts so each role can be
+// scoped with view/create/edit/delete across every feature area.
+const permissionCategories: Record<string, { label: string; modules: Array<{ id: string; name: string }> }> = {
+    wachat: {
         label: 'WaChat Core',
         modules: [
             { id: 'wachat_overview', name: 'Overview' },
@@ -64,12 +86,11 @@ const permissionCategories = {
             { id: 'wachat_numbers', name: 'Numbers' },
             { id: 'wachat_webhooks', name: 'Webhooks' },
             { id: 'wachat_settings', name: 'Project Settings' },
-        ]
+        ],
     },
-    'crm': {
+    crm: {
         label: 'CRM Suite',
         modules: [
-            // Sales Module
             { id: 'crm_dashboard', name: 'CRM Dashboard' },
             { id: 'crm_clients', name: 'Sales: Clients & Prospects' },
             { id: 'crm_quotations', name: 'Sales: Quotations' },
@@ -79,13 +100,11 @@ const permissionCategories = {
             { id: 'crm_orders', name: 'Sales: Sales Orders' },
             { id: 'crm_delivery', name: 'Sales: Delivery Challans' },
             { id: 'crm_credit_notes', name: 'Sales: Credit Notes' },
-            // Purchases Module
             { id: 'crm_vendors', name: 'Purchases: Vendors' },
             { id: 'crm_expenses', name: 'Purchases: Expenses' },
             { id: 'crm_purchase_orders', name: 'Purchases: Orders' },
             { id: 'crm_payouts', name: 'Purchases: Payout Receipts' },
             { id: 'crm_debit_notes', name: 'Purchases: Debit Notes' },
-            // Inventory Module
             { id: 'crm_items', name: 'Inventory: All Items' },
             { id: 'crm_warehouses', name: 'Inventory: Warehouses' },
             { id: 'crm_inventory_pnl', name: 'Inventory: Product P&L' },
@@ -93,7 +112,6 @@ const permissionCategories = {
             { id: 'crm_batch_expiry', name: 'Inventory: Batch Expiry' },
             { id: 'crm_party_transactions', name: 'Inventory: Party Trans.' },
             { id: 'crm_all_transactions', name: 'Inventory: All Trans.' },
-            // Accounting Module
             { id: 'crm_account_groups', name: 'Accts: Groups' },
             { id: 'crm_chart_of_accounts', name: 'Accts: Chart of Accounts' },
             { id: 'crm_vouchers', name: 'Accts: Vouchers' },
@@ -103,8 +121,6 @@ const permissionCategories = {
             { id: 'crm_income_statement', name: 'Accts: Income Statement' },
             { id: 'crm_day_book', name: 'Accts: Day Book' },
             { id: 'crm_cash_flow', name: 'Accts: Cash Flow' },
-
-            // Sales CRM (Leads)
             { id: 'crm_leads', name: 'Leads & Contacts' },
             { id: 'crm_deals', name: 'Deals Pipeline' },
             { id: 'crm_tasks', name: 'Tasks' },
@@ -113,29 +129,20 @@ const permissionCategories = {
             { id: 'crm_forms', name: 'Forms' },
             { id: 'crm_analytics', name: 'CRM Analytics' },
             { id: 'crm_reports', name: 'Sales Reports' },
-
-            // Banking
             { id: 'crm_banking_accounts', name: 'Banking: All Accounts' },
             { id: 'crm_banking_employee', name: 'Banking: Employee Accts' },
             { id: 'crm_banking_reconciliation', name: 'Banking: Reconciliation' },
-
-            // HR & Payroll
             { id: 'crm_employees', name: 'HR: Employee Directory' },
             { id: 'crm_attendance', name: 'HR: Attendance' },
             { id: 'crm_payroll', name: 'HR: Payroll' },
-
-            // Reports
             { id: 'crm_gstr1', name: 'Reports: GSTR-1' },
             { id: 'crm_gstr2b', name: 'Reports: GSTR-2B' },
-
-            // Settings
             { id: 'crm_settings', name: 'CRM Settings' },
-        ]
+        ],
     },
-    'meta': {
+    meta: {
         label: 'Meta Suite',
         modules: [
-            // Facebook
             { id: 'facebook_dashboard', name: 'FB: Dashboard' },
             { id: 'facebook_posts', name: 'FB: Posts' },
             { id: 'facebook_scheduled', name: 'FB: Scheduled' },
@@ -148,8 +155,6 @@ const permissionCategories = {
             { id: 'facebook_products', name: 'FB: Products' },
             { id: 'facebook_shop_setup', name: 'FB: Shop Setup' },
             { id: 'facebook_orders', name: 'FB: Orders' },
-
-            // Instagram
             { id: 'instagram_dashboard', name: 'IG: Dashboard' },
             { id: 'instagram_feed', name: 'IG: Feed' },
             { id: 'instagram_stories', name: 'IG: Stories' },
@@ -157,17 +162,31 @@ const permissionCategories = {
             { id: 'instagram_messages', name: 'IG: Messages' },
             { id: 'instagram_discovery', name: 'IG: Discovery' },
             { id: 'instagram_hashtags', name: 'IG: Hashtags' },
-
-            // Ad Manager
             { id: 'ad_manager_accounts', name: 'Ads: Accounts' },
             { id: 'ad_manager_campaigns', name: 'Ads: Campaigns' },
             { id: 'ad_manager_audiences', name: 'Ads: Audiences' },
-        ]
+        ],
     },
-    'tools': {
+    telegram: {
+        label: 'Telegram',
+        modules: [
+            { id: 'telegram_dashboard', name: 'Dashboard' },
+            { id: 'telegram_bots', name: 'Bots' },
+            { id: 'telegram_chat', name: 'Live Chat' },
+            { id: 'telegram_contacts', name: 'Contacts' },
+            { id: 'telegram_broadcasts', name: 'Broadcasts' },
+            { id: 'telegram_channels', name: 'Channels' },
+            { id: 'telegram_commands', name: 'Commands' },
+            { id: 'telegram_auto_reply', name: 'Auto Reply' },
+            { id: 'telegram_payments', name: 'Payments' },
+            { id: 'telegram_stickers', name: 'Stickers' },
+            { id: 'telegram_mini_apps', name: 'Mini Apps' },
+            { id: 'telegram_settings', name: 'Settings' },
+        ],
+    },
+    tools: {
         label: 'App Tools',
         modules: [
-            // Email
             { id: 'email_dashboard', name: 'Email: Dashboard' },
             { id: 'email_inbox', name: 'Email: Inbox' },
             { id: 'email_campaigns', name: 'Email: Campaigns' },
@@ -176,15 +195,11 @@ const permissionCategories = {
             { id: 'email_analytics', name: 'Email: Analytics' },
             { id: 'email_verification', name: 'Email: Verification' },
             { id: 'email_settings', name: 'Email: Settings' },
-
-            // SMS
             { id: 'sms_overview', name: 'SMS: Overview' },
             { id: 'sms_campaigns', name: 'SMS: Campaigns' },
             { id: 'sms_templates', name: 'SMS: Templates' },
             { id: 'sms_config', name: 'SMS: Configuration' },
             { id: 'sms_developer', name: 'SMS: API' },
-
-            // SabChat
             { id: 'sabchat_inbox', name: 'SabChat: Inbox' },
             { id: 'sabchat_visitors', name: 'SabChat: Live Visitors' },
             { id: 'sabchat_analytics', name: 'SabChat: Analytics' },
@@ -194,19 +209,15 @@ const permissionCategories = {
             { id: 'sabchat_ai_replies', name: 'SabChat: AI Replies' },
             { id: 'sabchat_faq', name: 'SabChat: FAQ' },
             { id: 'sabchat_settings', name: 'SabChat: Settings' },
-
-            // Utilities
             { id: 'website_builder', name: 'Website Builder' },
-            { id: 'url_shortener', name: 'url_shortener' }, // Keep as ID per request or display label? Using default label mapping
+            { id: 'url_shortener', name: 'URL Shortener' },
             { id: 'qr_code_maker', name: 'QR Code Maker' },
-
-            // SEO
             { id: 'seo_dashboard', name: 'SEO: Dashboard' },
             { id: 'seo_brand_radar', name: 'SEO: Brand Radar' },
             { id: 'seo_site_explorer', name: 'SEO: Site Explorer' },
-        ]
+        ],
     },
-    'admin': {
+    admin: {
         label: 'Admin',
         modules: [
             { id: 'team_users', name: 'Team: Manage Users' },
@@ -215,19 +226,57 @@ const permissionCategories = {
             { id: 'team_chat', name: 'Team: Chat' },
             { id: 'api_keys', name: 'API Keys' },
             { id: 'api_docs', name: 'API Docs' },
-        ]
-    }
+        ],
+    },
 };
 
-const actions = ['view', 'create', 'edit', 'delete'];
+/* ── Sticky save bar ─────────────────────────────────────────────── */
+
+function SaveBar() {
+    const { pending } = useFormStatus();
+    return (
+        <div className="sticky bottom-4 z-20 mt-6 flex items-center justify-between rounded-2xl border border-clay-border bg-clay-surface/95 p-3 shadow-clay-md backdrop-blur">
+            <p className="pl-2 text-[12.5px] text-clay-ink-muted">
+                Toggle permissions for every role, then save to sync all members.
+            </p>
+            <ClayButton
+                type="submit"
+                variant="obsidian"
+                size="md"
+                disabled={pending}
+                leading={pending ? (
+                    <LuLoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                    <LuSave className="h-4 w-4" />
+                )}
+            >
+                {pending ? 'Saving…' : 'Save permissions'}
+            </ClayButton>
+        </div>
+    );
+}
+
+/* ── Skeleton ────────────────────────────────────────────────────── */
+
+function PageSkeleton() {
+    return (
+        <div className="clay-enter flex min-h-full flex-col gap-6">
+            <Skeleton className="h-5 w-60" />
+            <Skeleton className="h-10 w-80" />
+            <Skeleton className="h-[420px] w-full rounded-2xl" />
+        </div>
+    );
+}
+
+/* ── Add role dialog ─────────────────────────────────────────────── */
 
 function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     const [open, setOpen] = useState(false);
     const [roleName, setRoleName] = useState('');
-    const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
 
-    const handleAddRole = async () => {
+    const handleAddRole = () => {
         if (!roleName.trim()) {
             toast({ title: 'Error', description: 'Role name cannot be empty.', variant: 'destructive' });
             return;
@@ -243,35 +292,57 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
             }
         });
-    }
+    };
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" />Add Role</Button></DialogTrigger>
+            <DialogTrigger asChild>
+                <ClayButton variant="obsidian" size="sm" leading={<LuPlus className="h-4 w-4" />}>
+                    New role
+                </ClayButton>
+            </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create New Role</DialogTitle>
-                    <DialogDescription>Give your new role a name. You can configure precise permissions in the next step.</DialogDescription>
+                    <DialogTitle>Create a new role</DialogTitle>
+                    <DialogDescription>
+                        Give the role a name. You can configure permissions once it appears in the list.
+                    </DialogDescription>
                 </DialogHeader>
-                <div className="py-4">
-                    <Label htmlFor="roleName">Role Name</Label>
-                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder="e.g. Marketing Manager" />
+                <div className="py-2">
+                    <Label htmlFor="roleName" className="mb-1.5 block text-[12.5px] font-medium text-clay-ink">
+                        Role name
+                    </Label>
+                    <ClayInput
+                        id="roleName"
+                        value={roleName}
+                        onChange={(e) => setRoleName(e.target.value)}
+                        placeholder="e.g. Marketing Manager"
+                    />
                 </div>
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleAddRole} disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                        Create Role
-                    </Button>
+                    <ClayButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
+                        Cancel
+                    </ClayButton>
+                    <ClayButton
+                        variant="obsidian"
+                        size="sm"
+                        onClick={handleAddRole}
+                        disabled={isPending}
+                        leading={isPending ? <LuLoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
+                    >
+                        Create role
+                    </ClayButton>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    )
+    );
 }
 
-function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: () => void }) {
-    const { toast } = useToast();
+/* ── Delete role button ──────────────────────────────────────────── */
+
+function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: string }; onRoleDeleted: () => void }) {
     const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
 
     if (role.id === 'agent') return null;
 
@@ -279,31 +350,42 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
         startTransition(async () => {
             const result = await deleteRole(role.id);
             if (result.success) {
-                toast({ title: 'Success', description: 'Role deleted.' });
+                toast({ title: 'Role deleted' });
                 onRoleDeleted();
             } else {
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
             }
         });
-    }
+    };
 
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                <button
+                    type="button"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-clay-border bg-clay-surface text-clay-ink-muted transition-colors hover:border-red-400 hover:text-red-600"
+                    aria-label={`Delete ${role.name}`}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <LuTrash2 className="h-4 w-4" />
+                </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Role?</AlertDialogTitle>
+                    <AlertDialogTitle>Delete role?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This will permanently delete the "{role.name}" role.
-                        Any team members assigned to this role will lose their specific permissions immediately.
+                        This permanently removes the &ldquo;{role.name}&rdquo; role. Members assigned to it will
+                        lose these permissions immediately.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isPending} className="bg-destructive hover:bg-destructive/90">
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
+                    <AlertDialogAction
+                        onClick={handleDelete}
+                        disabled={isPending}
+                        className="bg-red-600 text-white hover:bg-red-700"
+                    >
+                        {isPending && <LuLoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -311,119 +393,262 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
     );
 }
 
+/* ── Role card (accordion-style) ─────────────────────────────────── */
+
+type RolePerms = Record<string, Partial<Record<(typeof actions)[number], boolean>>>;
+type RoleRow = { id: string; name: string; permissions: RolePerms };
+
+function RoleCard({
+    role,
+    defaultOpen,
+    onRoleDeleted,
+}: {
+    role: RoleRow;
+    defaultOpen: boolean;
+    onRoleDeleted: () => void;
+}) {
+    const [open, setOpen] = useState(defaultOpen);
+    const [activeCategory, setActiveCategory] = useState<string>(Object.keys(permissionCategories)[0]);
+
+    const permissions = role.permissions || {};
+
+    const enabledCount = useMemo(() => {
+        let n = 0;
+        for (const mod of Object.values(permissions)) {
+            if (!mod) continue;
+            for (const a of actions) if (mod[a]) n += 1;
+        }
+        return n;
+    }, [permissions]);
+
+    return (
+        <ClayCard padded={false} variant="default" className="overflow-hidden">
+            <button
+                type="button"
+                onClick={() => setOpen((v) => !v)}
+                className={cn(
+                    'flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors',
+                    open ? 'bg-clay-surface-subtle' : 'hover:bg-clay-surface-subtle/60',
+                )}
+            >
+                <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose">
+                        <LuShieldCheck className="h-4 w-4" />
+                    </div>
+                    <div>
+                        <p className="text-[14px] font-semibold text-clay-ink">{role.name}</p>
+                        <p className="text-[12px] text-clay-ink-muted">
+                            {enabledCount} permission{enabledCount === 1 ? '' : 's'} granted
+                        </p>
+                    </div>
+                    {role.id === 'agent' && (
+                        <ClayBadge tone="neutral">System</ClayBadge>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
+                    <DeleteRoleButton role={role} onRoleDeleted={onRoleDeleted} />
+                    <LuChevronDown
+                        className={cn('h-5 w-5 text-clay-ink-muted transition-transform', open && 'rotate-180')}
+                    />
+                </div>
+            </button>
+
+            {open && (
+                <div className="border-t border-clay-border bg-clay-surface">
+                    <input type="hidden" name="roleId" value={role.id} />
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr]">
+                        <aside className="border-b border-clay-border bg-clay-surface-subtle p-2 md:border-b-0 md:border-r">
+                            <div className="flex gap-2 overflow-x-auto md:flex-col">
+                                {Object.entries(permissionCategories).map(([key, cat]) => (
+                                    <button
+                                        key={key}
+                                        type="button"
+                                        onClick={() => setActiveCategory(key)}
+                                        className={cn(
+                                            'shrink-0 rounded-lg px-3 py-2 text-left text-[12.5px] font-medium transition-colors md:w-full',
+                                            activeCategory === key
+                                                ? 'bg-clay-obsidian text-white'
+                                                : 'text-clay-ink-muted hover:bg-clay-surface hover:text-clay-ink',
+                                        )}
+                                    >
+                                        {cat.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </aside>
+                        <div className="p-5">
+                            {Object.entries(permissionCategories).map(([key, cat]) => {
+                                if (key !== activeCategory) return null;
+                                return (
+                                    <div key={key} className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-[13.5px] font-semibold text-clay-ink">
+                                                {cat.label} permissions
+                                            </h3>
+                                            <ClayBadge tone="neutral" dot>
+                                                {cat.modules.length} modules
+                                            </ClayBadge>
+                                        </div>
+                                        <div className="overflow-hidden rounded-xl border border-clay-border">
+                                            <div className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] gap-0 bg-clay-surface-subtle px-4 py-2.5 text-[11.5px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                                                <span>Module</span>
+                                                {actions.map((a) => (
+                                                    <span key={a} className="text-center capitalize">
+                                                        {a}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                            <div className="divide-y divide-clay-border">
+                                                {cat.modules.map((mod) => (
+                                                    <div
+                                                        key={mod.id}
+                                                        className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] items-center px-4 py-2.5 text-[13px] text-clay-ink hover:bg-clay-surface-subtle/40"
+                                                    >
+                                                        <span className="font-medium">{mod.name}</span>
+                                                        {actions.map((action) => (
+                                                            <div key={action} className="flex justify-center">
+                                                                <Checkbox
+                                                                    name={`${role.id}_${mod.id}_${action}`}
+                                                                    defaultChecked={
+                                                                        permissions[mod.id]?.[action] ?? false
+                                                                    }
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </ClayCard>
+    );
+}
+
+/* ── Page ────────────────────────────────────────────────────────── */
+
 export default function ManageRolesPage() {
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [state, formAction] = useActionState(saveRolePermissions, initialState);
     const { toast } = useToast();
 
-    const fetchUser = useCallback(() => {
+    const fetchUser = () => {
         startLoading(async () => {
             const session = await getSession();
             setUser(session?.user || null);
         });
-    }, []);
+    };
 
     useEffect(() => {
         fetchUser();
-    }, [fetchUser]);
+        // run once on mount
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         if (state.message) {
-            toast({ title: 'Success!', description: state.message });
+            toast({ title: 'Saved', description: state.message, variant: 'default' });
             fetchUser();
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
-    }, [state, toast, fetchUser]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state]);
 
     if (isLoading || !user) {
         return <PageSkeleton />;
     }
 
-    const allRoles = [{ id: 'agent', name: 'Agent', permissions: user.crm?.permissions?.agent }, ...(user.crm?.customRoles || [])];
+    const allRoles: RoleRow[] = [
+        { id: 'agent', name: 'Agent', permissions: (user.crm?.permissions as any)?.agent ?? {} },
+        ...(((user.crm?.customRoles ?? []) as any[]).map((r) => ({
+            id: r.id,
+            name: r.name,
+            permissions: r.permissions ?? {},
+        }))),
+    ];
+
+    const totalGranted = allRoles.reduce((sum, r) => {
+        let n = 0;
+        for (const mod of Object.values(r.permissions || {})) {
+            for (const a of actions) if ((mod as any)?.[a]) n += 1;
+        }
+        return sum + n;
+    }, 0);
 
     return (
-        <div className="flex flex-col gap-8 h-full">
-            <div className="flex justify-between items-start">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <ShieldCheck className="h-8 w-8" />
-                        Manage Team Roles
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Define what different roles can access and do across the entire platform.
+        <div className="clay-enter flex min-h-full flex-col gap-6">
+            <ClayBreadcrumbs
+                items={[
+                    { label: 'Team', href: '/dashboard/team' },
+                    { label: 'Roles & permissions' },
+                ]}
+            />
+
+            <ClaySectionHeader
+                size="lg"
+                title="Roles & permissions"
+                subtitle="Define what each role can access and do across every module of the platform."
+                actions={<AddRoleDialog onRoleAdded={fetchUser} />}
+            />
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <ClayCard variant="soft" padded>
+                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                        Roles
                     </p>
-                </div>
-                <AddRoleDialog onRoleAdded={fetchUser} />
+                    <p className="mt-1 text-[22px] font-semibold text-clay-ink">{allRoles.length}</p>
+                </ClayCard>
+                <ClayCard variant="soft" padded>
+                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                        Permissions granted
+                    </p>
+                    <p className="mt-1 text-[22px] font-semibold text-clay-ink">{totalGranted}</p>
+                </ClayCard>
+                <ClayCard variant="soft" padded>
+                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                        Modules covered
+                    </p>
+                    <p className="mt-1 text-[22px] font-semibold text-clay-ink">
+                        {Object.values(permissionCategories).reduce((n, c) => n + c.modules.length, 0)}
+                    </p>
+                </ClayCard>
             </div>
 
-            <form action={formAction} className="flex-1 flex flex-col">
-                <Accordion type="single" collapsible className="w-full space-y-4" defaultValue={allRoles[0]?.id}>
-                    {allRoles.map((role: any) => {
-                        const permissions = role.permissions || {};
-
-                        return (
-                            <AccordionItem key={role.id} value={role.id} className="border rounded-lg bg-card">
-                                <AccordionTrigger className="p-4 font-bold text-lg hover:no-underline bg-muted/40 data-[state=open]:bg-muted/60 data-[state=open]:border-b rounded-t-lg">
-                                    <div className="flex items-center gap-2">
-                                        {role.name}
-                                        {role.id !== 'agent' && <div onClick={e => e.stopPropagation()}><DeleteRoleButton role={role} onRoleDeleted={fetchUser} /></div>}
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="p-0">
-                                    <input type="hidden" name={`roleId`} value={role.id} />
-                                    <Tabs defaultValue="wachat" className="w-full flex">
-                                        <TabsList className="flex flex-col h-auto w-48 justify-start bg-muted/20 p-2 rounded-none border-r space-y-1">
-                                            {Object.entries(permissionCategories).map(([key, category]) => (
-                                                <TabsTrigger key={key} value={key} className="w-full justify-start">{category.label}</TabsTrigger>
-                                            ))}
-                                        </TabsList>
-                                        <div className="flex-1 p-4">
-                                            {Object.entries(permissionCategories).map(([key, category]) => (
-                                                <TabsContent key={key} value={key} className="mt-0 space-y-4">
-                                                    <div>
-                                                        <h3 className="font-semibold text-lg mb-2">{category.label} Permissions</h3>
-                                                        <div className="border rounded-md overflow-hidden">
-                                                            <Table>
-                                                                <TableHeader>
-                                                                    <TableRow className="bg-muted/50 hover:bg-muted/50">
-                                                                        <TableHead className="w-[250px]">Module</TableHead>
-                                                                        {actions.map(action => <TableHead key={action} className="text-center w-24 capitalize">{action}</TableHead>)}
-                                                                    </TableRow>
-                                                                </TableHeader>
-                                                                <TableBody>
-                                                                    {category.modules.map(module => (
-                                                                        <TableRow key={module.id}>
-                                                                            <TableCell className="font-medium text-sm">{module.name}</TableCell>
-                                                                            {actions.map(action => (
-                                                                                <TableCell key={action} className="text-center p-2">
-                                                                                    <Checkbox
-                                                                                        name={`${role.id}_${module.id}_${action}`}
-                                                                                        defaultChecked={(permissions[module.id as keyof typeof permissions] as any)?.[action] ?? false}
-                                                                                    />
-                                                                                </TableCell>
-                                                                            ))}
-                                                                        </TableRow>
-                                                                    ))}
-                                                                </TableBody>
-                                                            </Table>
-                                                        </div>
-                                                    </div>
-                                                </TabsContent>
-                                            ))}
-                                        </div>
-                                    </Tabs>
-                                </AccordionContent>
-                            </AccordionItem>
-                        )
-                    })}
-                </Accordion>
-                <div className="sticky bottom-4 flex justify-end mt-6 p-4 bg-background/80 backdrop-blur-sm border rounded-lg shadow-sm z-10">
-                    <SubmitButton />
+            <form action={formAction} className="flex flex-1 flex-col">
+                <div className="flex flex-1 flex-col gap-3">
+                    {allRoles.map((role, idx) => (
+                        <RoleCard
+                            key={role.id}
+                            role={role}
+                            defaultOpen={idx === 0}
+                            onRoleDeleted={fetchUser}
+                        />
+                    ))}
                 </div>
+                <SaveBar />
             </form>
+
+            <ClayCard variant="soft" padded className="flex items-start gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clay-obsidian text-white">
+                    <LuCheck className="h-4 w-4" />
+                </div>
+                <div>
+                    <p className="text-[13px] font-semibold text-clay-ink">How permissions apply</p>
+                    <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                        Changes take effect immediately. Members with a role pick up the updated module
+                        access on their next navigation. System roles (e.g. Agent) cannot be deleted,
+                        but their permissions can still be tuned per module.
+                    </p>
+                </div>
+            </ClayCard>
         </div>
     );
 }

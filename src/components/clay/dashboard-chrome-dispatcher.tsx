@@ -230,6 +230,16 @@ function isQrCodeMakerRoute(pathname: string | null): boolean {
   );
 }
 
+/**
+ * Team routes get their own Clay context="team" with a dedicated
+ * sidebar for members, roles, invites, tasks, activity, chat, and
+ * workspace settings. User-scoped — works across projects.
+ */
+function isTeamRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/team' || pathname.startsWith('/dashboard/team/');
+}
+
 export interface DashboardChromeDispatcherProps {
   user?: ClayLayoutUser;
   plan?: ClayLayoutPlan;
@@ -275,6 +285,15 @@ export function DashboardChromeDispatcher({
     !onTelegram &&
     !onUrlShortener &&
     isQrCodeMakerRoute(pathname);
+  const onTeam =
+    !onAdManager &&
+    !onInstagram &&
+    !onMetaSuite &&
+    !onSabFlow &&
+    !onTelegram &&
+    !onUrlShortener &&
+    !onQrCodeMaker &&
+    isTeamRoute(pathname);
   const onWachat =
     !onAdManager &&
     !onInstagram &&
@@ -283,6 +302,7 @@ export function DashboardChromeDispatcher({
     !onTelegram &&
     !onUrlShortener &&
     !onQrCodeMaker &&
+    !onTeam &&
     isWachatRoute(pathname);
 
   /* ── Wachat branch: fetch projects + session so context providers
@@ -301,7 +321,8 @@ export function DashboardChromeDispatcher({
     onSabFlow ||
     onTelegram ||
     onUrlShortener ||
-    onQrCodeMaker;
+    onQrCodeMaker ||
+    onTeam;
 
   useEffect(() => {
     if (!needsBootstrap) return;
@@ -437,6 +458,25 @@ export function DashboardChromeDispatcher({
       >
         <AdManagerProvider>
           <ClayDashboardLayout context="qr-code-maker" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── Team branch: Clay chrome for members, roles, invites, tasks, chat.
+  if (onTeam) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="team" user={user} plan={plan}>
             {children}
           </ClayDashboardLayout>
         </AdManagerProvider>

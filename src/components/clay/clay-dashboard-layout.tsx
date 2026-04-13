@@ -161,7 +161,8 @@ export type ClayLayoutContext =
   | 'sabflow'
   | 'telegram'
   | 'url-shortener'
-  | 'qr-code-maker';
+  | 'qr-code-maker'
+  | 'team';
 
 export interface ClayDashboardLayoutProps {
   user?: ClayLayoutUser;
@@ -856,6 +857,87 @@ const tgConfigure: NavEntry[] = [
   { key: 'tg-settings', label: 'Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/settings', matches: ['/dashboard/telegram/settings'] },
 ];
 
+/* ═══════════════════════════════════════════════════════════════════
+ *  Team nav registry — loaded when context="team".
+ *  Workspace-scoped module for members, roles, invites, tasks, audit,
+ *  team chat, and notifications.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const teamPrimary: NavEntry[] = [
+  {
+    key: 'team-overview',
+    label: 'Overview',
+    icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team',
+    matches: ['/dashboard/team'],
+  },
+  {
+    key: 'team-members',
+    label: 'Members',
+    icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team/manage-users',
+    matches: ['/dashboard/team/manage-users'],
+  },
+  {
+    key: 'team-invites',
+    label: 'Invitations',
+    icon: <LuUserPlus className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team/invites',
+    matches: ['/dashboard/team/invites'],
+  },
+];
+
+const teamGovern: NavEntry[] = [
+  {
+    key: 'team-roles',
+    label: 'Roles & Permissions',
+    icon: <LuShieldCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team/manage-roles',
+    matches: ['/dashboard/team/manage-roles'],
+  },
+  {
+    key: 'team-activity',
+    label: 'Activity Log',
+    icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team/activity',
+    matches: ['/dashboard/team/activity'],
+  },
+];
+
+const teamCollab: NavEntry[] = [
+  {
+    key: 'team-tasks',
+    label: 'Tasks',
+    icon: <LuListChecks className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team/tasks',
+    matches: ['/dashboard/team/tasks'],
+  },
+  {
+    key: 'team-chat',
+    label: 'Team Chat',
+    icon: <LuMessagesSquare className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team/team-chat',
+    matches: ['/dashboard/team/team-chat'],
+  },
+  {
+    key: 'team-notifications',
+    label: 'Notifications',
+    icon: <LuBell className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team/notifications',
+    matches: ['/dashboard/team/notifications'],
+  },
+];
+
+const teamConfigure: NavEntry[] = [
+  {
+    key: 'team-settings',
+    label: 'Workspace Settings',
+    icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team/settings',
+    matches: ['/dashboard/team/settings'],
+  },
+];
+
 /**
  * Routes that should render without the Clay wachat container (no
  * padding, no max-width cap, no `overflow-y-auto` on main). Pages
@@ -909,7 +991,9 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
                   ? [urlShortenerPrimary, urlShortenerManage]
                   : context === 'qr-code-maker'
                     ? [qrCodeMakerPrimary, qrCodeMakerManage]
-                    : [primaryNav, appsNav];
+                    : context === 'team'
+                      ? [teamPrimary, teamGovern, teamCollab, teamConfigure]
+                      : [primaryNav, appsNav];
   let bestKey =
     context === 'ad-manager' ? 'adm-overview' :
     context === 'instagram' ? 'ig-dashboard' :
@@ -918,7 +1002,8 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
     context === 'sabflow' ? 'sf-flow-builder' :
     context === 'telegram' ? 'tg-dashboard' :
     context === 'url-shortener' ? 'us-links' :
-    context === 'qr-code-maker' ? 'qr-generator' : 'home';
+    context === 'qr-code-maker' ? 'qr-generator' :
+    context === 'team' ? 'team-overview' : 'home';
   let bestLen = 0;
   for (const group of registry) {
     for (const item of group) {
@@ -1232,7 +1317,8 @@ export function ClayDashboardLayout({
             context === 'sabflow' ? 'SabFlow' :
             context === 'telegram' ? 'Telegram' :
             context === 'url-shortener' ? 'URL Shortener' :
-            context === 'qr-code-maker' ? 'QR Code Maker' : 'SabNode'
+            context === 'qr-code-maker' ? 'QR Code Maker' :
+            context === 'team' ? 'Team' : 'SabNode'
           }
           brand={
             context === 'ad-manager' ? <ClayAdManagerBrand /> :
@@ -1243,6 +1329,7 @@ export function ClayDashboardLayout({
             context === 'telegram' ? <ClayTelegramBrand /> :
             context === 'url-shortener' ? <ClayUrlShortenerBrand /> :
             context === 'qr-code-maker' ? <ClayQrCodeMakerBrand /> :
+            context === 'team' ? <ClayTeamBrand /> :
             undefined
           }
           groups={
@@ -1324,6 +1411,22 @@ export function ClayDashboardLayout({
                     { items: qrCodeMakerPrimary.map(toNavItem) },
                     { title: 'Manage', addable: false, items: qrCodeMakerManage.map(toNavItem) },
                   ]
+                : context === 'team'
+                ? [
+                    { items: teamPrimary.map(toNavItem) },
+                    { title: 'Govern', addable: false, items: teamGovern.map(toNavItem) },
+                    {
+                      title: 'Collaborate',
+                      addable: false,
+                      items: teamCollab.map(toNavItem),
+                    },
+                    {
+                      title: 'Configure',
+                      addable: true,
+                      onAdd: () => router.push('/dashboard/team/manage-users'),
+                      items: teamConfigure.map(toNavItem),
+                    },
+                  ]
                 : [
                     { items: primaryNav.map(toNavItem) },
                     {
@@ -1356,7 +1459,7 @@ export function ClayDashboardLayout({
             // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker') && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -1364,7 +1467,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker') ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
@@ -1635,6 +1738,35 @@ function ClaySabFlowBrand() {
 }
 
 /* ── Telegram sidebar brand ───────────────────────────────────── */
+
+function ClayTeamBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #F472B6 0%, #BE185D 100%)' }}
+        >
+          <LuUsers className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">Team</p>
+          <p className="text-[11px] text-clay-ink-muted">Members, Roles & Collaboration</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ClayTelegramBrand() {
   const router = useRouter();
