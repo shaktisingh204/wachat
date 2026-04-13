@@ -15,6 +15,8 @@ import crypto from 'crypto';
 import { getTransporter } from '@/lib/email-service';
 import { PENDING_INVITE_COOKIE } from '@/lib/team-invites';
 import { requirePermission } from '@/lib/rbac-server';
+import { renderWelcomeEmail, renderRoleChangedEmail } from '@/lib/email-templates';
+import { notifyTeamMember } from '@/lib/team-notifications';
 
 async function findUserByEmail(email: string) {
     const { db } = await connectToDatabase();
@@ -519,6 +521,36 @@ export async function acceptInvitation(
             attachedProjectId?.toString() || invite.projectId?.toString(),
         );
 
+        // Fire a welcome email + in-app notification to the inviter.
+        (async () => {
+            try {
+                const transporter = await getTransporter(invite.inviterId.toString());
+                const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || ''}/dashboard`;
+                await transporter.sendMail({
+                    from: `"SabNode Team" <${process.env.EMAIL_FROM || 'noreply@sabnode.com'}>`,
+                    to: session.user.email,
+                    subject: `You joined ${attachedProjectName || 'SabNode'}`,
+                    html: renderWelcomeEmail({
+                        inviteeName: session.user.name || session.user.email,
+                        projectName: attachedProjectName || 'SabNode',
+                        inviterName: invite.inviterName || 'Your team',
+                        role: invite.role,
+                        dashboardUrl,
+                    }),
+                });
+            } catch (err) {
+                console.warn('[acceptInvitation] welcome email failed:', getErrorMessage(err));
+            }
+        })();
+
+        await notifyTeamMember({
+            recipientUserId: invite.inviterId,
+            projectId: attachedProjectId,
+            message: `${session.user.name} accepted your invitation`,
+            link: '/dashboard/team/manage-users',
+            eventType: 'MEMBER_JOINED',
+        });
+
         revalidatePath('/dashboard/team/manage-users');
         revalidatePath('/dashboard');
 
@@ -738,6 +770,87 @@ export async function consumePendingInviteToken(): Promise<{
 }
 
 /**
+ * Bulk remove multiple agents from every project owned by the caller.
+ * Returns the number of {projectId, agentId} pairs removed.
+ */
+export async function bulkRemoveAgents(
+    agentUserIds: string[],
+): Promise<{ success: boolean; error?: string; removed?: number }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Authentication required.' };
+    const ids = (agentUserIds || []).filter((id) => id && ObjectId.isValid(id));
+    if (ids.length === 0) return { success: false, error: 'Nothing to remove.' };
+
+    const guard = await requirePermission('team_users', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const agentObjectIds = ids.map((id) => new ObjectId(id));
+
+        const result = await db.collection('projects').updateMany(
+            { userId: userObjectId },
+            { $pull: { agents: { userId: { $in: agentObjectIds } } } } as any,
+        );
+
+        await logActivity('MEMBER_REMOVED', {
+            bulk: true,
+            agentIds: ids,
+            matchedProjects: result.matchedCount,
+        });
+        revalidatePath('/dashboard/team/manage-users');
+        return { success: true, removed: result.modifiedCount };
+    } catch (e) {
+        console.error('[bulkRemoveAgents] failed:', e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Bulk change the role of multiple agents across every project the caller owns.
+ * Scope is owner-wide — to change a role on a single project use `changeAgentRole`.
+ */
+export async function bulkChangeAgentRole(args: {
+    agentUserIds: string[];
+    role: string;
+}): Promise<{ success: boolean; error?: string; updated?: number }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Authentication required.' };
+    const ids = (args.agentUserIds || []).filter((id) => id && ObjectId.isValid(id));
+    if (ids.length === 0 || !args.role) return { success: false, error: 'Missing inputs.' };
+
+    const guard = await requirePermission('team_users', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const agentObjectIds = ids.map((id) => new ObjectId(id));
+
+        const result = await db.collection('projects').updateMany(
+            {
+                userId: userObjectId,
+                'agents.userId': { $in: agentObjectIds },
+            },
+            { $set: { 'agents.$[elem].role': args.role } } as any,
+            { arrayFilters: [{ 'elem.userId': { $in: agentObjectIds } }] } as any,
+        );
+
+        await logActivity('MEMBER_ROLE_CHANGED', {
+            bulk: true,
+            agentIds: ids,
+            role: args.role,
+        });
+        revalidatePath('/dashboard/team/manage-users');
+        return { success: true, updated: result.modifiedCount };
+    } catch (e) {
+        console.error('[bulkChangeAgentRole] failed:', e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
  * Change a team member's role on a single project. Only the project owner may do this.
  */
 export async function changeAgentRole(args: {
@@ -769,6 +882,18 @@ export async function changeAgentRole(args: {
             return { success: false, error: 'Project or agent not found, or you are not the owner.' };
         }
         await logActivity('MEMBER_ROLE_CHANGED', { agentUserId, role }, projectId);
+
+        // In-app notification for the agent.
+        try {
+            await notifyTeamMember({
+                recipientUserId: agentUserId,
+                projectId,
+                message: `${session.user.name} updated your role to ${role}`,
+                link: '/dashboard/team/manage-users',
+                eventType: 'MEMBER_ROLE_CHANGED',
+            });
+        } catch { /* non-fatal */ }
+
         revalidatePath('/dashboard/team/manage-users');
         return { success: true };
     } catch (e) {

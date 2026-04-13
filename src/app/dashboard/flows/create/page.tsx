@@ -197,11 +197,11 @@ function CreateMetaFlowPageContent() {
         setSavingDraft(true);
         try {
             if (!flowId) {
+                // Step 1: create an empty shell on Meta (no flow_json).
                 const created = await createMetaFlow({
                     projectId,
                     name: flowName,
                     categories: [category],
-                    flow_data: cleaned,
                     endpoint_uri: endpointUri || undefined,
                 });
                 if (!created.success || !created.flowId) {
@@ -214,9 +214,20 @@ function CreateMetaFlowPageContent() {
                 setFlowId(created.flowId);
                 setMetaId(created.metaId ?? null);
                 setStatus('DRAFT');
-                setValidation(created.validation_errors ?? []);
+
+                // Step 2: upload the current canvas JSON via /assets so we
+                // get structured validation_errors back from Meta.
+                const saved = await saveMetaFlowDraft({ flowId: created.flowId, flow_data: cleaned });
+                setValidation(saved.validation_errors ?? []);
+                if (!saved.success) {
+                    if (saved.error && !handleEncryptionError(saved.error)) {
+                        toast({ title: 'Flow created, but JSON upload failed', description: saved.error, variant: 'destructive' });
+                    }
+                    router.replace(`/dashboard/flows/create?flowId=${created.flowId}`);
+                    return created.flowId;
+                }
+
                 toast({ title: 'Draft created', description: created.message });
-                // Reflect the new id in the URL so refresh preserves context.
                 router.replace(`/dashboard/flows/create?flowId=${created.flowId}`);
                 return created.flowId;
             }

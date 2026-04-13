@@ -50,6 +50,8 @@ import {
     resendInvitation,
     revokeInvitation,
     changeAgentRole,
+    bulkRemoveAgents,
+    bulkChangeAgentRole,
     type InvitationView,
 } from '@/app/actions/team.actions';
 import { getCustomRoles } from '@/app/actions/crm-roles.actions';
@@ -76,6 +78,8 @@ export default function ManageUsersPage() {
     const [customRoles, setCustomRoles] = React.useState<CrmCustomRole[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [inviteOpen, setInviteOpen] = React.useState(false);
+    const [selectedMembers, setSelectedMembers] = React.useState<Set<string>>(new Set());
+    const [bulkBusy, setBulkBusy] = React.useState<false | 'remove' | 'role'>(false);
 
     const fetchAll = React.useCallback(async () => {
         setLoading(true);
@@ -95,6 +99,64 @@ export default function ManageUsersPage() {
     React.useEffect(() => {
         fetchAll();
     }, [fetchAll]);
+
+    // When tab or filter changes, clear selection to prevent stale targets.
+    React.useEffect(() => {
+        setSelectedMembers(new Set());
+    }, [tab, roleFilter, query]);
+
+    const toggleSelect = React.useCallback((id: string) => {
+        setSelectedMembers((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
+
+    const toggleSelectAll = React.useCallback((ids: string[], on: boolean) => {
+        setSelectedMembers((prev) => {
+            const next = new Set(prev);
+            for (const id of ids) {
+                if (on) next.add(id);
+                else next.delete(id);
+            }
+            return next;
+        });
+    }, []);
+
+    const onBulkRemove = React.useCallback(() => {
+        setBulkBusy('remove');
+        (async () => {
+            const res = await bulkRemoveAgents(Array.from(selectedMembers));
+            setBulkBusy(false);
+            if (res.success) {
+                toast({ title: 'Removed', description: `${res.removed ?? 0} projects updated.` });
+                setSelectedMembers(new Set());
+                fetchAll();
+            } else {
+                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            }
+        })();
+    }, [selectedMembers, toast, fetchAll]);
+
+    const onBulkChangeRole = React.useCallback(
+        (role: string) => {
+            setBulkBusy('role');
+            (async () => {
+                const res = await bulkChangeAgentRole({ agentUserIds: Array.from(selectedMembers), role });
+                setBulkBusy(false);
+                if (res.success) {
+                    toast({ title: 'Roles updated', description: `${res.updated ?? 0} entries updated.` });
+                    setSelectedMembers(new Set());
+                    fetchAll();
+                } else {
+                    toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                }
+            })();
+        },
+        [selectedMembers, toast, fetchAll],
+    );
 
     const roleOptions = React.useMemo(
         () => [
@@ -220,6 +282,19 @@ export default function ManageUsersPage() {
                 />
             </ClayCard>
 
+            {tab === 'members' && selectedMembers.size > 0 ? (
+                <BulkBar
+                    count={selectedMembers.size}
+                    busy={bulkBusy}
+                    roleOptions={roleOptions}
+                    canEditRoles={canEditRoles}
+                    canRemove={canRemove}
+                    onClear={() => setSelectedMembers(new Set())}
+                    onChangeRole={onBulkChangeRole}
+                    onRemove={onBulkRemove}
+                />
+            ) : null}
+
             {tab === 'members' ? (
                 <MembersTable
                     loading={loading}
@@ -229,6 +304,9 @@ export default function ManageUsersPage() {
                     roleLabel={roleLabel}
                     canEditRoles={canEditRoles}
                     canRemove={canRemove}
+                    selectedIds={selectedMembers}
+                    onToggleSelect={toggleSelect}
+                    onToggleAll={toggleSelectAll}
                     onRefresh={fetchAll}
                     toast={toast}
                 />
@@ -477,6 +555,9 @@ function MembersTable({
     roleLabel,
     canEditRoles,
     canRemove,
+    selectedIds,
+    onToggleSelect,
+    onToggleAll,
     onRefresh,
     toast,
 }: {
@@ -487,9 +568,16 @@ function MembersTable({
     roleLabel: (id: string) => string;
     canEditRoles: boolean;
     canRemove: boolean;
+    selectedIds: Set<string>;
+    onToggleSelect: (id: string) => void;
+    onToggleAll: (ids: string[], on: boolean) => void;
     onRefresh: () => void;
     toast: ReturnType<typeof useToast>['toast'];
 }) {
+    const allIds = React.useMemo(() => members.map((m) => m._id.toString()), [members]);
+    const allChecked = allIds.length > 0 && allIds.every((id) => selectedIds.has(id));
+    const someChecked = !allChecked && allIds.some((id) => selectedIds.has(id));
+    const canSelect = canEditRoles || canRemove;
     if (loading) return <SkeletonRows />;
     if (!members.length) {
         return (
@@ -502,7 +590,15 @@ function MembersTable({
     }
     return (
         <ClayCard padded={false} className="overflow-hidden">
-            <div className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-clay-border bg-clay-surface-2 px-5 py-3 text-[11px] font-medium uppercase tracking-[0.06em] text-clay-ink-soft sm:grid-cols-[1fr_220px_160px_120px]">
+            <div className={'grid items-center gap-4 border-b border-clay-border bg-clay-surface-2 px-5 py-3 text-[11px] font-medium uppercase tracking-[0.06em] text-clay-ink-soft ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]')}>
+                {canSelect ? (
+                    <SelectCheckbox
+                        aria-label="Select all members"
+                        checked={allChecked}
+                        indeterminate={someChecked}
+                        onChange={(v) => onToggleAll(allIds, v)}
+                    />
+                ) : null}
                 <span>Member</span>
                 <span className="hidden sm:block">Projects & roles</span>
                 <span className="hidden sm:block">Joined on</span>
@@ -518,6 +614,9 @@ function MembersTable({
                         roleLabel={roleLabel}
                         canEditRoles={canEditRoles}
                         canRemove={canRemove}
+                        canSelect={canSelect}
+                        selected={selectedIds.has(m._id.toString())}
+                        onToggleSelect={() => onToggleSelect(m._id.toString())}
                         onRefresh={onRefresh}
                         toast={toast}
                     />
@@ -534,6 +633,9 @@ function MemberRow({
     roleLabel,
     canEditRoles,
     canRemove,
+    canSelect,
+    selected,
+    onToggleSelect,
     onRefresh,
     toast,
 }: {
@@ -543,6 +645,9 @@ function MemberRow({
     roleLabel: (id: string) => string;
     canEditRoles: boolean;
     canRemove: boolean;
+    canSelect: boolean;
+    selected: boolean;
+    onToggleSelect: () => void;
     onRefresh: () => void;
     toast: ReturnType<typeof useToast>['toast'];
 }) {
@@ -566,7 +671,14 @@ function MemberRow({
     };
 
     return (
-        <div className="grid grid-cols-[1fr_auto] items-center gap-4 px-5 py-4 sm:grid-cols-[1fr_220px_160px_120px]">
+        <div className={'grid items-center gap-4 px-5 py-4 ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]') + (selected ? ' bg-clay-rose-soft/30' : '')}>
+            {canSelect ? (
+                <SelectCheckbox
+                    aria-label={`Select ${member.name || member.email}`}
+                    checked={selected}
+                    onChange={onToggleSelect}
+                />
+            ) : null}
             <div className="flex items-center gap-3 min-w-0">
                 <Avatar name={member.name || member.email} seed={member.email} />
                 <div className="min-w-0">
@@ -1005,6 +1117,105 @@ function EmptyState({
             </span>
             <div className="text-[16px] font-semibold text-clay-ink">{title}</div>
             <div className="max-w-[360px] text-[12.5px] text-clay-ink-muted">{body}</div>
+        </ClayCard>
+    );
+}
+
+function SelectCheckbox({
+    checked,
+    indeterminate,
+    onChange,
+    ...rest
+}: {
+    checked: boolean;
+    indeterminate?: boolean;
+    onChange: (v: boolean) => void;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'checked' | 'type'>) {
+    const ref = React.useRef<HTMLInputElement | null>(null);
+    React.useEffect(() => {
+        if (ref.current) ref.current.indeterminate = Boolean(indeterminate && !checked);
+    }, [indeterminate, checked]);
+    return (
+        <input
+            ref={ref}
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => onChange(e.currentTarget.checked)}
+            className="h-4 w-4 shrink-0 cursor-pointer rounded border-clay-border accent-clay-rose"
+            {...rest}
+        />
+    );
+}
+
+function BulkBar({
+    count,
+    busy,
+    roleOptions,
+    canEditRoles,
+    canRemove,
+    onClear,
+    onChangeRole,
+    onRemove,
+}: {
+    count: number;
+    busy: false | 'remove' | 'role';
+    roleOptions: { value: string; label: string }[];
+    canEditRoles: boolean;
+    canRemove: boolean;
+    onClear: () => void;
+    onChangeRole: (role: string) => void;
+    onRemove: () => void;
+}) {
+    return (
+        <ClayCard padded={false} className="flex flex-col gap-3 border-clay-rose-soft bg-clay-rose-soft/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+                <ClayBadge tone="rose" dot>
+                    {count} selected
+                </ClayBadge>
+                <button
+                    type="button"
+                    onClick={onClear}
+                    className="text-[12px] text-clay-rose-ink underline-offset-2 hover:underline"
+                >
+                    Clear selection
+                </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+                {canEditRoles ? (
+                    <ClaySelect
+                        sizeVariant="md"
+                        className="w-[200px]"
+                        defaultValue=""
+                        disabled={!!busy}
+                        onChange={(e) => {
+                            const v = e.target.value;
+                            if (v) onChangeRole(v);
+                            e.currentTarget.value = '';
+                        }}
+                        options={[
+                            { value: '', label: 'Set role to…' },
+                            ...roleOptions,
+                        ]}
+                    />
+                ) : null}
+                {canRemove ? (
+                    <ClayButton
+                        variant="rose"
+                        size="md"
+                        onClick={onRemove}
+                        disabled={!!busy}
+                        leading={
+                            busy === 'remove' ? (
+                                <LuLoader className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                                <LuTrash2 className="h-3.5 w-3.5" strokeWidth={2} />
+                            )
+                        }
+                    >
+                        Remove from all projects
+                    </ClayButton>
+                ) : null}
+            </div>
         </ClayCard>
     );
 }

@@ -12,6 +12,7 @@
     "stop:pm2": "pm2 stop all && pm2 delete all",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test:rbac": "tsx --test src/lib/__tests__/rbac.test.ts",
     "db:assign-plan": "tsx scripts/assign-default-plan.ts",
     "db:clear-broadcasts": "node scripts/clear-old-broadcasts.js",
     "hash:admin-password": "tsx scripts/hash-admin-password.ts",

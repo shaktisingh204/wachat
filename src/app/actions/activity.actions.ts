@@ -35,10 +35,18 @@ export async function logActivity(
     }
 }
 
+export type ActivityFilters = {
+    actorUserId?: string;
+    actionPrefix?: string; // e.g. 'TASK' | 'MEMBER' | 'ROLE' | 'CHAT'
+    sinceIso?: string;
+    untilIso?: string;
+};
+
 export async function getActivityLogs(
     projectId?: string,
     page: number = 1,
-    limit: number = 20
+    limit: number = 20,
+    filters?: ActivityFilters,
 ): Promise<{ logs: WithId<ActivityLog>[], total: number, totalPages: number }> {
     const session = await getSession();
     if (!session?.user) {
@@ -51,18 +59,34 @@ export async function getActivityLogs(
 
         const query: any = {};
 
-        // If projectId is provided, filter by it.
-        // If NOT provided, we might want to show global activities for this user or all projects they are part of.
-        // For now, let's stick to projectId filter or empty for "My Actions"?
-        // Usually Activity Feed is Project-based.
-
         if (projectId && ObjectId.isValid(projectId)) {
             query.projectId = new ObjectId(projectId);
         } else {
-            // If no project specified, maybe show logs where the user is the actor?
-            // Or show logs for all projects the user is part of?
-            // Let's safe default to "Actions I did" if no project specified
-            query.userId = new ObjectId(session.user._id);
+            // Show every activity across the projects the current user can access
+            // (owned + agent on). This matches what the rest of the app does in
+            // `getAllNotifications`.
+            const userObjectId = new ObjectId(session.user._id);
+            const accessibleProjects = await db.collection('projects').find(
+                { $or: [{ userId: userObjectId }, { 'agents.userId': userObjectId }] } as any,
+                { projection: { _id: 1 } },
+            ).toArray();
+            const projectIds = accessibleProjects.map((p) => p._id);
+            query.$or = [
+                { userId: userObjectId },
+                ...(projectIds.length ? [{ projectId: { $in: projectIds } }] : []),
+            ];
+        }
+
+        if (filters?.actorUserId && ObjectId.isValid(filters.actorUserId)) {
+            query.userId = new ObjectId(filters.actorUserId);
+        }
+        if (filters?.actionPrefix) {
+            query.action = { $regex: `^${filters.actionPrefix}`, $options: 'i' };
+        }
+        if (filters?.sinceIso || filters?.untilIso) {
+            query.createdAt = {};
+            if (filters?.sinceIso) (query.createdAt as any).$gte = new Date(filters.sinceIso);
+            if (filters?.untilIso) (query.createdAt as any).$lte = new Date(filters.untilIso);
         }
 
         const [logs, total] = await Promise.all([

@@ -1,116 +1,312 @@
-
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
-import type { WithId, ActivityLog, ActivityAction } from '@/lib/definitions';
+import * as React from 'react';
+import { format, formatDistanceToNow } from 'date-fns';
+import {
+    LuActivity,
+    LuChevronLeft,
+    LuChevronRight,
+    LuClock,
+    LuFileText,
+    LuLoader,
+    LuMessageSquare,
+    LuShield,
+    LuUserMinus,
+    LuUserPlus,
+} from 'react-icons/lu';
+
+import { ClayBadge } from '@/components/clay/clay-badge';
+import { ClayBreadcrumbs } from '@/components/clay/clay-breadcrumbs';
+import { ClayButton } from '@/components/clay/clay-button';
+import { ClayCard } from '@/components/clay/clay-card';
+import { ClayInput, ClaySelect } from '@/components/clay/clay-input';
+import { ClaySectionHeader } from '@/components/clay/clay-section-header';
 import { getActivityLogs } from '@/app/actions/activity.actions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Activity, Clock, FileText, UserPlus, UserMinus, Shield } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { getInvitedUsers } from '@/app/actions/team.actions';
+import type { ActivityLog, User, WithId } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+
+const PAGE_SIZE = 25;
+
+type ActionGroup = 'all' | 'TASK' | 'MEMBER' | 'ROLE' | 'CHAT';
 
 export default function ActivityLogPage() {
-    const [logs, setLogs] = useState<WithId<ActivityLog>[]>([]);
-    const [isLoading, startTransition] = useTransition();
+    const { activeProjectId } = useProject();
+    const [logs, setLogs] = React.useState<WithId<ActivityLog>[]>([]);
+    const [totalPages, setTotalPages] = React.useState(1);
+    const [total, setTotal] = React.useState(0);
+    const [page, setPage] = React.useState(1);
+    const [loading, setLoading] = React.useState(true);
+    const [actor, setActor] = React.useState('all');
+    const [group, setGroup] = React.useState<ActionGroup>('all');
+    const [since, setSince] = React.useState('');
+    const [until, setUntil] = React.useState('');
+    const [members, setMembers] = React.useState<WithId<User>[]>([]);
 
-    useEffect(() => {
-        startTransition(async () => {
-            const { logs } = await getActivityLogs(undefined, 1, 50);
-            setLogs(logs);
-        });
-    }, []);
+    const fetchData = React.useCallback(async () => {
+        setLoading(true);
+        const [res, m] = await Promise.all([
+            getActivityLogs(activeProjectId || undefined, page, PAGE_SIZE, {
+                actorUserId: actor !== 'all' ? actor : undefined,
+                actionPrefix: group !== 'all' ? group : undefined,
+                sinceIso: since ? new Date(since).toISOString() : undefined,
+                untilIso: until ? new Date(until + 'T23:59:59').toISOString() : undefined,
+            }),
+            members.length === 0 ? getInvitedUsers() : Promise.resolve(members as any),
+        ]);
+        setLogs(res.logs);
+        setTotal(res.total);
+        setTotalPages(res.totalPages || 1);
+        if (Array.isArray(m) && m.length) setMembers(m as WithId<User>[]);
+        setLoading(false);
+    }, [activeProjectId, page, actor, group, since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const getActionIcon = (action: string) => {
-        if (action.includes('TASK')) return <FileText className="h-4 w-4 text-blue-500" />;
-        if (action.includes('MEMBER')) return action.includes('INVITED') ? <UserPlus className="h-4 w-4 text-green-500" /> : <UserMinus className="h-4 w-4 text-red-500" />;
-        if (action.includes('ROLE')) return <Shield className="h-4 w-4 text-purple-500" />;
-        return <Activity className="h-4 w-4 text-gray-500" />;
-    };
-
-    const formatActionMessage = (log: ActivityLog) => {
-        const { action, details } = log;
-        switch (action) {
-            case 'TASK_CREATED':
-                return <span>Created task <strong>{details.title}</strong> assigned to {details.assignedTo === 'Unassigned' ? 'nobody' : 'a team member'}</span>;
-            case 'TASK_UPDATED':
-                return <span>Updated task status to <Badge variant="outline">{details.status}</Badge></span>;
-            case 'TASK_DELETED':
-                return <span>Deleted a task</span>;
-            case 'MEMBER_INVITED':
-                return <span>Invited <strong>{details.email}</strong> as {details.role} {details.project ? `to project ${details.project}` : ''}</span>;
-            case 'MEMBER_REMOVED':
-                return <span>Removed a team member from {details.scope}</span>;
-            case 'ROLE_UPDATED':
-                if (details.action === 'Permissions Updated') return <span>Updated role permissions</span>;
-                if (details.action === 'Role Created') return <span>Created new role <strong>{details.role}</strong></span>;
-                if (details.action === 'Role Deleted') return <span>Deleted a custom role</span>;
-                return <span>Updated roles</span>;
-            default:
-                return <span>Performed action: {action}</span>;
-        }
-    };
+    React.useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     return (
-        <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto">
-            <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <Activity className="h-8 w-8" />
-                    Activity Log
-                </h1>
-                <p className="text-muted-foreground">Track recent actions taken by your team.</p>
-            </div>
+        <div className="clay-enter flex min-h-full flex-col gap-6">
+            <ClayBreadcrumbs
+                items={[
+                    { label: 'SabNode', href: '/home' },
+                    { label: 'Team', href: '/dashboard/team/manage-users' },
+                    { label: 'Activity' },
+                ]}
+            />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                    <CardDescription>A chronological feed of system events.</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                    {isLoading ? (
-                        <div className="p-6 space-y-4">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className="flex items-center gap-4">
-                                    <Skeleton className="h-10 w-10 rounded-full" />
-                                    <div className="space-y-2 flex-1">
-                                        <Skeleton className="h-4 w-3/4" />
-                                        <Skeleton className="h-3 w-1/2" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : logs.length > 0 ? (
-                        <div className="divide-y">
-                            {logs.map((log) => (
-                                <div key={log._id.toString()} className="flex items-start gap-4 p-4 hover:bg-muted/50 transition-colors">
-                                    <Avatar className="h-10 w-10 border">
-                                        <AvatarImage src={`https://i.pravatar.cc/150?u=${log.user?.email || 'user'}`} />
-                                        <AvatarFallback>{log.user?.name ? log.user.name.substring(0, 2).toUpperCase() : 'U'}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 space-y-1">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-sm font-medium">{log.user?.name || 'Unknown User'}</p>
-                                            <div className="flex items-center text-xs text-muted-foreground gap-1">
-                                                <Clock className="h-3 w-3" />
-                                                {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-foreground/90">
-                                            {getActionIcon(log.action as string)}
-                                            {formatActionMessage(log)}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="p-8 text-center text-muted-foreground">
-                            No recent activity found.
-                        </div>
+            <ClaySectionHeader
+                size="lg"
+                title="Activity"
+                subtitle="Every invite, role change, task move, and chat event — chronologically."
+            />
+
+            <ClayCard padded={false} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap items-center gap-3">
+                    <ClaySelect
+                        sizeVariant="md"
+                        className="w-[180px]"
+                        value={actor}
+                        onChange={(e) => {
+                            setActor(e.target.value);
+                            setPage(1);
+                        }}
+                        options={[
+                            { value: 'all', label: 'All actors' },
+                            ...members.map((m) => ({ value: m._id.toString(), label: m.name || m.email })),
+                        ]}
+                    />
+                    <ClaySelect
+                        sizeVariant="md"
+                        className="w-[180px]"
+                        value={group}
+                        onChange={(e) => {
+                            setGroup(e.target.value as ActionGroup);
+                            setPage(1);
+                        }}
+                        options={[
+                            { value: 'all', label: 'All events' },
+                            { value: 'TASK', label: 'Tasks' },
+                            { value: 'MEMBER', label: 'Members' },
+                            { value: 'ROLE', label: 'Roles' },
+                            { value: 'CHAT', label: 'Chat' },
+                        ]}
+                    />
+                    <ClayInput
+                        sizeVariant="md"
+                        className="w-[160px]"
+                        type="date"
+                        value={since}
+                        onChange={(e) => {
+                            setSince(e.target.value);
+                            setPage(1);
+                        }}
+                    />
+                    <ClayInput
+                        sizeVariant="md"
+                        className="w-[160px]"
+                        type="date"
+                        value={until}
+                        onChange={(e) => {
+                            setUntil(e.target.value);
+                            setPage(1);
+                        }}
+                    />
+                    {(actor !== 'all' || group !== 'all' || since || until) && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setActor('all');
+                                setGroup('all');
+                                setSince('');
+                                setUntil('');
+                                setPage(1);
+                            }}
+                            className="text-[12px] text-clay-rose-ink underline-offset-2 hover:underline"
+                        >
+                            Reset
+                        </button>
                     )}
-                </CardContent>
-            </Card>
+                </div>
+                <div className="text-[12px] text-clay-ink-soft">
+                    {total.toLocaleString()} event{total === 1 ? '' : 's'}
+                </div>
+            </ClayCard>
+
+            <ClayCard padded={false} className="overflow-hidden">
+                {loading ? (
+                    <div className="flex items-center justify-center gap-2 p-10 text-clay-ink-soft">
+                        <LuLoader className="h-4 w-4 animate-spin" />
+                        <span className="text-[13px]">Loading activity…</span>
+                    </div>
+                ) : logs.length === 0 ? (
+                    <div className="flex flex-col items-center gap-2 p-12 text-center">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-surface-2 text-clay-ink-muted">
+                            <LuActivity className="h-5 w-5" strokeWidth={1.75} />
+                        </span>
+                        <div className="text-[15px] font-semibold text-clay-ink">No matching activity</div>
+                        <div className="max-w-[360px] text-[12.5px] text-clay-ink-muted">
+                            Try broadening the filters — as your team does more, this feed fills up.
+                        </div>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-clay-border">
+                        {logs.map((log) => (
+                            <ActivityRow key={log._id.toString()} log={log} />
+                        ))}
+                    </div>
+                )}
+            </ClayCard>
+
+            {totalPages > 1 ? (
+                <div className="flex items-center justify-end gap-2">
+                    <ClayButton
+                        variant="pill"
+                        size="md"
+                        disabled={page <= 1 || loading}
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        leading={<LuChevronLeft className="h-3.5 w-3.5" />}
+                    >
+                        Previous
+                    </ClayButton>
+                    <span className="text-[12px] text-clay-ink-muted">
+                        Page {page} of {totalPages}
+                    </span>
+                    <ClayButton
+                        variant="pill"
+                        size="md"
+                        disabled={page >= totalPages || loading}
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        trailing={<LuChevronRight className="h-3.5 w-3.5" />}
+                    >
+                        Next
+                    </ClayButton>
+                </div>
+            ) : null}
         </div>
     );
+}
+
+/* ─────────────────────────────────── ROW ────────────────────────────────────── */
+
+function ActivityRow({ log }: { log: WithId<ActivityLog> }) {
+    const { icon, tone } = iconForAction(log.action as string);
+    const label = (log.user?.name || log.user?.email || 'Unknown').charAt(0).toUpperCase();
+    return (
+        <div className="flex items-start gap-3 px-5 py-4">
+            <span
+                className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold"
+                style={{
+                    background: `hsl(${hashHue(log.user?.email || 'x')} 60% 90%)`,
+                    color: `hsl(${hashHue(log.user?.email || 'x')} 45% 28%)`,
+                }}
+            >
+                {label || '?'}
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="text-[13px]">
+                        <span className="font-medium text-clay-ink">{log.user?.name || 'Unknown user'}</span>{' '}
+                        <span className="text-clay-ink-muted">{actionMessage(log.action as string, log.details)}</span>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1 text-[11px] text-clay-ink-soft" title={format(new Date(log.createdAt), 'PPpp')}>
+                        <LuClock className="h-3 w-3" />
+                        {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
+                    </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                    <ClayBadge tone={tone}>
+                        <span className="inline-flex items-center gap-1">
+                            {icon}
+                            {prettyAction(log.action as string)}
+                        </span>
+                    </ClayBadge>
+                    {(log.details as any)?.project ? (
+                        <ClayBadge tone="neutral">{(log.details as any).project}</ClayBadge>
+                    ) : null}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function iconForAction(action: string): {
+    icon: React.ReactNode;
+    tone: React.ComponentProps<typeof ClayBadge>['tone'];
+} {
+    if (action.startsWith('TASK')) return { icon: <LuFileText className="h-3 w-3" />, tone: 'blue' };
+    if (action.startsWith('CHAT')) return { icon: <LuMessageSquare className="h-3 w-3" />, tone: 'rose-soft' };
+    if (action.startsWith('MEMBER_REMOVED'))
+        return { icon: <LuUserMinus className="h-3 w-3" />, tone: 'red' };
+    if (action.startsWith('MEMBER')) return { icon: <LuUserPlus className="h-3 w-3" />, tone: 'green' };
+    if (action.startsWith('ROLE')) return { icon: <LuShield className="h-3 w-3" />, tone: 'amber' };
+    return { icon: <LuActivity className="h-3 w-3" />, tone: 'neutral' };
+}
+
+function prettyAction(a: string) {
+    return a
+        .split('_')
+        .map((p) => p.charAt(0) + p.slice(1).toLowerCase())
+        .join(' ');
+}
+
+function actionMessage(action: string, details: any): string {
+    switch (action) {
+        case 'TASK_CREATED':
+            return `created a task "${details?.title ?? 'task'}"`;
+        case 'TASK_UPDATED':
+            return `updated task status to ${details?.status ?? 'new status'}`;
+        case 'TASK_DELETED':
+            return `deleted a task`;
+        case 'MEMBER_INVITED':
+            return `invited ${details?.email ?? 'a teammate'} as ${details?.role ?? 'member'}`;
+        case 'MEMBER_JOINED':
+            return `joined the team`;
+        case 'MEMBER_REMOVED':
+            return `removed a team member`;
+        case 'MEMBER_INVITE_REVOKED':
+            return `revoked an invitation`;
+        case 'MEMBER_INVITE_DECLINED':
+            return `declined an invitation`;
+        case 'MEMBER_ROLE_CHANGED':
+            return `changed a role to ${details?.role ?? ''}`;
+        case 'ROLE_UPDATED':
+            return details?.action === 'Role Created'
+                ? `created a role "${details?.role ?? ''}"`
+                : details?.action === 'Role Deleted'
+                  ? `deleted a role`
+                  : `updated role permissions`;
+        case 'CHAT_GROUP_CREATED':
+            return `created a group chat`;
+        case 'CHAT_MESSAGE':
+            return `sent a message`;
+        default:
+            return `performed ${action.toLowerCase().replace(/_/g, ' ')}`;
+    }
+}
+
+function hashHue(s: string) {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return Math.abs(h) % 360;
 }

@@ -170,12 +170,15 @@ export async function createMetaFlow(input: {
             screens: [],
         };
 
-    // Let Meta validate — we only sanitise. Empty flows are accepted as DRAFT.
-
+    // Meta's POST /flows applies strict integrity checks to `flow_json`
+    // (at least one terminal screen, reachable Footer, etc.) and returns
+    // a vague "Integrity requirements not met" on failure. The /assets
+    // endpoint is much more informative and returns structured
+    // validation_errors. So we create an empty shell here and let the
+    // caller follow up with saveMetaFlowDraft() which hits /assets.
     const body: Record<string, any> = { name, categories };
     if (input.endpoint_uri) body.endpoint_uri = input.endpoint_uri;
     if (input.clone_flow_id) body.clone_flow_id = input.clone_flow_id;
-    else body.flow_json = JSON.stringify(flowData);
 
     try {
         const resp = await axios.post(
