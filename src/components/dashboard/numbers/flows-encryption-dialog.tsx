@@ -45,6 +45,8 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
             const result = await generateAndSaveFlowsKeys(project._id.toString(), phone.id);
             if (result.success) {
                 toast({ title: "Keys Generated", description: result.message });
+                // Re-fetch the parent so the Upload button unlocks without a reload.
+                if (onSuccess) onSuccess();
             } else {
                 toast({ title: "Error", description: result.error, variant: "destructive" });
             }

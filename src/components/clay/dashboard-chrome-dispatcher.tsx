@@ -199,20 +199,34 @@ function isSabFlowRoute(pathname: string | null): boolean {
 }
 
 /**
- * Standalone apps — user-scoped modules that live under /dashboard/*
- * but are NOT tied to a WABA project. They render inside default Clay
- * chrome (context="sabnode") with the global sidebar, not the Wachat
- * sidebar, and skip the "select a project" gate.
+ * Telegram routes get their own Clay context="telegram" with sidebar
+ * for bots, chat, broadcasts, channels, mini apps, payments, ads.
  */
-const STANDALONE_APP_PREFIXES = [
-  '/dashboard/url-shortener',
-  '/dashboard/qr-code-maker',
-];
-
-function isStandaloneAppRoute(pathname: string | null): boolean {
+function isTelegramRoute(pathname: string | null): boolean {
   if (!pathname) return false;
-  return STANDALONE_APP_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(p + '/'),
+  return pathname === '/dashboard/telegram' || pathname.startsWith('/dashboard/telegram/');
+}
+
+/**
+ * URL Shortener routes get their own Clay context="url-shortener" with
+ * a dedicated sidebar (Links, Custom Domains). User-scoped — not tied
+ * to a WABA project, so it bypasses the "select a project" gate.
+ */
+function isUrlShortenerRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return (
+    pathname === '/dashboard/url-shortener' || pathname.startsWith('/dashboard/url-shortener/')
+  );
+}
+
+/**
+ * QR Code Maker routes get their own Clay context="qr-code-maker" with
+ * a dedicated sidebar (Generator, Tags). User-scoped.
+ */
+function isQrCodeMakerRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return (
+    pathname === '/dashboard/qr-code-maker' || pathname.startsWith('/dashboard/qr-code-maker/')
   );
 }
 
@@ -249,14 +263,26 @@ export function DashboardChromeDispatcher({
   const onInstagram = !onAdManager && isInstagramRoute(pathname);
   const onMetaSuite = !onAdManager && !onInstagram && isMetaSuiteRoute(pathname);
   const onSabFlow = !onAdManager && !onInstagram && !onMetaSuite && isSabFlowRoute(pathname);
-  const onStandaloneApp =
-    !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && isStandaloneAppRoute(pathname);
+  const onTelegram =
+    !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && isTelegramRoute(pathname);
+  const onUrlShortener =
+    !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && !onTelegram && isUrlShortenerRoute(pathname);
+  const onQrCodeMaker =
+    !onAdManager &&
+    !onInstagram &&
+    !onMetaSuite &&
+    !onSabFlow &&
+    !onTelegram &&
+    !onUrlShortener &&
+    isQrCodeMakerRoute(pathname);
   const onWachat =
     !onAdManager &&
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
-    !onStandaloneApp &&
+    !onTelegram &&
+    !onUrlShortener &&
+    !onQrCodeMaker &&
     isWachatRoute(pathname);
 
   /* ── Wachat branch: fetch projects + session so context providers
@@ -268,7 +294,14 @@ export function DashboardChromeDispatcher({
   );
 
   const needsBootstrap =
-    onWachat || onAdManager || onMetaSuite || onInstagram || onSabFlow || onStandaloneApp;
+    onWachat ||
+    onAdManager ||
+    onMetaSuite ||
+    onInstagram ||
+    onSabFlow ||
+    onTelegram ||
+    onUrlShortener ||
+    onQrCodeMaker;
 
   useEffect(() => {
     if (!needsBootstrap) return;
@@ -373,12 +406,8 @@ export function DashboardChromeDispatcher({
     );
   }
 
-  // ── Standalone app branch (URL Shortener, QR Code Maker).
-  //    User-scoped modules that aren't tied to a WABA project. They
-  //    render inside the default Clay chrome (context="sabnode") with
-  //    the global sidebar, so they don't inherit the Wachat sidebar or
-  //    the "select a project" gate.
-  if (onStandaloneApp) {
+  // ── URL Shortener branch: dedicated Clay context with its own sidebar.
+  if (onUrlShortener) {
     if (!wachatData) {
       return <ClayBootSkeleton />;
     }
@@ -388,7 +417,45 @@ export function DashboardChromeDispatcher({
         user={wachatData.user}
       >
         <AdManagerProvider>
-          <ClayDashboardLayout context="sabnode" user={user} plan={plan}>
+          <ClayDashboardLayout context="url-shortener" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── QR Code Maker branch: dedicated Clay context with its own sidebar.
+  if (onQrCodeMaker) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="qr-code-maker" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── Telegram branch: Clay chrome for Bot/Business/MTProto flows.
+  if (onTelegram) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="telegram" user={user} plan={plan}>
             {children}
           </ClayDashboardLayout>
         </AdManagerProvider>

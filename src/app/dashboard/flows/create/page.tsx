@@ -431,7 +431,24 @@ function CreateMetaFlowPageContent() {
                             placeholder="https://your.app/api/wachat/flows/endpoint/<PHONE_NUMBER_ID>"
                             className="h-7 flex-1 font-mono text-[11.5px]"
                         />
-                        <span className="text-[10.5px] text-muted-foreground">Required for data_exchange screens</span>
+                        {project?.phoneNumbers?.[0]?.id ? (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-7 px-2 text-[11px]"
+                                disabled={disableEdits || !isDraft}
+                                onClick={() => {
+                                    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                                    const phoneId = project.phoneNumbers[0].id;
+                                    setEndpointUri(`${origin}/api/wachat/flows/endpoint/${phoneId}`);
+                                }}
+                                title="Fill with this project's first phone number endpoint"
+                            >
+                                Auto-fill
+                            </Button>
+                        ) : null}
+                        <span className="text-[10.5px] text-muted-foreground">For data_exchange screens</span>
                     </div>
 
                     <ValidationBanner errors={validation} />

@@ -152,7 +152,16 @@ export type ClayLayoutPlan = {
   credits?: number;
 };
 
-export type ClayLayoutContext = 'sabnode' | 'wachat' | 'meta-suite' | 'instagram' | 'ad-manager' | 'sabflow';
+export type ClayLayoutContext =
+  | 'sabnode'
+  | 'wachat'
+  | 'meta-suite'
+  | 'instagram'
+  | 'ad-manager'
+  | 'sabflow'
+  | 'telegram'
+  | 'url-shortener'
+  | 'qr-code-maker';
 
 export interface ClayDashboardLayoutProps {
   user?: ClayLayoutUser;
@@ -755,6 +764,98 @@ const sabflowManage: NavEntry[] = [
   },
 ];
 
+/* ═══════════════════════════════════════════════════════════════════
+ *  URL Shortener nav registry — loaded when context="url-shortener".
+ * ══════════════════════════════════════════════════════════════════ */
+
+const urlShortenerPrimary: NavEntry[] = [
+  {
+    key: 'us-links',
+    label: 'All Links',
+    icon: <LuLink className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/url-shortener',
+    matches: ['/dashboard/url-shortener'],
+  },
+];
+
+const urlShortenerManage: NavEntry[] = [
+  {
+    key: 'us-domains',
+    label: 'Custom Domains',
+    icon: <LuGlobe className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/url-shortener/settings',
+    matches: ['/dashboard/url-shortener/settings'],
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  QR Code Maker nav registry — loaded when context="qr-code-maker".
+ * ══════════════════════════════════════════════════════════════════ */
+
+const qrCodeMakerPrimary: NavEntry[] = [
+  {
+    key: 'qr-generator',
+    label: 'Generator',
+    icon: <LuQrCode className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/qr-code-maker',
+    matches: ['/dashboard/qr-code-maker'],
+  },
+];
+
+const qrCodeMakerManage: NavEntry[] = [
+  {
+    key: 'qr-tags',
+    label: 'Tags',
+    icon: <LuTag className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/qr-code-maker/settings',
+    matches: ['/dashboard/qr-code-maker/settings'],
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Telegram nav registry — loaded when context="telegram".
+ *  Dedicated module for Telegram Bot API, Business API, Mini Apps,
+ *  Channels, Stars payments, and MTProto-backed flows.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const tgPrimary: NavEntry[] = [
+  { key: 'tg-dashboard', label: 'Dashboard', icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram', matches: ['/dashboard/telegram'] },
+  { key: 'tg-connections', label: 'Connections', icon: <LuPuzzle className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/connections', matches: ['/dashboard/telegram/connections'] },
+];
+
+const tgMessaging: NavEntry[] = [
+  { key: 'tg-chat', label: 'Live Chat', icon: <LuMessageCircle className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/chat', matches: ['/dashboard/telegram/chat'] },
+  { key: 'tg-contacts', label: 'Contacts', icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/contacts', matches: ['/dashboard/telegram/contacts'] },
+  { key: 'tg-broadcasts', label: 'Broadcasts', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/broadcasts', matches: ['/dashboard/telegram/broadcasts'] },
+  { key: 'tg-inbox', label: 'Business Inbox', icon: <LuInbox className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/business-inbox', matches: ['/dashboard/telegram/business-inbox'] },
+];
+
+const tgAutomate: NavEntry[] = [
+  { key: 'tg-bots', label: 'Bots', icon: <LuBot className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/bots', matches: ['/dashboard/telegram/bots'] },
+  { key: 'tg-commands', label: 'Commands', icon: <LuHash className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/commands', matches: ['/dashboard/telegram/commands'] },
+  { key: 'tg-auto-reply', label: 'Auto Reply', icon: <LuReply className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/auto-reply', matches: ['/dashboard/telegram/auto-reply'] },
+  { key: 'tg-flows', label: 'Flows', icon: <LuWorkflow className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/flows', matches: ['/dashboard/telegram/flows'] },
+];
+
+const tgContent: NavEntry[] = [
+  { key: 'tg-channels', label: 'Channels', icon: <LuRadio className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/channels', matches: ['/dashboard/telegram/channels'] },
+  { key: 'tg-stories', label: 'Stories', icon: <LuEye className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/stories', matches: ['/dashboard/telegram/stories'] },
+  { key: 'tg-stickers', label: 'Stickers & Emoji', icon: <LuImage className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/stickers', matches: ['/dashboard/telegram/stickers'] },
+];
+
+const tgGrow: NavEntry[] = [
+  { key: 'tg-mini-apps', label: 'Mini Apps', icon: <LuPackage className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/mini-apps', matches: ['/dashboard/telegram/mini-apps'] },
+  { key: 'tg-payments', label: 'Payments & Stars', icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/payments', matches: ['/dashboard/telegram/payments'] },
+  { key: 'tg-ads', label: 'Ads', icon: <LuMegaphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/ads', matches: ['/dashboard/telegram/ads'] },
+  { key: 'tg-analytics', label: 'Analytics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/analytics', matches: ['/dashboard/telegram/analytics'] },
+];
+
+const tgConfigure: NavEntry[] = [
+  { key: 'tg-webhooks', label: 'Webhooks', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/webhooks', matches: ['/dashboard/telegram/webhooks'] },
+  { key: 'tg-api-keys', label: 'API Credentials', icon: <LuServerCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/api-credentials', matches: ['/dashboard/telegram/api-credentials'] },
+  { key: 'tg-settings', label: 'Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/telegram/settings', matches: ['/dashboard/telegram/settings'] },
+];
+
 /**
  * Routes that should render without the Clay wachat container (no
  * padding, no max-width cap, no `overflow-y-auto` on main). Pages
@@ -769,6 +870,8 @@ const sabflowManage: NavEntry[] = [
  */
 const FULL_BLEED_PREFIXES = [
   '/dashboard/chat',
+  '/dashboard/telegram/chat',
+  '/dashboard/telegram/business-inbox',
 ];
 
 function isFullBleed(pathname: string | null): boolean {
@@ -800,13 +903,22 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
             ? [wachatPrimary, wachatAutomate, wachatGrow, wachatConfigure]
             : context === 'sabflow'
               ? [sabflowPrimary, sabflowManage]
-              : [primaryNav, appsNav];
+              : context === 'telegram'
+                ? [tgPrimary, tgMessaging, tgAutomate, tgContent, tgGrow, tgConfigure]
+                : context === 'url-shortener'
+                  ? [urlShortenerPrimary, urlShortenerManage]
+                  : context === 'qr-code-maker'
+                    ? [qrCodeMakerPrimary, qrCodeMakerManage]
+                    : [primaryNav, appsNav];
   let bestKey =
     context === 'ad-manager' ? 'adm-overview' :
     context === 'instagram' ? 'ig-dashboard' :
     context === 'meta-suite' ? 'ms-dashboard' :
     context === 'wachat' ? 'wachat-chat' :
-    context === 'sabflow' ? 'sf-flow-builder' : 'home';
+    context === 'sabflow' ? 'sf-flow-builder' :
+    context === 'telegram' ? 'tg-dashboard' :
+    context === 'url-shortener' ? 'us-links' :
+    context === 'qr-code-maker' ? 'qr-generator' : 'home';
   let bestLen = 0;
   for (const group of registry) {
     for (const item of group) {
@@ -1117,7 +1229,10 @@ export function ClayDashboardLayout({
             context === 'instagram' ? 'Instagram' :
             context === 'meta-suite' ? 'Meta Suite' :
             context === 'wachat' ? 'Wachat' :
-            context === 'sabflow' ? 'SabFlow' : 'SabNode'
+            context === 'sabflow' ? 'SabFlow' :
+            context === 'telegram' ? 'Telegram' :
+            context === 'url-shortener' ? 'URL Shortener' :
+            context === 'qr-code-maker' ? 'QR Code Maker' : 'SabNode'
           }
           brand={
             context === 'ad-manager' ? <ClayAdManagerBrand /> :
@@ -1125,6 +1240,9 @@ export function ClayDashboardLayout({
             context === 'meta-suite' ? <ClayMetaBrand /> :
             context === 'wachat' ? <ClayWachatBrand /> :
             context === 'sabflow' ? <ClaySabFlowBrand /> :
+            context === 'telegram' ? <ClayTelegramBrand /> :
+            context === 'url-shortener' ? <ClayUrlShortenerBrand /> :
+            context === 'qr-code-maker' ? <ClayQrCodeMakerBrand /> :
             undefined
           }
           groups={
@@ -1182,6 +1300,30 @@ export function ClayDashboardLayout({
                       items: sabflowManage.map(toNavItem),
                     },
                   ]
+                : context === 'telegram'
+                ? [
+                    { items: tgPrimary.map(toNavItem) },
+                    { title: 'Messaging', addable: false, items: tgMessaging.map(toNavItem) },
+                    { title: 'Automate', addable: false, items: tgAutomate.map(toNavItem) },
+                    { title: 'Content', addable: false, items: tgContent.map(toNavItem) },
+                    { title: 'Grow', addable: false, items: tgGrow.map(toNavItem) },
+                    {
+                      title: 'Configure',
+                      addable: true,
+                      onAdd: () => router.push('/dashboard/telegram/connections'),
+                      items: tgConfigure.map(toNavItem),
+                    },
+                  ]
+                : context === 'url-shortener'
+                ? [
+                    { items: urlShortenerPrimary.map(toNavItem) },
+                    { title: 'Manage', addable: false, items: urlShortenerManage.map(toNavItem) },
+                  ]
+                : context === 'qr-code-maker'
+                ? [
+                    { items: qrCodeMakerPrimary.map(toNavItem) },
+                    { title: 'Manage', addable: false, items: qrCodeMakerManage.map(toNavItem) },
+                  ]
                 : [
                     { items: primaryNav.map(toNavItem) },
                     {
@@ -1214,7 +1356,7 @@ export function ClayDashboardLayout({
             // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow') && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -1222,7 +1364,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow') ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
@@ -1492,6 +1634,37 @@ function ClaySabFlowBrand() {
   );
 }
 
+/* ── Telegram sidebar brand ───────────────────────────────────── */
+
+function ClayTelegramBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #37BBFE 0%, #007DBB 100%)' }}
+        >
+          <LuSend className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">Telegram</p>
+          <p className="text-[11px] text-clay-ink-muted">Bots, Channels & Business</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Meta Suite sidebar brand ─────────────────────────────────── */
 
 function ClayMetaBrand() {
@@ -1517,6 +1690,68 @@ function ClayMetaBrand() {
         <div className="min-w-0">
           <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">Meta Suite</p>
           <p className="text-[11px] text-clay-ink-muted">Facebook & Instagram</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── URL Shortener sidebar brand ─────────────────────────────── */
+
+function ClayUrlShortenerBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #34D399 0%, #059669 100%)' }}
+        >
+          <LuLink className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">URL Shortener</p>
+          <p className="text-[11px] text-clay-ink-muted">Trackable short links</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── QR Code Maker sidebar brand ─────────────────────────────── */
+
+function ClayQrCodeMakerBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #FBBF24 0%, #D97706 100%)' }}
+        >
+          <LuQrCode className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">QR Code Maker</p>
+          <p className="text-[11px] text-clay-ink-muted">Customizable QR codes</p>
         </div>
       </div>
     </div>

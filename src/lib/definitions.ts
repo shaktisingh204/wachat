@@ -3162,3 +3162,328 @@ export type ActivityLog = {
         avatar?: string;
     };
 };
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Telegram module types
+ *  Collections: telegram_bots, telegram_chats, telegram_contacts,
+ *               telegram_messages, telegram_updates, telegram_broadcasts
+ * ══════════════════════════════════════════════════════════════════ */
+
+export type TelegramBot = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    userId: ObjectId;
+    /** Numeric bot id (prefix of the token before the colon). */
+    botId: number;
+    username: string;
+    name: string;
+    /** BotFather token — stored in plaintext to match existing `accessToken` convention. */
+    token: string;
+    /** Random opaque secret sent in `setWebhook(secret_token=...)` and verified in the webhook header. */
+    webhookSecret: string;
+    webhookUrl?: string;
+    webhookRegisteredAt?: Date;
+    /** Last result of getWebhookInfo. */
+    webhookInfo?: {
+        url?: string;
+        pendingUpdateCount?: number;
+        lastErrorMessage?: string;
+        lastErrorDate?: Date;
+    };
+    canJoinGroups?: boolean;
+    canReadAllGroupMessages?: boolean;
+    supportsInlineQueries?: boolean;
+    isActive: boolean;
+    commands?: Array<{ command: string; description: string }>;
+    /** Public profile fields editable via setMyName / setMyDescription. */
+    description?: string;
+    shortDescription?: string;
+    /** Menu button config shown on the bot chat. */
+    menuButton?:
+        | { type: 'default' }
+        | { type: 'commands' }
+        | { type: 'web_app'; text: string; url: string };
+    /** Mini app URL for the menu button / inline shortcut. */
+    miniAppUrl?: string;
+    /** Optional payments provider token configured by user (e.g. Stripe, Smart Glocal). */
+    paymentProviderToken?: string;
+    /** Business-connections map, keyed by connection id; populated by webhook. */
+    businessConnections?: Record<string, {
+        id: string;
+        userChatId: number;
+        canReply: boolean;
+        isEnabled: boolean;
+        updatedAt: Date;
+    }>;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TelegramChat = {
+    _id: ObjectId;
+    botId: ObjectId;
+    projectId: ObjectId;
+    /** Telegram chat id (stored as string because values can exceed 2^53). */
+    chatId: string;
+    type: 'private' | 'group' | 'supergroup' | 'channel';
+    title?: string;
+    username?: string;
+    firstName?: string;
+    lastName?: string;
+    languageCode?: string;
+    isBot?: boolean;
+    isBusiness?: boolean;
+    /** When messages come via a Business connection the id is carried on every message. */
+    businessConnectionId?: string;
+    lastMessageId?: number;
+    lastMessageAt?: Date;
+    lastMessagePreview?: string;
+    unreadCount: number;
+    tags?: string[];
+    isOptedOut?: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TelegramMessage = {
+    _id: ObjectId;
+    botId: ObjectId;
+    projectId: ObjectId;
+    chatId: string;
+    /** Telegram message_id for this chat. */
+    messageId: number;
+    /** Inbound = user → bot, outbound = bot → user. */
+    direction: 'inbound' | 'outbound';
+    type:
+        | 'text'
+        | 'photo'
+        | 'video'
+        | 'audio'
+        | 'voice'
+        | 'document'
+        | 'sticker'
+        | 'animation'
+        | 'location'
+        | 'contact'
+        | 'poll'
+        | 'invoice'
+        | 'service'
+        | 'other';
+    text?: string;
+    caption?: string;
+    /** Raw Telegram payload for the message or update. */
+    raw?: any;
+    fromUserId?: string;
+    fromUsername?: string;
+    replyToMessageId?: number;
+    businessConnectionId?: string;
+    status: 'queued' | 'sent' | 'delivered' | 'failed';
+    errorMessage?: string;
+    createdAt: Date;
+};
+
+export type TelegramUpdate = {
+    _id: ObjectId;
+    botId?: ObjectId;
+    projectId?: ObjectId;
+    /** Telegram update_id — unique per bot. Use for idempotency. */
+    updateId: number;
+    payload: any;
+    processed: boolean;
+    error?: string;
+    createdAt: Date;
+};
+
+export type TelegramBroadcast = {
+    _id: ObjectId;
+    botId: ObjectId;
+    projectId: ObjectId;
+    userId: ObjectId;
+    name: string;
+    audience: {
+        /** 'all' = every non-opted-out contact. 'tag' = contacts with a given tag. 'channel' = post to a single channel. */
+        kind: 'all' | 'tag' | 'channel';
+        tag?: string;
+        channelChatId?: string;
+    };
+    message: {
+        type: 'text' | 'photo' | 'video' | 'document';
+        text?: string;
+        mediaUrl?: string;
+        caption?: string;
+        parseMode?: 'HTML' | 'MarkdownV2';
+        disableNotification?: boolean;
+        buttons?: Array<{ text: string; url?: string; callbackData?: string }>;
+    };
+    status: 'DRAFT' | 'QUEUED' | 'SENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | string;
+    stats: {
+        total: number;
+        sent: number;
+        failed: number;
+    };
+    scheduledAt?: Date;
+    startedAt?: Date;
+    finishedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Telegram extension types
+ *  Collections: telegram_auto_replies, telegram_channels,
+ *               telegram_quick_replies, telegram_settings,
+ *               telegram_invoices, telegram_sticker_sets,
+ *               telegram_api_credentials
+ * ══════════════════════════════════════════════════════════════════ */
+
+export type TelegramAutoReplyRule = {
+    _id: ObjectId;
+    botId: ObjectId;
+    projectId: ObjectId;
+    name: string;
+    /** Rule kind: greeting sent on first contact, away used outside hours, keyword fires on match, command on /slash. */
+    trigger: 'keyword' | 'greeting' | 'away' | 'command' | 'regex';
+    /** Keywords / regex pattern / command name depending on trigger type. */
+    pattern?: string;
+    /** Whether keyword match is case sensitive. */
+    caseSensitive?: boolean;
+    /** Whether the whole message must match vs contains. */
+    matchMode?: 'contains' | 'exact' | 'starts_with';
+    response: {
+        type: 'text' | 'photo' | 'video' | 'document' | 'sticker';
+        text?: string;
+        mediaUrl?: string;
+        caption?: string;
+        parseMode?: 'HTML' | 'MarkdownV2';
+        buttons?: Array<{ text: string; url?: string; callbackData?: string }>;
+    };
+    /** Optional link to a SabFlow flow to execute on trigger. */
+    flowId?: ObjectId;
+    /** Whether this rule only applies inside business-hours settings. */
+    insideBusinessHoursOnly?: boolean;
+    isActive: boolean;
+    priority: number;
+    hits: number;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TelegramChannel = {
+    _id: ObjectId;
+    botId: ObjectId;
+    projectId: ObjectId;
+    /** Telegram chat id of the channel (stored as string). */
+    chatId: string;
+    username?: string;
+    title: string;
+    description?: string;
+    memberCount?: number;
+    /** Whether the bot has admin rights & can post. */
+    canPost?: boolean;
+    lastSyncedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TelegramQuickReply = {
+    _id: ObjectId;
+    botId: ObjectId;
+    projectId: ObjectId;
+    userId: ObjectId;
+    /** Short shortcut, e.g. `/welcome`. */
+    shortcut: string;
+    text: string;
+    parseMode?: 'HTML' | 'MarkdownV2';
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TelegramSettings = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    defaultBotId?: ObjectId;
+    /** Business-hour schedule (24h, weekday 0=Sunday). Messages outside hours trigger the away rule. */
+    businessHours?: {
+        enabled: boolean;
+        timezone: string;
+        days: Array<{ day: number; open: string; close: string }>;
+    };
+    /** Default signature appended to outbound agent messages. */
+    agentSignature?: string;
+    /** Payment provider token used as a workspace-wide default for invoices. */
+    paymentProviderToken?: string;
+    /** Preferred currency for invoices. */
+    paymentCurrency?: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TelegramInvoice = {
+    _id: ObjectId;
+    botId: ObjectId;
+    projectId: ObjectId;
+    chatId?: string;
+    /** Payload string sent to Telegram; we use the invoice _id as the stable identifier. */
+    payload: string;
+    title: string;
+    description: string;
+    currency: string;
+    /** Total amount in the smallest currency unit (e.g. cents, stars). */
+    totalAmount: number;
+    prices: Array<{ label: string; amount: number }>;
+    /** Link produced by createInvoiceLink, if applicable. */
+    invoiceLink?: string;
+    status: 'CREATED' | 'SENT' | 'PAID' | 'REFUNDED' | 'FAILED' | 'CANCELLED';
+    /** Telegram payment identifiers once the user completes checkout. */
+    telegramPaymentChargeId?: string;
+    providerPaymentChargeId?: string;
+    paidAt?: Date;
+    refundedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TelegramStickerSet = {
+    _id: ObjectId;
+    botId: ObjectId;
+    projectId: ObjectId;
+    userId: ObjectId;
+    /** Telegram sticker set name (must end with `_by_<botusername>`). */
+    name: string;
+    title: string;
+    stickerType: 'regular' | 'mask' | 'custom_emoji';
+    stickerCount: number;
+    lastSyncedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TelegramApiCredentials = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    userId: ObjectId;
+    /** MTProto app credentials from https://my.telegram.org. Stored for userbot / Gram.js features. */
+    apiId?: number;
+    apiHash?: string;
+    /** Custom Bot API server URL (if running local-bot-api). */
+    botApiServer?: string;
+    /** Optional encrypted session string for Gram.js userbot. */
+    sessionString?: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type TelegramScheduledPost = {
+    _id: ObjectId;
+    botId: ObjectId;
+    projectId: ObjectId;
+    userId: ObjectId;
+    channelId: ObjectId;
+    message: TelegramBroadcast['message'];
+    scheduledAt: Date;
+    status: 'QUEUED' | 'SENT' | 'FAILED' | 'CANCELLED';
+    sentMessageId?: number;
+    error?: string;
+    createdAt: Date;
+    updatedAt: Date;
+};

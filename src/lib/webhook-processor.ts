@@ -1390,9 +1390,30 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
             lastMessageText = `[Contact: ${message.contacts?.[0]?.name?.formatted_name || 'Shared'}]`;
             break;
         case 'interactive':
-            lastMessageText = message.interactive?.button_reply?.title
-                || message.interactive?.list_reply?.title
-                || message.interactive?.nfm_reply?.body || '[Interactive Reply]';
+            if (message.interactive?.type === 'nfm_reply' || message.interactive?.nfm_reply) {
+                // Flow submission — Meta stringifies the form payload in
+                // response_json. Parse it so the inbox shows the actual
+                // fields the user filled, not just "Sent".
+                const nfm = message.interactive.nfm_reply ?? {};
+                let parsed: any = null;
+                try { parsed = typeof nfm.response_json === 'string' ? JSON.parse(nfm.response_json) : nfm.response_json; } catch { /* keep raw */ }
+                message.interactive.nfm_reply.parsed_response = parsed ?? null;
+
+                if (parsed && typeof parsed === 'object') {
+                    const fields = Object.entries(parsed)
+                        .filter(([k]) => k !== 'flow_token')
+                        .map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`)
+                        .slice(0, 3)
+                        .join(' · ');
+                    lastMessageText = fields ? `[Flow reply] ${fields}` : '[Flow reply]';
+                } else {
+                    lastMessageText = nfm.body || '[Flow reply]';
+                }
+            } else {
+                lastMessageText = message.interactive?.button_reply?.title
+                    || message.interactive?.list_reply?.title
+                    || '[Interactive Reply]';
+            }
             break;
         case 'button':
             lastMessageText = message.button?.text || '[Button Reply]';
