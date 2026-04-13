@@ -5,7 +5,7 @@ import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { savePurchaseOrder } from '@/app/actions/crm-purchase-orders.actions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,10 +21,14 @@ const initialState = { message: '', error: '' };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             Save Purchase Order
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -83,14 +87,14 @@ export function NewPurchaseOrderForm() {
             <input type="hidden" name="lineItems" value={JSON.stringify(lineItems)} />
 
             <div className="grid gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Order Details</CardTitle>
-                        <CardDescription>Basic information about the purchase order.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid md:grid-cols-2 gap-4">
+                <ClayCard>
+                    <div className="mb-4">
+                        <h2 className="text-[15px] font-semibold text-clay-ink">Order Details</h2>
+                        <p className="text-[12.5px] text-clay-ink-muted mt-1">Basic information about the purchase order.</p>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Vendor</Label>
+                            <Label className="text-clay-ink">Vendor</Label>
                             <SmartVendorSelect
                                 value={vendorId}
                                 onSelect={setVendorId}
@@ -100,7 +104,7 @@ export function NewPurchaseOrderForm() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Currency</Label>
+                            <Label className="text-clay-ink">Currency</Label>
                             <Select name="currency" defaultValue="INR">
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -111,29 +115,29 @@ export function NewPurchaseOrderForm() {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label>Order Date</Label>
+                            <Label className="text-clay-ink">Order Date</Label>
                             <DatePicker date={orderDate} setDate={setOrderDate} />
                             <input type="hidden" name="orderDate" value={orderDate?.toISOString()} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Expected Delivery</Label>
+                            <Label className="text-clay-ink">Expected Delivery</Label>
                             <DatePicker date={deliveryDate} setDate={setDeliveryDate} />
                             <input type="hidden" name="expectedDeliveryDate" value={deliveryDate?.toISOString()} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Payment Terms</Label>
+                            <Label className="text-clay-ink">Payment Terms</Label>
                             <Input name="paymentTerms" placeholder="e.g. Net 30" />
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </ClayCard>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Items</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="border rounded-md overflow-hidden">
-                            <div className="grid grid-cols-12 gap-2 bg-muted p-3 text-sm font-medium">
+                <ClayCard>
+                    <div className="mb-4">
+                        <h2 className="text-[15px] font-semibold text-clay-ink">Items</h2>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                            <div className="grid grid-cols-12 gap-2 bg-clay-surface-2 p-3 text-sm font-medium text-clay-ink">
                                 <div className="col-span-5">Description</div>
                                 <div className="col-span-2 text-right">Qty</div>
                                 <div className="col-span-2 text-right">Rate</div>
@@ -141,7 +145,7 @@ export function NewPurchaseOrderForm() {
                                 <div className="col-span-1"></div>
                             </div>
                             {lineItems.map((item, index) => (
-                                <div key={index} className="grid grid-cols-12 gap-2 p-3 border-t items-center">
+                                <div key={index} className="grid grid-cols-12 gap-2 p-3 border-t border-clay-border items-center">
                                     <div className="col-span-5">
                                         <div className="col-span-5">
                                             <SmartProductSelect
@@ -186,33 +190,31 @@ export function NewPurchaseOrderForm() {
                                 </div>
                             ))}
                         </div>
-                        <Button type="button" variant="outline" size="sm" onClick={addLineItem}>
-                            <Plus className="mr-2 h-4 w-4" /> Add Item
-                        </Button>
+                        <ClayButton type="button" variant="pill" size="sm" onClick={addLineItem} leading={<Plus className="h-4 w-4" />}>
+                            Add Item
+                        </ClayButton>
 
                         <div className="flex justify-end pt-4">
                             <div className="w-64 space-y-2">
-                                <div className="flex justify-between font-bold text-lg">
+                                <div className="flex justify-between font-bold text-lg text-clay-ink">
                                     <span>Total</span>
                                     <span>{calculateTotal().toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </ClayCard>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Additional Notes</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Textarea name="notes" placeholder="Any shipping instructions or terms..." />
-                    </CardContent>
-                    <CardFooter className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
+                <ClayCard>
+                    <div className="mb-4">
+                        <h2 className="text-[15px] font-semibold text-clay-ink">Additional Notes</h2>
+                    </div>
+                    <Textarea name="notes" placeholder="Any shipping instructions or terms..." />
+                    <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-clay-border">
+                        <ClayButton type="button" variant="pill" onClick={() => router.back()}>Cancel</ClayButton>
                         <SubmitButton />
-                    </CardFooter>
-                </Card>
+                    </div>
+                </ClayCard>
             </div>
         </form>
     );

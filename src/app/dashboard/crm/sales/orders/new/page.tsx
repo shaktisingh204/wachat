@@ -4,7 +4,7 @@
 import { useState, useEffect, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -26,10 +26,14 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             Save Order
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -50,20 +54,20 @@ const LineItemsTable = ({ items, setItems, currency }: { items: SalesOrderLineIt
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
                 <table className="w-full text-sm">
-                    <thead className="bg-muted">
-                        <tr className="border-b">
-                            <th className="p-3 text-left font-medium">Item</th>
-                            <th className="p-3 text-right font-medium">Quantity</th>
-                            <th className="p-3 text-right font-medium">Rate</th>
-                            <th className="p-3 text-right font-medium">Amount</th>
+                    <thead className="bg-clay-surface-2">
+                        <tr className="border-b border-clay-border">
+                            <th className="p-3 text-left font-medium text-clay-ink">Item</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Quantity</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Rate</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Amount</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item, index) => (
-                            <tr key={item.id} className="border-b">
+                            <tr key={item.id} className="border-b border-clay-border">
                                 <td className="p-2">
                                     <SmartProductSelect
                                         value={item.id.startsWith('item-') && !item.name ? '' : undefined}
@@ -86,12 +90,12 @@ const LineItemsTable = ({ items, setItems, currency }: { items: SalesOrderLineIt
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</Button>
+                <ClayButton type="button" variant="pill" size="sm" onClick={handleAddItem} leading={<PlusCircle className="h-4 w-4" />}>Add New Line</ClayButton>
             </div>
             <Separator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total ({currency})</span><span className="font-bold text-lg">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-clay-ink-muted">Total ({currency})</span><span className="font-bold text-lg text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
                 </div>
             </div>
         </div>
@@ -138,26 +142,26 @@ export default function NewSalesOrderPage() {
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
                     <header className="flex justify-between items-center mb-6">
                         <div>
-                            <Link href="/dashboard/crm/sales/orders" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
-                                <ArrowLeft className="h-4 w-4" />Back to Sales Orders
+                            <Link href="/dashboard/crm/sales/orders">
+                                <ClayButton variant="pill" size="sm" leading={<ArrowLeft className="h-4 w-4" />}>Back to Sales Orders</ClayButton>
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" type="button">Save As Draft</Button>
+                            <ClayButton variant="pill" type="button">Save As Draft</ClayButton>
                             <SaveButton />
                         </div>
                     </header>
-                    <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
-                        <CardContent className="p-0">
+                    <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                        <div className="p-0">
                             <header className="mb-8">
-                                <h1 className="text-3xl font-bold text-primary">Sales Order</h1>
+                                <h1 className="text-3xl font-bold text-clay-ink">Sales Order</h1>
                             </header>
 
                             <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2">Customer Details:</h3>
+                                    <h3 className="font-semibold mb-2 text-clay-ink">Customer Details:</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -170,17 +174,17 @@ export default function NewSalesOrderPage() {
                                         }}
                                     />
                                     {selectedClient && (
-                                        <div className="mt-2 text-muted-foreground">
+                                        <div className="mt-2 text-clay-ink-muted">
                                             <p>{selectedClient.phone}</p>
                                         </div>
                                     )}
                                 </div>
                                 <div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1"><Label htmlFor="orderNumber">Order #</Label><Input id="orderNumber" name="orderNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
-                                        <div className="space-y-1"><Label className="text-xs">Order Date *</Label><DatePicker date={orderDate} setDate={setOrderDate} /></div>
+                                        <div className="space-y-1"><Label htmlFor="orderNumber" className="text-clay-ink">Order #</Label><Input id="orderNumber" name="orderNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
+                                        <div className="space-y-1"><Label className="text-xs text-clay-ink">Order Date *</Label><DatePicker date={orderDate} setDate={setOrderDate} /></div>
                                     </div>
-                                    <div className="mt-2 space-y-1"><Label className="text-xs">Expected Delivery Date</Label><DatePicker date={deliveryDate} setDate={setDeliveryDate} /></div>
+                                    <div className="mt-2 space-y-1"><Label className="text-xs text-clay-ink">Expected Delivery Date</Label><DatePicker date={deliveryDate} setDate={setDeliveryDate} /></div>
                                 </div>
                             </section>
 
@@ -192,16 +196,16 @@ export default function NewSalesOrderPage() {
 
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-4">
-                                    <div className="space-y-2"><Label className="font-semibold">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." maxLength={500} /></div>
-                                    <div className="space-y-2"><Label className="font-semibold">Shipping Details</Label><Textarea name="shippingDetails" placeholder="e.g. Shipping method, tracking information..." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold text-clay-ink">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold text-clay-ink">Shipping Details</Label><Textarea name="shippingDetails" placeholder="e.g. Shipping method, tracking information..." maxLength={500} /></div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="font-semibold">Notes</Label>
+                                    <Label className="font-semibold text-clay-ink">Notes</Label>
                                     <Textarea placeholder="Any special instructions for this order..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} />
                                 </div>
                             </section>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </ClayCard>
                 </div>
             </div>
         </form>

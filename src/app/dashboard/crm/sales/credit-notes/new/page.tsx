@@ -4,8 +4,8 @@
 import { useState, useEffect, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -33,10 +33,20 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={
+                pending ? (
+                    <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+                ) : (
+                    <Save className="h-4 w-4" strokeWidth={1.75} />
+                )
+            }
+        >
             Save Credit Note
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -137,14 +147,14 @@ export default function NewCreditNotePage() {
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" type="button">Save As Draft</Button>
+                            <ClayButton variant="pill" type="button">Save As Draft</ClayButton>
                             <SaveButton />
                         </div>
                     </header>
-                    <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
-                        <CardContent className="p-0">
+                    <ClayCard variant="floating" padded={false} className="mx-auto max-w-4xl p-4 sm:p-8 md:p-12">
+                        <div>
                             <header className="mb-8">
-                                <h1 className="text-3xl font-bold text-primary">Credit Note</h1>
+                                <h1 className="text-[28px] font-semibold tracking-tight text-clay-ink">Credit Note</h1>
                             </header>
 
                             <Separator className="my-8" />
@@ -186,8 +196,8 @@ export default function NewCreditNotePage() {
                                 <LineItemsTable items={lineItems} setItems={setLineItems} currency="INR" />
                             </section>
 
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </ClayCard>
                 </div>
             </div>
         </form>

@@ -4,10 +4,9 @@
 import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCrmEmployee } from '@/app/actions/index.ts';
@@ -21,10 +20,15 @@ const initialState: { message?: string; error?: string } = { message: undefined,
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending} size="lg">
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            disabled={pending}
+            size="lg"
+            variant="obsidian"
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             {isEditing ? 'Save Changes' : 'Add Employee'}
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -80,8 +84,8 @@ export function EmployeeForm({ employee, departments, designations, managers }: 
             <input type="hidden" name="departmentId" value={departmentId} />
             <input type="hidden" name="designationId" value={designationId} />
 
-            <Card>
-                <CardContent className="p-6">
+            <ClayCard padded={false}>
+                <div className="p-6">
                     <Accordion type="multiple" defaultValue={['personal', 'job']} className="w-full">
                         <AccordionItem value="personal">
                             <AccordionTrigger>Personal Information</AccordionTrigger>
@@ -164,11 +168,11 @@ export function EmployeeForm({ employee, departments, designations, managers }: 
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
-                </CardContent>
-                <CardFooter>
+                </div>
+                <div className="p-6 pt-0 border-t border-clay-border flex">
                     <SubmitButton isEditing={isEditing} />
-                </CardFooter>
-            </Card>
+                </div>
+            </ClayCard>
         </form>
     );
 }

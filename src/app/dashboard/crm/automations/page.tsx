@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { ClayCard, ClayButton } from '@/components/clay';
 import {
     GitFork,
     Play,
@@ -64,24 +64,31 @@ function NodeComponent({ node, onSelect, isSelected }: { node: CrmAutomationNode
     const BlockIcon = [...blockTypes, { type: 'triggerTagAdded', label: 'Trigger', icon: Play }].find(b => b.type === node.type)?.icon || Play;
     
     return (
-        <Card 
-            onClick={onSelect} 
+        <ClayCard
+            onClick={onSelect}
+            padded={false}
             className={cn(
-                "w-80 cursor-pointer hover:shadow-lg transition-shadow",
-                isSelected && 'ring-2 ring-primary'
+                'w-80 cursor-pointer transition-shadow hover:shadow-clay-float',
+                isSelected && 'ring-2 ring-clay-rose',
             )}
         >
-            <CardHeader className="flex flex-row items-center gap-4 p-4">
-                <div className="p-2 bg-muted rounded-md">
-                    <BlockIcon className="h-5 w-5 text-muted-foreground" />
+            <div className="flex flex-row items-center gap-4 p-4">
+                <div className="rounded-clay-md bg-clay-surface-2 p-2">
+                    <BlockIcon className="h-5 w-5 text-clay-ink-muted" />
                 </div>
                 <div>
-                    <CardTitle className="text-base">{node.data.label}</CardTitle>
-                    {node.type === 'triggerTagAdded' && node.data.tagName && <CardDescription>Tag: {node.data.tagName}</CardDescription>}
-                    {node.type === 'delay' && <CardDescription>Wait for {node.data.delayValue || 1} {node.data.delayUnit || 'days'}</CardDescription>}
+                    <p className="text-[14px] font-semibold text-clay-ink">{node.data.label}</p>
+                    {node.type === 'triggerTagAdded' && node.data.tagName && (
+                        <p className="text-[12px] text-clay-ink-muted">Tag: {node.data.tagName}</p>
+                    )}
+                    {node.type === 'delay' && (
+                        <p className="text-[12px] text-clay-ink-muted">
+                            Wait for {node.data.delayValue || 1} {node.data.delayUnit || 'days'}
+                        </p>
+                    )}
                 </div>
-            </CardHeader>
-        </Card>
+            </div>
+        </ClayCard>
     );
 }
 
@@ -318,23 +325,35 @@ export default function CrmAutomationsPage() {
                         )}
                     </aside>
                  </main>
-                  <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">
-                    <CardContent className="p-2">
+                  <ClayCard
+                    variant="floating"
+                    padded={false}
+                    className="absolute bottom-4 left-1/2 z-10 w-full max-w-lg -translate-x-1/2"
+                  >
+                    <div className="p-2">
                         <div className="flex items-center gap-2">
-                            <Wand2 className="h-5 w-5 text-muted-foreground shrink-0" />
-                            <Input 
-                                placeholder="Describe your workflow and let AI build it..." 
-                                className="border-none shadow-none focus-visible:ring-0" 
+                            <Wand2 className="h-5 w-5 shrink-0 text-clay-ink-muted" />
+                            <Input
+                                placeholder="Describe your workflow and let AI build it..."
+                                className="border-none shadow-none focus-visible:ring-0"
                                 value={prompt}
                                 onChange={e => setPrompt(e.target.value)}
                             />
-                            <Button onClick={handleGenerateClick} disabled={isGenerating || !prompt.trim()}>
-                                {isGenerating && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                            <ClayButton
+                                variant="obsidian"
+                                onClick={handleGenerateClick}
+                                disabled={isGenerating || !prompt.trim()}
+                                leading={
+                                    isGenerating ? (
+                                        <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+                                    ) : null
+                                }
+                            >
                                 Generate
-                            </Button>
+                            </ClayButton>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </ClayCard>
             </div>
         </div>
     );

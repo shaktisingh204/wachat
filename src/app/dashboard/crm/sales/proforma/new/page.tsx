@@ -4,7 +4,7 @@
 import { useState, useEffect, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -32,10 +32,14 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             Save Proforma Invoice
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -56,20 +60,20 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
                 <table className="w-full text-sm">
-                    <thead className="bg-muted">
-                        <tr className="border-b">
-                            <th className="p-3 text-left font-medium">Item</th>
-                            <th className="p-3 text-right font-medium">Quantity</th>
-                            <th className="p-3 text-right font-medium">Rate</th>
-                            <th className="p-3 text-right font-medium">Amount</th>
+                    <thead className="bg-clay-surface-2">
+                        <tr className="border-b border-clay-border">
+                            <th className="p-3 text-left font-medium text-clay-ink">Item</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Quantity</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Rate</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Amount</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item) => (
-                            <tr key={item.id} className="border-b">
+                            <tr key={item.id} className="border-b border-clay-border">
                                 <td className="p-2"><Input placeholder="Name/SKU Id (Required)" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required /></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
@@ -81,12 +85,12 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</Button>
+                <ClayButton type="button" variant="pill" size="sm" onClick={handleAddItem} leading={<PlusCircle className="h-4 w-4" />}>Add New Line</ClayButton>
             </div>
             <Separator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total ({currency})</span><span className="font-bold text-lg">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-clay-ink-muted">Total ({currency})</span><span className="font-bold text-lg text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
                 </div>
             </div>
         </div>
@@ -136,31 +140,31 @@ export default function NewProformaInvoicePage() {
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
                     <header className="flex justify-between items-center mb-6">
                         <div>
-                            <Link href="/dashboard/crm/sales/proforma" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
-                                <ArrowLeft className="h-4 w-4" />Back to Proforma Invoices
+                            <Link href="/dashboard/crm/sales/proforma">
+                                <ClayButton variant="pill" size="sm" leading={<ArrowLeft className="h-4 w-4" />}>Back to Proforma Invoices</ClayButton>
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" type="button">Save As Draft</Button>
+                            <ClayButton variant="pill" type="button">Save As Draft</ClayButton>
                             <SaveButton />
                         </div>
                     </header>
-                    <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
-                        <CardContent className="p-0">
+                    <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                        <div className="p-0">
                             <header className="mb-8">
-                                <h1 className="text-3xl font-bold text-primary">Proforma Invoice</h1>
+                                <h1 className="text-3xl font-bold text-clay-ink">Proforma Invoice</h1>
                             </header>
 
                             <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2">From:</h3>
+                                    <h3 className="font-semibold mb-2 text-clay-ink">From:</h3>
                                     <p className="font-bold">{yourBusinessDetails.name}</p>
-                                    <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
+                                    <p className="text-clay-ink-muted">{yourBusinessDetails.address}</p>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold mb-2">To:</h3>
+                                    <h3 className="font-semibold mb-2 text-clay-ink">To:</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -176,17 +180,17 @@ export default function NewProformaInvoicePage() {
                             </section>
 
                             <section className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs">Proforma No.</Label><Input name="invoiceNumber" defaultValue="PI-00001" className="h-8" /></div>
-                                <div className="space-y-1"><Label className="text-xs">Date</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
-                                <div className="space-y-1"><Label className="text-xs">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Proforma No.</Label><Input name="invoiceNumber" defaultValue="PI-00001" className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Date</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
                             </section>
 
                             <section>
                                 <LineItemsTable items={lineItems} setItems={setLineItems} currency="INR" />
                             </section>
 
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </ClayCard>
                 </div>
             </div>
         </form>

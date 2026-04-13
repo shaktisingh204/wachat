@@ -5,7 +5,7 @@ import { useState, useEffect, useActionState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -33,10 +33,14 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             Save
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -56,20 +60,20 @@ const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[],
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
                 <table className="w-full text-sm">
-                    <thead className="bg-muted">
-                        <tr className="border-b">
-                            <th className="p-3 text-left font-medium">Item Name*</th>
-                            <th className="p-3 text-left font-medium">HSN Code</th>
-                            <th className="p-3 text-right font-medium">Quantity*</th>
-                            <th className="p-3 text-left font-medium">Unit</th>
+                    <thead className="bg-clay-surface-2">
+                        <tr className="border-b border-clay-border">
+                            <th className="p-3 text-left font-medium text-clay-ink">Item Name*</th>
+                            <th className="p-3 text-left font-medium text-clay-ink">HSN Code</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Quantity*</th>
+                            <th className="p-3 text-left font-medium text-clay-ink">Unit</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item, index) => (
-                            <tr key={item.id} className="border-b">
+                            <tr key={item.id} className="border-b border-clay-border">
                                 <td className="p-2"><Input placeholder="Item Name" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
                                 <td className="p-2"><Input placeholder="e.g. 998314" value={item.hsnCode} onChange={e => handleItemChange(item.id, 'hsnCode', e.target.value)} maxLength={20} /></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} required /></td>
@@ -81,7 +85,7 @@ const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[],
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</Button>
+                <ClayButton type="button" variant="pill" size="sm" onClick={handleAddItem} leading={<PlusCircle className="h-4 w-4" />}>Add New Line</ClayButton>
             </div>
         </div>
     );
@@ -123,31 +127,31 @@ export default function NewDeliveryChallanPage() {
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
                     <header className="flex justify-between items-center mb-6">
                         <div>
-                            <Link href="/dashboard/crm/sales/delivery" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
-                                <ArrowLeft className="h-4 w-4" />Back to Delivery Challans
+                            <Link href="/dashboard/crm/sales/delivery">
+                                <ClayButton variant="pill" size="sm" leading={<ArrowLeft className="h-4 w-4" />}>Back to Delivery Challans</ClayButton>
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" type="button">Save As Draft</Button>
+                            <ClayButton variant="pill" type="button">Save As Draft</ClayButton>
                             <SaveButton />
                         </div>
                     </header>
-                    <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
-                        <CardContent className="p-0">
+                    <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                        <div className="p-0">
                             <header className="mb-8">
-                                <h1 className="text-3xl font-bold text-primary">Delivery Challan</h1>
+                                <h1 className="text-3xl font-bold text-clay-ink">Delivery Challan</h1>
                             </header>
 
                             <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2">From (Consignor):</h3>
+                                    <h3 className="font-semibold mb-2 text-clay-ink">From (Consignor):</h3>
                                     <p className="font-bold">{yourBusinessDetails.name}</p>
-                                    <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
+                                    <p className="text-clay-ink-muted">{yourBusinessDetails.address}</p>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold mb-2">To (Consignee):</h3>
+                                    <h3 className="font-semibold mb-2 text-clay-ink">To (Consignee):</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -160,14 +164,14 @@ export default function NewDeliveryChallanPage() {
                                         }}
                                     />
                                     {selectedClient && (
-                                        <p className="text-muted-foreground mt-1">{selectedClient?.phone}</p>
+                                        <p className="text-clay-ink-muted mt-1">{selectedClient?.phone}</p>
                                     )}
                                 </div>
                             </section>
 
                             <section className="grid grid-cols-2 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs">Challan No *</Label><Input name="challanNumber" defaultValue="DC-00001" className="h-8" required maxLength={50} /></div>
-                                <div className="space-y-1"><Label className="text-xs">Challan Date *</Label><DatePicker date={challanDate} setDate={setChallanDate} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Challan No *</Label><Input name="challanNumber" defaultValue="DC-00001" className="h-8" required maxLength={50} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Challan Date *</Label><DatePicker date={challanDate} setDate={setChallanDate} /></div>
                             </section>
 
                             <section>
@@ -178,31 +182,31 @@ export default function NewDeliveryChallanPage() {
 
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-4">
-                                    <div className="space-y-2"><Label>Reason for Delivery</Label><Input name="reason" placeholder="e.g. For Job Work, Sale on Approval" maxLength={200} /></div>
-                                    <div className="space-y-2"><Label>Notes (Optional)</Label><Textarea name="notes" placeholder="Any special instructions..." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="text-clay-ink">Reason for Delivery</Label><Input name="reason" placeholder="e.g. For Job Work, Sale on Approval" maxLength={200} /></div>
+                                    <div className="space-y-2"><Label className="text-clay-ink">Notes (Optional)</Label><Textarea name="notes" placeholder="Any special instructions..." maxLength={500} /></div>
                                 </div>
                                 <div className="space-y-4">
-                                    <h3 className="font-semibold">Transport Details</h3>
+                                    <h3 className="font-semibold text-clay-ink">Transport Details</h3>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label>Vehicle Number</Label><Input name="vehicleNumber" placeholder="e.g. RJ14 AB 1234" maxLength={20} /></div>
-                                        <div className="space-y-2"><Label>Driver Name</Label><Input name="driverName" placeholder="e.g. John Doe" maxLength={100} /></div>
+                                        <div className="space-y-2"><Label className="text-clay-ink">Vehicle Number</Label><Input name="vehicleNumber" placeholder="e.g. RJ14 AB 1234" maxLength={20} /></div>
+                                        <div className="space-y-2"><Label className="text-clay-ink">Driver Name</Label><Input name="driverName" placeholder="e.g. John Doe" maxLength={100} /></div>
                                     </div>
-                                    <div className="space-y-2"><Label>Transport Mode</Label><Input name="mode" placeholder="e.g. By Road" maxLength={100} /></div>
+                                    <div className="space-y-2"><Label className="text-clay-ink">Transport Mode</Label><Input name="mode" placeholder="e.g. By Road" maxLength={100} /></div>
                                 </div>
                             </section>
                             <Separator className="my-8" />
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-2">
-                                    <Label>Signature (Consignor)</Label>
-                                    <div className="h-24 border rounded-md bg-muted/50 flex items-center justify-center text-muted-foreground text-sm">Authorized Signatory</div>
+                                    <Label className="text-clay-ink">Signature (Consignor)</Label>
+                                    <div className="h-24 border border-clay-border rounded-clay-md bg-clay-surface-2 flex items-center justify-center text-clay-ink-muted text-sm">Authorized Signatory</div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Signature (Consignee)</Label>
-                                    <div className="h-24 border rounded-md bg-muted/50 flex items-center justify-center text-muted-foreground text-sm">Receiver's Signature</div>
+                                    <Label className="text-clay-ink">Signature (Consignee)</Label>
+                                    <div className="h-24 border border-clay-border rounded-clay-md bg-clay-surface-2 flex items-center justify-center text-clay-ink-muted text-sm">Receiver&apos;s Signature</div>
                                 </div>
                             </section>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </ClayCard>
                 </div>
             </div>
         </form>

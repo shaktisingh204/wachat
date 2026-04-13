@@ -4,7 +4,7 @@
 import { useState, useEffect, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -38,10 +38,14 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             Save & Continue
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -66,20 +70,20 @@ const QuotationLineItems = ({ items, setItems, currency }: { items: QuotationLin
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
                 <table className="w-full text-sm">
-                    <thead className="bg-muted">
-                        <tr className="border-b">
-                            <th className="p-3 text-left font-medium">Item</th>
-                            <th className="p-3 text-right font-medium">Quantity</th>
-                            <th className="p-3 text-right font-medium">Rate</th>
-                            <th className="p-3 text-right font-medium">Amount</th>
+                    <thead className="bg-clay-surface-2">
+                        <tr className="border-b border-clay-border">
+                            <th className="p-3 text-left font-medium text-clay-ink">Item</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Quantity</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Rate</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Amount</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item, index) => (
-                            <tr key={item.id} className="border-b">
+                            <tr key={item.id} className="border-b border-clay-border">
                                 <td className="p-2">
                                     <SmartProductSelect
                                         value={item.id.startsWith('item-') && !item.name ? '' : undefined}
@@ -102,12 +106,12 @@ const QuotationLineItems = ({ items, setItems, currency }: { items: QuotationLin
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</Button>
+                <ClayButton type="button" variant="pill" size="sm" onClick={handleAddItem} leading={<PlusCircle className="h-4 w-4" />}>Add New Line</ClayButton>
             </div>
             <Separator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total ({currency})</span><span className="font-bold text-lg">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-clay-ink-muted">Total ({currency})</span><span className="font-bold text-lg text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
                 </div>
             </div>
         </div>
@@ -127,15 +131,15 @@ const TermsAndConditions = ({ terms, setTerms }: { terms: TermItem[], setTerms: 
 
     return (
         <div className="space-y-2">
-            <Label className="font-semibold">Terms & Conditions</Label>
+            <Label className="font-semibold text-clay-ink">Terms & Conditions</Label>
             {terms.map((term, index) => (
                 <div key={term.id} className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="text-sm text-clay-ink-muted">{String(index + 1).padStart(2, '0')}</span>
                     <Input value={term.text} onChange={(e) => handleTermChange(term.id, e.target.value)} maxLength={500} />
                     <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTerm(term.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={handleAddTerm}><PlusCircle className="mr-2 h-4 w-4" />Add New Term</Button>
+            <ClayButton type="button" variant="pill" size="sm" onClick={handleAddTerm} leading={<PlusCircle className="h-4 w-4" />}>Add New Term</ClayButton>
         </div>
     );
 };
@@ -152,7 +156,7 @@ const AdditionalInfo = ({ fields, setFields }: { fields: AdditionalInfoItem[], s
     };
     return (
         <div className="space-y-2">
-            <Label className="font-semibold">Additional Info</Label>
+            <Label className="font-semibold text-clay-ink">Additional Info</Label>
             {fields.map((field, index) => (
                 <div key={field.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center">
                     <Input placeholder="Field Name" value={field.key} onChange={e => handleFieldChange(field.id, 'key', e.target.value)} maxLength={100} />
@@ -160,7 +164,7 @@ const AdditionalInfo = ({ fields, setFields }: { fields: AdditionalInfoItem[], s
                     <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveField(field.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" className="w-full" onClick={handleAddField}><PlusCircle className="mr-2 h-4 w-4" />Add More Fields</Button>
+            <ClayButton type="button" variant="pill" className="w-full" onClick={handleAddField} leading={<PlusCircle className="h-4 w-4" />}>Add More Fields</ClayButton>
         </div>
     );
 }
@@ -214,24 +218,24 @@ export default function NewQuotationPage() {
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
                     <header className="flex justify-between items-center mb-6">
                         <div>
-                            <Link href="/dashboard/crm/sales/quotations" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
-                                <ArrowLeft className="h-4 w-4" />Back to Quotations
+                            <Link href="/dashboard/crm/sales/quotations">
+                                <ClayButton variant="pill" size="sm" leading={<ArrowLeft className="h-4 w-4" />}>Back to Quotations</ClayButton>
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline">Save As Draft</Button>
+                            <ClayButton variant="pill">Save As Draft</ClayButton>
                             <SaveButton />
                         </div>
                     </header>
-                    <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
-                        <CardContent className="p-0">
+                    <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                        <div className="p-0">
                             <header className="grid grid-cols-2 gap-8 mb-8">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-primary">QUOTATION</h1>
-                                    <Input placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-muted-foreground focus-visible:ring-0 text-base" />
+                                    <h1 className="text-3xl font-bold text-clay-ink">QUOTATION</h1>
+                                    <Input placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-clay-ink-muted focus-visible:ring-0 text-base" />
                                 </div>
                                 <div className="flex justify-end">
-                                    <div className="w-32 h-32 bg-muted flex items-center justify-center rounded-md"><ImageIcon className="h-12 w-12 text-muted-foreground/50" /></div>
+                                    <div className="w-32 h-32 bg-clay-surface-2 flex items-center justify-center rounded-clay-md"><ImageIcon className="h-12 w-12 text-clay-ink-muted/50" /></div>
                                 </div>
                             </header>
 
@@ -239,13 +243,13 @@ export default function NewQuotationPage() {
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2">From:</h3>
+                                    <h3 className="font-semibold mb-2 text-clay-ink">From:</h3>
                                     <p className="font-bold">{yourBusinessDetails.name}</p>
-                                    <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
-                                    <p className="text-muted-foreground">GSTIN: {yourBusinessDetails.gstin}</p>
+                                    <p className="text-clay-ink-muted">{yourBusinessDetails.address}</p>
+                                    <p className="text-clay-ink-muted">GSTIN: {yourBusinessDetails.gstin}</p>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold mb-2">To:</h3>
+                                    <h3 className="font-semibold mb-2 text-clay-ink">To:</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -259,17 +263,17 @@ export default function NewQuotationPage() {
                                     />
                                     {selectedClient && (
                                         <div className="mt-2">
-                                            <p className="text-muted-foreground">{selectedClient.address}</p>
-                                            <p className="text-muted-foreground">{selectedClient.phone}</p>
+                                            <p className="text-clay-ink-muted">{selectedClient.address}</p>
+                                            <p className="text-clay-ink-muted">{selectedClient.phone}</p>
                                         </div>
                                     )}
                                 </div>
                             </section>
 
                             <section className="grid grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label htmlFor="quotationNumber" className="text-xs">Quotation No.</Label><Input id="quotationNumber" name="quotationNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
-                                <div className="space-y-1"><Label className="text-xs">Quotation Date *</Label><DatePicker date={quotationDate} setDate={setQuotationDate} className="h-8" /></div>
-                                <div className="space-y-1"><Label className="text-xs">Valid Till Date</Label><DatePicker date={validTillDate} setDate={setValidTillDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label htmlFor="quotationNumber" className="text-xs text-clay-ink">Quotation No.</Label><Input id="quotationNumber" name="quotationNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Quotation Date *</Label><DatePicker date={quotationDate} setDate={setQuotationDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Valid Till Date</Label><DatePicker date={validTillDate} setDate={setValidTillDate} className="h-8" /></div>
                             </section>
 
                             <section>
@@ -281,18 +285,18 @@ export default function NewQuotationPage() {
                             <section className="grid md:grid-cols-2 gap-8 text-sm">
                                 <div className="space-y-6">
                                     <TermsAndConditions terms={terms} setTerms={setTerms} />
-                                    <div className="space-y-2"><Label className="font-semibold">Additional Notes</Label><Textarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold text-clay-ink">Additional Notes</Label><Textarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>
                                     <div className="space-y-2">
-                                        <Label className="font-semibold">Attachments</Label>
+                                        <Label className="font-semibold text-clay-ink">Attachments</Label>
                                         <div className="flex items-center justify-center w-full">
-                                            <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-muted-foreground" /><p className="text-xs text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label>
+                                            <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-clay-border rounded-clay-md cursor-pointer bg-clay-surface-2 hover:bg-clay-surface"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-clay-ink-muted" /><p className="text-xs text-clay-ink-muted"><span className="font-semibold">Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label>
                                         </div>
-                                        <p className="text-xs text-muted-foreground">Max file size is 10 MB.</p>
+                                        <p className="text-xs text-clay-ink-muted">Max file size is 10 MB.</p>
                                     </div>
                                 </div>
                                 <div className="space-y-6">
                                     <div className="space-y-2">
-                                        <Label className="font-semibold">Your Contact Details</Label>
+                                        <Label className="font-semibold text-clay-ink">Your Contact Details</Label>
                                         <div className="space-y-2">
                                             <Input type="email" placeholder="Your Email (optional)" value={contactDetails.email} onChange={e => setContactDetails(prev => ({ ...prev, email: e.target.value }))} />
                                             <Input type="tel" placeholder="Your Phone (optional)" value={contactDetails.phone} onChange={e => setContactDetails(prev => ({ ...prev, phone: e.target.value }))} />
@@ -300,13 +304,13 @@ export default function NewQuotationPage() {
                                     </div>
                                     <AdditionalInfo fields={additionalInfo} setFields={setAdditionalInfo} />
                                     <div className="space-y-2">
-                                        <Label className="font-semibold">Signature</Label>
-                                        <div className="h-24 border rounded-md bg-muted/50 flex items-center justify-center"><Button type="button" variant="outline">Upload Signature</Button></div>
+                                        <Label className="font-semibold text-clay-ink">Signature</Label>
+                                        <div className="h-24 border border-clay-border rounded-clay-md bg-clay-surface-2 flex items-center justify-center"><ClayButton type="button" variant="pill">Upload Signature</ClayButton></div>
                                     </div>
                                 </div>
                             </section>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </ClayCard>
                 </div>
             </div>
         </form>

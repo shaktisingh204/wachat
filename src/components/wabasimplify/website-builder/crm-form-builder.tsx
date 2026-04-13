@@ -6,7 +6,7 @@ import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closest
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -93,10 +93,10 @@ function SortableFieldItem({ field, isSelected, onClick }: { field: FormField; i
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick}>
-            <Card className={`p-3 cursor-pointer hover:bg-muted ${isSelected ? 'ring-2 ring-primary' : ''}`}>
-                <p className="font-semibold text-sm">{field.label || 'Untitled Field'} {field.required && '*'}</p>
-                <p className="text-xs text-muted-foreground">{field.type}</p>
-            </Card>
+            <ClayCard variant="soft" padded={false} className={`p-3 cursor-pointer hover:bg-clay-surface-2 ${isSelected ? 'ring-2 ring-clay-rose' : ''}`}>
+                <p className="font-semibold text-sm text-clay-ink">{field.label || 'Untitled Field'} {field.required && '*'}</p>
+                <p className="text-xs text-clay-ink-muted">{field.type}</p>
+            </ClayCard>
         </div>
     );
 }
@@ -194,12 +194,12 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
 
     return (
         <div className="h-full flex flex-col">
-            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
+            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-clay-border bg-clay-surface">
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
-                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
+                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-clay-ink border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
                 </div>
                 <div className="flex items-center gap-2">
                     {initialForm?._id && (
@@ -210,17 +210,21 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                             <CodeEmbedDialog embedScript={embedScript} />
                         </>
                     )}
-                    <Button onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                    <ClayButton
+                        variant="obsidian"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        leading={isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    >
                         Save Form
-                    </Button>
+                    </ClayButton>
                 </div>
             </header>
             <div className="flex-1 grid grid-cols-12 min-h-0">
-                 <div className="col-span-3 border-r p-4 overflow-y-auto">
+                 <div className="col-span-3 border-r border-clay-border p-4 overflow-y-auto">
                     <div className="space-y-4">
-                        <h2 className="text-lg font-semibold">Form Fields</h2>
-                        <p className="text-sm text-muted-foreground">Drag to reorder fields.</p>
+                        <h2 className="text-lg font-semibold text-clay-ink">Form Fields</h2>
+                        <p className="text-sm text-clay-ink-muted">Drag to reorder fields.</p>
                          <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className="w-full">
@@ -251,12 +255,12 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                         </DndContext>
                     </div>
                 </div>
-                <main className="col-span-6 bg-muted/50 overflow-y-auto p-4 md:p-8">
+                <main className="col-span-6 bg-clay-surface-2 overflow-y-auto p-4 md:p-8">
                      <CrmFormPreview settings={{...settings, fields}} />
                 </main>
-                 <aside className="col-span-3 border-l p-4 overflow-y-auto">
+                 <aside className="col-span-3 border-l border-clay-border p-4 overflow-y-auto">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold">Properties</h2>
+                        <h2 className="text-lg font-semibold text-clay-ink">Properties</h2>
                          {selectedFieldId && (
                             <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />

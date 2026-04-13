@@ -4,8 +4,7 @@ import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { savePayout } from '@/app/actions/crm-payouts.actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,10 +19,14 @@ const initialState = { message: '', error: '' };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             Save Payout
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -48,13 +51,13 @@ export function NewPayoutForm() {
         <form action={formAction}>
             <input type="hidden" name="vendorId" value={vendorId} />
             <div className="grid gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Payment Details</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid gap-4">
+                <ClayCard>
+                    <div className="mb-4">
+                        <h2 className="text-[15px] font-semibold text-clay-ink">Payment Details</h2>
+                    </div>
+                    <div className="grid gap-4">
                         <div className="space-y-2">
-                            <Label>Vendor *</Label>
+                            <Label className="text-clay-ink">Vendor *</Label>
                             <SmartVendorSelect
                                 value={vendorId}
                                 onSelect={setVendorId}
@@ -64,12 +67,12 @@ export function NewPayoutForm() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Payment Date *</Label>
+                                <Label className="text-clay-ink">Payment Date *</Label>
                                 <DatePicker date={paymentDate} setDate={setPaymentDate} />
                                 <input type="hidden" name="paymentDate" value={paymentDate?.toISOString()} />
                             </div>
                             <div className="space-y-2">
-                                <Label>Payment Mode</Label>
+                                <Label className="text-clay-ink">Payment Mode</Label>
                                 <Select name="paymentMode" defaultValue="Bank Transfer">
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -85,11 +88,11 @@ export function NewPayoutForm() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Amount *</Label>
+                                <Label className="text-clay-ink">Amount *</Label>
                                 <Input type="number" step="0.01" name="amount" required placeholder="0.00" />
                             </div>
                             <div className="space-y-2">
-                                <Label>Currency</Label>
+                                <Label className="text-clay-ink">Currency</Label>
                                 <Select name="currency" defaultValue="INR">
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -102,20 +105,20 @@ export function NewPayoutForm() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Reference #</Label>
+                            <Label className="text-clay-ink">Reference #</Label>
                             <Input name="referenceNumber" placeholder="Transaction ID, Cheque No, etc." />
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Notes</Label>
+                            <Label className="text-clay-ink">Notes</Label>
                             <Textarea name="notes" placeholder="Additional details..." />
                         </div>
-                    </CardContent>
-                    <CardFooter className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
+                    </div>
+                    <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-clay-border">
+                        <ClayButton type="button" variant="pill" onClick={() => router.back()}>Cancel</ClayButton>
                         <SubmitButton />
-                    </CardFooter>
-                </Card>
+                    </div>
+                </ClayCard>
             </div>
         </form>
     );

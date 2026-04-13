@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { ClayCard } from '@/components/clay';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,14 +56,14 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
     const SubmitIcon = settings.buttonIcon ? LucideIcons[settings.buttonIcon] : null;
 
     return (
-        <Card className="shadow-md w-full" id={`preview-${uniqueId}`}>
+        <ClayCard className="shadow-md w-full" padded={false} id={`preview-${uniqueId}`}>
             <style>{dynamicStyles}</style>
-            <CardHeader className="items-center text-center">
+            <div className="flex flex-col items-center text-center p-6 pb-4 gap-1.5">
                  {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain" />}
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
+                <h3 className="text-lg font-semibold text-clay-ink">{title}</h3>
+                <p className="text-sm text-clay-ink-muted">{description}</p>
+            </div>
+            <div className="px-6 pb-4 grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
                 {fields.map(field => {
                     const widthClasses: { [key: string]: string } = { '100%': 'col-span-12', '50%': 'col-span-12 sm:col-span-6', '33.33%': 'col-span-12 sm:col-span-4', '25%': 'col-span-12 sm:col-span-3' };
                     const sizeClasses = { sm: 'h-8 text-xs', md: 'h-10 text-sm', lg: 'h-12 text-base'}[field.size || 'md'];
@@ -87,23 +87,23 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
 
                     return (
                         <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
-                            {field.labelPosition !== 'hidden' && <Label htmlFor={`preview-${field.id}`} className={cn(field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label}</Label>}
+                            {field.labelPosition !== 'hidden' && <Label htmlFor={`preview-${field.id}`} className={cn('text-clay-ink', field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label}</Label>}
                             <div className="w-full">
                                 {fieldContent()}
-                                {field.description && <p className="text-xs pt-1 text-muted-foreground">{field.description}</p>}
+                                {field.description && <p className="text-xs pt-1 text-clay-ink-muted">{field.description}</p>}
                             </div>
                         </div>
                     );
                 })}
-            </CardContent>
-            <CardFooter style={{flexDirection: 'column', justifyContent: settings.buttonAlign || 'flex-start', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start' }}>
+            </div>
+            <div className="flex p-6 pt-0" style={{flexDirection: 'column', justifyContent: settings.buttonAlign || 'flex-start', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start' }}>
                 <Button disabled className="w-full submit-button-preview" size={settings.buttonSize}>
                     {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`}}/>}
                     {settings.submitButtonText || 'Submit'}
                     {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`}}/>}
                 </Button>
-                {settings.footerText && <p className="text-xs text-muted-foreground text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
-            </CardFooter>
-        </Card>
+                {settings.footerText && <p className="text-xs text-clay-ink-muted text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
+            </div>
+        </ClayCard>
     );
 }

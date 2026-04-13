@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { ClayBadge } from '@/components/clay';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database, User as UserIcon, Wrench, Newspaper, Clapperboard, Pencil, BarChart2, Globe, Landmark, Users as UsersIcon, LifeBuoy, HelpCircle, LayoutGrid
@@ -457,7 +457,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         return (
             <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive} tooltip={item.label} className={cn(isSubItem && "pl-10")}>
-                    <Link href={item.href}>{LinkIcon && <LinkIcon />}<span>{item.label}</span>{item.new && <Badge className="ml-auto">New</Badge>}</Link>
+                    <Link href={item.href}>{LinkIcon && <LinkIcon />}<span>{item.label}</span>{item.new && <ClayBadge tone="rose-soft" className="ml-auto">New</ClayBadge>}</Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>
         );

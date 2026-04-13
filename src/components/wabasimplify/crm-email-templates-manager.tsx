@@ -4,7 +4,7 @@
 import { useState, useEffect, useTransition } from 'react';
 import { getCrmEmailTemplates, deleteCrmEmailTemplate } from '@/app/actions/crm-email-templates.actions';
 import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LoaderCircle, Plus, Trash2, Edit } from 'lucide-react';
@@ -62,37 +62,35 @@ export function CrmEmailTemplatesManager() {
 
     return (
         <>
-            <CrmEmailTemplateDialog 
+            <CrmEmailTemplateDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 template={editingTemplate}
                 onSuccess={fetchData}
             />
-            <Card>
-                <CardHeader>
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <CardTitle>Email Templates</CardTitle>
-                            <CardDescription>Create and manage reusable email templates for your CRM.</CardDescription>
-                        </div>
-                        <Button onClick={handleCreateNew}>
-                            <Plus className="mr-2 h-4 w-4" /> New Template
-                        </Button>
+            <ClayCard>
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 className="text-clay-ink font-semibold text-lg">Email Templates</h2>
+                        <p className="text-clay-ink-muted text-sm">Create and manage reusable email templates for your CRM.</p>
                     </div>
-                </CardHeader>
-                <CardContent>
+                    <ClayButton variant="obsidian" onClick={handleCreateNew} leading={<Plus className="h-4 w-4" />}>
+                        New Template
+                    </ClayButton>
+                </div>
+                <div>
                      {isLoading ? (
                          <div className="space-y-2">
                             <Skeleton className="h-10 w-full" />
                             <Skeleton className="h-10 w-full" />
                          </div>
                     ) : templates.length > 0 ? (
-                        <div className="border rounded-md">
+                        <div className="border border-clay-border rounded-md">
                             {templates.map(template => (
-                                <div key={template._id.toString()} className="flex items-center p-3 border-b last:border-b-0">
+                                <div key={template._id.toString()} className="flex items-center p-3 border-b border-clay-border last:border-b-0">
                                     <div className="flex-1">
-                                        <p className="font-medium">{template.name}</p>
-                                        <p className="text-sm text-muted-foreground">{template.subject}</p>
+                                        <p className="font-medium text-clay-ink">{template.name}</p>
+                                        <p className="text-sm text-clay-ink-muted">{template.subject}</p>
                                     </div>
                                     <div className="flex gap-2">
                                         <Button variant="ghost" size="icon" onClick={() => handleEdit(template)}><Edit className="h-4 w-4"/></Button>
@@ -116,12 +114,12 @@ export function CrmEmailTemplatesManager() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-lg">
+                        <div className="text-center text-clay-ink-muted py-12 border-2 border-dashed border-clay-border rounded-lg">
                             <p>No email templates created yet.</p>
                         </div>
                     )}
-                </CardContent>
-            </Card>
+                </div>
+            </ClayCard>
         </>
     );
 }

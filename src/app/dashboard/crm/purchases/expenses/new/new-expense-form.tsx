@@ -4,8 +4,7 @@ import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { saveExpense } from '@/app/actions/crm-expenses.actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,10 +21,14 @@ const initialState = { message: '', error: '' };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             Save Expense
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -77,19 +80,19 @@ export function NewExpenseForm() {
             <input type="hidden" name="vendorId" value={vendorId} />
             <input type="hidden" name="customerId" value={customerId} />
             <div className="grid gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Expense Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid gap-4">
+                <ClayCard>
+                    <div className="mb-4">
+                        <h2 className="text-[15px] font-semibold text-clay-ink">Expense Information</h2>
+                    </div>
+                    <div className="grid gap-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Date *</Label>
+                                <Label className="text-clay-ink">Date *</Label>
                                 <DatePicker date={expenseDate} setDate={setExpenseDate} />
                                 <input type="hidden" name="expenseDate" value={expenseDate?.toISOString()} />
                             </div>
                             <div className="space-y-2">
-                                <Label>Expense Account *</Label>
+                                <Label className="text-clay-ink">Expense Account *</Label>
                                 <Select name="expenseAccount" required>
                                     <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
                                     <SelectContent>
@@ -101,11 +104,11 @@ export function NewExpenseForm() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Amount *</Label>
+                                <Label className="text-clay-ink">Amount *</Label>
                                 <Input type="number" step="0.01" name="amount" required placeholder="0.00" />
                             </div>
                             <div className="space-y-2">
-                                <Label>Currency</Label>
+                                <Label className="text-clay-ink">Currency</Label>
                                 <Select name="currency" defaultValue="INR">
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -118,7 +121,7 @@ export function NewExpenseForm() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Vendor (Optional)</Label>
+                            <Label className="text-clay-ink">Vendor (Optional)</Label>
                             <SmartVendorSelect
                                 value={vendorId}
                                 onSelect={setVendorId}
@@ -127,24 +130,24 @@ export function NewExpenseForm() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Description</Label>
+                            <Label className="text-clay-ink">Description</Label>
                             <Textarea name="description" placeholder="Notes about this expense" />
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Reference #</Label>
+                            <Label className="text-clay-ink">Reference #</Label>
                             <Input name="referenceNumber" placeholder="e.g. INV-001" />
                         </div>
 
-                        <div className="border-t pt-4 mt-2 grid gap-4">
+                        <div className="border-t border-clay-border pt-4 mt-2 grid gap-4">
                             <div className="flex items-center space-x-2">
                                 <Checkbox id="isBillable" name="isBillable" checked={isBillable} onCheckedChange={(c) => setIsBillable(c === true)} />
-                                <Label htmlFor="isBillable">Billable</Label>
+                                <Label htmlFor="isBillable" className="text-clay-ink">Billable</Label>
                             </div>
 
                             {isBillable && (
                                 <div className="space-y-2">
-                                    <Label>Customer</Label>
+                                    <Label className="text-clay-ink">Customer</Label>
                                     <SmartClientSelect
                                         value={customerId}
                                         onSelect={setCustomerId}
@@ -153,12 +156,12 @@ export function NewExpenseForm() {
                                 </div>
                             )}
                         </div>
-                    </CardContent>
-                    <CardFooter className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
+                    </div>
+                    <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-clay-border">
+                        <ClayButton type="button" variant="pill" onClick={() => router.back()}>Cancel</ClayButton>
                         <SubmitButton />
-                    </CardFooter>
-                </Card>
+                    </div>
+                </ClayCard>
             </div>
         </form>
     );

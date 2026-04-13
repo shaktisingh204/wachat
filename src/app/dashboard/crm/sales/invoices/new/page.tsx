@@ -4,7 +4,7 @@
 import { useState, useEffect, useActionState, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -40,10 +40,14 @@ const initialState: { message?: string; error?: string } = { message: undefined,
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             Save & Continue
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -64,55 +68,31 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
                 <table className="w-full text-sm">
-                    <thead className="bg-muted">
-                        <tr className="border-b">
-                            <th className="p-3 text-left font-medium">Item</th>
-                            <th className="p-3 text-right font-medium">Quantity</th>
-                            <th className="p-3 text-right font-medium">Rate</th>
-                            <th className="p-3 text-right font-medium">Amount</th>
+                    <thead className="bg-clay-surface-2">
+                        <tr className="border-b border-clay-border">
+                            <th className="p-3 text-left font-medium text-clay-ink">Item</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Quantity</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Rate</th>
+                            <th className="p-3 text-right font-medium text-clay-ink">Amount</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item, index) => (
-                            <tr key={item.id} className="border-b">
+                            <tr key={item.id} className="border-b border-clay-border">
                                 <td className="p-2">
                                     <SmartProductSelect
-                                        value={item.id.startsWith('item-') && !item.name ? '' : undefined} // Reset if new item and empty name, otherwise uncontrolled or value managed? SmartCombobox uses value. But row id is unique.
-                                        // Actually SmartProductSelect expects value as ID. item.name is just name.
-                                        // We should store productId in line item if possible.
-                                        // Assuming item.name is used for display. 
-                                        // Wait, the original code used Input for name.
-                                        // I should probably use SmartProductSelect but it selects by ID.
-                                        // Does line item have productId? No.
-                                        // I should stick to using name or add productId to LineItem type?
-                                        // For now, let's just populate name and rate.
-                                        // But SmartCombobox needs a value (ID) to show selected state.
-                                        // If I don't store ID, I can't bind value.
-                                        // I will simply use it as an uncontrolled picker that fills the name.
-                                        // But SmartCombobox is controlled. 
-                                        // Let's assume we want to store key info.
+                                        value={item.id.startsWith('item-') && !item.name ? '' : undefined}
                                         placeholder="Select Product"
                                         onSelect={(val) => { /* handled via onProductChange mainly */ }}
                                         onProductChange={(product) => {
                                             handleItemChange(item.id, 'name', product.name);
                                             handleItemChange(item.id, 'rate', product.sellingPrice);
-                                            // Optional: handleItemChange(item.id, 'description', product.description);
                                         }}
                                         className="w-full"
                                     />
-                                    {/* Fallback Input if they want to type custom? SmartCombobox allows custom? No. 
-                                        If we want custom items, we might need a way to toggle or SmartCombobox supports create.
-                                        But create makes a product.
-                                        If user wants ad-hoc item, specific to invoice?
-                                        Maybe keep Input but add SmartSelect as a helper?
-                                        Or replace Input and force product creation?
-                                        Usually standardizing on Products is better.
-                                        But "Name/SKU Id" implies free text.
-                                        Let's stick to SmartProductSelect for now as per requirement.
-                                    */}
                                 </td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
@@ -124,12 +104,12 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</Button>
+                <ClayButton type="button" variant="pill" size="sm" onClick={handleAddItem} leading={<PlusCircle className="h-4 w-4" />}>Add New Line</ClayButton>
             </div>
             <Separator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total ({currency})</span><span className="font-bold text-lg">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-clay-ink-muted">Total ({currency})</span><span className="font-bold text-lg text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
                 </div>
             </div>
         </div>
@@ -190,24 +170,24 @@ export default function NewInvoicePage() {
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
                     <header className="flex justify-between items-center mb-6">
                         <div>
-                            <Link href="/dashboard/crm/sales/invoices" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
-                                <ArrowLeft className="h-4 w-4" />Back to Invoices
+                            <Link href="/dashboard/crm/sales/invoices">
+                                <ClayButton variant="pill" size="sm" leading={<ArrowLeft className="h-4 w-4" />}>Back to Invoices</ClayButton>
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" type="button">Save As Draft</Button>
+                            <ClayButton variant="pill" type="button">Save As Draft</ClayButton>
                             <SaveButton />
                         </div>
                     </header>
-                    <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
-                        <CardContent className="p-0">
+                    <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                        <div className="p-0">
                             <header className="grid grid-cols-2 gap-8 mb-8">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-primary">INVOICE</h1>
-                                    <Input placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-muted-foreground focus-visible:ring-0 text-base" />
+                                    <h1 className="text-3xl font-bold text-clay-ink">INVOICE</h1>
+                                    <Input placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-clay-ink-muted focus-visible:ring-0 text-base" />
                                 </div>
                                 <div className="flex justify-end">
-                                    <div className="w-32 h-32 bg-muted flex items-center justify-center rounded-md"><ImageIcon className="h-12 w-12 text-muted-foreground/50" /></div>
+                                    <div className="w-32 h-32 bg-clay-surface-2 flex items-center justify-center rounded-clay-md"><ImageIcon className="h-12 w-12 text-clay-ink-muted/50" /></div>
                                 </div>
                             </header>
 
@@ -215,13 +195,13 @@ export default function NewInvoicePage() {
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2">Billed By:</h3>
+                                    <h3 className="font-semibold mb-2 text-clay-ink">Billed By:</h3>
                                     <p className="font-bold">{yourBusinessDetails.name}</p>
-                                    <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
-                                    <p className="text-muted-foreground">GSTIN: {yourBusinessDetails.gstin}</p>
+                                    <p className="text-clay-ink-muted">{yourBusinessDetails.address}</p>
+                                    <p className="text-clay-ink-muted">GSTIN: {yourBusinessDetails.gstin}</p>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold mb-2">Billed To:</h3>
+                                    <h3 className="font-semibold mb-2 text-clay-ink">Billed To:</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -236,17 +216,17 @@ export default function NewInvoicePage() {
                                     {selectedClient && (
                                         <div className="mt-2 space-y-1 text-sm">
                                             <p className="font-medium">{selectedClient.name}</p>
-                                            <p className="text-muted-foreground">{selectedClient.address}</p>
-                                            <p className="text-muted-foreground">{selectedClient.phone}</p>
+                                            <p className="text-clay-ink-muted">{selectedClient.address}</p>
+                                            <p className="text-clay-ink-muted">{selectedClient.phone}</p>
                                         </div>
                                     )}
                                 </div>
                             </section>
 
                             <section className="grid grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label htmlFor="invoiceNumber" className="text-xs">Invoice No *</Label><Input id="invoiceNumber" name="invoiceNumber" defaultValue="A00001" className="h-8" maxLength={50} /></div>
-                                <div className="space-y-1"><Label className="text-xs">Invoice Date *</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
-                                <div className="space-y-1"><Label className="text-xs">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label htmlFor="invoiceNumber" className="text-xs text-clay-ink">Invoice No *</Label><Input id="invoiceNumber" name="invoiceNumber" defaultValue="A00001" className="h-8" maxLength={50} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Invoice Date *</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
                             </section>
 
                             <section>
@@ -257,26 +237,26 @@ export default function NewInvoicePage() {
 
                             {/* Footer Sections */}
                             <section className="mt-8 space-y-4">
-                                {showTerms ? (<div className="space-y-2"><Label className="font-semibold">Terms & Conditions</Label>{terms.map((term, index) => (<div key={term.id} className="flex items-center gap-2"><span className="text-sm text-muted-foreground">{String(index + 1).padStart(2, '0')}</span><Input value={term.text} onChange={(e) => setTerms(terms.map(t => t.id === term.id ? { ...t, text: e.target.value } : t))} maxLength={500} /><Button type="button" variant="ghost" size="icon" onClick={() => setTerms(terms.filter(t => t.id !== term.id))}><Trash2 className="h-4 w-4" /></Button></div>))}<Button type="button" variant="outline" size="sm" onClick={() => setTerms([...terms, { id: `term-${Date.now()}`, text: '' }])}><PlusCircle className="mr-2 h-4 w-4" />Add New Term</Button></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowTerms(true)}>Add Terms & Conditions</Button>)}
-                                {showNotes ? (<div className="space-y-2"><Label className="font-semibold">Additional Notes</Label><Textarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowNotes(true)}>Add Notes</Button>)}
-                                {showAttachments ? (<div className="space-y-2"><Label className="font-semibold">Attachments</Label><div className="flex items-center justify-center w-full"><label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-muted-foreground" /><p className="text-xs text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label></div><p className="text-xs text-muted-foreground">Max file size is 10 MB.</p></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowAttachments(true)}>Add Attachments</Button>)}
-                                {showAdditionalInfo ? (<div className="space-y-2"><Label className="font-semibold">Additional Info</Label>{additionalInfo.map((field, index) => (<div key={field.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Field Name" value={field.key} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, key: e.target.value } : f))} maxLength={100} /><Input placeholder="Value" value={field.value} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, value: e.target.value } : f))} maxLength={100} /><Button type="button" variant="ghost" size="icon" onClick={() => setAdditionalInfo(additionalInfo.filter(f => f.id !== field.id))}><Trash2 className="h-4 w-4 text-destructive" /></Button></div>))}<Button type="button" variant="outline" size="sm" onClick={() => setAdditionalInfo([...additionalInfo, { id: uuidv4(), key: '', value: '' }])}><PlusCircle className="mr-2 h-4 w-4" />Add More Fields</Button></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowAdditionalInfo(true)}>Add Additional Info</Button>)}
-                                {showContactDetails ? (<div className="space-y-2"><Label className="font-semibold">Your Contact Details</Label><div className="space-y-2"><Input type="email" placeholder="Your Email (optional)" value={contactDetails.email} onChange={e => setContactDetails(prev => ({ ...prev, email: e.target.value }))} /><Input type="tel" placeholder="Your Phone (optional)" value={contactDetails.phone} onChange={e => setContactDetails(prev => ({ ...prev, phone: e.target.value }))} /></div></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowContactDetails(true)}>Add Contact Details</Button>)}
-                                {showSignature ? (<div className="space-y-2"><Label className="font-semibold">Signature</Label><div className="h-24 border rounded-md bg-muted/50 flex items-center justify-center"><Button type="button" variant="outline">Upload Signature</Button></div></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowSignature(true)}>Add Signature</Button>)}
+                                {showTerms ? (<div className="space-y-2"><Label className="font-semibold text-clay-ink">Terms & Conditions</Label>{terms.map((term, index) => (<div key={term.id} className="flex items-center gap-2"><span className="text-sm text-clay-ink-muted">{String(index + 1).padStart(2, '0')}</span><Input value={term.text} onChange={(e) => setTerms(terms.map(t => t.id === term.id ? { ...t, text: e.target.value } : t))} maxLength={500} /><Button type="button" variant="ghost" size="icon" onClick={() => setTerms(terms.filter(t => t.id !== term.id))}><Trash2 className="h-4 w-4" /></Button></div>))}<ClayButton type="button" variant="pill" size="sm" onClick={() => setTerms([...terms, { id: `term-${Date.now()}`, text: '' }])} leading={<PlusCircle className="h-4 w-4" />}>Add New Term</ClayButton></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowTerms(true)}>Add Terms & Conditions</Button>)}
+                                {showNotes ? (<div className="space-y-2"><Label className="font-semibold text-clay-ink">Additional Notes</Label><Textarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowNotes(true)}>Add Notes</Button>)}
+                                {showAttachments ? (<div className="space-y-2"><Label className="font-semibold text-clay-ink">Attachments</Label><div className="flex items-center justify-center w-full"><label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-clay-border rounded-clay-md cursor-pointer bg-clay-surface-2 hover:bg-clay-surface"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-clay-ink-muted" /><p className="text-xs text-clay-ink-muted"><span className="font-semibold">Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label></div><p className="text-xs text-clay-ink-muted">Max file size is 10 MB.</p></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowAttachments(true)}>Add Attachments</Button>)}
+                                {showAdditionalInfo ? (<div className="space-y-2"><Label className="font-semibold text-clay-ink">Additional Info</Label>{additionalInfo.map((field, index) => (<div key={field.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Field Name" value={field.key} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, key: e.target.value } : f))} maxLength={100} /><Input placeholder="Value" value={field.value} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, value: e.target.value } : f))} maxLength={100} /><Button type="button" variant="ghost" size="icon" onClick={() => setAdditionalInfo(additionalInfo.filter(f => f.id !== field.id))}><Trash2 className="h-4 w-4 text-destructive" /></Button></div>))}<ClayButton type="button" variant="pill" size="sm" onClick={() => setAdditionalInfo([...additionalInfo, { id: uuidv4(), key: '', value: '' }])} leading={<PlusCircle className="h-4 w-4" />}>Add More Fields</ClayButton></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowAdditionalInfo(true)}>Add Additional Info</Button>)}
+                                {showContactDetails ? (<div className="space-y-2"><Label className="font-semibold text-clay-ink">Your Contact Details</Label><div className="space-y-2"><Input type="email" placeholder="Your Email (optional)" value={contactDetails.email} onChange={e => setContactDetails(prev => ({ ...prev, email: e.target.value }))} /><Input type="tel" placeholder="Your Phone (optional)" value={contactDetails.phone} onChange={e => setContactDetails(prev => ({ ...prev, phone: e.target.value }))} /></div></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowContactDetails(true)}>Add Contact Details</Button>)}
+                                {showSignature ? (<div className="space-y-2"><Label className="font-semibold text-clay-ink">Signature</Label><div className="h-24 border border-clay-border rounded-clay-md bg-clay-surface-2 flex items-center justify-center"><ClayButton type="button" variant="pill">Upload Signature</ClayButton></div></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowSignature(true)}>Add Signature</Button>)}
                             </section>
                             <Separator className="my-8" />
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
                                     <Switch id="recurring-invoice" />
-                                    <Label htmlFor="recurring-invoice">This is a Recurring Invoice</Label>
+                                    <Label htmlFor="recurring-invoice" className="text-clay-ink">This is a Recurring Invoice</Label>
                                 </div>
-                                <p className="text-xs text-muted-foreground pl-7">
+                                <p className="text-xs text-clay-ink-muted pl-7">
                                     A draft invoice will be created with the same details every next period.
                                 </p>
                             </div>
                             <Separator className="my-8" />
                             <div className="space-y-2">
-                                <h3 className="font-semibold">Advanced Options</h3>
+                                <h3 className="font-semibold text-clay-ink">Advanced Options</h3>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm">
                                     <div className="flex items-center space-x-2"><Checkbox id="show-tax" /><Label htmlFor="show-tax" className="font-normal">Show tax summary</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id="hide-country" /><Label htmlFor="hide-country" className="font-normal">Hide place/country of supply</Label></div>
@@ -286,8 +266,8 @@ export default function NewInvoicePage() {
                                     <div className="flex items-center space-x-2"><Checkbox id="show-sku" /><Label htmlFor="show-sku" className="font-normal">Show SKU in Invoice</Label></div>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </ClayCard>
                 </div>
             </div>
         </form>
