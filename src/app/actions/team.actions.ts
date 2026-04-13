@@ -14,6 +14,7 @@ import { logActivity } from '@/app/actions/activity.actions';
 import crypto from 'crypto';
 import { getTransporter } from '@/lib/email-service';
 import { PENDING_INVITE_COOKIE } from '@/lib/team-invites';
+import { requirePermission } from '@/lib/rbac-server';
 
 async function findUserByEmail(email: string) {
     const { db } = await connectToDatabase();
@@ -39,7 +40,7 @@ async function ensureInvitationIndexes() {
     }
 }
 
-function buildInviteEmailHtml(params: {
+function buildInviteEmailHtml(opts: {
     inviteLink: string;
     inviterName: string;
     projectName: string;
@@ -47,7 +48,7 @@ function buildInviteEmailHtml(params: {
     inviteeEmail: string;
     expiresAt: Date;
 }) {
-    const { inviteLink, inviterName, projectName, roleLabel, inviteeEmail, expiresAt } = params;
+    const { inviteLink, inviterName, projectName, roleLabel, inviteeEmail, expiresAt } = opts;
     const expiresLabel = expiresAt.toLocaleDateString(undefined, {
         year: 'numeric',
         month: 'short',
@@ -149,6 +150,9 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
     if (!session?.user) return { error: 'Authentication required.' };
 
     if (!email || !role) return { error: 'Missing required fields.' };
+
+    const guard = await requirePermission('team_users', 'create', projectId || null);
+    if (!guard.ok) return { error: guard.error };
 
     const invitee = await findUserByEmail(email);
 
@@ -302,6 +306,9 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
     if (!agentUserId || !ObjectId.isValid(agentUserId)) {
         return { error: 'Invalid Agent ID.' };
     }
+
+    const removeGuard = await requirePermission('team_users', 'delete', projectId || null);
+    if (!removeGuard.ok) return { error: removeGuard.error };
 
     try {
         const { db } = await connectToDatabase();
@@ -580,6 +587,9 @@ export async function resendInvitation(
         }
         if (invite.status === 'accepted') return { success: false, error: 'Already accepted.' };
 
+        const guard = await requirePermission('team_users', 'edit', invite.projectId?.toString() || null);
+        if (!guard.ok) return { success: false, error: guard.error };
+
         const newExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         await db.collection('invitations').updateOne(
             { _id: invite._id },
@@ -627,6 +637,8 @@ export async function revokeInvitation(
         if (invite.inviterId.toString() !== session.user._id.toString()) {
             return { success: false, error: 'Only the original inviter can revoke this.' };
         }
+        const guard = await requirePermission('team_users', 'delete', invite.projectId?.toString() || null);
+        if (!guard.ok) return { success: false, error: guard.error };
         await db.collection('invitations').updateOne(
             { _id: invite._id },
             { $set: { status: 'revoked', revokedAt: new Date() } as any },
@@ -739,6 +751,9 @@ export async function changeAgentRole(args: {
     if (!projectId || !ObjectId.isValid(projectId)) return { success: false, error: 'Invalid project.' };
     if (!agentUserId || !ObjectId.isValid(agentUserId)) return { success: false, error: 'Invalid agent.' };
     if (!role) return { success: false, error: 'Missing role.' };
+
+    const guard = await requirePermission('team_users', 'edit', projectId);
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();

@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useProject } from '@/context/project-context';
 import { MetaFlowBuilderLayout } from '@/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout';
 import { flowCategories } from '@/components/wabasimplify/meta-flow-templates';
 import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
@@ -86,6 +87,7 @@ function CreateMetaFlowPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { toast } = useToast();
+    const { activeProjectId } = useProject();
 
     const [projectId, setProjectId] = useState<string | null>(null);
     const [project, setProject] = useState<WithId<Project> | null>(null);
@@ -123,11 +125,16 @@ function CreateMetaFlowPageContent() {
         if (p) setProject(p as WithId<Project>);
     }, [projectId]);
 
+    // Resolve the active project. Prefer the shared ProjectContext (kept
+    // in sync across tabs), fall back to localStorage, and finally adopt
+    // the project id baked into the loaded flow so deep-linking to
+    // /dashboard/flows/create?flowId=... works even without context.
     useEffect(() => {
         const stored = typeof window !== 'undefined' ? localStorage.getItem('activeProjectId') : null;
-        setProjectId(stored);
-        if (stored) {
-            getProjectById(stored).then((p) => { if (p) setProject(p as WithId<Project>); });
+        const pid = activeProjectId || stored || null;
+        if (pid) {
+            setProjectId(pid);
+            getProjectById(pid).then((p) => { if (p) setProject(p as WithId<Project>); });
         }
 
         const flowIdParam = searchParams.get('flowId');
@@ -150,9 +157,17 @@ function CreateMetaFlowPageContent() {
                 if (fetched.flow_data?.screens?.[0]?.id) {
                     setSelectedScreenId(fetched.flow_data.screens[0].id);
                 }
+                // Adopt the flow's owning project if nothing else set one.
+                const flowProjectId = (fetched as any).projectId?.toString?.() ?? (fetched as any).projectId;
+                if (flowProjectId) {
+                    setProjectId((prev) => prev || flowProjectId);
+                    getProjectById(flowProjectId).then((p) => {
+                        if (p) setProject((prev) => prev || (p as WithId<Project>));
+                    });
+                }
             });
         }
-    }, [searchParams, router, toast]);
+    }, [searchParams, router, toast, activeProjectId]);
 
     const handleEncryptionError = useCallback((error: string) => {
         if (error.includes('139002') || (error.toLowerCase().includes('flows') && error.toLowerCase().includes('public key'))) {

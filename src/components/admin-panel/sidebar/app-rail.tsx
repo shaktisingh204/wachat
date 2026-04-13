@@ -28,25 +28,30 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { NotificationPopover } from '@/components/notifications/notification-popover';
 import { useProject } from '@/context/project-context';
+import { can } from '@/lib/rbac';
 
 /* ─── App definitions ──────────────────────────────────────────────────────── */
 
-const ALL_APPS = [
-    { id: 'sabflow',        label: 'SabFlow',        icon: Workflow,     href: '/dashboard/sabflow' },
-    { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon, href: '/dashboard' },
-    { id: 'facebook',       label: 'Meta Suite',     icon: MetaIcon,     href: '/dashboard/facebook/all-projects' },
-    { id: 'ad-manager',     label: 'Ad Manager',     icon: Megaphone,    href: '/dashboard/ad-manager/ad-accounts' },
-    { id: 'telegram',       label: 'Telegram',       icon: Send,         href: '/dashboard/telegram' },
-    { id: 'instagram',      label: 'Instagram',      icon: Instagram,    href: '/dashboard/instagram/connections' },
-    { id: 'crm',            label: 'CRM',            icon: Briefcase,    href: '/dashboard/crm' },
-    { id: 'team',           label: 'Team',           icon: Users,        href: '/dashboard/team' },
-    { id: 'email',          label: 'Email',          icon: Mail,         href: '/dashboard/email' },
-    { id: 'sms',            label: 'SMS',            icon: Smartphone,   href: '/dashboard/sms' },
-    { id: 'sabchat',        label: 'SabChat',        icon: Bot,          href: '/dashboard/sabchat' },
-    { id: 'seo-suite',      label: 'SEO Suite',      icon: Search,       href: '/dashboard/seo' },
-    { id: 'website-builder',label: 'Website Builder',icon: Globe,        href: '/dashboard/website-builder' },
-    { id: 'url-shortener',  label: 'URL Shortener',  icon: LinkIcon,     href: '/dashboard/url-shortener' },
-    { id: 'qr-code-maker',  label: 'QR Code',        icon: QrCode,       href: '/dashboard/qr-code-maker' },
+/**
+ * Each app has a primary permissionKey used to decide whether the icon is
+ * shown in the rail. null → always shown (core surfaces every user gets).
+ */
+const ALL_APPS: { id: string; label: string; icon: any; href: string; permissionKey: string | null }[] = [
+    { id: 'sabflow',        label: 'SabFlow',        icon: Workflow,     href: '/dashboard/sabflow',                permissionKey: null },
+    { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon, href: '/dashboard',                        permissionKey: 'wachat_overview' },
+    { id: 'facebook',       label: 'Meta Suite',     icon: MetaIcon,     href: '/dashboard/facebook/all-projects',  permissionKey: 'facebook_dashboard' },
+    { id: 'ad-manager',     label: 'Ad Manager',     icon: Megaphone,    href: '/dashboard/ad-manager/ad-accounts', permissionKey: 'ad_manager_accounts' },
+    { id: 'telegram',       label: 'Telegram',       icon: Send,         href: '/dashboard/telegram',               permissionKey: null },
+    { id: 'instagram',      label: 'Instagram',      icon: Instagram,    href: '/dashboard/instagram/connections',  permissionKey: 'instagram_dashboard' },
+    { id: 'crm',            label: 'CRM',            icon: Briefcase,    href: '/dashboard/crm',                    permissionKey: 'crm_dashboard' },
+    { id: 'team',           label: 'Team',           icon: Users,        href: '/dashboard/team',                   permissionKey: 'team_users' },
+    { id: 'email',          label: 'Email',          icon: Mail,         href: '/dashboard/email',                  permissionKey: 'email_dashboard' },
+    { id: 'sms',            label: 'SMS',            icon: Smartphone,   href: '/dashboard/sms',                    permissionKey: 'sms_overview' },
+    { id: 'sabchat',        label: 'SabChat',        icon: Bot,          href: '/dashboard/sabchat',                permissionKey: 'sabchat_inbox' },
+    { id: 'seo-suite',      label: 'SEO Suite',      icon: Search,       href: '/dashboard/seo',                    permissionKey: 'seo_dashboard' },
+    { id: 'website-builder',label: 'Website Builder',icon: Globe,        href: '/dashboard/website-builder',        permissionKey: 'website_builder' },
+    { id: 'url-shortener',  label: 'URL Shortener',  icon: LinkIcon,     href: '/dashboard/url-shortener',          permissionKey: 'url_shortener' },
+    { id: 'qr-code-maker',  label: 'QR Code',        icon: QrCode,       href: '/dashboard/qr-code-maker',          permissionKey: 'qr_code_maker' },
 ];
 
 /* ─── Types ──────────────────────────────────────────────────────────────────── */
@@ -59,7 +64,7 @@ interface AppRailProps {
 
 export function AppRail({ activeApp }: AppRailProps) {
     const pathname = usePathname();
-    const { sessionUser } = useProject();
+    const { sessionUser, effectivePermissions } = useProject();
 
     const initials = React.useMemo(() => {
         const name = (sessionUser as any)?.name || (sessionUser as any)?.email || '';
@@ -67,6 +72,19 @@ export function AppRail({ activeApp }: AppRailProps) {
     }, [sessionUser]);
 
     const avatarSrc = (sessionUser as any)?.image || (sessionUser as any)?.profilePic || '';
+
+    // Filter apps by effective permissions. Owners and admins bypass naturally
+    // (rbac.ts returns true when no explicit deny exists). Entries without
+    // a permissionKey are always shown.
+    const visibleApps = React.useMemo(() => {
+        // Before permissions have loaded, show everything — avoids a flash
+        // of an empty rail on first paint.
+        if (!effectivePermissions) return ALL_APPS;
+        return ALL_APPS.filter((app) => {
+            if (!app.permissionKey) return true;
+            return can(effectivePermissions, app.permissionKey, 'view');
+        });
+    }, [effectivePermissions]);
 
     return (
         <nav
@@ -115,7 +133,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                 </span>
 
                 {/* All apps */}
-                {ALL_APPS.map(app => (
+                {visibleApps.map(app => (
                     <RailItem
                         key={app.id}
                         icon={app.icon}

@@ -10,10 +10,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { logActivity } from '@/app/actions/activity.actions';
 
 import { globalModules } from '@/lib/permission-modules';
+import { requirePermission } from '@/lib/rbac-server';
 
 export async function saveRolePermissions(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access Denied' };
+    const guard = await requirePermission('team_roles', 'edit');
+    if (!guard.ok) return { error: guard.error };
 
     const roleIds = formData.getAll('roleId') as string[];
     const permissionsToSave: GlobalPermissions = { agent: {} };
@@ -52,6 +55,8 @@ export async function saveRolePermissions(prevState: { message?: string; error?:
 export async function saveRole(role: { id: string, name: string, permissions: any }): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access Denied' };
+    const guard = await requirePermission('team_roles', 'create');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     // Check Plan Limit
     const plan = (session.user as any).plan;
@@ -90,6 +95,9 @@ export async function deleteRole(roleId: string): Promise<{ success: boolean, er
     if (roleId === 'agent') {
         return { success: false, error: "The default 'Agent' role cannot be deleted." };
     }
+
+    const guard = await requirePermission('team_roles', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
 
     try {
         const { db } = await connectToDatabase();

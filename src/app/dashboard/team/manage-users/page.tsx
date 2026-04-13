@@ -55,6 +55,7 @@ import {
 import { getCustomRoles } from '@/app/actions/crm-roles.actions';
 import { getProjects } from '@/app/actions/project.actions';
 import type { CrmCustomRole, Project, User, WithId } from '@/lib/definitions';
+import { useCan } from '@/context/project-context';
 
 type MemberWithRoles = WithId<User & { roles: Record<string, string> }>;
 
@@ -62,6 +63,9 @@ type Tab = 'members' | 'invites';
 
 export default function ManageUsersPage() {
     const { toast } = useToast();
+    const canInvite = useCan('team_users', 'create');
+    const canEditRoles = useCan('team_users', 'edit');
+    const canRemove = useCan('team_users', 'delete');
     const [tab, setTab] = React.useState<Tab>('members');
     const [query, setQuery] = React.useState('');
     const [roleFilter, setRoleFilter] = React.useState<string>('all');
@@ -165,17 +169,19 @@ export default function ManageUsersPage() {
                         >
                             Refresh
                         </ClayButton>
-                        <InviteDialog
-                            open={inviteOpen}
-                            onOpenChange={setInviteOpen}
-                            projects={projects}
-                            customRoles={customRoles}
-                            onInvited={() => {
-                                setInviteOpen(false);
-                                fetchAll();
-                            }}
-                            toast={toast}
-                        />
+                        {canInvite ? (
+                            <InviteDialog
+                                open={inviteOpen}
+                                onOpenChange={setInviteOpen}
+                                projects={projects}
+                                customRoles={customRoles}
+                                onInvited={() => {
+                                    setInviteOpen(false);
+                                    fetchAll();
+                                }}
+                                toast={toast}
+                            />
+                        ) : null}
                     </>
                 }
             />
@@ -221,6 +227,8 @@ export default function ManageUsersPage() {
                     projects={projects}
                     roleOptions={roleOptions}
                     roleLabel={roleLabel}
+                    canEditRoles={canEditRoles}
+                    canRemove={canRemove}
                     onRefresh={fetchAll}
                     toast={toast}
                 />
@@ -467,6 +475,8 @@ function MembersTable({
     projects,
     roleOptions,
     roleLabel,
+    canEditRoles,
+    canRemove,
     onRefresh,
     toast,
 }: {
@@ -475,6 +485,8 @@ function MembersTable({
     projects: WithId<Project>[];
     roleOptions: { value: string; label: string }[];
     roleLabel: (id: string) => string;
+    canEditRoles: boolean;
+    canRemove: boolean;
     onRefresh: () => void;
     toast: ReturnType<typeof useToast>['toast'];
 }) {
@@ -504,6 +516,8 @@ function MembersTable({
                         projects={projects}
                         roleOptions={roleOptions}
                         roleLabel={roleLabel}
+                        canEditRoles={canEditRoles}
+                        canRemove={canRemove}
                         onRefresh={onRefresh}
                         toast={toast}
                     />
@@ -518,6 +532,8 @@ function MemberRow({
     projects,
     roleOptions,
     roleLabel,
+    canEditRoles,
+    canRemove,
     onRefresh,
     toast,
 }: {
@@ -525,6 +541,8 @@ function MemberRow({
     projects: WithId<Project>[];
     roleOptions: { value: string; label: string }[];
     roleLabel: (id: string) => string;
+    canEditRoles: boolean;
+    canRemove: boolean;
     onRefresh: () => void;
     toast: ReturnType<typeof useToast>['toast'];
 }) {
@@ -574,6 +592,7 @@ function MemberRow({
                                 role={role}
                                 roleOptions={roleOptions}
                                 roleLabel={roleLabel}
+                                canEdit={canEditRoles}
                                 onRefresh={onRefresh}
                                 toast={toast}
                             />
@@ -596,6 +615,7 @@ function MemberRow({
             </div>
 
             <div className="flex justify-end">
+                {!canRemove ? null : (
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <ClayButton
@@ -625,6 +645,7 @@ function MemberRow({
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
+                )}
             </div>
         </div>
     );
@@ -637,6 +658,7 @@ function ChangeRoleBadge({
     role,
     roleOptions,
     roleLabel,
+    canEdit,
     onRefresh,
     toast,
 }: {
@@ -646,6 +668,7 @@ function ChangeRoleBadge({
     role: string;
     roleOptions: { value: string; label: string }[];
     roleLabel: (id: string) => string;
+    canEdit: boolean;
     onRefresh: () => void;
     toast: ReturnType<typeof useToast>['toast'];
 }) {
@@ -679,6 +702,15 @@ function ChangeRoleBadge({
         })();
     };
 
+    if (!canEdit) {
+        return (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-clay-border bg-clay-surface-2 px-2.5 h-6 text-[11.5px] text-clay-ink">
+                <span className="text-clay-ink-muted">{projectName}</span>
+                <span className="text-clay-ink-soft">·</span>
+                <span>{roleLabel(role)}</span>
+            </span>
+        );
+    }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>

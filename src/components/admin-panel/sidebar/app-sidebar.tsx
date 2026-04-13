@@ -49,6 +49,7 @@ import {
 } from '@/config/dashboard-config';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useProject } from '@/context/project-context';
+import { canView } from '@/lib/rbac';
 import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 /* ─── App metadata ───────────────────────────────────────────────────────────── */
@@ -288,8 +289,19 @@ interface AppSidebarProps {
 
 export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
     const { activeAccount } = useAdManager();
-    const { activeProject } = useProject();
+    const { activeProject, effectivePermissions } = useProject();
     const showProjectSwitcher = PROJECT_SCOPED_APPS.includes(activeApp);
+
+    // Filter MenuItems by their permissionKey. Returns true when the user may
+    // view that menu entry. Items without a permissionKey are always shown.
+    const canShowMenuItem = React.useCallback(
+        (item: { permissionKey?: string }) => {
+            if (!item.permissionKey) return true;
+            if (!effectivePermissions) return true; // preload fallback
+            return canView(effectivePermissions, item.permissionKey);
+        },
+        [effectivePermissions],
+    );
 
     const renderMenu = () => {
         switch (activeApp) {
@@ -331,7 +343,7 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
                 ));
 
             case 'team':
-                return teamMenuItems.map(item => <NavItem key={item.href} item={item} />);
+                return teamMenuItems.filter(canShowMenuItem).map(item => <NavItem key={item.href} item={item} />);
 
             case 'email':
                 return emailMenuItems.map(item => <NavItem key={item.href} item={item} />);
