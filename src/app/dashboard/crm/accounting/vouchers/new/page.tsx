@@ -1,10 +1,8 @@
-
 'use client';
 
-import { useState, useEffect, useActionState, useRef } from 'react';
+import { useState, useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,6 +22,8 @@ import type { CrmChartOfAccount, CrmVoucherBook, CrmPaymentAccount } from '@/lib
 import { getSession } from '@/app/actions/user.actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { SmartLedgerSelect } from '@/components/crm/accounting/smart-ledger-select';
+
+import { ClayCard, ClayButton } from '@/components/clay';
 
 const initialState = { message: undefined, error: undefined };
 
@@ -65,17 +65,17 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
     return (
         <section>
             <div className="flex justify-between items-baseline mb-2">
-                <h3 className="font-semibold text-lg">{title}</h3>
-                <p className="text-sm font-medium">Total: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</p>
+                <h3 className="text-[15px] font-semibold text-clay-ink">{title}</h3>
+                <p className="text-[13px] font-medium text-clay-ink">Total: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</p>
             </div>
             <div className="space-y-3">
                 {items.map((item, index) => (
-                    <div key={item.id} className="p-3 border rounded-lg bg-muted/50 space-y-3">
+                    <div key={item.id} className="p-3 border border-clay-border rounded-clay-md bg-clay-surface-2 space-y-3">
                         <div className="flex justify-between items-center">
                             <Label>Item {index + 1}</Label>
                             {items.length > 1 && (
                                 <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveItem(item.id)}>
-                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                    <Trash2 className="h-4 w-4 text-clay-red" />
                                 </Button>
                             )}
                         </div>
@@ -91,7 +91,7 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
                                     }))}
                                     placeholder="Search from an Account..."
                                 />
-                                <input type="hidden" name={item.accountId} value={item.accountId} required /> {/* Hidden input for required validation if needed, though form action manual check might be better */}
+                                <input type="hidden" name={item.accountId} value={item.accountId} required />
                             </div>
                             <div className="space-y-1">
                                 <Label className="text-xs">Remark</Label>
@@ -117,7 +117,9 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
                     </div>
                 ))}
             </div>
-            <Button type="button" variant="outline" size="sm" className="mt-3" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add Line Item</Button>
+            <ClayButton type="button" variant="pill" size="sm" className="mt-3" leading={<PlusCircle className="h-4 w-4" strokeWidth={1.75} />} onClick={handleAddItem}>
+                Add Line Item
+            </ClayButton>
         </section>
     );
 }
@@ -170,75 +172,69 @@ export default function NewVoucherPage() {
             <input type="hidden" name="creditEntries" value={JSON.stringify(creditEntries)} />
             <input type="hidden" name="date" value={voucherDate?.toISOString()} />
 
-            <div>
-                <div className="max-w-6xl mx-auto flex flex-col gap-6">
-                    <header className="flex justify-between items-center mb-6">
-                        <div>
-                            <Button variant="ghost" asChild className="-ml-4">
-                                <Link href="/dashboard/crm/accounting/vouchers"><ArrowLeft className="mr-2 h-4 w-4" />Back to Voucher Books</Link>
-                            </Button>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <SaveButton disabled={difference !== 0} />
-                        </div>
+            <div className="max-w-6xl mx-auto flex flex-col gap-6">
+                <header className="flex justify-between items-center">
+                    <Button variant="ghost" asChild className="-ml-4 text-clay-ink-muted hover:text-clay-ink">
+                        <Link href="/dashboard/crm/accounting/vouchers"><ArrowLeft className="mr-2 h-4 w-4" />Back to Voucher Books</Link>
+                    </Button>
+                    <div className="flex items-center gap-2">
+                        <SaveButton disabled={difference !== 0} />
+                    </div>
+                </header>
+                <ClayCard variant="floating" className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                    <header className="text-center mb-8">
+                        <h1 className="text-[26px] font-semibold text-clay-rose-ink">New Voucher Entry</h1>
+                        <p className="mt-1 text-[13px] text-clay-ink-muted">Record a new journal entry.</p>
                     </header>
-                    <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
-                        <CardContent className="p-0">
-                            <header className="text-center mb-8">
-                                <h1 className="text-3xl font-bold text-primary">New Voucher Entry</h1>
-                                <p className="text-muted-foreground">Record a new journal entry.</p>
-                            </header>
 
-                            {!businessProfile?.name && (
-                                <Alert variant="destructive" className="mb-6">
-                                    <AlertCircle className="h-4 w-4" />
-                                    <AlertTitle>Business Profile Incomplete</AlertTitle>
-                                    <AlertDescription>
-                                        Please complete your business profile to use accounting features.
-                                        <Button asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></Button>
-                                    </AlertDescription>
-                                </Alert>
+                    {!businessProfile?.name && (
+                        <Alert variant="destructive" className="mb-6">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>Business Profile Incomplete</AlertTitle>
+                            <AlertDescription>
+                                Please complete your business profile to use accounting features.
+                                <Button asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></Button>
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+                    <Separator className="my-8" />
+
+                    <section className="grid md:grid-cols-3 gap-4 text-sm mb-8">
+                        <div className="space-y-1">
+                            <Label htmlFor="voucherBookId">Voucher Book *</Label>
+                            <Select name="voucherBookId" required>
+                                <SelectTrigger id="voucherBookId"><SelectValue placeholder="Select a book..." /></SelectTrigger>
+                                <SelectContent>{voucherBooks.map(book => <SelectItem key={book._id.toString()} value={book._id.toString()}>{book.name}</SelectItem>)}</SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="voucherNumber">Voucher Number *</Label>
+                            <Input id="voucherNumber" name="voucherNumber" required placeholder="e.g. V-001" />
+                        </div>
+                        <div className="space-y-1"><Label>Date *</Label><DatePicker date={voucherDate} setDate={setVoucherDate} /></div>
+                        <div className="space-y-1 md:col-span-3"><Label htmlFor="note">Note</Label><Textarea id="note" name="note" placeholder="Add a Note" /></div>
+                    </section>
+
+                    <LineItemsSection title="Debit Accounts" items={debitEntries} setItems={setDebitEntries} accounts={allAccounts} currency={currency} setCurrency={setCurrency} />
+
+                    <Separator className="my-8" />
+
+                    <LineItemsSection title="Credit Accounts" items={creditEntries} setItems={setCreditEntries} accounts={allAccounts} currency={currency} setCurrency={setCurrency} />
+
+                    <Separator className="my-8" />
+
+                    <div className="flex justify-end font-semibold text-[15px] p-4">
+                        <div className="w-full max-w-sm space-y-2">
+                            <div className="flex justify-between text-clay-ink"><span>Total Debit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalDebits)}</span></div>
+                            <div className="flex justify-between text-clay-ink"><span>Total Credit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalCredits)}</span></div>
+                            {difference !== 0 && (
+                                <div className="flex justify-between text-clay-red pt-2 border-t border-clay-border"><span>Difference</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(Math.abs(difference))}</span></div>
                             )}
+                        </div>
+                    </div>
 
-                            <Separator className="my-8" />
-
-                            <section className="grid md:grid-cols-3 gap-4 text-sm mb-8">
-                                <div className="space-y-1">
-                                    <Label htmlFor="voucherBookId">Voucher Book *</Label>
-                                    <Select name="voucherBookId" required>
-                                        <SelectTrigger id="voucherBookId"><SelectValue placeholder="Select a book..." /></SelectTrigger>
-                                        <SelectContent>{voucherBooks.map(book => <SelectItem key={book._id.toString()} value={book._id.toString()}>{book.name}</SelectItem>)}</SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-1">
-                                    <Label htmlFor="voucherNumber">Voucher Number *</Label>
-                                    <Input id="voucherNumber" name="voucherNumber" required placeholder="e.g. V-001" />
-                                </div>
-                                <div className="space-y-1"><Label>Date *</Label><DatePicker date={voucherDate} setDate={setVoucherDate} /></div>
-                                <div className="space-y-1 md:col-span-3"><Label htmlFor="note">Note</Label><Textarea id="note" name="note" placeholder="Add a Note" /></div>
-                            </section>
-
-                            <LineItemsSection title="Debit Accounts" items={debitEntries} setItems={setDebitEntries} accounts={allAccounts} currency={currency} setCurrency={setCurrency} />
-
-                            <Separator className="my-8" />
-
-                            <LineItemsSection title="Credit Accounts" items={creditEntries} setItems={setCreditEntries} accounts={allAccounts} currency={currency} setCurrency={setCurrency} />
-
-                            <Separator className="my-8" />
-
-                            <div className="flex justify-end font-semibold text-lg p-4">
-                                <div className="w-full max-w-sm space-y-2">
-                                    <div className="flex justify-between"><span>Total Debit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalDebits)}</span></div>
-                                    <div className="flex justify-between"><span>Total Credit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalCredits)}</span></div>
-                                    {difference !== 0 && (
-                                        <div className="flex justify-between text-destructive pt-2 border-t"><span>Difference</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(Math.abs(difference))}</span></div>
-                                    )}
-                                </div>
-                            </div>
-
-                        </CardContent>
-                    </Card>
-                </div>
+                </ClayCard>
             </div>
         </form>
     );

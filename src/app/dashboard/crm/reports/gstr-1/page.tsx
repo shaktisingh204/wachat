@@ -1,83 +1,74 @@
-
-
 export const dynamic = 'force-dynamic';
 
-import { Suspense } from 'react';
 import { getInvoices } from '@/app/actions/crm-invoices.actions';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FileText, LoaderCircle } from 'lucide-react';
+import { FileBarChart } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { MonthPicker } from '@/components/crm/month-picker';
+import { ClayCard } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default async function Gstr1Page(props: { searchParams: Promise<{ month?: string, year?: string }> }) {
     const searchParams = await props.searchParams;
     const month = searchParams.month ? parseInt(searchParams.month) : undefined;
     const year = searchParams.year ? parseInt(searchParams.year) : undefined;
 
-    // Fetch all invoices (limit 50 for now, ideally pagination or date filter)
-    const { invoices, total } = await getInvoices(1, 50, { month, year });
+    const { invoices } = await getInvoices(1, 50, { month, year });
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-start">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-2">
-                        <FileText className="h-8 w-8 text-primary" />
-                        GSTR-1 Report
-                    </h1>
-                    <p className="text-muted-foreground">Outward supplies of goods or services.</p>
-                </div>
-                <MonthPicker />
-            </div>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="GSTR-1 Report"
+                subtitle="Outward supplies of goods or services."
+                icon={FileBarChart}
+                actions={<MonthPicker />}
+            />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Sales Invoices</CardTitle>
-                    <CardDescription>All recorded sales invoices for GSTR-1 filing.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Invoice No.</TableHead>
-                                    <TableHead>Customer</TableHead>
-                                    <TableHead className="text-right">Taxable Value</TableHead>
-                                    <TableHead className="text-right">Total Amount</TableHead>
-                                    <TableHead>Status</TableHead>
+            <ClayCard>
+                <div className="mb-4">
+                    <h2 className="text-[16px] font-semibold text-clay-ink">Sales Invoices</h2>
+                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">All recorded sales invoices for GSTR-1 filing.</p>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Date</TableHead>
+                                <TableHead className="text-clay-ink-muted">Invoice No.</TableHead>
+                                <TableHead className="text-clay-ink-muted">Customer</TableHead>
+                                <TableHead className="text-right text-clay-ink-muted">Taxable Value</TableHead>
+                                <TableHead className="text-right text-clay-ink-muted">Total Amount</TableHead>
+                                <TableHead className="text-clay-ink-muted">Status</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {invoices.length === 0 ? (
+                                <TableRow className="border-clay-border">
+                                    <TableCell colSpan={6} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                        No invoices found.
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {invoices.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center">
-                                            No invoices found.
+                            ) : (
+                                invoices.map((inv) => (
+                                    <TableRow key={inv._id.toString()} className="border-clay-border">
+                                        <TableCell className="text-[13px] text-clay-ink">{format(new Date(inv.invoiceDate), 'PP')}</TableCell>
+                                        <TableCell className="font-medium text-clay-ink">{inv.invoiceNumber}</TableCell>
+                                        <TableCell className="text-[13px] text-clay-ink">Client</TableCell>
+                                        <TableCell className="text-right text-[13px] text-clay-ink">
+                                            {inv.currency} {inv.subtotal?.toFixed(2) || inv.total.toFixed(2)}
                                         </TableCell>
+                                        <TableCell className="text-right text-[13px] text-clay-ink">
+                                            {inv.currency} {inv.total.toFixed(2)}
+                                        </TableCell>
+                                        <TableCell className="text-[13px] text-clay-ink">{inv.status}</TableCell>
                                     </TableRow>
-                                ) : (
-                                    invoices.map((inv) => (
-                                        <TableRow key={inv._id.toString()}>
-                                            <TableCell>{format(new Date(inv.invoiceDate), 'PP')}</TableCell>
-                                            <TableCell className="font-medium">{inv.invoiceNumber}</TableCell>
-                                            <TableCell>Client</TableCell> {/* Placeholder, need generic join or stored name */}
-                                            <TableCell className="text-right">
-                                                {inv.currency} {inv.subtotal?.toFixed(2) || inv.total.toFixed(2)}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                {inv.currency} {inv.total.toFixed(2)}
-                                            </TableCell>
-                                            <TableCell>{inv.status}</TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ClayCard>
         </div>
     )
 }

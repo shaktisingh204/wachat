@@ -1,17 +1,16 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Plus, CreditCard, LoaderCircle, Eye } from "lucide-react";
+import { Plus, FileCheck, LoaderCircle } from "lucide-react";
 import Link from 'next/link';
 import { getPaymentReceipts } from '@/app/actions/crm-payment-receipts.actions';
 import type { WithId, CrmPaymentReceipt } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+
+import { ClayButton, ClayCard } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function PaymentReceiptsPage() {
     const [receipts, setReceipts] = useState<WithId<CrmPaymentReceipt>[]>([]);
@@ -34,69 +33,64 @@ export default function PaymentReceiptsPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
-    
-    return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <CreditCard className="h-8 w-8" />
-                        Payment Receipts
-                    </h1>
-                    <p className="text-muted-foreground">Record and manage payments received from clients.</p>
-                </div>
-                <Button asChild>
-                    <Link href="/dashboard/crm/sales/receipts/new">
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Receipt
-                    </Link>
-                </Button>
-            </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Recent Receipts</CardTitle>
-                    <CardDescription>A list of payments you have recorded.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Receipt #</TableHead>
-                                    <TableHead>Client</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead className="text-right">Amount</TableHead>
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Payment Receipts"
+                subtitle="Record and manage payments received from clients."
+                icon={FileCheck}
+                actions={
+                    <Link href="/dashboard/crm/sales/receipts/new">
+                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                            New Receipt
+                        </ClayButton>
+                    </Link>
+                }
+            />
+
+            <ClayCard>
+                <div className="mb-4">
+                    <h2 className="text-[16px] font-semibold text-clay-ink">Recent Receipts</h2>
+                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">A list of payments you have recorded.</p>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Receipt #</TableHead>
+                                <TableHead className="text-clay-ink-muted">Client</TableHead>
+                                <TableHead className="text-clay-ink-muted">Date</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                <TableRow className="border-clay-border">
+                                    <TableCell colSpan={4} className="text-center h-24">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={4} className="text-center h-24">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                                        </TableCell>
+                            ) : receipts.length > 0 ? (
+                                receipts.map(r => (
+                                    <TableRow key={r._id.toString()} className="border-clay-border cursor-pointer">
+                                        <TableCell className="font-medium text-clay-ink">{r.receiptNumber}</TableCell>
+                                        <TableCell className="text-clay-ink">{accountsMap.get(r.accountId.toString()) || 'Unknown Client'}</TableCell>
+                                        <TableCell className="text-clay-ink">{new Date(r.receiptDate).toLocaleDateString()}</TableCell>
+                                        <TableCell className="text-right font-medium text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: r.currency || 'INR' }).format(r.totalAmountReceived)}</TableCell>
                                     </TableRow>
-                                ) : receipts.length > 0 ? (
-                                    receipts.map(r => (
-                                        <TableRow key={r._id.toString()} className="cursor-pointer" onClick={() => { /* router.push(`/dashboard/crm/sales/receipts/${r._id.toString()}`) */ }}>
-                                            <TableCell className="font-medium">{r.receiptNumber}</TableCell>
-                                            <TableCell>{accountsMap.get(r.accountId.toString()) || 'Unknown Client'}</TableCell>
-                                            <TableCell>{new Date(r.receiptDate).toLocaleDateString()}</TableCell>
-                                            <TableCell className="text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: r.currency || 'INR' }).format(r.totalAmountReceived)}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={4} className="h-24 text-center">
-                                            No receipts found.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+                                ))
+                            ) : (
+                                <TableRow className="border-clay-border">
+                                    <TableCell colSpan={4} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                        No receipts found.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ClayCard>
         </div>
     );
 }

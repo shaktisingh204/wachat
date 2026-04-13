@@ -1,15 +1,12 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getCrmPaymentAccounts, deleteCrmPaymentAccount } from '@/app/actions/crm-payment-accounts.actions';
 import type { CrmPaymentAccount } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { LoaderCircle, Plus, Trash2, Edit, User } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { LoaderCircle, Plus, Trash2, Edit, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -23,6 +20,9 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import Link from 'next/link';
+
+import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 function DeleteButton({ account, onDeleted }: { account: WithId<CrmPaymentAccount>, onDeleted: () => void }) {
     const { toast } = useToast();
@@ -48,7 +48,7 @@ function DeleteButton({ account, onDeleted }: { account: WithId<CrmPaymentAccoun
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Delete Account?</AlertDialogTitle>
-                    <AlertDialogDescription>Are you sure you want to delete the "{account.accountName}" account? This action cannot be undone.</AlertDialogDescription>
+                    <AlertDialogDescription>Are you sure you want to delete the &ldquo;{account.accountName}&rdquo; account? This action cannot be undone.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -64,7 +64,7 @@ function DeleteButton({ account, onDeleted }: { account: WithId<CrmPaymentAccoun
 export default function EmployeeAccountsPage() {
     const [accounts, setAccounts] = useState<WithId<CrmPaymentAccount>[]>([]);
     const [isLoading, startTransition] = useTransition();
-    
+
     const fetchData = useCallback(() => {
         startTransition(async () => {
             const data = await getCrmPaymentAccounts();
@@ -75,89 +75,92 @@ export default function EmployeeAccountsPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
-    
+
     if (isLoading && accounts.length === 0) {
         return (
              <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
              </div>
         )
     }
 
     if (!isLoading && accounts.length === 0) {
         return (
-            <div className="flex justify-center items-center h-full">
-                <Card className="text-center max-w-2xl">
-                    <CardHeader>
-                        <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                             <User className="h-12 w-12 text-primary" />
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    title="Employee Accounts"
+                    subtitle="A list of all your employee-related accounts."
+                    icon={Users}
+                />
+                <ClayCard variant="outline" className="border-dashed">
+                    <div className="flex flex-col items-center gap-4 py-12 text-center">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+                            <Users className="h-7 w-7 text-clay-rose-ink" strokeWidth={1.75} />
                         </div>
-                        <CardTitle className="mt-4 text-2xl">No Employee Accounts Found</CardTitle>
-                        <CardDescription>
-                            Add accounts for employees to manage reimbursements, salary advances, and other payments.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Button asChild>
-                            <Link href="/dashboard/crm/banking/all/new">
-                                <Plus className="mr-2 h-4 w-4" />
+                        <div>
+                            <h3 className="text-[17px] font-semibold text-clay-ink">No Employee Accounts Found</h3>
+                            <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                                Add accounts for employees to manage reimbursements, salary advances, and other payments.
+                            </p>
+                        </div>
+                        <Link href="/dashboard/crm/banking/all/new">
+                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
                                 Add First Employee Account
-                            </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
+                            </ClayButton>
+                        </Link>
+                    </div>
+                </ClayCard>
             </div>
         )
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Employee Accounts</h1>
-                    <p className="text-muted-foreground">A list of all your employee-related accounts.</p>
-                </div>
-                 <Button asChild>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Employee Accounts"
+                subtitle="A list of all your employee-related accounts."
+                icon={Users}
+                actions={
                     <Link href="/dashboard/crm/banking/all/new">
-                        <Plus className="mr-2 h-4 w-4" /> Add Employee Account
+                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                            Add Employee Account
+                        </ClayButton>
                     </Link>
-                </Button>
-            </div>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>Your Employee Accounts</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Account Name</TableHead>
-                                    <TableHead>Account Type</TableHead>
-                                    <TableHead className="text-right">Balance</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                }
+            />
+
+            <ClayCard>
+                <div className="mb-4">
+                    <h2 className="text-[16px] font-semibold text-clay-ink">Your Employee Accounts</h2>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Account Name</TableHead>
+                                <TableHead className="text-clay-ink-muted">Account Type</TableHead>
+                                <TableHead className="text-right text-clay-ink-muted">Balance</TableHead>
+                                <TableHead className="text-clay-ink-muted">Status</TableHead>
+                                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {accounts.map(account => (
+                                <TableRow key={account._id.toString()} className="border-clay-border">
+                                    <TableCell className="font-medium text-clay-ink">{account.accountName}</TableCell>
+                                    <TableCell className="capitalize text-[13px] text-clay-ink">{account.accountType}</TableCell>
+                                    <TableCell className="text-right font-semibold text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</TableCell>
+                                    <TableCell><ClayBadge tone={account.status === 'active' ? 'green' : 'rose-soft'}>{account.status}</ClayBadge></TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" disabled><Edit className="h-4 w-4"/></Button>
+                                        <DeleteButton account={account} onDeleted={fetchData} />
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {accounts.map(account => (
-                                    <TableRow key={account._id.toString()}>
-                                        <TableCell className="font-medium">{account.accountName}</TableCell>
-                                        <TableCell className="capitalize">{account.accountType}</TableCell>
-                                        <TableCell className="text-right font-semibold">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</TableCell>
-                                        <TableCell><Badge variant={account.status === 'active' ? 'default' : 'secondary'}>{account.status}</Badge></TableCell>
-                                        <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon" disabled><Edit className="h-4 w-4"/></Button>
-                                            <DeleteButton account={account} onDeleted={fetchData} />
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ClayCard>
         </div>
     );
 }

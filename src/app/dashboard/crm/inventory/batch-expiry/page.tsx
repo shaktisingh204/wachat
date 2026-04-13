@@ -1,19 +1,16 @@
-
-
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Download, CalendarClock, LoaderCircle, AlertCircle, TrendingUp, TrendingDown, Hourglass, CheckCircle } from 'lucide-react';
+import { Download, CalendarClock, LoaderCircle } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateBatchExpiryReportData } from '@/app/actions/crm-reports.actions';
 import { useToast } from "@/hooks/use-toast";
 import Papa from 'papaparse';
-import { format, formatDistanceToNow } from "date-fns";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type ReportData = {
     expiringIn30: any[];
@@ -23,51 +20,43 @@ type ReportData = {
     safe: any[];
 };
 
-const StatCard = ({ title, value, variant }: { title: string, value: number, variant?: 'default' | 'destructive' | 'secondary' }) => (
-    <Card>
-        <CardHeader>
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <p className="text-3xl font-bold">{value.toLocaleString()}</p>
-        </CardContent>
-    </Card>
+const StatCard = ({ title, value }: { title: string, value: number }) => (
+    <ClayCard>
+        <p className="text-[12.5px] font-medium text-clay-ink-muted">{title}</p>
+        <p className="mt-2 text-[26px] font-semibold text-clay-ink">{value.toLocaleString()}</p>
+    </ClayCard>
 );
 
 const BatchTable = ({ title, batches }: { title: string, batches: any[] }) => (
-    <Card>
-        <CardHeader>
-            <CardTitle className="text-lg">{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <div className="border rounded-md">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Product</TableHead>
-                            <TableHead>Batch No.</TableHead>
-                            <TableHead>Expiry Date</TableHead>
-                            <TableHead className="text-right">Stock</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {batches.length > 0 ? (
-                            batches.map(item => (
-                                <TableRow key={`${item.productId}-${item.batchId}`}>
-                                    <TableCell className="font-medium">{item.productName}</TableCell>
-                                    <TableCell className="font-mono text-xs">{item.batchNumber}</TableCell>
-                                    <TableCell>{format(new Date(item.expiryDate), 'PPP')}</TableCell>
-                                    <TableCell className="text-right font-semibold">{item.stock}</TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
-                             <TableRow><TableCell colSpan={4} className="h-24 text-center">No items in this category.</TableCell></TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-        </CardContent>
-    </Card>
+    <ClayCard>
+        <h2 className="text-[15px] font-semibold text-clay-ink">{title}</h2>
+        <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+            <Table>
+                <TableHeader>
+                    <TableRow className="border-clay-border hover:bg-transparent">
+                        <TableHead className="text-clay-ink-muted">Product</TableHead>
+                        <TableHead className="text-clay-ink-muted">Batch No.</TableHead>
+                        <TableHead className="text-clay-ink-muted">Expiry Date</TableHead>
+                        <TableHead className="text-clay-ink-muted text-right">Stock</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {batches.length > 0 ? (
+                        batches.map(item => (
+                            <TableRow key={`${item.productId}-${item.batchId}`} className="border-clay-border">
+                                <TableCell className="font-medium text-clay-ink">{item.productName}</TableCell>
+                                <TableCell className="font-mono text-[11.5px] text-clay-ink">{item.batchNumber}</TableCell>
+                                <TableCell className="text-clay-ink">{format(new Date(item.expiryDate), 'PPP')}</TableCell>
+                                <TableCell className="text-right font-semibold text-clay-ink">{item.stock}</TableCell>
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow className="border-clay-border"><TableCell colSpan={4} className="h-24 text-center text-clay-ink-muted">No items in this category.</TableCell></TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </div>
+    </ClayCard>
 );
 
 export default function BatchExpiryReportPage() {
@@ -85,7 +74,7 @@ export default function BatchExpiryReportPage() {
             }
         });
     }, [toast]);
-    
+
     useEffect(() => {
         fetchData();
     }, [fetchData]);
@@ -114,37 +103,35 @@ export default function BatchExpiryReportPage() {
     if (isLoading || !reportData) {
         return (
             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
             </div>
         );
     }
-    
+
     const allBatches = [
         ...reportData.expired, ...reportData.expiringIn30, ...reportData.expiringIn60, ...reportData.expiringIn90, ...reportData.safe
     ];
-    
+
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <CalendarClock className="h-8 w-8" />
-                        Batch Expiry Report
-                    </h1>
-                    <p className="text-muted-foreground">Track expiry dates for your batch-managed items to reduce wastage.</p>
-                </div>
-                 <Button variant="outline" onClick={() => handleDownload(allBatches, 'full_expiry_report')} disabled={allBatches.length === 0}>
-                    <Download className="mr-2 h-4 w-4"/>Download Full Report
-                </Button>
-            </div>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Batch Expiry Report"
+                subtitle="Track expiry dates for your batch-managed items to reduce wastage."
+                icon={CalendarClock}
+                actions={
+                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={() => handleDownload(allBatches, 'full_expiry_report')} disabled={allBatches.length === 0}>
+                        Download Full Report
+                    </ClayButton>
+                }
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Expired Stock" value={reportData.expired.length} variant="destructive"/>
-                <StatCard title="Expiring in 30 Days" value={reportData.expiringIn30.length} variant="destructive"/>
-                <StatCard title="Expiring in 60 Days" value={reportData.expiringIn60.length} variant="secondary"/>
-                <StatCard title="Expiring in 90 Days" value={reportData.expiringIn90.length} variant="secondary"/>
+                <StatCard title="Expired Stock" value={reportData.expired.length} />
+                <StatCard title="Expiring in 30 Days" value={reportData.expiringIn30.length} />
+                <StatCard title="Expiring in 60 Days" value={reportData.expiringIn60.length} />
+                <StatCard title="Expiring in 90 Days" value={reportData.expiringIn90.length} />
             </div>
-            
+
             <Tabs defaultValue="expiring_soon">
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="expiring_soon">Expiring Soon</TabsTrigger>

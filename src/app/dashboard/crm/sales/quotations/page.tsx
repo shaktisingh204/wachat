@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Plus, FileText, LoaderCircle } from 'lucide-react';
 import { getQuotations } from '@/app/actions/crm-quotations.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import type { WithId, CrmQuotation, CrmAccount } from '@/lib/definitions';
+import type { WithId, CrmQuotation } from '@/lib/definitions';
 import Link from 'next/link';
+
+import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function QuotationsPage() {
     const [quotations, setQuotations] = useState<WithId<CrmQuotation>[]>([]);
@@ -33,79 +33,74 @@ export default function QuotationsPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
-    
-    const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+
+    const getStatusTone = (status: string): 'green' | 'amber' | 'red' | 'rose-soft' => {
         const s = status.toLowerCase();
-        if(s === 'accepted') return 'default';
-        if(s === 'sent') return 'secondary';
-        if(s === 'declined' || s === 'expired') return 'destructive';
-        return 'outline';
+        if (s === 'accepted') return 'green';
+        if (s === 'sent') return 'amber';
+        if (s === 'declined' || s === 'expired') return 'red';
+        return 'rose-soft';
     };
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <FileText className="h-8 w-8" />
-                        Quotations & Estimates
-                    </h1>
-                    <p className="text-muted-foreground">Create and manage your sales quotations.</p>
-                </div>
-                <Button asChild>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Quotations & Estimates"
+                subtitle="Create and manage your sales quotations."
+                icon={FileText}
+                actions={
                     <Link href="/dashboard/crm/sales/quotations/new">
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Quotation
+                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                            New Quotation
+                        </ClayButton>
                     </Link>
-                </Button>
-            </div>
+                }
+            />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Recent Quotations</CardTitle>
-                    <CardDescription>A list of quotations you have created.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Quotation #</TableHead>
-                                    <TableHead>Client</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Amount</TableHead>
+            <ClayCard>
+                <div className="mb-4">
+                    <h2 className="text-[16px] font-semibold text-clay-ink">Recent Quotations</h2>
+                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">A list of quotations you have created.</p>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Quotation #</TableHead>
+                                <TableHead className="text-clay-ink-muted">Client</TableHead>
+                                <TableHead className="text-clay-ink-muted">Date</TableHead>
+                                <TableHead className="text-clay-ink-muted">Status</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                <TableRow className="border-clay-border">
+                                    <TableCell colSpan={5} className="text-center h-24">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center h-24">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                                        </TableCell>
+                            ) : quotations.length > 0 ? (
+                                quotations.map(q => (
+                                    <TableRow key={q._id.toString()} className="border-clay-border cursor-pointer">
+                                        <TableCell className="font-medium text-clay-ink">{q.quotationNumber}</TableCell>
+                                        <TableCell className="text-clay-ink">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
+                                        <TableCell className="text-clay-ink">{new Date(q.quotationDate).toLocaleDateString()}</TableCell>
+                                        <TableCell><ClayBadge tone={getStatusTone(q.status)} dot>{q.status}</ClayBadge></TableCell>
+                                        <TableCell className="text-right font-medium text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
                                     </TableRow>
-                                ) : quotations.length > 0 ? (
-                                    quotations.map(q => (
-                                        <TableRow key={q._id.toString()} className="cursor-pointer" onClick={() => { /* router.push(`/dashboard/crm/sales/quotations/${q._id.toString()}`) */ }}>
-                                            <TableCell className="font-medium">{q.quotationNumber}</TableCell>
-                                            <TableCell>{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
-                                            <TableCell>{new Date(q.quotationDate).toLocaleDateString()}</TableCell>
-                                            <TableCell><Badge variant={getStatusVariant(q.status)}>{q.status}</Badge></TableCell>
-                                            <TableCell className="text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
-                                            No quotations found.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+                                ))
+                            ) : (
+                                <TableRow className="border-clay-border">
+                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                        No quotations found.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ClayCard>
         </div>
     );
 }

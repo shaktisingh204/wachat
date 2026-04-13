@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -7,15 +6,15 @@ import { useRouter } from 'next/navigation';
 import type { WithId } from 'mongodb';
 import { getCrmForms } from '@/app/actions/crm-forms.actions';
 import type { CrmForm } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Search, Plus, FileText, Eye, Edit, Trash2 } from 'lucide-react';
+import { Search, Plus, ClipboardList, Eye, Edit, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { formatDistanceToNow } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
+
+import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const FORMS_PER_PAGE = 20;
 
@@ -51,101 +50,94 @@ export default function CrmFormsPage() {
 
     if (forms.length === 0 && !isLoading) {
         return (
-            <div className="flex justify-center items-center h-full">
-                <Card className="text-center max-w-2xl">
-                    <CardHeader>
-                        <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                            <FileText className="h-12 w-12 text-primary" />
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    title="Forms"
+                    subtitle="Create and embed forms on your website to capture leads directly into your CRM."
+                    icon={ClipboardList}
+                />
+                <ClayCard variant="outline" className="border-dashed">
+                    <div className="flex flex-col items-center gap-3 py-12 text-center">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+                            <ClipboardList className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
                         </div>
-                        <CardTitle className="mt-4 text-2xl">Lead Capture Forms</CardTitle>
-                        <CardDescription>
+                        <h3 className="text-[15px] font-semibold text-clay-ink">Lead Capture Forms</h3>
+                        <p className="max-w-md text-[12.5px] text-clay-ink-muted">
                             Create and embed forms on your website to capture leads directly into your CRM.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Button asChild>
-                            <Link href="/dashboard/crm/sales-crm/forms/new">
-                                <Plus className="mr-2 h-4 w-4" />
+                        </p>
+                        <Link href="/dashboard/crm/sales-crm/forms/new">
+                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
                                 Create First Form
-                            </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
+                            </ClayButton>
+                        </Link>
+                    </div>
+                </ClayCard>
             </div>
-        )
+        );
     }
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <FileText className="h-8 w-8" />
-                        Forms
-                    </h1>
-                    <p className="text-muted-foreground">Manage your lead capture forms.</p>
-                </div>
-                <Button asChild>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Forms"
+                subtitle="Manage your lead capture forms."
+                icon={ClipboardList}
+                actions={
                     <Link href="/dashboard/crm/sales-crm/forms/new">
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Form
+                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                            New Form
+                        </ClayButton>
                     </Link>
-                </Button>
-            </div>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>All Forms</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="mb-4">
-                        <div className="relative w-full max-w-sm">
-                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search by name..."
-                                className="pl-8"
-                                onChange={(e) => handleSearch(e.target.value)}
-                            />
-                        </div>
+                }
+            />
+
+            <ClayCard>
+                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                    <div>
+                        <h2 className="text-[16px] font-semibold text-clay-ink">All Forms</h2>
                     </div>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Form Name</TableHead>
-                                    <TableHead>Submissions</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                    <div className="relative w-full max-w-sm">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+                        <Input
+                            placeholder="Search by name..."
+                            className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+                            onChange={(e) => handleSearch(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Form Name</TableHead>
+                                <TableHead className="text-clay-ink-muted">Submissions</TableHead>
+                                <TableHead className="text-clay-ink-muted">Status</TableHead>
+                                <TableHead className="text-clay-ink-muted">Created</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {forms.map((form) => (
+                                <TableRow key={form._id.toString()} className="border-clay-border">
+                                    <TableCell className="font-medium text-clay-ink">{form.name}</TableCell>
+                                    <TableCell className="text-clay-ink">{form.submissionCount || 0}</TableCell>
+                                    <TableCell><ClayBadge tone="green" dot>Published</ClayBadge></TableCell>
+                                    <TableCell className="text-clay-ink">{formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })}</TableCell>
+                                    <TableCell className="text-right">
+                                        <a href={`/embed/crm-form/${form._id.toString()}`} target="_blank" rel="noopener noreferrer">
+                                            <ClayButton variant="ghost" size="icon"><Eye className="h-4 w-4" /></ClayButton>
+                                        </a>
+                                        <Link href={`/dashboard/crm/sales-crm/forms/${form._id.toString()}/edit`}>
+                                            <ClayButton variant="ghost" size="icon"><Edit className="h-4 w-4" /></ClayButton>
+                                        </Link>
+                                        <ClayButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-red-600" /></ClayButton>
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {forms.map((form) => (
-                                    <TableRow key={form._id.toString()}>
-                                        <TableCell className="font-medium">{form.name}</TableCell>
-                                        <TableCell>{form.submissionCount || 0}</TableCell>
-                                        <TableCell><Badge variant="default">Published</Badge></TableCell>
-                                        <TableCell>{formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })}</TableCell>
-                                        <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon" asChild>
-                                                <a href={`/embed/crm-form/${form._id.toString()}`} target="_blank" rel="noopener noreferrer">
-                                                    <Eye className="h-4 w-4" />
-                                                </a>
-                                            </Button>
-                                            <Button variant="ghost" size="icon" asChild>
-                                                <Link href={`/dashboard/crm/sales-crm/forms/${form._id.toString()}/edit`}>
-                                                    <Edit className="h-4 w-4" />
-                                                </Link>
-                                            </Button>
-                                            <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ClayCard>
         </div>
     );
 }

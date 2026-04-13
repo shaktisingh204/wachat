@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { saveCrmCategory } from "@/app/actions/crm-inventory-settings.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { ClayButton } from "@/components/clay";
 
 interface AddCategoryDialogProps {
     open: boolean;
@@ -74,15 +75,15 @@ export function AddCategoryDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Add Category</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-clay-ink">Add Category</DialogTitle>
+                    <DialogDescription className="text-clay-ink-muted">
                         Create a new product category.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right">
+                            <Label htmlFor="name" className="text-right text-clay-ink">
                                 Name
                             </Label>
                             <Input
@@ -94,7 +95,7 @@ export function AddCategoryDialog({
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="description" className="text-right">
+                            <Label htmlFor="description" className="text-right text-clay-ink">
                                 Description
                             </Label>
                             <Textarea
@@ -106,13 +107,17 @@ export function AddCategoryDialog({
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>
                             Cancel
-                        </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        </ClayButton>
+                        <ClayButton
+                            type="submit"
+                            variant="obsidian"
+                            disabled={isSubmitting}
+                            leading={isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : undefined}
+                        >
                             Save
-                        </Button>
+                        </ClayButton>
                     </DialogFooter>
                 </form>
             </DialogContent>

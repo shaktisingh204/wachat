@@ -1,12 +1,12 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, BookOpen } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+
+import { ClayCard, ClayBadge } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const blockDocs = [
     {
@@ -63,63 +63,63 @@ const blockDocs = [
 
 export default function CrmAutomationDocsPage() {
     return (
-        <div className="flex flex-col gap-8">
+        <div className="flex w-full flex-col gap-6">
             <div>
-                <Button variant="ghost" asChild className="mb-2 -ml-4">
-                    <Link href="/dashboard/crm/automations">
-                        <ChevronLeft className="mr-2 h-4 w-4" />
-                        Back to Automations
-                    </Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline">CRM Automation Documentation</h1>
-                <p className="text-muted-foreground mt-2 max-w-3xl">
-                    A guide to building powerful, automated workflows to manage your leads and customers.
-                </p>
+                <Link href="/dashboard/crm/automations" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
+                    <ChevronLeft className="h-4 w-4" />
+                    Back to Automations
+                </Link>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Using Variables</CardTitle>
-                    <CardDescription>
+            <CrmPageHeader
+                title="CRM Automation Documentation"
+                subtitle="A guide to building powerful, automated workflows to manage your leads and customers."
+                icon={BookOpen}
+            />
+
+            <ClayCard>
+                <div className="mb-4">
+                    <h2 className="text-[16px] font-semibold text-clay-ink">Using Variables</h2>
+                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
                         Variables allow you to personalize your automations and use data dynamically.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="text-sm space-y-4">
+                    </p>
+                </div>
+                <div className="text-[13px] text-clay-ink space-y-4">
                     <p>
-                        Variables are placeholders for data. In the Automation builder, you use double curly braces to insert a variable, like this: <Badge variant="outline" className="font-mono">{"{{contact.name}}"}</Badge>.
+                        Variables are placeholders for data. In the Automation builder, you use double curly braces to insert a variable, like this: <ClayBadge tone="neutral" className="font-mono">{'{{contact.name}}'}</ClayBadge>.
                     </p>
                     <p>
-                        The system provides several default variables you can use in any action, such as <Badge variant="outline">{"{{contact.name}}"}</Badge>, <Badge variant="outline">{"{{contact.email}}"}</Badge>, or <Badge variant="outline">{"{{deal.value}}"}</Badge>.
+                        The system provides several default variables you can use in any action, such as <ClayBadge tone="neutral" className="font-mono">{'{{contact.name}}'}</ClayBadge>, <ClayBadge tone="neutral" className="font-mono">{'{{contact.email}}'}</ClayBadge>, or <ClayBadge tone="neutral" className="font-mono">{'{{deal.value}}'}</ClayBadge>.
                     </p>
-                </CardContent>
-            </Card>
+                </div>
+            </ClayCard>
 
             <Separator />
 
             <div>
-                <h2 className="text-2xl font-bold font-headline">Automation Blocks</h2>
-                <p className="text-muted-foreground mt-1">
+                <h2 className="text-[20px] font-bold text-clay-ink">Automation Blocks</h2>
+                <p className="mt-1 text-[13px] text-clay-ink-muted">
                     An overview of all available triggers and actions.
                 </p>
             </div>
 
             <Accordion type="single" collapsible className="w-full">
                 {blockDocs.map((doc, index) => (
-                     <AccordionItem value={`item-${index}`} key={index}>
-                        <AccordionTrigger className="text-lg font-semibold">{doc.title}</AccordionTrigger>
+                     <AccordionItem value={`item-${index}`} key={index} className="border-clay-border">
+                        <AccordionTrigger className="text-[15px] font-semibold">{doc.title}</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
-                             <p className="text-base text-muted-foreground">{doc.description}</p>
+                             <p className="text-[13px] text-clay-ink-muted">{doc.description}</p>
                              <div className="space-y-2">
-                                 <h4 className="font-semibold">Properties:</h4>
-                                 <ul className="list-disc list-inside space-y-1 text-sm">
+                                 <h4 className="font-semibold text-clay-ink">Properties:</h4>
+                                 <ul className="list-disc list-inside space-y-1 text-[12.5px] text-clay-ink">
                                      {doc.properties.map((prop, pIndex) => (
                                         <li key={pIndex}><strong>{prop.name}:</strong> {prop.desc}</li>
                                      ))}
                                  </ul>
                              </div>
                              <div className="space-y-2">
-                                 <h4 className="font-semibold">Outputs:</h4>
-                                 <ul className="list-disc list-inside space-y-1 text-sm">
+                                 <h4 className="font-semibold text-clay-ink">Outputs:</h4>
+                                 <ul className="list-disc list-inside space-y-1 text-[12.5px] text-clay-ink">
                                      {doc.outputs.map((out, oIndex) => <li key={oIndex}>{out}</li>)}
                                  </ul>
                              </div>

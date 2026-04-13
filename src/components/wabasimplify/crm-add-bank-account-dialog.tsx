@@ -18,6 +18,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Switch } from '../ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import type { BankAccountDetails } from '@/lib/definitions';
+import { ClayButton } from '@/components/clay';
 
 interface CrmAddBankAccountDialogProps {
     isOpen: boolean;
@@ -45,39 +46,39 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <DialogHeader className="px-6 pt-6 pb-2">
-                    <DialogTitle>Add New Bank Account</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-clay-ink">Add New Bank Account</DialogTitle>
+                    <DialogDescription className="text-clay-ink-muted">
                         Enter the vendor's bank details for payouts.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex-1 overflow-y-auto px-6 py-2">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Country *</Label>
+                            <Label className="text-clay-ink">Country *</Label>
                             <Select defaultValue="India"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem></SelectContent></Select>
                         </div>
                         <div className="space-y-2">
-                            <Label>Bank Name *</Label>
+                            <Label className="text-clay-ink">Bank Name *</Label>
                             <Input placeholder="e.g. HDFC Bank" value={details.bankName || ''} onChange={e => setDetails(prev => ({ ...prev, bankName: e.target.value }))} required maxLength={100} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Account Number *</Label>
+                            <Label className="text-clay-ink">Account Number *</Label>
                             <Input value={details.accountNumber || ''} onChange={e => setDetails(prev => ({ ...prev, accountNumber: e.target.value }))} required maxLength={30} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Confirm Account Number *</Label>
+                            <Label className="text-clay-ink">Confirm Account Number *</Label>
                             <Input value={confirmAccountNumber} onChange={e => setConfirmAccountNumber(e.target.value)} required maxLength={30} />
                         </div>
                         <div className="space-y-2">
-                            <Label>IFSC Code *</Label>
+                            <Label className="text-clay-ink">IFSC Code *</Label>
                             <Input value={details.ifsc || ''} onChange={e => setDetails(prev => ({ ...prev, ifsc: e.target.value }))} required maxLength={20} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Account Holder Name *</Label>
+                            <Label className="text-clay-ink">Account Holder Name *</Label>
                             <Input value={details.accountHolder || ''} onChange={e => setDetails(prev => ({ ...prev, accountHolder: e.target.value }))} required maxLength={100} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Account Type *</Label>
+                            <Label className="text-clay-ink">Account Type *</Label>
                             <Select value={details.accountType || ''} onValueChange={val => setDetails(prev => ({ ...prev, accountType: val as any }))} required>
                                 <SelectTrigger><SelectValue placeholder="Select account type..." /></SelectTrigger>
                                 <SelectContent>
@@ -87,7 +88,7 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label>Currency *</Label>
+                            <Label className="text-clay-ink">Currency *</Label>
                             <Select value={details.currency || 'INR'} onValueChange={val => setDetails(prev => ({ ...prev, currency: val }))} required>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -97,19 +98,19 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                         </div>
                         <div className="flex items-center space-x-2 pt-2">
                             <Switch id="show-swift" checked={showSwift} onCheckedChange={setShowSwift} />
-                            <Label htmlFor="show-swift">Add SWIFT Code</Label>
+                            <Label htmlFor="show-swift" className="text-clay-ink">Add SWIFT Code</Label>
                         </div>
                         {showSwift && <div className="space-y-2"><Input value={details.swiftCode || ''} onChange={e => setDetails(prev => ({ ...prev, swiftCode: e.target.value }))} maxLength={20} /></div>}
                         <div className="flex items-center space-x-2">
                             <Switch id="show-iban" checked={showIban} onCheckedChange={setShowIban} />
-                            <Label htmlFor="show-iban">Add IBAN Code</Label>
+                            <Label htmlFor="show-iban" className="text-clay-ink">Add IBAN Code</Label>
                         </div>
                         {showIban && <div className="space-y-2"><Input value={details.ibanCode || ''} onChange={e => setDetails(prev => ({ ...prev, ibanCode: e.target.value }))} maxLength={34} /></div>}
                     </div>
                 </div>
                 <DialogFooter className="px-6 pb-6 pt-2">
-                    <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button type="button" onClick={handleSave}>Add Account</Button>
+                    <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
+                    <ClayButton type="button" variant="obsidian" onClick={handleSave}>Add Account</ClayButton>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

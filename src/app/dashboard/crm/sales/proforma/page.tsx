@@ -1,16 +1,15 @@
 'use server';
 
-import { Suspense } from 'react';
 import { getProformaInvoices } from '@/app/actions/crm-proforma-invoices.actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Search, BadgeInfo } from 'lucide-react';
+import { Plus, Search, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
 import { MonthPicker } from '@/components/crm/month-picker';
+
+import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default async function ProformaInvoicesPage({
     searchParams,
@@ -31,84 +30,78 @@ export default async function ProformaInvoicesPage({
     const { invoices, total } = await getProformaInvoices(currentPage, 20, { query, month, year });
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-2">
-                        <BadgeInfo className="h-8 w-8 text-primary" />
-                        Proforma Invoices
-                    </h1>
-                    <p className="text-muted-foreground">Manage your proforma invoices.</p>
-                </div>
-                <div className="flex gap-2">
-                    <MonthPicker />
-                    <Button asChild>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Proforma Invoices"
+                subtitle="Manage your proforma invoices."
+                icon={FileText}
+                actions={
+                    <>
+                        <MonthPicker />
                         <Link href="/dashboard/crm/sales/proforma/new">
-                            <Plus className="mr-2 h-4 w-4" /> New Proforma
+                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                                New Proforma
+                            </ClayButton>
                         </Link>
-                    </Button>
-                </div>
-            </div>
+                    </>
+                }
+            />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>All Proforma Invoices</CardTitle>
-                    <div className="flex items-center gap-2">
-                        <div className="relative flex-1 max-w-sm">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                type="search"
-                                placeholder="Search proforma..." // Note: Client component usage for search input might be needed for real interactivity, handled via URL
-                                className="pl-8"
-                                defaultValue={query}
-                            />
-                        </div>
+            <ClayCard>
+                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                    <div>
+                        <h2 className="text-[16px] font-semibold text-clay-ink">All Proforma Invoices</h2>
                     </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Proforma #</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Client</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Amount</TableHead>
+                    <div className="relative w-full max-w-sm">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+                        <Input
+                            type="search"
+                            placeholder="Search proforma..."
+                            className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+                            defaultValue={query}
+                        />
+                    </div>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Proforma #</TableHead>
+                                <TableHead className="text-clay-ink-muted">Date</TableHead>
+                                <TableHead className="text-clay-ink-muted">Client</TableHead>
+                                <TableHead className="text-clay-ink-muted">Status</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {invoices.length === 0 ? (
+                                <TableRow className="border-clay-border">
+                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                        No proforma invoices found.
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {invoices.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
-                                            No proforma invoices found.
+                            ) : (
+                                invoices.map((inv) => (
+                                    <TableRow key={inv._id.toString()} className="border-clay-border">
+                                        <TableCell className="font-medium text-clay-ink">{inv.proformaNumber}</TableCell>
+                                        <TableCell className="text-clay-ink">{format(new Date(inv.proformaDate), 'PP')}</TableCell>
+                                        <TableCell className="text-clay-ink">Client</TableCell>
+                                        <TableCell>
+                                            <ClayBadge tone="rose-soft">{inv.status}</ClayBadge>
+                                        </TableCell>
+                                        <TableCell className="text-right font-medium text-clay-ink">
+                                            {inv.currency} {inv.total.toFixed(2)}
                                         </TableCell>
                                     </TableRow>
-                                ) : (
-                                    invoices.map((inv) => (
-                                        <TableRow key={inv._id.toString()}>
-                                            <TableCell className="font-medium">{inv.proformaNumber}</TableCell>
-                                            <TableCell>{format(new Date(inv.proformaDate), 'PP')}</TableCell>
-                                            <TableCell>Client</TableCell> {/* Placeholder since we don't have join yet here */}
-                                            <TableCell>
-                                                <Badge variant="outline">{inv.status}</Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                {inv.currency} {inv.total.toFixed(2)}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                    <div className="text-xs text-muted-foreground">
-                        Showing {invoices.length} of {total} records
-                    </div>
-                </CardFooter>
-            </Card>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="mt-4 text-[11.5px] text-clay-ink-muted">
+                    Showing {invoices.length} of {total} records
+                </div>
+            </ClayCard>
         </div>
     );
 }

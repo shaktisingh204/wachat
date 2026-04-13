@@ -1,10 +1,8 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Download, SlidersHorizontal, History, LoaderCircle } from "lucide-react";
+import { Download, SlidersHorizontal, LoaderCircle, ArrowLeftRight } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateAllTransactionsReport } from "@/app/actions/crm-reports.actions";
 import { useToast } from "@/hooks/use-toast";
@@ -13,7 +11,9 @@ import { format } from "date-fns";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+
+import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type Transaction = {
     date: Date;
@@ -30,7 +30,6 @@ export default function AllTransactionsReportPage() {
     const [isLoading, startTransition] = useTransition();
     const { toast } = useToast();
 
-    // Filters
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
     const [transactionType, setTransactionType] = useState<string>('all');
@@ -77,76 +76,77 @@ export default function AllTransactionsReportPage() {
         document.body.removeChild(link);
     };
 
-    const getTypeVariant = (type: string) => {
-        if (type.includes('Sale')) return 'default';
-        if (type.includes('Return')) return 'destructive';
-        return 'secondary';
+    const getTypeTone = (type: string): 'rose-soft' | 'red' | 'neutral' => {
+        if (type.includes('Sale')) return 'rose-soft';
+        if (type.includes('Return')) return 'red';
+        return 'neutral';
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><History /> All Inventory Transactions</h1>
-                    <p className="text-muted-foreground">A complete log of all stock movements.</p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4"/>Filters</Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80 space-y-4">
-                            <div className="space-y-2"><Label>Start Date</Label><DatePicker date={startDate} setDate={setStartDate} /></div>
-                            <div className="space-y-2"><Label>End Date</Label><DatePicker date={endDate} setDate={setEndDate} /></div>
-                            <div className="space-y-2"><Label>Transaction Type</Label><Select value={transactionType} onValueChange={setTransactionType}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">All Types</SelectItem><SelectItem value="Sale">Sales</SelectItem><SelectItem value="Sales Return">Sales Returns</SelectItem><SelectItem value="Stock Adjustment">Stock Adjustments</SelectItem></SelectContent></Select></div>
-                            <Button onClick={fetchData} disabled={isLoading} className="w-full">Apply</Button>
-                        </PopoverContent>
-                    </Popover>
-                    <Button variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}><Download className="mr-2 h-4 w-4"/>Download CSV</Button>
-                </div>
-            </div>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Transaction Log</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Item Name</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Quantity</TableHead>
-                                    <TableHead>Party</TableHead>
-                                    <TableHead>Reference</TableHead>
-                                    <TableHead>Warehouse</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    <TableRow><TableCell colSpan={7} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin"/></TableCell></TableRow>
-                                ) : reportData.length > 0 ? (
-                                    reportData.map((row, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell className="text-xs">{format(new Date(row.date), 'PP p')}</TableCell>
-                                            <TableCell className="font-medium">{row.itemName}</TableCell>
-                                            <TableCell><Badge variant={getTypeVariant(row.type)}>{row.type}</Badge></TableCell>
-                                            <TableCell className={`font-semibold ${row.quantity < 0 ? 'text-destructive' : 'text-green-600'}`}>{row.quantity}</TableCell>
-                                            <TableCell>{row.partyName || 'N/A'}</TableCell>
-                                            <TableCell className="font-mono text-xs">{row.reference}</TableCell>
-                                            <TableCell>{row.warehouseName || 'Default'}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow><TableCell colSpan={7} className="h-48 text-center text-muted-foreground">No transactions found for the selected filters.</TableCell></TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="All Inventory Transactions"
+                subtitle="A complete log of all stock movements."
+                icon={ArrowLeftRight}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <ClayButton variant="pill" leading={<SlidersHorizontal className="h-4 w-4" strokeWidth={1.75} />}>
+                                    Filters
+                                </ClayButton>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 space-y-4">
+                                <div className="space-y-2"><Label>Start Date</Label><DatePicker date={startDate} setDate={setStartDate} /></div>
+                                <div className="space-y-2"><Label>End Date</Label><DatePicker date={endDate} setDate={setEndDate} /></div>
+                                <div className="space-y-2"><Label>Transaction Type</Label><Select value={transactionType} onValueChange={setTransactionType}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">All Types</SelectItem><SelectItem value="Sale">Sales</SelectItem><SelectItem value="Sales Return">Sales Returns</SelectItem><SelectItem value="Stock Adjustment">Stock Adjustments</SelectItem></SelectContent></Select></div>
+                                <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading} className="w-full">Apply</ClayButton>
+                            </PopoverContent>
+                        </Popover>
+                        <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
+                            Download CSV
+                        </ClayButton>
                     </div>
-                </CardContent>
-            </Card>
+                }
+            />
+
+            <ClayCard>
+                <h2 className="text-[16px] font-semibold text-clay-ink">Transaction Log</h2>
+                <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Date</TableHead>
+                                <TableHead className="text-clay-ink-muted">Item Name</TableHead>
+                                <TableHead className="text-clay-ink-muted">Type</TableHead>
+                                <TableHead className="text-clay-ink-muted">Quantity</TableHead>
+                                <TableHead className="text-clay-ink-muted">Party</TableHead>
+                                <TableHead className="text-clay-ink-muted">Reference</TableHead>
+                                <TableHead className="text-clay-ink-muted">Warehouse</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
+                            ) : reportData.length > 0 ? (
+                                reportData.map((row, index) => (
+                                    <TableRow key={index} className="border-clay-border">
+                                        <TableCell className="text-[11.5px] text-clay-ink">{format(new Date(row.date), 'PP p')}</TableCell>
+                                        <TableCell className="font-medium text-clay-ink">{row.itemName}</TableCell>
+                                        <TableCell><ClayBadge tone={getTypeTone(row.type)}>{row.type}</ClayBadge></TableCell>
+                                        <TableCell className={`font-semibold ${row.quantity < 0 ? 'text-clay-red' : 'text-clay-green'}`}>{row.quantity}</TableCell>
+                                        <TableCell className="text-clay-ink">{row.partyName || 'N/A'}</TableCell>
+                                        <TableCell className="font-mono text-[11.5px] text-clay-ink">{row.reference}</TableCell>
+                                        <TableCell className="text-clay-ink">{row.warehouseName || 'Default'}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-48 text-center text-clay-ink-muted">No transactions found for the selected filters.</TableCell></TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ClayCard>
         </div>
     );
 }

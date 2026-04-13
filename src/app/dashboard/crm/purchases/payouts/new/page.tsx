@@ -1,13 +1,19 @@
 'use server';
 
 import { Suspense } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 import { NewPayoutForm } from './new-payout-form';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 export default async function NewPayoutPage() {
     return (
         <div className="flex flex-col gap-6 max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Record Payout</h1>
-            <Suspense fallback={<div>Loading...</div>}>
+            <CrmPageHeader
+                title="Record Payout"
+                subtitle="Record a payment made to a vendor."
+                icon={ArrowUpRight}
+            />
+            <Suspense fallback={<div className="text-[13px] text-clay-ink-muted">Loading...</div>}>
                 <NewPayoutForm />
             </Suspense>
         </div>

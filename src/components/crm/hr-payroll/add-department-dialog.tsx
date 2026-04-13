@@ -16,16 +16,21 @@ import { Label } from '@/components/ui/label';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCrmDepartment } from '@/app/actions/crm-employees.actions';
+import { ClayButton } from '@/components/clay';
 
 const initialState: { message?: string; error?: string; newDepartment?: any } = { message: undefined, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
+        >
             Save Department
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -63,22 +68,22 @@ export function AddDepartmentDialog({ open, onOpenChange, onDepartmentAdded, def
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Add New Department</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-clay-ink">Add New Department</DialogTitle>
+                    <DialogDescription className="text-clay-ink-muted">
                         Create a new department for your organization.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Department Name</Label>
+                        <Label htmlFor="name" className="text-clay-ink">Department Name</Label>
                         <Input id="name" name="name" defaultValue={defaultName} required />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description" className="text-clay-ink">Description</Label>
                         <Input id="description" name="description" />
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
                         <SubmitButton />
                     </DialogFooter>
                 </form>

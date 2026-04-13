@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { saveCrmAccountGroup } from '@/app/actions/crm-accounting.actions';
 import { Loader2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
+import { ClayButton } from '@/components/clay';
 
 const initialState = {
     message: '',
@@ -26,10 +27,14 @@ const initialState = {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <Loader2 className="h-4 w-4 animate-spin" /> : undefined}
+        >
             Save Group
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -74,18 +79,18 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Add Account Group</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-clay-ink">Add Account Group</DialogTitle>
+                    <DialogDescription className="text-clay-ink-muted">
                         Create a new group for your Chart of Accounts.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Group Name</Label>
+                        <Label htmlFor="name" className="text-clay-ink">Group Name</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="type">Type</Label>
+                        <Label htmlFor="type" className="text-clay-ink">Type</Label>
                         <Select name="type" required value={selectedType} onValueChange={setSelectedType}>
                             <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -98,7 +103,7 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
                         </Select>
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="category">Category</Label>
+                        <Label htmlFor="category" className="text-clay-ink">Category</Label>
                         <Select name="category" required>
                             <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
                             <SelectContent>
@@ -109,7 +114,7 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
                         </Select>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
                         <SubmitButton />
                     </DialogFooter>
                 </form>

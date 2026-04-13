@@ -1,12 +1,10 @@
-
 'use client';
 
-import { useActionState, useEffect, useState, useTransition, useCallback, useRef } from 'react';
+import { useActionState, useEffect, useState, useTransition, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ModuleLayout } from '@/components/wabasimplify/module-layout';
 import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
-import { ListChecks, CalendarDays, Percent, Bell, Shield, Settings, ShieldCheck } from 'lucide-react';
+import { ListChecks, CalendarDays, Percent, Bell, Shield, Settings } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
 import { getSession } from '@/app/actions/user.actions';
@@ -40,19 +38,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
+
 const PlaceholderCard = ({ title, description }: { title: string, description: string }) => (
-    <Card className="text-center py-16">
-        <CardHeader>
-            <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                <Settings className="h-12 w-12 text-primary" />
+    <ClayCard>
+        <div className="flex flex-col items-center gap-3 py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+                <Settings className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
             </div>
-            <CardTitle className="mt-4 text-2xl">{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <p className="text-muted-foreground">This feature is under development and will be available soon.</p>
-        </CardContent>
-    </Card>
+            <h3 className="text-[15px] font-semibold text-clay-ink">{title}</h3>
+            <p className="text-[12.5px] text-clay-ink-muted">{description}</p>
+            <p className="mt-2 text-[11.5px] text-clay-ink-muted">This feature is under development and will be available soon.</p>
+        </div>
+    </ClayCard>
 );
 
 const initialState = { message: null, error: undefined };
@@ -103,7 +102,9 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" />Add Role</Button></DialogTrigger>
+            <DialogTrigger asChild>
+                <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" />}>Add Role</ClayButton>
+            </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create New Role</DialogTitle>
@@ -111,7 +112,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 </DialogHeader>
                 <div className="py-4">
                     <Label htmlFor="roleName">Role Name</Label>
-                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} />
+                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
@@ -151,7 +152,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>This will permanently delete the "{role.name}" role. Team members with this role will lose their special permissions.</AlertDialogDescription>
+                    <AlertDialogDescription>This will permanently delete the &ldquo;{role.name}&rdquo; role. Team members with this role will lose their special permissions.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -184,7 +185,7 @@ function AccessControlTab() {
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
-            fetchUser(); // Refetch user to get the latest permissions
+            fetchUser();
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -199,8 +200,8 @@ function AccessControlTab() {
 
     return (
         <form action={formAction}>
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Roles & Permissions</h3>
+            <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-[15px] font-semibold text-clay-ink">Roles & Permissions</h3>
                 <AddRoleDialog onRoleAdded={fetchUser} />
             </div>
             <Accordion type="single" collapsible className="w-full space-y-4">
@@ -208,8 +209,8 @@ function AccessControlTab() {
                     const crmPermissions = (role as any).permissions || {};
 
                     return (
-                        <AccordionItem key={role.id} value={role.id} className="border rounded-lg bg-card">
-                            <AccordionTrigger className="p-4 font-semibold text-lg hover:no-underline">
+                        <AccordionItem key={role.id} value={role.id} className="rounded-clay-md border border-clay-border bg-clay-surface">
+                            <AccordionTrigger className="p-4 text-[14px] font-semibold hover:no-underline">
                                 <div className="flex items-center gap-2">
                                     {role.name}
                                     {role.id !== 'agent' && <DeleteRoleButton role={role} onRoleDeleted={fetchUser} />}
@@ -219,15 +220,15 @@ function AccessControlTab() {
                                 <input type="hidden" name={`roleId`} value={role.id} />
                                 <Table>
                                     <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Module</TableHead>
-                                            {actions.map(action => <TableHead key={action} className="text-center capitalize">{action}</TableHead>)}
+                                        <TableRow className="border-clay-border">
+                                            <TableHead className="text-clay-ink-muted">Module</TableHead>
+                                            {actions.map(action => <TableHead key={action} className="text-center capitalize text-clay-ink-muted">{action}</TableHead>)}
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {crmModules.map(module => (
-                                            <TableRow key={module.id}>
-                                                <TableCell className="font-medium">{module.name}</TableCell>
+                                            <TableRow key={module.id} className="border-clay-border">
+                                                <TableCell className="text-[13px] font-medium text-clay-ink">{module.name}</TableCell>
                                                 {actions.map(action => (
                                                     <TableCell key={action} className="text-center">
                                                         <Checkbox
@@ -245,7 +246,7 @@ function AccessControlTab() {
                     )
                 })}
             </Accordion>
-            <div className="flex justify-end mt-6">
+            <div className="mt-6 flex justify-end">
                 <SubmitButton />
             </div>
         </form>
@@ -255,18 +256,12 @@ function AccessControlTab() {
 export default function HrmSettingsPage() {
     const [activeTab, setActiveTab] = useState('access_control');
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Settings className="h-8 w-8" />
-                        HRM Settings
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Configure payroll, attendance, leave, compliance, and notification rules for your organization.
-                    </p>
-                </div>
-            </div>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="HRM Settings"
+                subtitle="Configure payroll, attendance, leave, compliance, and notification rules for your organization."
+                icon={Settings}
+            />
 
             <ModuleLayout
                 sidebar={
@@ -287,37 +282,37 @@ export default function HrmSettingsPage() {
             >
                 {activeTab === 'pay_cycle' && (
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-semibold tracking-tight">Pay Cycle</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Pay Cycle</h2>
                         <PlaceholderCard title="Pay Cycle Configuration" description="Define your company's pay period (e.g., monthly, weekly) and payroll processing dates." />
                     </div>
                 )}
                 {activeTab === 'attendance' && (
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-semibold tracking-tight">Attendance</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Attendance</h2>
                         <PlaceholderCard title="Attendance Rules" description="Set rules for late entry, early exit, overtime, and shift timings." />
                     </div>
                 )}
                 {activeTab === 'leave_policy' && (
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-semibold tracking-tight">Leave Policy</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Leave Policy</h2>
                         <PlaceholderCard title="Leave Policy Setup" description="Create and assign different leave types like Casual Leave (CL), Sick Leave (SL), and Paid Leave (PL)." />
                     </div>
                 )}
                 {activeTab === 'tax_deduction' && (
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-semibold tracking-tight">Tax & Deductions</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Tax & Deductions</h2>
                         <PlaceholderCard title="Tax & Deduction Rules" description="Manage formulas and rules for all statutory and custom deductions and allowances." />
                     </div>
                 )}
                 {activeTab === 'notifications' && (
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-semibold tracking-tight">Notifications</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Notifications</h2>
                         <PlaceholderCard title="Notification Settings" description="Configure email and SMS notification templates for HR-related events." />
                     </div>
                 )}
                 {activeTab === 'access_control' && (
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-semibold tracking-tight">Access Control</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Access Control</h2>
                         <AccessControlTab />
                     </div>
                 )}

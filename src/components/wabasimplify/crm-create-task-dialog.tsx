@@ -22,16 +22,21 @@ import { createCrmTask } from '@/app/actions/crm-tasks.actions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { DatePicker } from '../ui/date-picker';
 import { Textarea } from '../ui/textarea';
+import { ClayButton } from '@/components/clay';
 
 const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+    <ClayButton
+      type="submit"
+      variant="obsidian"
+      disabled={pending}
+      leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
+    >
       Create Task
-    </Button>
+    </ClayButton>
   );
 }
 
@@ -76,26 +81,26 @@ export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreate
           {dealId && <input type="hidden" name="dealId" value={dealId} />}
 
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Create New Task</DialogTitle>
-            <DialogDescription>Add a new to-do item for your team.</DialogDescription>
+            <DialogTitle className="text-clay-ink">Create New Task</DialogTitle>
+            <DialogDescription className="text-clay-ink-muted">Add a new to-do item for your team.</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title" className="text-clay-ink">Title</Label>
                 <Input id="title" name="title" required placeholder="e.g., Follow up with Acme Corp" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description (Optional)</Label>
+                <Label htmlFor="description" className="text-clay-ink">Description (Optional)</Label>
                 <Textarea id="description" name="description" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Due Date</Label>
+                  <Label className="text-clay-ink">Due Date</Label>
                   <DatePicker date={dueDate} setDate={setDueDate} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="priority">Priority</Label>
+                  <Label htmlFor="priority" className="text-clay-ink">Priority</Label>
                   <Select name="priority" defaultValue="Medium">
                     <SelectTrigger id="priority"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -107,7 +112,7 @@ export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreate
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="type">Task Type</Label>
+                <Label htmlFor="type" className="text-clay-ink">Task Type</Label>
                 <Select name="type" defaultValue="Follow-up">
                   <SelectTrigger id="type"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -122,7 +127,7 @@ export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreate
             </div>
           </div>
           <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
             <SubmitButton />
           </DialogFooter>
         </form>

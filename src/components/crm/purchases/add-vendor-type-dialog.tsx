@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { saveCrmVendorType } from '@/app/actions/crm-vendors.actions';
 import { Loader2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
+import { ClayButton } from '@/components/clay';
 
 const initialState = {
     message: '',
@@ -26,10 +27,14 @@ const initialState = {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <Loader2 className="h-4 w-4 animate-spin" /> : undefined}
+        >
             Save Vendor Type
-        </Button>
+        </ClayButton>
     );
 }
 
@@ -60,22 +65,22 @@ export function AddVendorTypeDialog({ open, onOpenChange, onTypeAdded, defaultNa
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Add Vendor Type</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-clay-ink">Add Vendor Type</DialogTitle>
+                    <DialogDescription className="text-clay-ink-muted">
                         Create a new vendor type for your suppliers.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name" className="text-clay-ink">Name</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="description">Description (Optional)</Label>
+                        <Label htmlFor="description" className="text-clay-ink">Description (Optional)</Label>
                         <Textarea id="description" name="description" />
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
                         <SubmitButton />
                     </DialogFooter>
                 </form>

@@ -1,15 +1,13 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
+import { useState, useEffect, useCallback, useTransition, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,11 +19,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { FileText, LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
+import { Landmark, LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCrmPtSlabs, saveCrmPtSlab, deleteCrmPtSlab, generateProfessionalTaxReport } from '@/app/actions/crm-hr.actions';
 import type { WithId, CrmProfessionalTaxSlab } from '@/lib/definitions';
 import { indianStates } from '@/lib/states';
+
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const saveInitialState: any = { message: null, error: null };
 
@@ -58,7 +59,9 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void, slab?: WithId<Cr
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                {slab ? <Button variant="ghost" size="sm">Edit</Button> : <Button><Plus className="mr-2 h-4 w-4" /> Add New Slab</Button>}
+                {slab ? <Button variant="ghost" size="sm">Edit</Button> : (
+                    <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" />}>Add New Slab</ClayButton>
+                )}
             </DialogTrigger>
             <DialogContent>
                 <form action={formAction}>
@@ -66,7 +69,7 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void, slab?: WithId<Cr
                     <DialogHeader>
                         <DialogTitle>{slab ? 'Edit' : 'Add'} Professional Tax Slab</DialogTitle>
                     </DialogHeader>
-                    <div className="py-4 space-y-4">
+                    <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label>State *</Label>
                             <Select name="state" required defaultValue={slab?.state}>
@@ -79,16 +82,16 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void, slab?: WithId<Cr
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Min. Monthly Salary *</Label>
-                                <Input type="number" name="minSalary" defaultValue={slab?.minSalary} required />
+                                <Input type="number" name="minSalary" defaultValue={slab?.minSalary} required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
                             </div>
                             <div className="space-y-2">
                                 <Label>Max. Monthly Salary *</Label>
-                                <Input type="number" name="maxSalary" defaultValue={slab?.maxSalary} required />
+                                <Input type="number" name="maxSalary" defaultValue={slab?.maxSalary} required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
                             </div>
                         </div>
                          <div className="space-y-2">
                             <Label>Monthly Tax Amount *</Label>
-                            <Input type="number" name="taxAmount" defaultValue={slab?.taxAmount} required />
+                            <Input type="number" name="taxAmount" defaultValue={slab?.taxAmount} required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
                         </div>
                     </div>
                     <DialogFooter>
@@ -150,66 +153,60 @@ export default function ProfessionalTaxPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
-    
+
     return (
-        <div className="space-y-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <FileText className="h-8 w-8" />
-                        Professional Tax
-                    </h1>
-                    <p className="text-muted-foreground mt-2">Manage PT slabs and view calculated tax for your employees.</p>
-                </div>
-            </div>
-            
-            <div className="grid lg:grid-cols-3 gap-8 items-start">
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Professional Tax"
+                subtitle="Manage PT slabs and view calculated tax for your employees."
+                icon={Landmark}
+            />
+
+            <div className="grid items-start gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Professional Tax Report</CardTitle>
-                             <CardDescription>Calculated PT based on employee salary and defined state slabs.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                             <Table>
+                    <ClayCard>
+                        <div className="mb-4">
+                            <h2 className="text-[16px] font-semibold text-clay-ink">Professional Tax Report</h2>
+                            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Calculated PT based on employee salary and defined state slabs.</p>
+                        </div>
+                        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                            <Table>
                                 <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Employee</TableHead>
-                                        <TableHead>State</TableHead>
-                                        <TableHead>Gross Salary</TableHead>
-                                        <TableHead className="text-right">Calculated PT</TableHead>
+                                    <TableRow className="border-clay-border hover:bg-transparent">
+                                        <TableHead className="text-clay-ink-muted">Employee</TableHead>
+                                        <TableHead className="text-clay-ink-muted">State</TableHead>
+                                        <TableHead className="text-clay-ink-muted">Gross Salary</TableHead>
+                                        <TableHead className="text-right text-clay-ink-muted">Calculated PT</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {isLoading ? <TableRow><TableCell colSpan={4} className="h-48 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
+                                    {isLoading ? <TableRow className="border-clay-border"><TableCell colSpan={4} className="h-48 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
                                     : report.length > 0 ? report.map(item => (
-                                        <TableRow key={item.employeeId}>
-                                            <TableCell className="font-medium">{item.employeeName}</TableCell>
-                                            <TableCell>{item.state}</TableCell>
-                                            <TableCell>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.grossSalary)}</TableCell>
-                                            <TableCell className="text-right font-semibold">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.taxAmount)}</TableCell>
+                                        <TableRow key={item.employeeId} className="border-clay-border">
+                                            <TableCell className="text-[13px] font-medium text-clay-ink">{item.employeeName}</TableCell>
+                                            <TableCell className="text-[13px] text-clay-ink">{item.state}</TableCell>
+                                            <TableCell className="text-[13px] text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.grossSalary)}</TableCell>
+                                            <TableCell className="text-right text-[13px] font-semibold text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.taxAmount)}</TableCell>
                                         </TableRow>
                                     ))
-                                    : <TableRow><TableCell colSpan={4} className="h-24 text-center">No report data. Add employees with salary and state info.</TableCell></TableRow>}
+                                    : <TableRow className="border-clay-border"><TableCell colSpan={4} className="h-24 text-center text-[13px] text-clay-ink-muted">No report data. Add employees with salary and state info.</TableCell></TableRow>}
                                 </TableBody>
                             </Table>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </ClayCard>
                 </div>
                 <div className="lg:col-span-1">
-                     <Card>
-                        <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <CardTitle>Tax Slabs</CardTitle>
-                                <SlabFormDialog onSave={fetchData}/>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
+                    <ClayCard>
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="text-[16px] font-semibold text-clay-ink">Tax Slabs</h2>
+                            <SlabFormDialog onSave={fetchData}/>
+                        </div>
+                        <div className="space-y-2">
                             {slabs.map(slab => (
-                                <div key={slab._id.toString()} className="flex items-center justify-between p-2 border rounded-md">
+                                <div key={slab._id.toString()} className="flex items-center justify-between rounded-clay-md border border-clay-border p-2">
                                     <div>
-                                        <p className="font-semibold text-sm">{slab.state}</p>
-                                        <p className="text-xs text-muted-foreground">₹{slab.minSalary} - ₹{slab.maxSalary} &rarr; ₹{slab.taxAmount}/mo</p>
+                                        <p className="text-[13px] font-semibold text-clay-ink">{slab.state}</p>
+                                        <p className="text-[11.5px] text-clay-ink-muted">₹{slab.minSalary} - ₹{slab.maxSalary} &rarr; ₹{slab.taxAmount}/mo</p>
                                     </div>
                                     <div>
                                         <SlabFormDialog slab={slab} onSave={fetchData} />
@@ -217,8 +214,8 @@ export default function ProfessionalTaxPage() {
                                     </div>
                                 </div>
                             ))}
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </ClayCard>
                 </div>
             </div>
         </div>

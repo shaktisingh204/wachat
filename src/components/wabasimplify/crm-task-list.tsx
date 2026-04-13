@@ -2,10 +2,8 @@
 'use client';
 
 import { useTransition } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { format, isPast, isToday } from 'date-fns';
 import { Calendar, Trash2, Flag, Mail, Phone, MessageSquare } from 'lucide-react';
@@ -14,11 +12,12 @@ import { useToast } from '@/hooks/use-toast';
 import type { WithId, CrmTask } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ClayCard, ClayBadge } from '@/components/clay';
 
-const priorityConfig = {
-    High: { color: 'bg-red-500', label: 'High' },
-    Medium: { color: 'bg-yellow-500', label: 'Medium' },
-    Low: { color: 'bg-green-500', label: 'Low' },
+const priorityConfig: Record<'High' | 'Medium' | 'Low', { tone: 'red' | 'amber' | 'green'; label: string }> = {
+    High: { tone: 'red', label: 'High' },
+    Medium: { tone: 'amber', label: 'Medium' },
+    Low: { tone: 'green', label: 'Low' },
 };
 
 const typeConfig = {
@@ -58,9 +57,9 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
     }
     
     return (
-        <Card className="h-full">
-            <CardContent className="p-0">
-                <div className="border rounded-md">
+        <ClayCard className="h-full" padded={false}>
+            <div className="p-0">
+                <div className="border border-clay-border rounded-clay-md">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -75,7 +74,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                         <TableBody>
                             {tasks.length > 0 ? (
                                 tasks.map(task => {
-                                    const { color, label } = priorityConfig[task.priority] || priorityConfig.Medium;
+                                    const { tone, label } = priorityConfig[task.priority] || priorityConfig.Medium;
                                     const TypeIcon = typeConfig[task.type]?.icon || MessageSquare;
                                     const isOverdue = task.dueDate && isPast(new Date(task.dueDate)) && task.status !== 'Completed';
 
@@ -98,30 +97,30 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                                 </Select>
                                             </TableCell>
                                             <TableCell>
-                                                <p className={cn("font-medium", task.status === 'Completed' && 'line-through text-muted-foreground')}>
+                                                <p className={cn("font-medium text-clay-ink", task.status === 'Completed' && 'line-through text-clay-ink-muted')}>
                                                     {task.title}
                                                 </p>
-                                                <p className="text-xs text-muted-foreground">{task.description}</p>
+                                                <p className="text-xs text-clay-ink-muted">{task.description}</p>
                                             </TableCell>
                                             <TableCell>
                                                  <TooltipProvider>
                                                     <Tooltip>
-                                                        <TooltipTrigger><TypeIcon className="h-4 w-4 text-muted-foreground"/></TooltipTrigger>
+                                                        <TooltipTrigger><TypeIcon className="h-4 w-4 text-clay-ink-muted"/></TooltipTrigger>
                                                         <TooltipContent>{task.type}</TooltipContent>
                                                     </Tooltip>
                                                  </TooltipProvider>
                                             </TableCell>
                                             <TableCell>
-                                                <span className={cn('text-sm', isOverdue && 'text-red-500 font-semibold')}>
+                                                <span className={cn('text-sm', isOverdue ? 'text-clay-red font-semibold' : 'text-clay-ink')}>
                                                     {task.dueDate ? format(new Date(task.dueDate), 'PPP') : 'No due date'}
                                                 </span>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge style={{ backgroundColor: color }} className="text-white">{label}</Badge>
+                                                <ClayBadge tone={tone} dot>{label}</ClayBadge>
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
-                                                    <Trash2 className="h-4 w-4 text-destructive"/>
+                                                    <Trash2 className="h-4 w-4 text-clay-red"/>
                                                 </Button>
                                             </TableCell>
                                         </TableRow>
@@ -129,13 +128,13 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                 })
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center">No tasks in this category.</TableCell>
+                                    <TableCell colSpan={6} className="h-24 text-center text-clay-ink-muted">No tasks in this category.</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
                     </Table>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </ClayCard>
     );
 }

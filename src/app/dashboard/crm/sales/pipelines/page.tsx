@@ -1,42 +1,39 @@
-
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Users } from "lucide-react";
+import { Plus, Columns3 } from "lucide-react";
 import Link from 'next/link';
+
+import { ClayButton, ClayCard } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function PipelinesPage() {
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Users className="h-8 w-8" />
-                        Pipelines
-                    </h1>
-                    <p className="text-muted-foreground">Create and manage multiple sales pipelines to track your deals.</p>
-                </div>
-                <Button asChild>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Pipelines"
+                subtitle="Create and manage multiple sales pipelines to track your deals."
+                icon={Columns3}
+                actions={
                     <Link href="#">
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Pipeline
+                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                            New Pipeline
+                        </ClayButton>
                     </Link>
-                </Button>
-            </div>
-            
-            <Card className="text-center py-20">
-                <CardHeader>
-                    <CardTitle>No Pipelines Found</CardTitle>
-                    <CardDescription>You haven't created any pipelines yet.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
+                }
+            />
+
+            <ClayCard variant="outline" className="border-dashed">
+                <div className="flex flex-col items-center gap-3 py-16 text-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+                        <Columns3 className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+                    </div>
+                    <h3 className="text-[15px] font-semibold text-clay-ink">No Pipelines Found</h3>
+                    <p className="text-[12.5px] text-clay-ink-muted">You haven&apos;t created any pipelines yet.</p>
+                    <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
                         Create Your First Pipeline
-                    </Button>
-                </CardContent>
-            </Card>
+                    </ClayButton>
+                </div>
+            </ClayCard>
         </div>
     );
 }

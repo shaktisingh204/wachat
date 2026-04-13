@@ -1,12 +1,16 @@
+import { Warehouse as WarehouseIcon } from 'lucide-react';
 import { WarehouseForm } from "./warehouse-form";
+
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 export default function NewWarehousePage() {
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Add Warehouse</h1>
-                <p className="text-muted-foreground">Create a new storage location.</p>
-            </div>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Add Warehouse"
+                subtitle="Create a new storage location."
+                icon={WarehouseIcon}
+            />
             <WarehouseForm />
         </div>
     );

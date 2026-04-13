@@ -1,17 +1,17 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { getCrmLeaveRequests, approveOrRejectLeave } from '@/app/actions/crm-hr.actions';
 import type { WithId, CrmLeaveRequest } from '@/lib/definitions';
-import { LoaderCircle, Check, X } from 'lucide-react';
+import { LoaderCircle, Check, X, CalendarOff } from 'lucide-react';
 import { format, formatDistance } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { ApplyForLeaveDialog } from '@/components/wabasimplify/crm-apply-leave-dialog';
+
+import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function LeaveManagementPage() {
     const [requests, setRequests] = useState<WithId<CrmLeaveRequest>[]>([]);
@@ -27,7 +27,7 @@ export default function LeaveManagementPage() {
     }, []);
 
     useEffect(() => { fetchData() }, [fetchData]);
-    
+
     const handleAction = async (id: string, status: 'Approved' | 'Rejected') => {
         startTransition(async () => {
             const result = await approveOrRejectLeave(id, status);
@@ -40,11 +40,11 @@ export default function LeaveManagementPage() {
         });
     };
 
-    const getStatusVariant = (status: string) => {
+    const getStatusTone = (status: string): 'green' | 'red' | 'amber' => {
         switch(status) {
-            case 'Approved': return 'default';
-            case 'Rejected': return 'destructive';
-            default: return 'secondary';
+            case 'Approved': return 'green';
+            case 'Rejected': return 'red';
+            default: return 'amber';
         }
     }
 
@@ -55,61 +55,62 @@ export default function LeaveManagementPage() {
                 onOpenChange={setIsApplyDialogOpen}
                 onSuccess={fetchData}
             />
-            <div className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold font-headline">Leave Management</h1>
-                        <p className="text-muted-foreground">Approve or reject leave requests from your team.</p>
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    title="Leave Management"
+                    subtitle="Approve or reject leave requests from your team."
+                    icon={CalendarOff}
+                    actions={
+                        <ClayButton variant="obsidian" onClick={() => setIsApplyDialogOpen(true)}>
+                            Apply for Leave
+                        </ClayButton>
+                    }
+                />
+
+                <ClayCard>
+                    <div className="mb-4">
+                        <h2 className="text-[16px] font-semibold text-clay-ink">Leave Requests</h2>
                     </div>
-                    <Button onClick={() => setIsApplyDialogOpen(true)}>Apply for Leave</Button>
-                </div>
-                
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Leave Requests</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="border rounded-md">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Employee</TableHead>
-                                        <TableHead>Leave Dates</TableHead>
-                                        <TableHead>Days</TableHead>
-                                        <TableHead>Reason</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {isLoading ? (
-                                        <TableRow><TableCell colSpan={6} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin"/></TableCell></TableRow>
-                                    ) : requests.length > 0 ? (
-                                        requests.map(req => (
-                                            <TableRow key={req._id.toString()}>
-                                                <TableCell className="font-medium">{(req as any).employeeInfo?.firstName} {(req as any).employeeInfo?.lastName}</TableCell>
-                                                <TableCell>{format(new Date(req.startDate), 'dd/MM/yy')} - {format(new Date(req.endDate), 'dd/MM/yy')}</TableCell>
-                                                <TableCell>{formatDistance(new Date(req.endDate), new Date(req.startDate))}</TableCell>
-                                                <TableCell className="text-muted-foreground text-xs">{req.reason}</TableCell>
-                                                <TableCell><Badge variant={getStatusVariant(req.status)}>{req.status}</Badge></TableCell>
-                                                <TableCell className="text-right">
-                                                    {req.status === 'Pending' && (
-                                                        <div className="flex gap-2 justify-end">
-                                                            <Button variant="outline" size="icon" onClick={() => handleAction(req._id.toString(), 'Approved')}><Check className="h-4 w-4"/></Button>
-                                                            <Button variant="destructive" size="icon" onClick={() => handleAction(req._id.toString(), 'Rejected')}><X className="h-4 w-4"/></Button>
-                                                        </div>
-                                                    )}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow><TableCell colSpan={6} className="h-24 text-center">No leave requests found.</TableCell></TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </CardContent>
-                </Card>
+                    <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-clay-border hover:bg-transparent">
+                                    <TableHead className="text-clay-ink-muted">Employee</TableHead>
+                                    <TableHead className="text-clay-ink-muted">Leave Dates</TableHead>
+                                    <TableHead className="text-clay-ink-muted">Days</TableHead>
+                                    <TableHead className="text-clay-ink-muted">Reason</TableHead>
+                                    <TableHead className="text-clay-ink-muted">Status</TableHead>
+                                    <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {isLoading ? (
+                                    <TableRow className="border-clay-border"><TableCell colSpan={6} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
+                                ) : requests.length > 0 ? (
+                                    requests.map(req => (
+                                        <TableRow key={req._id.toString()} className="border-clay-border">
+                                            <TableCell className="text-[13px] font-medium text-clay-ink">{(req as any).employeeInfo?.firstName} {(req as any).employeeInfo?.lastName}</TableCell>
+                                            <TableCell className="text-[13px] text-clay-ink">{format(new Date(req.startDate), 'dd/MM/yy')} - {format(new Date(req.endDate), 'dd/MM/yy')}</TableCell>
+                                            <TableCell className="text-[13px] text-clay-ink">{formatDistance(new Date(req.endDate), new Date(req.startDate))}</TableCell>
+                                            <TableCell className="text-[11.5px] text-clay-ink-muted">{req.reason}</TableCell>
+                                            <TableCell><ClayBadge tone={getStatusTone(req.status)}>{req.status}</ClayBadge></TableCell>
+                                            <TableCell className="text-right">
+                                                {req.status === 'Pending' && (
+                                                    <div className="flex justify-end gap-2">
+                                                        <Button variant="outline" size="icon" onClick={() => handleAction(req._id.toString(), 'Approved')}><Check className="h-4 w-4"/></Button>
+                                                        <Button variant="destructive" size="icon" onClick={() => handleAction(req._id.toString(), 'Rejected')}><X className="h-4 w-4"/></Button>
+                                                    </div>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow className="border-clay-border"><TableCell colSpan={6} className="h-24 text-center text-[13px] text-clay-ink-muted">No leave requests found.</TableCell></TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </ClayCard>
             </div>
         </>
     )

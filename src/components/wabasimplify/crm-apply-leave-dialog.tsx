@@ -19,16 +19,21 @@ import { useToast } from '@/hooks/use-toast';
 import { applyForCrmLeave } from '@/app/actions/crm-hr.actions';
 import { DatePicker } from '../ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ClayButton } from '@/components/clay';
 
 const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+    <ClayButton
+      type="submit"
+      variant="obsidian"
+      disabled={pending}
+      leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+    >
       Submit Request
-    </Button>
+    </ClayButton>
   );
 }
 
@@ -66,12 +71,12 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
           <input type="hidden" name="startDate" value={startDate?.toISOString()} />
           <input type="hidden" name="endDate" value={endDate?.toISOString()} />
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Apply for Leave</DialogTitle>
+            <DialogTitle className="text-clay-ink">Apply for Leave</DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="leaveType">Leave Type *</Label>
+                <Label htmlFor="leaveType" className="text-clay-ink">Leave Type *</Label>
                 <Select name="leaveType" required>
                   <SelectTrigger id="leaveType"><SelectValue placeholder="Select type..." /></SelectTrigger>
                   <SelectContent>
@@ -84,22 +89,22 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Start Date *</Label>
+                  <Label className="text-clay-ink">Start Date *</Label>
                   <DatePicker date={startDate} setDate={setStartDate} />
                 </div>
                 <div className="space-y-2">
-                  <Label>End Date *</Label>
+                  <Label className="text-clay-ink">End Date *</Label>
                   <DatePicker date={endDate} setDate={setEndDate} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="reason">Reason *</Label>
+                <Label htmlFor="reason" className="text-clay-ink">Reason *</Label>
                 <Textarea id="reason" name="reason" required placeholder="Enter reason for leave..." />
               </div>
             </div>
           </div>
           <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
             <SubmitButton />
           </DialogFooter>
         </form>

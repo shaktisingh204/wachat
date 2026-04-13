@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 
-import { Suspense } from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Package } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,6 +16,9 @@ import { getCrmProducts, deleteCrmProduct } from "@/app/actions/crm-products.act
 import { DeleteButton } from "@/components/wabasimplify/delete-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
+
 export default async function InventoryItemsPage(
     props: {
         searchParams: Promise<{ query?: string; page?: string }>;
@@ -26,97 +28,98 @@ export default async function InventoryItemsPage(
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || 1;
 
-    // Note: getCrmProducts expects generic args (page, limit, query)
-    const { products, total } = await getCrmProducts(currentPage, 20, query);
+    const { products } = await getCrmProducts(currentPage, 20, query);
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Inventory Items</h1>
-                    <p className="text-muted-foreground">Manage your products and stock levels.</p>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Inventory Items"
+                subtitle="Manage your products and stock levels."
+                icon={Package}
+                actions={
+                    <Link href="/dashboard/crm/inventory/items/new">
+                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                            Add Item
+                        </ClayButton>
+                    </Link>
+                }
+            />
+
+            <ClayCard>
+                <div className="mb-4 relative max-w-md">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+                    <Input
+                        placeholder="Search items..."
+                        className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+                        defaultValue={query}
+                    />
                 </div>
-                <Link href="/dashboard/crm/inventory/items/new">
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" /> Add Item
-                    </Button>
-                </Link>
-            </div>
-            <div className="flex items-center space-x-2">
-                <div className="relative flex-1">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search items..." className="pl-8" defaultValue={query} />
-                    {/* Implementation note: Proper search requires client component or form submission */}
-                </div>
-            </div>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[80px]">Image</TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>SKU</TableHead>
-                            <TableHead>Price</TableHead>
-                            <TableHead>Stock</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {products.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center">
-                                    No items found.
-                                </TableCell>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted w-[80px]">Image</TableHead>
+                                <TableHead className="text-clay-ink-muted">Name</TableHead>
+                                <TableHead className="text-clay-ink-muted">SKU</TableHead>
+                                <TableHead className="text-clay-ink-muted">Price</TableHead>
+                                <TableHead className="text-clay-ink-muted">Stock</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
                             </TableRow>
-                        ) : (
-                            products.map((product) => (
-                                <TableRow key={product._id.toString()}>
-                                    <TableCell>
-                                        <Avatar className="h-10 w-10 rounded-sm">
-                                            {/* Handle legacy imageUrl or new images array */}
-                                            <AvatarImage src={product.images?.[0] || (product as any).imageUrl} alt={product.name} />
-                                            <AvatarFallback className="rounded-sm">{product.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                    </TableCell>
-                                    <TableCell className="font-medium">
-                                        <div className="flex flex-col">
-                                            <span>{product.name}</span>
-                                            {product.itemType && <span className="text-xs text-muted-foreground capitalize">{product.itemType}</span>}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>{product.sku || '-'}</TableCell>
-                                    <TableCell>
-                                        {product.currency} {product.sellingPrice}
-                                    </TableCell>
-                                    <TableCell>
-                                        {product.isTrackInventory ? (
-                                            /* Simple check for total stock vs 0 if reorderPoint logic is complex to display per warehouse here */
-                                            (<span className={product.totalStock <= 5 ? "text-red-500 font-medium" : ""}>
-                                                {product.totalStock}
-                                            </span>)
-                                        ) : (
-                                            <span className="text-muted-foreground text-sm">N/A</span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <Link href={`/dashboard/crm/inventory/items/${product._id}/edit`}>
-                                                <Button variant="ghost" size="sm">Edit</Button>
-                                            </Link>
-                                            <DeleteButton
-                                                id={product._id.toString()}
-                                                action={deleteCrmProduct}
-                                                resourceName="Product"
-                                            />
-                                        </div>
+                        </TableHeader>
+                        <TableBody>
+                            {products.length === 0 ? (
+                                <TableRow className="border-clay-border">
+                                    <TableCell colSpan={6} className="h-24 text-center text-clay-ink-muted">
+                                        No items found.
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            {/* Pagination Implementation needed here */}
+                            ) : (
+                                products.map((product) => (
+                                    <TableRow key={product._id.toString()} className="border-clay-border">
+                                        <TableCell>
+                                            <Avatar className="h-10 w-10 rounded-sm">
+                                                <AvatarImage src={product.images?.[0] || (product as any).imageUrl} alt={product.name} />
+                                                <AvatarFallback className="rounded-sm bg-clay-rose-soft text-clay-rose-ink">{product.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                        </TableCell>
+                                        <TableCell className="font-medium">
+                                            <div className="flex flex-col">
+                                                <span className="text-clay-ink">{product.name}</span>
+                                                {product.itemType && <span className="text-[11.5px] text-clay-ink-muted capitalize">{product.itemType}</span>}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-clay-ink">{product.sku || '-'}</TableCell>
+                                        <TableCell className="text-clay-ink">
+                                            {product.currency} {product.sellingPrice}
+                                        </TableCell>
+                                        <TableCell>
+                                            {product.isTrackInventory ? (
+                                                <span className={product.totalStock <= 5 ? "text-clay-red font-medium" : "text-clay-ink"}>
+                                                    {product.totalStock}
+                                                </span>
+                                            ) : (
+                                                <span className="text-clay-ink-muted text-[12.5px]">N/A</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <Link href={`/dashboard/crm/inventory/items/${product._id}/edit`}>
+                                                    <Button variant="ghost" size="sm">Edit</Button>
+                                                </Link>
+                                                <DeleteButton
+                                                    id={product._id.toString()}
+                                                    action={deleteCrmProduct}
+                                                    resourceName="Product"
+                                                />
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ClayCard>
         </div>
     );
 }

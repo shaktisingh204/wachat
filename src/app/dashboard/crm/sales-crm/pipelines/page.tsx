@@ -1,16 +1,16 @@
-
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import type { CrmPipeline } from '@/lib/definitions';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Eye, Edit, Briefcase } from "lucide-react";
+import { Plus, Eye, Edit, Columns3 } from "lucide-react";
 import { EditPipelinesDialog } from '@/components/wabasimplify/edit-pipelines-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
+
+import { ClayButton, ClayCard } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 function PageSkeleton() {
     return (
@@ -26,8 +26,8 @@ function PageSkeleton() {
                 </div>
             </div>
             <div className="space-y-4">
-                 <Skeleton className="h-24 w-full" />
-                 <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
             </div>
         </div>
     );
@@ -38,7 +38,7 @@ export default function SalesPipelinePage() {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [pipelines, setPipelines] = useState<CrmPipeline[]>([]);
     const [isLoading, startTransition] = useTransition();
-    
+
     const fetchData = () => {
         startTransition(async () => {
             const data = await getCrmPipelines();
@@ -56,13 +56,13 @@ export default function SalesPipelinePage() {
 
     return (
         <>
-            <EditPipelinesDialog 
+            <EditPipelinesDialog
                 isOpen={isEditOpen}
                 onOpenChange={setIsEditOpen}
                 onSuccess={fetchData}
                 initialPipelines={pipelines}
             />
-             <EditPipelinesDialog 
+            <EditPipelinesDialog
                 isOpen={isCreateOpen}
                 onOpenChange={setIsCreateOpen}
                 onSuccess={fetchData}
@@ -70,70 +70,63 @@ export default function SalesPipelinePage() {
                 initialPipelines={pipelines}
             />
 
-            <div className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                            <Briefcase className="h-8 w-8" />
-                            Sales Pipelines
-                        </h1>
-                        <p className="text-muted-foreground mt-2">
-                            Create and manage multiple sales pipelines to track your deals.
-                        </p>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => setIsEditOpen(true)}><Edit className="mr-2 h-4 w-4" /> Edit Pipelines</Button>
-                        <Button onClick={() => setIsCreateOpen(true)}>
-                            <Plus className="mr-2 h-4 w-4" /> New Pipeline
-                        </Button>
-                    </div>
-                </div>
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    title="Sales Pipelines"
+                    subtitle="Create and manage multiple sales pipelines to track your deals."
+                    icon={Columns3}
+                    actions={
+                        <>
+                            <ClayButton variant="pill" leading={<Edit className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setIsEditOpen(true)}>
+                                Edit Pipelines
+                            </ClayButton>
+                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setIsCreateOpen(true)}>
+                                New Pipeline
+                            </ClayButton>
+                        </>
+                    }
+                />
 
                 {pipelines.length > 0 ? (
                     <Accordion type="multiple" defaultValue={pipelines.map(p => p.id)} className="w-full space-y-4">
                         {pipelines.map(pipeline => (
-                             <AccordionItem key={pipeline.id} value={pipeline.id} className="border rounded-lg bg-card">
-                                <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline">
+                            <AccordionItem key={pipeline.id} value={pipeline.id} className="rounded-clay-lg border border-clay-border bg-clay-surface">
+                                <AccordionTrigger className="p-4 text-[15px] font-semibold text-clay-ink hover:no-underline">
                                     {pipeline.name}
                                 </AccordionTrigger>
                                 <AccordionContent className="p-4 pt-0">
-                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                         {pipeline.stages.map((stage) => (
-                                            <Card key={stage.id} className="text-center bg-muted/50">
-                                                <CardHeader className="p-3">
-                                                    <CardTitle className="text-sm font-medium text-muted-foreground">{stage.name}</CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="p-3">
-                                                    <p className="text-xs text-muted-foreground">({stage.chance}% chance)</p>
-                                                </CardContent>
-                                            </Card>
+                                            <div key={stage.id} className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-3 text-center">
+                                                <p className="text-[13px] font-medium text-clay-ink">{stage.name}</p>
+                                                <p className="mt-1 text-[11.5px] text-clay-ink-muted">({stage.chance}% chance)</p>
+                                            </div>
                                         ))}
                                     </div>
                                     <div className="mt-4 flex justify-end">
-                                        <Button asChild variant="secondary" size="sm">
-                                            <Link href="/dashboard/crm/deals">
-                                                <Eye className="mr-2 h-4 w-4" />
+                                        <Link href="/dashboard/crm/deals">
+                                            <ClayButton variant="pill" size="sm" leading={<Eye className="h-4 w-4" strokeWidth={1.75} />}>
                                                 View Leads in this Pipeline
-                                            </Link>
-                                        </Button>
+                                            </ClayButton>
+                                        </Link>
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>
                         ))}
                     </Accordion>
                 ) : (
-                     <Card className="text-center py-20">
-                        <CardHeader>
-                            <CardTitle>No Pipelines Found</CardTitle>
-                            <CardDescription>You haven't created any pipelines yet.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Button onClick={() => setIsCreateOpen(true)}>
-                                <Plus className="mr-2 h-4 w-4" />
+                    <ClayCard variant="outline" className="border-dashed">
+                        <div className="flex flex-col items-center gap-3 py-16 text-center">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+                                <Columns3 className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+                            </div>
+                            <h3 className="text-[15px] font-semibold text-clay-ink">No Pipelines Found</h3>
+                            <p className="text-[12.5px] text-clay-ink-muted">You haven&apos;t created any pipelines yet.</p>
+                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setIsCreateOpen(true)}>
                                 Create Your First Pipeline
-                            </Button>
-                        </CardContent>
-                    </Card>
+                            </ClayButton>
+                        </div>
+                    </ClayCard>
                 )}
             </div>
         </>

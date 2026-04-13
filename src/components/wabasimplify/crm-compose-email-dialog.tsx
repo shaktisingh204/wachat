@@ -22,16 +22,21 @@ import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions'
 import { sendCrmEmail } from '@/app/actions/crm-email.actions';
 import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ClayButton } from '@/components/clay';
 
 const initialState = { success: false, message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+    <ClayButton
+      type="submit"
+      variant="obsidian"
+      disabled={pending}
+      leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+    >
       Send Email
-    </Button>
+    </ClayButton>
   );
 }
 
@@ -83,12 +88,12 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
       <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Compose Email</DialogTitle>
+            <DialogTitle className="text-clay-ink">Compose Email</DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="template">Use Template (Optional)</Label>
+                <Label htmlFor="template" className="text-clay-ink">Use Template (Optional)</Label>
                 <Select onValueChange={handleTemplateSelect}>
                   <SelectTrigger id="template">
                     <SelectValue placeholder="Select a template..." />
@@ -103,22 +108,22 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="to">To</Label>
+                <Label htmlFor="to" className="text-clay-ink">To</Label>
                 <Input id="to" name="to" type="email" placeholder="recipient@example.com" defaultValue={initialTo} key={initialTo} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="subject">Subject</Label>
+                <Label htmlFor="subject" className="text-clay-ink">Subject</Label>
                 <Input id="subject" name="subject" placeholder="Your subject line" value={subject} onChange={(e) => setSubject(e.target.value)} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="body">Message</Label>
+                <Label htmlFor="body" className="text-clay-ink">Message</Label>
                 <Textarea id="body" name="body" className="min-h-[250px]" placeholder="Write your email here..." value={body} onChange={(e) => setBody(e.target.value)} />
-                <p className="text-xs text-muted-foreground">You can use variables like {'{{contact.name}}'} or {'{{account.name}}'}.</p>
+                <p className="text-xs text-clay-ink-muted">You can use variables like {'{{contact.name}}'} or {'{{account.name}}'}.</p>
               </div>
             </div>
           </div>
           <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
             <SubmitButton />
           </DialogFooter>
         </form>

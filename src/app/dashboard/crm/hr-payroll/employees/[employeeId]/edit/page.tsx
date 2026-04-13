@@ -1,10 +1,11 @@
 import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { getCrmDepartments, getCrmDesignations, getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+
+import { ClayButton } from '@/components/clay';
 
 async function getEmployeeById(id: string) {
   if (!ObjectId.isValid(id)) return null;
@@ -34,22 +35,18 @@ export default async function EditEmployeePage(
     ]);
 
   if (!employee) {
-    return <p>Employee not found.</p>;
+    return <p className="text-[13px] text-clay-ink-muted">Employee not found.</p>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <div>
-        <Button variant="ghost" asChild className="-ml-4">
-          <Link href="/dashboard/crm/hr-payroll/employees">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+        <Link href="/dashboard/crm/hr-payroll/employees" className="inline-flex">
+          <ClayButton variant="ghost" leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}>
             Back to Employee Directory
-          </Link>
-        </Button>
-
-        <h1 className="text-3xl font-bold font-headline mt-2">
-          Edit Employee
-        </h1>
+          </ClayButton>
+        </Link>
+        <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-clay-ink">Edit Employee</h1>
       </div>
 
       <EmployeeForm

@@ -1,12 +1,9 @@
-
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Download, SlidersHorizontal, Users, LoaderCircle } from "lucide-react";
+import { Download, Users, LoaderCircle } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generatePartyTransactionReport, getCrmAccountsForSelection, getCrmVendorsForSelection } from '@/app/actions/crm-reports.actions';
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +12,9 @@ import { Label } from "@/components/ui/label";
 import { format } from 'date-fns';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import { SmartVendorSelect } from '@/components/crm/purchases/smart-vendor-select';
+
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type PartyTransaction = {
     date: Date;
@@ -31,7 +31,6 @@ export default function PartyTransactionsReportPage() {
     const [isLoading, startTransition] = useTransition();
     const { toast } = useToast();
 
-    // Filters State
     const [partyType, setPartyType] = useState<'customer' | 'vendor'>('customer');
     const [partyId, setPartyId] = useState<string>('');
     const [startDate, setStartDate] = useState<Date | undefined>();
@@ -46,8 +45,8 @@ export default function PartyTransactionsReportPage() {
                 const data = await getCrmVendorsForSelection();
                 setParties(data.map(p => ({ id: p._id, name: p.name })));
             }
-            setPartyId(''); // Reset selected party
-            setReportData([]); // Clear old report data
+            setPartyId('');
+            setReportData([]);
         });
     }, []);
 
@@ -94,20 +93,21 @@ export default function PartyTransactionsReportPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Users /> Party Transactions Report</h1>
-                    <p className="text-muted-foreground">View all inventory transactions for a specific customer or vendor.</p>
-                </div>
-                <Button variant="outline" onClick={handleDownload} disabled={reportData.length === 0}><Download className="mr-2 h-4 w-4" />Download CSV</Button>
-            </div>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Party Transactions Report"
+                subtitle="View all inventory transactions for a specific customer or vendor."
+                icon={Users}
+                actions={
+                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={handleDownload} disabled={reportData.length === 0}>
+                        Download CSV
+                    </ClayButton>
+                }
+            />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Filters</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <ClayCard>
+                <h2 className="text-[16px] font-semibold text-clay-ink">Filters</h2>
+                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="space-y-1"><Label>Party Type</Label><Select value={partyType} onValueChange={(val) => setPartyType(val as any)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="customer">Customer</SelectItem><SelectItem value="vendor">Vendor</SelectItem></SelectContent></Select></div>
                     <div className="space-y-1">
                         <Label>Select Party</Label>
@@ -127,57 +127,53 @@ export default function PartyTransactionsReportPage() {
                     </div>
                     <div className="space-y-1"><Label>Start Date</Label><DatePicker date={startDate} setDate={setStartDate} /></div>
                     <div className="space-y-1"><Label>End Date</Label><DatePicker date={endDate} setDate={setEndDate} /></div>
-                </CardContent>
-                <CardFooter>
-                    <Button onClick={handleGenerateReport} disabled={isLoading || !partyId}>
+                </div>
+                <div className="mt-4">
+                    <ClayButton variant="obsidian" onClick={handleGenerateReport} disabled={isLoading || !partyId}>
                         {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Generate Report
-                    </Button>
-                </CardFooter>
-            </Card>
+                    </ClayButton>
+                </div>
+            </ClayCard>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Report Data</CardTitle>
-                    <CardDescription>Showing transactions for the selected party and date range.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Reference</TableHead>
-                                    <TableHead>Item Name</TableHead>
-                                    <TableHead className="text-right">Quantity</TableHead>
-                                    <TableHead className="text-right">Rate</TableHead>
-                                    <TableHead className="text-right">Total</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    <TableRow><TableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin" /></TableCell></TableRow>
-                                ) : reportData.length > 0 ? (
-                                    reportData.map((row, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell>{format(new Date(row.date), 'PPP')}</TableCell>
-                                            <TableCell>{row.type}</TableCell>
-                                            <TableCell className="font-mono text-xs">{row.reference}</TableCell>
-                                            <TableCell className="font-medium">{row.itemName}</TableCell>
-                                            <TableCell className="text-right">{row.quantity}</TableCell>
-                                            <TableCell className="text-right">₹{row.rate.toFixed(2)}</TableCell>
-                                            <TableCell className="text-right font-semibold">₹{(row.quantity * row.rate).toFixed(2)}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow><TableCell colSpan={7} className="h-24 text-center">No transactions found for the selected criteria.</TableCell></TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+            <ClayCard>
+                <h2 className="text-[16px] font-semibold text-clay-ink">Report Data</h2>
+                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Showing transactions for the selected party and date range.</p>
+                <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Date</TableHead>
+                                <TableHead className="text-clay-ink-muted">Type</TableHead>
+                                <TableHead className="text-clay-ink-muted">Reference</TableHead>
+                                <TableHead className="text-clay-ink-muted">Item Name</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Quantity</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Rate</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Total</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" /></TableCell></TableRow>
+                            ) : reportData.length > 0 ? (
+                                reportData.map((row, index) => (
+                                    <TableRow key={index} className="border-clay-border">
+                                        <TableCell className="text-clay-ink">{format(new Date(row.date), 'PPP')}</TableCell>
+                                        <TableCell className="text-clay-ink">{row.type}</TableCell>
+                                        <TableCell className="font-mono text-[11.5px] text-clay-ink">{row.reference}</TableCell>
+                                        <TableCell className="font-medium text-clay-ink">{row.itemName}</TableCell>
+                                        <TableCell className="text-right text-clay-ink">{row.quantity}</TableCell>
+                                        <TableCell className="text-right text-clay-ink">₹{row.rate.toFixed(2)}</TableCell>
+                                        <TableCell className="text-right font-semibold text-clay-ink">₹{(row.quantity * row.rate).toFixed(2)}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-24 text-center text-clay-ink-muted">No transactions found for the selected criteria.</TableCell></TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ClayCard>
         </div>
     );
 }

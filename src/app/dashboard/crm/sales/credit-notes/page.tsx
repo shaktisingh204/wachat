@@ -1,17 +1,16 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Repeat, LoaderCircle } from "lucide-react";
+import { Plus, FileMinus, LoaderCircle } from "lucide-react";
 import Link from 'next/link';
 import { getCreditNotes } from '@/app/actions/crm-credit-notes.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import type { WithId, CrmCreditNote, CrmAccount } from '@/lib/definitions';
+import type { WithId, CrmCreditNote } from '@/lib/definitions';
+
+import { ClayButton, ClayCard } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function CreditNotesPage() {
     const [notes, setNotes] = useState<WithId<CrmCreditNote>[]>([]);
@@ -37,89 +36,86 @@ export default function CreditNotesPage() {
 
     if (isLoading && notes.length === 0) {
         return (
-             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
-             </div>
-        )
+            <div className="flex justify-center items-center h-full">
+                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+            </div>
+        );
     }
 
     if (!isLoading && notes.length === 0) {
         return (
-            <div className="flex justify-center items-center h-full">
-                <Card className="text-center max-w-2xl">
-                    <CardHeader>
-                        <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                             <Repeat className="h-12 w-12 text-primary" />
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    title="Credit Notes"
+                    subtitle="Issue refunds or credits to your customers with professional credit notes."
+                    icon={FileMinus}
+                />
+                <ClayCard variant="outline" className="border-dashed">
+                    <div className="flex flex-col items-center gap-3 py-12 text-center">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+                            <FileMinus className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
                         </div>
-                        <CardTitle className="mt-4 text-2xl">Credit Notes</CardTitle>
-                        <CardDescription>
+                        <h3 className="text-[15px] font-semibold text-clay-ink">Credit Notes</h3>
+                        <p className="max-w-md text-[12.5px] text-clay-ink-muted">
                             Issue refunds or credits to your customers with professional credit notes.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button asChild>
-                            <Link href="/dashboard/crm/sales/credit-notes/new">
-                                <Plus className="mr-2 h-4 w-4" />
+                        </p>
+                        <Link href="/dashboard/crm/sales/credit-notes/new">
+                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
                                 Create First Credit Note
-                            </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
+                            </ClayButton>
+                        </Link>
+                    </div>
+                </ClayCard>
             </div>
-        )
+        );
     }
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Repeat className="h-8 w-8" />
-                        Credit Notes
-                    </h1>
-                    <p className="text-muted-foreground">Manage your credit notes.</p>
-                </div>
-                <Button asChild>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Credit Notes"
+                subtitle="Manage your credit notes."
+                icon={FileMinus}
+                actions={
                     <Link href="/dashboard/crm/sales/credit-notes/new">
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Credit Note
+                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                            New Credit Note
+                        </ClayButton>
                     </Link>
-                </Button>
-            </div>
+                }
+            />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Recent Credit Notes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Credit Note #</TableHead>
-                                    <TableHead>Client</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Reason</TableHead>
-                                    <TableHead>Original Invoice #</TableHead>
-                                    <TableHead className="text-right">Amount</TableHead>
+            <ClayCard>
+                <div className="mb-4">
+                    <h2 className="text-[16px] font-semibold text-clay-ink">Recent Credit Notes</h2>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Credit Note #</TableHead>
+                                <TableHead className="text-clay-ink-muted">Client</TableHead>
+                                <TableHead className="text-clay-ink-muted">Date</TableHead>
+                                <TableHead className="text-clay-ink-muted">Reason</TableHead>
+                                <TableHead className="text-clay-ink-muted">Original Invoice #</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {notes.map(note => (
+                                <TableRow key={note._id.toString()} className="border-clay-border">
+                                    <TableCell className="font-medium text-clay-ink">{note.creditNoteNumber}</TableCell>
+                                    <TableCell className="text-clay-ink">{accountsMap.get(note.accountId.toString()) || 'Unknown'}</TableCell>
+                                    <TableCell className="text-clay-ink">{new Date(note.creditNoteDate).toLocaleDateString()}</TableCell>
+                                    <TableCell className="text-[12px] text-clay-ink-muted">{note.reason}</TableCell>
+                                    <TableCell className="font-mono text-xs text-clay-ink">{note.originalInvoiceNumber || 'N/A'}</TableCell>
+                                    <TableCell className="text-right font-medium text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: note.currency || 'INR' }).format(note.total)}</TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {notes.map(note => (
-                                    <TableRow key={note._id.toString()}>
-                                        <TableCell className="font-medium">{note.creditNoteNumber}</TableCell>
-                                        <TableCell>{accountsMap.get(note.accountId.toString()) || 'Unknown'}</TableCell>
-                                        <TableCell>{new Date(note.creditNoteDate).toLocaleDateString()}</TableCell>
-                                        <TableCell className="text-xs text-muted-foreground">{note.reason}</TableCell>
-                                        <TableCell className="font-mono text-xs">{note.originalInvoiceNumber || 'N/A'}</TableCell>
-                                        <TableCell className="text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: note.currency || 'INR' }).format(note.total)}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ClayCard>
         </div>
-    )
+    );
 }

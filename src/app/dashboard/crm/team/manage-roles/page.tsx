@@ -1,14 +1,12 @@
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useTransition, useCallback } from 'react';
+import { useActionState, useEffect, useState, useTransition, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { LoaderCircle, Save, ShieldCheck, Settings, Plus, Trash2 } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { LoaderCircle, Save, Shield, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getSession } from '@/app/actions/user.actions';
 import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
@@ -37,17 +35,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 
-const initialState = { message: undefined, error: undefined };
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
-function SubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Save Permissions
-        </Button>
-    )
-}
+const initialState = { message: undefined, error: undefined };
 
 function PageSkeleton() {
     return (
@@ -66,12 +57,6 @@ const crmModules = [
     { id: 'tasks', name: 'Tasks' },
     { id: 'automations', name: 'Automations' },
     { id: 'reports', name: 'Reports' },
-];
-
-const emailModules = [
-    { id: 'campaigns', name: 'Campaigns' },
-    { id: 'contacts', name: 'Email Contacts' },
-    { id: 'templates', name: 'Email Templates' },
 ];
 
 const actions = ['view', 'create', 'edit', 'delete'];
@@ -101,7 +86,9 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" />Add Role</Button></DialogTrigger>
+            <DialogTrigger asChild>
+                <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>Add Role</ClayButton>
+            </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create New Role</DialogTitle>
@@ -109,7 +96,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 </DialogHeader>
                 <div className="py-4">
                     <Label htmlFor="roleName">Role Name</Label>
-                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} />
+                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
@@ -149,7 +136,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>This will permanently delete the "{role.name}" role. Team members with this role will lose their special permissions.</AlertDialogDescription>
+                    <AlertDialogDescription>This will permanently delete the &ldquo;{role.name}&rdquo; role. Team members with this role will lose their special permissions.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -182,7 +169,7 @@ export default function ManageRolesPage() {
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
-            fetchUser(); // Refetch user to get the latest permissions
+            fetchUser();
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -201,19 +188,13 @@ export default function ManageRolesPage() {
     const allRoles = [{ id: 'agent', name: 'Agent', permissions: user.crm?.permissions?.agent }, ...customRolesWithPermissions];
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex justify-between items-start">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <ShieldCheck className="h-8 w-8" />
-                        Manage Team Roles
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Define what different roles can access and do across the platform.
-                    </p>
-                </div>
-                <AddRoleDialog onRoleAdded={fetchUser} />
-            </div>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Manage Team Roles"
+                subtitle="Define what different roles can access and do across the platform."
+                icon={Shield}
+                actions={<AddRoleDialog onRoleAdded={fetchUser} />}
+            />
 
             <form action={formAction}>
                 <Accordion type="single" collapsible className="w-full space-y-4">
@@ -221,8 +202,8 @@ export default function ManageRolesPage() {
                         const crmPermissions = role.permissions || {};
 
                         return (
-                            <AccordionItem key={role.id} value={role.id} className="border rounded-lg bg-card">
-                                <AccordionTrigger className="p-4 font-semibold text-lg hover:no-underline">
+                            <AccordionItem key={role.id} value={role.id} className="rounded-clay-md border border-clay-border bg-clay-surface">
+                                <AccordionTrigger className="p-4 font-semibold text-[15px] hover:no-underline">
                                     <div className="flex items-center gap-2">
                                         {role.name}
                                         {role.id !== 'agent' && <DeleteRoleButton role={role} onRoleDeleted={fetchUser} />}
@@ -232,15 +213,15 @@ export default function ManageRolesPage() {
                                     <input type="hidden" name={`roleId`} value={role.id} />
                                     <Table>
                                         <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Module</TableHead>
-                                                {actions.map(action => <TableHead key={action} className="text-center capitalize">{action}</TableHead>)}
+                                            <TableRow className="border-clay-border hover:bg-transparent">
+                                                <TableHead className="text-clay-ink-muted">Module</TableHead>
+                                                {actions.map(action => <TableHead key={action} className="text-center capitalize text-clay-ink-muted">{action}</TableHead>)}
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {crmModules.map(module => (
-                                                <TableRow key={module.id}>
-                                                    <TableCell className="font-medium">{module.name}</TableCell>
+                                                <TableRow key={module.id} className="border-clay-border">
+                                                    <TableCell className="font-medium text-clay-ink">{module.name}</TableCell>
                                                     {actions.map(action => (
                                                         <TableCell key={action} className="text-center">
                                                             <Checkbox
@@ -259,10 +240,9 @@ export default function ManageRolesPage() {
                     })}
                 </Accordion>
                 <div className="flex justify-end mt-6">
-                    <Button type="submit">
-                        <Save className="mr-2 h-4 w-4" />
+                    <ClayButton type="submit" variant="obsidian" leading={<Save className="h-4 w-4" strokeWidth={1.75} />}>
                         Save Permissions
-                    </Button>
+                    </ClayButton>
                 </div>
             </form>
         </div>

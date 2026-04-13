@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { LoaderCircle, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createCrmPipeline } from '@/app/actions/crm-pipelines.actions';
+import { ClayButton } from '@/components/clay';
 
 interface CrmAddPipelineDialogProps {
     onPipelineAdded: (pipeline: any) => void;
@@ -56,14 +57,14 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
             <DialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Create New Pipeline</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-clay-ink">Create New Pipeline</DialogTitle>
+                        <DialogDescription className="text-clay-ink-muted">
                             Add a new sales pipeline to your CRM.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Pipeline Name</Label>
+                            <Label htmlFor="name" className="text-clay-ink">Pipeline Name</Label>
                             <Input
                                 id="name"
                                 value={name}
@@ -74,11 +75,15 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button type="submit" disabled={isPending}>
-                            {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                        <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
+                        <ClayButton
+                            type="submit"
+                            variant="obsidian"
+                            disabled={isPending}
+                            leading={isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
+                        >
                             Create Pipeline
-                        </Button>
+                        </ClayButton>
                     </DialogFooter>
                 </form>
             </DialogContent>

@@ -22,16 +22,21 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Checkbox } from '../ui/checkbox';
 import { Textarea } from '../ui/textarea';
+import { ClayButton } from '@/components/clay';
 
 const initialState: { message?: string; error?: string; newClient?: any } = { message: undefined, error: undefined, newClient: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+    <ClayButton
+      type="submit"
+      variant="obsidian"
+      disabled={pending}
+      leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
+    >
       Save Client
-    </Button>
+    </ClayButton>
   );
 }
 
@@ -101,8 +106,8 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
       <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Create a New Client</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-clay-ink">Create a New Client</DialogTitle>
+            <DialogDescription className="text-clay-ink-muted">
               Add a new client to your CRM. Required fields are marked with an asterisk.
             </DialogDescription>
           </DialogHeader>
@@ -231,15 +236,15 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
               </AccordionItem>
               <AccordionItem value="account-details">
                 <AccordionTrigger>Account Details (Optional)</AccordionTrigger>
-                <AccordionContent className="pt-2 text-center text-muted-foreground">
+                <AccordionContent className="pt-2 text-center text-clay-ink-muted">
                   <p className="text-sm">Enable Advanced Accounting to create or link ledger.</p>
-                  <Button variant="outline" size="sm" className="mt-2" disabled>Enable Now</Button>
+                  <ClayButton variant="pill" size="sm" className="mt-2" disabled>Enable Now</ClayButton>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </div>
           <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
             <SubmitButton />
           </DialogFooter>
         </form>

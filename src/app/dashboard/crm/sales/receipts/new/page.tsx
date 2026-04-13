@@ -162,10 +162,10 @@ export default function RecordPaymentPage() {
             <div className="max-w-4xl mx-auto space-y-6">
                 <div className="flex justify-between items-center">
                     <div>
-                        <Button variant="ghost" asChild className="-ml-4">
-                            <Link href="/dashboard/crm/sales/receipts"><ArrowLeft className="mr-2 h-4 w-4" />Back to Receipts</Link>
-                        </Button>
-                        <h1 className="text-3xl font-bold font-headline mt-2">Record Payment Received</h1>
+                        <Link href="/dashboard/crm/sales/receipts" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
+                            <ArrowLeft className="h-4 w-4" />Back to Receipts
+                        </Link>
+                        <h1 className="text-[26px] font-semibold tracking-tight text-clay-ink mt-2">Record Payment Received</h1>
                     </div>
                 </div>
 

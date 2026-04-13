@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -30,9 +29,9 @@ export default function EditCrmItemPage() {
             setLoading(false);
         }
     }, [productId]);
-    
+
     if (loading) {
-        return <Skeleton className="h-96 w-full" />
+        return <Skeleton className="h-96 w-full rounded-clay-lg" />
     }
 
     if (!product) {
@@ -40,15 +39,15 @@ export default function EditCrmItemPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto flex w-full flex-col gap-6">
             <div>
-                <Button variant="ghost" asChild className="-ml-4">
+                <Button variant="ghost" asChild className="-ml-4 text-clay-ink-muted hover:text-clay-ink">
                     <Link href="/dashboard/crm/inventory/items">
                         <ArrowLeft className="mr-2 h-4 w-4" /> Back to All Items
                     </Link>
                 </Button>
-                <h1 className="text-3xl font-bold font-headline mt-2">Edit Item: {product.name}</h1>
-                <p className="text-muted-foreground">Modify the details for this product or service.</p>
+                <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-clay-ink">Edit Item: {product.name}</h1>
+                <p className="mt-1 text-[13px] text-clay-ink-muted">Modify the details for this product or service.</p>
             </div>
             <CrmProductForm product={product} />
         </div>

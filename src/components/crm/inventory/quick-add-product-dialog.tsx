@@ -17,6 +17,7 @@ import { saveCrmProduct } from '@/app/actions/crm-products.actions';
 import { SmartCategorySelect } from "@/components/crm/inventory/smart-category-select";
 import { SmartUnitSelect } from "@/components/crm/inventory/smart-unit-select";
 import { LoaderCircle } from "lucide-react";
+import { ClayButton } from "@/components/clay";
 
 const initialState: { message?: string; error?: string; newProduct?: any } = {
     message: undefined,
@@ -34,10 +35,14 @@ interface QuickAddProductDialogProps {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
+        >
             Save Product
-        </Button>
+        </ClayButton>
     )
 }
 
@@ -69,41 +74,41 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Add New Product</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-clay-ink">Add New Product</DialogTitle>
+                    <DialogDescription className="text-clay-ink-muted">
                         Quickly add a new product. Edit full details later.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <input type="hidden" name="quickAdd" value="true" /> {/* Optional flag if needed on server */}
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Product Name *</Label>
+                        <Label htmlFor="name" className="text-clay-ink">Product Name *</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} placeholder="e.g. Wireless Mouse" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="sku">SKU *</Label>
+                            <Label htmlFor="sku" className="text-clay-ink">SKU *</Label>
                             <Input id="sku" name="sku" required placeholder="e.g. WM-001" />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="sellingPrice">Selling Price *</Label>
+                            <Label htmlFor="sellingPrice" className="text-clay-ink">Selling Price *</Label>
                             <Input type="number" step="0.01" id="sellingPrice" name="sellingPrice" required />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label>Category</Label>
+                            <Label className="text-clay-ink">Category</Label>
                             <input type="hidden" name="categoryId" value={categoryId} />
                             <SmartCategorySelect value={categoryId} onSelect={setCategoryId} />
                         </div>
                         <div className="grid gap-2">
-                            <Label>Unit</Label>
+                            <Label className="text-clay-ink">Unit</Label>
                             <input type="hidden" name="unitId" value={unitId} />
                             <SmartUnitSelect value={unitId} onSelect={setUnitId} />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
                         <SubmitButton />
                     </DialogFooter>
                 </form>

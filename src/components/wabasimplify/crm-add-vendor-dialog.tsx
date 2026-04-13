@@ -22,6 +22,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { SmartLocationSelect } from '@/components/crm/smart-location-select';
 import { SmartIndustrySelect } from '@/components/crm/inventory/smart-industry-select';
 import { SmartVendorTypeSelect } from '@/components/crm/purchases/smart-vendor-type-select';
+import { ClayButton } from '@/components/clay';
 
 const initialState = {
     message: '',
@@ -80,19 +81,19 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
             </DialogTrigger>
             <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Add New Vendor</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-clay-ink">Add New Vendor</DialogTitle>
+                    <DialogDescription className="text-clay-ink-muted">
                         Enter the details of the new vendor here. Click save when you're done.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Business/Vendor Name *</Label>
+                            <Label htmlFor="name" className="text-clay-ink">Business/Vendor Name *</Label>
                             <Input id="name" name="name" required maxLength={100} defaultValue={defaultName} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="displayName">Display Name</Label>
+                            <Label htmlFor="displayName" className="text-clay-ink">Display Name</Label>
                             <Input id="displayName" name="displayName" maxLength={100} placeholder="Nickname (Optional)" />
                         </div>
                     </div>
@@ -177,8 +178,8 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                     </Accordion>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button type="submit">Save Vendor</Button>
+                        <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
+                        <ClayButton type="submit" variant="obsidian">Save Vendor</ClayButton>
                     </DialogFooter>
                 </form>
             </DialogContent>

@@ -20,16 +20,21 @@ import { useToast } from '@/hooks/use-toast';
 import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
 import { saveCrmEmailTemplate } from '@/app/actions/crm-email-templates.actions';
 import { ScrollArea } from '../ui/scroll-area';
+import { ClayButton } from '@/components/clay';
 
 const initialState = { message: undefined, error: undefined };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             {isEditing ? 'Save Changes' : 'Create Template'}
-        </Button>
+        </ClayButton>
     )
 }
 
@@ -63,29 +68,29 @@ export function CrmEmailTemplateDialog({ isOpen, onOpenChange, template, onSucce
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     {isEditing && <input type="hidden" name="templateId" value={template._id.toString()} />}
                     <DialogHeader className="px-6 pt-6 pb-2">
-                        <DialogTitle>{isEditing ? 'Edit' : 'Create'} Email Template</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-clay-ink">{isEditing ? 'Edit' : 'Create'} Email Template</DialogTitle>
+                        <DialogDescription className="text-clay-ink-muted">
                             Design a reusable email template. Use variables like {'{{contact.name}}'} for personalization.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex-1 overflow-y-auto px-6 py-2">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Template Name</Label>
+                                <Label htmlFor="name" className="text-clay-ink">Template Name</Label>
                                 <Input id="name" name="name" defaultValue={template?.name} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="subject">Subject</Label>
+                                <Label htmlFor="subject" className="text-clay-ink">Subject</Label>
                                 <Input id="subject" name="subject" defaultValue={template?.subject} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="body">Body (HTML)</Label>
+                                <Label htmlFor="body" className="text-clay-ink">Body (HTML)</Label>
                                 <Textarea id="body" name="body" defaultValue={template?.body} required className="min-h-[300px] font-mono" />
                             </div>
                         </div>
                     </div>
                     <DialogFooter className="px-6 pb-6 pt-2">
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
                         <SubmitButton isEditing={isEditing} />
                     </DialogFooter>
                 </form>

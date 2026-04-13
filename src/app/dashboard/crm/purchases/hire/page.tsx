@@ -1,26 +1,32 @@
-
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Star, MessageSquare } from 'lucide-react';
+import { UserPlus, Star } from 'lucide-react';
+import { ClayCard } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function HireVendorsPage() {
     return (
-        <div className="flex justify-center items-center h-full">
-            <Card className="text-center max-w-2xl">
-                <CardHeader>
-                    <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                         <Star className="h-12 w-12 text-primary" />
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Hire The Best Vendors"
+                subtitle="Coming Soon: A marketplace to find and hire top-rated vendors and service providers for your business needs."
+                icon={UserPlus}
+            />
+
+            <ClayCard variant="outline" className="border-dashed">
+                <div className="flex flex-col items-center gap-4 py-12 text-center">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+                        <Star className="h-7 w-7 text-clay-rose-ink" strokeWidth={1.75} />
                     </div>
-                    <CardTitle className="mt-4 text-2xl">Hire The Best Vendors</CardTitle>
-                    <CardDescription>
-                        Coming Soon: A marketplace to find and hire top-rated vendors and service providers for your business needs.
-                    </CardDescription>
-                </CardHeader>
-                 <CardContent>
-                    <p className="text-muted-foreground">This feature is under development.</p>
-                </CardContent>
-            </Card>
+                    <div>
+                        <h3 className="text-[17px] font-semibold text-clay-ink">Hire The Best Vendors</h3>
+                        <p className="mt-1 max-w-md text-[12.5px] text-clay-ink-muted">
+                            Coming Soon: A marketplace to find and hire top-rated vendors and service providers for your business needs.
+                        </p>
+                    </div>
+                    <p className="text-[12.5px] text-clay-ink-muted">This feature is under development.</p>
+                </div>
+            </ClayCard>
         </div>
-    )
+    );
 }

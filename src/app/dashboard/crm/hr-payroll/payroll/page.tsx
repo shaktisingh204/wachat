@@ -1,15 +1,14 @@
-
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { IndianRupee, Printer, Mail, LoaderCircle, Check } from "lucide-react";
+import { IndianRupee, Printer, Mail, LoaderCircle, Check, Wallet } from "lucide-react";
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { generatePayrollData, processPayroll } from "@/app/actions/crm-payroll.actions";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -57,81 +56,82 @@ export default function GeneratePayrollPage() {
             }
         });
     };
-    
+
     const totalNetSalary = payrollData.reduce((sum, item) => sum + item.netSalary, 0);
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Generate Payroll</h1>
-                    <p className="text-muted-foreground">Calculate and process monthly salaries for your employees.</p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Select value={String(month)} onValueChange={val => setMonth(Number(val))}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent>{months.map(m => <SelectItem key={m.value} value={String(m.value - 1)}>{m.label}</SelectItem>)}</SelectContent></Select>
-                    <Select value={String(year)} onValueChange={val => setYear(Number(val))}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger><SelectContent>{years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent></Select>
-                    <Button onClick={fetchData} disabled={isLoading}>Refresh</Button>
-                </div>
-            </div>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Generate Payroll"
+                subtitle="Calculate and process monthly salaries for your employees."
+                icon={Wallet}
+                actions={
+                    <>
+                        <Select value={String(month)} onValueChange={val => setMonth(Number(val))}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent>{months.map(m => <SelectItem key={m.value} value={String(m.value - 1)}>{m.label}</SelectItem>)}</SelectContent></Select>
+                        <Select value={String(year)} onValueChange={val => setYear(Number(val))}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger><SelectContent>{years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent></Select>
+                        <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading}>Refresh</ClayButton>
+                    </>
+                }
+            />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Payroll for {months[month].label}, {year}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Employee</TableHead>
-                                    <TableHead>Paid Days</TableHead>
-                                    <TableHead className="text-right">Gross Salary</TableHead>
-                                    <TableHead className="text-right">Deductions</TableHead>
-                                    <TableHead className="text-right">Net Salary</TableHead>
+            <ClayCard>
+                <div className="mb-4">
+                    <h2 className="text-[16px] font-semibold text-clay-ink">Payroll for {months[month].label}, {year}</h2>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Employee</TableHead>
+                                <TableHead className="text-clay-ink-muted">Paid Days</TableHead>
+                                <TableHead className="text-right text-clay-ink-muted">Gross Salary</TableHead>
+                                <TableHead className="text-right text-clay-ink-muted">Deductions</TableHead>
+                                <TableHead className="text-right text-clay-ink-muted">Net Salary</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? <TableRow className="border-clay-border"><TableCell colSpan={5} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
+                            : payrollData.length > 0 ? payrollData.map(item => (
+                                <TableRow key={item.employeeId} className="border-clay-border">
+                                    <TableCell className="text-[13px] font-medium text-clay-ink">{item.employeeName}</TableCell>
+                                    <TableCell className="text-[13px] text-clay-ink">{item.presentDays} / {item.totalDays}</TableCell>
+                                    <TableCell className="text-right font-mono text-[13px] text-clay-ink">₹{item.grossSalary.toLocaleString()}</TableCell>
+                                    <TableCell className="text-right font-mono text-[13px] text-destructive">- ₹{item.deductions.reduce((s:number, i:any) => s+i.amount, 0).toLocaleString()}</TableCell>
+                                    <TableCell className="text-right font-mono text-[13px] font-bold text-clay-ink">₹{item.netSalary.toLocaleString()}</TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? <TableRow><TableCell colSpan={5} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin"/></TableCell></TableRow>
-                                : payrollData.length > 0 ? payrollData.map(item => (
-                                    <TableRow key={item.employeeId}>
-                                        <TableCell className="font-medium">{item.employeeName}</TableCell>
-                                        <TableCell>{item.presentDays} / {item.totalDays}</TableCell>
-                                        <TableCell className="text-right font-mono">₹{item.grossSalary.toLocaleString()}</TableCell>
-                                        <TableCell className="text-right font-mono text-destructive">- ₹{item.deductions.reduce((s:number, i:any) => s+i.amount, 0).toLocaleString()}</TableCell>
-                                        <TableCell className="text-right font-bold font-mono">₹{item.netSalary.toLocaleString()}</TableCell>
-                                    </TableRow>
-                                ))
-                                : <TableRow><TableCell colSpan={5} className="h-24 text-center">No active employees with salary details found.</TableCell></TableRow>}
-                            </TableBody>
-                             {payrollData.length > 0 && (
-                                <CardFooter className="bg-muted font-bold">
-                                    <TableRow>
-                                        <TableCell colSpan={4} className="text-right">Total Net Payout</TableCell>
-                                        <TableCell className="text-right font-mono text-xl">₹{totalNetSalary.toLocaleString()}</TableCell>
-                                    </TableRow>
-                                </CardFooter>
-                            )}
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+                            ))
+                            : <TableRow className="border-clay-border"><TableCell colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">No active employees with salary details found.</TableCell></TableRow>}
+                        </TableBody>
+                        {payrollData.length > 0 && (
+                            <TableFooter className="bg-clay-surface-2">
+                                <TableRow className="border-clay-border">
+                                    <TableCell colSpan={4} className="text-right font-semibold text-[13px] text-clay-ink">Total Net Payout</TableCell>
+                                    <TableCell className="text-right font-mono text-xl text-clay-ink">₹{totalNetSalary.toLocaleString()}</TableCell>
+                                </TableRow>
+                            </TableFooter>
+                        )}
+                    </Table>
+                </div>
+            </ClayCard>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Actions</CardTitle>
-                </CardHeader>
-                 <CardContent className="flex flex-wrap gap-4">
-                     <Button onClick={handleRunPayroll} disabled={isLoading || isProcessing || isProcessed || payrollData.length === 0}>
-                        {isProcessing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : (isProcessed ? <Check className="mr-2 h-4 w-4"/> : <IndianRupee className="mr-2 h-4 w-4"/>)}
+            <ClayCard>
+                <div className="mb-4">
+                    <h2 className="text-[16px] font-semibold text-clay-ink">Actions</h2>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                    <ClayButton
+                        variant="obsidian"
+                        onClick={handleRunPayroll}
+                        disabled={isLoading || isProcessing || isProcessed || payrollData.length === 0}
+                        leading={isProcessing ? <LoaderCircle className="h-4 w-4 animate-spin"/> : (isProcessed ? <Check className="h-4 w-4"/> : <IndianRupee className="h-4 w-4"/>)}
+                    >
                         {isProcessed ? 'Payroll Processed' : 'Run Payroll'}
-                    </Button>
-                    <Button variant="outline" disabled><Printer className="mr-2 h-4 w-4"/>Print All Payslips</Button>
-                    <Button variant="outline" disabled><Mail className="mr-2 h-4 w-4"/>Email All Payslips</Button>
-                </CardContent>
-                 <CardFooter>
-                    <p className="text-xs text-muted-foreground">Running payroll will lock these calculations and generate payslips for employees.</p>
-                </CardFooter>
-            </Card>
+                    </ClayButton>
+                    <ClayButton variant="pill" disabled leading={<Printer className="h-4 w-4"/>}>Print All Payslips</ClayButton>
+                    <ClayButton variant="pill" disabled leading={<Mail className="h-4 w-4"/>}>Email All Payslips</ClayButton>
+                </div>
+                <p className="mt-4 text-[11.5px] text-clay-ink-muted">Running payroll will lock these calculations and generate payslips for employees.</p>
+            </ClayCard>
         </div>
     );
 }

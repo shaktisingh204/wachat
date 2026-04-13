@@ -1,10 +1,7 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, ChevronDown, View } from 'lucide-react';
+import { Download, ChevronDown, BarChart3 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { generateBalanceSheetData } from "@/app/actions/crm-accounting.actions";
 import { useToast } from "@/hooks/use-toast";
@@ -12,10 +9,13 @@ import { useEffect, useState, useTransition, useCallback } from "react";
 import Papa from "papaparse";
 import { LoaderCircle } from "lucide-react";
 
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
+
 const StatCard = ({ title, value }: { title: string; value: string }) => (
-    <div className="bg-muted/50 p-4 rounded-lg">
-        <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="text-2xl font-bold">{value}</p>
+    <div className="bg-clay-surface-2 border border-clay-border p-4 rounded-clay-md">
+        <p className="text-[12.5px] text-clay-ink-muted">{title}</p>
+        <p className="mt-1 text-[22px] font-semibold text-clay-ink">{value}</p>
     </div>
 );
 
@@ -46,73 +46,64 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Balance Sheet</h1>
-                    <p className="text-muted-foreground">A snapshot of your company's financial health.</p>
-                </div>
-            </div>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Balance Sheet"
+                subtitle="A snapshot of your company's financial health."
+                icon={BarChart3}
+            />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Summary</CardTitle>
-                    <CardDescription>Figures are in INR (₹)</CardDescription>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <ClayCard>
+                <h2 className="text-[16px] font-semibold text-clay-ink">Summary</h2>
+                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Figures are in INR (₹)</p>
+                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                     <StatCard title="Total Assets" value={`₹${summary.totalAssets.toFixed(2)}`} />
                     <StatCard title="Total Liabilities" value={`₹${summary.totalLiabilities.toFixed(2)}`} />
                     <StatCard title="Total Capital" value={`₹${summary.totalCapital.toFixed(2)}`} />
                     <StatCard title="Debt to Equity Ratio" value={`${summary.debtToEquity.toFixed(2)}%`} />
-                </CardContent>
-            </Card>
+                </div>
+            </ClayCard>
 
-            <Card>
-                 <CardHeader>
-                    <div className="flex justify-end">
-                         <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline">
-                                    <Download className="mr-2 h-4 w-4"/>
-                                    Download As
-                                    <ChevronDown className="ml-2 h-4 w-4"/>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                                <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                                <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </CardHeader>
-                 <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Accounts</TableHead>
-                                    <TableHead className="text-right">Amount</TableHead>
-                                    <TableHead className="text-right">% of Total</TableHead>
+            <ClayCard>
+                <div className="flex justify-end mb-4">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                                Download As
+                            </ClayButton>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Accounts</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">% of Total</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {entries.map((entry: any, index: number) => (
+                                <TableRow key={index} className={`border-clay-border ${entry.isMain ? 'bg-clay-surface-2 font-semibold' : ''}`}>
+                                    <TableCell className={`text-clay-ink ${entry.isSub ? 'pl-8' : ''}`}>{entry.account}</TableCell>
+                                    <TableCell className="text-right font-mono text-clay-ink">₹{entry.amount.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right font-mono text-clay-ink">{totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'}%</TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {entries.map((entry: any, index: number) => (
-                                    <TableRow key={index} className={entry.isMain ? 'bg-muted/50 font-semibold' : ''}>
-                                        <TableCell className={entry.isSub ? 'pl-8' : ''}>{entry.account}</TableCell>
-                                        <TableCell className="text-right font-mono">₹{entry.amount.toFixed(2)}</TableCell>
-                                        <TableCell className="text-right font-mono">{totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'}%</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                     <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
-                        <p>Showing 1 to {entries.length} of {entries.length} entries</p>
-                        <p>* Reports are in your business currency INR</p>
-                    </div>
-                </CardContent>
-            </Card>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="flex items-center justify-between pt-4 text-[11.5px] text-clay-ink-muted">
+                    <p>Showing 1 to {entries.length} of {entries.length} entries</p>
+                    <p>* Reports are in your business currency INR</p>
+                </div>
+            </ClayCard>
         </div>
     )
 }
@@ -135,18 +126,18 @@ export default function BalanceSheetPage() {
     if (isLoading || !data) {
         return (
             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
             </div>
         );
     }
-    
+
     if (!data.summary) {
          return (
-            <div className="text-center py-10">
+            <div className="text-center py-10 text-[13px] text-clay-ink-muted">
                 <p>Could not generate balance sheet data. Please ensure you have accounts and transactions.</p>
             </div>
         );
     }
-    
+
     return <BalanceSheetClient data={data} />;
 }

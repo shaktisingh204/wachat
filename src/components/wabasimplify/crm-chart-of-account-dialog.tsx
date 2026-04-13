@@ -23,16 +23,21 @@ import { Switch } from '@/components/ui/switch';
 import { LoaderCircle, Save } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { SmartAccountGroupSelect } from '@/components/crm/accounting/smart-account-group-select';
+import { ClayButton } from '@/components/clay';
 
 const saveInitialState = { message: undefined, error: undefined };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <ClayButton
+            type="submit"
+            variant="obsidian"
+            disabled={pending}
+            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        >
             {isEditing ? 'Save Changes' : 'Submit'}
-        </Button>
+        </ClayButton>
     )
 }
 
@@ -69,16 +74,16 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     {isEditing && <input type="hidden" name="accountId" value={initialData?._id.toString()} />}
                     <DialogHeader className="px-6 pt-6 pb-2">
-                        <DialogTitle>{isEditing ? 'Edit' : 'Create New'} Account</DialogTitle>
+                        <DialogTitle className="text-clay-ink">{isEditing ? 'Edit' : 'Create New'} Account</DialogTitle>
                     </DialogHeader>
                     <div className="flex-1 overflow-y-auto px-6 py-2">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Account Name *</Label>
+                                <Label htmlFor="name" className="text-clay-ink">Account Name *</Label>
                                 <Input id="name" name="name" placeholder="Type Account Name" required defaultValue={initialData?.name} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="accountGroupId">Account Group *</Label>
+                                <Label htmlFor="accountGroupId" className="text-clay-ink">Account Group *</Label>
                                 <input type="hidden" name="accountGroupId" value={selectedGroupId} />
                                 <SmartAccountGroupSelect
                                     value={selectedGroupId}
@@ -88,10 +93,10 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                             </div>
 
                             <div>
-                                <Label className="font-semibold">Opening Balances</Label>
+                                <Label className="font-semibold text-clay-ink">Opening Balances</Label>
                                 <div className="grid grid-cols-[1fr,auto,1fr] items-end gap-2 mt-2">
                                     <div className="space-y-2">
-                                        <Label className="text-xs">Currency</Label>
+                                        <Label className="text-xs text-clay-ink">Currency</Label>
                                         <Select name="currency" defaultValue={initialData?.currency || "INR"}>
                                             <SelectTrigger><SelectValue /></SelectTrigger>
                                             <SelectContent>
@@ -101,14 +106,14 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs">Opening CR/DR *</Label>
+                                        <Label className="text-xs text-clay-ink">Opening CR/DR *</Label>
                                         <RadioGroup name="balanceType" defaultValue={initialData?.balanceType || "Dr"} className="flex gap-4 pt-2">
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="Cr" id="type-cr" /><Label htmlFor="type-cr" className="font-normal">CR</Label></div>
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="Dr" id="type-dr" /><Label htmlFor="type-dr" className="font-normal">DR</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="Cr" id="type-cr" /><Label htmlFor="type-cr" className="font-normal text-clay-ink">CR</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="Dr" id="type-dr" /><Label htmlFor="type-dr" className="font-normal text-clay-ink">DR</Label></div>
                                         </RadioGroup>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs">Opening Balance *</Label>
+                                        <Label className="text-xs text-clay-ink">Opening Balance *</Label>
                                         <Input id="openingBalance" name="openingBalance" type="number" step="0.01" required defaultValue={initialData?.openingBalance || 0} />
                                     </div>
                                 </div>
@@ -116,17 +121,17 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description (Optional)</Label>
+                                <Label htmlFor="description" className="text-clay-ink">Description (Optional)</Label>
                                 <Textarea id="description" name="description" defaultValue={initialData?.description} />
                             </div>
                             <div className="flex items-center space-x-2 pt-2">
                                 <Switch id="status" name="status" defaultChecked={initialData?.status === 'Active' || !isEditing} />
-                                <Label htmlFor="status">Set as Active</Label>
+                                <Label htmlFor="status" className="text-clay-ink">Set as Active</Label>
                             </div>
                         </div>
                     </div>
                     <DialogFooter className="px-6 pb-6 pt-2">
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
                         <SubmitButton isEditing={isEditing} />
                     </DialogFooter>
                 </form>

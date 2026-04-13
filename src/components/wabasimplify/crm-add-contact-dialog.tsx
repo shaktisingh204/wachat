@@ -21,6 +21,7 @@ import { addCrmContact } from '@/app/actions/crm.actions';
 import type { CrmAccount, WithId } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Separator } from '../ui/separator';
+import { ClayButton } from '@/components/clay';
 
 const initialState = { message: undefined, error: undefined };
 
@@ -28,10 +29,14 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+    <ClayButton
+      type="submit"
+      variant="obsidian"
+      disabled={pending}
+      leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
+    >
       Add Contact
-    </Button>
+    </ClayButton>
   );
 }
 
@@ -69,24 +74,24 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Add New Contact</DialogTitle>
-            <DialogDescription>Manually add a new contact or lead to your CRM.</DialogDescription>
+            <DialogTitle className="text-clay-ink">Add New Contact</DialogTitle>
+            <DialogDescription className="text-clay-ink-muted">Manually add a new contact or lead to your CRM.</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="name">Full Name</Label><Input id="name" name="name" required /></div>
-                <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" required /></div>
+                <div className="space-y-2"><Label htmlFor="name" className="text-clay-ink">Full Name</Label><Input id="name" name="name" required /></div>
+                <div className="space-y-2"><Label htmlFor="email" className="text-clay-ink">Email</Label><Input id="email" name="email" type="email" required /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="phone">Phone</Label><Input id="phone" name="phone" /></div>
-                <div className="space-y-2"><Label htmlFor="company">Company</Label><Input id="company" name="company" /></div>
+                <div className="space-y-2"><Label htmlFor="phone" className="text-clay-ink">Phone</Label><Input id="phone" name="phone" /></div>
+                <div className="space-y-2"><Label htmlFor="company" className="text-clay-ink">Company</Label><Input id="company" name="company" /></div>
               </div>
-              <div className="space-y-2"><Label htmlFor="jobTitle">Job Title</Label><Input id="jobTitle" name="jobTitle" /></div>
-              <Separator />
+              <div className="space-y-2"><Label htmlFor="jobTitle" className="text-clay-ink">Job Title</Label><Input id="jobTitle" name="jobTitle" /></div>
+              <Separator className="border-clay-border" />
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="accountId">Account (Company)</Label>
+                  <Label htmlFor="accountId" className="text-clay-ink">Account (Company)</Label>
                   <Select name="accountId">
                     <SelectTrigger id="accountId">
                       <SelectValue placeholder="Select an account..." />
@@ -101,7 +106,7 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status" className="text-clay-ink">Status</Label>
                   <Select name="status" defaultValue="new_lead">
                     <SelectTrigger id="status">
                       <SelectValue />
@@ -118,13 +123,13 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="leadScore">Lead Score</Label>
+                <Label htmlFor="leadScore" className="text-clay-ink">Lead Score</Label>
                 <Input id="leadScore" name="leadScore" type="number" placeholder="e.g. 75" />
               </div>
             </div>
           </div>
           <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
             <SubmitButton />
           </DialogFooter>
         </form>

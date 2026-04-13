@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getCrmChartOfAccounts, deleteCrmChartOfAccount } from '@/app/actions/crm-accounting.actions';
 import { getCrmAccountGroups } from '@/app/actions/crm-accounting.actions';
-import type { CrmChartOfAccount, CrmAccountGroup } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { CrmAccountGroup } from '@/lib/definitions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, LoaderCircle, Edit, Trash2, Download, ChevronDown } from 'lucide-react';
+import { Plus, LoaderCircle, Edit, Trash2, Download, ChevronDown, Network } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CrmChartOfAccountDialog } from '@/components/wabasimplify/crm-chart-of-account-dialog';
 import {
@@ -24,10 +22,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Papa from 'papaparse';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted: () => void }) {
     const { toast } = useToast();
@@ -48,7 +48,7 @@ function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted:
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-clay-red"/></Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -87,7 +87,7 @@ export default function ChartOfAccountsPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
-    
+
     const handleOpenDialog = (account: WithId<any> | null) => {
         setEditingAccount(account);
         setIsDialogOpen(true);
@@ -118,32 +118,39 @@ export default function ChartOfAccountsPage() {
 
     return (
         <>
-            <CrmChartOfAccountDialog 
+            <CrmChartOfAccountDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 onSave={fetchData}
                 accountGroups={groups}
                 initialData={editingAccount}
             />
-             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Chart of Accounts</h1>
-                    <p className="text-muted-foreground">Manage your company's financial accounts.</p>
-                </div>
-                 <div className="flex items-center gap-2">
-                    <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4" /> New Account</Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button variant="outline"><Download className="mr-2 h-4 w-4"/>Download As<ChevronDown className="ml-2 h-4 w-4"/></Button></DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </div>
-            <Card>
-                <CardContent className="pt-6">
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    title="Chart of Accounts"
+                    subtitle="Manage your company's financial accounts."
+                    icon={Network}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />} onClick={() => handleOpenDialog(null)}>
+                                New Account
+                            </ClayButton>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                                        Download As
+                                    </ClayButton>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                                    <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                                    <DropdownMenuItem disabled>PDF</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    }
+                />
+                <ClayCard>
                     <Tabs defaultValue="active">
                         <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="active">Active ({activeAccounts.length})</TabsTrigger>
@@ -156,41 +163,41 @@ export default function ChartOfAccountsPage() {
                             <AccountsTable accounts={inactiveAccounts} isLoading={isLoading} onEdit={handleOpenDialog} onDelete={fetchData} />
                         </TabsContent>
                     </Tabs>
-                </CardContent>
-            </Card>
+                </ClayCard>
+            </div>
         </>
     );
 }
 
 function AccountsTable({ accounts, isLoading, onEdit, onDelete }: { accounts: WithId<any>[], isLoading: boolean, onEdit: (acc: any) => void, onDelete: () => void }) {
     return (
-         <div className="border rounded-md">
+         <div className="overflow-x-auto rounded-clay-md border border-clay-border">
             <Table>
                 <TableHeader>
-                    <TableRow>
-                        <TableHead>Account Name</TableHead>
-                        <TableHead>Account Group</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead className="text-right">Opening Balance</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                    <TableRow className="border-clay-border hover:bg-transparent">
+                        <TableHead className="text-clay-ink-muted">Account Name</TableHead>
+                        <TableHead className="text-clay-ink-muted">Account Group</TableHead>
+                        <TableHead className="text-clay-ink-muted">Category</TableHead>
+                        <TableHead className="text-clay-ink-muted">Type</TableHead>
+                        <TableHead className="text-clay-ink-muted text-right">Opening Balance</TableHead>
+                        <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {isLoading ? (
-                        <TableRow><TableCell colSpan={6} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
+                        <TableRow className="border-clay-border"><TableCell colSpan={6} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
                     ) : accounts.length > 0 ? (
                         accounts.map(acc => (
-                            <TableRow key={acc._id.toString()}>
+                            <TableRow key={acc._id.toString()} className="border-clay-border">
                                 <TableCell className="font-medium">
-                                    <Link href={`/dashboard/crm/accounting/charts/${acc._id.toString()}`} className="hover:underline text-primary">
+                                    <Link href={`/dashboard/crm/accounting/charts/${acc._id.toString()}`} className="hover:underline text-clay-rose-ink">
                                         {acc.name}
                                     </Link>
                                 </TableCell>
-                                <TableCell>{acc.accountGroupName || 'N/A'}</TableCell>
-                                <TableCell>{acc.accountGroupCategory?.replace(/_/g, ' ')}</TableCell>
-                                <TableCell><Badge variant="outline">{acc.accountGroupType}</Badge></TableCell>
-                                <TableCell className="text-right font-mono">
+                                <TableCell className="text-clay-ink">{acc.accountGroupName || 'N/A'}</TableCell>
+                                <TableCell className="text-clay-ink">{acc.accountGroupCategory?.replace(/_/g, ' ')}</TableCell>
+                                <TableCell><ClayBadge tone="neutral">{acc.accountGroupType}</ClayBadge></TableCell>
+                                <TableCell className="text-right font-mono text-clay-ink">
                                     {new Intl.NumberFormat('en-IN', { style: 'currency', currency: acc.currency || 'INR' }).format(acc.openingBalance)} {acc.balanceType || 'Dr'}
                                 </TableCell>
                                 <TableCell className="text-right">
@@ -200,7 +207,7 @@ function AccountsTable({ accounts, isLoading, onEdit, onDelete }: { accounts: Wi
                             </TableRow>
                         ))
                     ) : (
-                        <TableRow><TableCell colSpan={6} className="h-24 text-center">No accounts in this category.</TableCell></TableRow>
+                        <TableRow className="border-clay-border"><TableCell colSpan={6} className="h-24 text-center text-clay-ink-muted">No accounts in this category.</TableCell></TableRow>
                     )}
                 </TableBody>
             </Table>

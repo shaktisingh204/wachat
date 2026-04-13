@@ -1,13 +1,19 @@
 'use server';
 
 import { Suspense } from 'react';
+import { Wallet } from 'lucide-react';
 import { NewExpenseForm } from './new-expense-form';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 export default async function NewExpensePage() {
     return (
         <div className="flex flex-col gap-6 max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Record Expense</h1>
-            <Suspense fallback={<div>Loading...</div>}>
+            <CrmPageHeader
+                title="Record Expense"
+                subtitle="Add a new expense entry."
+                icon={Wallet}
+            />
+            <Suspense fallback={<div className="text-[13px] text-clay-ink-muted">Loading...</div>}>
                 <NewExpenseForm />
             </Suspense>
         </div>

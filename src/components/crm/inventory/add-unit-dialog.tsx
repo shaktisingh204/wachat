@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { saveCrmUnit } from "@/app/actions/crm-inventory-settings.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { ClayButton } from "@/components/clay";
 
 interface AddUnitDialogProps {
     open: boolean;
@@ -73,15 +74,15 @@ export function AddUnitDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Add Unit</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-clay-ink">Add Unit</DialogTitle>
+                    <DialogDescription className="text-clay-ink-muted">
                         Create a new unit of measure (e.g. Kilogram, Piece).
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right">
+                            <Label htmlFor="name" className="text-right text-clay-ink">
                                 Name
                             </Label>
                             <Input
@@ -94,7 +95,7 @@ export function AddUnitDialog({
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="symbol" className="text-right">
+                            <Label htmlFor="symbol" className="text-right text-clay-ink">
                                 Symbol
                             </Label>
                             <Input
@@ -108,13 +109,17 @@ export function AddUnitDialog({
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>
                             Cancel
-                        </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        </ClayButton>
+                        <ClayButton
+                            type="submit"
+                            variant="obsidian"
+                            disabled={isSubmitting}
+                            leading={isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : undefined}
+                        >
                             Save
-                        </Button>
+                        </ClayButton>
                     </DialogFooter>
                 </form>
             </DialogContent>

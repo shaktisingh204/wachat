@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
+import { ClayCard } from '@/components/clay';
 
 type AnalyticsData = {
     financials: { name: string; revenue: number; expense: number }[];
@@ -25,49 +25,49 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
         <div className="space-y-6">
             {/* KPIs */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">₹{kpis.totalRevenue.toLocaleString()}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">₹{kpis.totalExpense.toLocaleString()}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className={`text-2xl font-bold ${kpis.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <ClayCard>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 className="text-sm font-medium text-clay-ink-muted">Total Revenue</h3>
+                    </div>
+                    <div>
+                        <div className="text-2xl font-bold text-clay-ink">₹{kpis.totalRevenue.toLocaleString()}</div>
+                    </div>
+                </ClayCard>
+                <ClayCard>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 className="text-sm font-medium text-clay-ink-muted">Total Expenses</h3>
+                    </div>
+                    <div>
+                        <div className="text-2xl font-bold text-clay-ink">₹{kpis.totalExpense.toLocaleString()}</div>
+                    </div>
+                </ClayCard>
+                <ClayCard>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 className="text-sm font-medium text-clay-ink-muted">Net Profit</h3>
+                    </div>
+                    <div>
+                        <div className={`text-2xl font-bold ${kpis.netProfit >= 0 ? 'text-clay-green' : 'text-clay-red'}`}>
                             ₹{kpis.netProfit.toLocaleString()}
                         </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{kpis.totalLeads}</div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </ClayCard>
+                <ClayCard>
+                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 className="text-sm font-medium text-clay-ink-muted">Total Leads</h3>
+                    </div>
+                    <div>
+                        <div className="text-2xl font-bold text-clay-ink">{kpis.totalLeads}</div>
+                    </div>
+                </ClayCard>
             </div>
 
             {/* Charts */}
             <div className="grid gap-4 md:grid-cols-2">
-                <Card className="col-span-1">
-                    <CardHeader>
-                        <CardTitle>Financial Performance</CardTitle>
-                    </CardHeader>
-                    <CardContent className="h-[300px]">
+                <ClayCard className="col-span-1" padded={false}>
+                    <div className="p-5 border-b border-clay-border">
+                        <h3 className="text-clay-ink font-semibold">Financial Performance</h3>
+                    </div>
+                    <div className="p-5 h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={financials}>
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -79,14 +79,14 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                                 <Bar dataKey="expense" fill="#f87171" radius={[4, 4, 0, 0]} name="Expenses" />
                             </BarChart>
                         </ResponsiveContainer>
-                    </CardContent>
-                </Card>
+                    </div>
+                </ClayCard>
 
-                <Card className="col-span-1">
-                    <CardHeader>
-                        <CardTitle>Lead Funnel</CardTitle>
-                    </CardHeader>
-                    <CardContent className="h-[300px] flex justify-center">
+                <ClayCard className="col-span-1" padded={false}>
+                    <div className="p-5 border-b border-clay-border">
+                        <h3 className="text-clay-ink font-semibold">Lead Funnel</h3>
+                    </div>
+                    <div className="p-5 h-[300px] flex justify-center">
                         {funnel.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -108,12 +108,12 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                                 </PieChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div className="flex h-full items-center justify-center text-muted-foreground">
+                            <div className="flex h-full items-center justify-center text-clay-ink-muted">
                                 No lead data available
                             </div>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </ClayCard>
             </div>
         </div>
     );

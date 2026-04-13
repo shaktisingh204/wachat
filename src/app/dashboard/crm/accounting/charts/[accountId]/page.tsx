@@ -1,13 +1,11 @@
 'use client';
 
-import { notFound, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getCrmChartOfAccountById, getVoucherEntriesForAccount } from '@/app/actions/crm-accounting.actions';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, SlidersHorizontal, Trash2, Edit, ChevronDown, LoaderCircle } from 'lucide-react';
+import { ArrowLeft, Download, ChevronDown, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   DropdownMenu,
@@ -17,8 +15,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useEffect, useState, useTransition, useCallback, use } from 'react';
 import type { WithId, CrmChartOfAccount, CrmVoucherEntry } from '@/lib/definitions';
-import { DatePicker } from '@/components/ui/date-picker';
 import { CrmChartOfAccountDialog } from '@/components/wabasimplify/crm-chart-of-account-dialog';
+
+import { ClayCard, ClayButton } from '@/components/clay';
 
 export default function AccountDetailPage(props: { params: Promise<{ accountId: string }> }) {
     const params = use(props.params);
@@ -44,8 +43,6 @@ export default function AccountDetailPage(props: { params: Promise<{ accountId: 
                 getVoucherEntriesForAccount(params.accountId, startDate, endDate)
             ]);
             if (!accountData) {
-                // Potentially call notFound() if this were a server component,
-                // or handle error state for client component.
                 console.error("Account not found");
                 return;
             }
@@ -59,11 +56,11 @@ export default function AccountDetailPage(props: { params: Promise<{ accountId: 
     }, [fetchData]);
 
     if (isLoading && !account) {
-        return <div>Loading...</div>; // Replace with Skeleton
+        return <div className="flex justify-center py-10"><LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted"/></div>;
     }
 
     if (!account) {
-        return <div>Account not found.</div>;
+        return <div className="py-10 text-center text-[13px] text-clay-ink-muted">Account not found.</div>;
     }
 
     const openingBalance = account.balanceType === 'Cr' ? -account.openingBalance : account.openingBalance;
@@ -86,22 +83,22 @@ export default function AccountDetailPage(props: { params: Promise<{ accountId: 
 
     return (
         <>
-            <CrmChartOfAccountDialog 
+            <CrmChartOfAccountDialog
                 isOpen={isEditDialogOpen}
                 onOpenChange={setIsEditDialogOpen}
                 initialData={account}
                 onSave={fetchData}
                 accountGroups={[]}
             />
-            <div className="space-y-6">
+            <div className="flex w-full flex-col gap-6">
                 <div>
-                     <Button variant="ghost" asChild className="mb-2 -ml-4">
+                    <Button variant="ghost" asChild className="mb-2 -ml-4 text-clay-ink-muted hover:text-clay-ink">
                         <Link href="/dashboard/crm/accounting/charts"><ArrowLeft className="mr-2 h-4 w-4" />Back to Chart of Accounts</Link>
                     </Button>
                     <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                            <h1 className="text-2xl font-bold font-headline">{account.name}</h1>
-                            <p className="text-muted-foreground">{(account as any).accountGroupName} [{(account as any).accountGroupCategory?.replace(/_/g, ' ')}]</p>
+                            <h1 className="text-[24px] font-semibold tracking-tight text-clay-ink">{account.name}</h1>
+                            <p className="mt-1 text-[13px] text-clay-ink-muted">{(account as any).accountGroupName} [{(account as any).accountGroupCategory?.replace(/_/g, ' ')}]</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <Select value={financialYear} onValueChange={setFinancialYear}>
@@ -111,72 +108,73 @@ export default function AccountDetailPage(props: { params: Promise<{ accountId: 
                                     <SelectItem value="fy2425">FY 2024-2025</SelectItem>
                                 </SelectContent>
                             </Select>
-                             <DropdownMenu>
+                            <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">
+                                    <ClayButton variant="pill" trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
                                         Actions
-                                        <ChevronDown className="ml-2 h-4 w-4"/>
-                                    </Button>
+                                    </ClayButton>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>Edit Account</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Button variant="outline" disabled><Download className="mr-2 h-4 w-4" />Download CSV</Button>
+                            <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} disabled>
+                                Download CSV
+                            </ClayButton>
                         </div>
                     </div>
                 </div>
 
-                <Card>
-                    <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+                <ClayCard>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {balanceDetails.map(item => (
-                            <div key={item.label} className="p-4 bg-muted/50 rounded-lg">
-                                <p className="text-sm text-muted-foreground">{item.label}</p>
-                                <p className="text-2xl font-bold">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(item.value)}</p>
-                                <p className="text-xs font-mono text-muted-foreground">{item.type}</p>
+                            <div key={item.label} className="p-4 bg-clay-surface-2 border border-clay-border rounded-clay-md">
+                                <p className="text-[12.5px] text-clay-ink-muted">{item.label}</p>
+                                <p className="mt-1 text-[22px] font-semibold text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(item.value)}</p>
+                                <p className="text-[11.5px] font-mono text-clay-ink-muted">{item.type}</p>
                             </div>
                         ))}
-                    </CardContent>
-                </Card>
+                    </div>
+                </ClayCard>
 
-                 <div className="border rounded-md">
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
                     <Table>
                         <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Voucher Book</TableHead>
-                                <TableHead>Voucher #</TableHead>
-                                <TableHead>Note</TableHead>
-                                <TableHead className="text-right">Debit</TableHead>
-                                <TableHead className="text-right">Credit</TableHead>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Date</TableHead>
+                                <TableHead className="text-clay-ink-muted">Voucher Book</TableHead>
+                                <TableHead className="text-clay-ink-muted">Voucher #</TableHead>
+                                <TableHead className="text-clay-ink-muted">Note</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Debit</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Credit</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                             {isLoading ? (
-                                <TableRow>
+                            {isLoading ? (
+                                <TableRow className="border-clay-border">
                                     <TableCell colSpan={6} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin"/>
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted"/>
                                     </TableCell>
                                 </TableRow>
-                             ) : entries.length > 0 ? (
+                            ) : entries.length > 0 ? (
                                 entries.map(entry => {
                                     const debitAmount = entry.debitEntries.find(d => d.accountId.toString() === account._id.toString())?.amount || 0;
                                     const creditAmount = entry.creditEntries.find(c => c.accountId.toString() === account._id.toString())?.amount || 0;
-                                    
+
                                     return (
-                                        <TableRow key={entry._id.toString()}>
-                                            <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
-                                            <TableCell>Voucher Book Name</TableCell>
-                                            <TableCell className="font-mono text-xs">{entry.voucherNumber}</TableCell>
-                                            <TableCell className="text-muted-foreground text-xs">{entry.note}</TableCell>
-                                            <TableCell className="text-right font-mono">{debitAmount > 0 ? debitAmount.toFixed(2) : '-'}</TableCell>
-                                            <TableCell className="text-right font-mono">{creditAmount > 0 ? creditAmount.toFixed(2) : '-'}</TableCell>
+                                        <TableRow key={entry._id.toString()} className="border-clay-border">
+                                            <TableCell className="text-clay-ink">{new Date(entry.date).toLocaleDateString()}</TableCell>
+                                            <TableCell className="text-clay-ink">Voucher Book Name</TableCell>
+                                            <TableCell className="font-mono text-[11.5px] text-clay-ink">{entry.voucherNumber}</TableCell>
+                                            <TableCell className="text-clay-ink-muted text-[11.5px]">{entry.note}</TableCell>
+                                            <TableCell className="text-right font-mono text-clay-ink">{debitAmount > 0 ? debitAmount.toFixed(2) : '-'}</TableCell>
+                                            <TableCell className="text-right font-mono text-clay-ink">{creditAmount > 0 ? creditAmount.toFixed(2) : '-'}</TableCell>
                                         </TableRow>
                                     )
                                 })
                             ) : (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center">
+                                <TableRow className="border-clay-border">
+                                    <TableCell colSpan={6} className="h-24 text-center text-clay-ink-muted">
                                         No transactions for this period.
                                     </TableCell>
                                 </TableRow>

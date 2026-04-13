@@ -5,14 +5,13 @@ import { useFormStatus } from 'react-dom';
 import type { WithId } from 'mongodb';
 import { getCrmAccountGroups, saveCrmAccountGroup, deleteCrmAccountGroup } from '@/app/actions/crm-accounting.actions';
 import type { CrmAccountGroup } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LoaderCircle, Plus, Trash2, Edit, Download, ChevronDown } from 'lucide-react';
+import { LoaderCircle, Plus, Trash2, Edit, Download, ChevronDown, Layers } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -27,6 +26,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import Papa from 'papaparse';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 
 const saveInitialState: any = { message: null, error: null };
@@ -51,16 +53,16 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
     )
 }
 
-function AccountGroupDialog({ 
-    isOpen, 
-    onOpenChange, 
-    onSave, 
-    initialData 
-}: { 
-    isOpen: boolean; 
+function AccountGroupDialog({
+    isOpen,
+    onOpenChange,
+    onSave,
+    initialData
+}: {
+    isOpen: boolean;
     onOpenChange: (open: boolean) => void;
-    onSave: () => void; 
-    initialData: WithId<CrmAccountGroup> | null 
+    onSave: () => void;
+    initialData: WithId<CrmAccountGroup> | null
 }) {
     const isEditing = !!initialData;
     const [state, formAction] = useActionState(saveCrmAccountGroup, saveInitialState);
@@ -146,7 +148,7 @@ function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted:
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-clay-red"/></Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -186,7 +188,7 @@ export default function AccountGroupsPage() {
         setEditingGroup(group);
         setIsDialogOpen(true);
     };
-    
+
     const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
         if (format === 'csv') {
             const csv = Papa.unparse(groups.map(({ name, type, category }) => ({ Name: name, Type: type, Category: category.replace(/_/g, ' ') })));
@@ -204,52 +206,57 @@ export default function AccountGroupsPage() {
 
     return (
         <>
-            <AccountGroupDialog 
+            <AccountGroupDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 onSave={fetchData}
                 initialData={editingGroup}
             />
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Account Groups</h1>
-                    <p className="text-muted-foreground">A list of all account groups in your CRM.</p>
-                </div>
-                 <div className="flex items-center gap-2">
-                    <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4" /> New Account Group</Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline"><Download className="mr-2 h-4 w-4"/>Download As<ChevronDown className="ml-2 h-4 w-4"/></Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </div>
-            <Card>
-                <CardContent className="pt-6">
-                    <div className="border rounded-md">
+            <div className="flex w-full flex-col gap-6">
+                <CrmPageHeader
+                    title="Account Groups"
+                    subtitle="A list of all account groups in your CRM."
+                    icon={Layers}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />} onClick={() => handleOpenDialog(null)}>
+                                New Account Group
+                            </ClayButton>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                                        Download As
+                                    </ClayButton>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
+                                    <DropdownMenuItem disabled>XLS</DropdownMenuItem>
+                                    <DropdownMenuItem disabled>PDF</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    }
+                />
+                <ClayCard>
+                    <div className="overflow-x-auto rounded-clay-md border border-clay-border">
                         <Table>
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead>Group Name</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                <TableRow className="border-clay-border hover:bg-transparent">
+                                    <TableHead className="text-clay-ink-muted">Group Name</TableHead>
+                                    <TableHead className="text-clay-ink-muted">Type</TableHead>
+                                    <TableHead className="text-clay-ink-muted">Category</TableHead>
+                                    <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
-                                    <TableRow><TableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
+                                    <TableRow className="border-clay-border"><TableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
                                 ) : groups.length > 0 ? (
                                     groups.map(group => (
-                                        <TableRow key={group._id.toString()}>
-                                            <TableCell className="font-medium">{group.name}</TableCell>
-                                            <TableCell>{group.type}</TableCell>
-                                            <TableCell>{group.category?.replace(/_/g, ' ')}</TableCell>
+                                        <TableRow key={group._id.toString()} className="border-clay-border">
+                                            <TableCell className="font-medium text-clay-ink">{group.name}</TableCell>
+                                            <TableCell className="text-clay-ink">{group.type}</TableCell>
+                                            <TableCell className="text-clay-ink">{group.category?.replace(/_/g, ' ')}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(group)}><Edit className="h-4 w-4"/></Button>
                                                 <DeleteButton account={group} onDeleted={fetchData} />
@@ -257,13 +264,13 @@ export default function AccountGroupsPage() {
                                         </TableRow>
                                     ))
                                 ) : (
-                                    <TableRow><TableCell colSpan={4} className="h-24 text-center">No account groups found.</TableCell></TableRow>
+                                    <TableRow className="border-clay-border"><TableCell colSpan={4} className="h-24 text-center text-clay-ink-muted">No account groups found.</TableCell></TableRow>
                                 )}
                             </TableBody>
                         </Table>
                     </div>
-                </CardContent>
-            </Card>
+                </ClayCard>
+            </div>
         </>
     );
 }

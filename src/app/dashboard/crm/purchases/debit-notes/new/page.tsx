@@ -1,13 +1,19 @@
 'use server';
 
 import { Suspense } from 'react';
+import { FileMinus } from 'lucide-react';
 import { NewDebitNoteForm } from './new-note-form';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 export default async function NewDebitNotePage() {
     return (
         <div className="flex flex-col gap-6 max-w-5xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Create New Debit Note</h1>
-            <Suspense fallback={<div>Loading...</div>}>
+            <CrmPageHeader
+                title="Create New Debit Note"
+                subtitle="Record a vendor return or adjustment."
+                icon={FileMinus}
+            />
+            <Suspense fallback={<div className="text-[13px] text-clay-ink-muted">Loading...</div>}>
                 <NewDebitNoteForm />
             </Suspense>
         </div>

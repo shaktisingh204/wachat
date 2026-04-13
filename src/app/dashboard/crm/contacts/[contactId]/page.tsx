@@ -5,174 +5,301 @@ import { useParams, useRouter } from 'next/navigation';
 import { getCrmContactById } from '@/app/actions/crm.actions';
 import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
 import { getCrmDeals } from '@/app/actions/crm-deals.actions';
-import type { CrmContact, WithId, CrmAccount, CrmDeal, CrmTask } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import type { CrmContact, WithId, CrmAccount, CrmDeal } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, User, Briefcase, Mail, Phone, MessageSquare, Plus, FileText, Calendar, Handshake } from 'lucide-react';
+import {
+  ArrowLeft,
+  Briefcase,
+  Mail,
+  Phone,
+  MessageSquare,
+  Users,
+} from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
-import { format, formatDistanceToNow } from 'date-fns';
 import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
-import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 function ContactDetailPageSkeleton() {
-    return (
-        <div className="space-y-6">
-            <Skeleton className="h-8 w-48" />
-            <div className="grid md:grid-cols-3 gap-6">
-                <div className="md:col-span-1 space-y-4">
-                    <Skeleton className="h-64 w-full" />
-                </div>
-                <div className="md:col-span-2 space-y-4">
-                    <Skeleton className="h-48 w-full" />
-                    <Skeleton className="h-64 w-full" />
-                </div>
-            </div>
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <Skeleton className="h-8 w-48" />
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="space-y-4 md:col-span-1">
+          <Skeleton className="h-64 w-full rounded-clay-lg" />
         </div>
-    );
+        <div className="space-y-4 md:col-span-2">
+          <Skeleton className="h-48 w-full rounded-clay-lg" />
+          <Skeleton className="h-64 w-full rounded-clay-lg" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function CrmContactDetailPage() {
-    const params = useParams();
-    const router = useRouter();
-    const contactId = params.contactId as string;
-    const [contact, setContact] = useState<WithId<CrmContact> | null>(null);
-    const [account, setAccount] = useState<WithId<CrmAccount> | null>(null);
-    const [deals, setDeals] = useState<WithId<CrmDeal>[]>([]);
-    const [isLoading, startTransition] = useTransition();
-    const [isComposeOpen, setIsComposeOpen] = useState(false);
+  const params = useParams();
+  const router = useRouter();
+  const contactId = params.contactId as string;
+  const [contact, setContact] = useState<WithId<CrmContact> | null>(null);
+  const [account, setAccount] = useState<WithId<CrmAccount> | null>(null);
+  const [deals, setDeals] = useState<WithId<CrmDeal>[]>([]);
+  const [isLoading, startTransition] = useTransition();
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
 
-    useEffect(() => {
-        if (contactId) {
-            startTransition(async () => {
-                const fetchedContact = await getCrmContactById(contactId);
-                setContact(fetchedContact);
-                if (fetchedContact?.accountId) {
-                    const fetchedAccount = await getCrmAccountById(fetchedContact.accountId.toString());
-                    setAccount(fetchedAccount);
-                }
-                if (fetchedContact) {
-                    const allDeals = await getCrmDeals();
-                    setDeals((allDeals as any).deals?.filter((d: any) => d.contactIds?.some((id: any) => id.toString() === fetchedContact._id.toString())));
-                }
-            });
+  useEffect(() => {
+    if (contactId) {
+      startTransition(async () => {
+        const fetchedContact = await getCrmContactById(contactId);
+        setContact(fetchedContact);
+        if (fetchedContact?.accountId) {
+          const fetchedAccount = await getCrmAccountById(fetchedContact.accountId.toString());
+          setAccount(fetchedAccount);
         }
-    }, [contactId]);
-
-    const handleWhatsAppMessage = () => {
-        const waId = contact?.phone?.replace(/\D/g, '');
-        if (waId) {
-             router.push(`/dashboard/chat?waId=${waId}`);
+        if (fetchedContact) {
+          const allDeals = await getCrmDeals();
+          setDeals(
+            (allDeals as any).deals?.filter((d: any) =>
+              d.contactIds?.some(
+                (id: any) => id.toString() === fetchedContact._id.toString(),
+              ),
+            ),
+          );
         }
-    };
-
-    if (isLoading || !contact) {
-        return <ContactDetailPageSkeleton />;
+      });
     }
+  }, [contactId]);
 
-    const leadScoreColor = (score: number) => {
-        if (score > 75) return 'bg-green-500';
-        if (score > 50) return 'bg-yellow-500';
-        return 'bg-red-500';
-    };
+  const handleWhatsAppMessage = () => {
+    const waId = contact?.phone?.replace(/\D/g, '');
+    if (waId) {
+      router.push(`/dashboard/chat?waId=${waId}`);
+    }
+  };
 
-    return (
-        <>
-            <ComposeEmailDialog 
-                isOpen={isComposeOpen} 
-                onOpenChange={setIsComposeOpen}
-                initialTo={contact.email}
-                initialSubject={`Following up`}
+  if (isLoading || !contact) {
+    return <ContactDetailPageSkeleton />;
+  }
+
+  const leadScoreTone = (score: number): 'green' | 'amber' | 'red' => {
+    if (score > 75) return 'green';
+    if (score > 50) return 'amber';
+    return 'red';
+  };
+
+  const dealStageTone = (stage: string): 'green' | 'red' | 'rose-soft' => {
+    const s = stage.toLowerCase();
+    if (s === 'won') return 'green';
+    if (s === 'lost') return 'red';
+    return 'rose-soft';
+  };
+
+  return (
+    <>
+      <ComposeEmailDialog
+        isOpen={isComposeOpen}
+        onOpenChange={setIsComposeOpen}
+        initialTo={contact.email}
+        initialSubject={`Following up`}
+      />
+      <div className="flex w-full flex-col gap-6">
+        <div>
+          <Link
+            href="/dashboard/crm/contacts"
+            className="inline-flex items-center gap-1.5 text-[12.5px] text-clay-ink-muted hover:text-clay-ink"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
+            Back to All Contacts
+          </Link>
+        </div>
+
+        <CrmPageHeader
+          title={contact.name}
+          subtitle={contact.jobTitle || 'Contact details and activity'}
+          icon={Users}
+        />
+
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-1">
+            <ClayCard>
+              <div className="flex flex-col items-center text-center">
+                <Avatar className="mb-3 h-24 w-24 border border-clay-border">
+                  <AvatarImage src={contact.avatarUrl || ''} data-ai-hint="person avatar" />
+                  <AvatarFallback className="bg-clay-rose-soft text-[26px] text-clay-rose-ink">
+                    {contact.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <h2 className="text-[16px] font-semibold text-clay-ink">{contact.name}</h2>
+                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                  {contact.jobTitle || 'N/A'}
+                </p>
+              </div>
+
+              <div className="mt-5 flex gap-2">
+                <ClayButton
+                  variant="pill"
+                  size="sm"
+                  className="flex-1"
+                  leading={<Mail className="h-3.5 w-3.5" strokeWidth={1.75} />}
+                  onClick={() => setIsComposeOpen(true)}
+                >
+                  Email
+                </ClayButton>
+                <ClayButton
+                  variant="pill"
+                  size="sm"
+                  className="flex-1"
+                  leading={<MessageSquare className="h-3.5 w-3.5" strokeWidth={1.75} />}
+                  onClick={handleWhatsAppMessage}
+                  disabled={!contact.phone}
+                >
+                  WhatsApp
+                </ClayButton>
+                <ClayButton
+                  variant="pill"
+                  size="sm"
+                  className="flex-1"
+                  leading={<Phone className="h-3.5 w-3.5" strokeWidth={1.75} />}
+                  disabled={!contact.phone}
+                  onClick={() => {
+                    if (contact.phone) window.location.href = `tel:${contact.phone}`;
+                  }}
+                >
+                  Call
+                </ClayButton>
+              </div>
+
+              <Separator className="my-4 bg-clay-border" />
+
+              <div className="space-y-2.5 text-[13px] text-clay-ink">
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className="text-clay-rose hover:underline"
+                  >
+                    {contact.email}
+                  </a>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                  <span>{contact.phone || 'N/A'}</span>
+                </div>
+                {account && (
+                  <div className="flex items-center gap-3">
+                    <Briefcase className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                    <Link
+                      href={`/dashboard/crm/accounts/${account._id.toString()}`}
+                      className="text-clay-rose hover:underline"
+                    >
+                      {account.name}
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <Separator className="my-4 bg-clay-border" />
+
+              <div className="space-y-3">
+                <div>
+                  <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                    Lead Score
+                  </p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <ClayBadge tone={leadScoreTone(contact.leadScore || 0)} dot>
+                      {contact.leadScore || 0}
+                    </ClayBadge>
+                    <span className="text-[12.5px] text-clay-ink-muted">Hot Lead</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                    Status
+                  </p>
+                  <div className="mt-1.5">
+                    <ClayBadge tone="rose-soft">{contact.status}</ClayBadge>
+                  </div>
+                </div>
+              </div>
+            </ClayCard>
+
+            <CrmNotes
+              recordId={contact._id.toString()}
+              recordType="contact"
+              notes={contact.notes || []}
             />
-            <div className="space-y-6">
-                 <div>
-                    <Button variant="ghost" asChild className="mb-2 -ml-4">
-                        <Link href="/dashboard/crm/contacts"><ArrowLeft className="mr-2 h-4 w-4" />Back to All Contacts</Link>
-                    </Button>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                    <div className="lg:col-span-1 space-y-6">
-                        <Card>
-                            <CardHeader className="items-center text-center">
-                                <Avatar className="h-24 w-24 mb-2">
-                                    <AvatarImage src={contact.avatarUrl || ''} data-ai-hint="person avatar" />
-                                    <AvatarFallback className="text-3xl">{contact.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <CardTitle>{contact.name}</CardTitle>
-                                <CardDescription>{contact.jobTitle || 'N/A'}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="text-sm space-y-4">
-                                <div className="flex gap-2">
-                                    <Button variant="outline" size="sm" className="flex-1" onClick={() => setIsComposeOpen(true)}>
-                                        <Mail className="h-4 w-4 mr-2"/> Email
-                                    </Button>
-                                    <Button variant="outline" size="sm" className="flex-1" onClick={handleWhatsAppMessage} disabled={!contact.phone}>
-                                         <MessageSquare className="h-4 w-4 mr-2"/> WhatsApp
-                                    </Button>
-                                     <Button asChild variant="outline" size="sm" className="flex-1" disabled={!contact.phone}>
-                                        <a href={`tel:${contact.phone}`}><Phone className="h-4 w-4 mr-2"/> Call</a>
-                                    </Button>
-                                </div>
-                                <Separator />
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-3"><Mail className="h-4 w-4 text-muted-foreground"/><a href={`mailto:${contact.email}`} className="text-primary hover:underline">{contact.email}</a></div>
-                                    <div className="flex items-center gap-3"><Phone className="h-4 w-4 text-muted-foreground"/><span>{contact.phone || 'N/A'}</span></div>
-                                    {account && (
-                                        <div className="flex items-center gap-3">
-                                            <Briefcase className="h-4 w-4 text-muted-foreground"/>
-                                            <Link href={`/dashboard/crm/accounts/${account._id.toString()}`} className="text-primary hover:underline">{account.name}</Link>
-                                        </div>
-                                    )}
-                                </div>
-                                <Separator />
-                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground">Lead Score</Label>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold" style={{backgroundColor: leadScoreColor(contact.leadScore || 0)}}>{contact.leadScore || 0}</div>
-                                        <p className="text-sm">Hot Lead</p>
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-muted-foreground">Status</Label>
-                                    <div><Badge>{contact.status}</Badge></div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                         <CrmNotes recordId={contact._id.toString()} recordType="contact" notes={contact.notes || []} />
-                    </div>
-                    <div className="lg:col-span-2">
-                        <Card>
-                            <CardHeader><CardTitle>Associated Deals</CardTitle></CardHeader>
-                            <CardContent>
-                               <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Deal Name</TableHead>
-                                        <TableHead>Stage</TableHead>
-                                        <TableHead className="text-right">Value</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {deals.length > 0 ? deals.map(deal => (
-                                        <TableRow key={deal._id.toString()} onClick={() => router.push(`/dashboard/crm/deals/${deal._id.toString()}`)} className="cursor-pointer">
-                                            <TableCell className="font-medium">{deal.name}</TableCell>
-                                            <TableCell><Badge variant="secondary">{deal.stage}</Badge></TableCell>
-                                            <TableCell className="text-right font-mono">{new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency }).format(deal.value)}</TableCell>
-                                        </TableRow>
-                                    )) : <TableRow><TableCell colSpan={3} className="text-center">No deals associated with this contact.</TableCell></TableRow>}
-                                </TableBody>
-                               </Table>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
-            </div>
-        </>
-    );
+          </div>
+
+          <div className="lg:col-span-2">
+            <ClayCard>
+              <div className="mb-4">
+                <h2 className="text-[16px] font-semibold text-clay-ink">Associated Deals</h2>
+                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                  Deals linked to this contact.
+                </p>
+              </div>
+              <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-clay-border hover:bg-transparent">
+                      <TableHead className="text-clay-ink-muted">Deal Name</TableHead>
+                      <TableHead className="text-clay-ink-muted">Stage</TableHead>
+                      <TableHead className="text-right text-clay-ink-muted">Value</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {deals.length > 0 ? (
+                      deals.map((deal) => (
+                        <TableRow
+                          key={deal._id.toString()}
+                          onClick={() =>
+                            router.push(`/dashboard/crm/deals/${deal._id.toString()}`)
+                          }
+                          className="cursor-pointer border-clay-border"
+                        >
+                          <TableCell className="text-[13px] font-medium text-clay-ink">
+                            {deal.name}
+                          </TableCell>
+                          <TableCell>
+                            <ClayBadge tone={dealStageTone(deal.stage)}>{deal.stage}</ClayBadge>
+                          </TableCell>
+                          <TableCell className="text-right font-medium text-clay-ink">
+                            {new Intl.NumberFormat('en-US', {
+                              style: 'currency',
+                              currency: deal.currency,
+                            }).format(deal.value)}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow className="border-clay-border">
+                        <TableCell
+                          colSpan={3}
+                          className="h-24 text-center text-[13px] text-clay-ink-muted"
+                        >
+                          No deals associated with this contact.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </ClayCard>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }

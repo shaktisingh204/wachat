@@ -138,9 +138,9 @@ export default function NewSalesOrderPage() {
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
                     <header className="flex justify-between items-center mb-6">
                         <div>
-                            <Button variant="ghost" asChild className="-ml-4">
-                                <Link href="/dashboard/crm/sales/orders"><ArrowLeft className="mr-2 h-4 w-4" />Back to Sales Orders</Link>
-                            </Button>
+                            <Link href="/dashboard/crm/sales/orders" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
+                                <ArrowLeft className="h-4 w-4" />Back to Sales Orders
+                            </Link>
                         </div>
                         <div className="flex items-center gap-2">
                             <Button variant="outline" type="button">Save As Draft</Button>

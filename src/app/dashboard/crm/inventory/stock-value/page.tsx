@@ -1,26 +1,24 @@
-
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { IndianRupee, Box, Download, LoaderCircle } from 'lucide-react';
+import { IndianRupee, Box, Download, LoaderCircle, DollarSign } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateStockValueReport } from "@/app/actions/crm-reports.actions";
 import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
 import { format } from "date-fns";
 
+import { ClayCard, ClayButton } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
+
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
-    <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            <Icon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-            <div className="text-2xl font-bold">{typeof value === 'number' ? value.toLocaleString() : value}</div>
-        </CardContent>
-    </Card>
+    <ClayCard>
+        <div className="flex items-center justify-between">
+            <p className="text-[12.5px] font-medium text-clay-ink-muted">{title}</p>
+            <Icon className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+        </div>
+        <div className="mt-2 text-[22px] font-semibold text-clay-ink">{typeof value === 'number' ? value.toLocaleString() : value}</div>
+    </ClayCard>
 );
 
 const formatCurrency = (amount: number) => {
@@ -72,19 +70,17 @@ export default function StockValueReportPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <IndianRupee className="h-8 w-8" />
-                        Stock Value Report
-                    </h1>
-                    <p className="text-muted-foreground">Get a real-time valuation of your entire inventory.</p>
-                </div>
-                 <Button variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
-                    <Download className="mr-2 h-4 w-4"/>Download CSV
-                </Button>
-            </div>
+        <div className="flex w-full flex-col gap-6">
+            <CrmPageHeader
+                title="Stock Value Report"
+                subtitle="Get a real-time valuation of your entire inventory."
+                icon={DollarSign}
+                actions={
+                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
+                        Download CSV
+                    </ClayButton>
+                }
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <StatCard title="Total Inventory Value" value={formatCurrency(summary.totalValue || 0)} icon={IndianRupee} />
@@ -92,51 +88,43 @@ export default function StockValueReportPage() {
                 <StatCard title="Products with Stock" value={summary.productCount || 0} icon={Box} />
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Inventory Valuation Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Product</TableHead>
-                                    <TableHead>Warehouse</TableHead>
-                                    <TableHead className="text-right">Stock Quantity</TableHead>
-                                    <TableHead className="text-right">Unit Cost</TableHead>
-                                    <TableHead className="text-right">Stock Value</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    <TableRow><TableCell colSpan={5} className="h-64 text-center"><LoaderCircle className="mx-auto animate-spin h-8 w-8 text-primary"/></TableCell></TableRow>
-                                ) : reportData.length > 0 ? (
-                                    reportData.map(item => (
-                                        <TableRow key={`${item.productId}-${item.warehouseId}`}>
-                                            <TableCell>
-                                                <p className="font-medium">{item.productName}</p>
-                                                <p className="text-xs text-muted-foreground font-mono">{item.sku || 'N/A'}</p>
-                                            </TableCell>
-                                            <TableCell>{item.warehouseName}</TableCell>
-                                            <TableCell className="text-right font-medium">{item.stock}</TableCell>
-                                            <TableCell className="text-right font-mono">{formatCurrency(item.unitCost)}</TableCell>
-                                            <TableCell className="text-right font-bold">{formatCurrency(item.stockValue)}</TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow><TableCell colSpan={5} className="h-64 text-center text-muted-foreground">No stock data found for any products.</TableCell></TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-                 <CardFooter>
-                    <p className="text-xs text-muted-foreground">This report is based on the 'Buying Price' (cost) set for each product. If cost is not set, it falls back to the 'Selling Price'.</p>
-                </CardFooter>
-            </Card>
+            <ClayCard>
+                <h2 className="text-[16px] font-semibold text-clay-ink">Inventory Valuation Details</h2>
+                <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-clay-border hover:bg-transparent">
+                                <TableHead className="text-clay-ink-muted">Product</TableHead>
+                                <TableHead className="text-clay-ink-muted">Warehouse</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Stock Quantity</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Unit Cost</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right">Stock Value</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                <TableRow className="border-clay-border"><TableCell colSpan={5} className="h-64 text-center"><LoaderCircle className="mx-auto animate-spin h-8 w-8 text-clay-ink-muted"/></TableCell></TableRow>
+                            ) : reportData.length > 0 ? (
+                                reportData.map(item => (
+                                    <TableRow key={`${item.productId}-${item.warehouseId}`} className="border-clay-border">
+                                        <TableCell>
+                                            <p className="font-medium text-clay-ink">{item.productName}</p>
+                                            <p className="text-[11.5px] text-clay-ink-muted font-mono">{item.sku || 'N/A'}</p>
+                                        </TableCell>
+                                        <TableCell className="text-clay-ink">{item.warehouseName}</TableCell>
+                                        <TableCell className="text-right font-medium text-clay-ink">{item.stock}</TableCell>
+                                        <TableCell className="text-right font-mono text-clay-ink">{formatCurrency(item.unitCost)}</TableCell>
+                                        <TableCell className="text-right font-semibold text-clay-ink">{formatCurrency(item.stockValue)}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow className="border-clay-border"><TableCell colSpan={5} className="h-64 text-center text-clay-ink-muted">No stock data found for any products.</TableCell></TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                <p className="mt-4 text-[11.5px] text-clay-ink-muted">This report is based on the 'Buying Price' (cost) set for each product. If cost is not set, it falls back to the 'Selling Price'.</p>
+            </ClayCard>
         </div>
     );
 }
-
-    

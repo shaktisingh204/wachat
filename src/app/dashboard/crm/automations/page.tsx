@@ -1,30 +1,24 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useTransition, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { 
-    GitFork, 
+import {
+    GitFork,
     Play,
     Trash2,
     Save,
     Plus,
     LoaderCircle,
     BookOpen,
-    Settings2,
-    Copy,
-    File as FileIcon,
     Wand2,
     Webhook,
-    ArrowLeft,
-    RefreshCw,
     MessageSquare,
     Tag,
     FolderKanban,
     Clock,
-    MoreVertical,
-    Check
+    Zap,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -36,12 +30,10 @@ import {
 } from '@/app/actions/crm-automations.actions';
 import type { CrmAutomation, CrmAutomationNode, CrmAutomationEdge } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CrmAutomationBlockEditor } from '@/components/wabasimplify/crm-automation-block-editor';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
