@@ -105,6 +105,10 @@ import {
   LuLink2,
   LuListFilter,
   LuFolderOpen,
+  LuLink,
+  LuEarth,
+  LuLayoutTemplate,
+  LuMessageSquare,
 } from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
@@ -221,72 +225,100 @@ const appsNav: NavEntry[] = [
   {
     key: 'sabchat',
     label: 'SabChat',
-    icon: (
-      <span
-        className="h-3 w-3 rounded-[4px]"
-        style={{
-          background: 'linear-gradient(135deg, #F9A8D4 0%, #C026D3 100%)',
-        }}
-      />
-    ),
+    icon: <LuBot className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/sabchat',
     matches: ['/dashboard/sabchat'],
   },
   {
     key: 'seo',
     label: 'SEO Suite',
-    icon: (
-      <span
-        className="h-3 w-3 rounded-[4px]"
-        style={{
-          background: 'linear-gradient(135deg, #5EEAD4 0%, #0D9488 100%)',
-        }}
-      />
-    ),
+    icon: <LuGlobe className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/seo',
     matches: ['/dashboard/seo'],
   },
   {
     key: 'email',
     label: 'Email',
-    icon: (
-      <span
-        className="h-3 w-3 rounded-[4px]"
-        style={{
-          background: 'linear-gradient(135deg, #BAE6FD 0%, #0284C7 100%)',
-        }}
-      />
-    ),
+    icon: <LuMail className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/email',
     matches: ['/dashboard/email'],
   },
   {
     key: 'sms',
     label: 'SMS',
-    icon: (
-      <span
-        className="h-3 w-3 rounded-[4px]"
-        style={{
-          background: 'linear-gradient(135deg, #BEF264 0%, #65A30D 100%)',
-        }}
-      />
-    ),
+    icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/sms',
     matches: ['/dashboard/sms'],
   },
   {
     key: 'ad-manager',
     label: 'Ad Manager',
-    icon: (
-      <span
-        className="h-3 w-3 rounded-[4px]"
-        style={{
-          background: 'linear-gradient(135deg, #C7D2FE 0%, #4F46E5 100%)',
-        }}
-      />
-    ),
+    icon: <LuMegaphone className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/ad-manager',
     matches: ['/dashboard/ad-manager'],
+  },
+  {
+    key: 'meta-suite',
+    label: 'Meta Suite',
+    icon: <LuFacebook className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/facebook',
+    matches: ['/dashboard/facebook', '/dashboard/meta-suite'],
+  },
+  {
+    key: 'instagram',
+    label: 'Instagram',
+    icon: <LuInstagram className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/instagram',
+    matches: ['/dashboard/instagram'],
+  },
+  {
+    key: 'templates',
+    label: 'Templates',
+    icon: <LuLayoutTemplate className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/templates',
+    matches: ['/dashboard/templates'],
+  },
+  {
+    key: 'ecommerce',
+    label: 'E-commerce',
+    icon: <LuShoppingBag className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/shop',
+    matches: ['/dashboard/shop'],
+  },
+  {
+    key: 'url-shortener',
+    label: 'URL Shortener',
+    icon: <LuLink className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/url-shortener',
+    matches: ['/dashboard/url-shortener'],
+  },
+  {
+    key: 'qr-codes',
+    label: 'QR Codes',
+    icon: <LuQrCode className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/qr-code-maker',
+    matches: ['/dashboard/qr-code-maker'],
+  },
+  {
+    key: 'website-builder',
+    label: 'Website Builder',
+    icon: <LuEarth className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/website-builder',
+    matches: ['/dashboard/website-builder'],
+  },
+  {
+    key: 'team',
+    label: 'Team',
+    icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/team',
+    matches: ['/dashboard/team'],
+  },
+  {
+    key: 'notifications',
+    label: 'Notifications',
+    icon: <LuBell className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/notifications',
+    matches: ['/dashboard/notifications'],
   },
 ];
 
