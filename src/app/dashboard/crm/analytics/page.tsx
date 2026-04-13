@@ -1,33 +1,36 @@
-
-
 export const dynamic = 'force-dynamic';
+
+import { BarChart } from 'lucide-react';
 
 import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
-import { BarChart } from 'lucide-react';
+import { ClayCard } from '@/components/clay';
+import { CrmPageHeader } from '../_components/crm-page-header';
 
-export default async function AnalyticsPage(props: { searchParams: Promise<{ year?: string }> }) {
-    const searchParams = await props.searchParams;
-    const year = searchParams.year ? parseInt(searchParams.year) : new Date().getFullYear();
-    const data = await getAnalyticsData(year);
+export default async function AnalyticsPage(props: {
+  searchParams: Promise<{ year?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const year = searchParams.year ? parseInt(searchParams.year) : new Date().getFullYear();
+  const data = await getAnalyticsData(year);
 
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-2">
-                    <BarChart className="h-8 w-8 text-primary" />
-                    CRM Analytics
-                </h1>
-                <p className="text-muted-foreground">Financial and Sales Intelligence for {year}</p>
-            </div>
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="CRM Analytics"
+        subtitle={`Financial and sales intelligence for ${year}`}
+        icon={BarChart}
+      />
 
-            {data ? (
-                <AnalyticsDashboard data={data} />
-            ) : (
-                <div className="p-8 text-center text-muted-foreground">
-                    Unable to load analytics data.
-                </div>
-            )}
-        </div>
-    );
+      {data ? (
+        <AnalyticsDashboard data={data} />
+      ) : (
+        <ClayCard>
+          <p className="py-8 text-center text-[13px] text-clay-ink-muted">
+            Unable to load analytics data.
+          </p>
+        </ClayCard>
+      )}
+    </div>
+  );
 }

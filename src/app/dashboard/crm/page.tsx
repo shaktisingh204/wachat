@@ -1,111 +1,162 @@
-
-
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Trophy, DollarSign, Handshake } from 'lucide-react';
-import { getCrmDashboardStats } from '@/app/actions/crm.actions';
 import { useEffect, useState } from 'react';
+import { Users, Trophy, DollarSign, Handshake, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+import { getCrmDashboardStats } from '@/app/actions/crm.actions';
+import { ClayCard, ClayButton, ClaySectionHeader } from '@/components/clay';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    RecentDealsCard,
-    UpcomingTasksCard,
-    PipelineBreakdownCard,
-    RecentContactsCard,
-    InvoiceSummaryCard
+  RecentDealsCard,
+  UpcomingTasksCard,
+  PipelineBreakdownCard,
+  RecentContactsCard,
+  InvoiceSummaryCard,
 } from './_components/crm-dashboard-components';
 
-const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
-    <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            <Icon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-            <div className="text-2xl font-bold">{value}</div>
-            {description && <p className="text-xs text-muted-foreground">{description}</p>}
-        </CardContent>
-    </Card>
-);
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  tone = 'rose',
+}: {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  tone?: 'rose' | 'green' | 'amber' | 'blue';
+}) {
+  const toneBg: Record<string, string> = {
+    rose: 'bg-clay-rose-soft text-clay-rose-ink',
+    green: 'bg-clay-green-soft text-clay-green',
+    amber: 'bg-clay-amber-soft text-clay-amber',
+    blue: 'bg-clay-blue-soft text-clay-blue',
+  };
+
+  return (
+    <ClayCard>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[12.5px] font-medium text-clay-ink-muted">{title}</p>
+        <div
+          className={`flex h-8 w-8 items-center justify-center rounded-clay-md ${toneBg[tone]}`}
+        >
+          <Icon className="h-4 w-4" strokeWidth={1.75} />
+        </div>
+      </div>
+      <p className="mt-3 text-[26px] font-semibold leading-none tracking-tight text-clay-ink">
+        {value}
+      </p>
+    </ClayCard>
+  );
+}
 
 export default function CrmDashboardPage() {
-    const [stats, setStats] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const [stats, setStats] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        setIsLoading(true);
-        getCrmDashboardStats().then(data => {
-            setStats(data);
-            setIsLoading(false);
-        });
-    }, []);
+  useEffect(() => {
+    setIsLoading(true);
+    getCrmDashboardStats().then((data) => {
+      setStats(data);
+      setIsLoading(false);
+    });
+  }, []);
 
-    if (isLoading || !stats) {
-        return (
-            <div className="flex flex-col gap-8">
-                <div>
-                    <Skeleton className="h-8 w-1/3" />
-                    <Skeleton className="h-4 w-2/3 mt-2" />
-                </div>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Skeleton className="h-28 w-full" />
-                    <Skeleton className="h-28 w-full" />
-                    <Skeleton className="h-28 w-full" />
-                    <Skeleton className="h-28 w-full" />
-                </div>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <Skeleton className="h-64 w-full md:col-span-2" />
-                    <Skeleton className="h-64 w-full" />
-                </div>
-            </div>
-        )
-    }
-
+  if (isLoading || !stats) {
     return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline">CRM Dashboard</h1>
-                <p className="text-muted-foreground">An overview of your customer relationships, leads, and deals.</p>
-            </div>
-
-            {/* Top Row: Key Stats */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard
-                    title="Total Contacts"
-                    value={stats.counts?.contacts?.toLocaleString() ?? 0}
-                    icon={Users}
-                />
-                <StatCard
-                    title="Total Deals"
-                    value={stats.counts?.deals?.toLocaleString() ?? 0}
-                    icon={Handshake}
-                />
-                <StatCard
-                    title="Deals Won"
-                    value={stats.counts?.dealsWon?.toLocaleString() ?? 0}
-                    icon={Trophy}
-                />
-                <StatCard
-                    title="Pipeline Revenue"
-                    value={new Intl.NumberFormat('en-US', { style: 'currency', currency: stats.currency || 'USD' }).format(stats.counts?.pipelineValue ?? 0)}
-                    icon={DollarSign}
-                />
-            </div>
-
-            {/* Middle Row: Pipeline & Invoices */}
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
-                <PipelineBreakdownCard stages={stats.pipelineStages} currency={stats.currency} />
-                <InvoiceSummaryCard stats={stats.invoiceStats} currency={stats.currency} />
-            </div>
-
-            {/* Bottom Row: Recent Activity */}
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-4">
-                <RecentDealsCard deals={stats.recentDeals} currency={stats.currency} />
-                <div className="space-y-4 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                    <UpcomingTasksCard tasks={stats.upcomingTasks} />
-                    <RecentContactsCard contacts={stats.recentContacts} />
-                </div>
-            </div>
+      <div className="flex w-full flex-col gap-6">
+        <div>
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="mt-2 h-4 w-96" />
         </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-28 w-full rounded-clay-lg" />
+          <Skeleton className="h-28 w-full rounded-clay-lg" />
+          <Skeleton className="h-28 w-full rounded-clay-lg" />
+          <Skeleton className="h-28 w-full rounded-clay-lg" />
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Skeleton className="h-64 w-full rounded-clay-lg lg:col-span-2" />
+          <Skeleton className="h-64 w-full rounded-clay-lg" />
+        </div>
+      </div>
     );
+  }
+
+  const currency = stats.currency || 'USD';
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <ClaySectionHeader
+        title="CRM Dashboard"
+        subtitle="An overview of your customer relationships, leads, and deals."
+        size="lg"
+        actions={
+          <>
+            <ClayButton
+              variant="pill"
+              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+              onClick={() => router.push('/dashboard/crm/contacts')}
+            >
+              New Contact
+            </ClayButton>
+            <ClayButton
+              variant="obsidian"
+              leading={<Handshake className="h-4 w-4" strokeWidth={1.75} />}
+              onClick={() => router.push('/dashboard/crm/deals')}
+            >
+              New Deal
+            </ClayButton>
+          </>
+        }
+      />
+
+      {/* Key stats */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Contacts"
+          value={stats.counts?.contacts?.toLocaleString() ?? 0}
+          icon={Users}
+          tone="blue"
+        />
+        <StatCard
+          title="Total Deals"
+          value={stats.counts?.deals?.toLocaleString() ?? 0}
+          icon={Handshake}
+          tone="rose"
+        />
+        <StatCard
+          title="Deals Won"
+          value={stats.counts?.dealsWon?.toLocaleString() ?? 0}
+          icon={Trophy}
+          tone="green"
+        />
+        <StatCard
+          title="Pipeline Revenue"
+          value={new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency,
+          }).format(stats.counts?.pipelineValue ?? 0)}
+          icon={DollarSign}
+          tone="amber"
+        />
+      </div>
+
+      {/* Pipeline + invoices */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <PipelineBreakdownCard stages={stats.pipelineStages} currency={currency} />
+        <InvoiceSummaryCard stats={stats.invoiceStats} currency={currency} />
+      </div>
+
+      {/* Recent activity */}
+      <div className="grid gap-4 lg:grid-cols-4">
+        <RecentDealsCard deals={stats.recentDeals} currency={currency} />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:col-span-2">
+          <UpcomingTasksCard tasks={stats.upcomingTasks} />
+          <RecentContactsCard contacts={stats.recentContacts} />
+        </div>
+      </div>
+    </div>
+  );
 }

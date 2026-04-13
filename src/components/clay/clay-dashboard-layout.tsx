@@ -162,7 +162,8 @@ export type ClayLayoutContext =
   | 'telegram'
   | 'url-shortener'
   | 'qr-code-maker'
-  | 'team';
+  | 'team'
+  | 'crm';
 
 export interface ClayDashboardLayoutProps {
   user?: ClayLayoutUser;
@@ -219,7 +220,7 @@ const primaryNav: NavEntry[] = [
     key: 'crm',
     label: 'CRM',
     icon: <LuBriefcase className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/crm/sales-crm/leads',
+    href: '/dashboard/crm',
     matches: ['/dashboard/crm'],
   },
   {
@@ -938,6 +939,185 @@ const teamConfigure: NavEntry[] = [
   },
 ];
 
+/* ═══════════════════════════════════════════════════════════════════
+ *  CRM nav registry — loaded when context="crm".
+ *  Business-ops module: sales CRM, sales billing, contacts/deals/tasks,
+ *  inventory, purchases, accounting, banking, HR-payroll, reports.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const crmPrimary: NavEntry[] = [
+  {
+    key: 'crm-overview',
+    label: 'Overview',
+    icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm',
+    matches: ['/dashboard/crm'],
+  },
+  {
+    key: 'crm-leads',
+    label: 'Leads',
+    icon: <LuTarget className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales-crm/all-leads',
+    matches: ['/dashboard/crm/sales-crm'],
+  },
+  {
+    key: 'crm-contacts',
+    label: 'Contacts',
+    icon: <LuContact className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/contacts',
+    matches: ['/dashboard/crm/contacts', '/dashboard/crm/accounts'],
+  },
+  {
+    key: 'crm-deals',
+    label: 'Deals',
+    icon: <LuBriefcase className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/deals',
+    matches: ['/dashboard/crm/deals'],
+  },
+  {
+    key: 'crm-tasks',
+    label: 'Tasks',
+    icon: <LuListChecks className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/tasks',
+    matches: ['/dashboard/crm/tasks'],
+  },
+];
+
+const crmSales: NavEntry[] = [
+  {
+    key: 'crm-clients',
+    label: 'Clients',
+    icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/clients',
+    matches: ['/dashboard/crm/sales/clients'],
+  },
+  {
+    key: 'crm-quotations',
+    label: 'Quotations',
+    icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/quotations',
+    matches: ['/dashboard/crm/sales/quotations', '/dashboard/crm/sales/proforma'],
+  },
+  {
+    key: 'crm-orders',
+    label: 'Orders',
+    icon: <LuShoppingCart className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/orders',
+    matches: ['/dashboard/crm/sales/orders', '/dashboard/crm/sales/delivery'],
+  },
+  {
+    key: 'crm-invoices',
+    label: 'Invoices',
+    icon: <LuReceipt className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/invoices',
+    matches: [
+      '/dashboard/crm/sales/invoices',
+      '/dashboard/crm/sales/receipts',
+      '/dashboard/crm/sales/credit-notes',
+    ],
+  },
+  {
+    key: 'crm-pipelines',
+    label: 'Pipelines',
+    icon: <LuColumns3 className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/pipelines',
+    matches: ['/dashboard/crm/sales/pipelines'],
+  },
+  {
+    key: 'crm-products',
+    label: 'Products',
+    icon: <LuTag className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/products',
+    matches: ['/dashboard/crm/products'],
+  },
+];
+
+const crmOperations: NavEntry[] = [
+  {
+    key: 'crm-inventory',
+    label: 'Inventory',
+    icon: <LuPackage className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/inventory/items',
+    matches: ['/dashboard/crm/inventory'],
+  },
+  {
+    key: 'crm-purchases',
+    label: 'Purchases',
+    icon: <LuShoppingBag className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/purchases/orders',
+    matches: ['/dashboard/crm/purchases'],
+  },
+  {
+    key: 'crm-accounting',
+    label: 'Accounting',
+    icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/accounting/day-book',
+    matches: ['/dashboard/crm/accounting'],
+  },
+  {
+    key: 'crm-banking',
+    label: 'Banking',
+    icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/banking/bank-accounts',
+    matches: ['/dashboard/crm/banking'],
+  },
+  {
+    key: 'crm-hr-payroll',
+    label: 'HR & Payroll',
+    icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr-payroll',
+    matches: ['/dashboard/crm/hr-payroll'],
+  },
+];
+
+const crmInsights: NavEntry[] = [
+  {
+    key: 'crm-analytics',
+    label: 'Analytics',
+    icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/analytics',
+    matches: ['/dashboard/crm/analytics'],
+  },
+  {
+    key: 'crm-reports',
+    label: 'Reports',
+    icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/reports/gstr-1',
+    matches: ['/dashboard/crm/reports'],
+  },
+];
+
+const crmConfigure: NavEntry[] = [
+  {
+    key: 'crm-email',
+    label: 'Email',
+    icon: <LuMail className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/email',
+    matches: ['/dashboard/crm/email'],
+  },
+  {
+    key: 'crm-integrations',
+    label: 'Integrations',
+    icon: <LuPuzzle className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/integrations',
+    matches: ['/dashboard/crm/integrations'],
+  },
+  {
+    key: 'crm-setup',
+    label: 'Setup',
+    icon: <LuWrench className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/setup',
+    matches: ['/dashboard/crm/setup'],
+  },
+  {
+    key: 'crm-settings',
+    label: 'Settings',
+    icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/settings',
+    matches: ['/dashboard/crm/settings'],
+  },
+];
+
 /**
  * Routes that should render without the Clay wachat container (no
  * padding, no max-width cap, no `overflow-y-auto` on main). Pages
@@ -993,7 +1173,9 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
                     ? [qrCodeMakerPrimary, qrCodeMakerManage]
                     : context === 'team'
                       ? [teamPrimary, teamGovern, teamCollab, teamConfigure]
-                      : [primaryNav, appsNav];
+                      : context === 'crm'
+                        ? [crmPrimary, crmSales, crmOperations, crmInsights, crmConfigure]
+                        : [primaryNav, appsNav];
   let bestKey =
     context === 'ad-manager' ? 'adm-overview' :
     context === 'instagram' ? 'ig-dashboard' :
@@ -1003,7 +1185,8 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
     context === 'telegram' ? 'tg-dashboard' :
     context === 'url-shortener' ? 'us-links' :
     context === 'qr-code-maker' ? 'qr-generator' :
-    context === 'team' ? 'team-overview' : 'home';
+    context === 'team' ? 'team-overview' :
+    context === 'crm' ? 'crm-overview' : 'home';
   let bestLen = 0;
   for (const group of registry) {
     for (const item of group) {
@@ -1318,7 +1501,8 @@ export function ClayDashboardLayout({
             context === 'telegram' ? 'Telegram' :
             context === 'url-shortener' ? 'URL Shortener' :
             context === 'qr-code-maker' ? 'QR Code Maker' :
-            context === 'team' ? 'Team' : 'SabNode'
+            context === 'team' ? 'Team' :
+            context === 'crm' ? 'CRM' : 'SabNode'
           }
           brand={
             context === 'ad-manager' ? <ClayAdManagerBrand /> :
@@ -1330,6 +1514,7 @@ export function ClayDashboardLayout({
             context === 'url-shortener' ? <ClayUrlShortenerBrand /> :
             context === 'qr-code-maker' ? <ClayQrCodeMakerBrand /> :
             context === 'team' ? <ClayTeamBrand /> :
+            context === 'crm' ? <ClayCrmBrand /> :
             undefined
           }
           groups={
@@ -1427,6 +1612,19 @@ export function ClayDashboardLayout({
                       items: teamConfigure.map(toNavItem),
                     },
                   ]
+                : context === 'crm'
+                ? [
+                    { items: crmPrimary.map(toNavItem) },
+                    { title: 'Sales', addable: false, items: crmSales.map(toNavItem) },
+                    { title: 'Operations', addable: false, items: crmOperations.map(toNavItem) },
+                    { title: 'Insights', addable: false, items: crmInsights.map(toNavItem) },
+                    {
+                      title: 'Configure',
+                      addable: true,
+                      onAdd: () => router.push('/dashboard/crm/integrations'),
+                      items: crmConfigure.map(toNavItem),
+                    },
+                  ]
                 : [
                     { items: primaryNav.map(toNavItem) },
                     {
@@ -1459,7 +1657,7 @@ export function ClayDashboardLayout({
             // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team') && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -1467,7 +1665,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team') ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
@@ -1853,6 +2051,37 @@ function ClayUrlShortenerBrand() {
         <div className="min-w-0">
           <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">URL Shortener</p>
           <p className="text-[11px] text-clay-ink-muted">Trackable short links</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── CRM sidebar brand ───────────────────────────────────────── */
+
+function ClayCrmBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #B07B7B 0%, #6F2E3A 100%)' }}
+        >
+          <LuBriefcase className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">CRM</p>
+          <p className="text-[11px] text-clay-ink-muted">Sales, Ops & Accounting</p>
         </div>
       </div>
     </div>

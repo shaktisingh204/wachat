@@ -1,249 +1,276 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { ClayCard, ClayBadge } from '@/components/clay';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import {
-    Users,
-    UserPlus,
-    Trophy,
-    DollarSign,
-    Handshake,
-    Calendar,
-    Briefcase,
-    FileText,
-    TrendingUp,
-    AlertCircle,
-    CheckCircle2,
-    Clock
+  Users,
+  UserPlus,
+  Handshake,
+  Calendar,
+  FileText,
+  TrendingUp,
+  CheckCircle2,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
+function SectionHead({
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  icon: React.ElementType;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="mb-4 flex items-start gap-3">
+      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+        <Icon className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+      </div>
+      <div className="min-w-0">
+        <h3 className="text-[15px] font-semibold leading-tight text-clay-ink">{title}</h3>
+        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">{subtitle}</p>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({
+  icon: Icon,
+  text,
+}: {
+  icon: React.ElementType;
+  text: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-clay-md bg-clay-surface-2 p-10 text-center">
+      <Icon className="mb-3 h-10 w-10 text-clay-ink-fade" strokeWidth={1.5} />
+      <p className="text-[13px] text-clay-ink-muted">{text}</p>
+    </div>
+  );
+}
+
 interface RecentDealsCardProps {
-    deals: any[];
-    currency: string;
+  deals: any[];
+  currency: string;
 }
 
 export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
-    <Card className="col-span-1 md:col-span-2">
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-                <Handshake className="h-5 w-5 text-primary" />
-                Recent Deals
-            </CardTitle>
-            <CardDescription>Latest deals created in your pipeline</CardDescription>
-        </CardHeader>
-        <CardContent>
-            {deals.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-                    <Handshake className="h-12 w-12 mb-4 opacity-20" />
-                    <p>No recent deals found.</p>
-                </div>
-            ) : (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Deal Name</TableHead>
-                            <TableHead>Stage</TableHead>
-                            <TableHead className="text-right">Value</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {deals.map((deal) => (
-                            <TableRow key={deal._id}>
-                                <TableCell className="font-medium">{deal.name}</TableCell>
-                                <TableCell>
-                                    <Badge variant="secondary" className="text-xs">
-                                        {deal.stage}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value || 0)}
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            )}
-        </CardContent>
-    </Card>
+  <ClayCard className="md:col-span-2">
+    <SectionHead
+      icon={Handshake}
+      title="Recent Deals"
+      subtitle="Latest deals created in your pipeline"
+    />
+    {deals.length === 0 ? (
+      <EmptyState icon={Handshake} text="No recent deals found." />
+    ) : (
+      <Table>
+        <TableHeader>
+          <TableRow className="border-clay-border hover:bg-transparent">
+            <TableHead className="text-clay-ink-muted">Deal Name</TableHead>
+            <TableHead className="text-clay-ink-muted">Stage</TableHead>
+            <TableHead className="text-right text-clay-ink-muted">Value</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {deals.map((deal) => (
+            <TableRow key={deal._id} className="border-clay-border">
+              <TableCell className="font-medium text-clay-ink">{deal.name}</TableCell>
+              <TableCell>
+                <ClayBadge tone="rose-soft">{deal.stage}</ClayBadge>
+              </TableCell>
+              <TableCell className="text-right font-medium text-clay-ink">
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: deal.currency || currency || 'USD',
+                }).format(deal.value || 0)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    )}
+  </ClayCard>
 );
 
 interface UpcomingTasksCardProps {
-    tasks: any[];
+  tasks: any[];
 }
 
 export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
-    <Card className="col-span-1">
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Upcoming Tasks
-            </CardTitle>
-            <CardDescription>Scheduled activities needing attention</CardDescription>
-        </CardHeader>
-        <CardContent>
-            {tasks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-                    <CheckCircle2 className="h-12 w-12 mb-4 opacity-20" />
-                    <p>No pending tasks.</p>
+  <ClayCard>
+    <SectionHead
+      icon={Calendar}
+      title="Upcoming Tasks"
+      subtitle="Scheduled activities needing attention"
+    />
+    {tasks.length === 0 ? (
+      <EmptyState icon={CheckCircle2} text="No pending tasks." />
+    ) : (
+      <ScrollArea className="h-[250px] pr-3">
+        <div className="space-y-3">
+          {tasks.map((task) => (
+            <div
+              key={task._id}
+              className="flex items-start justify-between gap-3 border-b border-clay-border pb-3 last:border-0 last:pb-0"
+            >
+              <div className="min-w-0 space-y-1">
+                <p className="text-[13px] font-medium leading-tight text-clay-ink">
+                  {task.title}
+                </p>
+                <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-clay-ink-muted">
+                  <ClayBadge tone={task.priority === 'High' ? 'red' : 'neutral'} dot>
+                    {task.priority || 'Normal'}
+                  </ClayBadge>
+                  {task.dueDate && (
+                    <span>{format(new Date(task.dueDate), 'MMM d, yyyy')}</span>
+                  )}
                 </div>
-            ) : (
-                <ScrollArea className="h-[250px] pr-4">
-                    <div className="space-y-4">
-                        {tasks.map((task) => (
-                            <div key={task._id} className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0">
-                                <div className="space-y-1">
-                                    <p className="font-medium text-sm leading-none">{task.title}</p>
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                        <Badge variant={task.priority === 'High' ? 'destructive' : 'outline'} className="text-[10px] px-1 py-0 h-4">
-                                            {task.priority || 'Normal'}
-                                        </Badge>
-                                        {task.dueDate && <span>{format(new Date(task.dueDate), 'MMM d, yyyy')}</span>}
-                                    </div>
-                                </div>
-                                <div className="bg-primary/10 p-1.5 rounded-full">
-                                    {task.type === 'Call' ? <Users className="h-3 w-3 text-primary" /> : <FileText className="h-3 w-3 text-primary" />}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </ScrollArea>
-            )}
-        </CardContent>
-    </Card>
+              </div>
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-clay-rose-soft">
+                {task.type === 'Call' ? (
+                  <Users className="h-3 w-3 text-clay-rose-ink" strokeWidth={1.75} />
+                ) : (
+                  <FileText className="h-3 w-3 text-clay-rose-ink" strokeWidth={1.75} />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+    )}
+  </ClayCard>
 );
 
 interface PipelineBreakdownCardProps {
-    stages: { stage: string; count: number; value: number }[];
-    currency: string;
+  stages: { stage: string; count: number; value: number }[];
+  currency: string;
 }
 
 export const PipelineBreakdownCard = ({ stages, currency }: PipelineBreakdownCardProps) => (
-    <Card className="col-span-1 md:col-span-2">
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                Pipeline Breakdown
-            </CardTitle>
-            <CardDescription>Distribution of deals across stages</CardDescription>
-        </CardHeader>
-        <CardContent>
-            {stages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-                    <TrendingUp className="h-12 w-12 mb-4 opacity-20" />
-                    <p>No active pipeline data.</p>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    {stages.map((item, index) => (
-                        <div key={index} className="flex items-center">
-                            <div className="flex-1 space-y-1">
-                                <p className="text-sm font-medium leading-none">{item.stage}</p>
-                                <p className="text-xs text-muted-foreground">{item.count} deals</p>
-                            </div>
-                            <div className="font-bold">
-                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: currency }).format(item.value)}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </CardContent>
-    </Card>
+  <ClayCard className="md:col-span-2">
+    <SectionHead
+      icon={TrendingUp}
+      title="Pipeline Breakdown"
+      subtitle="Distribution of deals across stages"
+    />
+    {stages.length === 0 ? (
+      <EmptyState icon={TrendingUp} text="No active pipeline data." />
+    ) : (
+      <div className="space-y-3">
+        {stages.map((item, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-4 rounded-clay-md bg-clay-surface-2 px-4 py-3"
+          >
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <p className="text-[13px] font-medium leading-tight text-clay-ink">
+                {item.stage}
+              </p>
+              <p className="text-[11.5px] text-clay-ink-muted">{item.count} deals</p>
+            </div>
+            <div className="text-[14px] font-semibold text-clay-ink">
+              {new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: currency || 'USD',
+              }).format(item.value)}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </ClayCard>
 );
 
 interface RecentContactsCardProps {
-    contacts: any[];
+  contacts: any[];
 }
 
 export const RecentContactsCard = ({ contacts }: RecentContactsCardProps) => (
-    <Card className="col-span-1">
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-primary" />
-                Recent Contacts
-            </CardTitle>
-            <CardDescription>New leads added to CRM</CardDescription>
-        </CardHeader>
-        <CardContent>
-            {contacts.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-                    <Users className="h-12 w-12 mb-4 opacity-20" />
-                    <p>No contacts found.</p>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    {contacts.map((contact) => (
-                        <div key={contact._id} className="flex items-center justify-between space-x-4">
-                            <div className="flex items-center space-x-4">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src={contact.avatarUrl} alt={contact.name} />
-                                    <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="text-sm font-medium leading-none">{contact.name}</p>
-                                    <p className="text-xs text-muted-foreground">{contact.email}</p>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </CardContent>
-    </Card>
+  <ClayCard>
+    <SectionHead
+      icon={UserPlus}
+      title="Recent Contacts"
+      subtitle="New leads added to CRM"
+    />
+    {contacts.length === 0 ? (
+      <EmptyState icon={Users} text="No contacts found." />
+    ) : (
+      <div className="space-y-3">
+        {contacts.map((contact) => (
+          <div key={contact._id} className="flex items-center gap-3">
+            <Avatar className="h-9 w-9 border border-clay-border">
+              <AvatarImage src={contact.avatarUrl} alt={contact.name} />
+              <AvatarFallback className="bg-clay-rose-soft text-[12px] text-clay-rose-ink">
+                {contact.name?.charAt(0) ?? '?'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-medium leading-tight text-clay-ink">
+                {contact.name}
+              </p>
+              <p className="truncate text-[11.5px] text-clay-ink-muted">{contact.email}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </ClayCard>
 );
 
 interface InvoiceStatsCardProps {
-    stats: { overdueCount: number; overdueAmount: number; sentCount: number; sentAmount: number };
-    currency: string;
+  stats: { overdueCount: number; overdueAmount: number; sentCount: number; sentAmount: number };
+  currency: string;
 }
 
-export const InvoiceSummaryCard = ({ stats, currency }: InvoiceStatsCardProps) => (
-    <Card className="col-span-1">
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                Invoices
-            </CardTitle>
-            <CardDescription>Overview of pending payments</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="flex items-center justify-between border-l-4 border-destructive pl-4 py-2 bg-destructive/5 rounded-r-md">
-                <div>
-                    <p className="text-sm font-medium">Overdue</p>
-                    <p className="text-2xl font-bold text-destructive">
-                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: currency }).format(stats.overdueAmount)}
-                    </p>
-                </div>
-                <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Invoices</p>
-                    <p className="text-lg font-semibold">{stats.overdueCount}</p>
-                </div>
-            </div>
+export const InvoiceSummaryCard = ({ stats, currency }: InvoiceStatsCardProps) => {
+  const fmt = (n: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD' }).format(n);
 
-            <div className="flex items-center justify-between border-l-4 border-blue-500 pl-4 py-2 bg-blue-500/5 rounded-r-md">
-                <div>
-                    <p className="text-sm font-medium">Sent (Due)</p>
-                    <p className="text-2xl font-bold text-blue-600">
-                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: currency }).format(stats.sentAmount)}
-                    </p>
-                </div>
-                <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Invoices</p>
-                    <p className="text-lg font-semibold">{stats.sentCount}</p>
-                </div>
-            </div>
-        </CardContent>
-    </Card>
-);
+  return (
+    <ClayCard>
+      <SectionHead
+        icon={FileText}
+        title="Invoices"
+        subtitle="Overview of pending payments"
+      />
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-4 rounded-clay-md border border-clay-red-soft bg-clay-red-soft/60 px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-[12px] font-medium text-clay-red">Overdue</p>
+            <p className="mt-0.5 text-[22px] font-semibold leading-none text-clay-red">
+              {fmt(stats.overdueAmount)}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] text-clay-ink-muted">Invoices</p>
+            <p className="text-[15px] font-semibold text-clay-ink">{stats.overdueCount}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-4 rounded-clay-md border border-clay-blue-soft bg-clay-blue-soft/60 px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-[12px] font-medium text-clay-blue">Sent (Due)</p>
+            <p className="mt-0.5 text-[22px] font-semibold leading-none text-clay-blue">
+              {fmt(stats.sentAmount)}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] text-clay-ink-muted">Invoices</p>
+            <p className="text-[15px] font-semibold text-clay-ink">{stats.sentCount}</p>
+          </div>
+        </div>
+      </div>
+    </ClayCard>
+  );
+};
