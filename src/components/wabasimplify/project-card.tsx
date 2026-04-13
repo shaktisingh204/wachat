@@ -47,7 +47,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
             localStorage.setItem('activeProjectName', project.name);
         }
         // Redirect based on project type
-        const dashboardPath = isWhatsAppProject ? '/dashboard/overview' : '/dashboard/facebook';
+        const dashboardPath = isWhatsAppProject ? '/dashboard/overview' : '/dashboard/facebook/all-projects';
         router.push(dashboardPath);
     };
 

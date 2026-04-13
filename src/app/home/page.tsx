@@ -745,7 +745,7 @@ export default function HomePage() {
             name="Facebook Suite"
             primary={compact(stats.totalFacebookBroadcasts)}
             secondary={`${compact(stats.totalFacebookSubscribers)} subscribers`}
-            href="/dashboard/facebook"
+            href="/dashboard/facebook/all-projects"
             accent="blue"
             status={stats.totalFacebookBroadcasts > 0 ? 'ok' : 'off'}
           />

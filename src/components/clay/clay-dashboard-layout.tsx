@@ -152,7 +152,7 @@ export type ClayLayoutPlan = {
   credits?: number;
 };
 
-export type ClayLayoutContext = 'sabnode' | 'wachat' | 'meta-suite' | 'instagram' | 'ad-manager';
+export type ClayLayoutContext = 'sabnode' | 'wachat' | 'meta-suite' | 'instagram' | 'ad-manager' | 'sabflow';
 
 export interface ClayDashboardLayoutProps {
   user?: ClayLayoutUser;
@@ -189,7 +189,7 @@ const primaryNav: NavEntry[] = [
     key: 'wachat',
     label: 'Wachat',
     icon: <LuMessagesSquare className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/chat',
+    href: '/dashboard',
     matches: [
       '/dashboard/chat',
       '/dashboard/broadcasts',
@@ -254,21 +254,28 @@ const appsNav: NavEntry[] = [
     key: 'ad-manager',
     label: 'Ad Manager',
     icon: <LuMegaphone className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/ad-manager',
+    href: '/dashboard/ad-manager/ad-accounts',
     matches: ['/dashboard/ad-manager'],
+  },
+  {
+    key: 'telegram',
+    label: 'Telegram',
+    icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/telegram',
+    matches: ['/dashboard/telegram'],
   },
   {
     key: 'meta-suite',
     label: 'Meta Suite',
     icon: <LuFacebook className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/facebook',
+    href: '/dashboard/facebook/all-projects',
     matches: ['/dashboard/facebook', '/dashboard/meta-suite'],
   },
   {
     key: 'instagram',
     label: 'Instagram',
     icon: <LuInstagram className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/instagram',
+    href: '/dashboard/instagram/connections',
     matches: ['/dashboard/instagram'],
   },
   {
@@ -702,6 +709,52 @@ const igGrowth: NavEntry[] = [
   { key: 'ig-hashtags', label: 'Hashtag Search', icon: <LuHash className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/instagram/hashtag-search', matches: ['/dashboard/instagram/hashtag-search'] },
 ];
 
+/* ═══════════════════════════════════════════════════════════════════
+ *  SabFlow nav registry — loaded when context="sabflow".
+ *  Mirrors the /dashboard/sabflow/* directory structure.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const sabflowPrimary: NavEntry[] = [
+  {
+    key: 'sf-flow-builder',
+    label: 'Flow Builder',
+    icon: <LuWorkflow className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/sabflow/flow-builder',
+    matches: ['/dashboard/sabflow/flow-builder'],
+  },
+  {
+    key: 'sf-connections',
+    label: 'Connections',
+    icon: <LuPuzzle className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/sabflow/connections',
+    matches: ['/dashboard/sabflow/connections'],
+  },
+  {
+    key: 'sf-logs',
+    label: 'Execution Logs',
+    icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/sabflow/logs',
+    matches: ['/dashboard/sabflow/logs'],
+  },
+];
+
+const sabflowManage: NavEntry[] = [
+  {
+    key: 'sf-settings',
+    label: 'Settings',
+    icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/sabflow/settings',
+    matches: ['/dashboard/sabflow/settings'],
+  },
+  {
+    key: 'sf-docs',
+    label: 'Docs',
+    icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/sabflow/docs',
+    matches: ['/dashboard/sabflow/docs'],
+  },
+];
+
 /**
  * Routes that should render without the Clay wachat container (no
  * padding, no max-width cap, no `overflow-y-auto` on main). Pages
@@ -711,14 +764,19 @@ const igGrowth: NavEntry[] = [
  * IMPORTANT: `/dashboard/flow-builder` (the LIST) and
  * `/dashboard/flow-builder/docs` stay padded — only the canvas
  * routes `/dashboard/flow-builder/<flowId>` are full-bleed.
+ * SabFlow canvas `/dashboard/sabflow/flow-builder/<flowId>` is
+ * likewise full-bleed, but the SabFlow list stays padded.
  */
 const FULL_BLEED_PREFIXES = [
   '/dashboard/chat',
-  '/dashboard/sabflow',
 ];
 
 function isFullBleed(pathname: string | null): boolean {
   if (!pathname) return false;
+
+  // SabFlow canvas — only sub-routes of flow-builder, not list / new
+  const sfb = pathname.match(/^\/dashboard\/sabflow\/flow-builder\/([^/]+)/);
+  if (sfb && sfb[1] !== 'new') return true;
 
   // Flow-builder canvas — only sub-routes, and never /docs
   const fb = pathname.match(/^\/dashboard\/flow-builder\/([^/]+)/);
@@ -740,12 +798,15 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
           ? [metaFbPrimary, metaFbContent, metaFbEngage, metaFbGrowth, metaFbCommerce, metaFbAdvanced]
           : context === 'wachat'
             ? [wachatPrimary, wachatAutomate, wachatGrow, wachatConfigure]
-            : [primaryNav, appsNav];
+            : context === 'sabflow'
+              ? [sabflowPrimary, sabflowManage]
+              : [primaryNav, appsNav];
   let bestKey =
     context === 'ad-manager' ? 'adm-overview' :
     context === 'instagram' ? 'ig-dashboard' :
     context === 'meta-suite' ? 'ms-dashboard' :
-    context === 'wachat' ? 'wachat-chat' : 'home';
+    context === 'wachat' ? 'wachat-chat' :
+    context === 'sabflow' ? 'sf-flow-builder' : 'home';
   let bestLen = 0;
   for (const group of registry) {
     for (const item of group) {
@@ -999,8 +1060,8 @@ export function ClayDashboardLayout({
             <CommandItem onSelect={() => jump('/home')}>
               <LuLayoutDashboard className="mr-2 h-4 w-4" /> Home
             </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/chat')}>
-              <LuMessagesSquare className="mr-2 h-4 w-4" /> Wachat Chat
+            <CommandItem onSelect={() => jump('/dashboard')}>
+              <LuMessagesSquare className="mr-2 h-4 w-4" /> Wachat
             </CommandItem>
             <CommandItem onSelect={() => jump('/dashboard/broadcasts')}>
               <LuSend className="mr-2 h-4 w-4" /> Broadcasts
@@ -1026,7 +1087,7 @@ export function ClayDashboardLayout({
             <CommandItem onSelect={() => jump('/dashboard/sms')}>
               <LuSmartphone className="mr-2 h-4 w-4" /> SMS
             </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/ad-manager')}>
+            <CommandItem onSelect={() => jump('/dashboard/ad-manager/ad-accounts')}>
               <LuSend className="mr-2 h-4 w-4" /> Ad Manager
             </CommandItem>
           </CommandGroup>
@@ -1055,13 +1116,15 @@ export function ClayDashboardLayout({
             context === 'ad-manager' ? 'Ad Manager' :
             context === 'instagram' ? 'Instagram' :
             context === 'meta-suite' ? 'Meta Suite' :
-            context === 'wachat' ? 'Wachat' : 'SabNode'
+            context === 'wachat' ? 'Wachat' :
+            context === 'sabflow' ? 'SabFlow' : 'SabNode'
           }
           brand={
             context === 'ad-manager' ? <ClayAdManagerBrand /> :
             context === 'instagram' ? <ClayInstagramBrand /> :
             context === 'meta-suite' ? <ClayMetaBrand /> :
             context === 'wachat' ? <ClayWachatBrand /> :
+            context === 'sabflow' ? <ClaySabFlowBrand /> :
             undefined
           }
           groups={
@@ -1110,6 +1173,15 @@ export function ClayDashboardLayout({
                       items: wachatConfigure.map(toNavItem),
                     },
                   ]
+                : context === 'sabflow'
+                ? [
+                    { items: sabflowPrimary.map(toNavItem) },
+                    {
+                      title: 'Manage',
+                      addable: false,
+                      items: sabflowManage.map(toNavItem),
+                    },
+                  ]
                 : [
                     { items: primaryNav.map(toNavItem) },
                     {
@@ -1142,7 +1214,7 @@ export function ClayDashboardLayout({
             // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager') && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -1150,7 +1222,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager') ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
@@ -1383,6 +1455,37 @@ function ClayInstagramBrand() {
         <div className="min-w-0">
           <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">Instagram</p>
           <p className="text-[11px] text-clay-ink-muted">Feed, Stories & Reels</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── SabFlow sidebar brand ────────────────────────────────────── */
+
+function ClaySabFlowBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%)' }}
+        >
+          <LuWorkflow className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">SabFlow</p>
+          <p className="text-[11px] text-clay-ink-muted">Visual automation engine</p>
         </div>
       </div>
     </div>

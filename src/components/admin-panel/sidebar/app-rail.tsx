@@ -22,6 +22,7 @@ import {
     Globe,
     Link as LinkIcon,
     QrCode,
+    Send,
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -34,7 +35,8 @@ const ALL_APPS = [
     { id: 'sabflow',        label: 'SabFlow',        icon: Workflow,     href: '/dashboard/sabflow' },
     { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon, href: '/dashboard' },
     { id: 'facebook',       label: 'Meta Suite',     icon: MetaIcon,     href: '/dashboard/facebook/all-projects' },
-    { id: 'ad-manager',     label: 'Ad Manager',     icon: Megaphone,    href: '/dashboard/ad-manager' },
+    { id: 'ad-manager',     label: 'Ad Manager',     icon: Megaphone,    href: '/dashboard/ad-manager/ad-accounts' },
+    { id: 'telegram',       label: 'Telegram',       icon: Send,         href: '/dashboard/telegram' },
     { id: 'instagram',      label: 'Instagram',      icon: Instagram,    href: '/dashboard/instagram/connections' },
     { id: 'crm',            label: 'CRM',            icon: Briefcase,    href: '/dashboard/crm' },
     { id: 'team',           label: 'Team',           icon: Users,        href: '/dashboard/team' },

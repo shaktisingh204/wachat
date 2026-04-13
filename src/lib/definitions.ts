@@ -1755,14 +1755,41 @@ export type FacebookSubscriber = {
 };
 
 
+export type MetaFlowValidationError = {
+    error: string;
+    error_type?: string;
+    message: string;
+    line_start?: number;
+    line_end?: number;
+    column_start?: number;
+    column_end?: number;
+    pointers?: string[];
+};
+
+export type MetaFlowHealthStatus = {
+    can_send_message?: 'AVAILABLE' | 'LIMITED' | 'BLOCKED';
+    entities?: Array<{
+        entity_type?: string;
+        id?: string;
+        can_send_message?: string;
+        errors?: Array<{ error_code?: number; error_description?: string; possible_solution?: string }>;
+    }>;
+};
+
 export type MetaFlow = {
     name: string;
     projectId: ObjectId;
     metaId: string;
-    status: string;
+    status: 'DRAFT' | 'PUBLISHED' | 'DEPRECATED' | 'BLOCKED' | 'THROTTLED' | string;
     json_version?: string;
     categories: string[];
     flow_data: any;
+    endpoint_uri?: string;
+    validation_errors?: MetaFlowValidationError[];
+    health_status?: MetaFlowHealthStatus | null;
+    preview?: { preview_url: string; expires_at: string } | null;
+    application_id?: string;
+    lastPublishedAt?: Date | null;
     createdAt: Date;
     updatedAt: Date;
 };

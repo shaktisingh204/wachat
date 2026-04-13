@@ -34,6 +34,7 @@ export const appIcons = [
     { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
     { id: 'ad-manager', href: '/dashboard/ad-manager/ad-accounts', icon: Megaphone, label: 'Ad Manager' },
+    { id: 'telegram', href: '/dashboard/telegram', icon: Send, label: 'Telegram' },
     { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
     { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM' },
     { id: 'sabflow', icon: GitFork, label: 'SabFlow', href: '/dashboard/sabflow/flow-builder' },

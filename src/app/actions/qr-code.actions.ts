@@ -98,6 +98,42 @@ export async function getQrCodes(): Promise<QrCodeWithShortUrl[]> {
     }
 }
 
+export async function deleteManyQrCodes(ids: string[]): Promise<{ success: boolean; deleted?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    const validIds = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    if (validIds.length === 0) {
+        return { success: false, error: 'No valid IDs provided.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const qrCodes = await db.collection('qr_codes')
+            .find({ _id: { $in: validIds }, userId })
+            .toArray();
+
+        const shortUrlIds = qrCodes
+            .map((qr: any) => qr.shortUrlId)
+            .filter(Boolean);
+
+        if (shortUrlIds.length > 0) {
+            await db.collection('short_urls').deleteMany({ _id: { $in: shortUrlIds } });
+        }
+
+        const result = await db.collection('qr_codes').deleteMany({
+            _id: { $in: validIds },
+            userId,
+        });
+
+        revalidatePath('/dashboard/qr-code-maker');
+        return { success: true, deleted: result.deletedCount };
+    } catch (e: any) {
+        return { success: false, error: e.message || 'Failed to delete QR codes.' };
+    }
+}
+
 export async function deleteQrCode(id: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };

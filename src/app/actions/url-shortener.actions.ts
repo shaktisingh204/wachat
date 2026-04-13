@@ -312,6 +312,26 @@ export async function deleteShortUrl(id: string): Promise<{ success: boolean; er
     }
 }
 
+export async function deleteManyShortUrls(ids: string[]): Promise<{ success: boolean; deleted?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    const validIds = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    if (validIds.length === 0) {
+        return { success: false, error: 'No valid IDs provided.' };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('short_urls').deleteMany({
+            _id: { $in: validIds },
+            userId: new ObjectId(session.user._id),
+        });
+        revalidatePath('/dashboard/url-shortener');
+        return { success: true, deleted: result.deletedCount };
+    } catch (e: any) {
+        return { success: false, error: e.message || 'Failed to delete links.' };
+    }
+}
+
 export async function getShortUrlById(id: string): Promise<WithId<ShortUrl> | null> {
     if (!ObjectId.isValid(id)) return null;
 

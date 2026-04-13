@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Label } from '@/components/ui/label';
@@ -6,113 +5,96 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
+/**
+ * Editor for all v7.3 text-family components.
+ * Each type exposes only the properties Meta actually accepts:
+ *
+ *   TextHeading    / TextSubheading : text (≤80), visible
+ *   TextBody       / TextCaption    : text (≤4096), font-weight, strikethrough, markdown, visible
+ *   RichText                        : text (string or array), visible
+ *
+ * Anything extra Meta rejects at publish time, so we deliberately keep
+ * this panel narrow.
+ */
+
 interface TextEditorProps {
-  component: any;
-  updateField: (key: string, value: any) => void;
+    component: any;
+    updateField: (key: string, value: any) => void;
 }
 
-const fontSizes = [
-  { label: 'Display', value: 'display' },
-  { label: 'Large Title', value: 'large_title' },
-  { label: 'Title', value: 'title' },
-  { label: 'Headline', value: 'headline' },
-  { label: 'Subheadline', value: 'subheadline' },
-  { label: 'Body', value: 'body' },
-  { label: 'Caption', value: 'caption' },
-];
-
-const fontWeights = [
-  { label: 'Light', value: 'light' },
-  { label: 'Regular', value: 'regular' },
-  { label: 'Medium', value: 'medium' },
-  { label: 'Bold', value: 'bold' },
-];
-
-const textColors = [
-  { label: 'Default', value: 'default' },
-  { label: 'Muted', value: 'muted' },
-  { label: 'Disabled', value: 'disabled' },
-  { label: 'Primary', value: 'primary' }, // Note: 'primary' might not be standard in all contexts, verifying 'success'/'warning'/'danger' are standard
-  { label: 'Success', value: 'success' },
-  { label: 'Warning', value: 'warning' },
-  { label: 'Danger', value: 'danger' },
-  { label: 'Inverse', value: 'inverse' },
-];
-
-const textAlignments = [
-  { label: 'Start (Left)', value: 'start' },
-  { label: 'Center', value: 'center' },
-  { label: 'End (Right)', value: 'end' },
+const BODY_FONT_WEIGHTS = [
+    { label: 'Normal', value: 'normal' },
+    { label: 'Bold', value: 'bold' },
+    { label: 'Italic', value: 'italic' },
+    { label: 'Bold + Italic', value: 'bold_italic' },
 ];
 
 export function TextEditor({ component, updateField }: TextEditorProps) {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="text">Text Content</Label>
-        <Textarea
-          id="text"
-          value={component.text || ''}
-          onChange={e => updateField('text', e.target.value)}
-          placeholder="Enter text..."
-          className="min-h-[80px]"
-        />
-      </div>
+    const type = component?.type ?? 'TextBody';
+    const isHeading = type === 'TextHeading' || type === 'TextSubheading';
+    const isBody = type === 'TextBody' || type === 'TextCaption';
+    const isRich = type === 'RichText';
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Font Size</Label>
-          <Select value={component['font-size'] || 'body'} onValueChange={(val) => updateField('font-size', val)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {fontSizes.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
+    const maxLen = isHeading ? 80 : 4096;
+
+    return (
+        <div className="space-y-6">
+            <div className="space-y-2">
+                <Label htmlFor="text">
+                    {isRich ? 'Markdown content' : 'Text content'}
+                </Label>
+                <Textarea
+                    id="text"
+                    value={typeof component.text === 'string' ? component.text : Array.isArray(component.text) ? component.text.join('\n') : ''}
+                    onChange={(e) => updateField('text', e.target.value)}
+                    placeholder={isRich ? '**Bold**, *italic*, # headings, lists, [links](url)…' : 'Enter text…'}
+                    maxLength={maxLen}
+                    className="min-h-[90px]"
+                />
+                <p className="text-[10.5px] text-muted-foreground">
+                    {isRich
+                        ? 'RichText supports markdown: headings, bold, italic, strikethrough, lists, links, tables, inline base64 images.'
+                        : `${(component.text?.length ?? 0)} / ${maxLen} characters.`}
+                </p>
+            </div>
+
+            {isBody ? (
+                <>
+                    <div className="space-y-2">
+                        <Label>Font weight</Label>
+                        <Select
+                            value={component['font-weight'] ?? 'normal'}
+                            onValueChange={(val) => updateField('font-weight', val === 'normal' ? undefined : val)}
+                        >
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {BODY_FONT_WEIGHTS.map(w => (
+                                    <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <DynamicBooleanInput
+                        label="Strikethrough"
+                        value={component.strikethrough}
+                        onChange={(v) => updateField('strikethrough', v || undefined)}
+                    />
+
+                    <DynamicBooleanInput
+                        label="Markdown (v5.1+)"
+                        description="Parse markdown in the text content."
+                        value={component.markdown}
+                        onChange={(v) => updateField('markdown', v || undefined)}
+                    />
+                </>
+            ) : null}
+
+            <DynamicBooleanInput
+                label="Visible"
+                value={component.visible}
+                onChange={(v) => updateField('visible', v)}
+            />
         </div>
-
-        <div className="space-y-2">
-          <Label>Font Weight</Label>
-          <Select value={component['font-weight'] || 'regular'} onValueChange={(val) => updateField('font-weight', val)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {fontWeights.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Result Color</Label>
-          <Select value={component.color || 'default'} onValueChange={(val) => updateField('color', val)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {textColors.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Alignment</Label>
-          <Select value={component['text-align'] || 'start'} onValueChange={(val) => updateField('text-align', val)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {textAlignments.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <DynamicBooleanInput
-        label="Italic"
-        value={component['font-style'] === 'italic'}
-        onChange={(val) => updateField('font-style', val ? 'italic' : 'normal')}
-        placeholder="Cannot be dynamic"
-      />
-
-      <DynamicBooleanInput
-        label="Visible"
-        value={component.visible}
-        onChange={(val) => updateField('visible', val)}
-      />
-    </div>
-  );
+    );
 }

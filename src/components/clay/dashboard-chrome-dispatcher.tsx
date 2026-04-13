@@ -97,6 +97,8 @@ const WACHAT_PREFIXES = [
   '/dashboard/wachat',
   '/dashboard/analytics',
   '/dashboard/qr-codes',
+  '/dashboard/qr-code-maker',
+  '/dashboard/url-shortener',
   '/dashboard/automation',
   '/dashboard/health',
   '/dashboard/settings',
@@ -189,6 +191,15 @@ function isInstagramRoute(pathname: string | null): boolean {
   return pathname === '/dashboard/instagram' || pathname.startsWith('/dashboard/instagram/');
 }
 
+/**
+ * SabFlow routes get their own Clay context="sabflow" with sidebar
+ * for flow-builder, connections, execution logs, settings, docs.
+ */
+function isSabFlowRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/sabflow' || pathname.startsWith('/dashboard/sabflow/');
+}
+
 export interface DashboardChromeDispatcherProps {
   user?: ClayLayoutUser;
   plan?: ClayLayoutPlan;
@@ -221,7 +232,8 @@ export function DashboardChromeDispatcher({
   const onAdManager = isAdManagerRoute(pathname);
   const onInstagram = !onAdManager && isInstagramRoute(pathname);
   const onMetaSuite = !onAdManager && !onInstagram && isMetaSuiteRoute(pathname);
-  const onWachat = !onAdManager && !onInstagram && !onMetaSuite && isWachatRoute(pathname);
+  const onSabFlow = !onAdManager && !onInstagram && !onMetaSuite && isSabFlowRoute(pathname);
+  const onWachat = !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && isWachatRoute(pathname);
 
   /* ── Wachat branch: fetch projects + session so context providers
         match what the legacy DashboardClientLayout supplies.
@@ -231,7 +243,7 @@ export function DashboardChromeDispatcher({
     () => bootstrapCache,
   );
 
-  const needsBootstrap = onWachat || onAdManager || onMetaSuite || onInstagram;
+  const needsBootstrap = onWachat || onAdManager || onMetaSuite || onInstagram || onSabFlow;
 
   useEffect(() => {
     if (!needsBootstrap) return;
@@ -329,6 +341,25 @@ export function DashboardChromeDispatcher({
       >
         <AdManagerProvider>
           <ClayDashboardLayout context="meta-suite" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── SabFlow branch: Clay chrome for visual automation engine.
+  if (onSabFlow) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="sabflow" user={user} plan={plan}>
             {children}
           </ClayDashboardLayout>
         </AdManagerProvider>
