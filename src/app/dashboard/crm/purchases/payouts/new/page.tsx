@@ -1,5 +1,3 @@
-'use server';
-
 import { Suspense } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { NewPayoutForm } from './new-payout-form';

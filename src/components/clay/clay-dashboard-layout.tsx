@@ -1080,7 +1080,7 @@ const crmInsights: NavEntry[] = [
   },
   {
     key: 'crm-reports',
-    label: 'Reports',
+    label: 'GST',
     icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/crm/reports/gstr-1',
     matches: ['/dashboard/crm/reports'],

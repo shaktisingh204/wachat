@@ -1,5 +1,3 @@
-'use server';
-
 import { Plus, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { getCrmStockAdjustments } from "@/app/actions/crm-inventory.actions";

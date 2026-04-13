@@ -1,5 +1,3 @@
-'use server';
-
 import { Suspense } from 'react';
 import { Wallet } from 'lucide-react';
 import { NewExpenseForm } from './new-expense-form';

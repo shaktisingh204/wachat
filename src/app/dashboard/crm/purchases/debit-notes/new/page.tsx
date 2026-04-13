@@ -1,5 +1,3 @@
-'use server';
-
 import { Suspense } from 'react';
 import { FileMinus } from 'lucide-react';
 import { NewDebitNoteForm } from './new-note-form';

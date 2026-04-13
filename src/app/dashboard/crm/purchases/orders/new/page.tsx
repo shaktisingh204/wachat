@@ -1,5 +1,3 @@
-'use server';
-
 import { Suspense } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { NewPurchaseOrderForm } from './new-order-form';
