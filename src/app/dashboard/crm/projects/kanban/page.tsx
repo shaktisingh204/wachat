@@ -2,13 +2,23 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { LayoutGrid, ArrowLeft, ArrowRight, ArrowRightLeft } from 'lucide-react';
 import {
-  getProjects,
-  getProjectTasks,
-  updateProjectTaskStatus,
-} from '@/app/actions/crm-services.actions';
-import type { HrProject, HrProjectTask } from '@/lib/hr-types';
+  LayoutGrid,
+  ArrowLeft,
+  ArrowRight,
+  Columns3,
+} from 'lucide-react';
+import {
+  getWsProjects,
+  getWsTasks,
+  getWsTaskboardColumns,
+  updateWsTaskColumn,
+} from '@/app/actions/worksuite/projects.actions';
+import type {
+  WsProject,
+  WsTask,
+  WsTaskboardColumn,
+} from '@/lib/worksuite/project-types';
 import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
@@ -21,19 +31,9 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
-type Task = HrProjectTask & { _id: string };
-type Project = HrProject & { _id: string };
-
-const COLUMNS: {
-  status: Task['status'];
-  label: string;
-  tone: 'neutral' | 'blue' | 'amber' | 'green';
-}[] = [
-  { status: 'todo', label: 'To Do', tone: 'neutral' },
-  { status: 'in-progress', label: 'In Progress', tone: 'blue' },
-  { status: 'review', label: 'Review', tone: 'amber' },
-  { status: 'done', label: 'Done', tone: 'green' },
-];
+type Task = WsTask & { _id: string };
+type Project = WsProject & { _id: string };
+type Column = WsTaskboardColumn & { _id: string };
 
 const PRIORITY_TONES: Record<string, 'neutral' | 'blue' | 'amber' | 'red'> = {
   low: 'neutral',
@@ -42,27 +42,71 @@ const PRIORITY_TONES: Record<string, 'neutral' | 'blue' | 'amber' | 'red'> = {
   urgent: 'red',
 };
 
+/** Fallback columns when the user hasn't created custom ones yet. */
+const DEFAULT_COLUMNS: Column[] = [
+  {
+    _id: 'col-incomplete',
+    userId: '',
+    columnName: 'To Do',
+    slug: 'incomplete',
+    labelColor: '#94a3b8',
+    priority: 1,
+  },
+  {
+    _id: 'col-in-progress',
+    userId: '',
+    columnName: 'In Progress',
+    slug: 'doing',
+    labelColor: '#2563eb',
+    priority: 2,
+  },
+  {
+    _id: 'col-review',
+    userId: '',
+    columnName: 'Review',
+    slug: 'review',
+    labelColor: '#d97706',
+    priority: 3,
+  },
+  {
+    _id: 'col-completed',
+    userId: '',
+    columnName: 'Done',
+    slug: 'completed',
+    labelColor: '#059669',
+    priority: 4,
+  },
+];
+
 export default function KanbanPage() {
   const { toast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [columns, setColumns] = useState<Column[]>([]);
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [isLoading, startLoading] = useTransition();
 
   const refresh = useCallback(() => {
     startLoading(async () => {
-      const [ps, ts] = await Promise.all([
-        getProjects(),
-        getProjectTasks(),
+      const [ps, ts, cs] = await Promise.all([
+        getWsProjects(),
+        getWsTasks(),
+        getWsTaskboardColumns(),
       ]);
       setProjects((ps as Project[]) || []);
       setTasks((ts as Task[]) || []);
+      setColumns((cs as Column[]) || []);
     });
   }, []);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  const effectiveColumns = useMemo<Column[]>(
+    () => (columns.length > 0 ? [...columns].sort((a, b) => a.priority - b.priority) : DEFAULT_COLUMNS),
+    [columns],
+  );
 
   const filteredTasks = useMemo(() => {
     if (projectFilter === 'all') return tasks;
@@ -71,32 +115,44 @@ export default function KanbanPage() {
 
   const projectNameMap = useMemo(() => {
     const m = new Map<string, string>();
-    projects.forEach((p) => m.set(p._id, p.name));
+    projects.forEach((p) => m.set(p._id, p.name || p.projectName || ''));
     return m;
   }, [projects]);
 
-  const moveTask = async (taskId: string, newStatus: Task['status']) => {
+  /** Match a task to a column by `boardColumnId` first, falling back to slug/status. */
+  const tasksForColumn = useCallback(
+    (col: Column): Task[] =>
+      filteredTasks.filter((t) => {
+        if (t.boardColumnId && String(t.boardColumnId) === String(col._id))
+          return true;
+        if (!t.boardColumnId && col.slug && t.status === col.slug) return true;
+        return false;
+      }),
+    [filteredTasks],
+  );
+
+  const moveTask = async (taskId: string, newCol: Column) => {
     const prev = tasks;
     setTasks((curr) =>
-      curr.map((t) => (t._id === taskId ? { ...t, status: newStatus } : t)),
+      curr.map((t) =>
+        t._id === taskId
+          ? {
+              ...t,
+              boardColumnId: newCol._id,
+              status: (newCol.slug as Task['status']) || t.status,
+            }
+          : t,
+      ),
     );
-    const res = await updateProjectTaskStatus(taskId, newStatus);
+    const res = await updateWsTaskColumn(taskId, newCol._id);
     if (!res.success) {
       setTasks(prev);
       toast({
         title: 'Error',
-        description: res.error || 'Failed to update task status.',
+        description: res.error || 'Failed to move task.',
         variant: 'destructive',
       });
     }
-  };
-
-  const getNeighbours = (status: Task['status']) => {
-    const idx = COLUMNS.findIndex((c) => c.status === status);
-    return {
-      prev: idx > 0 ? COLUMNS[idx - 1].status : null,
-      next: idx < COLUMNS.length - 1 ? COLUMNS[idx + 1].status : null,
-    };
   };
 
   if (isLoading && tasks.length === 0) {
@@ -104,8 +160,8 @@ export default function KanbanPage() {
       <div className="flex w-full flex-col gap-6">
         <Skeleton className="h-10 w-64" />
         <div className="grid gap-4 md:grid-cols-4">
-          {COLUMNS.map((c) => (
-            <Skeleton key={c.status} className="h-[60vh] rounded-clay-lg" />
+          {DEFAULT_COLUMNS.map((c) => (
+            <Skeleton key={c._id} className="h-[60vh] rounded-clay-lg" />
           ))}
         </div>
       </div>
@@ -116,7 +172,7 @@ export default function KanbanPage() {
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
         title="Task Board"
-        subtitle="Move tasks across columns to reflect their current status."
+        subtitle="Drag tasks across customisable columns."
         icon={LayoutGrid}
         actions={
           <>
@@ -129,14 +185,25 @@ export default function KanbanPage() {
                   <SelectItem value="all">All projects</SelectItem>
                   {projects.map((p) => (
                     <SelectItem key={p._id} value={p._id}>
-                      {p.name}
+                      {p.name || p.projectName}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+            <Link href="/dashboard/crm/projects/taskboard-columns">
+              <ClayButton
+                variant="pill"
+                leading={<Columns3 className="h-4 w-4" />}
+              >
+                Columns
+              </ClayButton>
+            </Link>
             <Link href="/dashboard/crm/projects">
-              <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+              <ClayButton
+                variant="pill"
+                leading={<ArrowLeft className="h-4 w-4" />}
+              >
                 Projects
               </ClayButton>
             </Link>
@@ -144,87 +211,97 @@ export default function KanbanPage() {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {COLUMNS.map((col) => {
-          const colTasks = filteredTasks.filter((t) => t.status === col.status);
+      <div
+        className="grid gap-4"
+        style={{
+          gridTemplateColumns: `repeat(${Math.max(1, Math.min(effectiveColumns.length, 6))}, minmax(240px, 1fr))`,
+        }}
+      >
+        {effectiveColumns.map((col, idx) => {
+          const colTasks = tasksForColumn(col);
+          const prevCol = idx > 0 ? effectiveColumns[idx - 1] : null;
+          const nextCol =
+            idx < effectiveColumns.length - 1
+              ? effectiveColumns[idx + 1]
+              : null;
           return (
-            <ClayCard key={col.status} variant="soft" className="flex flex-col">
+            <ClayCard
+              key={col._id}
+              variant="soft"
+              className="flex flex-col"
+            >
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ClayBadge tone={col.tone} dot>
-                    {col.label}
-                  </ClayBadge>
+                  <span
+                    className="inline-block h-2 w-2 rounded-full"
+                    style={{ backgroundColor: col.labelColor }}
+                    aria-hidden
+                  />
+                  <p className="text-[13px] font-semibold text-clay-ink">
+                    {col.columnName}
+                  </p>
                 </div>
                 <span className="text-[11.5px] text-clay-ink-muted">
                   {colTasks.length}
                 </span>
               </div>
-
               <div className="flex flex-col gap-2">
                 {colTasks.length === 0 ? (
                   <div className="rounded-clay-md border border-dashed border-clay-border p-4 text-center text-[12px] text-clay-ink-muted">
                     No tasks
                   </div>
                 ) : (
-                  colTasks.map((task) => {
-                    const { prev, next } = getNeighbours(task.status);
-                    return (
-                      <ClayCard
-                        key={task._id}
-                        padded={false}
-                        className="p-3"
-                      >
-                        <p className="text-[13px] font-medium text-clay-ink">
-                          {task.title}
-                        </p>
-                        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-clay-ink-muted">
-                          {task.assigneeName ? <span>{task.assigneeName}</span> : null}
-                          {task.priority ? (
-                            <ClayBadge
-                              tone={PRIORITY_TONES[task.priority] || 'neutral'}
-                              dot
-                            >
-                              {task.priority}
-                            </ClayBadge>
-                          ) : null}
-                          {projectFilter === 'all' ? (
-                            <span className="truncate">
-                              {projectNameMap.get(String(task.projectId)) || ''}
-                            </span>
-                          ) : null}
-                        </div>
-                        <div className="mt-2 flex items-center justify-end gap-1">
-                          {prev ? (
-                            <button
-                              type="button"
-                              onClick={() => moveTask(task._id, prev)}
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-clay-ink-muted hover:bg-clay-surface-2 hover:text-clay-ink"
-                              aria-label="Move left"
-                            >
-                              <ArrowLeft className="h-3.5 w-3.5" />
-                            </button>
-                          ) : (
-                            <span className="h-7 w-7" />
-                          )}
-                          {next ? (
-                            <button
-                              type="button"
-                              onClick={() => moveTask(task._id, next)}
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-clay-ink-muted hover:bg-clay-surface-2 hover:text-clay-ink"
-                              aria-label="Move right"
-                            >
-                              <ArrowRight className="h-3.5 w-3.5" />
-                            </button>
-                          ) : (
-                            <ArrowRightLeft
-                              className="h-3.5 w-3.5 text-clay-green"
-                              aria-hidden
-                            />
-                          )}
-                        </div>
-                      </ClayCard>
-                    );
-                  })
+                  colTasks.map((task) => (
+                    <ClayCard key={task._id} padded={false} className="p-3">
+                      <p className="text-[13px] font-medium text-clay-ink">
+                        {task.heading}
+                      </p>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-clay-ink-muted">
+                        {task.assigneeName ? (
+                          <span>{task.assigneeName}</span>
+                        ) : null}
+                        {task.priority ? (
+                          <ClayBadge
+                            tone={PRIORITY_TONES[task.priority] || 'neutral'}
+                            dot
+                          >
+                            {task.priority}
+                          </ClayBadge>
+                        ) : null}
+                        {projectFilter === 'all' ? (
+                          <span className="truncate">
+                            {projectNameMap.get(String(task.projectId)) || ''}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="mt-2 flex items-center justify-end gap-1">
+                        {prevCol ? (
+                          <button
+                            type="button"
+                            onClick={() => moveTask(task._id, prevCol)}
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-clay-ink-muted hover:bg-clay-surface-2 hover:text-clay-ink"
+                            aria-label="Move left"
+                          >
+                            <ArrowLeft className="h-3.5 w-3.5" />
+                          </button>
+                        ) : (
+                          <span className="h-7 w-7" />
+                        )}
+                        {nextCol ? (
+                          <button
+                            type="button"
+                            onClick={() => moveTask(task._id, nextCol)}
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-clay-ink-muted hover:bg-clay-surface-2 hover:text-clay-ink"
+                            aria-label="Move right"
+                          >
+                            <ArrowRight className="h-3.5 w-3.5" />
+                          </button>
+                        ) : (
+                          <span className="h-7 w-7" />
+                        )}
+                      </div>
+                    </ClayCard>
+                  ))
                 )}
               </div>
             </ClayCard>

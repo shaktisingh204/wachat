@@ -197,11 +197,18 @@ export default function NewSalesOrderPage() {
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-4">
                                     <div className="space-y-2"><Label className="font-semibold text-clay-ink">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." maxLength={500} /></div>
-                                    <div className="space-y-2"><Label className="font-semibold text-clay-ink">Shipping Details</Label><Textarea name="shippingDetails" placeholder="e.g. Shipping method, tracking information..." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold text-clay-ink">Shipping Address</Label><Textarea name="shippingAddress" placeholder="Ship to address (street, city, state, postal code, country)." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold text-clay-ink">Billing Address</Label><Textarea name="billingAddress" placeholder="Billing address (if different from shipping)." maxLength={500} /></div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="font-semibold text-clay-ink">Notes</Label>
-                                    <Textarea placeholder="Any special instructions for this order..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} />
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2"><Label className="font-semibold text-clay-ink">Tax Rate (%)</Label><Input name="taxRate" type="number" step="0.01" placeholder="0" /></div>
+                                        <div className="space-y-2"><Label className="font-semibold text-clay-ink">Discount</Label><Input name="discount" type="number" step="0.01" placeholder="0" /></div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-semibold text-clay-ink">Notes</Label>
+                                        <Textarea placeholder="Any special instructions for this order..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} />
+                                    </div>
                                 </div>
                             </section>
                         </div>

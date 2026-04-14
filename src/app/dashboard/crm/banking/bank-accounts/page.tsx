@@ -121,11 +121,16 @@ export default function BankAccountsPage() {
                 subtitle="A list of all your connected bank accounts."
                 icon={Landmark}
                 actions={
-                    <Link href="/dashboard/crm/banking/all/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
-                            Add Bank Account
-                        </ClayButton>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <Link href="/dashboard/crm/banking/bank-transactions">
+                            <ClayButton variant="ghost">Ext. Transactions</ClayButton>
+                        </Link>
+                        <Link href="/dashboard/crm/banking/all/new">
+                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                                Add Bank Account
+                            </ClayButton>
+                        </Link>
+                    </div>
                 }
             />
 

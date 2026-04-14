@@ -23,6 +23,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function InvoicesPage() {
@@ -129,6 +130,12 @@ export default function InvoicesPage() {
                                         <TableCell><ClayBadge tone={getStatusTone(q.status)} dot>{q.status}</ClayBadge></TableCell>
                                         <TableCell className="text-right font-medium text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
                                         <TableCell className="text-right">
+                                            <span className="mr-2 inline-block align-middle">
+                                                <SharePublicLinkButton
+                                                    resourceType="invoice"
+                                                    resourceId={invoiceId}
+                                                />
+                                            </span>
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
                                                     <ClayButton

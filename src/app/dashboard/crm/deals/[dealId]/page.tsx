@@ -14,7 +14,12 @@ import {
   Users,
   Calendar,
   Handshake,
+  ReceiptText,
+  LoaderCircle,
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { convertDealToInvoice } from '@/app/actions/worksuite/conversions.actions';
+import { ClayButton } from '@/components/clay';
 import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import Link from 'next/link';
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
@@ -22,6 +27,7 @@ import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
 
 import { ClayCard, ClayBadge } from '@/components/clay';
+import { useRouter } from 'next/navigation';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 function DealDetailPageSkeleton() {
@@ -49,6 +55,9 @@ export default function CrmDealDetailPage() {
   const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
   const [tasks, setTasks] = useState<WithId<CrmTask>[]>([]);
   const [isLoading, startTransition] = useTransition();
+  const [isCreatingInvoice, setIsCreatingInvoice] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
   const fetchData = () => {
     if (dealId) {
@@ -106,6 +115,36 @@ export default function CrmDealDetailPage() {
         title={deal.name}
         subtitle="Deal details, related contacts, and tasks"
         icon={Handshake}
+        actions={
+          <ClayButton
+            variant="obsidian"
+            disabled={isCreatingInvoice}
+            onClick={async () => {
+              setIsCreatingInvoice(true);
+              const res = await convertDealToInvoice(deal._id.toString());
+              setIsCreatingInvoice(false);
+              if (res.success) {
+                toast({ title: 'Invoice created' });
+                router.push('/dashboard/crm/sales/invoices');
+              } else {
+                toast({
+                  title: 'Error',
+                  description: res.error,
+                  variant: 'destructive',
+                });
+              }
+            }}
+            leading={
+              isCreatingInvoice ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <ReceiptText className="h-4 w-4" />
+              )
+            }
+          >
+            Create Invoice
+          </ClayButton>
+        }
       />
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">

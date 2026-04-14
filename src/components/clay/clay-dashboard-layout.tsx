@@ -1129,6 +1129,41 @@ const crmSales: NavEntry[] = [
     href: '/dashboard/crm/products',
     matches: ['/dashboard/crm/products'],
   },
+  {
+    key: 'crm-proposals',
+    label: 'Proposals',
+    icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/proposals',
+    matches: ['/dashboard/crm/sales/proposals'],
+  },
+  {
+    key: 'crm-estimate-requests',
+    label: 'Estimate Requests',
+    icon: <LuInbox className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/estimate-requests',
+    matches: ['/dashboard/crm/sales/estimate-requests'],
+  },
+  {
+    key: 'crm-recurring-invoices',
+    label: 'Recurring Invoices',
+    icon: <LuCalendarClock className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/recurring-invoices',
+    matches: ['/dashboard/crm/sales/recurring-invoices'],
+  },
+  {
+    key: 'crm-promotions',
+    label: 'Promotions',
+    icon: <LuMegaphone className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/promotions',
+    matches: ['/dashboard/crm/sales/promotions'],
+  },
+  {
+    key: 'crm-payments',
+    label: 'Payments',
+    icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/sales/payments',
+    matches: ['/dashboard/crm/sales/payments'],
+  },
 ];
 
 const crmCatalog: NavEntry[] = [
@@ -1145,6 +1180,13 @@ const crmCatalog: NavEntry[] = [
     icon: <LuShoppingBag className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/crm/purchases/orders',
     matches: ['/dashboard/crm/purchases'],
+  },
+  {
+    key: 'crm-recurring-expenses',
+    label: 'Recurring Expenses',
+    icon: <LuCalendarClock className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/purchases/recurring-expenses',
+    matches: ['/dashboard/crm/purchases/recurring-expenses'],
   },
 ];
 
@@ -1196,6 +1238,17 @@ const crmHr: NavEntry[] = [
     icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/crm/hr-payroll',
     matches: ['/dashboard/crm/hr-payroll'],
+  },
+  {
+    key: 'hr-shifts',
+    label: 'Shifts & Rotations',
+    icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr-payroll/shifts',
+    matches: [
+      '/dashboard/crm/hr-payroll/shifts',
+      '/dashboard/crm/hr-payroll/shift-rotations',
+      '/dashboard/crm/hr-payroll/shift-change-requests',
+    ],
   },
   {
     key: 'hr-jobs',
@@ -1332,6 +1385,13 @@ const crmServices: NavEntry[] = [
     matches: ['/dashboard/crm/projects/gantt'],
   },
   {
+    key: 'crm-time-tracking',
+    label: 'Time Tracking',
+    icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/time-tracking',
+    matches: ['/dashboard/crm/time-tracking'],
+  },
+  {
     key: 'crm-contracts',
     label: 'Contracts',
     icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
@@ -1344,6 +1404,34 @@ const crmServices: NavEntry[] = [
     icon: <LuInbox className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/crm/tickets',
     matches: ['/dashboard/crm/tickets'],
+  },
+  {
+    key: 'crm-workspace',
+    label: 'Workspace',
+    icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/workspace',
+    matches: ['/dashboard/crm/workspace'],
+  },
+  {
+    key: 'crm-messages',
+    label: 'Messages',
+    icon: <LuMessageCircle className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/messages',
+    matches: ['/dashboard/crm/messages', '/dashboard/crm/mentions'],
+  },
+  {
+    key: 'crm-files',
+    label: 'Files',
+    icon: <LuFolderOpen className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/files',
+    matches: ['/dashboard/crm/files'],
+  },
+  {
+    key: 'crm-search',
+    label: 'Search',
+    icon: <LuSearch className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/search',
+    matches: ['/dashboard/crm/search'],
   },
 ];
 

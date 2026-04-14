@@ -12,14 +12,43 @@ import {
   Calendar,
   DollarSign,
   User,
+  Flag,
+  FileText,
+  StickyNote,
+  Activity as ActivityIcon,
+  GanttChart,
+  Users,
 } from 'lucide-react';
 import {
-  getProjectById,
-  getProjectTasks,
-  saveProjectTask,
-  deleteProjectTask,
-} from '@/app/actions/crm-services.actions';
-import type { HrProject, HrProjectTask } from '@/lib/hr-types';
+  getWsProjectById,
+  getWsTasksByProject,
+  saveWsTask,
+  deleteWsTask,
+  getWsProjectMembersByProject,
+  saveWsProjectMember,
+  deleteWsProjectMember,
+  getWsProjectMilestonesByProject,
+  saveWsProjectMilestone,
+  deleteWsProjectMilestone,
+  getWsProjectFilesByProject,
+  saveWsProjectFile,
+  deleteWsProjectFile,
+  getWsProjectNotesByProject,
+  saveWsProjectNote,
+  deleteWsProjectNote,
+  getWsProjectActivitiesByProject,
+  getWsGanttLinksByProject,
+} from '@/app/actions/worksuite/projects.actions';
+import type {
+  WsProject,
+  WsTask,
+  WsProjectMember,
+  WsProjectMilestone,
+  WsProjectFile,
+  WsProjectNote,
+  WsProjectActivity,
+  WsGanttLink,
+} from '@/lib/worksuite/project-types';
 import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
@@ -48,6 +77,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,13 +92,21 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
-type Task = HrProjectTask & { _id: string };
-type Project = HrProject & { _id: string };
+type Task = WsTask & { _id: string };
+type Project = WsProject & { _id: string };
+type Member = WsProjectMember & { _id: string };
+type Milestone = WsProjectMilestone & { _id: string };
+type ProjFile = WsProjectFile & { _id: string };
+type Note = WsProjectNote & { _id: string };
+type ActivityRow = WsProjectActivity & { _id: string };
+type GanttLink = WsGanttLink & { _id: string };
 
 const TASK_STATUS_TONES: Record<string, 'neutral' | 'amber' | 'blue' | 'green'> = {
+  incomplete: 'neutral',
   todo: 'neutral',
   'in-progress': 'blue',
   review: 'amber',
+  completed: 'green',
   done: 'green',
 };
 
@@ -93,24 +131,66 @@ export default function ProjectDetailPage(props: {
 
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, startLoading] = useTransition();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<Task | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [files, setFiles] = useState<ProjFile[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [activity, setActivity] = useState<ActivityRow[]>([]);
+  const [ganttLinks, setGanttLinks] = useState<GanttLink[]>([]);
 
-  const [saveState, saveFormAction, isSaving] = useActionState(saveProjectTask, {
-    message: '',
-    error: '',
-  } as any);
+  const [isLoading, startLoading] = useTransition();
+
+  /* ── Task dialog state ── */
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
+
+  const [taskSaveState, taskSaveAction, isTaskSaving] = useActionState(
+    saveWsTask,
+    { message: '', error: '' } as any,
+  );
+
+  /* ── Member / milestone / file / note dialogs ── */
+  const [memberDialogOpen, setMemberDialogOpen] = useState(false);
+  const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
+  const [fileDialogOpen, setFileDialogOpen] = useState(false);
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+
+  const [memberSaveState, memberSaveAction, isMemberSaving] = useActionState(
+    saveWsProjectMember,
+    { message: '', error: '' } as any,
+  );
+  const [milestoneSaveState, milestoneSaveAction, isMilestoneSaving] =
+    useActionState(saveWsProjectMilestone, { message: '', error: '' } as any);
+  const [fileSaveState, fileSaveAction, isFileSaving] = useActionState(
+    saveWsProjectFile,
+    { message: '', error: '' } as any,
+  );
+  const [noteSaveState, noteSaveAction, isNoteSaving] = useActionState(
+    saveWsProjectNote,
+    { message: '', error: '' } as any,
+  );
 
   const refresh = useCallback(() => {
     startLoading(async () => {
-      const [p, ts] = await Promise.all([
-        getProjectById(projectId),
-        getProjectTasks(projectId),
+      const [p, ts, ms, mls, fs, ns, acts, gls] = await Promise.all([
+        getWsProjectById(projectId),
+        getWsTasksByProject(projectId),
+        getWsProjectMembersByProject(projectId),
+        getWsProjectMilestonesByProject(projectId),
+        getWsProjectFilesByProject(projectId),
+        getWsProjectNotesByProject(projectId),
+        getWsProjectActivitiesByProject(projectId),
+        getWsGanttLinksByProject(projectId),
       ]);
       setProject(p as Project | null);
       setTasks(Array.isArray(ts) ? (ts as Task[]) : []);
+      setMembers(Array.isArray(ms) ? (ms as Member[]) : []);
+      setMilestones(Array.isArray(mls) ? (mls as Milestone[]) : []);
+      setFiles(Array.isArray(fs) ? (fs as ProjFile[]) : []);
+      setNotes(Array.isArray(ns) ? (ns as Note[]) : []);
+      setActivity(Array.isArray(acts) ? (acts as ActivityRow[]) : []);
+      setGanttLinks(Array.isArray(gls) ? (gls as GanttLink[]) : []);
     });
   }, [projectId]);
 
@@ -118,32 +198,92 @@ export default function ProjectDetailPage(props: {
     refresh();
   }, [refresh]);
 
+  // Toast on save states
   useEffect(() => {
-    if (saveState?.message) {
-      toast({ title: 'Saved', description: saveState.message });
-      setDialogOpen(false);
-      setEditing(null);
+    if (taskSaveState?.message) {
+      toast({ title: 'Saved', description: taskSaveState.message });
+      setTaskDialogOpen(false);
+      setEditingTask(null);
       refresh();
     }
-    if (saveState?.error) {
+    if (taskSaveState?.error)
       toast({
         title: 'Error',
-        description: saveState.error,
+        description: taskSaveState.error,
         variant: 'destructive',
       });
+  }, [taskSaveState, toast, refresh]);
+
+  useEffect(() => {
+    if (memberSaveState?.message) {
+      toast({ title: 'Saved', description: memberSaveState.message });
+      setMemberDialogOpen(false);
+      refresh();
     }
-  }, [saveState, toast, refresh]);
+    if (memberSaveState?.error)
+      toast({
+        title: 'Error',
+        description: memberSaveState.error,
+        variant: 'destructive',
+      });
+  }, [memberSaveState, toast, refresh]);
 
-  const doneCount = tasks.filter((t) => t.status === 'done').length;
+  useEffect(() => {
+    if (milestoneSaveState?.message) {
+      toast({ title: 'Saved', description: milestoneSaveState.message });
+      setMilestoneDialogOpen(false);
+      refresh();
+    }
+    if (milestoneSaveState?.error)
+      toast({
+        title: 'Error',
+        description: milestoneSaveState.error,
+        variant: 'destructive',
+      });
+  }, [milestoneSaveState, toast, refresh]);
+
+  useEffect(() => {
+    if (fileSaveState?.message) {
+      toast({ title: 'Saved', description: fileSaveState.message });
+      setFileDialogOpen(false);
+      refresh();
+    }
+    if (fileSaveState?.error)
+      toast({
+        title: 'Error',
+        description: fileSaveState.error,
+        variant: 'destructive',
+      });
+  }, [fileSaveState, toast, refresh]);
+
+  useEffect(() => {
+    if (noteSaveState?.message) {
+      toast({ title: 'Saved', description: noteSaveState.message });
+      setNoteDialogOpen(false);
+      refresh();
+    }
+    if (noteSaveState?.error)
+      toast({
+        title: 'Error',
+        description: noteSaveState.error,
+        variant: 'destructive',
+      });
+  }, [noteSaveState, toast, refresh]);
+
+  const doneCount = tasks.filter(
+    (t) => t.status === 'done' || t.status === 'completed',
+  ).length;
   const computedProgress =
-    tasks.length > 0 ? Math.round((doneCount / tasks.length) * 100) : project?.progress ?? 0;
+    tasks.length > 0
+      ? Math.round((doneCount / tasks.length) * 100)
+      : project?.completionPercent ?? project?.progress ?? 0;
 
-  const handleDelete = async () => {
-    if (!deletingId) return;
-    const res = await deleteProjectTask(deletingId);
+  const handleDeleteTask = async () => {
+    if (!deletingTaskId) return;
+    const res = await deleteWsTask(deletingTaskId);
     if (res.success) {
       toast({ title: 'Deleted', description: 'Task removed.' });
-      setDeletingId(null);
+      setDeletingTaskId(null);
       refresh();
     } else {
       toast({
@@ -151,6 +291,44 @@ export default function ProjectDetailPage(props: {
         description: res.error || 'Failed to delete',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleDeleteMember = async (id: string) => {
+    const res = await deleteWsProjectMember(id);
+    if (res.success) {
+      toast({ title: 'Removed', description: 'Member removed.' });
+      refresh();
+    } else {
+      toast({
+        title: 'Error',
+        description: res.error,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteMilestone = async (id: string) => {
+    const res = await deleteWsProjectMilestone(id);
+    if (res.success) {
+      toast({ title: 'Deleted', description: 'Milestone removed.' });
+      refresh();
+    }
+  };
+
+  const handleDeleteFile = async (id: string) => {
+    const res = await deleteWsProjectFile(id);
+    if (res.success) {
+      toast({ title: 'Deleted', description: 'File removed.' });
+      refresh();
+    }
+  };
+
+  const handleDeleteNote = async (id: string) => {
+    const res = await deleteWsProjectNote(id);
+    if (res.success) {
+      toast({ title: 'Deleted', description: 'Note removed.' });
+      refresh();
     }
   };
 
@@ -179,11 +357,13 @@ export default function ProjectDetailPage(props: {
     );
   }
 
+  const projectName = project.name || project.projectName || 'Project';
+
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
-        title={project.name}
-        subtitle={project.description || 'Project details and tasks.'}
+        title={projectName}
+        subtitle={project.description || project.projectSummary || 'Project details.'}
         icon={Briefcase}
         actions={
           <Link href="/dashboard/crm/projects">
@@ -194,56 +374,57 @@ export default function ProjectDetailPage(props: {
         }
       />
 
+      {/* Overview summary */}
       <ClayCard>
         <div className="grid gap-4 md:grid-cols-4">
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <User className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
-            </div>
-            <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Client</p>
-              <p className="text-[13px] font-medium text-clay-ink">
-                {project.clientName || '—'}
-              </p>
-            </div>
+          <SummaryTile
+            icon={User}
+            label="Client"
+            value={project.clientName || '—'}
+          />
+          <SummaryTile
+            icon={User}
+            label="Manager"
+            value={project.managerName || '—'}
+          />
+          <SummaryTile
+            icon={Calendar}
+            label="Timeline"
+            value={`${fmtDate(project.startDate)} – ${fmtDate(project.deadline || project.endDate)}`}
+          />
+          <SummaryTile
+            icon={DollarSign}
+            label="Budget"
+            value={
+              project.projectBudget != null || project.budget != null
+                ? new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: project.currency || 'INR',
+                  }).format(project.projectBudget ?? project.budget ?? 0)
+                : '—'
+            }
+          />
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="flex flex-col">
+            <p className="text-[11.5px] text-clay-ink-muted">Status</p>
+            <ClayBadge tone="blue" dot>
+              {project.status}
+            </ClayBadge>
           </div>
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <User className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
-            </div>
-            <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Manager</p>
-              <p className="text-[13px] font-medium text-clay-ink">
-                {project.managerName || '—'}
-              </p>
-            </div>
+          <div className="flex flex-col">
+            <p className="text-[11.5px] text-clay-ink-muted">Category</p>
+            <p className="text-[13px] font-medium text-clay-ink">
+              {project.categoryName || '—'}
+              {project.subCategoryName ? ` · ${project.subCategoryName}` : ''}
+            </p>
           </div>
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <Calendar className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
-            </div>
-            <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Timeline</p>
-              <p className="text-[13px] font-medium text-clay-ink">
-                {fmtDate(project.startDate)} – {fmtDate(project.endDate)}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <DollarSign className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
-            </div>
-            <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Budget</p>
-              <p className="text-[13px] font-medium text-clay-ink">
-                {project.budget != null
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: project.currency || 'INR',
-                    }).format(project.budget)
-                  : '—'}
-              </p>
-            </div>
+          <div className="flex flex-col">
+            <p className="text-[11.5px] text-clay-ink-muted">Department</p>
+            <p className="text-[13px] font-medium text-clay-ink">
+              {project.departmentName || '—'}
+            </p>
           </div>
         </div>
 
@@ -257,143 +438,468 @@ export default function ProjectDetailPage(props: {
           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-clay-surface-2">
             <div
               className="h-full bg-clay-rose transition-all"
-              style={{ width: `${Math.max(0, Math.min(100, computedProgress))}%` }}
+              style={{
+                width: `${Math.max(0, Math.min(100, computedProgress))}%`,
+              }}
             />
           </div>
         </div>
       </ClayCard>
 
+      {/* Tabs */}
       <ClayCard>
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">Tasks</h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
-              Break the project down into trackable tasks.
-            </p>
-          </div>
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            Add Task
-          </ClayButton>
-        </div>
+        <Tabs defaultValue="overview">
+          <TabsList className="mb-4 grid w-full grid-cols-4 md:grid-cols-8">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="tasks">
+              Tasks ({tasks.length})
+            </TabsTrigger>
+            <TabsTrigger value="milestones">
+              Milestones ({milestones.length})
+            </TabsTrigger>
+            <TabsTrigger value="members">
+              Members ({members.length})
+            </TabsTrigger>
+            <TabsTrigger value="files">Files ({files.length})</TabsTrigger>
+            <TabsTrigger value="notes">Notes ({notes.length})</TabsTrigger>
+            <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="gantt">Gantt</TabsTrigger>
+          </TabsList>
 
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Title</TableHead>
-                <TableHead className="text-clay-ink-muted">Assignee</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-clay-ink-muted">Priority</TableHead>
-                <TableHead className="text-clay-ink-muted">Due</TableHead>
-                <TableHead className="w-[120px] text-right text-clay-ink-muted">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {tasks.length === 0 ? (
-                <TableRow className="border-clay-border">
-                  <TableCell
-                    colSpan={6}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+          {/* ── Overview ── */}
+          <TabsContent value="overview">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                  Description
+                </p>
+                <p className="mt-1 whitespace-pre-wrap text-[13px] text-clay-ink">
+                  {project.description || project.projectSummary || '—'}
+                </p>
+              </div>
+              <div>
+                <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                  Notes
+                </p>
+                <p className="mt-1 whitespace-pre-wrap text-[13px] text-clay-ink">
+                  {project.notes || '—'}
+                </p>
+              </div>
+              <div>
+                <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                  Hours Allocated
+                </p>
+                <p className="mt-1 text-[13px] text-clay-ink">
+                  {project.hoursAllocated ?? '—'}
+                </p>
+              </div>
+              <div>
+                <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                  Short Code
+                </p>
+                <p className="mt-1 text-[13px] text-clay-ink">
+                  {project.projectShortCode || '—'}
+                </p>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* ── Tasks ── */}
+          <TabsContent value="tasks">
+            <div className="mb-4 flex justify-end">
+              <ClayButton
+                variant="obsidian"
+                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+                onClick={() => {
+                  setEditingTask(null);
+                  setTaskDialogOpen(true);
+                }}
+              >
+                Add Task
+              </ClayButton>
+            </div>
+            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-clay-border hover:bg-transparent">
+                    <TableHead className="text-clay-ink-muted">Title</TableHead>
+                    <TableHead className="text-clay-ink-muted">
+                      Assignee
+                    </TableHead>
+                    <TableHead className="text-clay-ink-muted">Status</TableHead>
+                    <TableHead className="text-clay-ink-muted">
+                      Priority
+                    </TableHead>
+                    <TableHead className="text-clay-ink-muted">Due</TableHead>
+                    <TableHead className="w-[120px] text-right text-clay-ink-muted">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tasks.length === 0 ? (
+                    <TableRow className="border-clay-border">
+                      <TableCell
+                        colSpan={6}
+                        className="h-24 text-center text-[13px] text-clay-ink-muted"
+                      >
+                        No tasks yet — click Add Task to get started.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    tasks.map((t) => (
+                      <TableRow key={t._id} className="border-clay-border">
+                        <TableCell className="text-[13px] font-medium text-clay-ink">
+                          {t.heading}
+                        </TableCell>
+                        <TableCell className="text-[13px] text-clay-ink">
+                          {t.assigneeName || '—'}
+                        </TableCell>
+                        <TableCell>
+                          <ClayBadge
+                            tone={TASK_STATUS_TONES[t.status] || 'neutral'}
+                            dot
+                          >
+                            {t.status}
+                          </ClayBadge>
+                        </TableCell>
+                        <TableCell>
+                          {t.priority ? (
+                            <ClayBadge
+                              tone={PRIORITY_TONES[t.priority] || 'neutral'}
+                              dot
+                            >
+                              {t.priority}
+                            </ClayBadge>
+                          ) : (
+                            '—'
+                          )}
+                        </TableCell>
+                        <TableCell className="text-[13px] text-clay-ink">
+                          {fmtDate(t.dueDate)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setEditingTask(t);
+                                setTaskDialogOpen(true);
+                              }}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeletingTaskId(t._id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
+
+          {/* ── Milestones ── */}
+          <TabsContent value="milestones">
+            <div className="mb-4 flex justify-end">
+              <ClayButton
+                variant="obsidian"
+                leading={<Flag className="h-4 w-4" strokeWidth={1.75} />}
+                onClick={() => setMilestoneDialogOpen(true)}
+              >
+                Add Milestone
+              </ClayButton>
+            </div>
+            {milestones.length === 0 ? (
+              <EmptyRow text="No milestones yet." />
+            ) : (
+              <ul className="space-y-2">
+                {milestones.map((m) => (
+                  <li
+                    key={m._id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-clay-md border border-clay-border p-3"
                   >
-                    No tasks yet — click Add Task to get started.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                tasks.map((task) => (
-                  <TableRow key={task._id} className="border-clay-border">
-                    <TableCell className="text-[13px] font-medium text-clay-ink">
-                      {task.title}
-                    </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
-                      {task.assigneeName || '—'}
-                    </TableCell>
-                    <TableCell>
+                    <div>
+                      <p className="text-[13px] font-medium text-clay-ink">
+                        {m.milestoneTitle}
+                      </p>
+                      <p className="text-[11.5px] text-clay-ink-muted">
+                        {fmtDate(m.startDate)} – {fmtDate(m.endDate)}
+                        {m.cost ? ` · ${m.currency || 'INR'} ${m.cost}` : ''}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <ClayBadge
-                        tone={TASK_STATUS_TONES[task.status] || 'neutral'}
+                        tone={m.status === 'complete' ? 'green' : 'amber'}
                         dot
                       >
-                        {task.status}
+                        {m.status}
                       </ClayBadge>
-                    </TableCell>
-                    <TableCell>
-                      {task.priority ? (
-                        <ClayBadge
-                          tone={PRIORITY_TONES[task.priority] || 'neutral'}
-                          dot
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteMilestone(m._id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+
+          {/* ── Members ── */}
+          <TabsContent value="members">
+            <div className="mb-4 flex justify-end">
+              <ClayButton
+                variant="obsidian"
+                leading={<Users className="h-4 w-4" strokeWidth={1.75} />}
+                onClick={() => setMemberDialogOpen(true)}
+              >
+                Add Member
+              </ClayButton>
+            </div>
+            {members.length === 0 ? (
+              <EmptyRow text="No members yet." />
+            ) : (
+              <ul className="space-y-2">
+                {members.map((m) => (
+                  <li
+                    key={m._id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-clay-md border border-clay-border p-3"
+                  >
+                    <div>
+                      <p className="text-[13px] font-medium text-clay-ink">
+                        {m.memberName || String(m.memberUserId)}
+                      </p>
+                      <p className="text-[11.5px] text-clay-ink-muted">
+                        {m.memberEmail || m.role || '—'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {m.hourlyRate ? (
+                        <ClayBadge tone="blue">₹{m.hourlyRate}/hr</ClayBadge>
+                      ) : null}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteMember(m._id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+
+          {/* ── Files ── */}
+          <TabsContent value="files">
+            <div className="mb-4 flex justify-end">
+              <ClayButton
+                variant="obsidian"
+                leading={<FileText className="h-4 w-4" strokeWidth={1.75} />}
+                onClick={() => setFileDialogOpen(true)}
+              >
+                Add File
+              </ClayButton>
+            </div>
+            {files.length === 0 ? (
+              <EmptyRow text="No files yet." />
+            ) : (
+              <ul className="space-y-2">
+                {files.map((f) => (
+                  <li
+                    key={f._id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-clay-md border border-clay-border p-3"
+                  >
+                    <div>
+                      <p className="text-[13px] font-medium text-clay-ink">
+                        {f.filename}
+                      </p>
+                      <p className="text-[11.5px] text-clay-ink-muted">
+                        {f.description || f.externalLinkName || '—'}
+                      </p>
+                      {f.url || f.externalLink ? (
+                        <a
+                          href={f.url || f.externalLink}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="mt-0.5 inline-block text-[11.5px] text-clay-blue hover:underline"
                         >
-                          {task.priority}
-                        </ClayBadge>
-                      ) : (
-                        '—'
-                      )}
-                    </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
-                      {fmtDate(task.dueDate)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setEditing(task);
-                            setDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeletingId(task._id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                          Open link
+                        </a>
+                      ) : null}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteFile(f._id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+
+          {/* ── Notes ── */}
+          <TabsContent value="notes">
+            <div className="mb-4 flex justify-end">
+              <ClayButton
+                variant="obsidian"
+                leading={<StickyNote className="h-4 w-4" strokeWidth={1.75} />}
+                onClick={() => setNoteDialogOpen(true)}
+              >
+                Add Note
+              </ClayButton>
+            </div>
+            {notes.length === 0 ? (
+              <EmptyRow text="No notes yet." />
+            ) : (
+              <ul className="space-y-2">
+                {notes.map((n) => (
+                  <li
+                    key={n._id}
+                    className="rounded-clay-md border border-clay-border p-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[13px] font-medium text-clay-ink">
+                        {n.title}
+                      </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteNote(n._id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                      </Button>
+                    </div>
+                    <p className="mt-1 whitespace-pre-wrap text-[12.5px] text-clay-ink-muted">
+                      {n.details || '—'}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+
+          {/* ── Activity ── */}
+          <TabsContent value="activity">
+            {activity.length === 0 ? (
+              <EmptyRow text="No activity yet." />
+            ) : (
+              <ul className="space-y-2">
+                {activity.map((a) => (
+                  <li
+                    key={a._id}
+                    className="flex items-start gap-3 rounded-clay-md border border-clay-border p-3"
+                  >
+                    <ActivityIcon
+                      className="mt-0.5 h-4 w-4 text-clay-ink-muted"
+                      strokeWidth={1.75}
+                    />
+                    <div>
+                      <p className="text-[13px] text-clay-ink">{a.activity}</p>
+                      <p className="text-[11px] text-clay-ink-muted">
+                        {a.actorName ? `${a.actorName} · ` : ''}
+                        {fmtDate(a.createdAt)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+
+          {/* ── Gantt (simple task + dependency count view) ── */}
+          <TabsContent value="gantt">
+            <div className="mb-3 flex items-center gap-2">
+              <GanttChart className="h-4 w-4 text-clay-ink-muted" />
+              <p className="text-[12.5px] text-clay-ink-muted">
+                {tasks.length} tasks · {ganttLinks.length} dependencies ·{' '}
+                {milestones.length} milestones
+              </p>
+            </div>
+            {tasks.length === 0 ? (
+              <EmptyRow text="No tasks to chart." />
+            ) : (
+              <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-clay-border">
+                      <TableHead className="text-clay-ink-muted">Task</TableHead>
+                      <TableHead className="text-clay-ink-muted">Start</TableHead>
+                      <TableHead className="text-clay-ink-muted">Due</TableHead>
+                      <TableHead className="text-clay-ink-muted">Deps</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tasks.map((t) => {
+                      const deps = ganttLinks.filter(
+                        (g) => String(g.target) === t._id,
+                      ).length;
+                      return (
+                        <TableRow key={t._id} className="border-clay-border">
+                          <TableCell className="text-[13px] font-medium text-clay-ink">
+                            {t.heading}
+                          </TableCell>
+                          <TableCell className="text-[13px] text-clay-ink">
+                            {fmtDate(t.startDate)}
+                          </TableCell>
+                          <TableCell className="text-[13px] text-clay-ink">
+                            {fmtDate(t.dueDate)}
+                          </TableCell>
+                          <TableCell className="text-[13px] text-clay-ink">
+                            {deps}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </ClayCard>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {/* ── Task dialog ── */}
+      <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-clay-ink">
-              {editing ? 'Edit Task' : 'Add Task'}
+              {editingTask ? 'Edit Task' : 'Add Task'}
             </DialogTitle>
             <DialogDescription className="text-clay-ink-muted">
               Fill in the task details below.
             </DialogDescription>
           </DialogHeader>
-
-          <form action={saveFormAction} className="space-y-4">
-            {editing?._id ? (
-              <input type="hidden" name="_id" value={editing._id} />
+          <form action={taskSaveAction} className="space-y-4">
+            {editingTask?._id ? (
+              <input type="hidden" name="_id" value={editingTask._id} />
             ) : null}
             <input type="hidden" name="projectId" value={projectId} />
-
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
                 <Label className="text-clay-ink">
                   Title <span className="text-clay-red">*</span>
                 </Label>
                 <Input
-                  name="title"
+                  name="heading"
                   required
-                  defaultValue={editing?.title || ''}
+                  defaultValue={editingTask?.heading || ''}
                   className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
                 />
               </div>
@@ -401,7 +907,7 @@ export default function ProjectDetailPage(props: {
                 <Label className="text-clay-ink">Assignee</Label>
                 <Input
                   name="assigneeName"
-                  defaultValue={editing?.assigneeName || ''}
+                  defaultValue={editingTask?.assigneeName || ''}
                   className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
                 />
               </div>
@@ -409,16 +915,17 @@ export default function ProjectDetailPage(props: {
                 <Label className="text-clay-ink">Status</Label>
                 <Select
                   name="status"
-                  defaultValue={editing?.status || 'todo'}
+                  defaultValue={editingTask?.status || 'incomplete'}
                 >
                   <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="incomplete">Incomplete</SelectItem>
                     <SelectItem value="todo">To Do</SelectItem>
                     <SelectItem value="in-progress">In Progress</SelectItem>
                     <SelectItem value="review">Review</SelectItem>
-                    <SelectItem value="done">Done</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -426,7 +933,7 @@ export default function ProjectDetailPage(props: {
                 <Label className="text-clay-ink">Priority</Label>
                 <Select
                   name="priority"
-                  defaultValue={editing?.priority || 'medium'}
+                  defaultValue={editingTask?.priority || 'medium'}
                 >
                   <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
                     <SelectValue />
@@ -445,8 +952,8 @@ export default function ProjectDetailPage(props: {
                   type="date"
                   name="startDate"
                   defaultValue={
-                    editing?.startDate
-                      ? new Date(editing.startDate as any)
+                    editingTask?.startDate
+                      ? new Date(editingTask.startDate as any)
                           .toISOString()
                           .slice(0, 10)
                       : ''
@@ -460,8 +967,8 @@ export default function ProjectDetailPage(props: {
                   type="date"
                   name="dueDate"
                   defaultValue={
-                    editing?.dueDate
-                      ? new Date(editing.dueDate as any)
+                    editingTask?.dueDate
+                      ? new Date(editingTask.dueDate as any)
                           .toISOString()
                           .slice(0, 10)
                       : ''
@@ -470,11 +977,11 @@ export default function ProjectDetailPage(props: {
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Estimated Hours</Label>
+                <Label className="text-clay-ink">Estimate Hours</Label>
                 <Input
                   type="number"
                   name="estimatedHours"
-                  defaultValue={editing?.estimatedHours ?? ''}
+                  defaultValue={editingTask?.estimatedHours ?? ''}
                   className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
                 />
               </div>
@@ -483,7 +990,7 @@ export default function ProjectDetailPage(props: {
                 <Input
                   type="number"
                   name="actualHours"
-                  defaultValue={editing?.actualHours ?? ''}
+                  defaultValue={editingTask?.actualHours ?? ''}
                   className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
                 />
               </div>
@@ -492,26 +999,25 @@ export default function ProjectDetailPage(props: {
                 <Textarea
                   name="description"
                   rows={3}
-                  defaultValue={editing?.description || ''}
+                  defaultValue={editingTask?.description || ''}
                   className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
                 />
               </div>
             </div>
-
             <DialogFooter className="gap-2">
               <ClayButton
                 type="button"
                 variant="pill"
-                onClick={() => setDialogOpen(false)}
+                onClick={() => setTaskDialogOpen(false)}
               >
                 Cancel
               </ClayButton>
               <ClayButton
                 type="submit"
                 variant="obsidian"
-                disabled={isSaving}
+                disabled={isTaskSaving}
                 leading={
-                  isSaving ? (
+                  isTaskSaving ? (
                     <LoaderCircle
                       className="h-4 w-4 animate-spin"
                       strokeWidth={1.75}
@@ -527,22 +1033,260 @@ export default function ProjectDetailPage(props: {
       </Dialog>
 
       <AlertDialog
-        open={deletingId !== null}
-        onOpenChange={(o) => !o && setDeletingId(null)}
+        open={deletingTaskId !== null}
+        onOpenChange={(o) => !o && setDeletingTaskId(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">Delete task?</AlertDialogTitle>
+            <AlertDialogTitle className="text-clay-ink">
+              Delete task?
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-clay-ink-muted">
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteTask}>
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* ── Add-Member dialog ── */}
+      <SimpleFormDialog
+        open={memberDialogOpen}
+        onOpenChange={setMemberDialogOpen}
+        title="Add Member"
+        action={memberSaveAction}
+        isSaving={isMemberSaving}
+      >
+        <input type="hidden" name="projectId" value={projectId} />
+        <FormInput label="Name" name="memberName" required />
+        <FormInput label="Email" name="memberEmail" type="email" />
+        <FormInput label="Role" name="role" />
+        <FormInput label="Hourly Rate" name="hourlyRate" type="number" />
+        <FormInput
+          label="Member User ID (optional)"
+          name="memberUserId"
+          placeholder="ObjectId"
+        />
+      </SimpleFormDialog>
+
+      {/* ── Add-Milestone dialog ── */}
+      <SimpleFormDialog
+        open={milestoneDialogOpen}
+        onOpenChange={setMilestoneDialogOpen}
+        title="Add Milestone"
+        action={milestoneSaveAction}
+        isSaving={isMilestoneSaving}
+      >
+        <input type="hidden" name="projectId" value={projectId} />
+        <FormInput label="Title" name="milestoneTitle" required />
+        <FormInput label="Summary" name="summary" type="textarea" />
+        <FormInput label="Cost" name="cost" type="number" />
+        <FormInput label="Currency" name="currency" defaultValue="INR" />
+        <FormInput label="Start Date" name="startDate" type="date" />
+        <FormInput label="End Date" name="endDate" type="date" />
+        <FormSelect
+          label="Status"
+          name="status"
+          options={[
+            { value: 'incomplete', label: 'Incomplete' },
+            { value: 'complete', label: 'Complete' },
+          ]}
+          defaultValue="incomplete"
+        />
+      </SimpleFormDialog>
+
+      {/* ── Add-File dialog ── */}
+      <SimpleFormDialog
+        open={fileDialogOpen}
+        onOpenChange={setFileDialogOpen}
+        title="Add File"
+        action={fileSaveAction}
+        isSaving={isFileSaving}
+      >
+        <input type="hidden" name="projectId" value={projectId} />
+        <FormInput label="Filename" name="filename" required />
+        <FormInput label="URL" name="url" type="url" />
+        <FormInput label="Description" name="description" type="textarea" />
+        <FormInput label="Size" name="size" placeholder="e.g. 1.2 MB" />
+      </SimpleFormDialog>
+
+      {/* ── Add-Note dialog ── */}
+      <SimpleFormDialog
+        open={noteDialogOpen}
+        onOpenChange={setNoteDialogOpen}
+        title="Add Note"
+        action={noteSaveAction}
+        isSaving={isNoteSaving}
+      >
+        <input type="hidden" name="projectId" value={projectId} />
+        <FormInput label="Title" name="title" required />
+        <FormInput label="Details" name="details" type="textarea" />
+      </SimpleFormDialog>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Small presentational helpers (kept inline — only used on this page)
+ * ══════════════════════════════════════════════════════════════════ */
+
+function SummaryTile({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+        <Icon className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+      </div>
+      <div>
+        <p className="text-[11.5px] text-clay-ink-muted">{label}</p>
+        <p className="text-[13px] font-medium text-clay-ink">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function EmptyRow({ text }: { text: string }) {
+  return (
+    <div className="rounded-clay-md border border-dashed border-clay-border p-8 text-center text-[13px] text-clay-ink-muted">
+      {text}
+    </div>
+  );
+}
+
+function SimpleFormDialog({
+  open,
+  onOpenChange,
+  title,
+  action,
+  isSaving,
+  children,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  title: string;
+  action: (formData: FormData) => void;
+  isSaving: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="text-clay-ink">{title}</DialogTitle>
+        </DialogHeader>
+        <form action={action} className="space-y-3">
+          {children}
+          <DialogFooter className="gap-2">
+            <ClayButton
+              type="button"
+              variant="pill"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </ClayButton>
+            <ClayButton
+              type="submit"
+              variant="obsidian"
+              disabled={isSaving}
+              leading={
+                isSaving ? (
+                  <LoaderCircle
+                    className="h-4 w-4 animate-spin"
+                    strokeWidth={1.75}
+                  />
+                ) : null
+              }
+            >
+              Save
+            </ClayButton>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function FormInput({
+  label,
+  name,
+  type = 'text',
+  required,
+  placeholder,
+  defaultValue,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
+  defaultValue?: string;
+}) {
+  return (
+    <div>
+      <Label className="text-clay-ink">
+        {label}
+        {required ? <span className="text-clay-red"> *</span> : null}
+      </Label>
+      {type === 'textarea' ? (
+        <Textarea
+          name={name}
+          required={required}
+          placeholder={placeholder}
+          defaultValue={defaultValue}
+          className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+        />
+      ) : (
+        <Input
+          name={name}
+          type={type}
+          required={required}
+          placeholder={placeholder}
+          defaultValue={defaultValue}
+          className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+        />
+      )}
+    </div>
+  );
+}
+
+function FormSelect({
+  label,
+  name,
+  options,
+  defaultValue,
+}: {
+  label: string;
+  name: string;
+  options: { value: string; label: string }[];
+  defaultValue?: string;
+}) {
+  return (
+    <div>
+      <Label className="text-clay-ink">{label}</Label>
+      <Select name={name} defaultValue={defaultValue}>
+        <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((o) => (
+            <SelectItem key={o.value} value={o.value}>
+              {o.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

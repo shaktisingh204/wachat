@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useDebouncedCallback } from 'use-debounce';
-import { Search, Plus, Users } from 'lucide-react';
+import { Search, Plus, Users, Building, LoaderCircle } from 'lucide-react';
+import { convertLeadToAccount } from '@/app/actions/worksuite/conversions.actions';
+import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 
 import { getCrmLeads } from '@/app/actions/crm-leads.actions';
@@ -47,6 +49,8 @@ export default function CrmAllLeadsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [totalPages, setTotalPages] = useState(0);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchData = useCallback(() => {
     startTransition(async () => {
@@ -120,13 +124,14 @@ export default function CrmAllLeadsPage() {
                 <TableHead className="text-clay-ink-muted">Source</TableHead>
                 <TableHead className="text-clay-ink-muted">Created</TableHead>
                 <TableHead className="text-clay-ink-muted">Follow-up</TableHead>
+                <TableHead className="text-clay-ink-muted w-[160px]">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
                   <TableRow key={i} className="border-clay-border">
-                    <TableCell colSpan={8}>
+                    <TableCell colSpan={9}>
                       <Skeleton className="h-10 w-full" />
                     </TableCell>
                   </TableRow>
@@ -166,13 +171,49 @@ export default function CrmAllLeadsPage() {
                           ? new Date(lead.nextFollowUp).toLocaleDateString()
                           : 'N/A'}
                       </TableCell>
+                      <TableCell>
+                        {(lead.status as string) === 'Converted' ? (
+                          <span className="text-[11.5px] text-clay-ink-muted">
+                            Converted
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={convertingId === lead._id.toString()}
+                            onClick={async () => {
+                              const id = lead._id.toString();
+                              setConvertingId(id);
+                              const res = await convertLeadToAccount(id);
+                              setConvertingId(null);
+                              if (res.success) {
+                                toast({ title: 'Converted to Account' });
+                                fetchData();
+                              } else {
+                                toast({
+                                  variant: 'destructive',
+                                  title: 'Conversion failed',
+                                  description: res.error,
+                                });
+                              }
+                            }}
+                            className="inline-flex items-center gap-1 rounded-clay-sm border border-clay-border px-2.5 py-1 text-[11.5px] font-medium text-clay-ink hover:bg-clay-surface-muted disabled:opacity-60"
+                          >
+                            {convertingId === lead._id.toString() ? (
+                              <LoaderCircle className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Building className="h-3 w-3" />
+                            )}
+                            Convert to Account
+                          </button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   );
                 })
               ) : (
                 <TableRow className="border-clay-border">
                   <TableCell
-                    colSpan={8}
+                    colSpan={9}
                     className="h-24 text-center text-[13px] text-clay-ink-muted"
                   >
                     No leads found.

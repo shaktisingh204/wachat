@@ -25,6 +25,7 @@ import {
 } from '@/app/actions/crm-services.actions';
 import type { HrContract } from '@/lib/hr-types';
 import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -242,11 +243,17 @@ export default function ContractDetailPage(props: {
         subtitle="Contract details and e-signature."
         icon={FileSignature}
         actions={
-          <Link href="/dashboard/crm/contracts">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
-              All Contracts
-            </ClayButton>
-          </Link>
+          <>
+            <Link href="/dashboard/crm/contracts">
+              <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+                All Contracts
+              </ClayButton>
+            </Link>
+            <SharePublicLinkButton
+              resourceType="contract"
+              resourceId={contractId}
+            />
+          </>
         }
       />
 

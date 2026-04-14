@@ -1,0 +1,408 @@
+'use client';
+
+import * as React from 'react';
+import {
+  Menu as MenuIcon,
+  Plus,
+  Pencil,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  LoaderCircle,
+} from 'lucide-react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
+
+import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import { CrmPageHeader } from '../../_components/crm-page-header';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import {
+  getMenu,
+  saveMenu,
+  deleteMenu,
+  toggleMenuVisibility,
+  reorderMenu,
+} from '@/app/actions/worksuite/rbac.actions';
+import type { WsMenu } from '@/lib/worksuite/rbac-types';
+
+type Row = WsMenu & { _id: string };
+
+/**
+ * Sidebar menu config — tenant admins can add/edit entries, toggle
+ * visibility, and reorder with up/down arrows (Worksuite's menu
+ * settings screen).
+ */
+export default function MenuSettingsPage() {
+  const { toast } = useToast();
+  const [rows, setRows] = useState<Row[]>([]);
+  const [isLoading, startLoading] = useTransition();
+  const [isReordering, startReorder] = useTransition();
+  const [isBusy, startBusy] = useTransition();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Row | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [saveState, saveAction, isSaving] = useActionState(saveMenu, {
+    message: '',
+    error: '',
+  } as any);
+
+  const refresh = React.useCallback(() => {
+    startLoading(async () => {
+      const list = ((await getMenu()) as Row[]) || [];
+      setRows(
+        list.slice().sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
+      );
+    });
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (saveState?.message) {
+      toast({ title: 'Saved', description: saveState.message });
+      setDialogOpen(false);
+      setEditing(null);
+      refresh();
+    }
+    if (saveState?.error) {
+      toast({
+        title: 'Error',
+        description: saveState.error,
+        variant: 'destructive',
+      });
+    }
+  }, [saveState, toast, refresh]);
+
+  const move = (id: string, dir: -1 | 1) => {
+    const idx = rows.findIndex((r) => r._id === id);
+    if (idx === -1) return;
+    const j = idx + dir;
+    if (j < 0 || j >= rows.length) return;
+    const ordered = [...rows];
+    [ordered[idx], ordered[j]] = [ordered[j], ordered[idx]];
+    startReorder(async () => {
+      const res = await reorderMenu(ordered.map((r) => r._id));
+      if (res.success) {
+        setRows(ordered);
+      } else {
+        toast({
+          title: 'Error',
+          description: res.error || 'Reorder failed',
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  const flipVisibility = (id: string) =>
+    startBusy(async () => {
+      const res = await toggleMenuVisibility(id);
+      if (res.success) refresh();
+      else
+        toast({
+          title: 'Error',
+          description: res.error || 'Toggle failed',
+          variant: 'destructive',
+        });
+    });
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    const res = await deleteMenu(deletingId);
+    if (res.success) {
+      toast({ title: 'Deleted', description: 'Menu entry removed.' });
+      setDeletingId(null);
+      refresh();
+    } else {
+      toast({
+        title: 'Error',
+        description: res.error || 'Failed',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Sidebar Menu"
+        subtitle="Configure sidebar entries. Reorder with the arrows; toggle to hide."
+        icon={MenuIcon}
+        actions={
+          <ClayButton
+            variant="obsidian"
+            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            Add Entry
+          </ClayButton>
+        }
+      />
+
+      <ClayCard>
+        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-clay-border hover:bg-transparent">
+                <TableHead className="text-clay-ink-muted">Label</TableHead>
+                <TableHead className="text-clay-ink-muted">Route</TableHead>
+                <TableHead className="text-clay-ink-muted">Icon</TableHead>
+                <TableHead className="text-clay-ink-muted">Position</TableHead>
+                <TableHead className="text-clay-ink-muted">Visible</TableHead>
+                <TableHead className="w-[200px] text-right text-clay-ink-muted">
+                  Actions
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading && rows.length === 0 ? (
+                <TableRow className="border-clay-border">
+                  <TableCell
+                    colSpan={6}
+                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                  >
+                    <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
+                  </TableCell>
+                </TableRow>
+              ) : rows.length === 0 ? (
+                <TableRow className="border-clay-border">
+                  <TableCell
+                    colSpan={6}
+                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                  >
+                    No menu entries yet.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                rows.map((row, idx) => (
+                  <TableRow key={row._id} className="border-clay-border">
+                    <TableCell className="text-[13px] font-medium text-clay-ink">
+                      {row.label}
+                    </TableCell>
+                    <TableCell className="text-[12px] text-clay-ink-muted">
+                      <code>{row.route || '—'}</code>
+                    </TableCell>
+                    <TableCell className="text-[12px] text-clay-ink-muted">
+                      {row.icon || '—'}
+                    </TableCell>
+                    <TableCell>
+                      <ClayBadge tone="neutral">{row.position ?? idx}</ClayBadge>
+                    </TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={!!row.is_visible}
+                        disabled={isBusy}
+                        onCheckedChange={() => flipVisibility(row._id)}
+                        aria-label="Toggle visibility"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={idx === 0 || isReordering}
+                          onClick={() => move(row._id, -1)}
+                          aria-label="Move up"
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={idx === rows.length - 1 || isReordering}
+                          onClick={() => move(row._id, 1)}
+                          aria-label="Move down"
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setEditing(row);
+                            setDialogOpen(true);
+                          }}
+                          aria-label="Edit"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDeletingId(row._id)}
+                          aria-label="Delete"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </ClayCard>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-clay-ink">
+              {editing ? 'Edit Menu Entry' : 'Add Menu Entry'}
+            </DialogTitle>
+            <DialogDescription className="text-clay-ink-muted">
+              Entries appear in the CRM sidebar in position order.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form action={saveAction} className="space-y-4">
+            {editing?._id ? (
+              <input type="hidden" name="_id" value={editing._id} />
+            ) : null}
+            <div>
+              <Label htmlFor="label" className="text-clay-ink">
+                Label <span className="text-clay-red">*</span>
+              </Label>
+              <Input
+                id="label"
+                name="label"
+                required
+                defaultValue={editing?.label || ''}
+                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              />
+            </div>
+            <div>
+              <Label htmlFor="route" className="text-clay-ink">
+                Route
+              </Label>
+              <Input
+                id="route"
+                name="route"
+                defaultValue={editing?.route || ''}
+                placeholder="/dashboard/crm/leads"
+                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              />
+            </div>
+            <div>
+              <Label htmlFor="icon" className="text-clay-ink">
+                Icon (lucide name)
+              </Label>
+              <Input
+                id="icon"
+                name="icon"
+                defaultValue={editing?.icon || ''}
+                placeholder="Users"
+                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              />
+            </div>
+            <div>
+              <Label htmlFor="position" className="text-clay-ink">
+                Position
+              </Label>
+              <Input
+                id="position"
+                name="position"
+                type="number"
+                defaultValue={String(editing?.position ?? rows.length)}
+                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                id="is_visible"
+                type="checkbox"
+                name="is_visible"
+                value="true"
+                defaultChecked={editing?.is_visible ?? true}
+                className="h-4 w-4 accent-clay-ink"
+              />
+              <Label htmlFor="is_visible" className="text-[13px] text-clay-ink">
+                Visible
+              </Label>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <ClayButton
+                type="button"
+                variant="pill"
+                onClick={() => setDialogOpen(false)}
+              >
+                Cancel
+              </ClayButton>
+              <ClayButton
+                type="submit"
+                variant="obsidian"
+                disabled={isSaving}
+                leading={
+                  isSaving ? (
+                    <LoaderCircle
+                      className="h-4 w-4 animate-spin"
+                      strokeWidth={1.75}
+                    />
+                  ) : null
+                }
+              >
+                Save
+              </ClayButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={deletingId !== null}
+        onOpenChange={(o) => !o && setDeletingId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-clay-ink">
+              Delete menu entry?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-clay-ink-muted">
+              This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

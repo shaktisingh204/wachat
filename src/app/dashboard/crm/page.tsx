@@ -1,11 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Users, Trophy, DollarSign, Handshake, Plus } from 'lucide-react';
+import Link from 'next/link';
+import { Users, Trophy, DollarSign, Handshake, Plus, Pin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { getCrmDashboardStats } from '@/app/actions/crm.actions';
-import { ClayCard, ClayButton, ClaySectionHeader } from '@/components/clay';
+import { getPinnedQuickList } from '@/app/actions/worksuite/dashboard.actions';
+import type { WsPinnedItem } from '@/lib/worksuite/dashboard-types';
+import {
+  ClayCard,
+  ClayButton,
+  ClayBadge,
+  ClaySectionHeader,
+} from '@/components/clay';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   RecentDealsCard,
@@ -50,10 +58,47 @@ function StatCard({
   );
 }
 
+type PinnedRow = WsPinnedItem & { _id: string };
+
+function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <ClayCard>
+      <div className="flex items-center justify-between pb-3">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+            <Pin className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+          </div>
+          <h2 className="text-[15px] font-semibold text-clay-ink">Pinned</h2>
+          <ClayBadge tone="rose-soft">{items.length}</ClayBadge>
+        </div>
+        <Link href="/dashboard/crm/pinned">
+          <ClayButton variant="pill">View all</ClayButton>
+        </Link>
+      </div>
+      <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+        {items.map((it) => (
+          <li
+            key={it._id}
+            className="flex items-center gap-2 rounded-clay-md border border-clay-border bg-white p-2"
+          >
+            <ClayBadge tone="neutral">{it.resource_type}</ClayBadge>
+            <span className="min-w-0 flex-1 truncate text-[12.5px] text-clay-ink">
+              {it.title ||
+                `${it.resource_type} ${String(it.resource_id).slice(-6)}`}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </ClayCard>
+  );
+}
+
 export default function CrmDashboardPage() {
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [pinned, setPinned] = useState<PinnedRow[]>([]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -61,6 +106,9 @@ export default function CrmDashboardPage() {
       setStats(data);
       setIsLoading(false);
     });
+    getPinnedQuickList(6)
+      .then((rows) => setPinned((rows || []) as PinnedRow[]))
+      .catch(() => setPinned([]));
   }, []);
 
   if (isLoading || !stats) {
@@ -111,6 +159,9 @@ export default function CrmDashboardPage() {
           </>
         }
       />
+
+      {/* Pinned quick-list (only renders when user has pinned items) */}
+      <PinnedQuickCard items={pinned} />
 
       {/* Key stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
