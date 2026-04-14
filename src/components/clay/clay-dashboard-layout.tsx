@@ -163,7 +163,8 @@ export type ClayLayoutContext =
   | 'url-shortener'
   | 'qr-code-maker'
   | 'team'
-  | 'crm';
+  | 'crm'
+  | 'settings';
 
 export interface ClayDashboardLayoutProps {
   user?: ClayLayoutUser;
@@ -940,6 +941,130 @@ const teamConfigure: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
+ *  Settings nav registry — loaded when context="settings".
+ *  Account- and project-level configuration: profile, billing, API
+ *  keys, notifications, appearance, plus the legacy project-settings
+ *  sub-pages (general, agents, attributes, canned messages).
+ * ══════════════════════════════════════════════════════════════════ */
+
+const settingsPrimary: NavEntry[] = [
+  {
+    key: 'set-overview',
+    label: 'Overview',
+    icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings',
+    matches: ['/dashboard/settings'],
+  },
+  {
+    key: 'set-profile',
+    label: 'Profile',
+    icon: <LuUser className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/profile',
+    matches: ['/dashboard/settings/profile'],
+  },
+  {
+    key: 'set-security',
+    label: 'Security',
+    icon: <LuShield className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/security',
+    matches: ['/dashboard/settings/security'],
+  },
+  {
+    key: 'set-notifications',
+    label: 'Notifications',
+    icon: <LuBell className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/notifications',
+    matches: ['/dashboard/settings/notifications'],
+  },
+  {
+    key: 'set-appearance',
+    label: 'Appearance',
+    icon: <LuEye className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/ui',
+    matches: ['/dashboard/settings/ui', '/dashboard/settings/appearance'],
+  },
+];
+
+const settingsWorkspace: NavEntry[] = [
+  {
+    key: 'set-general',
+    label: 'General',
+    icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/general',
+    matches: ['/dashboard/settings/general'],
+  },
+  {
+    key: 'set-agents',
+    label: 'Agents & Roles',
+    icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/agents',
+    matches: ['/dashboard/settings/agents'],
+  },
+  {
+    key: 'set-attributes',
+    label: 'User Attributes',
+    icon: <LuTag className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/attributes',
+    matches: ['/dashboard/settings/attributes'],
+  },
+  {
+    key: 'set-canned',
+    label: 'Canned Messages',
+    icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/canned',
+    matches: ['/dashboard/settings/canned'],
+  },
+];
+
+const settingsDeveloper: NavEntry[] = [
+  {
+    key: 'set-api-keys',
+    label: 'API Keys',
+    icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/api-keys',
+    matches: ['/dashboard/settings/api-keys'],
+  },
+  {
+    key: 'set-webhooks',
+    label: 'Webhooks',
+    icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/webhooks',
+    matches: ['/dashboard/settings/webhooks'],
+  },
+  {
+    key: 'set-integrations',
+    label: 'Integrations',
+    icon: <LuPuzzle className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/integrations',
+    matches: ['/dashboard/settings/integrations'],
+  },
+];
+
+const settingsBilling: NavEntry[] = [
+  {
+    key: 'set-billing',
+    label: 'Billing & Plan',
+    icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/billing',
+    matches: ['/dashboard/settings/billing'],
+  },
+  {
+    key: 'set-credits',
+    label: 'Credits',
+    icon: <LuStar className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/credits',
+    matches: ['/dashboard/settings/credits'],
+  },
+  {
+    key: 'set-invoices',
+    label: 'Invoices',
+    icon: <LuReceipt className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/settings/invoices',
+    matches: ['/dashboard/settings/invoices'],
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════
  *  CRM nav registry — loaded when context="crm".
  *  Business-ops module: sales CRM, sales billing, contacts/deals/tasks,
  *  inventory, purchases, accounting, banking, HR-payroll, reports.
@@ -1087,6 +1212,164 @@ const crmInsights: NavEntry[] = [
   },
 ];
 
+const crmHr: NavEntry[] = [
+  {
+    key: 'hr-overview',
+    label: 'HR Overview',
+    icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr',
+    matches: ['/dashboard/crm/hr'],
+  },
+  {
+    key: 'hr-jobs',
+    label: 'Jobs & Candidates',
+    icon: <LuTarget className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/jobs',
+    matches: [
+      '/dashboard/crm/hr/jobs',
+      '/dashboard/crm/hr/candidates',
+      '/dashboard/crm/hr/interviews',
+      '/dashboard/crm/hr/offers',
+      '/dashboard/crm/hr/careers-page',
+    ],
+  },
+  {
+    key: 'hr-onboarding',
+    label: 'Onboarding',
+    icon: <LuUserCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/onboarding',
+    matches: [
+      '/dashboard/crm/hr/onboarding',
+      '/dashboard/crm/hr/welcome-kit',
+      '/dashboard/crm/hr/probation',
+    ],
+  },
+  {
+    key: 'hr-workspace',
+    label: 'Workspace',
+    icon: <LuMessagesSquare className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/announcements',
+    matches: [
+      '/dashboard/crm/hr/announcements',
+      '/dashboard/crm/hr/policies',
+      '/dashboard/crm/hr/directory',
+      '/dashboard/crm/hr/org-chart',
+    ],
+  },
+  {
+    key: 'hr-documents',
+    label: 'Documents',
+    icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/documents',
+    matches: [
+      '/dashboard/crm/hr/documents',
+      '/dashboard/crm/hr/document-templates',
+    ],
+  },
+  {
+    key: 'hr-training',
+    label: 'Training',
+    icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/training',
+    matches: [
+      '/dashboard/crm/hr/training',
+      '/dashboard/crm/hr/certifications',
+      '/dashboard/crm/hr/learning-paths',
+    ],
+  },
+  {
+    key: 'hr-performance',
+    label: 'Performance',
+    icon: <LuStar className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/okrs',
+    matches: [
+      '/dashboard/crm/hr/okrs',
+      '/dashboard/crm/hr/feedback-360',
+      '/dashboard/crm/hr/one-on-ones',
+    ],
+  },
+  {
+    key: 'hr-time',
+    label: 'Time & Expense',
+    icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/timesheets',
+    matches: [
+      '/dashboard/crm/hr/timesheets',
+      '/dashboard/crm/hr/travel',
+      '/dashboard/crm/hr/expense-claims',
+    ],
+  },
+  {
+    key: 'hr-assets',
+    label: 'Assets',
+    icon: <LuPackage className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/assets',
+    matches: [
+      '/dashboard/crm/hr/assets',
+      '/dashboard/crm/hr/asset-assignments',
+    ],
+  },
+  {
+    key: 'hr-engagement',
+    label: 'Engagement',
+    icon: <LuMegaphone className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/recognition',
+    matches: [
+      '/dashboard/crm/hr/recognition',
+      '/dashboard/crm/hr/surveys',
+    ],
+  },
+  {
+    key: 'hr-exit',
+    label: 'Comp & Exit',
+    icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr/compensation-bands',
+    matches: [
+      '/dashboard/crm/hr/compensation-bands',
+      '/dashboard/crm/hr/exits',
+      '/dashboard/crm/hr/succession',
+    ],
+  },
+];
+
+const crmServices: NavEntry[] = [
+  {
+    key: 'crm-projects',
+    label: 'Projects',
+    icon: <LuFolderOpen className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/projects',
+    matches: ['/dashboard/crm/projects'],
+  },
+  {
+    key: 'crm-kanban',
+    label: 'Task Kanban',
+    icon: <LuColumns3 className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/projects/kanban',
+    matches: ['/dashboard/crm/projects/kanban'],
+  },
+  {
+    key: 'crm-gantt',
+    label: 'Gantt Chart',
+    icon: <LuGitBranch className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/projects/gantt',
+    matches: ['/dashboard/crm/projects/gantt'],
+  },
+  {
+    key: 'crm-contracts',
+    label: 'Contracts',
+    icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/contracts',
+    matches: ['/dashboard/crm/contracts'],
+  },
+  {
+    key: 'crm-tickets',
+    label: 'Tickets',
+    icon: <LuInbox className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/tickets',
+    matches: ['/dashboard/crm/tickets'],
+  },
+];
+
 const crmConfigure: NavEntry[] = [
   {
     key: 'crm-email',
@@ -1136,6 +1419,18 @@ const FULL_BLEED_PREFIXES = [
   '/dashboard/telegram/business-inbox',
 ];
 
+/**
+ * Human-friendly formatter for the topbar credit badge. Compacts to
+ * `1.2k` / `3.4M` so the pill width stays stable even when a plan
+ * has a huge included allotment.
+ */
+function formatCredits(n?: number): string {
+  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
+  return v.toLocaleString();
+}
+
 function isFullBleed(pathname: string | null): boolean {
   if (!pathname) return false;
 
@@ -1174,8 +1469,10 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
                     : context === 'team'
                       ? [teamPrimary, teamGovern, teamCollab, teamConfigure]
                       : context === 'crm'
-                        ? [crmPrimary, crmSales, crmOperations, crmInsights, crmConfigure]
-                        : [primaryNav, appsNav];
+                        ? [crmPrimary, crmSales, crmServices, crmOperations, crmHr, crmInsights, crmConfigure]
+                        : context === 'settings'
+                          ? [settingsPrimary, settingsWorkspace, settingsDeveloper, settingsBilling]
+                          : [primaryNav, appsNav];
   let bestKey =
     context === 'ad-manager' ? 'adm-overview' :
     context === 'instagram' ? 'ig-dashboard' :
@@ -1186,7 +1483,8 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
     context === 'url-shortener' ? 'us-links' :
     context === 'qr-code-maker' ? 'qr-generator' :
     context === 'team' ? 'team-overview' :
-    context === 'crm' ? 'crm-overview' : 'home';
+    context === 'crm' ? 'crm-overview' :
+    context === 'settings' ? 'set-overview' : 'home';
   let bestLen = 0;
   for (const group of registry) {
     for (const item of group) {
@@ -1383,6 +1681,41 @@ export function ClayDashboardLayout({
               {currentDate}
             </ClayButton>
 
+            {/* Plan badge — links to billing */}
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard/settings/billing')}
+              aria-label={`Plan: ${plan?.name || 'Free'}`}
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-clay-border bg-clay-surface pl-2 pr-3 text-[12px] font-medium text-clay-ink transition-colors hover:border-clay-border-strong"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(236,72,153,0.08) 0%, rgba(236,72,153,0.02) 100%)',
+              }}
+            >
+              <span
+                className="flex h-5 w-5 items-center justify-center rounded-full text-white"
+                style={{ background: 'linear-gradient(135deg, #F472B6 0%, #BE185D 100%)' }}
+              >
+                <LuStar className="h-3 w-3" strokeWidth={2.5} />
+              </span>
+              <span className="max-w-[90px] truncate">{plan?.name || 'Free'}</span>
+              <span className="hidden text-clay-ink-muted sm:inline">plan</span>
+            </button>
+
+            {/* Credits badge — links to credits page */}
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard/settings/credits')}
+              aria-label={`Credits: ${plan?.credits ?? 0}`}
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-clay-border bg-clay-surface pl-2 pr-3 text-[12px] font-medium text-clay-ink transition-colors hover:border-clay-border-strong"
+            >
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                <LuZap className="h-3 w-3" strokeWidth={2.5} />
+              </span>
+              <span>{formatCredits(plan?.credits)}</span>
+              <span className="hidden text-clay-ink-muted sm:inline">credits</span>
+            </button>
+
             {/* Create dropdown — one-click entry into every creator */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -1502,7 +1835,8 @@ export function ClayDashboardLayout({
             context === 'url-shortener' ? 'URL Shortener' :
             context === 'qr-code-maker' ? 'QR Code Maker' :
             context === 'team' ? 'Team' :
-            context === 'crm' ? 'CRM' : 'SabNode'
+            context === 'crm' ? 'CRM' :
+            context === 'settings' ? 'Settings' : 'SabNode'
           }
           brand={
             context === 'ad-manager' ? <ClayAdManagerBrand /> :
@@ -1515,6 +1849,7 @@ export function ClayDashboardLayout({
             context === 'qr-code-maker' ? <ClayQrCodeMakerBrand /> :
             context === 'team' ? <ClayTeamBrand /> :
             context === 'crm' ? <ClayCrmBrand /> :
+            context === 'settings' ? <ClaySettingsBrand /> :
             undefined
           }
           groups={
@@ -1616,7 +1951,9 @@ export function ClayDashboardLayout({
                 ? [
                     { items: crmPrimary.map(toNavItem) },
                     { title: 'Sales', addable: false, items: crmSales.map(toNavItem) },
+                    { title: 'Services', addable: false, items: crmServices.map(toNavItem) },
                     { title: 'Operations', addable: false, items: crmOperations.map(toNavItem) },
+                    { title: 'HR', addable: false, items: crmHr.map(toNavItem) },
                     { title: 'Insights', addable: false, items: crmInsights.map(toNavItem) },
                     {
                       title: 'Configure',
@@ -1624,6 +1961,13 @@ export function ClayDashboardLayout({
                       onAdd: () => router.push('/dashboard/crm/integrations'),
                       items: crmConfigure.map(toNavItem),
                     },
+                  ]
+                : context === 'settings'
+                ? [
+                    { items: settingsPrimary.map(toNavItem) },
+                    { title: 'Workspace', addable: false, items: settingsWorkspace.map(toNavItem) },
+                    { title: 'Developer', addable: false, items: settingsDeveloper.map(toNavItem) },
+                    { title: 'Billing', addable: false, items: settingsBilling.map(toNavItem) },
                   ]
                 : [
                     { items: primaryNav.map(toNavItem) },
@@ -1657,7 +2001,7 @@ export function ClayDashboardLayout({
             // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm') && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'settings') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -1665,7 +2009,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm') ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'settings') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
@@ -1936,6 +2280,35 @@ function ClaySabFlowBrand() {
 }
 
 /* ── Telegram sidebar brand ───────────────────────────────────── */
+
+function ClaySettingsBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #94A3B8 0%, #475569 100%)' }}
+        >
+          <LuSettings className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">Settings</p>
+          <p className="text-[11px] text-clay-ink-muted">Account, billing & workspace</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ClayTeamBrand() {
   const router = useRouter();

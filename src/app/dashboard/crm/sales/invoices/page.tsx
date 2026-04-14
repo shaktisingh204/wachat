@@ -3,11 +3,24 @@
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Receipt, LoaderCircle } from "lucide-react";
+import { Plus, Receipt, LoaderCircle, FileMinus } from "lucide-react";
 import Link from 'next/link';
 import { getInvoices } from '@/app/actions/crm-invoices.actions';
+import { convertInvoiceToCreditNote } from '@/app/actions/crm-services.actions';
 import type { WithId, CrmInvoice } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
@@ -16,7 +29,9 @@ export default function InvoicesPage() {
     const [invoices, setInvoices] = useState<WithId<CrmInvoice>[]>([]);
     const [accountsMap, setAccountsMap] = useState<Map<string, string>>(new Map());
     const [isLoading, startTransition] = useTransition();
+    const [convertingId, setConvertingId] = useState<string | null>(null);
     const router = useRouter();
+    const { toast } = useToast();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -33,6 +48,25 @@ export default function InvoicesPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    const handleConvert = async (invoiceId: string) => {
+        setConvertingId(invoiceId);
+        const res = await convertInvoiceToCreditNote(invoiceId);
+        setConvertingId(null);
+        if (res.success && res.creditNoteId) {
+            toast({
+                title: 'Converted',
+                description: 'Credit note created from invoice.',
+            });
+            router.push(`/dashboard/crm/sales/credit-notes`);
+        } else {
+            toast({
+                title: 'Error',
+                description: res.error || 'Failed to convert invoice.',
+                variant: 'destructive',
+            });
+        }
+    };
 
     const getStatusTone = (status: string): 'green' | 'amber' | 'red' | 'rose-soft' => {
         const s = status.toLowerCase();
@@ -72,29 +106,66 @@ export default function InvoicesPage() {
                                 <TableHead className="text-clay-ink-muted">Due Date</TableHead>
                                 <TableHead className="text-clay-ink-muted">Status</TableHead>
                                 <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+                                <TableHead className="text-clay-ink-muted text-right w-[180px]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
                                 <TableRow className="border-clay-border">
-                                    <TableCell colSpan={6} className="text-center h-24">
+                                    <TableCell colSpan={7} className="text-center h-24">
                                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
                                     </TableCell>
                                 </TableRow>
                             ) : invoices.length > 0 ? (
-                                invoices.map(q => (
-                                    <TableRow key={q._id.toString()} className="border-clay-border cursor-pointer">
+                                invoices.map(q => {
+                                    const invoiceId = q._id.toString();
+                                    const isConverting = convertingId === invoiceId;
+                                    return (
+                                    <TableRow key={invoiceId} className="border-clay-border">
                                         <TableCell className="font-medium text-clay-ink">{q.invoiceNumber}</TableCell>
                                         <TableCell className="text-clay-ink">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
                                         <TableCell className="text-clay-ink">{new Date(q.invoiceDate).toLocaleDateString()}</TableCell>
                                         <TableCell className="text-clay-ink">{q.dueDate ? new Date(q.dueDate).toLocaleDateString() : 'N/A'}</TableCell>
                                         <TableCell><ClayBadge tone={getStatusTone(q.status)} dot>{q.status}</ClayBadge></TableCell>
                                         <TableCell className="text-right font-medium text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
+                                        <TableCell className="text-right">
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <ClayButton
+                                                        variant="pill"
+                                                        size="sm"
+                                                        disabled={isConverting}
+                                                        leading={isConverting ? (
+                                                            <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                                                        ) : (
+                                                            <FileMinus className="h-3.5 w-3.5" />
+                                                        )}
+                                                    >
+                                                        Credit Note
+                                                    </ClayButton>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle className="text-clay-ink">Convert to Credit Note?</AlertDialogTitle>
+                                                        <AlertDialogDescription className="text-clay-ink-muted">
+                                                            This will create a new draft credit note from invoice {q.invoiceNumber}. The original invoice will remain unchanged.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleConvert(invoiceId)}>
+                                                            Convert
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </TableCell>
                                     </TableRow>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <TableRow className="border-clay-border">
-                                    <TableCell colSpan={6} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                    <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
                                         No invoices found.
                                     </TableCell>
                                 </TableRow>

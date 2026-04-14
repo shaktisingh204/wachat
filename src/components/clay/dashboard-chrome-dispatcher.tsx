@@ -251,6 +251,16 @@ function isCrmRoute(pathname: string | null): boolean {
   return pathname === '/dashboard/crm' || pathname.startsWith('/dashboard/crm/');
 }
 
+/**
+ * Settings routes get their own Clay context="settings" with a
+ * dedicated sidebar for profile, security, notifications, billing,
+ * API keys, and legacy project-scoped settings. User-scoped.
+ */
+function isSettingsRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/settings' || pathname.startsWith('/dashboard/settings/');
+}
+
 export interface DashboardChromeDispatcherProps {
   user?: ClayLayoutUser;
   plan?: ClayLayoutPlan;
@@ -315,6 +325,17 @@ export function DashboardChromeDispatcher({
     !onQrCodeMaker &&
     !onTeam &&
     isCrmRoute(pathname);
+  const onSettings =
+    !onAdManager &&
+    !onInstagram &&
+    !onMetaSuite &&
+    !onSabFlow &&
+    !onTelegram &&
+    !onUrlShortener &&
+    !onQrCodeMaker &&
+    !onTeam &&
+    !onCrm &&
+    isSettingsRoute(pathname);
   const onWachat =
     !onAdManager &&
     !onInstagram &&
@@ -325,6 +346,7 @@ export function DashboardChromeDispatcher({
     !onQrCodeMaker &&
     !onTeam &&
     !onCrm &&
+    !onSettings &&
     isWachatRoute(pathname);
 
   /* ── Wachat branch: fetch projects + session so context providers
@@ -345,7 +367,8 @@ export function DashboardChromeDispatcher({
     onUrlShortener ||
     onQrCodeMaker ||
     onTeam ||
-    onCrm;
+    onCrm ||
+    onSettings;
 
   useEffect(() => {
     if (!needsBootstrap) return;
@@ -481,6 +504,25 @@ export function DashboardChromeDispatcher({
       >
         <AdManagerProvider>
           <ClayDashboardLayout context="qr-code-maker" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── Settings branch: Clay chrome for account, billing & workspace config.
+  if (onSettings) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="settings" user={user} plan={plan}>
             {children}
           </ClayDashboardLayout>
         </AdManagerProvider>
