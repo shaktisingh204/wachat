@@ -8,6 +8,7 @@ import {
   deleteLearningPath,
 } from '@/app/actions/hr.actions';
 import type { HrLearningPath } from '@/lib/hr-types';
+import { fields } from './_config';
 
 export default function LearningPathsPage() {
   return (
@@ -16,6 +17,7 @@ export default function LearningPathsPage() {
       subtitle="Structured learning tracks with ordered steps and resources."
       icon={Route}
       singular="Path"
+      basePath="/dashboard/crm/hr/learning-paths"
       getAllAction={getLearningPaths as any}
       saveAction={saveLearningPath}
       deleteAction={deleteLearningPath}
@@ -31,26 +33,7 @@ export default function LearningPathsPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'name', label: 'Name', required: true, fullWidth: true },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
-        {
-          name: 'steps',
-          label: 'Steps',
-          type: 'array',
-          fullWidth: true,
-          addLabel: 'Add Step',
-          subFields: [
-            { name: 'title', label: 'Title', type: 'text', required: true },
-            { name: 'link', label: 'Link', type: 'text', placeholder: 'https://...' },
-          ],
-        },
-      ]}
+      fields={fields}
     />
   );
 }

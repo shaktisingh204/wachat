@@ -8,6 +8,7 @@ import {
   deleteAnnouncement,
 } from '@/app/actions/hr.actions';
 import type { HrAnnouncement } from '@/lib/hr-types';
+import { fields } from './_config';
 
 function formatDate(value: unknown) {
   if (!value) return '—';
@@ -23,6 +24,7 @@ export default function AnnouncementsPage() {
       subtitle="Company-wide updates, news, and pinned messages."
       icon={Megaphone}
       singular="Announcement"
+      basePath="/dashboard/crm/hr/announcements"
       getAllAction={getAnnouncements as any}
       saveAction={saveAnnouncement}
       deleteAction={deleteAnnouncement}
@@ -56,38 +58,7 @@ export default function AnnouncementsPage() {
           },
         },
       ]}
-      fields={[
-        { name: 'title', label: 'Title', required: true, fullWidth: true },
-        {
-          name: 'body',
-          label: 'Body',
-          type: 'textarea',
-          required: true,
-          fullWidth: true,
-        },
-        {
-          name: 'audience',
-          label: 'Audience',
-          type: 'select',
-          options: [
-            { value: 'all', label: 'All' },
-            { value: 'department', label: 'Department' },
-            { value: 'team', label: 'Team' },
-          ],
-          defaultValue: 'all',
-        },
-        {
-          name: 'pinned',
-          label: 'Pinned',
-          type: 'select',
-          options: [
-            { value: 'no', label: 'No' },
-            { value: 'yes', label: 'Yes' },
-          ],
-          defaultValue: 'no',
-        },
-        { name: 'publishAt', label: 'Publish At', type: 'date' },
-      ]}
+      fields={fields}
     />
   );
 }

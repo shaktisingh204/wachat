@@ -8,6 +8,7 @@ import {
   deleteDocument,
 } from '@/app/actions/hr.actions';
 import type { HrDocument } from '@/lib/hr-types';
+import { fields } from './_config';
 
 function formatDate(value: unknown) {
   if (!value) return '—';
@@ -23,6 +24,7 @@ export default function DocumentsPage() {
       subtitle="Employee documents, IDs, and compliance files."
       icon={FileText}
       singular="Document"
+      basePath="/dashboard/crm/hr/documents"
       getAllAction={getDocuments as any}
       saveAction={saveDocument}
       deleteAction={deleteDocument}
@@ -44,19 +46,7 @@ export default function DocumentsPage() {
           render: (row) => <span>{formatDate(row.expiresAt)}</span>,
         },
       ]}
-      fields={[
-        { name: 'name', label: 'Name', required: true, fullWidth: true },
-        { name: 'category', label: 'Category' },
-        { name: 'employeeId', label: 'Employee ID' },
-        { name: 'url', label: 'URL' },
-        { name: 'expiresAt', label: 'Expires At', type: 'date' },
-        {
-          name: 'notes',
-          label: 'Notes',
-          type: 'textarea',
-          fullWidth: true,
-        },
-      ]}
+      fields={fields}
     />
   );
 }

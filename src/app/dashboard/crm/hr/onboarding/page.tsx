@@ -8,6 +8,7 @@ import {
   deleteOnboardingTemplate,
 } from '@/app/actions/hr.actions';
 import type { HrOnboardingTemplate } from '@/lib/hr-types';
+import { fields } from './_config';
 
 export default function OnboardingPage() {
   return (
@@ -16,34 +17,17 @@ export default function OnboardingPage() {
       subtitle="Reusable checklists for day-one through week-one."
       icon={UserCheck}
       singular="Template"
+      basePath="/dashboard/crm/hr/onboarding"
       getAllAction={getOnboardingTemplates as any}
       saveAction={saveOnboardingTemplate}
       deleteAction={deleteOnboardingTemplate}
       columns={[
         { key: 'name', label: 'Name' },
+        { key: 'department', label: 'Department' },
+        { key: 'estimatedDays', label: 'Est. Days' },
         { key: 'description', label: 'Description' },
       ]}
-      fields={[
-        { name: 'name', label: 'Name', required: true, fullWidth: true },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
-        {
-          name: 'tasks',
-          label: 'Tasks',
-          type: 'array',
-          fullWidth: true,
-          addLabel: 'Add Task',
-          subFields: [
-            { name: 'title', label: 'Title', type: 'text', required: true },
-            { name: 'dueDays', label: 'Due Days', type: 'number', placeholder: '1' },
-            { name: 'assignee', label: 'Assignee', type: 'text' },
-          ],
-        },
-      ]}
+      fields={fields}
     />
   );
 }

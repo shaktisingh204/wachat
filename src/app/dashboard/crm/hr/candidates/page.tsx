@@ -8,6 +8,7 @@ import {
   deleteCandidate,
 } from '@/app/actions/hr.actions';
 import type { HrCandidate } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STAGE_TONES: Record<
   string,
@@ -28,12 +29,15 @@ export default function CandidatesPage() {
       subtitle="Talent pipeline, profiles, and hiring stages."
       icon={Target}
       singular="Candidate"
+      basePath="/dashboard/crm/hr/candidates"
       getAllAction={getCandidates as any}
       saveAction={saveCandidate}
       deleteAction={deleteCandidate}
       columns={[
         { key: 'name', label: 'Name' },
         { key: 'email', label: 'Email' },
+        { key: 'currentCompany', label: 'Current Company' },
+        { key: 'experienceYears', label: 'Exp (yrs)' },
         {
           key: 'stage',
           label: 'Stage',
@@ -44,54 +48,7 @@ export default function CandidatesPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'name', label: 'Name', required: true, fullWidth: true },
-        { name: 'email', label: 'Email' },
-        { name: 'phone', label: 'Phone' },
-        { name: 'source', label: 'Source' },
-        {
-          name: 'stage',
-          label: 'Stage',
-          type: 'select',
-          required: true,
-          options: [
-            { value: 'new', label: 'New' },
-            { value: 'screening', label: 'Screening' },
-            { value: 'interview', label: 'Interview' },
-            { value: 'offer', label: 'Offer' },
-            { value: 'hired', label: 'Hired' },
-            { value: 'rejected', label: 'Rejected' },
-          ],
-          defaultValue: 'new',
-        },
-        { name: 'rating', label: 'Rating', type: 'number' },
-        { name: 'resumeUrl', label: 'Resume URL' },
-        { name: 'currentCompany', label: 'Current Company' },
-        { name: 'currentCtc', label: 'Current CTC', type: 'number' },
-        { name: 'expectedCtc', label: 'Expected CTC', type: 'number' },
-        {
-          name: 'noticePeriod',
-          label: 'Notice Period',
-          type: 'select',
-          options: [
-            { value: 'immediate', label: 'Immediate' },
-            { value: '15-days', label: '15 Days' },
-            { value: '30-days', label: '30 Days' },
-            { value: '60-days', label: '60 Days' },
-            { value: '90-days', label: '90 Days' },
-          ],
-        },
-        { name: 'location', label: 'Location' },
-        { name: 'experienceYears', label: 'Experience (Years)', type: 'number' },
-        { name: 'linkedIn', label: 'LinkedIn', type: 'url' },
-        { name: 'skills', label: 'Skills (comma-separated)', fullWidth: true },
-        {
-          name: 'notes',
-          label: 'Notes',
-          type: 'textarea',
-          fullWidth: true,
-        },
-      ]}
+      fields={fields}
     />
   );
 }

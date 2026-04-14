@@ -4,6 +4,7 @@ import { Package } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import { getAssets, saveAsset, deleteAsset } from '@/app/actions/hr.actions';
 import type { HrAsset } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const CONDITION_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
   new: 'green',
@@ -27,6 +28,7 @@ export default function AssetsPage() {
       subtitle="Company-owned assets tracked by HR."
       icon={Package}
       singular="Asset"
+      basePath="/dashboard/crm/hr/assets"
       getAllAction={getAssets as any}
       saveAction={saveAsset}
       deleteAction={deleteAsset}
@@ -49,32 +51,7 @@ export default function AssetsPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'name', label: 'Name', required: true, fullWidth: true },
-        { name: 'category', label: 'Category' },
-        { name: 'serialNumber', label: 'Serial Number' },
-        { name: 'purchaseDate', label: 'Purchase Date', type: 'date' },
-        {
-          name: 'condition',
-          label: 'Condition',
-          type: 'select',
-          options: [
-            { value: 'new', label: 'New' },
-            { value: 'good', label: 'Good' },
-            { value: 'fair', label: 'Fair' },
-            { value: 'poor', label: 'Poor' },
-            { value: 'retired', label: 'Retired' },
-          ],
-          defaultValue: 'good',
-        },
-        { name: 'warrantyExpiresAt', label: 'Warranty Expires At', type: 'date' },
-        { name: 'vendor', label: 'Vendor' },
-        { name: 'purchaseCost', label: 'Purchase Cost', type: 'number' },
-        { name: 'currency', label: 'Currency', defaultValue: 'INR' },
-        { name: 'location', label: 'Location' },
-        { name: 'tagNumber', label: 'Tag Number' },
-        { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
-      ]}
+      fields={fields}
     />
   );
 }

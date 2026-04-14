@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   Plus,
   Pencil,
@@ -129,6 +130,13 @@ export interface HrEntityPageProps<T extends { _id: string }> {
   deleteAction: (id: string) => Promise<{ success: boolean; error?: string }>;
   /** Optional empty-state CTA text. */
   emptyText?: string;
+  /**
+   * When set, the list page routes Add and Edit to dedicated pages
+   * instead of opening a dialog. Pass the base route (e.g.
+   * "/dashboard/crm/hr/jobs") — the list will link to `${basePath}/new`
+   * and `${basePath}/${row._id}/edit`.
+   */
+  basePath?: string;
 }
 
 function renderField(field: HrField, value?: unknown) {
@@ -365,6 +373,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   saveAction,
   deleteAction,
   emptyText,
+  basePath,
 }: HrEntityPageProps<T>) {
   const { toast } = useToast();
   const [rows, setRows] = useState<T[]>([]);
@@ -427,16 +436,27 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
         subtitle={subtitle}
         icon={icon}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            Add {singular}
-          </ClayButton>
+          basePath ? (
+            <Link href={`${basePath}/new`}>
+              <ClayButton
+                variant="obsidian"
+                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+              >
+                Add {singular}
+              </ClayButton>
+            </Link>
+          ) : (
+            <ClayButton
+              variant="obsidian"
+              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+              onClick={() => {
+                setEditing(null);
+                setDialogOpen(true);
+              }}
+            >
+              Add {singular}
+            </ClayButton>
+          )
         }
       />
 
@@ -486,16 +506,24 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                     ))}
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setEditing(row);
-                            setDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
+                        {basePath ? (
+                          <Link href={`${basePath}/${row._id}/edit`}>
+                            <Button variant="ghost" size="sm">
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"

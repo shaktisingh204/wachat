@@ -8,6 +8,7 @@ import {
   deletePolicy,
 } from '@/app/actions/hr.actions';
 import type { HrPolicy } from '@/lib/hr-types';
+import { fields } from './_config';
 
 function formatDate(value: unknown) {
   if (!value) return '—';
@@ -23,6 +24,7 @@ export default function PoliciesPage() {
       subtitle="Company policies, handbooks, and versioned guidelines."
       icon={FileText}
       singular="Policy"
+      basePath="/dashboard/crm/hr/policies"
       getAllAction={getPolicies as any}
       saveAction={savePolicy}
       deleteAction={deletePolicy}
@@ -36,19 +38,7 @@ export default function PoliciesPage() {
           render: (row) => <span>{formatDate(row.effectiveDate)}</span>,
         },
       ]}
-      fields={[
-        { name: 'title', label: 'Title', required: true, fullWidth: true },
-        { name: 'category', label: 'Category' },
-        { name: 'version', label: 'Version' },
-        { name: 'effectiveDate', label: 'Effective Date', type: 'date' },
-        {
-          name: 'body',
-          label: 'Body',
-          type: 'textarea',
-          required: true,
-          fullWidth: true,
-        },
-      ]}
+      fields={fields}
     />
   );
 }

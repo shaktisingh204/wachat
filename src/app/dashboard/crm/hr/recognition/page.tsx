@@ -8,6 +8,7 @@ import {
   deleteRecognition,
 } from '@/app/actions/hr.actions';
 import type { HrRecognition } from '@/lib/hr-types';
+import { fields } from './_config';
 
 export default function RecognitionPage() {
   return (
@@ -16,6 +17,7 @@ export default function RecognitionPage() {
       subtitle="Kudos, spot awards, and peer recognition."
       icon={Award}
       singular="Recognition"
+      basePath="/dashboard/crm/hr/recognition"
       getAllAction={getRecognitions as any}
       saveAction={saveRecognition}
       deleteAction={deleteRecognition}
@@ -54,55 +56,7 @@ export default function RecognitionPage() {
             row.givenAt ? new Date(row.givenAt).toLocaleDateString() : '—',
         },
       ]}
-      fields={[
-        { name: 'employeeId', label: 'Employee ID', required: true },
-        { name: 'fromName', label: 'From' },
-        {
-          name: 'type',
-          label: 'Type',
-          type: 'select',
-          options: [
-            { value: 'kudos', label: 'Kudos' },
-            { value: 'spot-award', label: 'Spot Award' },
-            { value: 'performance', label: 'Performance' },
-            { value: 'values', label: 'Values' },
-          ],
-          defaultValue: 'kudos',
-        },
-        {
-          name: 'message',
-          label: 'Message',
-          type: 'textarea',
-          required: true,
-          fullWidth: true,
-        },
-        { name: 'points', label: 'Points', type: 'number' },
-        { name: 'givenAt', label: 'Given At', type: 'date', required: true },
-        {
-          name: 'category',
-          label: 'Category',
-          type: 'select',
-          options: [
-            { value: 'teamwork', label: 'Teamwork' },
-            { value: 'leadership', label: 'Leadership' },
-            { value: 'innovation', label: 'Innovation' },
-            { value: 'customer-focus', label: 'Customer Focus' },
-            { value: 'excellence', label: 'Excellence' },
-          ],
-        },
-        {
-          name: 'visibility',
-          label: 'Visibility',
-          type: 'select',
-          options: [
-            { value: 'public', label: 'Public' },
-            { value: 'team', label: 'Team' },
-            { value: 'private', label: 'Private' },
-          ],
-          defaultValue: 'public',
-        },
-        { name: 'linkedOkrId', label: 'Linked OKR ID' },
-      ]}
+      fields={fields}
     />
   );
 }

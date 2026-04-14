@@ -1,0 +1,128 @@
+import type { HrField } from '../_components/hr-entity-page';
+
+export const fields: HrField[] = [
+  { name: 'name', label: 'Name', required: true, fullWidth: true },
+  { name: 'email', label: 'Email', type: 'email' },
+  { name: 'phone', label: 'Phone', type: 'tel' },
+  { name: 'jobId', label: 'Job ID' },
+  { name: 'source', label: 'Source' },
+  { name: 'sourceOther', label: 'Source (Other)' },
+  {
+    name: 'stage',
+    label: 'Stage',
+    type: 'select',
+    required: true,
+    options: [
+      { value: 'new', label: 'New' },
+      { value: 'screening', label: 'Screening' },
+      { value: 'interview', label: 'Interview' },
+      { value: 'offer', label: 'Offer' },
+      { value: 'hired', label: 'Hired' },
+      { value: 'rejected', label: 'Rejected' },
+    ],
+    defaultValue: 'new',
+  },
+  { name: 'rating', label: 'Rating (1-5)', type: 'number' },
+  { name: 'linkedIn', label: 'LinkedIn', type: 'url' },
+  { name: 'website', label: 'Website', type: 'url' },
+  { name: 'address', label: 'Address', fullWidth: true },
+  {
+    name: 'gender',
+    label: 'Gender',
+    type: 'select',
+    options: [
+      { value: 'm', label: 'Male' },
+      { value: 'f', label: 'Female' },
+      { value: 'o', label: 'Other' },
+    ],
+  },
+  { name: 'dob', label: 'Date of Birth', type: 'date' },
+  { name: 'currentCompany', label: 'Current Company' },
+  { name: 'currentDesignation', label: 'Current Designation' },
+  { name: 'currentCtc', label: 'Current CTC', type: 'number' },
+  { name: 'expectedCtc', label: 'Expected CTC', type: 'number' },
+  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  {
+    name: 'noticePeriod',
+    label: 'Notice Period',
+    type: 'select',
+    options: [
+      { value: 'immediate', label: 'Immediate' },
+      { value: '15-days', label: '15 Days' },
+      { value: '30-days', label: '30 Days' },
+      { value: '60-days', label: '60 Days' },
+      { value: '90-days', label: '90 Days' },
+      { value: 'other', label: 'Other' },
+    ],
+  },
+  { name: 'experienceYears', label: 'Experience (Years)', type: 'number' },
+  { name: 'location', label: 'Location' },
+  { name: 'country', label: 'Country' },
+  {
+    name: 'willingToRelocate',
+    label: 'Willing to Relocate',
+    type: 'select',
+    options: [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+    ],
+  },
+  { name: 'skills', label: 'Skills (comma-separated)', fullWidth: true },
+  { name: 'resumeUrl', label: 'Resume URL', type: 'url', fullWidth: true },
+  {
+    name: 'coverLetter',
+    label: 'Cover Letter',
+    type: 'textarea',
+    fullWidth: true,
+  },
+  { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
+];
+
+export const sections = [
+  {
+    title: 'Contact info',
+    fieldNames: [
+      'name',
+      'email',
+      'phone',
+      'linkedIn',
+      'website',
+      'address',
+      'gender',
+      'dob',
+    ],
+  },
+  {
+    title: 'Pipeline',
+    fieldNames: ['jobId', 'source', 'sourceOther', 'stage', 'rating'],
+  },
+  {
+    title: 'Current role',
+    fieldNames: [
+      'currentCompany',
+      'currentDesignation',
+      'currentCtc',
+      'experienceYears',
+      'noticePeriod',
+    ],
+  },
+  {
+    title: 'Expected role',
+    fieldNames: [
+      'expectedCtc',
+      'currency',
+      'location',
+      'country',
+      'willingToRelocate',
+      'skills',
+    ],
+  },
+  {
+    title: 'Documents',
+    fieldNames: ['resumeUrl', 'coverLetter'],
+  },
+  {
+    title: 'Notes',
+    fieldNames: ['notes'],
+  },
+];

@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { Clock } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
@@ -8,6 +9,7 @@ import {
   deleteTimesheet,
 } from '@/app/actions/hr.actions';
 import type { HrTimesheet } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
   draft: 'neutral',
@@ -30,6 +32,7 @@ export default function TimesheetsPage() {
       subtitle="Weekly hours logged per employee."
       icon={Clock}
       singular="Timesheet"
+      basePath="/dashboard/crm/hr/timesheets"
       getAllAction={getTimesheets as any}
       saveAction={saveTimesheet}
       deleteAction={deleteTimesheet}
@@ -38,7 +41,9 @@ export default function TimesheetsPage() {
           key: 'employeeId',
           label: 'Employee',
           render: (row) => (
-            <span className="block max-w-[160px] truncate">{String(row.employeeId)}</span>
+            <span className="block max-w-[160px] truncate">
+              {String(row.employeeId)}
+            </span>
           ),
         },
         {
@@ -47,6 +52,7 @@ export default function TimesheetsPage() {
           render: (row) => formatDate(row.weekStart),
         },
         { key: 'totalHours', label: 'Total Hours' },
+        { key: 'billableHours', label: 'Billable' },
         {
           key: 'status',
           label: 'Status',
@@ -57,49 +63,7 @@ export default function TimesheetsPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'employeeId', label: 'Employee ID', required: true },
-        { name: 'weekStart', label: 'Week Start', type: 'date', required: true },
-        { name: 'totalHours', label: 'Total Hours', type: 'number', required: true },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'draft', label: 'Draft' },
-            { value: 'submitted', label: 'Submitted' },
-            { value: 'approved', label: 'Approved' },
-            { value: 'rejected', label: 'Rejected' },
-          ],
-          defaultValue: 'draft',
-        },
-        {
-          name: 'entries',
-          label: 'Entries',
-          type: 'array',
-          fullWidth: true,
-          addLabel: 'Add Entry',
-          subFields: [
-            {
-              name: 'day',
-              label: 'Day',
-              type: 'select',
-              options: [
-                { value: 'Mon', label: 'Mon' },
-                { value: 'Tue', label: 'Tue' },
-                { value: 'Wed', label: 'Wed' },
-                { value: 'Thu', label: 'Thu' },
-                { value: 'Fri', label: 'Fri' },
-                { value: 'Sat', label: 'Sat' },
-                { value: 'Sun', label: 'Sun' },
-              ],
-            },
-            { name: 'hours', label: 'Hours', type: 'number', required: true },
-            { name: 'project', label: 'Project', type: 'text' },
-            { name: 'notes', label: 'Notes', type: 'text' },
-          ],
-        },
-      ]}
+      fields={fields}
     />
   );
 }

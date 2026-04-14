@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { Plane } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
@@ -8,12 +9,14 @@ import {
   deleteTravelRequest,
 } from '@/app/actions/hr.actions';
 import type { HrTravelRequest } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
   pending: 'amber',
   approved: 'green',
   rejected: 'red',
   completed: 'neutral',
+  cancelled: 'neutral',
 };
 
 function formatDate(value: unknown): React.ReactNode {
@@ -30,6 +33,7 @@ export default function TravelPage() {
       subtitle="Business trip requests and approvals."
       icon={Plane}
       singular="Travel Request"
+      basePath="/dashboard/crm/hr/travel"
       getAllAction={getTravelRequests as any}
       saveAction={saveTravelRequest}
       deleteAction={deleteTravelRequest}
@@ -39,7 +43,9 @@ export default function TravelPage() {
           key: 'employeeId',
           label: 'Employee',
           render: (row) => (
-            <span className="block max-w-[160px] truncate">{String(row.employeeId)}</span>
+            <span className="block max-w-[160px] truncate">
+              {String(row.employeeId)}
+            </span>
           ),
         },
         {
@@ -52,6 +58,7 @@ export default function TravelPage() {
           label: 'To',
           render: (row) => formatDate(row.toDate),
         },
+        { key: 'mode', label: 'Mode' },
         {
           key: 'status',
           label: 'Status',
@@ -62,50 +69,7 @@ export default function TravelPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'employeeId', label: 'Employee ID', required: true },
-        { name: 'destination', label: 'Destination', required: true },
-        { name: 'purpose', label: 'Purpose', fullWidth: true },
-        { name: 'fromDate', label: 'From Date', type: 'date', required: true },
-        { name: 'toDate', label: 'To Date', type: 'date', required: true },
-        { name: 'estimatedCost', label: 'Estimated Cost', type: 'number' },
-        { name: 'currency', label: 'Currency', defaultValue: 'INR' },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'pending', label: 'Pending' },
-            { value: 'approved', label: 'Approved' },
-            { value: 'rejected', label: 'Rejected' },
-            { value: 'completed', label: 'Completed' },
-          ],
-          defaultValue: 'pending',
-        },
-        {
-          name: 'mode',
-          label: 'Mode',
-          type: 'select',
-          options: [
-            { value: 'flight', label: 'Flight' },
-            { value: 'train', label: 'Train' },
-            { value: 'car', label: 'Car' },
-            { value: 'hotel-only', label: 'Hotel Only' },
-          ],
-        },
-        {
-          name: 'accommodationNeeded',
-          label: 'Accommodation Needed',
-          type: 'select',
-          options: [
-            { value: 'yes', label: 'Yes' },
-            { value: 'no', label: 'No' },
-          ],
-        },
-        { name: 'advanceAmount', label: 'Advance Amount', type: 'number' },
-        { name: 'approverName', label: 'Approver Name' },
-        { name: 'bookingReference', label: 'Booking Reference' },
-      ]}
+      fields={fields}
     />
   );
 }

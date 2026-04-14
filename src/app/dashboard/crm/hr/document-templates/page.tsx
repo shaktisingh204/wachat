@@ -8,6 +8,7 @@ import {
   deleteDocumentTemplate,
 } from '@/app/actions/hr.actions';
 import type { HrDocumentTemplate } from '@/lib/hr-types';
+import { fields } from './_config';
 
 export default function DocumentTemplatesPage() {
   return (
@@ -16,6 +17,7 @@ export default function DocumentTemplatesPage() {
       subtitle="Reusable templates for offer letters, NDAs, and more."
       icon={ClipboardList}
       singular="Template"
+      basePath="/dashboard/crm/hr/document-templates"
       getAllAction={getDocumentTemplates as any}
       saveAction={saveDocumentTemplate}
       deleteAction={deleteDocumentTemplate}
@@ -23,24 +25,7 @@ export default function DocumentTemplatesPage() {
         { key: 'name', label: 'Name' },
         { key: 'category', label: 'Category' },
       ]}
-      fields={[
-        { name: 'name', label: 'Name', required: true, fullWidth: true },
-        { name: 'category', label: 'Category' },
-        {
-          name: 'body',
-          label: 'Body',
-          type: 'textarea',
-          required: true,
-          fullWidth: true,
-        },
-        {
-          name: 'placeholders',
-          label: 'Placeholders (JSON array)',
-          type: 'textarea',
-          fullWidth: true,
-          placeholder: '["{{firstName}}", "{{startDate}}"]',
-        },
-      ]}
+      fields={fields}
     />
   );
 }

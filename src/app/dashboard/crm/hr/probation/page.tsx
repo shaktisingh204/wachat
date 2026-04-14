@@ -8,6 +8,7 @@ import {
   deleteProbation,
 } from '@/app/actions/hr.actions';
 import type { HrProbation } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
   active: 'amber',
@@ -23,6 +24,7 @@ export default function ProbationPage() {
       subtitle="Track probation periods, reviewers, and outcomes."
       icon={ShieldCheck}
       singular="Probation"
+      basePath="/dashboard/crm/hr/probation"
       getAllAction={getProbations as any}
       saveAction={saveProbation}
       deleteAction={deleteProbation}
@@ -41,6 +43,7 @@ export default function ProbationPage() {
             );
           },
         },
+        { key: 'reviewerName', label: 'Reviewer' },
         {
           key: 'startDate',
           label: 'Start',
@@ -63,40 +66,7 @@ export default function ProbationPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'employeeId', label: 'Employee ID' },
-        { name: 'startDate', label: 'Start Date', type: 'date', required: true },
-        { name: 'endDate', label: 'End Date', type: 'date', required: true },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          required: true,
-          options: [
-            { value: 'active', label: 'Active' },
-            { value: 'passed', label: 'Passed' },
-            { value: 'extended', label: 'Extended' },
-            { value: 'terminated', label: 'Terminated' },
-          ],
-          defaultValue: 'active',
-        },
-        { name: 'reviewerName', label: 'Reviewer Name' },
-        { name: 'mentor', label: 'Mentor' },
-        {
-          name: 'evaluationCriteria',
-          label: 'Evaluation Criteria',
-          type: 'textarea',
-          fullWidth: true,
-        },
-        { name: 'midReviewDate', label: 'Mid Review Date', type: 'date' },
-        { name: 'performanceScore', label: 'Performance Score (1-5)', type: 'number' },
-        {
-          name: 'notes',
-          label: 'Notes',
-          type: 'textarea',
-          fullWidth: true,
-        },
-      ]}
+      fields={fields}
     />
   );
 }

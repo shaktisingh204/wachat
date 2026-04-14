@@ -4,12 +4,14 @@ import { Target } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import { getOkrs, saveOkr, deleteOkr } from '@/app/actions/hr.actions';
 import type { HrOkr } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red' | 'blue'> = {
   draft: 'neutral',
   'in-progress': 'blue',
   achieved: 'green',
   missed: 'red',
+  'at-risk': 'amber',
 };
 
 export default function OkrsPage() {
@@ -19,12 +21,15 @@ export default function OkrsPage() {
       subtitle="Objectives and key results by quarter."
       icon={Target}
       singular="OKR"
+      basePath="/dashboard/crm/hr/okrs"
       getAllAction={getOkrs as any}
       saveAction={saveOkr}
       deleteAction={deleteOkr}
       columns={[
         { key: 'objective', label: 'Objective' },
         { key: 'quarter', label: 'Quarter' },
+        { key: 'team', label: 'Team' },
+        { key: 'weight', label: 'Weight' },
         {
           key: 'status',
           label: 'Status',
@@ -35,34 +40,7 @@ export default function OkrsPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'employeeId', label: 'Employee ID' },
-        { name: 'quarter', label: 'Quarter', required: true, placeholder: 'Q1 2026' },
-        { name: 'objective', label: 'Objective', required: true, fullWidth: true },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'draft', label: 'Draft' },
-            { value: 'in-progress', label: 'In progress' },
-            { value: 'achieved', label: 'Achieved' },
-            { value: 'missed', label: 'Missed' },
-          ],
-          defaultValue: 'draft',
-        },
-        {
-          name: 'keyResults',
-          label: 'Key Results',
-          type: 'array',
-          fullWidth: true,
-          addLabel: 'Add Key Result',
-          subFields: [
-            { name: 'description', label: 'Description', type: 'text', required: true, placeholder: 'Ship feature X' },
-            { name: 'progress', label: 'Progress %', type: 'number', placeholder: '0-100' },
-          ],
-        },
-      ]}
+      fields={fields}
     />
   );
 }

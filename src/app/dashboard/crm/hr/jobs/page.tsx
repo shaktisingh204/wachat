@@ -8,6 +8,7 @@ import {
   deleteJobPosting,
 } from '@/app/actions/hr.actions';
 import type { HrJobPosting } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
   draft: 'neutral',
@@ -23,14 +24,16 @@ export default function JobsPage() {
       subtitle="Open roles, JDs, and hiring pipelines."
       icon={Briefcase}
       singular="Job"
+      basePath="/dashboard/crm/hr/jobs"
       getAllAction={getJobPostings as any}
       saveAction={saveJobPosting}
       deleteAction={deleteJobPosting}
       columns={[
         { key: 'title', label: 'Title' },
-        { key: 'department', label: 'Department' },
+        { key: 'departmentId', label: 'Department' },
         { key: 'location', label: 'Location' },
         { key: 'employmentType', label: 'Type' },
+        { key: 'totalOpenings', label: 'Openings' },
         {
           key: 'status',
           label: 'Status',
@@ -41,53 +44,7 @@ export default function JobsPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'title', label: 'Job Title', required: true, fullWidth: true },
-        { name: 'department', label: 'Department' },
-        { name: 'location', label: 'Location' },
-        {
-          name: 'employmentType',
-          label: 'Employment Type',
-          type: 'select',
-          required: true,
-          options: [
-            { value: 'full-time', label: 'Full-time' },
-            { value: 'part-time', label: 'Part-time' },
-            { value: 'contract', label: 'Contract' },
-            { value: 'internship', label: 'Internship' },
-          ],
-          defaultValue: 'full-time',
-        },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          required: true,
-          options: [
-            { value: 'draft', label: 'Draft' },
-            { value: 'open', label: 'Open' },
-            { value: 'on-hold', label: 'On hold' },
-            { value: 'closed', label: 'Closed' },
-          ],
-          defaultValue: 'draft',
-        },
-        { name: 'salaryMin', label: 'Salary (Min)', type: 'number' },
-        { name: 'salaryMax', label: 'Salary (Max)', type: 'number' },
-        { name: 'salaryCurrency', label: 'Currency', defaultValue: 'INR' },
-        { name: 'applyUrl', label: 'Apply URL', fullWidth: true },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
-        {
-          name: 'requirements',
-          label: 'Requirements',
-          type: 'textarea',
-          fullWidth: true,
-        },
-      ]}
+      fields={fields}
     />
   );
 }

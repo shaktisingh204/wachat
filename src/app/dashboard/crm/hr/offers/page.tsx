@@ -8,6 +8,7 @@ import {
   deleteOfferLetter,
 } from '@/app/actions/hr.actions';
 import type { HrOfferLetter } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
   draft: 'neutral',
@@ -15,6 +16,7 @@ const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
   accepted: 'green',
   declined: 'red',
   withdrawn: 'neutral',
+  revoked: 'red',
 };
 
 export default function OffersPage() {
@@ -24,11 +26,13 @@ export default function OffersPage() {
       subtitle="Draft, send, and track candidate offers."
       icon={Send}
       singular="Offer"
+      basePath="/dashboard/crm/hr/offers"
       getAllAction={getOfferLetters as any}
       saveAction={saveOfferLetter}
       deleteAction={deleteOfferLetter}
       columns={[
         { key: 'jobTitle', label: 'Job Title' },
+        { key: 'department', label: 'Department' },
         {
           key: 'ctc',
           label: 'CTC',
@@ -55,53 +59,7 @@ export default function OffersPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'candidateId', label: 'Candidate ID' },
-        { name: 'jobTitle', label: 'Job Title', required: true },
-        { name: 'ctc', label: 'CTC', type: 'number', required: true },
-        { name: 'currency', label: 'Currency', defaultValue: 'INR' },
-        {
-          name: 'joiningDate',
-          label: 'Joining Date',
-          type: 'date',
-          required: true,
-        },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          required: true,
-          options: [
-            { value: 'draft', label: 'Draft' },
-            { value: 'sent', label: 'Sent' },
-            { value: 'accepted', label: 'Accepted' },
-            { value: 'declined', label: 'Declined' },
-            { value: 'withdrawn', label: 'Withdrawn' },
-          ],
-          defaultValue: 'draft',
-        },
-        { name: 'fixedComponent', label: 'Fixed Component', type: 'number' },
-        { name: 'variableComponent', label: 'Variable Component', type: 'number' },
-        { name: 'joiningBonus', label: 'Joining Bonus', type: 'number' },
-        { name: 'probationMonths', label: 'Probation (months)', type: 'number', defaultValue: '3' },
-        {
-          name: 'workMode',
-          label: 'Work Mode',
-          type: 'select',
-          options: [
-            { value: 'onsite', label: 'Onsite' },
-            { value: 'hybrid', label: 'Hybrid' },
-            { value: 'remote', label: 'Remote' },
-          ],
-        },
-        { name: 'reportsTo', label: 'Reports To' },
-        {
-          name: 'notes',
-          label: 'Notes',
-          type: 'textarea',
-          fullWidth: true,
-        },
-      ]}
+      fields={fields}
     />
   );
 }

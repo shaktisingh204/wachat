@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { MessagesSquare } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
@@ -8,11 +9,13 @@ import {
   deleteOneOnOne,
 } from '@/app/actions/hr.actions';
 import type { HrOneOnOne } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
   scheduled: 'amber',
   completed: 'green',
   cancelled: 'neutral',
+  rescheduled: 'amber',
 };
 
 function formatDate(value: unknown): React.ReactNode {
@@ -29,6 +32,7 @@ export default function OneOnOnesPage() {
       subtitle="Scheduled check-ins between managers and reports."
       icon={MessagesSquare}
       singular="1:1"
+      basePath="/dashboard/crm/hr/one-on-ones"
       getAllAction={getOneOnOnes as any}
       saveAction={saveOneOnOne}
       deleteAction={deleteOneOnOne}
@@ -37,7 +41,9 @@ export default function OneOnOnesPage() {
           key: 'employeeId',
           label: 'Employee',
           render: (row) => (
-            <span className="block max-w-[160px] truncate">{String(row.employeeId)}</span>
+            <span className="block max-w-[160px] truncate">
+              {String(row.employeeId)}
+            </span>
           ),
         },
         { key: 'managerName', label: 'Manager' },
@@ -46,6 +52,7 @@ export default function OneOnOnesPage() {
           label: 'Scheduled',
           render: (row) => formatDate(row.scheduledAt),
         },
+        { key: 'mood', label: 'Mood' },
         {
           key: 'status',
           label: 'Status',
@@ -56,25 +63,7 @@ export default function OneOnOnesPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'employeeId', label: 'Employee ID', required: true },
-        { name: 'managerName', label: 'Manager Name' },
-        { name: 'scheduledAt', label: 'Scheduled At', type: 'date', required: true },
-        { name: 'agenda', label: 'Agenda', type: 'textarea', fullWidth: true },
-        { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
-        { name: 'actionItems', label: 'Action Items', type: 'textarea', fullWidth: true },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'scheduled', label: 'Scheduled' },
-            { value: 'completed', label: 'Completed' },
-            { value: 'cancelled', label: 'Cancelled' },
-          ],
-          defaultValue: 'scheduled',
-        },
-      ]}
+      fields={fields}
     />
   );
 }

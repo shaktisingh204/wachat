@@ -8,6 +8,7 @@ import {
   deleteCertification,
 } from '@/app/actions/hr.actions';
 import type { HrCertification } from '@/lib/hr-types';
+import { fields } from './_config';
 
 function formatDate(value: unknown) {
   if (!value) return '—';
@@ -23,6 +24,7 @@ export default function CertificationsPage() {
       subtitle="Employee credentials, licenses, and professional certifications."
       icon={Award}
       singular="Certification"
+      basePath="/dashboard/crm/hr/certifications"
       getAllAction={getCertifications as any}
       saveAction={saveCertification}
       deleteAction={deleteCertification}
@@ -49,14 +51,7 @@ export default function CertificationsPage() {
           render: (row) => <span>{formatDate(row.expiresAt)}</span>,
         },
       ]}
-      fields={[
-        { name: 'employeeId', label: 'Employee ID' },
-        { name: 'name', label: 'Name', required: true, fullWidth: true },
-        { name: 'issuer', label: 'Issuer' },
-        { name: 'issuedAt', label: 'Issued At', type: 'date' },
-        { name: 'expiresAt', label: 'Expires At', type: 'date' },
-        { name: 'credentialId', label: 'Credential ID' },
-      ]}
+      fields={fields}
     />
   );
 }

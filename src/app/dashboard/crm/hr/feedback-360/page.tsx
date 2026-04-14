@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { Star } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
@@ -8,6 +9,7 @@ import {
   deleteFeedback360,
 } from '@/app/actions/hr.actions';
 import type { HrFeedback360 } from '@/lib/hr-types';
+import { fields } from './_config';
 
 function formatDate(value: unknown): React.ReactNode {
   if (!value) return <span className="text-clay-ink-muted">—</span>;
@@ -23,6 +25,7 @@ export default function Feedback360Page() {
       subtitle="Peer, manager, and self reviews."
       icon={Star}
       singular="Feedback"
+      basePath="/dashboard/crm/hr/feedback-360"
       getAllAction={getFeedback360 as any}
       saveAction={saveFeedback360}
       deleteAction={deleteFeedback360}
@@ -31,7 +34,9 @@ export default function Feedback360Page() {
           key: 'employeeId',
           label: 'Employee',
           render: (row) => (
-            <span className="block max-w-[160px] truncate">{String(row.employeeId)}</span>
+            <span className="block max-w-[160px] truncate">
+              {String(row.employeeId)}
+            </span>
           ),
         },
         { key: 'reviewerName', label: 'Reviewer' },
@@ -44,6 +49,7 @@ export default function Feedback360Page() {
             </ClayBadge>
           ),
         },
+        { key: 'reviewCycle', label: 'Cycle' },
         { key: 'rating', label: 'Rating' },
         {
           key: 'submittedAt',
@@ -51,26 +57,7 @@ export default function Feedback360Page() {
           render: (row) => formatDate(row.submittedAt),
         },
       ]}
-      fields={[
-        { name: 'employeeId', label: 'Employee ID', required: true },
-        { name: 'reviewerName', label: 'Reviewer Name', required: true },
-        {
-          name: 'reviewerType',
-          label: 'Reviewer Type',
-          type: 'select',
-          options: [
-            { value: 'peer', label: 'Peer' },
-            { value: 'manager', label: 'Manager' },
-            { value: 'report', label: 'Report' },
-            { value: 'self', label: 'Self' },
-          ],
-          defaultValue: 'peer',
-        },
-        { name: 'rating', label: 'Rating (1-5)', type: 'number' },
-        { name: 'strengths', label: 'Strengths', type: 'textarea', fullWidth: true },
-        { name: 'improvements', label: 'Improvements', type: 'textarea', fullWidth: true },
-        { name: 'submittedAt', label: 'Submitted At', type: 'date' },
-      ]}
+      fields={fields}
     />
   );
 }

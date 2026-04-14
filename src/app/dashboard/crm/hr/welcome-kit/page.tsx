@@ -8,6 +8,7 @@ import {
   deleteWelcomeKit,
 } from '@/app/actions/hr.actions';
 import type { HrWelcomeKit } from '@/lib/hr-types';
+import { fields } from './_config';
 
 export default function WelcomeKitPage() {
   return (
@@ -16,33 +17,21 @@ export default function WelcomeKitPage() {
       subtitle="Curate swag, docs, and thoughtful first-day items."
       icon={Heart}
       singular="Kit"
+      basePath="/dashboard/crm/hr/welcome-kit"
       getAllAction={getWelcomeKits as any}
       saveAction={saveWelcomeKit}
       deleteAction={deleteWelcomeKit}
       columns={[
         { key: 'name', label: 'Name' },
+        {
+          key: 'items',
+          label: 'Items',
+          render: (row) =>
+            Array.isArray(row.items) ? String(row.items.length) : '0',
+        },
         { key: 'description', label: 'Description' },
       ]}
-      fields={[
-        { name: 'name', label: 'Name', required: true, fullWidth: true },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
-        {
-          name: 'items',
-          label: 'Items',
-          type: 'array',
-          fullWidth: true,
-          addLabel: 'Add Item',
-          subFields: [
-            { name: 'label', label: 'Label', type: 'text', required: true },
-            { name: 'note', label: 'Note', type: 'text' },
-          ],
-        },
-      ]}
+      fields={fields}
     />
   );
 }

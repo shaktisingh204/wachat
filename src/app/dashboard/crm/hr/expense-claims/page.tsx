@@ -8,6 +8,7 @@ import {
   deleteExpenseClaim,
 } from '@/app/actions/hr.actions';
 import type { HrExpenseClaim } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red' | 'blue'> = {
   pending: 'amber',
@@ -29,7 +30,8 @@ export default function ExpenseClaimsPage() {
       title="Expense Claims"
       subtitle="Reimbursement requests from employees."
       icon={Wallet}
-      singular="Expense Claim"
+      singular="Claim"
+      basePath="/dashboard/crm/hr/expense-claims"
       getAllAction={getExpenseClaims as any}
       saveAction={saveExpenseClaim}
       deleteAction={deleteExpenseClaim}
@@ -60,43 +62,7 @@ export default function ExpenseClaimsPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'employeeId', label: 'Employee ID', required: true },
-        { name: 'title', label: 'Title', required: true, fullWidth: true },
-        { name: 'amount', label: 'Amount', type: 'number', required: true },
-        { name: 'currency', label: 'Currency', defaultValue: 'INR' },
-        { name: 'category', label: 'Category' },
-        { name: 'incurredAt', label: 'Incurred At', type: 'date', required: true },
-        { name: 'receiptUrl', label: 'Receipt URL' },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'pending', label: 'Pending' },
-            { value: 'approved', label: 'Approved' },
-            { value: 'rejected', label: 'Rejected' },
-            { value: 'reimbursed', label: 'Reimbursed' },
-          ],
-          defaultValue: 'pending',
-        },
-        { name: 'projectName', label: 'Project Name' },
-        {
-          name: 'paymentMode',
-          label: 'Payment Mode',
-          type: 'select',
-          options: [
-            { value: 'cash', label: 'Cash' },
-            { value: 'card', label: 'Card' },
-            { value: 'upi', label: 'UPI' },
-            { value: 'cheque', label: 'Cheque' },
-            { value: 'bank-transfer', label: 'Bank Transfer' },
-          ],
-        },
-        { name: 'gstAmount', label: 'GST Amount', type: 'number' },
-        { name: 'approverName', label: 'Approver Name' },
-        { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
-      ]}
+      fields={fields}
     />
   );
 }

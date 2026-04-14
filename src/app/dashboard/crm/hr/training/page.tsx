@@ -8,6 +8,7 @@ import {
   deleteTrainingProgram,
 } from '@/app/actions/hr.actions';
 import type { HrTrainingProgram } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'amber' | 'blue' | 'green'> = {
   draft: 'neutral',
@@ -30,6 +31,7 @@ export default function TrainingPage() {
       subtitle="Learning sessions, workshops, and scheduled cohorts."
       icon={BookOpen}
       singular="Program"
+      basePath="/dashboard/crm/hr/training"
       getAllAction={getTrainingPrograms as any}
       saveAction={saveTrainingProgram}
       deleteAction={deleteTrainingProgram}
@@ -51,31 +53,7 @@ export default function TrainingPage() {
           ),
         },
       ]}
-      fields={[
-        { name: 'name', label: 'Name', required: true, fullWidth: true },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
-        { name: 'trainer', label: 'Trainer' },
-        { name: 'duration', label: 'Duration' },
-        { name: 'startDate', label: 'Start Date', type: 'date' },
-        { name: 'endDate', label: 'End Date', type: 'date' },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'draft', label: 'Draft' },
-            { value: 'scheduled', label: 'Scheduled' },
-            { value: 'running', label: 'Running' },
-            { value: 'completed', label: 'Completed' },
-          ],
-          defaultValue: 'draft',
-        },
-      ]}
+      fields={fields}
     />
   );
 }

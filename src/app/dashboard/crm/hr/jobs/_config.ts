@@ -1,0 +1,125 @@
+import type { HrField } from '../_components/hr-entity-page';
+
+export const fields: HrField[] = [
+  { name: 'title', label: 'Job Title', required: true, fullWidth: true },
+  { name: 'departmentId', label: 'Department' },
+  { name: 'designationId', label: 'Designation' },
+  { name: 'location', label: 'Location' },
+  {
+    name: 'employmentType',
+    label: 'Employment Type',
+    type: 'select',
+    required: true,
+    options: [
+      { value: 'full-time', label: 'Full-time' },
+      { value: 'part-time', label: 'Part-time' },
+      { value: 'contract', label: 'Contract' },
+      { value: 'internship', label: 'Internship' },
+      { value: 'freelance', label: 'Freelance' },
+      { value: 'temporary', label: 'Temporary' },
+    ],
+    defaultValue: 'full-time',
+  },
+  {
+    name: 'status',
+    label: 'Status',
+    type: 'select',
+    required: true,
+    options: [
+      { value: 'draft', label: 'Draft' },
+      { value: 'open', label: 'Open' },
+      { value: 'on-hold', label: 'On hold' },
+      { value: 'closed', label: 'Closed' },
+    ],
+    defaultValue: 'draft',
+  },
+  {
+    name: 'visibility',
+    label: 'Visibility',
+    type: 'select',
+    options: [
+      { value: 'public', label: 'Public' },
+      { value: 'private', label: 'Private' },
+    ],
+    defaultValue: 'public',
+  },
+  { name: 'totalOpenings', label: 'Total Openings', type: 'number' },
+  { name: 'startDate', label: 'Start Date', type: 'date' },
+  { name: 'endDate', label: 'End Date', type: 'date' },
+  { name: 'deadline', label: 'Deadline', type: 'date' },
+  { name: 'shiftId', label: 'Shift' },
+  { name: 'recruiterId', label: 'Recruiter' },
+  { name: 'salaryMin', label: 'Salary From', type: 'number' },
+  { name: 'salaryMax', label: 'Salary To', type: 'number' },
+  { name: 'salaryCurrency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'experienceFrom', label: 'Experience From (yrs)', type: 'number' },
+  { name: 'experienceTo', label: 'Experience To (yrs)', type: 'number' },
+  { name: 'education', label: 'Education' },
+  { name: 'skillsRequired', label: 'Skills Required', fullWidth: true },
+  { name: 'applyUrl', label: 'Apply URL', type: 'url', fullWidth: true },
+  {
+    name: 'responsibilities',
+    label: 'Responsibilities',
+    type: 'textarea',
+    fullWidth: true,
+  },
+  {
+    name: 'requirements',
+    label: 'Requirements',
+    type: 'textarea',
+    fullWidth: true,
+  },
+  {
+    name: 'description',
+    label: 'Description',
+    type: 'textarea',
+    fullWidth: true,
+  },
+];
+
+export const sections = [
+  {
+    title: 'Role',
+    fieldNames: [
+      'title',
+      'departmentId',
+      'designationId',
+      'location',
+      'employmentType',
+      'status',
+      'visibility',
+    ],
+  },
+  {
+    title: 'Dates & openings',
+    fieldNames: [
+      'totalOpenings',
+      'startDate',
+      'endDate',
+      'deadline',
+      'shiftId',
+      'recruiterId',
+    ],
+  },
+  {
+    title: 'Compensation & experience',
+    fieldNames: [
+      'salaryMin',
+      'salaryMax',
+      'salaryCurrency',
+      'experienceFrom',
+      'experienceTo',
+      'education',
+    ],
+  },
+  {
+    title: 'Details',
+    fieldNames: [
+      'skillsRequired',
+      'applyUrl',
+      'responsibilities',
+      'requirements',
+      'description',
+    ],
+  },
+];

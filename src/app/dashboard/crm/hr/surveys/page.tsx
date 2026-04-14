@@ -8,6 +8,7 @@ import {
   deleteSurvey,
 } from '@/app/actions/hr.actions';
 import type { HrSurvey } from '@/lib/hr-types';
+import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'red'> = {
   draft: 'neutral',
@@ -22,6 +23,7 @@ export default function SurveysPage() {
       subtitle="Employee engagement and pulse surveys."
       icon={Gauge}
       singular="Survey"
+      basePath="/dashboard/crm/hr/surveys"
       getAllAction={getSurveys as any}
       saveAction={saveSurvey}
       deleteAction={deleteSurvey}
@@ -38,48 +40,7 @@ export default function SurveysPage() {
         },
         { key: 'responsesCount', label: 'Responses' },
       ]}
-      fields={[
-        { name: 'title', label: 'Title', required: true, fullWidth: true },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'draft', label: 'Draft' },
-            { value: 'open', label: 'Open' },
-            { value: 'closed', label: 'Closed' },
-          ],
-          defaultValue: 'draft',
-        },
-        { name: 'responsesCount', label: 'Responses', type: 'number' },
-        {
-          name: 'questions',
-          label: 'Questions',
-          type: 'array',
-          fullWidth: true,
-          addLabel: 'Add Question',
-          subFields: [
-            { name: 'prompt', label: 'Prompt', type: 'text', required: true },
-            {
-              name: 'type',
-              label: 'Type',
-              type: 'select',
-              required: true,
-              options: [
-                { value: 'rating', label: 'Rating' },
-                { value: 'text', label: 'Text' },
-                { value: 'yes-no', label: 'Yes/No' },
-              ],
-            },
-          ],
-        },
-      ]}
+      fields={fields}
     />
   );
 }

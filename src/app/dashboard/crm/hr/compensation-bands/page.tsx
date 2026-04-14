@@ -8,6 +8,7 @@ import {
   deleteCompensationBand,
 } from '@/app/actions/hr.actions';
 import type { HrCompensationBand } from '@/lib/hr-types';
+import { fields } from './_config';
 
 export default function CompensationBandsPage() {
   return (
@@ -16,6 +17,7 @@ export default function CompensationBandsPage() {
       subtitle="Salary bands by level and role."
       icon={LineChart}
       singular="Band"
+      basePath="/dashboard/crm/hr/compensation-bands"
       getAllAction={getCompensationBands as any}
       saveAction={saveCompensationBand}
       deleteAction={deleteCompensationBand}
@@ -27,33 +29,7 @@ export default function CompensationBandsPage() {
         { key: 'maxSalary', label: 'Max' },
         { key: 'currency', label: 'Currency' },
       ]}
-      fields={[
-        { name: 'title', label: 'Title', required: true, fullWidth: true },
-        { name: 'level', label: 'Level', required: true },
-        { name: 'minSalary', label: 'Min Salary', type: 'number', required: true },
-        { name: 'maxSalary', label: 'Max Salary', type: 'number', required: true },
-        { name: 'currency', label: 'Currency', defaultValue: 'INR' },
-        { name: 'department', label: 'Department' },
-        { name: 'experienceMin', label: 'Experience Min (years)', type: 'number' },
-        { name: 'experienceMax', label: 'Experience Max (years)', type: 'number' },
-        { name: 'bandVersion', label: 'Band Version', defaultValue: 'v1' },
-        {
-          name: 'reviewCycle',
-          label: 'Review Cycle',
-          type: 'select',
-          options: [
-            { value: 'annual', label: 'Annual' },
-            { value: 'bi-annual', label: 'Bi-annual' },
-            { value: 'quarterly', label: 'Quarterly' },
-          ],
-        },
-        {
-          name: 'notes',
-          label: 'Notes',
-          type: 'textarea',
-          fullWidth: true,
-        },
-      ]}
+      fields={fields}
     />
   );
 }
