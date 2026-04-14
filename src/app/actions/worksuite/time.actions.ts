@@ -510,13 +510,7 @@ export async function setLogTimeFor(
  *  Reports
  * ──────────────────────────────────────────── */
 
-export type WsTimeReportRow = {
-  key: string;
-  label: string;
-  totalHours: number;
-  totalMinutes: number;
-  entries: number;
-};
+import type { WsTimeReportRow } from '@/lib/worksuite/time-types';
 
 export async function getTimeReport(
   groupBy: 'employee' | 'project' | 'date' = 'project',

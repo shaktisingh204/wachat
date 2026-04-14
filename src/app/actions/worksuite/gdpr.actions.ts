@@ -273,7 +273,7 @@ export async function getRemovalRequestLeads() {
   return hrList<WsRemovalRequestLead>(COL_REMOVAL_LEADS);
 }
 
-export interface SubmitRemovalRequestInput {
+interface SubmitRemovalRequestInput {
   requestType: WsRemovalRequestType;
   userId?: string;
   leadId?: string;

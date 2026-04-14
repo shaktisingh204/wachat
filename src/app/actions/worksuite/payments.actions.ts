@@ -90,14 +90,7 @@ function parseJsonField<T>(
  *  Payments
  * ══════════════════════════════════════════════════════════════ */
 
-export interface ListPaymentsFilter {
-  clientId?: string;
-  gateway?: string;
-  status?: string;
-  from?: string;
-  to?: string;
-  invoiceId?: string;
-}
+import type { ListPaymentsFilter } from '@/lib/worksuite/payments-types';
 
 export async function getPayments(filter: ListPaymentsFilter = {}) {
   const user = await requireSession();
@@ -280,7 +273,7 @@ export async function deletePayment(id: string) {
   return r;
 }
 
-export interface RecordPaymentInput {
+interface RecordPaymentInput {
   invoiceId: string;
   amount: number;
   gateway: WsPaymentGateway;

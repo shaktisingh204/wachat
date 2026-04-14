@@ -24,10 +24,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  getTimeReport,
-  type WsTimeReportRow,
-} from '@/app/actions/worksuite/time.actions';
+import { getTimeReport } from '@/app/actions/worksuite/time.actions';
+import type { WsTimeReportRow } from '@/lib/worksuite/time-types';
 
 type Group = 'employee' | 'project' | 'date';
 

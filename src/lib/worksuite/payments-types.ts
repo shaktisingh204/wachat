@@ -144,3 +144,13 @@ export type WsInvoicePaymentDetail = Owned & {
   remaining_balance: number;
   recorded_at: Date;
 };
+
+/** Filter shape for `getPayments()` — used by the payments list page. */
+export interface ListPaymentsFilter {
+  clientId?: string;
+  gateway?: string;
+  status?: string;
+  from?: string;
+  to?: string;
+  invoiceId?: string;
+}

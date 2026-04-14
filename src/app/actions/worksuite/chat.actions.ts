@@ -412,7 +412,7 @@ export async function logUserActivity(
   return { message: 'Activity logged', id: res.insertedId.toString() };
 }
 
-export interface UserActivityFilter {
+interface UserActivityFilter {
   actorUserId?: string;
   action?: string;
   resourceType?: string;
@@ -456,7 +456,7 @@ export async function deleteUserActivity(id: string) {
 
 /* ═══════════════════ Notifications ═══════════════════ */
 
-export interface NotifyPayload {
+interface NotifyPayload {
   type: string;
   title: string;
   body?: string;

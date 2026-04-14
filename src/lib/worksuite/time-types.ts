@@ -137,3 +137,12 @@ export function wsWeekBounds(ref: Date = new Date()): {
   end.setHours(23, 59, 59, 999);
   return { start, end };
 }
+
+/** One row of the aggregated time report (group by employee/project/date). */
+export type WsTimeReportRow = {
+  key: string;
+  label: string;
+  totalHours: number;
+  totalMinutes: number;
+  entries: number;
+};

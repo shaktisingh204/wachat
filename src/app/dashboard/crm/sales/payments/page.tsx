@@ -27,10 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  getPayments,
-  type ListPaymentsFilter,
-} from '@/app/actions/worksuite/payments.actions';
+import { getPayments } from '@/app/actions/worksuite/payments.actions';
+import type { ListPaymentsFilter } from '@/lib/worksuite/payments-types';
 
 const STATUS_TONES: Record<
   string,

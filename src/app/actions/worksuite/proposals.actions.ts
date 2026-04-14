@@ -188,7 +188,7 @@ export async function getProposalById(id: string): Promise<
  * PROPOSALS — write
  * ════════════════════════════════════════════════════════════ */
 
-export interface SaveProposalInput {
+interface SaveProposalInput {
   _id?: string;
   title: string;
   proposal_number?: string;
@@ -404,7 +404,7 @@ export async function getProposalTemplateById(id: string): Promise<
   };
 }
 
-export interface SaveProposalTemplateInput {
+interface SaveProposalTemplateInput {
   _id?: string;
   name: string;
   title: string;
@@ -665,7 +665,7 @@ export async function getEstimateRequestById(id: string): Promise<
   };
 }
 
-export interface SaveEstimateRequestInput {
+interface SaveEstimateRequestInput {
   _id?: string;
   client_id?: string;
   requester_name?: string;
@@ -906,7 +906,7 @@ export async function getEstimateTemplateById(id: string): Promise<
   };
 }
 
-export interface SaveEstimateTemplateInput {
+interface SaveEstimateTemplateInput {
   _id?: string;
   name: string;
   title: string;
