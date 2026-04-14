@@ -6,10 +6,6 @@ import {
     LuShield,
     LuBell,
     LuEye,
-    LuSettings,
-    LuUsers,
-    LuTag,
-    LuMessageSquareQuote,
     LuKey,
     LuWebhook,
     LuPuzzle,
@@ -65,39 +61,6 @@ const SECTIONS: Array<{ title: string; tiles: Tile[] }> = [
                 description: 'Theme, density, and sidebar behavior.',
                 icon: LuEye,
                 tone: 'from-violet-400 to-violet-600',
-            },
-        ],
-    },
-    {
-        title: 'Workspace',
-        tiles: [
-            {
-                href: '/dashboard/settings/general',
-                label: 'General',
-                description: 'Project name, WABA ID, and basic configuration.',
-                icon: LuSettings,
-                tone: 'from-slate-400 to-slate-600',
-            },
-            {
-                href: '/dashboard/settings/agents',
-                label: 'Agents & Roles',
-                description: 'Invite agents and tune per-project permissions.',
-                icon: LuUsers,
-                tone: 'from-rose-400 to-rose-600',
-            },
-            {
-                href: '/dashboard/settings/attributes',
-                label: 'User Attributes',
-                description: 'Custom contact fields for segmentation.',
-                icon: LuTag,
-                tone: 'from-emerald-400 to-emerald-600',
-            },
-            {
-                href: '/dashboard/settings/canned',
-                label: 'Canned Messages',
-                description: 'Shared snippets for faster agent replies.',
-                icon: LuMessageSquareQuote,
-                tone: 'from-indigo-400 to-indigo-600',
             },
         ],
     },
@@ -163,7 +126,7 @@ export default function SettingsOverviewPage() {
             <ClaySectionHeader
                 size="lg"
                 title="Settings"
-                subtitle="Your account, workspace, developer tools, and billing — all in one place."
+                subtitle="Your account, developer tools, and billing — all in one place. Project-scoped settings live inside each module."
             />
 
             {SECTIONS.map((section) => (

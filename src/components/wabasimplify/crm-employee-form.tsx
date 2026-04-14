@@ -129,7 +129,11 @@ export function EmployeeForm({ employee, departments, designations, managers }: 
                                         <SmartLocationSelect
                                             type="country"
                                             value={workCountry}
-                                            onSelect={(val, label) => setWorkCountry(val)}
+                                            onSelect={(val, label) => {
+                                                setWorkCountry(val);
+                                                setWorkState('');
+                                                setWorkCity('');
+                                            }}
                                             placeholder="Select Country..."
                                         />
                                         <input type="hidden" name="workCountry" value={workCountry} />
@@ -140,7 +144,10 @@ export function EmployeeForm({ employee, departments, designations, managers }: 
                                             type="state"
                                             selectedCountryCode={workCountry}
                                             value={workState}
-                                            onSelect={(val, label) => setWorkState(val)}
+                                            onSelect={(val, label) => {
+                                                setWorkState(val);
+                                                setWorkCity('');
+                                            }}
                                             placeholder="Select State..."
                                             disabled={!workCountry}
                                         />

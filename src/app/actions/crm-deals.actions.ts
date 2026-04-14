@@ -100,6 +100,20 @@ export async function createCrmDeal(prevState: any, formData: FormData): Promise
         const closeDate = formData.get('closeDate') as string;
         if (closeDate) newDeal.closeDate = new Date(closeDate);
 
+        const probabilityRaw = formData.get('probability') as string;
+        if (probabilityRaw) {
+            const p = Number(probabilityRaw);
+            if (!isNaN(p)) newDeal.probability = p;
+        }
+        const priority = formData.get('priority') as string;
+        if (priority) newDeal.priority = priority as CrmDeal['priority'];
+        const lossReason = formData.get('lossReason') as string;
+        if (lossReason) newDeal.lossReason = lossReason;
+        const nextStep = formData.get('nextStep') as string;
+        if (nextStep) newDeal.nextStep = nextStep;
+        const campaign = formData.get('campaign') as string;
+        if (campaign) newDeal.campaign = campaign;
+
         if (!newDeal.name || !newDeal.stage || isNaN(newDeal.value ?? 0)) {
             return { error: 'Deal Name, Stage, and Value are required.' };
         }

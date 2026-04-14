@@ -985,36 +985,10 @@ const settingsPrimary: NavEntry[] = [
   },
 ];
 
-const settingsWorkspace: NavEntry[] = [
-  {
-    key: 'set-general',
-    label: 'General',
-    icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/settings/general',
-    matches: ['/dashboard/settings/general'],
-  },
-  {
-    key: 'set-agents',
-    label: 'Agents & Roles',
-    icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/settings/agents',
-    matches: ['/dashboard/settings/agents'],
-  },
-  {
-    key: 'set-attributes',
-    label: 'User Attributes',
-    icon: <LuTag className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/settings/attributes',
-    matches: ['/dashboard/settings/attributes'],
-  },
-  {
-    key: 'set-canned',
-    label: 'Canned Messages',
-    icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/settings/canned',
-    matches: ['/dashboard/settings/canned'],
-  },
-];
+// Project-scoped Wachat settings (General, Agents, Attributes, Canned
+// Messages) intentionally stay in the Wachat sidebar and are NOT
+// surfaced here — /dashboard/settings is the account-level SaaS
+// surface (profile, security, billing, credits, API keys).
 
 const settingsDeveloper: NavEntry[] = [
   {
@@ -1157,7 +1131,7 @@ const crmSales: NavEntry[] = [
   },
 ];
 
-const crmOperations: NavEntry[] = [
+const crmCatalog: NavEntry[] = [
   {
     key: 'crm-inventory',
     label: 'Inventory',
@@ -1172,6 +1146,9 @@ const crmOperations: NavEntry[] = [
     href: '/dashboard/crm/purchases/orders',
     matches: ['/dashboard/crm/purchases'],
   },
+];
+
+const crmFinance: NavEntry[] = [
   {
     key: 'crm-accounting',
     label: 'Accounting',
@@ -1185,13 +1162,6 @@ const crmOperations: NavEntry[] = [
     icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/crm/banking/bank-accounts',
     matches: ['/dashboard/crm/banking'],
-  },
-  {
-    key: 'crm-hr-payroll',
-    label: 'HR & Payroll',
-    icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/crm/hr-payroll',
-    matches: ['/dashboard/crm/hr-payroll'],
   },
 ];
 
@@ -1219,6 +1189,13 @@ const crmHr: NavEntry[] = [
     icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/crm/hr',
     matches: ['/dashboard/crm/hr'],
+  },
+  {
+    key: 'crm-hr-payroll',
+    label: 'Payroll & Attendance',
+    icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/crm/hr-payroll',
+    matches: ['/dashboard/crm/hr-payroll'],
   },
   {
     key: 'hr-jobs',
@@ -1469,9 +1446,9 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
                     : context === 'team'
                       ? [teamPrimary, teamGovern, teamCollab, teamConfigure]
                       : context === 'crm'
-                        ? [crmPrimary, crmSales, crmServices, crmOperations, crmHr, crmInsights, crmConfigure]
+                        ? [crmPrimary, crmSales, crmServices, crmCatalog, crmFinance, crmHr, crmInsights, crmConfigure]
                         : context === 'settings'
-                          ? [settingsPrimary, settingsWorkspace, settingsDeveloper, settingsBilling]
+                          ? [settingsPrimary, settingsDeveloper, settingsBilling]
                           : [primaryNav, appsNav];
   let bestKey =
     context === 'ad-manager' ? 'adm-overview' :
@@ -1952,7 +1929,8 @@ export function ClayDashboardLayout({
                     { items: crmPrimary.map(toNavItem) },
                     { title: 'Sales', addable: false, items: crmSales.map(toNavItem) },
                     { title: 'Services', addable: false, items: crmServices.map(toNavItem) },
-                    { title: 'Operations', addable: false, items: crmOperations.map(toNavItem) },
+                    { title: 'Catalog', addable: false, items: crmCatalog.map(toNavItem) },
+                    { title: 'Finance', addable: false, items: crmFinance.map(toNavItem) },
                     { title: 'HR', addable: false, items: crmHr.map(toNavItem) },
                     { title: 'Insights', addable: false, items: crmInsights.map(toNavItem) },
                     {
@@ -1965,7 +1943,6 @@ export function ClayDashboardLayout({
                 : context === 'settings'
                 ? [
                     { items: settingsPrimary.map(toNavItem) },
-                    { title: 'Workspace', addable: false, items: settingsWorkspace.map(toNavItem) },
                     { title: 'Developer', addable: false, items: settingsDeveloper.map(toNavItem) },
                     { title: 'Billing', addable: false, items: settingsBilling.map(toNavItem) },
                   ]

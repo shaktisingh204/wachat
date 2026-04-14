@@ -115,34 +115,42 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="country">Country</Label>
+                                        <Label htmlFor="country" className="text-clay-ink">Country</Label>
                                         <SmartLocationSelect
                                             type="country"
+                                            value={country}
                                             onSelect={(val, label) => {
                                                 setCountry(val);
                                                 setCountryName(label);
+                                                // Country change invalidates the state + city below
+                                                setSelectedState('');
+                                                setSelectedStateName('');
+                                                setCityName('');
                                             }}
                                         />
                                         <input type="hidden" name="country" value={countryName} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="state">State</Label>
+                                        <Label htmlFor="state" className="text-clay-ink">State</Label>
                                         <SmartLocationSelect
                                             type="state"
                                             selectedCountryCode={country}
+                                            value={selectedState}
                                             onSelect={(val, label) => {
                                                 setSelectedState(val);
                                                 setSelectedStateName(label);
+                                                setCityName('');
                                             }}
                                         />
                                         <input type="hidden" name="state" value={selectedStateName} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="city">City/Town</Label>
+                                        <Label htmlFor="city" className="text-clay-ink">City/Town</Label>
                                         <SmartLocationSelect
                                             type="city"
                                             selectedCountryCode={country}
                                             selectedStateCode={selectedState}
+                                            value={cityName}
                                             onSelect={(val, label) => setCityName(label)}
                                         />
                                         <input type="hidden" name="city" value={cityName} />

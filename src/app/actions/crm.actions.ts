@@ -100,6 +100,23 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
             createdAt: new Date(),
         };
 
+        const linkedinUrl = formData.get('linkedinUrl') as string;
+        if (linkedinUrl) newContact.linkedinUrl = linkedinUrl;
+        const twitterHandle = formData.get('twitterHandle') as string;
+        if (twitterHandle) newContact.twitterHandle = twitterHandle;
+        const lifecycleStage = formData.get('lifecycleStage') as string;
+        if (lifecycleStage) newContact.lifecycleStage = lifecycleStage as CrmContact['lifecycleStage'];
+        const source = formData.get('source') as string;
+        if (source) newContact.source = source as CrmContact['source'];
+        const owner = formData.get('owner') as string;
+        if (owner) newContact.owner = owner;
+        const tagsRaw = formData.get('tags') as string;
+        if (tagsRaw) newContact.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+        const dateOfBirth = formData.get('dateOfBirth') as string;
+        if (dateOfBirth) newContact.dateOfBirth = new Date(dateOfBirth);
+        const timezone = formData.get('timezone') as string;
+        if (timezone) newContact.timezone = timezone;
+
         const accountId = formData.get('accountId') as string;
         if (accountId && ObjectId.isValid(accountId)) {
             newContact.accountId = new ObjectId(accountId);
@@ -126,14 +143,35 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
     try {
         const { db } = await connectToDatabase();
 
-        const accountResult = await db.collection('crm_accounts').insertOne({
+        const gstin = formData.get('gstin') as string;
+        const pan = formData.get('pan') as string;
+        const billingAddress = formData.get('billingAddress') as string;
+        const shippingAddress = formData.get('shippingAddress') as string;
+        const annualRevenueRaw = formData.get('annualRevenue') as string;
+        const employeeCountRaw = formData.get('employeeCount') as string;
+        const accountCurrency = formData.get('accountCurrency') as string;
+        const paymentTerms = formData.get('paymentTerms') as string;
+        const category = formData.get('category') as string;
+
+        const accountDoc: Record<string, any> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('businessName') as string,
             industry: formData.get('clientIndustry') as string,
             phone: formData.get('phone') as string,
             createdAt: new Date(),
-            status: 'active'
-        });
+            status: 'active',
+        };
+        if (gstin) accountDoc.gstin = gstin;
+        if (pan) accountDoc.pan = pan;
+        if (billingAddress) accountDoc.billingAddress = billingAddress;
+        if (shippingAddress) accountDoc.shippingAddress = shippingAddress;
+        if (annualRevenueRaw) accountDoc.annualRevenue = Number(annualRevenueRaw);
+        if (employeeCountRaw) accountDoc.employeeCount = Number(employeeCountRaw);
+        if (accountCurrency) accountDoc.currency = accountCurrency;
+        if (paymentTerms) accountDoc.paymentTerms = paymentTerms;
+        if (category) accountDoc.category = category;
+
+        const accountResult = await db.collection('crm_accounts').insertOne(accountDoc);
 
         const newContact: Partial<CrmContact> = {
             userId: new ObjectId(session.user._id),

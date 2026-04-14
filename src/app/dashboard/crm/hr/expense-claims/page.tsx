@@ -80,6 +80,22 @@ export default function ExpenseClaimsPage() {
           ],
           defaultValue: 'pending',
         },
+        { name: 'projectName', label: 'Project Name' },
+        {
+          name: 'paymentMode',
+          label: 'Payment Mode',
+          type: 'select',
+          options: [
+            { value: 'cash', label: 'Cash' },
+            { value: 'card', label: 'Card' },
+            { value: 'upi', label: 'UPI' },
+            { value: 'cheque', label: 'Cheque' },
+            { value: 'bank-transfer', label: 'Bank Transfer' },
+          ],
+        },
+        { name: 'gstAmount', label: 'GST Amount', type: 'number' },
+        { name: 'approverName', label: 'Approver Name' },
+        { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
       ]}
     />
   );

@@ -22,6 +22,7 @@ export default function CompensationBandsPage() {
       columns={[
         { key: 'title', label: 'Title' },
         { key: 'level', label: 'Level' },
+        { key: 'department', label: 'Department' },
         { key: 'minSalary', label: 'Min' },
         { key: 'maxSalary', label: 'Max' },
         { key: 'currency', label: 'Currency' },
@@ -32,6 +33,20 @@ export default function CompensationBandsPage() {
         { name: 'minSalary', label: 'Min Salary', type: 'number', required: true },
         { name: 'maxSalary', label: 'Max Salary', type: 'number', required: true },
         { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+        { name: 'department', label: 'Department' },
+        { name: 'experienceMin', label: 'Experience Min (years)', type: 'number' },
+        { name: 'experienceMax', label: 'Experience Max (years)', type: 'number' },
+        { name: 'bandVersion', label: 'Band Version', defaultValue: 'v1' },
+        {
+          name: 'reviewCycle',
+          label: 'Review Cycle',
+          type: 'select',
+          options: [
+            { value: 'annual', label: 'Annual' },
+            { value: 'bi-annual', label: 'Bi-annual' },
+            { value: 'quarterly', label: 'Quarterly' },
+          ],
+        },
         {
           name: 'notes',
           label: 'Notes',

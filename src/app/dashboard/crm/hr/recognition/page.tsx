@@ -78,6 +78,30 @@ export default function RecognitionPage() {
         },
         { name: 'points', label: 'Points', type: 'number' },
         { name: 'givenAt', label: 'Given At', type: 'date', required: true },
+        {
+          name: 'category',
+          label: 'Category',
+          type: 'select',
+          options: [
+            { value: 'teamwork', label: 'Teamwork' },
+            { value: 'leadership', label: 'Leadership' },
+            { value: 'innovation', label: 'Innovation' },
+            { value: 'customer-focus', label: 'Customer Focus' },
+            { value: 'excellence', label: 'Excellence' },
+          ],
+        },
+        {
+          name: 'visibility',
+          label: 'Visibility',
+          type: 'select',
+          options: [
+            { value: 'public', label: 'Public' },
+            { value: 'team', label: 'Team' },
+            { value: 'private', label: 'Private' },
+          ],
+          defaultValue: 'public',
+        },
+        { name: 'linkedOkrId', label: 'Linked OKR ID' },
       ]}
     />
   );

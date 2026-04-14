@@ -60,10 +60,24 @@ export default function SurveysPage() {
         { name: 'responsesCount', label: 'Responses', type: 'number' },
         {
           name: 'questions',
-          label: 'Questions (JSON)',
-          type: 'textarea',
+          label: 'Questions',
+          type: 'array',
           fullWidth: true,
-          placeholder: '[{"prompt":"How is morale?","type":"rating"}]',
+          addLabel: 'Add Question',
+          subFields: [
+            { name: 'prompt', label: 'Prompt', type: 'text', required: true },
+            {
+              name: 'type',
+              label: 'Type',
+              type: 'select',
+              required: true,
+              options: [
+                { value: 'rating', label: 'Rating' },
+                { value: 'text', label: 'Text' },
+                { value: 'yes-no', label: 'Yes/No' },
+              ],
+            },
+          ],
         },
       ]}
     />

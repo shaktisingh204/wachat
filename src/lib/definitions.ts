@@ -477,6 +477,10 @@ export type CrmDeal = {
     ownerId?: ObjectId; // User ID
     leadSource?: string;
     pipelineId?: string;
+    priority?: 'low' | 'medium' | 'high' | 'critical';
+    lossReason?: string;
+    nextStep?: string;
+    campaign?: string;
     createdAt: Date;
     updatedAt: Date;
     notes?: {
@@ -506,6 +510,15 @@ export type CrmAccount = {
     }[];
     contactIds?: ObjectId[];
     dealIds?: ObjectId[];
+    gstin?: string;
+    pan?: string;
+    billingAddress?: string;
+    shippingAddress?: string;
+    annualRevenue?: number;
+    employeeCount?: number;
+    currency?: string;
+    paymentTerms?: 'Net 15' | 'Net 30' | 'Net 45' | 'Net 60' | 'Immediate';
+    category?: 'new' | 'strategic' | 'key' | 'regular';
     createdAt: Date;
     updatedAt?: Date;
     status?: 'active' | 'archived';
@@ -532,6 +545,13 @@ export type CrmContact = {
         author: string;
     }[];
     tags?: string[];
+    linkedinUrl?: string;
+    twitterHandle?: string;
+    lifecycleStage?: 'lead' | 'mql' | 'sql' | 'customer' | 'evangelist' | 'other';
+    source?: 'website' | 'referral' | 'social' | 'event' | 'cold-outbound' | 'ad' | 'other';
+    owner?: string;
+    dateOfBirth?: Date;
+    timezone?: string;
     createdAt: Date;
     updatedAt?: Date;
 };

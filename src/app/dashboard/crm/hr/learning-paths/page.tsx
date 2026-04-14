@@ -41,10 +41,14 @@ export default function LearningPathsPage() {
         },
         {
           name: 'steps',
-          label: 'Steps (JSON array)',
-          type: 'textarea',
+          label: 'Steps',
+          type: 'array',
           fullWidth: true,
-          placeholder: '[{"title":"Intro","link":"https://..."}]',
+          addLabel: 'Add Step',
+          subFields: [
+            { name: 'title', label: 'Title', type: 'text', required: true },
+            { name: 'link', label: 'Link', type: 'text', placeholder: 'https://...' },
+          ],
         },
       ]}
     />

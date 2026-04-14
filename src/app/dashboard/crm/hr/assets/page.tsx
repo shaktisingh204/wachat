@@ -67,6 +67,12 @@ export default function AssetsPage() {
           ],
           defaultValue: 'good',
         },
+        { name: 'warrantyExpiresAt', label: 'Warranty Expires At', type: 'date' },
+        { name: 'vendor', label: 'Vendor' },
+        { name: 'purchaseCost', label: 'Purchase Cost', type: 'number' },
+        { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+        { name: 'location', label: 'Location' },
+        { name: 'tagNumber', label: 'Tag Number' },
         { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
       ]}
     />

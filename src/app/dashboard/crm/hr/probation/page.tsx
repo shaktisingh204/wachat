@@ -81,6 +81,15 @@ export default function ProbationPage() {
           defaultValue: 'active',
         },
         { name: 'reviewerName', label: 'Reviewer Name' },
+        { name: 'mentor', label: 'Mentor' },
+        {
+          name: 'evaluationCriteria',
+          label: 'Evaluation Criteria',
+          type: 'textarea',
+          fullWidth: true,
+        },
+        { name: 'midReviewDate', label: 'Mid Review Date', type: 'date' },
+        { name: 'performanceScore', label: 'Performance Score (1-5)', type: 'number' },
         {
           name: 'notes',
           label: 'Notes',

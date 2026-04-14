@@ -254,11 +254,29 @@ function isCrmRoute(pathname: string | null): boolean {
 /**
  * Settings routes get their own Clay context="settings" with a
  * dedicated sidebar for profile, security, notifications, billing,
- * API keys, and legacy project-scoped settings. User-scoped.
+ * API keys, and integrations. User-scoped.
+ *
+ * NOTE: the legacy project-scoped Wachat settings pages
+ * (`/dashboard/settings/{general,agents,attributes,canned}`) stay in
+ * the Wachat module — they consume `useProject()` and belong beside
+ * the rest of the Wachat nav. They're excluded here so the Wachat
+ * branch matches them instead.
  */
+const WACHAT_SETTINGS_SUBPATHS = [
+  '/dashboard/settings/general',
+  '/dashboard/settings/agents',
+  '/dashboard/settings/attributes',
+  '/dashboard/settings/canned',
+];
+
 function isSettingsRoute(pathname: string | null): boolean {
   if (!pathname) return false;
-  return pathname === '/dashboard/settings' || pathname.startsWith('/dashboard/settings/');
+  if (pathname !== '/dashboard/settings' && !pathname.startsWith('/dashboard/settings/')) {
+    return false;
+  }
+  return !WACHAT_SETTINGS_SUBPATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + '/'),
+  );
 }
 
 export interface DashboardChromeDispatcherProps {

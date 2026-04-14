@@ -51,7 +51,25 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
-export type HrFieldType = 'text' | 'textarea' | 'select' | 'number' | 'date';
+export type HrFieldType =
+  | 'text'
+  | 'textarea'
+  | 'select'
+  | 'number'
+  | 'date'
+  | 'email'
+  | 'url'
+  | 'tel'
+  | 'array';
+
+export interface HrArraySubField {
+  name: string;
+  label: string;
+  type?: 'text' | 'number' | 'select' | 'date';
+  options?: { value: string; label: string }[];
+  placeholder?: string;
+  required?: boolean;
+}
 
 export interface HrField {
   name: string;
@@ -62,6 +80,12 @@ export interface HrField {
   placeholder?: string;
   fullWidth?: boolean;
   defaultValue?: string;
+  /** For `type: 'array'` — the shape of each row. */
+  subFields?: HrArraySubField[];
+  /** Label shown on the "+ Add row" button. */
+  addLabel?: string;
+  /** Help/hint text rendered under the field. */
+  help?: string;
 }
 
 export interface HrColumn<T> {
@@ -107,12 +131,18 @@ export interface HrEntityPageProps<T extends { _id: string }> {
   emptyText?: string;
 }
 
-function renderField(field: HrField, value?: string) {
+function renderField(field: HrField, value?: unknown) {
+  const stringValue = typeof value === 'string' ? value : '';
+
+  if (field.type === 'array') {
+    return <FieldArray field={field} initialValue={value} />;
+  }
+
   const common = {
     id: field.name,
     name: field.name,
     required: field.required,
-    defaultValue: value ?? field.defaultValue ?? '',
+    defaultValue: stringValue || field.defaultValue || '',
     placeholder: field.placeholder,
   };
 
@@ -150,6 +180,177 @@ function renderField(field: HrField, value?: string) {
       type={field.type || 'text'}
       className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
     />
+  );
+}
+
+/**
+ * FieldArray — dynamic repeater for array-of-object fields (e.g. OKR
+ * key results, onboarding tasks, survey questions). Stores the array
+ * as JSON in a hidden input so the existing `jsonKeys` server-side
+ * parsing keeps working unchanged. The UI exposes a proper row-per-
+ * item editor with Add / Remove controls.
+ */
+function FieldArray({
+  field,
+  initialValue,
+}: {
+  field: HrField;
+  initialValue?: unknown;
+}) {
+  const subs = field.subFields || [];
+  const parseInitial = (): Record<string, string>[] => {
+    if (!initialValue) return [];
+    if (Array.isArray(initialValue)) {
+      return (initialValue as any[]).map((row) => {
+        const out: Record<string, string> = {};
+        for (const s of subs) {
+          const v = row?.[s.name];
+          out[s.name] = v === undefined || v === null ? '' : String(v);
+        }
+        return out;
+      });
+    }
+    if (typeof initialValue === 'string') {
+      try {
+        const parsed = JSON.parse(initialValue);
+        if (Array.isArray(parsed)) {
+          return parsed.map((row: any) => {
+            const out: Record<string, string> = {};
+            for (const s of subs) {
+              const v = row?.[s.name];
+              out[s.name] = v === undefined || v === null ? '' : String(v);
+            }
+            return out;
+          });
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    return [];
+  };
+  const [rows, setRows] = useState<Record<string, string>[]>(parseInitial);
+
+  const makeEmptyRow = (): Record<string, string> => {
+    const r: Record<string, string> = {};
+    for (const s of subs) r[s.name] = '';
+    return r;
+  };
+
+  const addRow = () => setRows((prev) => [...prev, makeEmptyRow()]);
+  const removeRow = (i: number) =>
+    setRows((prev) => prev.filter((_, idx) => idx !== i));
+  const updateRow = (i: number, name: string, value: string) =>
+    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, [name]: value } : r)));
+
+  const hiddenValue = JSON.stringify(
+    rows.map((r) => {
+      const out: Record<string, string | number> = {};
+      for (const s of subs) {
+        const raw = r[s.name] ?? '';
+        out[s.name] = s.type === 'number' && raw !== '' ? Number(raw) : raw;
+      }
+      return out;
+    }),
+  );
+
+  return (
+    <div className="space-y-2">
+      <input type="hidden" name={field.name} value={hiddenValue} />
+
+      {rows.length === 0 ? (
+        <p className="rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-3 py-2.5 text-center text-[12px] text-clay-ink-muted">
+          No rows yet — click Add below to start.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {rows.map((row, i) => (
+            <div
+              key={i}
+              className="flex flex-wrap items-end gap-2 rounded-clay-md border border-clay-border bg-clay-surface-2 p-2"
+            >
+              {subs.map((s) => {
+                const fieldId = `${field.name}-${i}-${s.name}`;
+                if (s.type === 'select') {
+                  return (
+                    <div key={s.name} className="min-w-[120px] flex-1">
+                      <Label
+                        htmlFor={fieldId}
+                        className="text-[11px] text-clay-ink-muted"
+                      >
+                        {s.label}
+                      </Label>
+                      <Select
+                        value={row[s.name] || ''}
+                        onValueChange={(v) => updateRow(i, s.name, v)}
+                      >
+                        <SelectTrigger
+                          id={fieldId}
+                          className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                        >
+                          <SelectValue placeholder={s.placeholder || 'Select'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(s.options || []).map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  );
+                }
+                return (
+                  <div key={s.name} className="min-w-[120px] flex-1">
+                    <Label
+                      htmlFor={fieldId}
+                      className="text-[11px] text-clay-ink-muted"
+                    >
+                      {s.label}
+                    </Label>
+                    <Input
+                      id={fieldId}
+                      type={s.type || 'text'}
+                      value={row[s.name] || ''}
+                      placeholder={s.placeholder}
+                      required={s.required}
+                      onChange={(e) => updateRow(i, s.name, e.target.value)}
+                      className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    />
+                  </div>
+                );
+              })}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeRow(i)}
+                className="text-clay-red"
+                aria-label="Remove row"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={addRow}
+        className="rounded-clay-md border-clay-border text-[12px]"
+      >
+        <Plus className="mr-1.5 h-3.5 w-3.5" />
+        {field.addLabel || 'Add row'}
+      </Button>
+
+      {field.help ? (
+        <p className="text-[11.5px] text-clay-ink-muted">{field.help}</p>
+      ) : null}
+    </div>
   );
 }
 
@@ -342,7 +543,9 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                     {renderField(
                       field,
                       editing
-                        ? formatFieldValue(editing[field.name], field.type)
+                        ? field.type === 'array'
+                          ? (editing[field.name] as unknown)
+                          : formatFieldValue(editing[field.name], field.type)
                         : undefined,
                     )}
                   </div>

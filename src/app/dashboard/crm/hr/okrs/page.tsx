@@ -53,10 +53,14 @@ export default function OkrsPage() {
         },
         {
           name: 'keyResults',
-          label: 'Key Results (JSON)',
-          type: 'textarea',
+          label: 'Key Results',
+          type: 'array',
           fullWidth: true,
-          placeholder: '[{"description":"Ship X","progress":50}]',
+          addLabel: 'Add Key Result',
+          subFields: [
+            { name: 'description', label: 'Description', type: 'text', required: true, placeholder: 'Ship feature X' },
+            { name: 'progress', label: 'Progress %', type: 'number', placeholder: '0-100' },
+          ],
         },
       ]}
     />

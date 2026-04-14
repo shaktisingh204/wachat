@@ -33,10 +33,15 @@ export default function OnboardingPage() {
         },
         {
           name: 'tasks',
-          label: 'Tasks (JSON array)',
-          type: 'textarea',
+          label: 'Tasks',
+          type: 'array',
           fullWidth: true,
-          placeholder: '[{"title":"Get laptop","dueDays":1}]',
+          addLabel: 'Add Task',
+          subFields: [
+            { name: 'title', label: 'Title', type: 'text', required: true },
+            { name: 'dueDays', label: 'Due Days', type: 'number', placeholder: '1' },
+            { name: 'assignee', label: 'Assignee', type: 'text' },
+          ],
         },
       ]}
     />

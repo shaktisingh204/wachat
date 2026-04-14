@@ -33,10 +33,24 @@ export default function SuccessionPage() {
         { name: 'incumbentName', label: 'Incumbent Name' },
         {
           name: 'successors',
-          label: 'Successors (JSON)',
-          type: 'textarea',
+          label: 'Successors',
+          type: 'array',
           fullWidth: true,
-          placeholder: '[{"name":"Jane","readiness":"ready"}]',
+          addLabel: 'Add Successor',
+          subFields: [
+            { name: 'name', label: 'Name', type: 'text', required: true },
+            {
+              name: 'readiness',
+              label: 'Readiness',
+              type: 'select',
+              required: true,
+              options: [
+                { value: 'ready', label: 'Ready' },
+                { value: '6-12m', label: '6-12 months' },
+                { value: '1-3y', label: '1-3 years' },
+              ],
+            },
+          ],
         },
         {
           name: 'notes',

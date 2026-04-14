@@ -107,6 +107,55 @@ export function CreateDealDialog({ contacts, accounts, onDealCreated, dealStages
                 <div className="space-y-2"><Label htmlFor="accountId" className="text-clay-ink">Account</Label><Select name="accountId" required><SelectTrigger id="accountId"><SelectValue placeholder="Select an account..." /></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}</SelectContent></Select></div>
                 <div className="space-y-2"><Label htmlFor="contactId" className="text-clay-ink">Primary Contact</Label><Select name="contactId" required><SelectTrigger id="contactId"><SelectValue placeholder="Select a contact..." /></SelectTrigger><SelectContent>{contacts.map(c => <SelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="probability" className="text-clay-ink">Probability %</Label>
+                  <Input id="probability" name="probability" type="number" min={0} max={100} placeholder="e.g. 60" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="priority" className="text-clay-ink">Priority</Label>
+                  <Select name="priority" defaultValue="medium">
+                    <SelectTrigger id="priority" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="critical">Critical</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="leadSource" className="text-clay-ink">Lead Source</Label>
+                  <Select name="leadSource" defaultValue="other">
+                    <SelectTrigger id="leadSource" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="website">Website</SelectItem>
+                      <SelectItem value="referral">Referral</SelectItem>
+                      <SelectItem value="partner">Partner</SelectItem>
+                      <SelectItem value="outbound">Outbound</SelectItem>
+                      <SelectItem value="inbound">Inbound</SelectItem>
+                      <SelectItem value="event">Event</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="campaign" className="text-clay-ink">Campaign</Label>
+                  <Input id="campaign" name="campaign" placeholder="e.g. Q1 Launch" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nextStep" className="text-clay-ink">Next Step</Label>
+                  <Input id="nextStep" name="nextStep" placeholder="e.g. Send proposal" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lossReason" className="text-clay-ink">Loss Reason (if lost)</Label>
+                  <Input id="lossReason" name="lossReason" placeholder="Optional" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter className="px-6 pb-6 pt-2">

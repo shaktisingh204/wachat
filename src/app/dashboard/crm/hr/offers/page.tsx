@@ -80,6 +80,21 @@ export default function OffersPage() {
           ],
           defaultValue: 'draft',
         },
+        { name: 'fixedComponent', label: 'Fixed Component', type: 'number' },
+        { name: 'variableComponent', label: 'Variable Component', type: 'number' },
+        { name: 'joiningBonus', label: 'Joining Bonus', type: 'number' },
+        { name: 'probationMonths', label: 'Probation (months)', type: 'number', defaultValue: '3' },
+        {
+          name: 'workMode',
+          label: 'Work Mode',
+          type: 'select',
+          options: [
+            { value: 'onsite', label: 'Onsite' },
+            { value: 'hybrid', label: 'Hybrid' },
+            { value: 'remote', label: 'Remote' },
+          ],
+        },
+        { name: 'reportsTo', label: 'Reports To' },
         {
           name: 'notes',
           label: 'Notes',

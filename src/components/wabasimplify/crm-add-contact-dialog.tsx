@@ -124,7 +124,73 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
               </div>
               <div className="space-y-2">
                 <Label htmlFor="leadScore" className="text-clay-ink">Lead Score</Label>
-                <Input id="leadScore" name="leadScore" type="number" placeholder="e.g. 75" />
+                <Input id="leadScore" name="leadScore" type="number" placeholder="e.g. 75" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+              </div>
+              <Separator className="border-clay-border" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="lifecycleStage" className="text-clay-ink">Lifecycle Stage</Label>
+                  <Select name="lifecycleStage" defaultValue="lead">
+                    <SelectTrigger id="lifecycleStage" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lead">Lead</SelectItem>
+                      <SelectItem value="mql">MQL</SelectItem>
+                      <SelectItem value="sql">SQL</SelectItem>
+                      <SelectItem value="customer">Customer</SelectItem>
+                      <SelectItem value="evangelist">Evangelist</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="source" className="text-clay-ink">Source</Label>
+                  <Select name="source" defaultValue="other">
+                    <SelectTrigger id="source" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="website">Website</SelectItem>
+                      <SelectItem value="referral">Referral</SelectItem>
+                      <SelectItem value="social">Social</SelectItem>
+                      <SelectItem value="event">Event</SelectItem>
+                      <SelectItem value="cold-outbound">Cold Outbound</SelectItem>
+                      <SelectItem value="ad">Ad</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="owner" className="text-clay-ink">Owner</Label>
+                  <Input id="owner" name="owner" placeholder="Assigned to..." className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tags" className="text-clay-ink">Tags</Label>
+                  <Input id="tags" name="tags" placeholder="vip, enterprise, priority" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="linkedinUrl" className="text-clay-ink">LinkedIn URL</Label>
+                  <Input id="linkedinUrl" name="linkedinUrl" type="url" placeholder="https://linkedin.com/in/..." className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="twitterHandle" className="text-clay-ink">Twitter / X Handle</Label>
+                  <Input id="twitterHandle" name="twitterHandle" placeholder="@handle" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="dateOfBirth" className="text-clay-ink">Date of Birth</Label>
+                  <Input id="dateOfBirth" name="dateOfBirth" type="date" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="timezone" className="text-clay-ink">Timezone</Label>
+                  <Input id="timezone" name="timezone" placeholder="Asia/Kolkata" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                </div>
               </div>
             </div>
           </div>

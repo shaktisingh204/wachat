@@ -94,6 +94,11 @@ export default function InterviewsPage() {
             { value: 'strong-no-hire', label: 'Strong no hire' },
           ],
         },
+        { name: 'durationMinutes', label: 'Duration (minutes)', type: 'number', defaultValue: '60' },
+        { name: 'location', label: 'Location' },
+        { name: 'meetingLink', label: 'Meeting Link', type: 'url' },
+        { name: 'rating', label: 'Rating (1-5)', type: 'number' },
+        { name: 'interviewerEmail', label: 'Interviewer Email', type: 'email' },
         {
           name: 'feedback',
           label: 'Feedback',

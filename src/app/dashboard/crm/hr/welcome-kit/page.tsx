@@ -33,10 +33,14 @@ export default function WelcomeKitPage() {
         },
         {
           name: 'items',
-          label: 'Items (JSON array)',
-          type: 'textarea',
+          label: 'Items',
+          type: 'array',
           fullWidth: true,
-          placeholder: '[{"label":"Welcome card"}]',
+          addLabel: 'Add Item',
+          subFields: [
+            { name: 'label', label: 'Label', type: 'text', required: true },
+            { name: 'note', label: 'Note', type: 'text' },
+          ],
         },
       ]}
     />

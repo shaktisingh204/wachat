@@ -75,10 +75,29 @@ export default function TimesheetsPage() {
         },
         {
           name: 'entries',
-          label: 'Entries (JSON)',
-          type: 'textarea',
+          label: 'Entries',
+          type: 'array',
           fullWidth: true,
-          placeholder: '[{"day":"Mon","hours":8,"project":"X"}]',
+          addLabel: 'Add Entry',
+          subFields: [
+            {
+              name: 'day',
+              label: 'Day',
+              type: 'select',
+              options: [
+                { value: 'Mon', label: 'Mon' },
+                { value: 'Tue', label: 'Tue' },
+                { value: 'Wed', label: 'Wed' },
+                { value: 'Thu', label: 'Thu' },
+                { value: 'Fri', label: 'Fri' },
+                { value: 'Sat', label: 'Sat' },
+                { value: 'Sun', label: 'Sun' },
+              ],
+            },
+            { name: 'hours', label: 'Hours', type: 'number', required: true },
+            { name: 'project', label: 'Project', type: 'text' },
+            { name: 'notes', label: 'Notes', type: 'text' },
+          ],
         },
       ]}
     />

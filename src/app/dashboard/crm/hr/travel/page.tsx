@@ -82,6 +82,29 @@ export default function TravelPage() {
           ],
           defaultValue: 'pending',
         },
+        {
+          name: 'mode',
+          label: 'Mode',
+          type: 'select',
+          options: [
+            { value: 'flight', label: 'Flight' },
+            { value: 'train', label: 'Train' },
+            { value: 'car', label: 'Car' },
+            { value: 'hotel-only', label: 'Hotel Only' },
+          ],
+        },
+        {
+          name: 'accommodationNeeded',
+          label: 'Accommodation Needed',
+          type: 'select',
+          options: [
+            { value: 'yes', label: 'Yes' },
+            { value: 'no', label: 'No' },
+          ],
+        },
+        { name: 'advanceAmount', label: 'Advance Amount', type: 'number' },
+        { name: 'approverName', label: 'Approver Name' },
+        { name: 'bookingReference', label: 'Booking Reference' },
       ]}
     />
   );

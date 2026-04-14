@@ -107,9 +107,13 @@ export default function NewVendorPage() {
                                         <Label htmlFor="country">Country *</Label>
                                         <SmartLocationSelect
                                             type="country"
+                                            value={country}
                                             onSelect={(val, label) => {
                                                 setCountry(val);
                                                 setCountryName(label);
+                                                setSelectedState('');
+                                                setSelectedStateName('');
+                                                setCityName('');
                                             }}
                                         />
                                         <input type="hidden" name="country" value={countryName} />
@@ -119,9 +123,11 @@ export default function NewVendorPage() {
                                         <SmartLocationSelect
                                             type="state"
                                             selectedCountryCode={country}
+                                            value={selectedState}
                                             onSelect={(val, label) => {
                                                 setSelectedState(val);
                                                 setSelectedStateName(label);
+                                                setCityName('');
                                             }}
                                         />
                                         <input type="hidden" name="state" value={selectedStateName} />
@@ -132,6 +138,7 @@ export default function NewVendorPage() {
                                             type="city"
                                             selectedCountryCode={country}
                                             selectedStateCode={selectedState}
+                                            value={cityName}
                                             onSelect={(val, label) => setCityName(label)}
                                         />
                                         <input type="hidden" name="city" value={cityName} />
@@ -161,9 +168,13 @@ export default function NewVendorPage() {
                                         <Label>Country</Label>
                                         <SmartLocationSelect
                                             type="country"
+                                            value={addressCountry}
                                             onSelect={(val, label) => {
                                                 setAddressCountry(val);
                                                 setAddressCountryName(label);
+                                                setAddressState('');
+                                                setAddressStateName('');
+                                                setAddressCityName('');
                                             }}
                                         />
                                         <input type="hidden" name="addressCountry" value={addressCountryName} />
@@ -173,9 +184,11 @@ export default function NewVendorPage() {
                                         <SmartLocationSelect
                                             type="state"
                                             selectedCountryCode={addressCountry}
+                                            value={addressState}
                                             onSelect={(val, label) => {
                                                 setAddressState(val);
                                                 setAddressStateName(label);
+                                                setAddressCityName('');
                                             }}
                                         />
                                         <input type="hidden" name="addressState" value={addressStateName} />
@@ -186,6 +199,7 @@ export default function NewVendorPage() {
                                             type="city"
                                             selectedCountryCode={addressCountry}
                                             selectedStateCode={addressState}
+                                            value={addressCityName}
                                             onSelect={(val, label) => setAddressCityName(label)}
                                         />
                                         <input type="hidden" name="addressCity" value={addressCityName} />
