@@ -10,7 +10,13 @@ export async function executeKafkaAction(
 
   const brokers = brokersRaw.split(',').map((b) => b.trim());
 
-  const { Kafka } = await import('kafkajs');
+  let kafkaModule: typeof import('kafkajs') | null = null;
+  try {
+    kafkaModule = await import('kafkajs');
+  } catch {
+    return { error: 'kafkajs package is not installed. Run: npm install kafkajs' };
+  }
+  const { Kafka } = kafkaModule;
 
   const kafkaConfig: Record<string, unknown> = { clientId, brokers };
 

@@ -77,7 +77,7 @@ import { executeTrelloAction } from './trello';
 import { executeJiraAction } from './jira';
 import { executeAsanaAction } from './asana';
 import { executeMondayAction } from './monday';
-import { executeClickupAction } from './clickup';
+import { executeClickUpAction as executeClickupAction } from './clickup';
 import { executeGithubAction } from './github';
 
 // CRM / Support
@@ -225,7 +225,7 @@ import { executeSeaTableAction } from './seatable';
 import { executeStackbyAction } from './stackby';
 
 // AI / Media / Translation
-import { executeDeepLAction } from './deepl';
+import { executeDeeplAction as executeDeepLAction } from './deepl';
 import { executeAssemblyAIAction } from './assemblyai';
 import { executeElevenLabsAction } from './elevenlabs';
 import { executeStabilityAction } from './stability';
@@ -622,7 +622,7 @@ import { executeAwsPollyAction } from './aws-polly';
 import { executeXeroEnhancedAction } from './xero-enhanced';
 import { executeQuickbooksEnhancedAction } from './quickbooks-enhanced';
 import { executeGustoAction } from './gusto';
-import { executeBamboohrEnhancedAction } from './bamboohr-enhanced';
+import { executeBambooHREnhancedAction as executeBamboohrEnhancedAction } from './bamboohr-enhanced';
 import { executeSageAction } from './sage';
 import { executeLoomAction } from './loom';
 import { executeVimeoAction } from './vimeo';
@@ -721,7 +721,7 @@ import { executeBrazeEnhancedAction } from './braze-enhanced';
 // AWS RDS / ELB / CloudWatch / KMS / SES Enhanced
 import { executeAwsRdsAction } from './aws-rds';
 import { executeAwsElbAction } from './aws-elb';
-import { executeAwsCloudWatchNewAction } from './aws-cloudwatch';
+import { executeAwsCloudWatchAction as executeAwsCloudWatchNewAction } from './aws-cloudwatch';
 import { executeAwsKmsAction } from './aws-kms';
 import { executeAwsSesEnhancedAction } from './aws-ses-enhanced';
 
