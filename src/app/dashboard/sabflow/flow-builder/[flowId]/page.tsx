@@ -10,21 +10,22 @@ import {
     Controls,
     Background,
     BackgroundVariant,
-    Panel,
     Connection,
     Edge,
     Node,
     OnConnect,
     NodeTypes,
+    MiniMap,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, Save, Settings2, ArrowLeft, BookOpen, Plus, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+    LoaderCircle, Save, ArrowLeft, ChevronRight, ChevronLeft,
+    PlayCircle, Zap, Share2, Eye,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useProject } from '@/context/project-context';
@@ -33,68 +34,88 @@ import { getSession } from '@/app/actions';
 import { SabFlowSidebar } from '@/components/wabasimplify/sabflow/flow-builder/SabFlowSidebar';
 import SabFlowCustomNode from '@/components/wabasimplify/sabflow/flow-builder/SabFlowCustomNode';
 import { SabFlowPropertiesPanel } from '@/components/wabasimplify/sabflow/flow-builder/SabFlowPropertiesPanel';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import { v4 as uuidv4 } from 'uuid';
 import { validateFlow } from '@/lib/sabflow/validation';
 
+// ─── Node types ────────────────────────────────────────────────────────────────
 const nodeTypes: NodeTypes = {
     action: SabFlowCustomNode,
     trigger: SabFlowCustomNode,
     condition: SabFlowCustomNode,
     start: SabFlowCustomNode,
+    // built-in block types (Typebot-style)
+    text_bubble: SabFlowCustomNode,
+    image_bubble: SabFlowCustomNode,
+    video_bubble: SabFlowCustomNode,
+    audio_bubble: SabFlowCustomNode,
+    embed_bubble: SabFlowCustomNode,
+    text_input: SabFlowCustomNode,
+    number_input: SabFlowCustomNode,
+    email_input: SabFlowCustomNode,
+    phone_input: SabFlowCustomNode,
+    date_input: SabFlowCustomNode,
+    url_input: SabFlowCustomNode,
+    file_input: SabFlowCustomNode,
+    buttons: SabFlowCustomNode,
+    rating: SabFlowCustomNode,
+    payment: SabFlowCustomNode,
+    set_variable: SabFlowCustomNode,
+    redirect: SabFlowCustomNode,
+    script: SabFlowCustomNode,
+    wait: SabFlowCustomNode,
+    ab_test: SabFlowCustomNode,
+    jump: SabFlowCustomNode,
+    filter: SabFlowCustomNode,
+    webhook_trigger: SabFlowCustomNode,
+    schedule: SabFlowCustomNode,
+    manual: SabFlowCustomNode,
+    ai_message: SabFlowCustomNode,
+    ai_agent: SabFlowCustomNode,
+    sticky_note: SabFlowCustomNode,
 };
 
-let id = 0;
-const getId = () => `dndnode_${Date.now()}_${id++}`;
+let _idCounter = 0;
+const getId = () => `node_${Date.now()}_${_idCounter++}`;
 
+// ─── Flow builder inner (needs ReactFlowProvider context) ──────────────────────
 const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
     const router = useRouter();
-    const { activeProjectId } = useProject();
     const { toast } = useToast();
 
-    // React Flow state
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
 
-    // App state
     const [currentFlow, setCurrentFlow] = useState<any>(null);
-    const [flowName, setFlowName] = useState('New Flow');
+    const [flowName, setFlowName] = useState('Untitled Flow');
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoading, startLoadingTransition] = useTransition();
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-    const [isPropsOpen, setIsPropsOpen] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     useEffect(() => {
-        getSession().then(session => {
-            setUser(session?.user);
-        });
+        getSession().then(s => setUser(s?.user));
     }, []);
 
-    // Load flow
+    // ── Load flow ─────────────────────────────────────────────────────────────
     useEffect(() => {
         startLoadingTransition(async () => {
             if (flowId === 'new-flow') {
-                // Initialize with a simple manual trigger
                 setNodes([{
                     id: 'start_trigger',
                     type: 'trigger',
-                    position: { x: 100, y: 100 },
-                    data: { name: 'Start', triggerType: 'manual' }
+                    position: { x: 180, y: 140 },
+                    data: { name: 'Start', triggerType: 'manual', blockType: 'trigger' },
                 }]);
                 setCurrentFlow(null);
-                setFlowName('New Flow');
+                setFlowName('Untitled Flow');
             } else {
                 const flow = await getSabFlowById(flowId);
                 if (!flow) {
-                    toast({ title: 'Error', description: 'Flow not found', variant: 'destructive' });
-                    // router.push('/dashboard/sabflow/flow-builder');
+                    toast({ title: 'Flow not found', variant: 'destructive' });
                     return;
                 }
                 setCurrentFlow(flow);
@@ -105,247 +126,227 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
         });
     }, [flowId, toast]);
 
+    // ── Connections ───────────────────────────────────────────────────────────
     const onConnect: OnConnect = useCallback(
-        (params) => setEdges((eds) => addEdge(params, eds)),
+        (params) => setEdges(eds => addEdge({ ...params, animated: true }, eds)),
         [setEdges],
     );
 
-    const onDragOver = useCallback((event: React.DragEvent) => {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
+    // ── Drag & drop ───────────────────────────────────────────────────────────
+    const onDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
     }, []);
 
-    const onDrop = useCallback(
-        (event: React.DragEvent) => {
-            event.preventDefault();
+    const onDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        const raw = e.dataTransfer.getData('application/reactflow');
+        if (!raw) return;
+        try {
+            const payload = JSON.parse(raw);
+            const { type, blockType, appId } = payload;
+            const nodeType = type === 'action' ? 'action' : (type || blockType);
+            if (!nodeType) return;
 
-            const dataString = event.dataTransfer.getData('application/reactflow');
-            if (!dataString) return;
+            const position = reactFlowInstance.screenToFlowPosition({
+                x: e.clientX,
+                y: e.clientY,
+            });
 
-            try {
-                const { type, appId } = JSON.parse(dataString);
+            const newNode: Node = {
+                id: getId(),
+                type: nodeType,
+                position,
+                data: {
+                    name: blockType ? blockType.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : 'New Block',
+                    blockType: blockType || nodeType,
+                    appId: appId || '',
+                    connectionId: '',
+                    actionName: '',
+                    inputs: {},
+                },
+            };
+            setNodes(nds => nds.concat(newNode));
+        } catch { /* ignore */ }
+    }, [reactFlowInstance, setNodes]);
 
-                if (typeof type === 'undefined' || !type) {
-                    return;
-                }
-
-                // Check if the drop target is the flow pane
-                const position = reactFlowInstance.screenToFlowPosition({
-                    x: event.clientX,
-                    y: event.clientY,
-                });
-
-                const newNode: Node = {
-                    id: getId(),
-                    type,
-                    position,
-                    data: {
-                        name: type === 'condition' ? 'New Condition' : 'New Action',
-                        appId: appId || '',
-                        connectionId: '',
-                        actionName: '',
-                        inputs: {}
-                    },
-                };
-
-                setNodes((nds) => nds.concat(newNode));
-            } catch (error) {
-                console.error("Error parsing drop data", error);
-            }
-        },
-        [reactFlowInstance],
-    );
-
-    const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    // ── Selection ─────────────────────────────────────────────────────────────
+    const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
         setSelectedNode(node);
-        setIsPropsOpen(true);
     }, []);
 
     const onPaneClick = useCallback(() => {
         setSelectedNode(null);
-        setIsPropsOpen(false);
     }, []);
 
-    const handleSave = async () => {
-        if (!flowName) {
-            toast({ title: 'Error', description: 'Flow name is required', variant: 'destructive' });
+    // ── Save ──────────────────────────────────────────────────────────────────
+    const handleSave = () => {
+        if (!flowName.trim()) {
+            toast({ title: 'Flow name is required', variant: 'destructive' });
             return;
         }
-
         const validation = validateFlow(nodes, edges);
         if (!validation.isValid) {
-            const errorCount = validation.errors.filter(e => e.type === 'error').length;
-            const warningCount = validation.errors.filter(e => e.type === 'warning').length;
-
+            const errCount = validation.errors.filter(e => e.type === 'error').length;
             toast({
-                title: 'Validation Failed',
-                description: `Found ${errorCount} error(s). Please resolve them before saving.`,
-                variant: 'destructive'
+                title: 'Validation failed',
+                description: `${errCount} error(s) — resolve them before saving.`,
+                variant: 'destructive',
             });
             return;
         }
-
         const triggerNode = nodes.find(n => n.type === 'trigger');
-        const flowData = {
-            flowId: currentFlow?._id?.toString() || (flowId === 'new-flow' ? undefined : flowId),
-            name: flowName,
-            nodes: nodes as any,
-            edges: edges as any,
-            trigger: triggerNode ? triggerNode.data : {},
-        };
-
         startSaveTransition(async () => {
-            const formData = new FormData();
-            // Manually constructing what server action expects if it expects FormData. 
-            // But saveSabFlow signature is `(prevState: any, formData: FormData) => Promise<any>`.
-            // Wait, the original code used `useActionState(saveSabFlow, ...)` which hooks into form submission.
-            // But we want to call it programmatically.
-            // We can pass a mock formData or call it differently if it supports direct object. 
-            // Checking safeSabFlow signature: `export async function saveSabFlow(prevState: any, formData: FormData)`
-            // It ONLY takes FormData. So we must append data to FormData.
-
-            formData.append('flowId', flowData.flowId || '');
-            formData.append('name', flowData.name);
-            formData.append('nodes', JSON.stringify(flowData.nodes));
-            formData.append('edges', JSON.stringify(flowData.edges));
-            formData.append('trigger', JSON.stringify(flowData.trigger));
-            formData.append('status', currentFlow?.status || 'ACTIVE');
-
-            const result = await saveSabFlow({ message: null, error: null }, formData);
-
+            const fd = new FormData();
+            fd.append('flowId', currentFlow?._id?.toString() || (flowId !== 'new-flow' ? flowId : ''));
+            fd.append('name', flowName);
+            fd.append('nodes', JSON.stringify(nodes));
+            fd.append('edges', JSON.stringify(edges));
+            fd.append('trigger', JSON.stringify(triggerNode?.data ?? {}));
+            fd.append('status', currentFlow?.status || 'ACTIVE');
+            const result = await saveSabFlow({ message: null, error: null }, fd);
             if (result.error) {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                toast({ title: 'Save failed', description: result.error, variant: 'destructive' });
             } else {
-                toast({ title: 'Success', description: 'Flow saved successfully' });
-                if (result.flowId && (!currentFlow || currentFlow._id.toString() !== result.flowId)) {
-                    setCurrentFlow({ ...currentFlow, _id: result.flowId });
-                    if (flowId === 'new-flow') {
-                        router.replace(`/dashboard/sabflow/flow-builder/${result.flowId}`);
-                    }
+                toast({ title: 'Saved', description: 'Flow saved successfully.' });
+                if (result.flowId && flowId === 'new-flow') {
+                    router.replace(`/dashboard/sabflow/flow-builder/${result.flowId}`);
                 }
             }
         });
     };
 
-    const onNodeUpdate = useCallback((id: string, newData: any) => {
-        setNodes((nds) => nds.map((node) => {
-            if (node.id === id) {
-                return { ...node, data: { ...node.data, ...newData } };
-            }
-            return node;
-        }));
-        setSelectedNode((prev) => {
-            if (!prev || prev.id !== id) return prev;
-            return { ...prev, data: { ...prev.data, ...newData } } as Node;
-        });
+    // ── Node update / delete ──────────────────────────────────────────────────
+    const onNodeUpdate = useCallback((id: string, data: any) => {
+        setNodes(nds => nds.map(n => n.id === id ? { ...n, data: { ...n.data, ...data } } : n));
+        setSelectedNode(prev => prev?.id === id ? { ...prev, data: { ...prev.data, ...data } } as Node : prev);
     }, [setNodes]);
 
     const onDeleteNode = useCallback((id: string) => {
-        setNodes((nds) => nds.filter((n) => n.id !== id));
-        setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
+        setNodes(nds => nds.filter(n => n.id !== id));
+        setEdges(eds => eds.filter(e => e.source !== id && e.target !== id));
         setSelectedNode(null);
-        setIsPropsOpen(false);
     }, [setNodes, setEdges]);
-
-    // Auto-open properties when a new node is added (optional, but good UX)
-    useEffect(() => {
-        if (nodes.length > 0) {
-            // Logic to auto select the last added node? Maybe too intrusive.
-        }
-    }, [nodes.length]);
-
-    // Sync React Flow selection with our state if needed, or rely on onNodeClick
 
     const isPaused = currentFlow?.status === 'PAUSED';
 
     return (
-        <div className="flex flex-col h-full bg-background overflow-hidden relative">
-            {/* Header */}
-            <header className="relative flex h-14 items-center justify-between border-b px-4 lg:h-[60px] shrink-0 bg-background/85 backdrop-blur-xl">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-transparent to-emerald-500/5 pointer-events-none" />
-                <div className="relative flex items-center gap-3 min-w-0">
-                    <Button variant="ghost" size="sm" asChild className="h-8 px-2 text-muted-foreground hover:text-foreground">
+        <div className="flex h-screen flex-col overflow-hidden bg-background">
+
+            {/* ── Typebot-style header ──────────────────────────────────────── */}
+            <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background px-3 gap-2">
+
+                {/* Left */}
+                <div className="flex items-center gap-2 min-w-0">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+                        asChild
+                    >
                         <Link href="/dashboard/sabflow/flow-builder">
-                            <ArrowLeft className="mr-1.5 h-4 w-4" />
-                            Back
+                            <ArrowLeft className="h-4 w-4" />
                         </Link>
-                    </Button>
-                    <div className="h-6 w-px bg-border" />
-                    <div className="flex items-center gap-2 min-w-0">
-                        <div className="h-7 w-7 shrink-0 rounded-md bg-violet-500/10 border border-border/40 flex items-center justify-center">
-                            <Save className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
-                        </div>
-                        <Input
-                            value={flowName}
-                            onChange={(e) => setFlowName(e.target.value)}
-                            className="h-8 w-56 font-semibold bg-muted/30 border-border/60 focus-visible:bg-background"
-                            placeholder="Untitled Flow"
-                        />
-                    </div>
-                </div>
-                <div className="relative flex items-center gap-2">
-                    <Button variant="ghost" size="sm" asChild className="h-8">
-                        <Link href="/dashboard/sabflow/docs" target="_blank">
-                            <BookOpen className="mr-1.5 h-4 w-4" />
-                            Docs
-                        </Link>
-                    </Button>
-                    <div className={cn(
-                        "flex items-center gap-2 h-8 px-2.5 rounded-md border transition-colors",
-                        isPaused
-                            ? "border-amber-500/40 bg-amber-500/5"
-                            : "border-emerald-500/40 bg-emerald-500/5"
-                    )}>
-                        <span className="flex items-center gap-1.5">
-                            <span className={cn(
-                                "h-1.5 w-1.5 rounded-full",
-                                isPaused ? "bg-amber-500" : "bg-emerald-500 animate-pulse"
-                            )} />
-                            <span className={cn(
-                                "text-[10px] font-bold uppercase tracking-[0.12em]",
-                                isPaused ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"
-                            )}>
-                                {isPaused ? 'Paused' : 'Active'}
-                            </span>
-                        </span>
-                        <Switch
-                            checked={!isPaused}
-                            onCheckedChange={(checked) => setCurrentFlow({ ...currentFlow, status: checked ? 'ACTIVE' : 'PAUSED' })}
-                        />
-                    </div>
-                    <Button size="sm" onClick={handleSave} disabled={isSaving} className="h-8 shadow-sm">
-                        {isSaving ? <LoaderCircle className="mr-1.5 h-4 w-4 animate-spin" /> : <Save className="mr-1.5 h-4 w-4" />}
-                        Save Flow
                     </Button>
 
-                    <Sheet open={isPropsOpen} onOpenChange={setIsPropsOpen}>
-                        <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="md:hidden">
-                                <Settings2 className="h-5 w-5" />
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="right" className="p-0 sm:max-w-md w-full">
-                            <SheetHeader className="sr-only">
-                                <SheetTitle>Properties</SheetTitle>
-                            </SheetHeader>
-                            {selectedNode && (
-                                <SabFlowPropertiesPanel
-                                    node={selectedNode}
-                                    onUpdate={onNodeUpdate}
-                                    deleteNode={onDeleteNode}
-                                    user={user}
-                                    flowId={flowId}
-                                />
-                            )}
-                        </SheetContent>
-                    </Sheet>
+                    {/* Logo badge */}
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-600">
+                        <Zap className="h-3.5 w-3.5 text-white" />
+                    </div>
+
+                    {/* Flow name — editable, minimal */}
+                    <input
+                        value={flowName}
+                        onChange={e => setFlowName(e.target.value)}
+                        className={cn(
+                            'h-8 w-44 rounded-md border-transparent bg-transparent px-2 text-sm font-semibold text-foreground',
+                            'focus:border-border focus:bg-muted/40 focus:outline-none focus:ring-0 truncate',
+                            'transition-colors placeholder:text-muted-foreground/50',
+                        )}
+                        placeholder="Untitled Flow"
+                        spellCheck={false}
+                    />
+                </div>
+
+                {/* Right */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                    {/* Active / Paused toggle */}
+                    <div className={cn(
+                        'flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors',
+                        isPaused
+                            ? 'border-amber-300/60 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-700/40'
+                            : 'border-emerald-300/60 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-700/40',
+                    )}>
+                        <span className={cn(
+                            'h-1.5 w-1.5 rounded-full',
+                            isPaused ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse',
+                        )} />
+                        {isPaused ? 'Paused' : 'Active'}
+                        <Switch
+                            checked={!isPaused}
+                            onCheckedChange={checked =>
+                                setCurrentFlow((f: any) => ({ ...f, status: checked ? 'ACTIVE' : 'PAUSED' }))
+                            }
+                            className="h-4 w-7 [&_span]:h-3 [&_span]:w-3"
+                        />
+                    </div>
+
+                    <Button
+                        size="sm"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="h-8 gap-1.5 bg-violet-600 hover:bg-violet-700 text-white shadow-none"
+                    >
+                        {isSaving
+                            ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                            : <Save className="h-3.5 w-3.5" />
+                        }
+                        Save
+                    </Button>
                 </div>
             </header>
 
-            {/* Main Content */}
+            {/* ── 3-column body ─────────────────────────────────────────────── */}
             <div className="flex flex-1 overflow-hidden">
-                {/* Canvas */}
-                <div className="flex-1 h-full w-full relative" ref={reactFlowWrapper}>
+
+                {/* LEFT SIDEBAR — always visible block palette */}
+                <div className={cn(
+                    'relative flex flex-col border-r bg-background/60 transition-all duration-200 shrink-0',
+                    sidebarCollapsed ? 'w-0 overflow-hidden border-0' : 'w-64',
+                )}>
+                    <SabFlowSidebar className="h-full w-full" />
+
+                    {/* Collapse toggle */}
+                    <button
+                        onClick={() => setSidebarCollapsed(c => !c)}
+                        className={cn(
+                            'absolute -right-3 top-1/2 z-20 flex h-6 w-6 -translate-y-1/2 items-center justify-center',
+                            'rounded-full border bg-background shadow-sm text-muted-foreground hover:text-foreground',
+                            'transition-colors',
+                        )}
+                    >
+                        <ChevronLeft className="h-3 w-3" />
+                    </button>
+                </div>
+
+                {/* Show sidebar button when collapsed */}
+                {sidebarCollapsed && (
+                    <button
+                        onClick={() => setSidebarCollapsed(false)}
+                        className="absolute left-0 top-1/2 z-20 flex h-8 w-5 -translate-y-1/2 items-center justify-center rounded-r-md border-y border-r bg-background shadow-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        <ChevronRight className="h-3 w-3" />
+                    </button>
+                )}
+
+                {/* CENTER — ReactFlow canvas */}
+                <div className="relative flex-1 overflow-hidden" ref={reactFlowWrapper}>
+                    {isLoading && (
+                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+                            <LoaderCircle className="h-6 w-6 animate-spin text-violet-600" />
+                        </div>
+                    )}
+
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
@@ -359,51 +360,41 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
                         onPaneClick={onPaneClick}
                         nodeTypes={nodeTypes}
                         fitView
+                        fitViewOptions={{ padding: 0.3 }}
                         proOptions={{ hideAttribution: true }}
                         snapToGrid
+                        snapGrid={[16, 16]}
                         defaultEdgeOptions={{
-                            type: 'default',
                             animated: true,
+                            style: { strokeWidth: 2 },
                         }}
+                        connectionLineStyle={{ strokeWidth: 2 }}
                     >
-                        <Controls />
-                        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-
-                        <Panel position="top-left" className="m-4">
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        size="icon"
-                                        className="h-12 w-12 rounded-full shadow-xl bg-gradient-to-br from-violet-500 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 transition-all active:scale-95 ring-2 ring-background"
-                                        aria-label="Add block"
-                                    >
-                                        <Plus className="h-6 w-6 text-white" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent side="right" align="start" className="w-85 p-0 ml-4 max-h-[80vh] overflow-hidden bg-background/95 backdrop-blur-xl shadow-2xl border-border/60">
-                                    <div className="relative p-4 border-b bg-gradient-to-br from-violet-500/5 via-transparent to-emerald-500/5">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-7 w-7 rounded-md bg-violet-500/10 border border-border/40 flex items-center justify-center">
-                                                <Plus className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-semibold leading-none text-sm">Add Block</h4>
-                                                <p className="text-[11px] text-muted-foreground mt-0.5">Drag blocks onto the canvas</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="h-100">
-                                        <SabFlowSidebar className="w-full" />
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        </Panel>
+                        <Controls
+                            className="!shadow-none !border !border-border !rounded-xl !overflow-hidden"
+                            showInteractive={false}
+                        />
+                        <MiniMap
+                            className="!border !border-border !rounded-xl !shadow-none"
+                            zoomable
+                            pannable
+                            nodeColor="#8b5cf6"
+                        />
+                        <Background
+                            variant={BackgroundVariant.Dots}
+                            gap={20}
+                            size={1.2}
+                            color="hsl(var(--muted-foreground)/0.2)"
+                        />
                     </ReactFlow>
                 </div>
 
-                {/* Right Panel (Desktop) */}
-                {selectedNode && isPropsOpen && (
-                    <aside className="w-80 border-l bg-background hidden md:block overflow-hidden shrink-0 z-10 shadow-[-5px_0_15px_-5px_hsl(var(--foreground)/0.05)]">
+                {/* RIGHT — Properties panel (always rendered, shows empty state) */}
+                <aside className={cn(
+                    'flex shrink-0 flex-col border-l bg-background transition-all duration-200',
+                    selectedNode ? 'w-80' : 'w-0 overflow-hidden border-0',
+                )}>
+                    {selectedNode && (
                         <SabFlowPropertiesPanel
                             node={selectedNode}
                             onUpdate={onNodeUpdate}
@@ -411,16 +402,16 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
                             user={user}
                             flowId={flowId}
                         />
-                    </aside>
-                )}
+                    )}
+                </aside>
             </div>
         </div>
     );
 };
 
-export default function SabFlowBuilderPageWrapper({ params }: { params: Promise<{ flowId: string }> }) {
+// ─── Page wrapper ──────────────────────────────────────────────────────────────
+export default function SabFlowBuilderPage({ params }: { params: Promise<{ flowId: string }> }) {
     const { flowId } = use(params);
-
     return (
         <ReactFlowProvider>
             <SabFlowBuilder flowId={flowId} />

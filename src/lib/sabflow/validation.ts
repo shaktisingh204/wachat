@@ -21,6 +21,9 @@ export const validateNode = (node: Node | any, connectedEdges: Edge[] = []): Val
     const errors: ValidationError[] = [];
     const data = node.data;
 
+    // Resolve the effective block type (Typebot-style nodes carry blockType in data)
+    const blockType: string = data?.blockType ?? node.type ?? '';
+
     // 1. Basic Node Validation
     if (!data.name || data.name.trim() === '') {
         // Warning only for name, auto-generated names usually exist
@@ -86,7 +89,7 @@ export const validateNode = (node: Node | any, connectedEdges: Edge[] = []): Val
     }
 
     // 4. Condition Validation
-    if (node.type === 'condition') {
+    if (node.type === 'condition' || blockType === 'condition') {
         const hasIncoming = connectedEdges.some(edge => edge.target === node.id);
         if (!hasIncoming) {
             errors.push({ nodeId: node.id, message: 'Condition is disconnected', type: 'error' });
@@ -109,6 +112,182 @@ export const validateNode = (node: Node | any, connectedEdges: Edge[] = []): Val
 
         if (!hasYesPath && !hasNoPath) {
             errors.push({ nodeId: node.id, message: 'Condition must have at least one path (Yes or No) connected', type: 'warning' });
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 5. Typebot-style block validations (keyed by blockType)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // ── Bubble blocks ────────────────────────────────────────────────────────
+
+    if (blockType === 'text_bubble') {
+        if (!data.content || (typeof data.content === 'string' && data.content.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'content', message: 'Text bubble has no message content', type: 'warning' });
+        }
+    }
+
+    if (blockType === 'image_bubble') {
+        if (!data.url || (typeof data.url === 'string' && data.url.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'url', message: 'Image URL is required', type: 'error' });
+        }
+    }
+
+    if (blockType === 'video_bubble') {
+        if (!data.url || (typeof data.url === 'string' && data.url.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'url', message: 'Video URL is required', type: 'error' });
+        }
+    }
+
+    if (blockType === 'audio_bubble') {
+        if (!data.url || (typeof data.url === 'string' && data.url.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'url', message: 'Audio URL is required', type: 'error' });
+        }
+    }
+
+    if (blockType === 'embed_bubble') {
+        const hasUrl  = data.url  && typeof data.url  === 'string' && data.url.trim()  !== '';
+        const hasCode = data.code && typeof data.code === 'string' && data.code.trim() !== '';
+        if (!hasUrl && !hasCode) {
+            errors.push({ nodeId: node.id, field: 'url', message: 'Embed requires a URL or embed code', type: 'error' });
+        }
+    }
+
+    // ── Input blocks ─────────────────────────────────────────────────────────
+
+    if (blockType === 'text_input') {
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the response', type: 'error' });
+        }
+    }
+
+    if (blockType === 'number_input') {
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the number', type: 'error' });
+        }
+    }
+
+    if (blockType === 'email_input') {
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the email', type: 'error' });
+        }
+    }
+
+    if (blockType === 'phone_input') {
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the phone number', type: 'error' });
+        }
+    }
+
+    if (blockType === 'date_input') {
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the date', type: 'error' });
+        }
+    }
+
+    if (blockType === 'url_input') {
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the URL', type: 'error' });
+        }
+    }
+
+    if (blockType === 'file_input') {
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the uploaded file', type: 'error' });
+        }
+    }
+
+    if (blockType === 'buttons') {
+        if (!data.buttons || !Array.isArray(data.buttons) || data.buttons.length === 0) {
+            errors.push({ nodeId: node.id, field: 'buttons', message: 'At least one button must be defined', type: 'error' });
+        } else {
+            data.buttons.forEach((btn: any, index: number) => {
+                if (!btn.label || (typeof btn.label === 'string' && btn.label.trim() === '')) {
+                    errors.push({ nodeId: node.id, field: `buttons[${index}].label`, message: `Button #${index + 1} has an empty label`, type: 'warning' });
+                }
+            });
+        }
+    }
+
+    if (blockType === 'rating') {
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the rating', type: 'error' });
+        }
+    }
+
+    if (blockType === 'payment') {
+        if (!data.amount || (typeof data.amount === 'string' && data.amount.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'amount', message: 'Payment amount is required', type: 'error' });
+        }
+        if (!data.provider || (typeof data.provider === 'string' && data.provider.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'provider', message: 'Payment provider is required', type: 'error' });
+        }
+    }
+
+    // ── Logic blocks ─────────────────────────────────────────────────────────
+
+    if (blockType === 'set_variable') {
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required', type: 'error' });
+        }
+        if (data.value === undefined || data.value === null || (typeof data.value === 'string' && data.value.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'value', message: 'Variable value is required', type: 'error' });
+        }
+    }
+
+    if (blockType === 'redirect') {
+        if (!data.url || (typeof data.url === 'string' && data.url.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'url', message: 'Redirect URL is required', type: 'error' });
+        }
+    }
+
+    if (blockType === 'script') {
+        if (!data.code || (typeof data.code === 'string' && data.code.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'code', message: 'Script block has no code', type: 'warning' });
+        }
+    }
+
+    if (blockType === 'wait') {
+        const duration = data.duration;
+        if (duration === undefined || duration === null || duration === '') {
+            errors.push({ nodeId: node.id, field: 'duration', message: 'Wait duration must be set', type: 'error' });
+        } else if (typeof duration === 'number' && duration <= 0) {
+            errors.push({ nodeId: node.id, field: 'duration', message: 'Wait duration must be greater than 0', type: 'error' });
+        } else if (typeof duration === 'string' && (isNaN(parseFloat(duration)) || parseFloat(duration) <= 0)) {
+            errors.push({ nodeId: node.id, field: 'duration', message: 'Wait duration must be a positive number', type: 'error' });
+        }
+    }
+
+    if (blockType === 'ab_test') {
+        const splits: any[] = data.splits ?? [];
+        if (splits.length < 2) {
+            errors.push({ nodeId: node.id, field: 'splits', message: 'A/B test requires at least 2 splits', type: 'error' });
+        } else {
+            const total = splits.reduce((sum: number, s: any) => sum + (parseFloat(s.percentage ?? s.weight ?? 0) || 0), 0);
+            // Allow a tiny floating-point tolerance
+            if (Math.abs(total - 100) > 0.5) {
+                errors.push({ nodeId: node.id, field: 'splits', message: `A/B test splits must total 100% (currently ${total.toFixed(1)}%)`, type: 'error' });
+            }
+        }
+    }
+
+    // ── AI blocks ────────────────────────────────────────────────────────────
+
+    if (blockType === 'ai_message') {
+        if (!data.userPrompt || (typeof data.userPrompt === 'string' && data.userPrompt.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'userPrompt', message: 'AI message requires a prompt', type: 'error' });
+        }
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the AI response', type: 'error' });
+        }
+    }
+
+    if (blockType === 'ai_agent') {
+        if (!data.instructions || (typeof data.instructions === 'string' && data.instructions.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'instructions', message: 'AI agent requires instructions', type: 'error' });
+        }
+        if (!data.variableName || (typeof data.variableName === 'string' && data.variableName.trim() === '')) {
+            errors.push({ nodeId: node.id, field: 'variableName', message: 'Variable name is required to save the agent output', type: 'error' });
         }
     }
 
@@ -214,4 +393,3 @@ export const validateFlow = (nodes: Node[], edges: Edge[]): FlowValidationResult
         errors: allErrors
     };
 };
-
