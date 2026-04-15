@@ -1,7 +1,7 @@
 'use client';
 
-import React, { memo, useMemo } from 'react';
-import { Handle, Position, NodeProps, useEdges } from '@xyflow/react';
+import React, { memo, useMemo, useState, useCallback } from 'react';
+import { Handle, Position, NodeProps, useEdges, useReactFlow } from '@xyflow/react';
 import { validateNode, ValidationError } from '@/lib/sabflow/validation';
 import { cn } from '@/lib/utils';
 import {
@@ -9,295 +9,269 @@ import {
     MessageSquare, Type, Image, Video, Music, Globe,
     Phone, Star, Hash, Mail, Upload, CreditCard, List,
     Code2, Filter, Timer, Repeat, ArrowRight, Shuffle,
-    Bot, Sparkles, Settings2, StickyNote, ToggleLeft,
-    FileText, Link, AlertTriangle,
+    Bot, Sparkles, Settings2, StickyNote, ToggleLeft, Link,
+    AlertTriangle, Trash2, Settings,
 } from 'lucide-react';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
 
-// ─── Category palette — Typebot colour language ───────────────────────────────
-const PALETTE = {
-    bubble: {
-        band:     'bg-zinc-300 dark:bg-zinc-600',
-        card:     'bg-white dark:bg-zinc-900',
-        border:   'border-zinc-200 dark:border-zinc-700',
-        icon:     'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400',
-        label:    'text-zinc-500 dark:text-zinc-400',
-        badge:    'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400',
-    },
-    input: {
-        band:     'bg-orange-400',
-        card:     'bg-orange-50/60 dark:bg-orange-950/20',
-        border:   'border-orange-200 dark:border-orange-800/50',
-        icon:     'bg-orange-100 dark:bg-orange-950/60 text-orange-500',
-        label:    'text-orange-600 dark:text-orange-400',
-        badge:    'bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400',
-    },
-    logic: {
-        band:     'bg-purple-500',
-        card:     'bg-purple-50/60 dark:bg-purple-950/20',
-        border:   'border-purple-200 dark:border-purple-800/50',
-        icon:     'bg-purple-100 dark:bg-purple-950/60 text-purple-500',
-        label:    'text-purple-600 dark:text-purple-400',
-        badge:    'bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400',
-    },
-    trigger: {
-        band:     'bg-emerald-500',
-        card:     'bg-emerald-50/60 dark:bg-emerald-950/20',
-        border:   'border-emerald-200 dark:border-emerald-800/50',
-        icon:     'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600',
-        label:    'text-emerald-600 dark:text-emerald-400',
-        badge:    'bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400',
-    },
-    ai: {
-        band:     'bg-violet-500',
-        card:     'bg-violet-50/60 dark:bg-violet-950/20',
-        border:   'border-violet-200 dark:border-violet-800/50',
-        icon:     'bg-violet-100 dark:bg-violet-950/60 text-violet-600',
-        label:    'text-violet-600 dark:text-violet-400',
-        badge:    'bg-violet-100 text-violet-600 dark:bg-violet-950 dark:text-violet-400',
-    },
-    integration: {
-        band:     'bg-blue-500',
-        card:     'bg-blue-50/60 dark:bg-blue-950/20',
-        border:   'border-blue-200 dark:border-blue-800/50',
-        icon:     'bg-blue-100 dark:bg-blue-950/60 text-blue-600',
-        label:    'text-blue-600 dark:text-blue-400',
-        badge:    'bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400',
-    },
-    default: {
-        band:     'bg-muted-foreground/40',
-        card:     'bg-card',
-        border:   'border-border',
-        icon:     'bg-muted text-muted-foreground',
-        label:    'text-muted-foreground',
-        badge:    'bg-muted text-muted-foreground',
-    },
-} as const;
-
-type PaletteKey = keyof typeof PALETTE;
-
-// ─── Block registry ───────────────────────────────────────────────────────────
-const BLOCK_REGISTRY: Record<string, {
+// ─── Block type definitions ───────────────────────────────────────────────────
+interface BlockDef {
     label: string;
-    category: string;
-    palette: PaletteKey;
     icon: React.ComponentType<{ className?: string }>;
-    categoryLabel: string;
-}> = {
-    // Bubbles
-    text_bubble:     { label: 'Text',         category: 'Bubble',   palette: 'bubble',   icon: Type,          categoryLabel: 'Bubble'    },
-    image_bubble:    { label: 'Image',        category: 'Bubble',   palette: 'bubble',   icon: Image,         categoryLabel: 'Bubble'    },
-    video_bubble:    { label: 'Video',        category: 'Bubble',   palette: 'bubble',   icon: Video,         categoryLabel: 'Bubble'    },
-    audio_bubble:    { label: 'Audio',        category: 'Bubble',   palette: 'bubble',   icon: Music,         categoryLabel: 'Bubble'    },
-    embed_bubble:    { label: 'Embed',        category: 'Bubble',   palette: 'bubble',   icon: Globe,         categoryLabel: 'Bubble'    },
-    // Inputs
-    text_input:      { label: 'Text Input',   category: 'Input',    palette: 'input',    icon: MessageSquare, categoryLabel: 'Input'     },
-    number_input:    { label: 'Number',       category: 'Input',    palette: 'input',    icon: Hash,          categoryLabel: 'Input'     },
-    email_input:     { label: 'Email',        category: 'Input',    palette: 'input',    icon: Mail,          categoryLabel: 'Input'     },
-    phone_input:     { label: 'Phone',        category: 'Input',    palette: 'input',    icon: Phone,         categoryLabel: 'Input'     },
-    date_input:      { label: 'Date',         category: 'Input',    palette: 'input',    icon: Calendar,      categoryLabel: 'Input'     },
-    url_input:       { label: 'URL',          category: 'Input',    palette: 'input',    icon: Link,          categoryLabel: 'Input'     },
-    file_input:      { label: 'File Upload',  category: 'Input',    palette: 'input',    icon: Upload,        categoryLabel: 'Input'     },
-    buttons:         { label: 'Buttons',      category: 'Input',    palette: 'input',    icon: List,          categoryLabel: 'Input'     },
-    rating:          { label: 'Rating',       category: 'Input',    palette: 'input',    icon: Star,          categoryLabel: 'Input'     },
-    payment:         { label: 'Payment',      category: 'Input',    palette: 'input',    icon: CreditCard,    categoryLabel: 'Input'     },
-    // Logic
-    condition:       { label: 'Condition',    category: 'Logic',    palette: 'logic',    icon: GitFork,       categoryLabel: 'Logic'     },
-    set_variable:    { label: 'Set Variable', category: 'Logic',    palette: 'logic',    icon: ToggleLeft,    categoryLabel: 'Logic'     },
-    redirect:        { label: 'Redirect',     category: 'Logic',    palette: 'logic',    icon: ArrowRight,    categoryLabel: 'Logic'     },
-    script:          { label: 'Script',       category: 'Logic',    palette: 'logic',    icon: Code2,         categoryLabel: 'Logic'     },
-    wait:            { label: 'Wait',         category: 'Logic',    palette: 'logic',    icon: Timer,         categoryLabel: 'Logic'     },
-    ab_test:         { label: 'A/B Test',     category: 'Logic',    palette: 'logic',    icon: Shuffle,       categoryLabel: 'Logic'     },
-    jump:            { label: 'Jump',         category: 'Logic',    palette: 'logic',    icon: Repeat,        categoryLabel: 'Logic'     },
-    filter:          { label: 'Filter',       category: 'Logic',    palette: 'logic',    icon: Filter,        categoryLabel: 'Logic'     },
-    // Triggers
-    trigger:         { label: 'Start',        category: 'Trigger',  palette: 'trigger',  icon: Zap,           categoryLabel: 'Trigger'   },
-    webhook_trigger: { label: 'Webhook',      category: 'Trigger',  palette: 'trigger',  icon: Webhook,       categoryLabel: 'Trigger'   },
-    schedule:        { label: 'Schedule',     category: 'Trigger',  palette: 'trigger',  icon: Calendar,      categoryLabel: 'Trigger'   },
-    manual:          { label: 'Manual',       category: 'Trigger',  palette: 'trigger',  icon: PlayCircle,    categoryLabel: 'Trigger'   },
-    // AI
-    ai_message:      { label: 'AI Message',   category: 'AI',       palette: 'ai',       icon: Bot,           categoryLabel: 'AI'        },
-    ai_agent:        { label: 'AI Agent',     category: 'AI',       palette: 'ai',       icon: Sparkles,      categoryLabel: 'AI'        },
+    stripe: string;
+    iconBg: string;
+    iconColor: string;
+    category: string;
+}
+
+const BLOCKS: Record<string, BlockDef> = {
+    // Bubbles — gray
+    text_bubble:      { label: 'Text',         icon: Type,          stripe: 'bg-zinc-300 dark:bg-zinc-600',    iconBg: 'bg-zinc-100 dark:bg-zinc-800',       iconColor: 'text-zinc-500',    category: 'Bubble'   },
+    image_bubble:     { label: 'Image',        icon: Image,         stripe: 'bg-zinc-300 dark:bg-zinc-600',    iconBg: 'bg-zinc-100 dark:bg-zinc-800',       iconColor: 'text-zinc-500',    category: 'Bubble'   },
+    video_bubble:     { label: 'Video',        icon: Video,         stripe: 'bg-zinc-300 dark:bg-zinc-600',    iconBg: 'bg-zinc-100 dark:bg-zinc-800',       iconColor: 'text-zinc-500',    category: 'Bubble'   },
+    audio_bubble:     { label: 'Audio',        icon: Music,         stripe: 'bg-zinc-300 dark:bg-zinc-600',    iconBg: 'bg-zinc-100 dark:bg-zinc-800',       iconColor: 'text-zinc-500',    category: 'Bubble'   },
+    embed_bubble:     { label: 'Embed',        icon: Globe,         stripe: 'bg-zinc-300 dark:bg-zinc-600',    iconBg: 'bg-zinc-100 dark:bg-zinc-800',       iconColor: 'text-zinc-500',    category: 'Bubble'   },
+    // Inputs — orange
+    text_input:       { label: 'Text',         icon: MessageSquare, stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    number_input:     { label: 'Number',       icon: Hash,          stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    email_input:      { label: 'Email',        icon: Mail,          stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    phone_input:      { label: 'Phone',        icon: Phone,         stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    date_input:       { label: 'Date',         icon: Calendar,      stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    url_input:        { label: 'URL',          icon: Link,          stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    file_input:       { label: 'File Upload',  icon: Upload,        stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    buttons:          { label: 'Buttons',      icon: List,          stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    rating:           { label: 'Rating',       icon: Star,          stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    payment:          { label: 'Payment',      icon: CreditCard,    stripe: 'bg-orange-300 dark:bg-orange-600', iconBg: 'bg-orange-50 dark:bg-orange-950/60', iconColor: 'text-orange-500', category: 'Input'    },
+    // Logic — purple
+    condition:        { label: 'Condition',    icon: GitFork,       stripe: 'bg-purple-300 dark:bg-purple-600', iconBg: 'bg-purple-50 dark:bg-purple-950/60', iconColor: 'text-purple-500', category: 'Logic'    },
+    set_variable:     { label: 'Set Variable', icon: ToggleLeft,    stripe: 'bg-purple-300 dark:bg-purple-600', iconBg: 'bg-purple-50 dark:bg-purple-950/60', iconColor: 'text-purple-500', category: 'Logic'    },
+    redirect:         { label: 'Redirect',     icon: ArrowRight,    stripe: 'bg-purple-300 dark:bg-purple-600', iconBg: 'bg-purple-50 dark:bg-purple-950/60', iconColor: 'text-purple-500', category: 'Logic'    },
+    script:           { label: 'Script',       icon: Code2,         stripe: 'bg-purple-300 dark:bg-purple-600', iconBg: 'bg-purple-50 dark:bg-purple-950/60', iconColor: 'text-purple-500', category: 'Logic'    },
+    wait:             { label: 'Wait',         icon: Timer,         stripe: 'bg-purple-300 dark:bg-purple-600', iconBg: 'bg-purple-50 dark:bg-purple-950/60', iconColor: 'text-purple-500', category: 'Logic'    },
+    ab_test:          { label: 'A/B Test',     icon: Shuffle,       stripe: 'bg-purple-300 dark:bg-purple-600', iconBg: 'bg-purple-50 dark:bg-purple-950/60', iconColor: 'text-purple-500', category: 'Logic'    },
+    jump:             { label: 'Jump',         icon: Repeat,        stripe: 'bg-purple-300 dark:bg-purple-600', iconBg: 'bg-purple-50 dark:bg-purple-950/60', iconColor: 'text-purple-500', category: 'Logic'    },
+    filter:           { label: 'Filter',       icon: Filter,        stripe: 'bg-purple-300 dark:bg-purple-600', iconBg: 'bg-purple-50 dark:bg-purple-950/60', iconColor: 'text-purple-500', category: 'Logic'    },
+    // Triggers — emerald
+    trigger:          { label: 'Start',        icon: Zap,           stripe: 'bg-emerald-300 dark:bg-emerald-600', iconBg: 'bg-emerald-50 dark:bg-emerald-950/60', iconColor: 'text-emerald-500', category: 'Trigger' },
+    webhook_trigger:  { label: 'Webhook',      icon: Webhook,       stripe: 'bg-emerald-300 dark:bg-emerald-600', iconBg: 'bg-emerald-50 dark:bg-emerald-950/60', iconColor: 'text-emerald-500', category: 'Trigger' },
+    schedule:         { label: 'Schedule',     icon: Calendar,      stripe: 'bg-emerald-300 dark:bg-emerald-600', iconBg: 'bg-emerald-50 dark:bg-emerald-950/60', iconColor: 'text-emerald-500', category: 'Trigger' },
+    manual:           { label: 'Manual',       icon: PlayCircle,    stripe: 'bg-emerald-300 dark:bg-emerald-600', iconBg: 'bg-emerald-50 dark:bg-emerald-950/60', iconColor: 'text-emerald-500', category: 'Trigger' },
+    // AI — violet
+    ai_message:       { label: 'AI Message',   icon: Bot,           stripe: 'bg-violet-300 dark:bg-violet-600', iconBg: 'bg-violet-50 dark:bg-violet-950/60', iconColor: 'text-violet-500', category: 'AI'       },
+    ai_agent:         { label: 'AI Agent',     icon: Sparkles,      stripe: 'bg-violet-300 dark:bg-violet-600', iconBg: 'bg-violet-50 dark:bg-violet-950/60', iconColor: 'text-violet-500', category: 'AI'       },
 };
 
-// ─── Content preview ──────────────────────────────────────────────────────────
-function truncate(s: string, max = 55) {
-    return s.length <= max ? s : s.slice(0, max - 1) + '…';
+// ─── Content preview — Typebot-style text bubble ──────────────────────────────
+function truncate(s: string, max = 52) {
+    return !s ? '' : s.length <= max ? s : s.slice(0, max - 1) + '…';
 }
 
-function ContentPreview({ data, blockType }: { data: any; blockType: string }) {
-    switch (blockType) {
-        case 'text_bubble': {
-            const c = data?.content;
-            if (!c?.trim()) return <span className="italic opacity-50">No message set</span>;
-            return <span>{truncate(String(c))}</span>;
+function BlockPreview({ data, blockType }: { data: any; blockType: string }) {
+    const text = (() => {
+        switch (blockType) {
+            case 'text_bubble':  return data?.content?.trim() || null;
+            case 'image_bubble': return data?.url?.trim() ? '🖼 ' + truncate(data.url, 40) : null;
+            case 'video_bubble': return data?.url?.trim() ? '▶ ' + truncate(data.url, 40) : null;
+            case 'audio_bubble': return data?.url?.trim() ? '🎵 ' + truncate(data.url, 40) : null;
+            case 'text_input':   return data?.variableName ? `→ {{${data.variableName}}}` : null;
+            case 'email_input':  return data?.variableName ? `→ {{${data.variableName}}}` : null;
+            case 'phone_input':  return data?.variableName ? `→ {{${data.variableName}}}` : null;
+            case 'number_input': return data?.variableName ? `→ {{${data.variableName}}}` : null;
+            case 'date_input':   return data?.variableName ? `→ {{${data.variableName}}}` : null;
+            case 'url_input':    return data?.variableName ? `→ {{${data.variableName}}}` : null;
+            case 'file_input':   return data?.variableName ? `→ {{${data.variableName}}}` : null;
+            case 'buttons': {
+                const btns: any[] = data?.buttons ?? [];
+                return btns.length ? btns.map((b: any) => b.label || b.value).join(' · ') : null;
+            }
+            case 'rating':       return `★ up to ${data?.maxStars ?? 5}`;
+            case 'set_variable': return data?.variableName ? `{{${data.variableName}}} = ${truncate(data?.value ?? '', 28)}` : null;
+            case 'redirect':     return data?.url?.trim() ? '↗ ' + truncate(data.url, 44) : null;
+            case 'wait':         return data?.duration != null ? `⏱ ${data.duration} ${data?.unit ?? 's'}` : null;
+            case 'ai_message':   return data?.model ? `Model: ${data.model}` : null;
+            case 'ai_agent':     return data?.instructions ? truncate(data.instructions, 50) : null;
+            case 'condition':
+            case 'filter': {
+                const rules: any[] = data?.rules ?? [];
+                return rules.length ? `${rules.length} rule${rules.length !== 1 ? 's' : ''}` : null;
+            }
+            default: return null;
         }
-        case 'image_bubble':
-        case 'video_bubble':
-        case 'audio_bubble': {
-            const u = data?.url;
-            if (!u?.trim()) return <span className="italic opacity-50">No URL set</span>;
-            return <span>{truncate(String(u))}</span>;
-        }
-        case 'text_input': case 'email_input': case 'phone_input':
-        case 'url_input': case 'date_input': case 'file_input':
-        case 'number_input': {
-            const v = data?.variableName;
-            if (!v?.trim()) return <span className="italic opacity-50">No variable</span>;
-            return <span>→ {`{{${v}}}`}</span>;
-        }
-        case 'buttons': {
-            const btns: any[] = data?.buttons ?? [];
-            if (!btns.length) return <span className="italic opacity-50">No buttons</span>;
-            return <span>{btns.length} option{btns.length !== 1 ? 's' : ''}</span>;
-        }
-        case 'set_variable': {
-            const v = data?.variableName;
-            if (!v) return <span className="italic opacity-50">Not set</span>;
-            return <span>{truncate(`{{${v}}} = ${data?.value ?? ''}`)}</span>;
-        }
-        case 'wait': {
-            const d = data?.duration;
-            if (d == null) return <span className="italic opacity-50">Duration not set</span>;
-            return <span>{d} {data?.unit ?? 'seconds'}</span>;
-        }
-        case 'redirect': {
-            const u = data?.url;
-            if (!u?.trim()) return <span className="italic opacity-50">No URL set</span>;
-            return <span>{truncate(String(u))}</span>;
-        }
-        case 'ai_message':
-        case 'ai_agent': {
-            const m = data?.model;
-            if (!m) return <span className="italic opacity-50">Model not set</span>;
-            return <span>{m}</span>;
-        }
-        case 'condition':
-        case 'filter': {
-            const rules: any[] = data?.rules ?? [];
-            if (!rules.length) return <span className="italic opacity-50">No rules</span>;
-            return <span>{rules.length} rule{rules.length !== 1 ? 's' : ''}</span>;
-        }
-        default: return null;
-    }
+    })();
+
+    if (!text) return null;
+
+    return (
+        <div className="mt-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/50 px-2.5 py-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
+            {truncate(text, 70)}
+        </div>
+    );
 }
 
-// ─── Sticky note node ─────────────────────────────────────────────────────────
+// ─── Sticky note ──────────────────────────────────────────────────────────────
 const StickyNoteNode = memo(function StickyNoteNode({ data, selected }: { data: any; selected: boolean }) {
     return (
         <div className={cn(
-            'w-56 min-h-20 rounded-2xl border-2 p-3 shadow-sm text-sm leading-relaxed',
-            'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100',
+            'relative w-52 min-h-20 rounded-xl border-2 shadow-sm p-3',
+            'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700',
+            'text-[12px] text-yellow-900 dark:text-yellow-100 leading-relaxed',
             selected && 'ring-2 ring-yellow-400 ring-offset-1',
         )}>
-            {(data?.text as string) || <span className="opacity-50 italic">Add a note…</span>}
+            <StickyNote className="h-3 w-3 text-yellow-400 mb-1.5 opacity-60" />
+            {(data?.text as string) || <span className="opacity-40 italic">Add a note…</span>}
+            <Handle type="target" position={Position.Left} className="opacity-0!" />
+            <Handle type="source" position={Position.Right} id="output-main" className="opacity-0!" />
         </div>
     );
 });
 
+// ─── Handle styles ────────────────────────────────────────────────────────────
+// Typebot-style: clean circle that turns orange on active/hover
+const sourceHandle = [
+    '!w-[14px] !h-[14px] !rounded-full',
+    '!border-2 !bg-white dark:!bg-zinc-900',
+    '!shadow-sm !transition-colors !cursor-crosshair',
+    '!border-zinc-300 dark:!border-zinc-600',
+    'hover:!border-orange-500',
+].join(' ');
+
+const targetHandle = [
+    '!w-[14px] !h-[14px] !rounded-full',
+    '!border-2 !bg-white dark:!bg-zinc-900',
+    '!shadow-sm !transition-colors',
+    '!border-zinc-300 dark:!border-zinc-600',
+    'hover:!border-orange-500',
+].join(' ');
+
 // ─── Main node ────────────────────────────────────────────────────────────────
 const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
     const edges = useEdges();
+    const { deleteElements } = useReactFlow();
 
     const validationErrors: ValidationError[] = useMemo(() => {
-        try {
-            return validateNode({ id, type, data } as any, edges);
-        } catch { return []; }
+        try { return validateNode({ id, type, data } as any, edges); }
+        catch { return []; }
     }, [id, type, data, edges]);
 
     const hasError   = validationErrors.some(e => e.type === 'error');
     const hasWarning = !hasError && validationErrors.some(e => e.type === 'warning');
 
-    // Resolve block definition
     const blockType = (data?.blockType as string) ?? type ?? '';
 
-    const blockDef = useMemo(() => {
-        if (BLOCK_REGISTRY[blockType]) return {
-            ...BLOCK_REGISTRY[blockType],
-            appIcon: null as React.ComponentType<{ className?: string }> | null,
-            appIconColor: '',
-        };
-
-        // Integration (action node)
+    const def = useMemo((): BlockDef & { appIcon?: React.ComponentType<{ className?: string }> | null; appIconColor?: string } => {
+        if (BLOCKS[blockType]) return BLOCKS[blockType];
         const app = sabnodeAppActions.find(a => a.appId === (data?.appId as string));
         if (app) {
             return {
-                label:         (data?.name as string) || app.name,
-                category:      app.category || 'Integration',
-                palette:       'integration' as PaletteKey,
-                icon:          Settings2 as React.ComponentType<{ className?: string }>,
-                categoryLabel: app.category || 'Integration',
-                appIcon:       ((app as any).icon ?? null) as React.ComponentType<{ className?: string }> | null,
-                appIconColor:  (app as any).iconColor ?? 'text-blue-500',
+                label:        (data?.name as string) || app.name,
+                icon:         Settings2,
+                stripe:       'bg-blue-300 dark:bg-blue-600',
+                iconBg:       'bg-blue-50 dark:bg-blue-950/60',
+                iconColor:    (app as any).iconColor ?? 'text-blue-500',
+                category:     app.category || 'Integration',
+                appIcon:      (app as any).icon ?? null,
+                appIconColor: (app as any).iconColor ?? 'text-blue-500',
             };
         }
-
         return {
-            label:         (data?.name as string) || 'Block',
-            category:      'Other',
-            palette:       'default' as PaletteKey,
-            icon:          Settings2 as React.ComponentType<{ className?: string }>,
-            categoryLabel: type ?? '',
-            appIcon:       null as null,
-            appIconColor:  '',
+            label:     (data?.name as string) || 'Block',
+            icon:      Settings2,
+            stripe:    'bg-zinc-200 dark:bg-zinc-600',
+            iconBg:    'bg-zinc-50 dark:bg-zinc-800',
+            iconColor: 'text-zinc-400',
+            category:  '',
         };
     }, [data, type, blockType]);
 
-    const pal       = PALETTE[blockDef.palette];
-    const Icon      = blockDef.icon;
-    const AppIcon   = (blockDef as any).appIcon as React.ComponentType<{ className?: string }> | null;
-    const appIconColor = (blockDef as any).appIconColor as string;
+    const isTrigger   = def.category === 'Trigger';
+    const isCondition = blockType === 'condition' || type === 'condition';
 
-    const isTrigger    = blockDef.palette === 'trigger';
-    const isCondition  = blockType === 'condition' || type === 'condition';
-    const isIntegration = blockDef.palette === 'integration';
-
-    // Action subtitle
     const subtitle = useMemo(() => {
         if (data?.actionName) {
             const app = sabnodeAppActions.find(a => a.appId === (data?.appId as string));
             const action = (app as any)?.actions?.find((a: any) => a.name === data.actionName);
-            return (action?.label as string) ?? (data.actionName as string);
+            return (action?.label as string) ?? null;
         }
-        return blockDef.categoryLabel;
-    }, [data, blockDef]);
+        return null;
+    }, [data]);
 
-    // Sticky note
+    const IconComp  = (def as any).appIcon ?? def.icon;
+    const iconColor = (def as any).appIcon ? ((def as any).appIconColor ?? def.iconColor) : def.iconColor;
+
+    const handleDelete = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
+        deleteElements({ nodes: [{ id }] });
+    }, [id, deleteElements]);
+
+    // ── Sticky note ─────────────────────────────────────────────────────────
     if (type === 'sticky_note' || blockType === 'sticky_note') {
-        return (
-            <>
-                <Handle type="target" position={Position.Left} className="opacity-0!" />
-                <StickyNoteNode data={data as any} selected={!!selected} />
-                <Handle type="source" position={Position.Right} id="output-main" className="opacity-0!" />
-            </>
-        );
+        return <StickyNoteNode data={data as any} selected={!!selected} />;
     }
 
-    const preview = <ContentPreview data={data} blockType={blockType} />;
-
     return (
+        // group/node — used for n8n toolbar hover trigger
         <div className="relative group/node select-none" data-node-id={id}>
 
-            {/* "Start" pill above trigger nodes */}
+            {/* ── n8n-style hover toolbar — absolute above the card ───────── */}
+            <div className={cn(
+                'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10',
+                'opacity-0 group-hover/node:opacity-100',
+                'pointer-events-none group-hover/node:pointer-events-auto',
+                'transition-opacity duration-100',
+            )}>
+                <div className={cn(
+                    'flex items-center gap-0.5 rounded-lg border px-1.5 py-1',
+                    'bg-white dark:bg-zinc-900 shadow-md',
+                    'border-zinc-200 dark:border-zinc-700',
+                )}>
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        title="Delete node"
+                        className={cn(
+                            'flex h-7 w-7 items-center justify-center rounded-md',
+                            'text-zinc-400 hover:text-red-500',
+                            'hover:bg-red-50 dark:hover:bg-red-950/40',
+                            'transition-colors',
+                        )}
+                    >
+                        <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                    <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-700" />
+                    <button
+                        type="button"
+                        title="Settings"
+                        className={cn(
+                            'flex h-7 w-7 items-center justify-center rounded-md',
+                            'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200',
+                            'hover:bg-zinc-100 dark:hover:bg-zinc-800',
+                            'transition-colors',
+                        )}
+                    >
+                        <Settings className="h-3.5 w-3.5" />
+                    </button>
+                </div>
+            </div>
+
+            {/* ── "Start" badge above trigger nodes ── */}
             {isTrigger && (
                 <div className="absolute -top-7 inset-x-0 flex justify-center pointer-events-none">
-                    <span className="text-[9.5px] font-bold tracking-[0.15em] uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400">
-                        Start
+                    <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-[0.18em] uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400">
+                        <Zap className="h-2.5 w-2.5" /> Start
                     </span>
                 </div>
             )}
 
-            {/* Validation badge */}
+            {/* ── Validation badge ────────────────────────────────────────── */}
             {(hasError || hasWarning) && (
                 <div className={cn(
-                    'absolute -top-2 -right-2 z-20 flex h-5 w-5 items-center justify-center rounded-full',
-                    'text-white text-[9px] font-bold shadow ring-2 ring-background',
+                    'absolute -top-1.5 -right-1.5 z-20 flex h-5 w-5 items-center justify-center rounded-full',
+                    'text-white shadow ring-2 ring-background',
                     hasError ? 'bg-red-500' : 'bg-amber-400',
                 )}>
                     <AlertTriangle className="h-2.5 w-2.5" />
-                    {/* Tooltip */}
-                    <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 z-30 w-52 -translate-x-1/2 rounded-xl border border-border bg-popover p-2.5 text-xs shadow-xl opacity-0 transition-opacity group-hover/node:opacity-100">
-                        <p className={cn('mb-1 font-semibold text-[11px]', hasError ? 'text-red-500' : 'text-amber-500')}>
+                    <div className="pointer-events-none absolute bottom-full right-0 mb-2 z-30 w-52 rounded-xl border border-border bg-popover p-2.5 text-xs shadow-xl opacity-0 transition-opacity group-hover/node:opacity-100">
+                        <p className={cn('mb-1 font-semibold', hasError ? 'text-red-500' : 'text-amber-500')}>
                             {hasError ? 'Errors' : 'Warnings'}
                         </p>
                         <ul className="list-disc space-y-0.5 pl-3 text-left">
@@ -311,100 +285,93 @@ const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
                 </div>
             )}
 
-            {/* ── Card ────────────────────────────────────────────────────────── */}
+            {/* ── Card — Typebot exact style ───────────────────────────────── */}
             <div className={cn(
-                'relative w-64 rounded-2xl border shadow-sm overflow-hidden',
-                'transition-all duration-150',
-                pal.card, pal.border,
+                'relative flex w-[300px] overflow-hidden rounded-lg',
+                'bg-white dark:bg-zinc-900',
+                'transition-[border-color,border-width,box-shadow,margin] duration-100',
                 selected
-                    ? 'ring-2 ring-violet-500 ring-offset-1 shadow-lg shadow-violet-500/10'
-                    : 'hover:shadow-md hover:-translate-y-px',
+                    ? 'border-2 border-orange-500 -m-px shadow-md shadow-orange-500/10'
+                    : 'border border-zinc-200 dark:border-zinc-700/80 hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-600',
             )}>
 
-                {/* Top color band — Typebot's signature style */}
-                <div className={cn('h-1 w-full shrink-0', pal.band)} />
+                {/* Left coloured stripe — Typebot signature */}
+                <div className={cn('w-1 shrink-0 rounded-l-lg self-stretch', def.stripe)} />
 
-                {/* Node body */}
-                <div className="flex items-start gap-3 px-3.5 pt-3 pb-3">
-                    {/* Icon */}
-                    <div className={cn(
-                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm',
-                        isIntegration && AppIcon ? '' : pal.icon,
-                    )}>
-                        {isIntegration && AppIcon
-                            ? <AppIcon className={cn('h-4 w-4', appIconColor)} />
-                            : <Icon className="h-4 w-4" />
-                        }
-                    </div>
+                {/* Card body */}
+                <div className="flex-1 min-w-0 px-3 py-2.5">
 
-                    {/* Labels */}
-                    <div className="min-w-0 flex-1">
-                        {/* Category pill + name */}
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                            <span className={cn(
-                                'text-[9px] font-bold tracking-[0.12em] uppercase px-1.5 py-px rounded-sm',
-                                pal.badge,
-                            )}>
-                                {blockDef.categoryLabel}
-                            </span>
+                    {/* Header: icon + category label */}
+                    <div className="flex items-center gap-2 mb-1">
+                        <div className={cn(
+                            'flex h-6 w-6 shrink-0 items-center justify-center rounded-md',
+                            def.iconBg,
+                        )}>
+                            <IconComp className={cn('h-3.5 w-3.5', iconColor)} />
                         </div>
 
-                        <p className="truncate text-[13px] font-semibold leading-snug text-foreground">
-                            {(data?.name as string) || blockDef.label}
-                        </p>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">
+                            {def.category || def.label}
+                        </span>
 
-                        {subtitle && subtitle !== blockDef.categoryLabel && (
-                            <p className="mt-0.5 truncate text-[10.5px] text-muted-foreground leading-tight">
-                                {subtitle}
-                            </p>
-                        )}
-
-                        {/* Content preview */}
-                        {preview && (
-                            <div className="mt-2 rounded-lg bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-[10.5px] text-muted-foreground truncate border border-border/30">
-                                {preview}
-                            </div>
+                        {/* Block type label on far right */}
+                        {def.category && (
+                            <span className="ml-auto text-[10px] font-medium text-zinc-300 dark:text-zinc-600 truncate max-w-[70px]">
+                                {def.label}
+                            </span>
                         )}
                     </div>
+
+                    {/* Node name */}
+                    <p className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-100 leading-snug truncate">
+                        {(data?.name as string) || def.label}
+                    </p>
+
+                    {/* Sub-label for integration action nodes */}
+                    {subtitle && (
+                        <p className="text-[10.5px] text-zinc-400 dark:text-zinc-500 truncate mt-0.5">
+                            {subtitle}
+                        </p>
+                    )}
+
+                    {/* Content preview bubble */}
+                    <BlockPreview data={data} blockType={blockType} />
                 </div>
 
-                {/* ── Handles ─────────────────────────────────────────────────── */}
+                {/* ── Connection handles ─────────────────────────────────── */}
 
-                {/* Target */}
+                {/* Target (in) — left */}
                 {!isTrigger && (
                     <Handle
                         type="target"
                         position={Position.Left}
-                        className={cn(
-                            'absolute! -left-2! top-1/2! -translate-y-1/2!',
-                            'h-4! w-4! rounded-full! border-2! border-background!',
-                            'bg-muted-foreground/30! hover:bg-violet-500! transition-colors',
-                            'shadow-sm!',
-                        )}
+                        className={targetHandle}
                         isConnectableStart={false}
                     />
                 )}
 
-                {/* Source — condition: YES/NO, others: single */}
+                {/* Source (out) — Condition gets YES / NO, others get single */}
                 {isCondition ? (
-                    <div className="absolute -right-10 top-0 flex h-full flex-col items-start justify-around py-4">
+                    <div className="absolute -right-10 top-0 flex h-full flex-col items-start justify-around py-3">
                         {(['yes', 'no'] as const).map(branch => (
-                            <div key={branch} className="flex items-center gap-2">
+                            <div key={branch} className="flex items-center gap-1.5">
                                 <Handle
                                     type="source"
                                     position={Position.Right}
                                     id={`output-${branch}`}
                                     className={cn(
-                                        'relative! right-0! top-0! transform-none!',
-                                        'h-4! w-4! rounded-full! border-2! border-background! shadow-sm!',
-                                        branch === 'yes' ? 'bg-emerald-500!' : 'bg-red-500!',
+                                        '!relative !right-0 !top-0 !transform-none',
+                                        '!w-[14px] !h-[14px] !rounded-full !border-2 !shadow-sm !transition-colors !cursor-crosshair',
+                                        branch === 'yes'
+                                            ? '!bg-white dark:!bg-zinc-900 !border-emerald-400 hover:!border-emerald-600'
+                                            : '!bg-white dark:!bg-zinc-900 !border-red-400 hover:!border-red-600',
                                     )}
                                 />
                                 <span className={cn(
-                                    'rounded-md px-1.5 py-px text-[8.5px] font-bold border',
+                                    'rounded px-1.5 py-px text-[8.5px] font-bold border',
                                     branch === 'yes'
-                                        ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700 text-emerald-600'
-                                        : 'bg-red-50 dark:bg-red-950 border-red-300 dark:border-red-700 text-red-600',
+                                        ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-700 text-emerald-600'
+                                        : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-700 text-red-500',
                                 )}>
                                     {branch === 'yes' ? 'YES' : 'NO'}
                                 </span>
@@ -416,12 +383,7 @@ const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
                         type="source"
                         position={Position.Right}
                         id="output-main"
-                        className={cn(
-                            'absolute! -right-2! top-1/2! -translate-y-1/2!',
-                            'h-4! w-4! rounded-full! border-2! border-background!',
-                            'bg-muted-foreground/30! hover:bg-violet-500! transition-colors',
-                            'shadow-sm!',
-                        )}
+                        className={sourceHandle}
                     />
                 )}
             </div>
