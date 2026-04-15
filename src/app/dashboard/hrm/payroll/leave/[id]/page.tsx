@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -308,13 +307,14 @@ export default function LeaveDetailPage({
                       <Paperclip className="h-4 w-4 text-clay-ink-muted" />
                       {f.filename}
                     </a>
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <ClayButton
+                      variant="pill"
                       onClick={() => handleDeleteFile(String(f._id))}
+                      title="Delete attachment"
+                      leading={<Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />}
                     >
-                      <Trash2 className="h-4 w-4 text-clay-red" />
-                    </Button>
+                      Delete
+                    </ClayButton>
                   </li>
                 ))}
               </ul>

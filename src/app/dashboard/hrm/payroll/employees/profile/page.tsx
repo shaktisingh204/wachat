@@ -24,11 +24,36 @@ import type { WsEmployeeDetail } from '@/lib/worksuite/hr-ext-types';
 
 type EmployeeLite = { _id: string; name: string };
 
-type FormState = Partial<
-  Omit<WsEmployeeDetail, '_id' | 'userId' | 'createdAt' | 'updatedAt' | 'languages'>
-> & {
+/** All date fields stored as YYYY-MM-DD strings for HTML <input type="date"> */
+type FormState = {
   _id?: string;
+  employee_id?: string;
+  about_me?: string;
+  marital_status?: string;
+  gender?: string;
+  date_of_birth?: string;
+  blood_group?: string;
+  religion?: string;
+  nationality?: string;
   languages?: string;
+  hobbies?: string;
+  address?: string;
+  joining_date?: string;
+  last_date?: string;
+  probation_end_date?: string;
+  notice_period_end_date?: string;
+  internship_end_date?: string;
+  contract_end_date?: string;
+  marriage_anniversary_date?: string;
+  employment_type?: string;
+  notice_period?: number;
+  reporting_to?: string;
+  overtime_hourly_rate?: number;
+  hourly_rate?: number;
+  slack_username?: string;
+  bank_account_number?: string;
+  bank_name?: string;
+  tax_regime?: string;
   work_anniversary_notified_str?: string;
 };
 

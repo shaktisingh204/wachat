@@ -11,12 +11,10 @@ import type { HrOfferLetter } from '@/lib/hr-types';
 import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
-  draft: 'neutral',
-  sent: 'amber',
+  pending: 'amber',
   accepted: 'green',
-  declined: 'red',
-  withdrawn: 'neutral',
-  revoked: 'red',
+  rejected: 'red',
+  expired: 'neutral',
 };
 
 export default function OffersPage() {
@@ -31,23 +29,32 @@ export default function OffersPage() {
       saveAction={saveOfferLetter}
       deleteAction={deleteOfferLetter}
       columns={[
-        { key: 'jobTitle', label: 'Job Title' },
+        { key: 'designation', label: 'Designation' },
         { key: 'department', label: 'Department' },
         {
-          key: 'ctc',
-          label: 'CTC',
-          render: (row) =>
-            row.ctc != null
-              ? `${row.ctc.toLocaleString()} ${row.currency || ''}`.trim()
-              : '—',
+          key: 'salary',
+          label: 'Salary',
+          render: (row) => {
+            const s = (row as any).salary ?? (row as any).ctc;
+            const c = (row as any).currency || '';
+            return s != null ? `${Number(s).toLocaleString()} ${c}`.trim() : '—';
+          },
         },
         {
-          key: 'joiningDate',
+          key: 'joining_date',
           label: 'Joining Date',
-          render: (row) =>
-            row.joiningDate
-              ? new Date(row.joiningDate).toLocaleDateString()
-              : '—',
+          render: (row) => {
+            const d = (row as any).joining_date ?? (row as any).joiningDate;
+            return d ? new Date(d).toLocaleDateString() : '—';
+          },
+        },
+        {
+          key: 'valid_till',
+          label: 'Valid Till',
+          render: (row) => {
+            const d = (row as any).valid_till ?? (row as any).expiresAt;
+            return d ? new Date(d).toLocaleDateString() : '—';
+          },
         },
         {
           key: 'status',

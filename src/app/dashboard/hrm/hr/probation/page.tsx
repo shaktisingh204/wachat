@@ -11,7 +11,7 @@ import type { HrProbation } from '@/lib/hr-types';
 import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
-  active: 'amber',
+  ongoing: 'amber',
   passed: 'green',
   extended: 'amber',
   terminated: 'red',

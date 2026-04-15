@@ -1,13 +1,19 @@
 'use client';
 
 import { UserPlus } from 'lucide-react';
-import { HrEntityPage } from '../_components/hr-entity-page';
+import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
   getSuccessionPlans,
   saveSuccessionPlan,
   deleteSuccessionPlan,
 } from '@/app/actions/hr.actions';
 import type { HrSuccessionPlan } from '@/lib/hr-types';
+
+const READINESS_TONES: Record<string, 'neutral' | 'green' | 'amber'> = {
+  'ready-now': 'green',
+  'ready-1yr': 'amber',
+  'ready-2yr': 'neutral',
+};
 
 export default function SuccessionPage() {
   return (
@@ -20,37 +26,35 @@ export default function SuccessionPage() {
       saveAction={saveSuccessionPlan}
       deleteAction={deleteSuccessionPlan}
       columns={[
-        { key: 'roleTitle', label: 'Role' },
-        { key: 'incumbentName', label: 'Incumbent' },
+        { key: 'employeeId', label: 'Employee ID' },
+        { key: 'successorId', label: 'Successor ID' },
         {
-          key: 'successors',
-          label: 'Successors',
-          render: (row) => (row.successors?.length ?? 0) + ' candidates',
+          key: 'readiness',
+          label: 'Readiness',
+          render: (row) => {
+            const v = (row as any).readiness || 'ready-2yr';
+            return (
+              <ClayBadge tone={READINESS_TONES[v] || 'neutral'} dot>
+                {v}
+              </ClayBadge>
+            );
+          },
         },
       ]}
       fields={[
-        { name: 'roleTitle', label: 'Role Title', required: true, fullWidth: true },
-        { name: 'incumbentName', label: 'Incumbent Name' },
+        { name: 'employeeId', label: 'Employee ID', required: true },
+        { name: 'successorId', label: 'Successor ID', required: true },
         {
-          name: 'successors',
-          label: 'Successors',
-          type: 'array',
-          fullWidth: true,
-          addLabel: 'Add Successor',
-          subFields: [
-            { name: 'name', label: 'Name', type: 'text', required: true },
-            {
-              name: 'readiness',
-              label: 'Readiness',
-              type: 'select',
-              required: true,
-              options: [
-                { value: 'ready', label: 'Ready' },
-                { value: '6-12m', label: '6-12 months' },
-                { value: '1-3y', label: '1-3 years' },
-              ],
-            },
+          name: 'readiness',
+          label: 'Readiness',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'ready-now', label: 'Ready Now' },
+            { value: 'ready-1yr', label: 'Ready in 1 Year' },
+            { value: 'ready-2yr', label: 'Ready in 2 Years' },
           ],
+          defaultValue: 'ready-2yr',
         },
         {
           name: 'notes',

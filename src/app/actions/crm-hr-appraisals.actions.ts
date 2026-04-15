@@ -83,3 +83,83 @@ export async function deleteCrmAppraisalReview(id: string): Promise<{ success: b
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+// ── KPI Tracking ─────────────────────────────────────────────────────────────
+
+export type CrmKpi = {
+    _id: ObjectId;
+    userId: ObjectId;
+    employee_id: string;
+    kpi_name: string;
+    target_value: number;
+    actual_value: number;
+    unit: '%' | '$' | 'count' | string;
+    period: string;
+    status: 'on-track' | 'behind' | 'achieved';
+    createdAt: Date;
+};
+
+export async function getCrmKpis(): Promise<WithId<CrmKpi>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const kpis = await db
+            .collection('crm_kpis')
+            .find({ userId: new ObjectId(session.user._id) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(kpis));
+    } catch (e) {
+        console.error('Failed to fetch KPIs:', e);
+        return [];
+    }
+}
+
+export async function saveCrmKpi(
+    prevState: any,
+    formData: FormData,
+): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access Denied' };
+
+    const id = formData.get('id') as string | null;
+    const kpiData: Omit<CrmKpi, '_id' | 'createdAt'> = {
+        userId: new ObjectId(session.user._id),
+        employee_id: (formData.get('employee_id') as string) ?? '',
+        kpi_name: (formData.get('kpi_name') as string) ?? '',
+        target_value: Number(formData.get('target_value') ?? 0),
+        actual_value: Number(formData.get('actual_value') ?? 0),
+        unit: (formData.get('unit') as string) ?? '%',
+        period: (formData.get('period') as string) ?? '',
+        status: (formData.get('status') as CrmKpi['status']) ?? 'on-track',
+    };
+
+    if (!kpiData.kpi_name) return { error: 'KPI name is required.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        if (id && ObjectId.isValid(id)) {
+            await db.collection('crm_kpis').updateOne({ _id: new ObjectId(id) }, { $set: kpiData });
+        } else {
+            await db.collection('crm_kpis').insertOne({ ...kpiData, createdAt: new Date() } as any);
+        }
+        revalidatePath('/dashboard/hrm/payroll/kpi-tracking');
+        return { message: 'KPI saved successfully.' };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteCrmKpi(id: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user || !ObjectId.isValid(id)) return { success: false, error: 'Invalid request' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('crm_kpis').deleteOne({ _id: new ObjectId(id), userId: new ObjectId(session.user._id) });
+        revalidatePath('/dashboard/hrm/payroll/kpi-tracking');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

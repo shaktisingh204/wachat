@@ -1,9 +1,9 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee ID', required: true },
-  { name: 'fromName', label: 'From' },
-  { name: 'fromEmail', label: 'From Email', type: 'email' },
+  { name: 'employeeId', label: 'Employee (Recipient)', required: true },
+  { name: 'fromName', label: 'Recognized By', required: true },
+  { name: 'fromEmail', label: 'Recognizer Email', type: 'email' },
   {
     name: 'type',
     label: 'Type',
@@ -36,11 +36,18 @@ export const fields: HrField[] = [
     ],
   },
   {
+    name: 'title',
+    label: 'Award Title',
+    placeholder: 'e.g. Employee of the Month — Q1',
+    fullWidth: true,
+  },
+  {
     name: 'message',
-    label: 'Message',
+    label: 'Description',
     type: 'textarea',
     required: true,
     fullWidth: true,
+    placeholder: 'Describe why this person is being recognized…',
   },
   { name: 'points', label: 'Points', type: 'number' },
   { name: 'monetaryReward', label: 'Monetary Reward', type: 'number' },
@@ -57,7 +64,7 @@ export const fields: HrField[] = [
     defaultValue: 'public',
   },
   { name: 'linkedValue', label: 'Linked Value' },
-  { name: 'givenAt', label: 'Given At', type: 'date', required: true },
+  { name: 'givenAt', label: 'Awarded Date', type: 'date', required: true },
   { name: 'approvedBy', label: 'Approved By' },
   {
     name: 'anonymous',
@@ -78,6 +85,7 @@ export const sections = [
       'employeeId',
       'type',
       'category',
+      'title',
       'message',
       'givenAt',
       'visibility',

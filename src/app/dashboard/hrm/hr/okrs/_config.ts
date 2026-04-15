@@ -1,38 +1,65 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee ID' },
-  { name: 'team', label: 'Team' },
-  { name: 'quarter', label: 'Quarter', required: true, placeholder: 'Q1 2026' },
-  { name: 'year', label: 'Year', type: 'number' },
   {
-    name: 'objective',
-    label: 'Objective',
+    name: 'title',
+    label: 'Title',
     required: true,
     fullWidth: true,
+    placeholder: 'Improve customer satisfaction score',
   },
   {
     name: 'description',
     label: 'Description',
     type: 'textarea',
     fullWidth: true,
+    placeholder: 'Describe the objective in detail…',
   },
-  { name: 'weight', label: 'Weight (0-100)', type: 'number' },
+  {
+    name: 'type',
+    label: 'Type',
+    type: 'select',
+    required: true,
+    options: [
+      { value: 'individual', label: 'Individual' },
+      { value: 'team', label: 'Team' },
+      { value: 'company', label: 'Company' },
+    ],
+    defaultValue: 'individual',
+  },
+  {
+    name: 'employee_id',
+    label: 'Employee (for Individual)',
+    placeholder: 'Employee ID or name',
+  },
+  {
+    name: 'due_date',
+    label: 'Due Date',
+    type: 'date',
+    required: true,
+  },
+  {
+    name: 'progress',
+    label: 'Progress (0–100)',
+    type: 'number',
+    defaultValue: '0',
+    placeholder: '0',
+  },
   {
     name: 'status',
     label: 'Status',
     type: 'select',
     options: [
-      { value: 'draft', label: 'Draft' },
-      { value: 'in-progress', label: 'In progress' },
-      { value: 'achieved', label: 'Achieved' },
-      { value: 'missed', label: 'Missed' },
+      { value: 'on-track', label: 'On track' },
       { value: 'at-risk', label: 'At risk' },
+      { value: 'off-track', label: 'Off track' },
+      { value: 'completed', label: 'Completed' },
     ],
-    defaultValue: 'draft',
+    defaultValue: 'on-track',
   },
-  { name: 'startDate', label: 'Start Date', type: 'date' },
-  { name: 'endDate', label: 'End Date', type: 'date' },
+  // Legacy / extra fields kept for backwards compatibility
+  { name: 'team', label: 'Team' },
+  { name: 'quarter', label: 'Quarter', placeholder: 'Q1 2026' },
   {
     name: 'keyResults',
     label: 'Key Results',
@@ -48,7 +75,7 @@ export const fields: HrField[] = [
         placeholder: 'Ship feature X',
       },
       { name: 'target', label: 'Target', type: 'text' },
-      { name: 'progress', label: 'Progress %', type: 'number', placeholder: '0-100' },
+      { name: 'progress', label: 'Progress %', type: 'number', placeholder: '0–100' },
       {
         name: 'status',
         label: 'Status',
@@ -66,19 +93,11 @@ export const fields: HrField[] = [
 export const sections = [
   {
     title: 'Objective',
-    fieldNames: [
-      'employeeId',
-      'team',
-      'quarter',
-      'year',
-      'objective',
-      'description',
-      'weight',
-    ],
+    fieldNames: ['title', 'description', 'type', 'employee_id', 'team', 'quarter'],
   },
   {
-    title: 'Timeline',
-    fieldNames: ['status', 'startDate', 'endDate'],
+    title: 'Timeline & Progress',
+    fieldNames: ['due_date', 'progress', 'status'],
   },
   {
     title: 'Key Results',

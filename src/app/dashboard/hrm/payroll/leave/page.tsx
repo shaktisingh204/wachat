@@ -15,15 +15,6 @@ import {
   Filter,
 } from 'lucide-react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -190,31 +181,32 @@ export default function LeaveManagementPage() {
           </div>
         </div>
         <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Employee</TableHead>
-                <TableHead className="text-clay-ink-muted">Type</TableHead>
-                <TableHead className="text-clay-ink-muted">Dates</TableHead>
-                <TableHead className="text-clay-ink-muted">Days</TableHead>
-                <TableHead className="text-clay-ink-muted">Reason</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <table className="w-full text-left text-[13px]">
+            <thead>
+              <tr className="border-b border-clay-border">
+                <th className="px-4 py-3 font-medium text-clay-ink-muted">Employee</th>
+                <th className="px-4 py-3 font-medium text-clay-ink-muted">Type</th>
+                <th className="px-4 py-3 font-medium text-clay-ink-muted">Duration</th>
+                <th className="px-4 py-3 font-medium text-clay-ink-muted">Date(s)</th>
+                <th className="px-4 py-3 font-medium text-clay-ink-muted">Days</th>
+                <th className="px-4 py-3 font-medium text-clay-ink-muted">Applied At</th>
+                <th className="px-4 py-3 font-medium text-clay-ink-muted">Status</th>
+                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
               {isLoading ? (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr>
+                  <td colSpan={8} className="h-24 text-center text-clay-ink-muted">
                     Loading...
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : leaves.length === 0 ? (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr>
+                  <td colSpan={8} className="h-24 text-center text-clay-ink-muted">
                     No leave requests.
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : (
                 leaves.map((l) => {
                   const t = typeMap.get(String(l.leave_type_id));
@@ -223,11 +215,11 @@ export default function LeaveManagementPage() {
                       ? `${format(new Date(l.leave_date), 'dd MMM yy')} – ${format(new Date(l.end_date), 'dd MMM yy')}`
                       : format(new Date(l.leave_date), 'dd MMM yy');
                   return (
-                    <TableRow key={String(l._id)} className="border-clay-border">
-                      <TableCell className="text-[13px] font-medium text-clay-ink">
+                    <tr key={String(l._id)} className="border-b border-clay-border last:border-0">
+                      <td className="px-4 py-3 font-medium text-clay-ink">
                         {empMap.get(String(l.user_id)) || l.user_id}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td className="px-4 py-3">
                         {t ? (
                           <span
                             className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px] font-medium"
@@ -247,53 +239,70 @@ export default function LeaveManagementPage() {
                         ) : (
                           '—'
                         )}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">{dates}</TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      </td>
+                      <td className="px-4 py-3 text-clay-ink capitalize">
+                        {l.duration}
+                        {l.duration === 'half-day' && l.half_day_type
+                          ? ` (${l.half_day_type})`
+                          : ''}
+                      </td>
+                      <td className="px-4 py-3 text-clay-ink">{dates}</td>
+                      <td className="px-4 py-3 text-clay-ink">
                         {l.days_count}
                         {l.duration === 'hours' && l.hours ? ` (${l.hours}h)` : ''}
-                      </TableCell>
-                      <TableCell className="max-w-[240px] truncate text-[11.5px] text-clay-ink-muted">
-                        {l.reason || '—'}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td className="px-4 py-3 text-clay-ink-muted">
+                        {l.applied_at
+                          ? format(new Date(l.applied_at), 'dd MMM yy')
+                          : '—'}
+                      </td>
+                      <td className="px-4 py-3">
                         <ClayBadge tone={statusTone(l.status)}>{l.status}</ClayBadge>
-                      </TableCell>
-                      <TableCell className="text-right">
+                        {l.status === 'rejected' && l.reject_reason ? (
+                          <p className="mt-1 max-w-[180px] truncate text-[11px] text-clay-red">
+                            {l.reject_reason}
+                          </p>
+                        ) : null}
+                      </td>
+                      <td className="px-4 py-3">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/dashboard/hrm/payroll/leave/${l._id}`}>
-                              <Eye className="h-4 w-4" />
-                            </Link>
-                          </Button>
+                          <Link href={`/dashboard/hrm/payroll/leave/${l._id}`}>
+                            <ClayButton
+                              variant="pill"
+                              title="View"
+                              leading={<Eye className="h-3.5 w-3.5" strokeWidth={1.75} />}
+                            >
+                              View
+                            </ClayButton>
+                          </Link>
                           {l.status === 'pending' && (
                             <>
-                              <Button
-                                variant="outline"
-                                size="icon"
+                              <ClayButton
+                                variant="pill"
                                 onClick={() => handleApprove(String(l._id))}
                                 title="Approve"
+                                leading={<Check className="h-3.5 w-3.5 text-green-600" strokeWidth={1.75} />}
                               >
-                                <Check className="h-4 w-4 text-clay-green" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="icon"
+                                Approve
+                              </ClayButton>
+                              <ClayButton
+                                variant="pill"
                                 onClick={() => handleReject(String(l._id))}
                                 title="Reject"
+                                leading={<X className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />}
                               >
-                                <X className="h-4 w-4 text-clay-red" />
-                              </Button>
+                                Reject
+                              </ClayButton>
                             </>
                           )}
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   );
                 })
               )}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
       </ClayCard>
     </div>

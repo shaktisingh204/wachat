@@ -29,7 +29,7 @@ export default function RecognitionPage() {
             <span className="block max-w-[160px] truncate">{String(row.employeeId)}</span>
           ),
         },
-        { key: 'fromName', label: 'From' },
+        { key: 'fromName', label: 'Recognized By' },
         {
           key: 'type',
           label: 'Type',
@@ -38,20 +38,36 @@ export default function RecognitionPage() {
           ),
         },
         {
+          key: 'category',
+          label: 'Category',
+          render: (row) => row.category ? (
+            <ClayBadge tone="neutral">{row.category}</ClayBadge>
+          ) : <span className="text-clay-ink-muted">—</span>,
+        },
+        {
           key: 'message',
-          label: 'Message',
+          label: 'Description',
           render: (row) => {
             const msg = String(row.message || '');
             return (
               <span className="block max-w-[240px] truncate">
-                {msg.length > 40 ? msg.slice(0, 40) + '…' : msg}
+                {msg.length > 50 ? msg.slice(0, 50) + '…' : msg || '—'}
               </span>
             );
           },
         },
         {
+          key: 'visibility',
+          label: 'Visibility',
+          render: (row) => row.visibility ? (
+            <ClayBadge tone={row.visibility === 'public' ? 'green' : row.visibility === 'private' ? 'neutral' : 'amber'}>
+              {row.visibility}
+            </ClayBadge>
+          ) : <span className="text-clay-ink-muted">—</span>,
+        },
+        {
           key: 'givenAt',
-          label: 'Given',
+          label: 'Awarded Date',
           render: (row) =>
             row.givenAt ? new Date(row.givenAt).toLocaleDateString() : '—',
         },

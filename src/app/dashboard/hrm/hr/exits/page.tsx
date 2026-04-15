@@ -9,9 +9,21 @@ import {
 } from '@/app/actions/hr.actions';
 import type { HrExit } from '@/lib/hr-types';
 
-const FNF_TONES: Record<string, 'amber' | 'green'> = {
+const REASON_TONES: Record<string, 'neutral' | 'amber' | 'red' | 'rose-soft'> = {
+  resignation: 'amber',
+  termination: 'red',
+  retirement: 'neutral',
+  'contract-end': 'rose-soft',
+};
+
+const CLEARANCE_TONES: Record<string, 'amber' | 'green'> = {
   pending: 'amber',
   cleared: 'green',
+};
+
+const FNF_TONES: Record<string, 'amber' | 'green'> = {
+  pending: 'amber',
+  processed: 'green',
 };
 
 export default function ExitsPage() {
@@ -33,36 +45,55 @@ export default function ExitsPage() {
           ),
         },
         {
-          key: 'exitType',
-          label: 'Type',
+          key: 'reason',
+          label: 'Reason',
           render: (row) => (
-            <ClayBadge tone="rose-soft">{row.exitType}</ClayBadge>
-          ),
-        },
-        {
-          key: 'lastWorkingDate',
-          label: 'Last Working Day',
-          render: (row) =>
-            row.lastWorkingDate
-              ? new Date(row.lastWorkingDate).toLocaleDateString()
-              : '—',
-        },
-        {
-          key: 'fnfStatus',
-          label: 'FnF',
-          render: (row) => (
-            <ClayBadge tone={FNF_TONES[row.fnfStatus || 'pending'] || 'amber'} dot>
-              {row.fnfStatus}
+            <ClayBadge tone={REASON_TONES[(row as any).reason] || 'neutral'}>
+              {(row as any).reason || '—'}
             </ClayBadge>
           ),
+        },
+        {
+          key: 'exit_date',
+          label: 'Exit Date',
+          render: (row) => {
+            const d = (row as any).exit_date;
+            return d ? new Date(d).toLocaleDateString() : '—';
+          },
+        },
+        {
+          key: 'clearance_status',
+          label: 'Clearance',
+          render: (row) => {
+            const v = (row as any).clearance_status || 'pending';
+            return (
+              <ClayBadge tone={CLEARANCE_TONES[v] || 'amber'} dot>
+                {v}
+              </ClayBadge>
+            );
+          },
+        },
+        {
+          key: 'fnf_status',
+          label: 'FnF',
+          render: (row) => {
+            const v = (row as any).fnf_status || 'pending';
+            return (
+              <ClayBadge tone={FNF_TONES[v] || 'amber'} dot>
+                {v}
+              </ClayBadge>
+            );
+          },
         },
       ]}
       fields={[
         { name: 'employeeId', label: 'Employee ID', required: true },
+        { name: 'exit_date', label: 'Exit Date', type: 'date', required: true },
         {
-          name: 'exitType',
-          label: 'Exit Type',
+          name: 'reason',
+          label: 'Reason',
           type: 'select',
+          required: true,
           options: [
             { value: 'resignation', label: 'Resignation' },
             { value: 'termination', label: 'Termination' },
@@ -71,35 +102,36 @@ export default function ExitsPage() {
           ],
           defaultValue: 'resignation',
         },
-        { name: 'resignationDate', label: 'Resignation Date', type: 'date' },
         {
-          name: 'lastWorkingDate',
-          label: 'Last Working Date',
+          name: 'exit_interview_date',
+          label: 'Exit Interview Date',
           type: 'date',
-          required: true,
         },
         {
-          name: 'reason',
-          label: 'Reason',
-          type: 'textarea',
-          fullWidth: true,
-        },
-        {
-          name: 'interviewNotes',
-          label: 'Interview Notes',
-          type: 'textarea',
-          fullWidth: true,
-        },
-        { name: 'fnfAmount', label: 'FnF Amount', type: 'number' },
-        {
-          name: 'fnfStatus',
-          label: 'FnF Status',
+          name: 'clearance_status',
+          label: 'Clearance Status',
           type: 'select',
           options: [
             { value: 'pending', label: 'Pending' },
             { value: 'cleared', label: 'Cleared' },
           ],
           defaultValue: 'pending',
+        },
+        {
+          name: 'fnf_status',
+          label: 'FnF Status',
+          type: 'select',
+          options: [
+            { value: 'pending', label: 'Pending' },
+            { value: 'processed', label: 'Processed' },
+          ],
+          defaultValue: 'pending',
+        },
+        {
+          name: 'notes',
+          label: 'Notes',
+          type: 'textarea',
+          fullWidth: true,
         },
       ]}
     />

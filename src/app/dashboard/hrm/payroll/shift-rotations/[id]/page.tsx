@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
@@ -183,13 +182,14 @@ export default function ShiftRotationDetailPage() {
                       <ClayBadge tone="blue">
                         {seq.duration_days} day{seq.duration_days === 1 ? '' : 's'}
                       </ClayBadge>
-                      <Button
-                        variant="ghost"
+                      <ClayButton
+                        variant="pill"
                         size="icon"
+                        aria-label="Remove sequence step"
                         onClick={() => removeSeq(seq._id)}
                       >
                         <Trash2 className="h-4 w-4 text-clay-red" />
-                      </Button>
+                      </ClayButton>
                     </div>
                   );
                 })

@@ -1,7 +1,7 @@
 'use client';
 
 import { Heart } from 'lucide-react';
-import { HrEntityPage } from '../_components/hr-entity-page';
+import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
   getWelcomeKits,
   saveWelcomeKit,
@@ -9,6 +9,11 @@ import {
 } from '@/app/actions/hr.actions';
 import type { HrWelcomeKit } from '@/lib/hr-types';
 import { fields } from './_config';
+
+const STATUS_TONES: Record<string, 'amber' | 'green'> = {
+  pending: 'amber',
+  sent: 'green',
+};
 
 export default function WelcomeKitPage() {
   return (
@@ -22,14 +27,34 @@ export default function WelcomeKitPage() {
       saveAction={saveWelcomeKit}
       deleteAction={deleteWelcomeKit}
       columns={[
-        { key: 'name', label: 'Name' },
+        { key: 'employee_id', label: 'Employee ID' },
+        { key: 'name', label: 'Kit Name' },
         {
           key: 'items',
           label: 'Items',
           render: (row) =>
-            Array.isArray(row.items) ? String(row.items.length) : '0',
+            Array.isArray(row.items) ? `${row.items.length} item(s)` : '0',
         },
-        { key: 'description', label: 'Description' },
+        {
+          key: 'sent_date',
+          label: 'Sent Date',
+          render: (row) => {
+            const d = (row as any).sent_date;
+            return d ? new Date(d).toLocaleDateString() : '—';
+          },
+        },
+        {
+          key: 'status',
+          label: 'Status',
+          render: (row) => {
+            const v = (row as any).status || 'pending';
+            return (
+              <ClayBadge tone={STATUS_TONES[v] || 'amber'} dot>
+                {v}
+              </ClayBadge>
+            );
+          },
+        },
       ]}
       fields={fields}
     />

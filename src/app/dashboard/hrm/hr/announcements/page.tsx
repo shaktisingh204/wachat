@@ -31,16 +31,30 @@ export default function AnnouncementsPage() {
       columns={[
         { key: 'title', label: 'Title' },
         {
+          key: 'type',
+          label: 'Type',
+          render: (row) => {
+            const t = (row as any).type || 'info';
+            const tone = t === 'warning' ? 'amber' : t === 'success' ? 'green' : 'neutral';
+            return <ClayBadge tone={tone}>{t}</ClayBadge>;
+          },
+        },
+        {
           key: 'audience',
           label: 'Audience',
           render: (row) => (
-            <ClayBadge tone="rose-soft">{row.audience || 'all'}</ClayBadge>
+            <ClayBadge tone="neutral">{row.audience || 'all'}</ClayBadge>
           ),
         },
         {
           key: 'publishAt',
-          label: 'Publish At',
+          label: 'Published At',
           render: (row) => <span>{formatDate(row.publishAt)}</span>,
+        },
+        {
+          key: 'expiresAt',
+          label: 'Expires At',
+          render: (row) => <span>{formatDate((row as any).expiresAt)}</span>,
         },
         {
           key: 'pinned',

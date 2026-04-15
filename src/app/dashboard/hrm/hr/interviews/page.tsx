@@ -10,11 +10,10 @@ import {
 import type { HrInterview } from '@/lib/hr-types';
 import { fields } from './_config';
 
-const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
-  scheduled: 'amber',
-  completed: 'green',
-  cancelled: 'neutral',
-  'no-show': 'red',
+const RESULT_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
+  pending: 'amber',
+  passed: 'green',
+  failed: 'red',
   rescheduled: 'amber',
 };
 
@@ -40,13 +39,13 @@ export default function InterviewsPage() {
               ? new Date(row.scheduledAt).toLocaleDateString()
               : '—',
         },
-        { key: 'mode', label: 'Mode' },
+        { key: 'type', label: 'Type' },
         {
-          key: 'status',
-          label: 'Status',
+          key: 'result',
+          label: 'Result',
           render: (row) => (
-            <ClayBadge tone={STATUS_TONES[row.status] || 'neutral'} dot>
-              {row.status}
+            <ClayBadge tone={RESULT_TONES[(row as any).result] || 'neutral'} dot>
+              {(row as any).result || 'pending'}
             </ClayBadge>
           ),
         },

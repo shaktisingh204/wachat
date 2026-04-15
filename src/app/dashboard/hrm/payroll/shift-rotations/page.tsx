@@ -2,9 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Plus, RotateCw, Edit, Trash2, Play } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+import { Edit, Play, Plus, RotateCw, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
@@ -70,7 +68,7 @@ export default function ShiftRotationsPage() {
       />
 
       <ClayCard>
-        <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">Create rotation</h2>
+        <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">Create Rotation</h2>
         <form onSubmit={handleCreate} className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_2fr_auto]">
           <div className="flex flex-col gap-1.5">
             <Label className="text-[12px] text-clay-ink-muted">Name</Label>
@@ -105,63 +103,64 @@ export default function ShiftRotationsPage() {
       <ClayCard>
         <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">All Rotations</h2>
         <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Name</TableHead>
-                <TableHead className="text-clay-ink-muted">Description</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-clay-border bg-clay-surface-2">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Name</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Description</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Status</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
               {pending && rotations.length === 0 ? (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={4} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr className="border-b border-clay-border">
+                  <td colSpan={4} className="h-24 text-center text-[13px] text-clay-ink-muted">
                     Loading…
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : rotations.length > 0 ? (
                 rotations.map((r) => (
-                  <TableRow key={String(r._id)} className="border-clay-border">
-                    <TableCell className="text-[13px] font-medium text-clay-ink">
+                  <tr key={String(r._id)} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
+                    <td className="px-4 py-2.5 text-[13px] font-medium text-clay-ink">
                       {r.name}
-                    </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink-muted">
+                    </td>
+                    <td className="px-4 py-2.5 text-[13px] text-clay-ink-muted">
                       {r.description || '—'}
-                    </TableCell>
-                    <TableCell>
+                    </td>
+                    <td className="px-4 py-2.5">
                       <ClayBadge tone={r.is_active ? 'green' : 'neutral'}>
                         {r.is_active ? 'active' : 'inactive'}
                       </ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </td>
+                    <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/dashboard/hrm/payroll/shift-rotations/${r._id}`}>
+                        <Link href={`/dashboard/hrm/payroll/shift-rotations/${r._id}`}>
+                          <ClayButton variant="pill" size="icon" aria-label="Edit rotation">
                             <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
+                          </ClayButton>
+                        </Link>
+                        <ClayButton
+                          variant="pill"
                           size="icon"
+                          aria-label="Delete rotation"
                           onClick={() => handleDelete(r._id)}
                         >
                           <Trash2 className="h-4 w-4 text-clay-red" />
-                        </Button>
+                        </ClayButton>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))
               ) : (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={4} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr className="border-b border-clay-border">
+                  <td colSpan={4} className="h-24 text-center text-[13px] text-clay-ink-muted">
                     No rotations yet.
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               )}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
       </ClayCard>
     </div>

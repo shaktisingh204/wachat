@@ -11,18 +11,37 @@ import {
 import type { HrFeedback360 } from '@/lib/hr-types';
 import { fields } from './_config';
 
-function formatDate(value: unknown): React.ReactNode {
-  if (!value) return <span className="text-clay-ink-muted">—</span>;
-  const d = new Date(value as any);
-  if (isNaN(d.getTime())) return <span className="text-clay-ink-muted">—</span>;
-  return d.toISOString().slice(0, 10);
+const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber'> = {
+  pending: 'amber',
+  submitted: 'green',
+};
+
+const TYPE_TONES: Record<string, 'neutral' | 'blue' | 'amber' | 'green' | 'rose-soft'> = {
+  self: 'neutral',
+  peer: 'blue',
+  manager: 'amber',
+  'direct-report': 'green',
+};
+
+function RatingDots({ value }: { value: unknown }) {
+  const n = Math.min(5, Math.max(0, Number(value) || 0));
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Star
+          key={i}
+          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-clay-border'}`}
+        />
+      ))}
+    </div>
+  );
 }
 
 export default function Feedback360Page() {
   return (
     <HrEntityPage<HrFeedback360 & { _id: string }>
       title="360° Feedback"
-      subtitle="Peer, manager, and self reviews."
+      subtitle="Peer, manager, direct-report, and self reviews."
       icon={Star}
       singular="Feedback"
       basePath="/dashboard/hrm/hr/feedback-360"
@@ -31,30 +50,62 @@ export default function Feedback360Page() {
       deleteAction={deleteFeedback360}
       columns={[
         {
-          key: 'employeeId',
-          label: 'Employee',
+          key: 'reviewee_id',
+          label: 'Reviewee',
           render: (row) => (
-            <span className="block max-w-[160px] truncate">
-              {String(row.employeeId)}
+            <span className="block max-w-[140px] truncate">
+              {(row as any).reviewee_id || String(row.employeeId) || '—'}
             </span>
           ),
         },
-        { key: 'reviewerName', label: 'Reviewer' },
         {
-          key: 'reviewerType',
-          label: 'Type',
+          key: 'reviewer_id',
+          label: 'Reviewer',
           render: (row) => (
-            <ClayBadge tone="rose-soft" dot>
-              {row.reviewerType}
-            </ClayBadge>
+            <span className="block max-w-[140px] truncate">
+              {(row as any).reviewer_id || (row as any).reviewerName || '—'}
+            </span>
           ),
         },
-        { key: 'reviewCycle', label: 'Cycle' },
-        { key: 'rating', label: 'Rating' },
         {
-          key: 'submittedAt',
-          label: 'Submitted',
-          render: (row) => formatDate(row.submittedAt),
+          key: 'type',
+          label: 'Type',
+          render: (row) => {
+            const t = (row as any).type || row.reviewerType;
+            return t ? (
+              <ClayBadge tone={TYPE_TONES[t] || 'neutral'} dot>
+                {t}
+              </ClayBadge>
+            ) : (
+              <span className="text-clay-ink-muted">—</span>
+            );
+          },
+        },
+        {
+          key: 'period',
+          label: 'Period',
+          render: (row) => (row as any).period || (row as any).reviewCycle || '—',
+        },
+        {
+          key: 'status',
+          label: 'Status',
+          render: (row) => {
+            const s = (row as any).status;
+            return s ? (
+              <ClayBadge tone={STATUS_TONES[s] || 'neutral'} dot>
+                {s}
+              </ClayBadge>
+            ) : (
+              <span className="text-clay-ink-muted">—</span>
+            );
+          },
+        },
+        {
+          key: 'rating_communication',
+          label: 'Communication',
+          render: (row) => (
+            <RatingDots value={(row as any).rating_communication ?? (row as any).rating} />
+          ),
         },
       ]}
       fields={fields}

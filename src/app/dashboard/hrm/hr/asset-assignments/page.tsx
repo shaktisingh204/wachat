@@ -48,8 +48,13 @@ export default function AssetAssignmentsPage() {
         },
         {
           key: 'assignedAt',
-          label: 'Assigned',
+          label: 'Assigned Date',
           render: (row) => formatDate(row.assignedAt),
+        },
+        {
+          key: 'expectedReturnAt',
+          label: 'Expected Return',
+          render: (row) => formatDate((row as any).expectedReturnAt),
         },
         {
           key: 'returnedAt',
@@ -69,8 +74,9 @@ export default function AssetAssignmentsPage() {
       fields={[
         { name: 'assetId', label: 'Asset ID', required: true },
         { name: 'employeeId', label: 'Employee ID', required: true },
-        { name: 'assignedAt', label: 'Assigned At', type: 'date', required: true },
-        { name: 'returnedAt', label: 'Returned At', type: 'date' },
+        { name: 'assignedAt', label: 'Assigned Date', type: 'date', required: true },
+        { name: 'expectedReturnAt', label: 'Expected Return Date', type: 'date' },
+        { name: 'returnedAt', label: 'Actual Return Date', type: 'date' },
         {
           name: 'status',
           label: 'Status',

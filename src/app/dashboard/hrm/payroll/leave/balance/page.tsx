@@ -3,14 +3,6 @@
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { CalendarCheck, ArrowLeft } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
@@ -58,14 +50,14 @@ export default function LeaveBalancePage() {
 
       <ClayCard>
         <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Employee</TableHead>
+          <table className="w-full text-left text-[13px]">
+            <thead>
+              <tr className="border-b border-clay-border">
+                <th className="px-4 py-3 font-medium text-clay-ink-muted">Employee</th>
                 {types.map((t) => (
-                  <TableHead
+                  <th
                     key={String(t._id)}
-                    className="text-clay-ink-muted"
+                    className="px-4 py-3 font-medium text-clay-ink-muted"
                   >
                     <span className="inline-flex items-center gap-1.5">
                       <span
@@ -75,54 +67,57 @@ export default function LeaveBalancePage() {
                       />
                       {t.type_name}
                     </span>
-                  </TableHead>
+                  </th>
                 ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+              </tr>
+            </thead>
+            <tbody>
               {isLoading ? (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={types.length + 1} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr>
+                  <td
+                    colSpan={types.length + 1}
+                    className="h-24 text-center text-clay-ink-muted"
+                  >
                     Loading…
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={types.length + 1} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr>
+                  <td
+                    colSpan={types.length + 1}
+                    className="h-24 text-center text-clay-ink-muted"
+                  >
                     No employees found.
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : (
                 rows.map((r) => {
                   const byType = new Map(r.rows.map((x) => [x.leave_type_id, x]));
                   return (
-                    <TableRow key={r.employee_id} className="border-clay-border">
-                      <TableCell className="text-[13px] font-medium text-clay-ink">
+                    <tr key={r.employee_id} className="border-b border-clay-border last:border-0">
+                      <td className="px-4 py-3 font-medium text-clay-ink">
                         {r.employee_name}
-                      </TableCell>
+                      </td>
                       {types.map((t) => {
                         const row = byType.get(String(t._id));
                         if (!row) {
                           return (
-                            <TableCell
+                            <td
                               key={String(t._id)}
-                              className="text-[13px] text-clay-ink-muted"
+                              className="px-4 py-3 text-clay-ink-muted"
                             >
                               —
-                            </TableCell>
+                            </td>
                           );
                         }
                         const low = row.remaining <= 1 && row.allocated > 0;
                         return (
-                          <TableCell
-                            key={String(t._id)}
-                            className="text-[13px] text-clay-ink"
-                          >
+                          <td key={String(t._id)} className="px-4 py-3">
                             <div className="flex flex-col">
                               <span
                                 className={
                                   low
-                                    ? 'font-semibold text-clay-red'
+                                    ? 'font-semibold text-red-500'
                                     : 'font-semibold text-clay-ink'
                                 }
                               >
@@ -132,15 +127,15 @@ export default function LeaveBalancePage() {
                                 used: {row.used}
                               </span>
                             </div>
-                          </TableCell>
+                          </td>
                         );
                       })}
-                    </TableRow>
+                    </tr>
                   );
                 })
               )}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
       </ClayCard>
     </div>

@@ -14,7 +14,7 @@ const STAGE_TONES: Record<
   string,
   'neutral' | 'green' | 'amber' | 'red' | 'blue' | 'rose-soft'
 > = {
-  new: 'neutral',
+  applied: 'neutral',
   screening: 'blue',
   interview: 'amber',
   offer: 'rose-soft',

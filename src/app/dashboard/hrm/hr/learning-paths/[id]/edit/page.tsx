@@ -1,46 +1,48 @@
 'use client';
 
-import * as React from 'react';
-import { useParams } from 'next/navigation';
+import { use, useEffect, useState } from 'react';
 import { Route } from 'lucide-react';
 import { HrFormPage } from '../../../_components/hr-form-page';
-import {
-  getLearningPaths,
-  saveLearningPath,
-} from '@/app/actions/hr.actions';
+import { getLearningPaths, saveLearningPath } from '@/app/actions/hr.actions';
 import type { HrLearningPath } from '@/lib/hr-types';
 import { fields, sections } from '../../_config';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default function EditLearningPathPage() {
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
-  const [record, setRecord] = React.useState<
-    (HrLearningPath & { _id: string }) | null
-  >(null);
-  const [loading, setLoading] = React.useState(true);
+export default function EditLearningPathPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const [initial, setInitial] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
-    let active = true;
+  useEffect(() => {
+    let mounted = true;
     (async () => {
       try {
-        const list = (await getLearningPaths()) as (HrLearningPath & {
-          _id: string;
-        })[];
+        const list = (await getLearningPaths()) as (HrLearningPath & { _id: string })[];
+        if (!mounted) return;
         const found = Array.isArray(list)
-          ? list.find((r) => String(r._id) === String(id)) || null
+          ? list.find((r) => String(r._id) === id) || null
           : null;
-        if (active) setRecord(found);
+        setInitial(found as Record<string, unknown> | null);
       } finally {
-        if (active) setLoading(false);
+        if (mounted) setLoading(false);
       }
     })();
     return () => {
-      active = false;
+      mounted = false;
     };
   }, [id]);
 
   if (loading) {
-    return <div className="p-6 text-[13px] text-clay-ink-muted">Loading…</div>;
+    return (
+      <div className="flex w-full flex-col gap-4">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
   }
 
   return (
@@ -53,7 +55,7 @@ export default function EditLearningPathPage() {
       fields={fields}
       sections={sections}
       saveAction={saveLearningPath}
-      initial={record as unknown as Record<string, unknown>}
+      initial={initial}
     />
   );
 }

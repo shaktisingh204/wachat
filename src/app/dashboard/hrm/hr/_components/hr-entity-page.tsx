@@ -13,14 +13,6 @@ import { useActionState, useEffect, useState, useTransition } from 'react';
 import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -48,7 +40,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
@@ -329,31 +320,27 @@ function FieldArray({
                   </div>
                 );
               })}
-              <Button
+              <ClayButton
                 type="button"
-                variant="ghost"
-                size="sm"
+                variant="pill"
                 onClick={() => removeRow(i)}
-                className="text-clay-red"
                 aria-label="Remove row"
               >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
+                <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+              </ClayButton>
             </div>
           ))}
         </div>
       )}
 
-      <Button
+      <ClayButton
         type="button"
-        variant="outline"
-        size="sm"
+        variant="pill"
         onClick={addRow}
-        className="rounded-clay-md border-clay-border text-[12px]"
+        leading={<Plus className="h-3.5 w-3.5" />}
       >
-        <Plus className="mr-1.5 h-3.5 w-3.5" />
         {field.addLabel || 'Add row'}
-      </Button>
+      </ClayButton>
 
       {field.help ? (
         <p className="text-[11.5px] text-clay-ink-muted">{field.help}</p>
@@ -461,83 +448,88 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[13px]">
+            <thead>
+              <tr className="border-b border-clay-border">
                 {columns.map((c) => (
-                  <TableHead
+                  <th
                     key={c.key}
-                    className={'text-clay-ink-muted ' + (c.className || '')}
+                    className={
+                      'px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted ' +
+                      (c.className || '')
+                    }
                   >
                     {c.label}
-                  </TableHead>
+                  </th>
                 ))}
-                <TableHead className="w-[120px] text-right text-clay-ink-muted">
+                <th className="w-[120px] px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
                   Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-clay-border">
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <TableRow key={i} className="border-clay-border">
-                    <TableCell colSpan={columns.length + 1}>
-                      <Skeleton className="h-8 w-full" />
-                    </TableCell>
-                  </TableRow>
+                  <tr key={i}>
+                    <td colSpan={columns.length + 1} className="px-4 py-3">
+                      <Skeleton className="h-6 w-full" />
+                    </td>
+                  </tr>
                 ))
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
-                  <TableCell
+                <tr>
+                  <td
                     colSpan={columns.length + 1}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="px-4 py-12 text-center text-[13px] text-clay-ink-muted"
                   >
                     {emptyText || `No ${singular.toLowerCase()} yet — click Add to get started.`}
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-clay-border">
+                  <tr key={row._id} className="transition-colors hover:bg-clay-surface-2">
                     {columns.map((c) => (
-                      <TableCell key={c.key} className="text-[13px] text-clay-ink">
+                      <td key={c.key} className="px-4 py-3 text-clay-ink">
                         {c.render ? toNode(c.render(row)) : toNode(row[c.key])}
-                      </TableCell>
+                      </td>
                     ))}
-                    <TableCell className="text-right">
+                    <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
                         {basePath ? (
                           <Link href={`${basePath}/${row._id}/edit`}>
-                            <Button variant="ghost" size="sm">
+                            <ClayButton variant="ghost" size="sm" aria-label="Edit">
                               <Pencil className="h-3.5 w-3.5" />
-                            </Button>
+                            </ClayButton>
                           </Link>
                         ) : (
-                          <Button
+                          <ClayButton
                             variant="ghost"
                             size="sm"
+                            aria-label="Edit"
                             onClick={() => {
                               setEditing(row);
                               setDialogOpen(true);
                             }}
                           >
                             <Pencil className="h-3.5 w-3.5" />
-                          </Button>
+                          </ClayButton>
                         )}
-                        <Button
+                        <ClayButton
                           variant="ghost"
                           size="sm"
+                          aria-label="Delete"
                           onClick={() => setDeletingId(row._id)}
                         >
                           <Trash2 className="h-3.5 w-3.5 text-clay-red" />
-                        </Button>
+                        </ClayButton>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
       </ClayCard>
 
@@ -618,8 +610,12 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogCancel asChild>
+              <ClayButton variant="pill" size="sm">Cancel</ClayButton>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <ClayButton variant="obsidian" size="sm" onClick={handleDelete}>Delete</ClayButton>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

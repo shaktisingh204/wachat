@@ -22,12 +22,13 @@ export default function CompensationBandsPage() {
       saveAction={saveCompensationBand}
       deleteAction={deleteCompensationBand}
       columns={[
-        { key: 'title', label: 'Title' },
+        { key: 'title', label: 'Role / Designation' },
         { key: 'level', label: 'Level' },
         { key: 'department', label: 'Department' },
-        { key: 'minSalary', label: 'Min' },
-        { key: 'maxSalary', label: 'Max' },
+        { key: 'min_salary', label: 'Min' },
+        { key: 'max_salary', label: 'Max' },
         { key: 'currency', label: 'Currency' },
+        { key: 'currency_type', label: 'Type' },
       ]}
       fields={fields}
     />

@@ -4,10 +4,22 @@ export const fields: HrField[] = [
   { name: 'title', label: 'Title', required: true, fullWidth: true },
   {
     name: 'body',
-    label: 'Body',
+    label: 'Content / Message',
     type: 'textarea',
     required: true,
     fullWidth: true,
+    placeholder: 'Announcement message visible to employees…',
+  },
+  {
+    name: 'type',
+    label: 'Type',
+    type: 'select',
+    options: [
+      { value: 'info', label: 'Info' },
+      { value: 'warning', label: 'Warning' },
+      { value: 'success', label: 'Success' },
+    ],
+    defaultValue: 'info',
   },
   {
     name: 'audience',
@@ -77,7 +89,7 @@ export const fields: HrField[] = [
 ];
 
 export const sections = [
-  { title: 'Content', fieldNames: ['title', 'body', 'category', 'priority'] },
+  { title: 'Content', fieldNames: ['title', 'body', 'type', 'category', 'priority'] },
   {
     title: 'Audience',
     fieldNames: ['audience', 'departmentId', 'teamId', 'targetEmployeeIds'],

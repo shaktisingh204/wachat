@@ -29,7 +29,7 @@ export default function OneOnOnesPage() {
   return (
     <HrEntityPage<HrOneOnOne & { _id: string }>
       title="One-on-Ones"
-      subtitle="Scheduled check-ins between managers and reports."
+      subtitle="Scheduled check-ins between managers and direct reports."
       icon={MessagesSquare}
       singular="1:1"
       basePath="/dashboard/hrm/hr/one-on-ones"
@@ -38,21 +38,42 @@ export default function OneOnOnesPage() {
       deleteAction={deleteOneOnOne}
       columns={[
         {
-          key: 'employeeId',
-          label: 'Employee',
+          key: 'manager_id',
+          label: 'Manager',
           render: (row) => (
-            <span className="block max-w-[160px] truncate">
-              {String(row.employeeId)}
+            <span className="block max-w-[140px] truncate">
+              {(row as any).manager_id || (row as any).managerName || '—'}
             </span>
           ),
         },
-        { key: 'managerName', label: 'Manager' },
         {
-          key: 'scheduledAt',
-          label: 'Scheduled',
-          render: (row) => formatDate(row.scheduledAt),
+          key: 'employee_id',
+          label: 'Employee',
+          render: (row) => (
+            <span className="block max-w-[140px] truncate">
+              {(row as any).employee_id || String(row.employeeId) || '—'}
+            </span>
+          ),
         },
-        { key: 'mood', label: 'Mood' },
+        {
+          key: 'scheduled_date',
+          label: 'Scheduled',
+          render: (row) =>
+            formatDate((row as any).scheduled_date ?? (row as any).scheduledAt),
+        },
+        {
+          key: 'duration_minutes',
+          label: 'Duration',
+          render: (row) => {
+            const min =
+              (row as any).duration_minutes ?? (row as any).durationMinutes;
+            return min != null ? (
+              <span className="tabular-nums text-clay-ink-muted">{min}m</span>
+            ) : (
+              <span className="text-clay-ink-muted">—</span>
+            );
+          },
+        },
         {
           key: 'status',
           label: 'Status',

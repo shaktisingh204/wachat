@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { CalendarDays, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Button } from '@/components/ui/button';
 import { getLeavesForDateRange } from '@/app/actions/worksuite/leave.actions';
 import type { WsLeaveCalendarEntry } from '@/lib/worksuite/leave-types';
 
@@ -98,15 +97,23 @@ export default function LeaveCalendarPage() {
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={goPrev}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
+            <ClayButton
+              variant="pill"
+              onClick={goPrev}
+              leading={<ChevronLeft className="h-4 w-4" strokeWidth={1.75} />}
+            >
+              Prev
+            </ClayButton>
             <div className="min-w-[180px] text-center text-[16px] font-semibold text-clay-ink">
               {monthLabel}
             </div>
-            <Button variant="outline" size="icon" onClick={goNext}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <ClayButton
+              variant="pill"
+              onClick={goNext}
+              leading={<ChevronRight className="h-4 w-4" strokeWidth={1.75} />}
+            >
+              Next
+            </ClayButton>
           </div>
           <ClayButton variant="pill" onClick={goToday}>
             Today

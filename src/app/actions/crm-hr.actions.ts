@@ -170,21 +170,40 @@ export async function saveCrmHoliday(prevState: any, formData: FormData): Promis
     const session = await getSession();
     if (!session?.user) return { error: 'Access Denied' };
 
+    const _id = formData.get('_id') as string | null;
     const name = formData.get('name') as string;
     const dateStr = formData.get('date') as string;
 
     if (!name || !dateStr) {
         return { error: 'Name and date are required.' };
     }
-    
+
+    const type = (formData.get('type') as string | null) || 'national';
+    const location = (formData.get('location') as string | null) || undefined;
+    const recurring = formData.get('recurring') === 'true';
+
     try {
         const { db } = await connectToDatabase();
-        const holidayData = {
+        const holidayData: Record<string, any> = {
             userId: new ObjectId(session.user._id),
             name,
             date: new Date(dateStr),
-            createdAt: new Date(),
+            type,
+            location,
+            recurring,
+            updatedAt: new Date(),
         };
+
+        if (_id && ObjectId.isValid(_id)) {
+            await db.collection('crm_holidays').updateOne(
+                { _id: new ObjectId(_id), userId: new ObjectId(session.user._id) },
+                { $set: holidayData },
+            );
+            revalidatePath('/dashboard/hrm/payroll/holidays');
+            return { message: 'Holiday updated successfully.' };
+        }
+
+        holidayData.createdAt = new Date();
         await db.collection('crm_holidays').insertOne(holidayData);
         revalidatePath('/dashboard/hrm/payroll/holidays');
         return { message: 'Holiday added successfully.' };

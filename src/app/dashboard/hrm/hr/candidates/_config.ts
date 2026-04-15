@@ -5,7 +5,18 @@ export const fields: HrField[] = [
   { name: 'email', label: 'Email', type: 'email' },
   { name: 'phone', label: 'Phone', type: 'tel' },
   { name: 'jobId', label: 'Job ID' },
-  { name: 'source', label: 'Source' },
+  {
+    name: 'source',
+    label: 'Source',
+    type: 'select',
+    options: [
+      { value: 'linkedin', label: 'LinkedIn' },
+      { value: 'referral', label: 'Referral' },
+      { value: 'direct', label: 'Direct' },
+      { value: 'portal', label: 'Portal' },
+      { value: 'other', label: 'Other' },
+    ],
+  },
   { name: 'sourceOther', label: 'Source (Other)' },
   {
     name: 'stage',
@@ -13,15 +24,16 @@ export const fields: HrField[] = [
     type: 'select',
     required: true,
     options: [
-      { value: 'new', label: 'New' },
+      { value: 'applied', label: 'Applied' },
       { value: 'screening', label: 'Screening' },
       { value: 'interview', label: 'Interview' },
       { value: 'offer', label: 'Offer' },
       { value: 'hired', label: 'Hired' },
       { value: 'rejected', label: 'Rejected' },
     ],
-    defaultValue: 'new',
+    defaultValue: 'applied',
   },
+  { name: 'applied_at', label: 'Applied At', type: 'date' },
   { name: 'rating', label: 'Rating (1-5)', type: 'number' },
   { name: 'linkedIn', label: 'LinkedIn', type: 'url' },
   { name: 'website', label: 'Website', type: 'url' },
@@ -94,7 +106,7 @@ export const sections = [
   },
   {
     title: 'Pipeline',
-    fieldNames: ['jobId', 'source', 'sourceOther', 'stage', 'rating'],
+    fieldNames: ['jobId', 'source', 'sourceOther', 'stage', 'applied_at', 'rating'],
   },
   {
     title: 'Current role',

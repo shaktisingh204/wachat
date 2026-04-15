@@ -2,35 +2,22 @@
 
 import { useState, useEffect, useTransition, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { LoaderCircle, Plus, Trash2, Edit, Save, FileText } from 'lucide-react';
+import {
+    Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog';
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { LoaderCircle, Plus, Trash2, Edit, Save, FileText, CheckSquare, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getSalaryStructures, saveSalaryStructure, deleteSalaryStructure } from '@/app/actions/crm-payroll.actions';
 import type { WithId, CrmSalaryStructure } from '@/lib/definitions';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 const saveInitialState = { success: false, error: undefined };
@@ -38,22 +25,33 @@ const saveInitialState = { success: false, error: undefined };
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4"/>}
+        <ClayButton type="submit" variant="obsidian" disabled={pending} leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}>
             {isEditing ? 'Save Structure' : 'Create Structure'}
-        </Button>
-    )
+        </ClayButton>
+    );
 }
 
-function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: { isOpen: boolean, onOpenChange: (open: boolean) => void, onSave: () => void, structure?: WithId<CrmSalaryStructure> | null }) {
+type ComponentRow = {
+    name: string;
+    type: 'earning' | 'deduction';
+    calculationType: 'fixed' | 'percentage';
+    value: number;
+    taxable?: boolean;
+};
+
+function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSave: () => void;
+    structure?: WithId<CrmSalaryStructure> | null;
+}) {
     const [state, formAction] = useActionState(saveSalaryStructure, saveInitialState);
     const { toast } = useToast();
     const isEditing = !!structure;
-
-    const [components, setComponents] = useState(structure?.components || []);
+    const [components, setComponents] = useState<ComponentRow[]>(structure?.components ?? []);
 
     useEffect(() => {
-        if(isOpen) setComponents(structure?.components || []);
+        if (isOpen) setComponents(structure?.components ?? []);
     }, [isOpen, structure]);
 
     useEffect(() => {
@@ -62,55 +60,130 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: { isOp
             onSave();
             onOpenChange(false);
         }
-        if(state.error) {
+        if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, onSave, onOpenChange]);
 
-    const handleComponentChange = (index: number, field: string, value: string | number) => {
-        const newComponents = [...components];
-        newComponents[index] = { ...newComponents[index], [field]: value };
-        setComponents(newComponents);
-    }
-    const addComponent = (type: 'earning' | 'deduction') => setComponents([...components, { name: '', type, calculationType: 'fixed', value: 0 }]);
-    const removeComponent = (index: number) => setComponents(components.filter((_, i) => i !== index));
+    const updateComponent = (index: number, field: string, value: string | number | boolean) => {
+        setComponents(prev => prev.map((c, i) => i === index ? { ...c, [field]: value } : c));
+    };
+    const addComponent = (type: 'earning' | 'deduction') =>
+        setComponents(prev => [...prev, { name: '', type, calculationType: 'fixed', value: 0, taxable: false }]);
+    const removeComponent = (index: number) =>
+        setComponents(prev => prev.filter((_, i) => i !== index));
+
+    const renderComponents = (type: 'earning' | 'deduction') => {
+        const filtered = components.map((c, originalIndex) => ({ ...c, originalIndex })).filter(c => c.type === type);
+        return (
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <h4 className="text-[13px] font-semibold text-clay-ink capitalize">{type}s</h4>
+                    <ClayButton type="button" variant="pill" size="sm" leading={<Plus className="h-3.5 w-3.5" />} onClick={() => addComponent(type)}>
+                        Add {type}
+                    </ClayButton>
+                </div>
+                {filtered.length === 0 && (
+                    <p className="rounded-clay-md border border-dashed border-clay-border p-3 text-center text-[12.5px] text-clay-ink-muted">
+                        No {type}s defined yet.
+                    </p>
+                )}
+                {filtered.map(comp => (
+                    <div key={comp.originalIndex} className="grid grid-cols-[1fr_auto_auto_auto_auto] items-end gap-2 rounded-clay-md border border-clay-border bg-clay-surface-2 p-3">
+                        <div className="space-y-1">
+                            <Label className="text-[11.5px] text-clay-ink-muted">Component Name</Label>
+                            <Input
+                                placeholder={type === 'earning' ? 'e.g. Basic Pay' : 'e.g. Prof. Tax'}
+                                value={comp.name}
+                                onChange={e => updateComponent(comp.originalIndex, 'name', e.target.value)}
+                                className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11.5px] text-clay-ink-muted">Calc. Type</Label>
+                            <RadioGroup
+                                value={comp.calculationType}
+                                onValueChange={val => updateComponent(comp.originalIndex, 'calculationType', val)}
+                                className="flex h-9 items-center gap-3"
+                            >
+                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-clay-ink">
+                                    <RadioGroupItem value="fixed" /> Fixed
+                                </label>
+                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-clay-ink">
+                                    <RadioGroupItem value="percentage" /> %
+                                </label>
+                            </RadioGroup>
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11.5px] text-clay-ink-muted">
+                                {comp.calculationType === 'percentage' ? 'Rate (%)' : 'Amount (₹)'}
+                            </Label>
+                            <Input
+                                type="number"
+                                value={comp.value}
+                                onChange={e => updateComponent(comp.originalIndex, 'value', Number(e.target.value))}
+                                className="h-9 w-24 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[11.5px] text-clay-ink-muted">Taxable</Label>
+                            <button
+                                type="button"
+                                onClick={() => updateComponent(comp.originalIndex, 'taxable', !comp.taxable)}
+                                className="flex h-9 items-center text-clay-ink-muted hover:text-clay-ink transition-colors"
+                            >
+                                {comp.taxable
+                                    ? <CheckSquare className="h-4 w-4 text-clay-rose" />
+                                    : <Square className="h-4 w-4" />
+                                }
+                            </button>
+                        </div>
+                        <ClayButton
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeComponent(comp.originalIndex)}
+                            className="text-clay-red hover:text-clay-red"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </ClayButton>
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-2xl">
-                 <form action={formAction}>
+                <form action={formAction}>
                     <input type="hidden" name="id" value={structure?._id.toString()} />
                     <input type="hidden" name="components" value={JSON.stringify(components)} />
-                    <DialogHeader><DialogTitle>{isEditing ? 'Edit' : 'Create'} Salary Structure</DialogTitle></DialogHeader>
-                    <div className="max-h-[70vh] space-y-4 overflow-y-auto py-4 pr-4">
-                        <div className="space-y-2"><Label>Structure Name</Label><Input name="name" defaultValue={structure?.name} required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" /></div>
-                        <div className="space-y-2"><Label>Description</Label><Input name="description" defaultValue={structure?.description} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" /></div>
-                        <div className="space-y-4">
-                            <div><h4 className="font-semibold">Earnings</h4>
-                            {components.filter(c => c.type === 'earning').map((comp, i) => (
-                                <div key={i} className="flex items-end gap-2 rounded-clay-md border border-clay-border p-2">
-                                    <Input placeholder="E.g., Basic Pay" value={comp.name} onChange={e => handleComponentChange(i, 'name', e.target.value)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
-                                    <RadioGroup defaultValue="fixed" className="flex gap-2"><RadioGroupItem value="fixed" /><Label className="text-xs">Fixed</Label><RadioGroupItem value="percentage" /><Label className="text-xs">%</Label></RadioGroup>
-                                    <Input type="number" value={comp.value} onChange={e => handleComponentChange(i, 'value', Number(e.target.value))} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
-                                    <Button type="button" variant="ghost" size="icon" onClick={() => removeComponent(i)}><Trash2 className="h-4 w-4"/></Button>
-                                </div>
-                            ))}
-                            <Button type="button" size="sm" variant="outline" onClick={() => addComponent('earning')}><Plus className="mr-2 h-4 w-4"/>Add Earning</Button>
+                    <DialogHeader>
+                        <DialogTitle>{isEditing ? 'Edit' : 'Create'} Salary Structure</DialogTitle>
+                    </DialogHeader>
+                    <div className="max-h-[70vh] space-y-4 overflow-y-auto py-4 pr-2">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Structure Name <span className="text-clay-red">*</span></Label>
+                                <Input name="name" defaultValue={structure?.name} required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
                             </div>
-                            <div><h4 className="font-semibold">Deductions</h4>
-                            {components.filter(c => c.type === 'deduction').map((comp, i) => (
-                                <div key={i} className="flex items-end gap-2 rounded-clay-md border border-clay-border p-2">
-                                    <Input placeholder="E.g., Prof. Tax" value={comp.name} onChange={e => handleComponentChange(i, 'name', e.target.value)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
-                                    <RadioGroup defaultValue="fixed" className="flex gap-2"><RadioGroupItem value="fixed" /><Label className="text-xs">Fixed</Label><RadioGroupItem value="percentage" /><Label className="text-xs">%</Label></RadioGroup>
-                                    <Input type="number" value={comp.value} onChange={e => handleComponentChange(i, 'value', Number(e.target.value))} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
-                                    <Button type="button" variant="ghost" size="icon" onClick={() => removeComponent(i)}><Trash2 className="h-4 w-4"/></Button>
-                                </div>
-                            ))}
-                             <Button type="button" size="sm" variant="outline" onClick={() => addComponent('deduction')}><Plus className="mr-2 h-4 w-4"/>Add Deduction</Button>
+                            <div className="space-y-2">
+                                <Label>Description</Label>
+                                <Input name="description" defaultValue={structure?.description} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
                             </div>
                         </div>
+                        <div className="rounded-clay-md border border-clay-border bg-clay-surface p-4 space-y-4">
+                            {renderComponents('earning')}
+                        </div>
+                        <div className="rounded-clay-md border border-clay-border bg-clay-surface p-4 space-y-4">
+                            {renderComponents('deduction')}
+                        </div>
                     </div>
-                    <DialogFooter><Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button><SubmitButton isEditing={isEditing} /></DialogFooter>
+                    <DialogFooter className="pt-2">
+                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
+                        <SubmitButton isEditing={isEditing} />
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
@@ -136,7 +209,7 @@ export default function SalaryStructurePage() {
     const handleEdit = (structure: WithId<CrmSalaryStructure> | null) => {
         setEditingStructure(structure);
         setIsFormOpen(true);
-    }
+    };
 
     const handleDelete = async (id: string) => {
         const result = await deleteSalaryStructure(id);
@@ -150,14 +223,19 @@ export default function SalaryStructurePage() {
 
     return (
         <>
-            <StructureFormDialog isOpen={isFormOpen} onOpenChange={setIsFormOpen} onSave={fetchData} structure={editingStructure}/>
+            <StructureFormDialog
+                isOpen={isFormOpen}
+                onOpenChange={setIsFormOpen}
+                onSave={fetchData}
+                structure={editingStructure}
+            />
             <div className="flex w-full flex-col gap-6">
                 <CrmPageHeader
                     title="Salary Structures"
-                    subtitle="Define salary templates for different employee roles or grades."
+                    subtitle="Define salary templates with earnings and deductions for different employee roles or grades."
                     icon={FileText}
                     actions={
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4"/>} onClick={() => handleEdit(null)}>
+                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" />} onClick={() => handleEdit(null)}>
                             Create New Structure
                         </ClayButton>
                     }
@@ -165,38 +243,89 @@ export default function SalaryStructurePage() {
                 <ClayCard>
                     <div className="mb-4">
                         <h2 className="text-[16px] font-semibold text-clay-ink">Your Structures</h2>
+                        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">{structures.length} structure{structures.length !== 1 ? 's' : ''} defined.</p>
                     </div>
                     <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-                        <Table>
-                            <TableHeader><TableRow className="border-clay-border hover:bg-transparent"><TableHead className="text-clay-ink-muted">Name</TableHead><TableHead className="text-clay-ink-muted">Description</TableHead><TableHead className="text-right text-clay-ink-muted">Actions</TableHead></TableRow></TableHeader>
-                            <TableBody>
+                        <table className="w-full text-left text-[13px]">
+                            <thead>
+                                <tr className="border-b border-clay-border bg-clay-surface-2">
+                                    <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Name</th>
+                                    <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Description</th>
+                                    <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Earnings</th>
+                                    <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Deductions</th>
+                                    <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Components</th>
+                                    <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 {isLoading ? (
-                                    <TableRow className="border-clay-border"><TableCell colSpan={3} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
+                                    <tr>
+                                        <td colSpan={6} className="h-24 text-center">
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                        </td>
+                                    </tr>
                                 ) : structures.length > 0 ? (
-                                    structures.map(s => (
-                                        <TableRow key={s._id.toString()} className="border-clay-border">
-                                            <TableCell className="text-[13px] font-medium text-clay-ink">{s.name}</TableCell>
-                                            <TableCell className="text-[13px] text-clay-ink-muted">{s.description}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleEdit(s)}><Edit className="h-4 w-4"/></Button>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button></AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader><AlertDialogTitle>Delete Structure?</AlertDialogTitle><AlertDialogDescription>This will delete the &ldquo;{s.name}&rdquo; structure. It won&apos;t affect past payrolls.</AlertDialogDescription></AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDelete(s._id.toString())}>Delete</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                    structures.map(s => {
+                                        const earnings = s.components?.filter(c => c.type === 'earning') ?? [];
+                                        const deductions = s.components?.filter(c => c.type === 'deduction') ?? [];
+                                        return (
+                                            <tr key={s._id.toString()} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                                <td className="px-4 py-3 font-medium text-clay-ink">{s.name}</td>
+                                                <td className="px-4 py-3 text-clay-ink-muted">{s.description ?? '—'}</td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <ClayBadge tone="green">{earnings.length} earning{earnings.length !== 1 ? 's' : ''}</ClayBadge>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <ClayBadge tone="red">{deductions.length} deduction{deductions.length !== 1 ? 's' : ''}</ClayBadge>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {(s.components ?? []).slice(0, 3).map((c, i) => (
+                                                            <ClayBadge key={i} tone="neutral">{c.name}</ClayBadge>
+                                                        ))}
+                                                        {(s.components?.length ?? 0) > 3 && (
+                                                            <ClayBadge tone="neutral">+{(s.components?.length ?? 0) - 3} more</ClayBadge>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <ClayButton variant="ghost" size="icon" onClick={() => handleEdit(s)}>
+                                                            <Edit className="h-4 w-4" />
+                                                        </ClayButton>
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <ClayButton variant="ghost" size="icon" className="text-clay-red hover:text-clay-red">
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </ClayButton>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>Delete Structure?</AlertDialogTitle>
+                                                                    <AlertDialogDescription>
+                                                                        This will delete the &ldquo;{s.name}&rdquo; structure. It won&apos;t affect past payrolls.
+                                                                    </AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleDelete(s._id.toString())}>Delete</AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 ) : (
-                                    <TableRow className="border-clay-border"><TableCell colSpan={3} className="h-24 text-center text-[13px] text-clay-ink-muted">No salary structures created yet.</TableCell></TableRow>
+                                    <tr>
+                                        <td colSpan={6} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                            No salary structures created yet.
+                                        </td>
+                                    </tr>
                                 )}
-                            </TableBody>
-                        </Table>
+                            </tbody>
+                        </table>
                     </div>
                 </ClayCard>
             </div>

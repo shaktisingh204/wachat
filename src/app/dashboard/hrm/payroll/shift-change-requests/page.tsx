@@ -1,9 +1,24 @@
 'use client';
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { ArrowLeftRight, Check, X } from 'lucide-react';
+import { ArrowLeftRight, Check, Plus, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
@@ -12,6 +27,7 @@ import {
   getShiftChangeRequests,
   approveShiftChange,
   rejectShiftChange,
+  saveShiftChangeRequest,
   getEmployeeShifts,
 } from '@/app/actions/worksuite/shifts.actions';
 import type {
@@ -25,6 +41,15 @@ export default function ShiftChangeRequestsPage() {
   const [employees, setEmployees] = useState<WithId<CrmEmployee>[]>([]);
   const [shifts, setShifts] = useState<WsEmployeeShift[]>([]);
   const [pending, startTransition] = useTransition();
+
+  // New request dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [newUserId, setNewUserId] = useState('');
+  const [newDate, setNewDate] = useState('');
+  const [newCurrentShiftId, setNewCurrentShiftId] = useState('');
+  const [newRequestedShiftId, setNewRequestedShiftId] = useState('');
+  const [newReason, setNewReason] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
 
   const load = () =>
     startTransition(async () => {
@@ -71,6 +96,41 @@ export default function ShiftChangeRequestsPage() {
     });
   };
 
+  const resetForm = () => {
+    setNewUserId('');
+    setNewDate('');
+    setNewCurrentShiftId('');
+    setNewRequestedShiftId('');
+    setNewReason('');
+    setFormError(null);
+  };
+
+  const handleCreateRequest = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!newUserId || !newDate || !newCurrentShiftId || !newRequestedShiftId) {
+      setFormError('Employee, date, current shift and requested shift are all required.');
+      return;
+    }
+    setFormError(null);
+    startTransition(async () => {
+      const res = await saveShiftChangeRequest({
+        user_id: newUserId,
+        date: new Date(newDate),
+        current_shift_id: newCurrentShiftId,
+        requested_shift_id: newRequestedShiftId,
+        reason: newReason,
+        status: 'pending',
+      });
+      if (!res.success) {
+        setFormError(res.error ?? 'Failed to create request');
+        return;
+      }
+      setDialogOpen(false);
+      resetForm();
+      load();
+    });
+  };
+
   const tone = (s: WsShiftChangeStatus): 'amber' | 'green' | 'red' => {
     if (s === 'approved') return 'green';
     if (s === 'rejected') return 'red';
@@ -83,56 +143,65 @@ export default function ShiftChangeRequestsPage() {
         title="Shift Change Requests"
         subtitle="Review and action employee requests to swap shifts."
         icon={ArrowLeftRight}
+        actions={
+          <ClayButton
+            variant="obsidian"
+            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+            onClick={() => { resetForm(); setDialogOpen(true); }}
+          >
+            New Request
+          </ClayButton>
+        }
       />
 
       <ClayCard>
         <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">All Requests</h2>
         <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Employee</TableHead>
-                <TableHead className="text-clay-ink-muted">Date</TableHead>
-                <TableHead className="text-clay-ink-muted">Current Shift</TableHead>
-                <TableHead className="text-clay-ink-muted">Requested Shift</TableHead>
-                <TableHead className="text-clay-ink-muted">Reason</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-clay-border bg-clay-surface-2">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Employee</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Date</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Current Shift</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Requested Shift</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Reason</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Status</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
               {pending && requests.length === 0 ? (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr className="border-b border-clay-border">
+                  <td colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
                     Loading…
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : requests.length > 0 ? (
                 requests.map((r) => {
                   const emp = empMap.get(r.user_id);
                   const cur = shiftMap.get(r.current_shift_id);
                   const req = shiftMap.get(r.requested_shift_id);
                   return (
-                    <TableRow key={String(r._id)} className="border-clay-border">
-                      <TableCell className="text-[13px] text-clay-ink">
+                    <tr key={String(r._id)} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
+                      <td className="px-4 py-2.5 text-clay-ink">
                         {emp ? `${emp.firstName} ${emp.lastName}` : r.user_id}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      </td>
+                      <td className="px-4 py-2.5 text-clay-ink">
                         {format(new Date(r.date), 'PP')}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td className="px-4 py-2.5">
                         <ShiftCell shift={cur} />
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td className="px-4 py-2.5">
                         <ShiftCell shift={req} />
-                      </TableCell>
-                      <TableCell className="max-w-[240px] truncate text-[12.5px] text-clay-ink-muted">
+                      </td>
+                      <td className="max-w-[240px] truncate px-4 py-2.5 text-[12.5px] text-clay-ink-muted">
                         {r.reason || '—'}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td className="px-4 py-2.5">
                         <ClayBadge tone={tone(r.status)}>{r.status}</ClayBadge>
-                      </TableCell>
-                      <TableCell className="text-right">
+                      </td>
+                      <td className="px-4 py-2.5 text-right">
                         {r.status === 'pending' ? (
                           <div className="flex items-center justify-end gap-2">
                             <ClayButton
@@ -155,21 +224,128 @@ export default function ShiftChangeRequestsPage() {
                         ) : (
                           <span className="text-[11.5px] text-clay-ink-muted">—</span>
                         )}
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   );
                 })
               ) : (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr className="border-b border-clay-border">
+                  <td colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
                     No shift change requests.
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               )}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
       </ClayCard>
+
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>New Shift Change Request</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleCreateRequest} className="flex flex-col gap-4 py-2">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-[12px] text-clay-ink-muted">
+                Employee <span className="text-clay-red">*</span>
+              </Label>
+              <Select value={newUserId} onValueChange={setNewUserId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees.map((e) => (
+                    <SelectItem key={e._id.toString()} value={e._id.toString()}>
+                      {e.firstName} {e.lastName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-[12px] text-clay-ink-muted">
+                Date <span className="text-clay-red">*</span>
+              </Label>
+              <Input
+                type="date"
+                value={newDate}
+                onChange={(e) => setNewDate(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[12px] text-clay-ink-muted">
+                  Current Shift <span className="text-clay-red">*</span>
+                </Label>
+                <Select value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Current" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {shifts.map((s) => (
+                      <SelectItem key={String(s._id)} value={String(s._id)}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[12px] text-clay-ink-muted">
+                  Requested Shift <span className="text-clay-red">*</span>
+                </Label>
+                <Select value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Requested" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {shifts.map((s) => (
+                      <SelectItem key={String(s._id)} value={String(s._id)}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-[12px] text-clay-ink-muted">Reason (optional)</Label>
+              <textarea
+                value={newReason}
+                onChange={(e) => setNewReason(e.target.value)}
+                rows={3}
+                placeholder="Explain the reason for the shift change…"
+                className="w-full resize-none rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:outline-none focus:ring-1 focus:ring-clay-border-focus"
+              />
+            </div>
+
+            {formError ? (
+              <div className="rounded-clay-md border border-clay-red-soft bg-clay-red-soft/50 px-3 py-2 text-[13px] text-clay-red">
+                {formError}
+              </div>
+            ) : null}
+
+            <DialogFooter>
+              <ClayButton
+                variant="pill"
+                type="button"
+                onClick={() => { setDialogOpen(false); resetForm(); }}
+              >
+                Cancel
+              </ClayButton>
+              <ClayButton variant="obsidian" type="submit" disabled={pending}>
+                {pending ? 'Saving…' : 'Submit Request'}
+              </ClayButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -2,16 +2,32 @@ import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
   { name: 'candidateId', label: 'Candidate ID', required: true },
-  { name: 'jobTitle', label: 'Job Title', required: true },
+  { name: 'designation', label: 'Designation', required: true },
   { name: 'department', label: 'Department' },
+  // salary is the primary CTC field per spec
+  { name: 'salary', label: 'Salary (CTC)', type: 'number', required: true },
+  { name: 'ctc', label: 'Total CTC', type: 'number' },
+  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  { name: 'joining_date', label: 'Joining Date', type: 'date', required: true },
+  { name: 'valid_till', label: 'Valid Till', type: 'date' },
+  {
+    name: 'status',
+    label: 'Status',
+    type: 'select',
+    required: true,
+    options: [
+      { value: 'pending', label: 'Pending' },
+      { value: 'accepted', label: 'Accepted' },
+      { value: 'rejected', label: 'Rejected' },
+      { value: 'expired', label: 'Expired' },
+    ],
+    defaultValue: 'pending',
+  },
   { name: 'reportsTo', label: 'Reports To' },
-  { name: 'joiningDate', label: 'Joining Date', type: 'date', required: true },
-  { name: 'ctc', label: 'CTC', type: 'number', required: true },
   { name: 'fixedComponent', label: 'Fixed Component', type: 'number' },
   { name: 'variableComponent', label: 'Variable Component', type: 'number' },
   { name: 'joiningBonus', label: 'Joining Bonus', type: 'number' },
   { name: 'stockOptions', label: 'Stock Options' },
-  { name: 'currency', label: 'Currency', defaultValue: 'INR' },
   {
     name: 'probationMonths',
     label: 'Probation (months)',
@@ -28,24 +44,8 @@ export const fields: HrField[] = [
       { value: 'remote', label: 'Remote' },
     ],
   },
-  {
-    name: 'status',
-    label: 'Status',
-    type: 'select',
-    required: true,
-    options: [
-      { value: 'draft', label: 'Draft' },
-      { value: 'sent', label: 'Sent' },
-      { value: 'accepted', label: 'Accepted' },
-      { value: 'declined', label: 'Declined' },
-      { value: 'withdrawn', label: 'Withdrawn' },
-      { value: 'revoked', label: 'Revoked' },
-    ],
-    defaultValue: 'draft',
-  },
   { name: 'sentAt', label: 'Sent At', type: 'date' },
   { name: 'respondedAt', label: 'Responded At', type: 'date' },
-  { name: 'expiresAt', label: 'Expires At', type: 'date' },
   { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
   { name: 'terms', label: 'Terms', type: 'textarea', fullWidth: true },
 ];
@@ -55,16 +55,17 @@ export const sections = [
     title: 'Role',
     fieldNames: [
       'candidateId',
-      'jobTitle',
+      'designation',
       'department',
       'reportsTo',
-      'joiningDate',
+      'joining_date',
       'workMode',
     ],
   },
   {
     title: 'Compensation',
     fieldNames: [
+      'salary',
       'ctc',
       'fixedComponent',
       'variableComponent',
@@ -75,8 +76,8 @@ export const sections = [
     ],
   },
   {
-    title: 'Status',
-    fieldNames: ['status', 'sentAt', 'respondedAt', 'expiresAt'],
+    title: 'Status & Validity',
+    fieldNames: ['status', 'valid_till', 'sentAt', 'respondedAt'],
   },
   {
     title: 'Additional',

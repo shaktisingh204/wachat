@@ -12,7 +12,7 @@ import { fields } from './_config';
 
 const STATUS_TONES: Record<string, 'neutral' | 'green' | 'red'> = {
   draft: 'neutral',
-  open: 'green',
+  active: 'green',
   closed: 'red',
 };
 

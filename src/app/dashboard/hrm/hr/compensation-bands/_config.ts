@@ -1,13 +1,37 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'title', label: 'Title', required: true, fullWidth: true },
-  { name: 'level', label: 'Level', required: true },
+  { name: 'title', label: 'Designation / Role', required: true, fullWidth: true },
+  {
+    name: 'level',
+    label: 'Level',
+    type: 'select',
+    required: true,
+    options: [
+      { value: 'junior', label: 'Junior' },
+      { value: 'mid', label: 'Mid' },
+      { value: 'senior', label: 'Senior' },
+      { value: 'lead', label: 'Lead' },
+      { value: 'manager', label: 'Manager' },
+      { value: 'director', label: 'Director' },
+    ],
+    defaultValue: 'mid',
+  },
   { name: 'department', label: 'Department' },
-  { name: 'minSalary', label: 'Min Salary', type: 'number', required: true },
+  { name: 'min_salary', label: 'Min Salary', type: 'number', required: true },
   { name: 'midSalary', label: 'Mid Salary', type: 'number' },
-  { name: 'maxSalary', label: 'Max Salary', type: 'number', required: true },
+  { name: 'max_salary', label: 'Max Salary', type: 'number', required: true },
   { name: 'currency', label: 'Currency', defaultValue: 'INR' },
+  {
+    name: 'currency_type',
+    label: 'Currency Type',
+    type: 'select',
+    options: [
+      { value: 'monthly', label: 'Monthly' },
+      { value: 'annual', label: 'Annual' },
+    ],
+    defaultValue: 'annual',
+  },
   { name: 'experienceMin', label: 'Experience Min (years)', type: 'number' },
   { name: 'experienceMax', label: 'Experience Max (years)', type: 'number' },
   { name: 'bandVersion', label: 'Band Version', defaultValue: 'v1' },
@@ -61,10 +85,11 @@ export const sections = [
   {
     title: 'Salary',
     fieldNames: [
-      'minSalary',
+      'min_salary',
       'midSalary',
-      'maxSalary',
+      'max_salary',
       'currency',
+      'currency_type',
       'bonusPercentage',
       'stockEligible',
     ],

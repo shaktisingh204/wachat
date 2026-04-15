@@ -1,18 +1,49 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'name', label: 'Name', required: true, fullWidth: true },
+  { name: 'employee_id', label: 'Employee ID', required: true },
+  { name: 'task_name', label: 'Task Name', required: true, fullWidth: true },
   {
     name: 'description',
     label: 'Description',
     type: 'textarea',
     fullWidth: true,
   },
+  { name: 'assigned_to', label: 'Assigned To (Employee / HR ID)' },
+  { name: 'due_date', label: 'Due Date', type: 'date' },
+  {
+    name: 'status',
+    label: 'Status',
+    type: 'select',
+    required: true,
+    options: [
+      { value: 'pending', label: 'Pending' },
+      { value: 'completed', label: 'Completed' },
+      { value: 'skipped', label: 'Skipped' },
+    ],
+    defaultValue: 'pending',
+  },
+  {
+    name: 'category',
+    label: 'Category',
+    type: 'select',
+    options: [
+      { value: 'paperwork', label: 'Paperwork' },
+      { value: 'equipment', label: 'Equipment' },
+      { value: 'training', label: 'Training' },
+      { value: 'access', label: 'Access' },
+      { value: 'intro', label: 'Introduction' },
+    ],
+    defaultValue: 'paperwork',
+  },
+  { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
+  // Template fields (used when creating reusable checklists)
+  { name: 'name', label: 'Template Name', fullWidth: true },
   { name: 'department', label: 'Department' },
-  { name: 'estimatedDays', label: 'Estimated Days', type: 'number' },
+  { name: 'estimatedDays', label: 'Estimated Days (Template)', type: 'number' },
   {
     name: 'tasks',
-    label: 'Tasks',
+    label: 'Template Tasks',
     type: 'array',
     fullWidth: true,
     addLabel: 'Add Task',
@@ -25,11 +56,11 @@ export const fields: HrField[] = [
         label: 'Category',
         type: 'select',
         options: [
-          { value: 'hr', label: 'HR' },
-          { value: 'it', label: 'IT' },
-          { value: 'finance', label: 'Finance' },
-          { value: 'manager', label: 'Manager' },
-          { value: 'buddy', label: 'Buddy' },
+          { value: 'paperwork', label: 'Paperwork' },
+          { value: 'equipment', label: 'Equipment' },
+          { value: 'training', label: 'Training' },
+          { value: 'access', label: 'Access' },
+          { value: 'intro', label: 'Introduction' },
         ],
       },
       { name: 'description', label: 'Description', type: 'text' },
@@ -39,11 +70,15 @@ export const fields: HrField[] = [
 
 export const sections = [
   {
-    title: 'Template',
-    fieldNames: ['name', 'description', 'department', 'estimatedDays'],
+    title: 'Task',
+    fieldNames: ['employee_id', 'task_name', 'description', 'assigned_to', 'due_date', 'status', 'category'],
   },
   {
-    title: 'Tasks',
-    fieldNames: ['tasks'],
+    title: 'Notes',
+    fieldNames: ['notes'],
+  },
+  {
+    title: 'Template (optional)',
+    fieldNames: ['name', 'department', 'estimatedDays', 'tasks'],
   },
 ];

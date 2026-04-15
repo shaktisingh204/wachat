@@ -1,23 +1,10 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee ID', required: true },
-  { name: 'managerName', label: 'Manager Name' },
-  { name: 'managerEmail', label: 'Manager Email', type: 'email' },
-  {
-    name: 'scheduledAt',
-    label: 'Scheduled At',
-    type: 'date',
-    required: true,
-  },
-  {
-    name: 'durationMinutes',
-    label: 'Duration (minutes)',
-    type: 'number',
-    defaultValue: '30',
-  },
-  { name: 'location', label: 'Location' },
-  { name: 'meetingLink', label: 'Meeting Link', type: 'url' },
+  { name: 'manager_id', label: 'Manager', required: true, placeholder: 'Manager ID or name' },
+  { name: 'employee_id', label: 'Employee', required: true, placeholder: 'Employee ID or name' },
+  { name: 'scheduled_date', label: 'Scheduled Date', type: 'date', required: true },
+  { name: 'duration_minutes', label: 'Duration (minutes)', type: 'number', defaultValue: '30' },
   {
     name: 'status',
     label: 'Status',
@@ -26,10 +13,21 @@ export const fields: HrField[] = [
       { value: 'scheduled', label: 'Scheduled' },
       { value: 'completed', label: 'Completed' },
       { value: 'cancelled', label: 'Cancelled' },
-      { value: 'rescheduled', label: 'Rescheduled' },
     ],
     defaultValue: 'scheduled',
   },
+  { name: 'meetingLink', label: 'Meeting Link', type: 'url' },
+  { name: 'location', label: 'Location' },
+  { name: 'agenda', label: 'Agenda', type: 'textarea', fullWidth: true, placeholder: 'Topics to cover in this meeting…' },
+  { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true, placeholder: 'Discussion points, observations…' },
+  { name: 'actionItems', label: 'Action Items', type: 'textarea', fullWidth: true, placeholder: 'Follow-up tasks agreed during the meeting…' },
+  // Legacy fields
+  { name: 'employeeId', label: 'Employee ID (legacy)' },
+  { name: 'managerName', label: 'Manager Name (legacy)' },
+  { name: 'managerEmail', label: 'Manager Email (legacy)', type: 'email' },
+  { name: 'scheduledAt', label: 'Scheduled At (legacy)', type: 'date' },
+  { name: 'durationMinutes', label: 'Duration Minutes (legacy)', type: 'number', defaultValue: '30' },
+  { name: 'followUpDate', label: 'Follow-up Date', type: 'date' },
   {
     name: 'mood',
     label: 'Mood',
@@ -42,41 +40,26 @@ export const fields: HrField[] = [
       { value: 'stressed', label: 'Stressed' },
     ],
   },
-  { name: 'followUpDate', label: 'Follow-up Date', type: 'date' },
-  { name: 'agenda', label: 'Agenda', type: 'textarea', fullWidth: true },
-  {
-    name: 'discussionPoints',
-    label: 'Discussion Points',
-    type: 'textarea',
-    fullWidth: true,
-  },
-  { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
-  {
-    name: 'actionItems',
-    label: 'Action Items',
-    type: 'textarea',
-    fullWidth: true,
-  },
+  { name: 'discussionPoints', label: 'Discussion Points', type: 'textarea', fullWidth: true },
 ];
 
 export const sections = [
   {
-    title: 'Meeting',
+    title: 'Meeting Details',
     fieldNames: [
-      'employeeId',
-      'managerName',
-      'managerEmail',
-      'scheduledAt',
-      'durationMinutes',
-      'location',
-      'meetingLink',
+      'manager_id',
+      'employee_id',
+      'scheduled_date',
+      'duration_minutes',
       'status',
+      'meetingLink',
+      'location',
       'mood',
       'followUpDate',
     ],
   },
   {
     title: 'Discussion',
-    fieldNames: ['agenda', 'discussionPoints', 'notes', 'actionItems'],
+    fieldNames: ['agenda', 'notes', 'actionItems', 'discussionPoints'],
   },
 ];

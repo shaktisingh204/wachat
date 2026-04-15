@@ -1,84 +1,254 @@
 'use client';
 
-import { Download, IndianRupee, Users, FileSpreadsheet } from 'lucide-react';
+import { Download, SlidersHorizontal, FileSpreadsheet, LoaderCircle, IndianRupee, Users, TrendingDown, Wallet } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generatePayrollSummaryData } from "@/app/actions/crm-hr-reports.actions";
-import { LoaderCircle } from "lucide-react";
-import dynamic from 'next/dynamic';
-import { Skeleton } from '@/components/ui/skeleton';
-import { BarChart as RechartsBarChart, Bar as RechartsBar, CartesianGrid, XAxis, YAxis, Legend } from 'recharts';
+import { generatePayrollSummaryData, getReportDepartments } from '@/app/actions/crm-hr-reports.actions';
+import { useToast } from '@/hooks/use-toast';
+import Papa from 'papaparse';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { format } from 'date-fns';
 
 import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
-const ChartContainer = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> });
-const ChartTooltip = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltip), { ssr: false });
-const ChartTooltipContent = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltipContent), { ssr: false });
+type PayrollRow = {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    grossSalary: number;
+    pf: number;
+    esi: number;
+    tds: number;
+    professionalTax: number;
+    totalDeductions: number;
+    netPay: number;
+};
 
-const chartConfig = { cost: { label: "Cost", color: "hsl(var(--primary))" } };
+type Totals = {
+    grossSalary: number; pf: number; esi: number; tds: number;
+    professionalTax: number; totalDeductions: number; netPay: number;
+};
 
-const StatCard = ({ title, value, icon: Icon }: { title: string, value: string | number, icon: React.ElementType }) => (
-    <ClayCard>
+type SelectItem = { _id: string; name: string };
+
+const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`;
+
+const StatCard = ({ title, value, icon: Icon, sub }: { title: string; value: string; icon: React.ElementType; sub?: string }) => (
+    <ClayCard className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
             <p className="text-[12.5px] font-medium text-clay-ink-muted">{title}</p>
             <Icon className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
         </div>
-        <div className="mt-2 text-2xl font-bold text-clay-ink">{value}</div>
+        <p className="mt-1 text-2xl font-bold text-clay-ink">{value}</p>
+        {sub ? <p className="text-[11.5px] text-clay-ink-muted">{sub}</p> : null}
     </ClayCard>
 );
 
+const MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+const YEARS = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+
 export default function PayrollSummaryPage() {
-    const [summary, setSummary] = useState<any>({});
+    const [rows, setRows] = useState<PayrollRow[]>([]);
+    const [totals, setTotals] = useState<Totals>({ grossSalary: 0, pf: 0, esi: 0, tds: 0, professionalTax: 0, totalDeductions: 0, netPay: 0 });
+    const [totalEmployees, setTotalEmployees] = useState(0);
+    const [departments, setDepartments] = useState<SelectItem[]>([]);
     const [isLoading, startTransition] = useTransition();
+    const { toast } = useToast();
+
+    const now = new Date();
+    const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+    const [selectedDept, setSelectedDept] = useState('');
+
+    useEffect(() => {
+        getReportDepartments().then(r => { if (r.data) setDepartments(r.data); });
+    }, []);
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const result = await generatePayrollSummaryData({});
-            if (result.data) {
-                setSummary(result.data);
+            const result = await generatePayrollSummaryData({
+                month: selectedMonth,
+                year: selectedYear,
+                departmentId: selectedDept || undefined,
+            });
+            if (result.error) {
+                toast({ title: 'Error generating report', description: result.error, variant: 'destructive' });
+            } else if (result.data) {
+                setRows(result.data.rows);
+                setTotals(result.data.totals);
+                setTotalEmployees(result.data.totalEmployees);
             }
         });
-    }, []);
+    }, [selectedMonth, selectedYear, selectedDept, toast]);
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    useEffect(() => { fetchData(); }, [fetchData]);
 
-    if (isLoading) {
-        return <div className="flex h-full items-center justify-center"><LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted"/></div>;
-    }
+    const handleDownload = () => {
+        if (rows.length === 0) {
+            toast({ title: 'No Data', description: 'There is no data to download.' });
+            return;
+        }
+        const csv = Papa.unparse(rows);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `payroll_summary_${MONTHS[selectedMonth - 1]}_${selectedYear}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <div className="flex w-full flex-col gap-6">
             <CrmPageHeader
                 title="Payroll Summary"
-                subtitle="High-level overview of your payroll expenses."
+                subtitle="Monthly payroll breakdown with all deduction components per employee."
                 icon={FileSpreadsheet}
                 actions={
-                    <ClayButton variant="pill" disabled leading={<Download className="h-4 w-4"/>}>Download Report</ClayButton>
+                    <>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <ClayButton variant="pill" leading={<SlidersHorizontal className="h-4 w-4" />}>
+                                    Filters
+                                </ClayButton>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 space-y-4 p-4">
+                                <div className="space-y-1.5">
+                                    <Label className="text-[12.5px]">Month</Label>
+                                    <select
+                                        value={selectedMonth}
+                                        onChange={e => setSelectedMonth(Number(e.target.value))}
+                                        className="w-full rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink focus:outline-none focus:ring-2 focus:ring-clay-rose/30"
+                                    >
+                                        {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+                                    </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label className="text-[12.5px]">Year</Label>
+                                    <select
+                                        value={selectedYear}
+                                        onChange={e => setSelectedYear(Number(e.target.value))}
+                                        className="w-full rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink focus:outline-none focus:ring-2 focus:ring-clay-rose/30"
+                                    >
+                                        {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                                    </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label className="text-[12.5px]">Department</Label>
+                                    <select
+                                        value={selectedDept}
+                                        onChange={e => setSelectedDept(e.target.value)}
+                                        className="w-full rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink focus:outline-none focus:ring-2 focus:ring-clay-rose/30"
+                                    >
+                                        <option value="">All Departments</option>
+                                        {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
+                                    </select>
+                                </div>
+                                <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading} className="w-full">
+                                    {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    Apply Filters
+                                </ClayButton>
+                            </PopoverContent>
+                        </Popover>
+                        <ClayButton
+                            variant="pill"
+                            onClick={handleDownload}
+                            disabled={isLoading || rows.length === 0}
+                            leading={<Download className="h-4 w-4" />}
+                        >
+                            Export CSV
+                        </ClayButton>
+                    </>
                 }
             />
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Gross Payroll" value={`₹${summary.totalPayroll?.toLocaleString() || '0'}`} icon={IndianRupee} />
-                <StatCard title="Active Employees" value={summary.totalEmployees?.toLocaleString() || '0'} icon={Users} />
+            {/* Summary stat cards */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard title="Total Employees" value={totalEmployees.toLocaleString()} icon={Users} />
+                <StatCard title="Total Gross Payroll" value={fmt(totals.grossSalary)} icon={IndianRupee} sub={`${MONTHS[selectedMonth - 1]} ${selectedYear}`} />
+                <StatCard title="Total Deductions" value={fmt(totals.totalDeductions)} icon={TrendingDown} />
+                <StatCard title="Total Net Pay" value={fmt(totals.netPay)} icon={Wallet} />
             </div>
 
             <ClayCard>
-                <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Monthly Payroll Cost Trend</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Estimated gross payroll cost over the last 6 months.</p>
+                <div className="mb-4 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-[16px] font-semibold text-clay-ink">Payroll Breakdown</h2>
+                        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                            {MONTHS[selectedMonth - 1]} {selectedYear}
+                        </p>
+                    </div>
+                    {rows.length > 0 && (
+                        <span className="text-[12.5px] text-clay-ink-muted">{rows.length} employee{rows.length !== 1 ? 's' : ''}</span>
+                    )}
                 </div>
-                <ChartContainer config={chartConfig} className="h-64 w-full">
-                    <RechartsBarChart data={summary.monthlyData || []}>
-                        <CartesianGrid vertical={false} />
-                        <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
-                        <YAxis />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Legend />
-                        <RechartsBar dataKey="cost" fill="var(--color-cost)" radius={4} />
-                    </RechartsBarChart>
-                </ChartContainer>
+
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <table className="w-full text-left text-[13px]">
+                        <thead>
+                            <tr className="border-b border-clay-border bg-clay-surface-2">
+                                <th className="px-4 py-3 font-medium text-clay-ink-muted">Employee</th>
+                                <th className="px-4 py-3 font-medium text-clay-ink-muted">Department</th>
+                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">Gross Salary</th>
+                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">PF</th>
+                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">ESI</th>
+                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">TDS</th>
+                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">Prof. Tax</th>
+                                <th className="px-4 py-3 text-right font-medium text-red-600">Total Deductions</th>
+                                <th className="px-4 py-3 text-right font-medium text-green-600">Net Pay</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={9} className="h-48 text-center">
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted" />
+                                    </td>
+                                </tr>
+                            ) : rows.length > 0 ? (
+                                <>
+                                    {rows.map(row => (
+                                        <tr key={row.employeeId} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
+                                            <td className="px-4 py-3 font-medium text-clay-ink">{row.employeeName}</td>
+                                            <td className="px-4 py-3 text-clay-ink-muted">{row.department}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.grossSalary)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.pf)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.esi)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.tds)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.professionalTax)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">{fmt(row.totalDeductions)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-bold text-green-600">{fmt(row.netPay)}</td>
+                                        </tr>
+                                    ))}
+                                    {/* Totals row */}
+                                    <tr className="border-t-2 border-clay-border bg-clay-surface-2 font-semibold">
+                                        <td className="px-4 py-3 text-clay-ink">Totals</td>
+                                        <td className="px-4 py-3" />
+                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.grossSalary)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.pf)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.esi)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.tds)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.professionalTax)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-red-600">{fmt(totals.totalDeductions)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-green-600">{fmt(totals.netPay)}</td>
+                                    </tr>
+                                </>
+                            ) : (
+                                <tr>
+                                    <td colSpan={9} className="h-24 text-center text-clay-ink-muted">
+                                        No payroll data found for the selected period.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </ClayCard>
         </div>
     );

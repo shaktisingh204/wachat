@@ -26,20 +26,38 @@ export async function getCrmDepartments(): Promise<WithId<CrmDepartment>[]> {
     }
 }
 
-export async function saveCrmDepartment(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; newDepartment?: any }> {
+export async function saveCrmDepartment(_prev: any, formData: FormData): Promise<{ message?: string; error?: string; newDepartment?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
+    const _id = formData.get('_id') as string | null;
     const name = formData.get('name') as string;
     if (!name) return { error: 'Department name is required.' };
 
+    const parentRaw = formData.get('parent_department_id') as string | null;
+    const managerRaw = formData.get('manager_id') as string | null;
+
     try {
         const { db } = await connectToDatabase();
-        const data = {
+        const data: Record<string, any> = {
             userId: new ObjectId(session.user._id),
             name,
-            description: formData.get('description') as string | undefined,
+            description: (formData.get('description') as string | null) || undefined,
+            parent_department_id: parentRaw && ObjectId.isValid(parentRaw) ? new ObjectId(parentRaw) : undefined,
+            manager_id: managerRaw && ObjectId.isValid(managerRaw) ? new ObjectId(managerRaw) : undefined,
+            updatedAt: new Date(),
         };
+
+        if (_id && ObjectId.isValid(_id)) {
+            await db.collection('crm_departments').updateOne(
+                { _id: new ObjectId(_id), userId: new ObjectId(session.user._id) },
+                { $set: data },
+            );
+            revalidatePath('/dashboard/hrm/payroll/departments');
+            return { message: 'Department updated successfully.' };
+        }
+
+        data.createdAt = new Date();
         const result = await db.collection('crm_departments').insertOne(data);
         revalidatePath('/dashboard/hrm/payroll/departments');
         return { message: 'Department added successfully.', newDepartment: { ...data, _id: result.insertedId } };
@@ -80,20 +98,38 @@ export async function getCrmDesignations(): Promise<WithId<CrmDesignation>[]> {
     }
 }
 
-export async function saveCrmDesignation(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; newDesignation?: any }> {
+export async function saveCrmDesignation(_prev: any, formData: FormData): Promise<{ message?: string; error?: string; newDesignation?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 
+    const _id = formData.get('_id') as string | null;
     const name = formData.get('name') as string;
     if (!name) return { error: 'Designation name is required.' };
 
+    const departmentIdRaw = formData.get('department_id') as string | null;
+    const level = (formData.get('level') as string | null) || undefined;
+
     try {
         const { db } = await connectToDatabase();
-        const data = {
+        const data: Record<string, any> = {
             userId: new ObjectId(session.user._id),
             name,
-            description: formData.get('description') as string | undefined,
+            description: (formData.get('description') as string | null) || undefined,
+            department_id: departmentIdRaw && ObjectId.isValid(departmentIdRaw) ? new ObjectId(departmentIdRaw) : undefined,
+            level,
+            updatedAt: new Date(),
         };
+
+        if (_id && ObjectId.isValid(_id)) {
+            await db.collection('crm_designations').updateOne(
+                { _id: new ObjectId(_id), userId: new ObjectId(session.user._id) },
+                { $set: data },
+            );
+            revalidatePath('/dashboard/hrm/payroll/designations');
+            return { message: 'Designation updated successfully.' };
+        }
+
+        data.createdAt = new Date();
         const result = await db.collection('crm_designations').insertOne(data);
         revalidatePath('/dashboard/hrm/payroll/designations');
         return { message: 'Designation added successfully.', newDesignation: { ...data, _id: result.insertedId } };
@@ -140,7 +176,7 @@ export async function getCrmEmployees(): Promise<WithId<any>[]> {
     }
 }
 
-export async function saveCrmEmployee(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
 

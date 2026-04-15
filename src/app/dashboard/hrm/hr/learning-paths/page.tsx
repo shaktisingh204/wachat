@@ -1,7 +1,7 @@
 'use client';
 
 import { Route } from 'lucide-react';
-import { HrEntityPage } from '../_components/hr-entity-page';
+import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
   getLearningPaths,
   saveLearningPath,
@@ -10,11 +10,16 @@ import {
 import type { HrLearningPath } from '@/lib/hr-types';
 import { fields } from './_config';
 
+const STATUS_TONES: Record<string, 'green' | 'neutral'> = {
+  active: 'green',
+  inactive: 'neutral',
+};
+
 export default function LearningPathsPage() {
   return (
     <HrEntityPage<HrLearningPath & { _id: string }>
       title="Learning Paths"
-      subtitle="Structured learning tracks with ordered steps and resources."
+      subtitle="Structured learning tracks — assign courses and set estimated hours."
       icon={Route}
       singular="Path"
       basePath="/dashboard/hrm/hr/learning-paths"
@@ -22,15 +27,62 @@ export default function LearningPathsPage() {
       saveAction={saveLearningPath}
       deleteAction={deleteLearningPath}
       columns={[
-        { key: 'name', label: 'Name' },
         {
-          key: 'description',
-          label: 'Description',
+          key: 'name',
+          label: 'Title',
           render: (row) => (
-            <span className="block max-w-[320px] truncate">
-              {row.description || '—'}
+            <span className="block max-w-[220px] truncate font-medium">
+              {(row as any).name || '—'}
             </span>
           ),
+        },
+        {
+          key: 'assigned_to',
+          label: 'Assigned To',
+          render: (row) => {
+            const v = (row as any).assigned_to;
+            return v ? (
+              <span className="block max-w-[140px] truncate text-clay-ink-muted">{v}</span>
+            ) : (
+              <span className="text-clay-ink-muted">—</span>
+            );
+          },
+        },
+        {
+          key: 'estimatedHours',
+          label: 'Est. Hours',
+          render: (row) => {
+            const h = (row as any).estimatedHours ?? (row as any).estimatedDuration;
+            return h != null ? (
+              <span className="tabular-nums">{h}{typeof h === 'number' ? 'h' : ''}</span>
+            ) : (
+              <span className="text-clay-ink-muted">—</span>
+            );
+          },
+        },
+        {
+          key: 'steps',
+          label: 'Courses',
+          render: (row) => {
+            const s = (row as any).steps;
+            const count = Array.isArray(s) ? s.length : 0;
+            return (
+              <span className="tabular-nums text-clay-ink-muted">{count}</span>
+            );
+          },
+        },
+        {
+          key: 'status',
+          label: 'Status',
+          render: (row) => {
+            const s = (row as any).status;
+            if (!s) return <span className="text-clay-ink-muted">—</span>;
+            return (
+              <ClayBadge tone={STATUS_TONES[s] ?? 'neutral'} dot>
+                {s}
+              </ClayBadge>
+            );
+          },
         },
       ]}
       fields={fields}

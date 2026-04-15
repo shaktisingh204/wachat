@@ -3,8 +3,6 @@
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Clock, Edit, Trash2, CalendarDays } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
@@ -75,85 +73,94 @@ export default function EmployeeShiftsPage() {
           </div>
         </div>
         <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Shift</TableHead>
-                <TableHead className="text-clay-ink-muted">Office Hours</TableHead>
-                <TableHead className="text-clay-ink-muted">Days Off</TableHead>
-                <TableHead className="text-clay-ink-muted">Late Mark</TableHead>
-                <TableHead className="text-clay-ink-muted">Open Days</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-clay-border bg-clay-surface-2">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Shift</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Clock In / Out</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Office Hours</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Late Mark</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Open Days</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Days Off Type</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
               {isLoading ? (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={6} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr className="border-b border-clay-border">
+                  <td colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
                     Loading...
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : shifts.length > 0 ? (
                 shifts.map((shift) => (
-                  <TableRow key={String(shift._id)} className="border-clay-border">
-                    <TableCell>
+                  <tr key={String(shift._id)} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
+                    <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <span
                           aria-hidden
                           className="inline-block h-4 w-4 rounded-[4px] border border-clay-border"
                           style={{ backgroundColor: shift.color_code || '#EAB308' }}
                         />
-                        <span className="text-[13px] font-medium text-clay-ink">
-                          {shift.name}
-                        </span>
+                        <span className="font-medium text-clay-ink">{shift.name}</span>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    </td>
+                    <td className="px-4 py-2.5 text-clay-ink">
+                      {shift.clock_in_time || '—'} – {shift.clock_out_time || '—'}
+                    </td>
+                    <td className="px-4 py-2.5 text-clay-ink">
                       {shift.office_start_time} – {shift.office_end_time}
-                    </TableCell>
-                    <TableCell>
+                    </td>
+                    <td className="px-4 py-2.5 text-clay-ink">
+                      {shift.late_mark_after} min
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <div className="flex flex-wrap gap-1">
+                        {(shift.office_open_days || []).length
+                          ? shift.office_open_days.map((d) => (
+                              <ClayBadge key={d} tone="blue">
+                                {d.slice(0, 3)}
+                              </ClayBadge>
+                            ))
+                          : <span className="text-clay-ink-muted">—</span>}
+                      </div>
+                    </td>
+                    <td className="px-4 py-2.5">
                       <ClayBadge tone={shift.days_off_type === 'week-off' ? 'blue' : 'neutral'}>
                         {shift.days_off_type}
                       </ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
-                      {shift.late_mark_after} min
-                    </TableCell>
-                    <TableCell className="text-[12px] text-clay-ink-muted">
-                      {(shift.office_open_days || []).length
-                        ? shift.office_open_days.map((d) => d.slice(0, 3)).join(', ')
-                        : '—'}
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </td>
+                    <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/dashboard/hrm/payroll/shifts/${shift._id}/edit`}>
+                        <Link href={`/dashboard/hrm/payroll/shifts/${shift._id}/edit`}>
+                          <ClayButton variant="pill" size="icon" aria-label="Edit shift">
                             <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
+                          </ClayButton>
+                        </Link>
+                        <ClayButton
+                          variant="pill"
                           size="icon"
+                          aria-label="Delete shift"
                           onClick={() => handleDelete(shift._id)}
                         >
                           <Trash2 className="h-4 w-4 text-clay-red" />
-                        </Button>
+                        </ClayButton>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))
               ) : (
-                <TableRow className="border-clay-border">
-                  <TableCell
-                    colSpan={6}
+                <tr className="border-b border-clay-border">
+                  <td
+                    colSpan={7}
                     className="h-24 text-center text-[13px] text-clay-ink-muted"
                   >
                     No shifts yet. Create your first shift.
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               )}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
       </ClayCard>
     </div>

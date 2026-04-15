@@ -59,7 +59,21 @@ export const fields: HrField[] = [
     ],
     defaultValue: 'no',
   },
-  { name: 'attachmentUrl', label: 'Attachment URL', type: 'url', fullWidth: true },
+  {
+    name: 'attachmentUrl',
+    label: 'Document URL',
+    type: 'url',
+    fullWidth: true,
+    placeholder: 'https://… (link to PDF or document)',
+    help: 'Paste a direct link to the policy document (PDF, Google Doc, etc.)',
+  },
+  {
+    name: 'departments',
+    label: 'Departments (comma-separated, or "all")',
+    placeholder: 'e.g. Engineering, Finance — leave blank for all',
+    fullWidth: true,
+    help: 'Which departments this policy applies to. Leave blank for company-wide.',
+  },
   {
     name: 'status',
     label: 'Status',
@@ -80,7 +94,7 @@ export const sections = [
   },
   {
     title: 'Content',
-    fieldNames: ['summary', 'body', 'attachmentUrl'],
+    fieldNames: ['summary', 'body', 'attachmentUrl', 'departments'],
   },
   {
     title: 'Dates',

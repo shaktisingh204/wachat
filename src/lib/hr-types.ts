@@ -123,6 +123,9 @@ export type HrPolicy = Owned & {
   body: string;
   version?: string;
   effectiveDate?: Date;
+  status?: 'draft' | 'active' | 'archived';
+  appliesTo?: string;
+  attachmentUrl?: string;
 };
 
 /* ── Documents ────────────────────────────────────────────────── */
@@ -133,6 +136,7 @@ export type HrDocument = Owned & {
   category?: string;
   url?: string;
   expiresAt?: Date;
+  isConfidential?: boolean;
   notes?: string;
 };
 
@@ -238,7 +242,12 @@ export type HrAsset = Owned & {
   name: string;
   category?: string;
   serialNumber?: string;
+  assetTag?: string;
+  location?: string;
   purchaseDate?: Date;
+  purchaseCost?: number;
+  currency?: string;
+  warrantyExpiresAt?: Date;
   condition?: 'new' | 'good' | 'fair' | 'poor' | 'retired';
   notes?: string;
 };
@@ -258,8 +267,10 @@ export type HrRecognition = Owned & {
   employeeId: ObjectId;
   fromName?: string;
   type: 'kudos' | 'spot-award' | 'performance' | 'values';
+  category?: string;
   message: string;
   points?: number;
+  visibility?: 'public' | 'private' | 'team';
   givenAt: Date;
 };
 

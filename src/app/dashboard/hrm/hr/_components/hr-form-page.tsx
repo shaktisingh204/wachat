@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import type { HrField } from './hr-entity-page';
 
@@ -381,32 +380,29 @@ function FieldArray({
                   </div>
                 );
               })}
-              <Button
+              <ClayButton
                 type="button"
-                variant="ghost"
-                size="sm"
+                variant="pill"
+                aria-label="Remove row"
                 onClick={() =>
                   setRows((prev) => prev.filter((_, idx) => idx !== i))
                 }
-                className="text-clay-red"
               >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
+                <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+              </ClayButton>
             </div>
           ))}
         </div>
       )}
 
-      <Button
+      <ClayButton
         type="button"
-        variant="outline"
-        size="sm"
+        variant="pill"
         onClick={() => setRows((prev) => [...prev, emptyRow()])}
-        className="rounded-clay-md border-clay-border text-[12px]"
+        leading={<Plus className="h-3.5 w-3.5" />}
       >
-        <Plus className="mr-1.5 h-3.5 w-3.5" />
         {field.addLabel || 'Add row'}
-      </Button>
+      </ClayButton>
     </div>
   );
 }

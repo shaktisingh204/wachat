@@ -46,6 +46,7 @@ export default function ApplyLeavePage() {
   const [endDate, setEndDate] = useState('');
   const [hours, setHours] = useState('');
   const [reason, setReason] = useState('');
+  const [daysCount, setDaysCount] = useState('');
   const [attachmentUrl, setAttachmentUrl] = useState('');
   const [attachmentName, setAttachmentName] = useState('');
 
@@ -85,7 +86,7 @@ export default function ApplyLeavePage() {
         reason,
         status: 'pending',
         applied_at: new Date(),
-        days_count: 0,
+        days_count: daysCount ? Number(daysCount) : 0,
       });
       if (!res.success) {
         toast({ title: 'Error', description: res.error, variant: 'destructive' });
@@ -141,7 +142,14 @@ export default function ApplyLeavePage() {
                 <SelectContent>
                   {types.map((t) => (
                     <SelectItem key={String(t._id)} value={String(t._id)}>
-                      {t.type_name}
+                      <span className="inline-flex items-center gap-2">
+                        <span
+                          aria-hidden
+                          className="inline-block h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: t.color || '#94A3B8' }}
+                        />
+                        {t.type_name}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -226,6 +234,19 @@ export default function ApplyLeavePage() {
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
                 className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              />
+            </div>
+
+            <div>
+              <Label className="text-clay-ink">Days Count</Label>
+              <Input
+                type="number"
+                step="0.5"
+                min="0"
+                value={daysCount}
+                onChange={(e) => setDaysCount(e.target.value)}
+                placeholder="Auto-calculated if left blank"
+                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
               />
             </div>
 

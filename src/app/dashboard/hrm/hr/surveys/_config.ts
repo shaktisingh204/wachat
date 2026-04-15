@@ -9,20 +9,28 @@ export const fields: HrField[] = [
     fullWidth: true,
   },
   {
-    name: 'category',
-    label: 'Category',
+    name: 'type',
+    label: 'Type',
     type: 'select',
     options: [
-      { value: 'engagement', label: 'Engagement' },
-      { value: 'satisfaction', label: 'Satisfaction' },
       { value: 'pulse', label: 'Pulse' },
       { value: 'exit', label: 'Exit' },
-      { value: '360', label: '360' },
+      { value: 'engagement', label: 'Engagement' },
       { value: 'onboarding', label: 'Onboarding' },
-      { value: 'custom', label: 'Custom' },
     ],
-    defaultValue: 'custom',
+    defaultValue: 'engagement',
   },
+  {
+    name: 'target',
+    label: 'Target Audience',
+    type: 'select',
+    options: [
+      { value: 'all', label: 'All' },
+      { value: 'department', label: 'Department' },
+    ],
+    defaultValue: 'all',
+  },
+  { name: 'departmentId', label: 'Department ID' },
   {
     name: 'anonymous',
     label: 'Anonymous',
@@ -33,20 +41,7 @@ export const fields: HrField[] = [
     ],
     defaultValue: 'no',
   },
-  {
-    name: 'audience',
-    label: 'Audience',
-    type: 'select',
-    options: [
-      { value: 'all', label: 'All' },
-      { value: 'department', label: 'Department' },
-      { value: 'team', label: 'Team' },
-      { value: 'role', label: 'Role' },
-    ],
-    defaultValue: 'all',
-  },
-  { name: 'departmentId', label: 'Department ID' },
-  { name: 'teamId', label: 'Team ID' },
+  { name: 'deadline', label: 'Deadline', type: 'date' },
   { name: 'startDate', label: 'Start Date', type: 'date' },
   { name: 'endDate', label: 'End Date', type: 'date' },
   { name: 'targetCount', label: 'Target Count', type: 'number' },
@@ -57,9 +52,8 @@ export const fields: HrField[] = [
     type: 'select',
     options: [
       { value: 'draft', label: 'Draft' },
-      { value: 'open', label: 'Open' },
+      { value: 'active', label: 'Active' },
       { value: 'closed', label: 'Closed' },
-      { value: 'archived', label: 'Archived' },
     ],
     defaultValue: 'draft',
   },
@@ -70,18 +64,17 @@ export const fields: HrField[] = [
     fullWidth: true,
     addLabel: 'Add Question',
     subFields: [
-      { name: 'prompt', label: 'Prompt', type: 'text', required: true },
+      { name: 'prompt', label: 'Question Text', type: 'text', required: true },
       {
         name: 'type',
-        label: 'Type',
+        label: 'Answer Type',
         type: 'select',
         required: true,
         options: [
-          { value: 'rating', label: 'Rating' },
           { value: 'text', label: 'Text' },
-          { value: 'yes-no', label: 'Yes/No' },
+          { value: 'rating', label: 'Rating' },
+          { value: 'boolean', label: 'Yes / No' },
           { value: 'multiple-choice', label: 'Multiple Choice' },
-          { value: 'scale-1-10', label: 'Scale 1-10' },
         ],
       },
       {
@@ -93,7 +86,6 @@ export const fields: HrField[] = [
           { value: 'no', label: 'No' },
         ],
       },
-      { name: 'options', label: 'Options', type: 'text' },
     ],
   },
 ];
@@ -101,15 +93,15 @@ export const fields: HrField[] = [
 export const sections = [
   {
     title: 'Survey',
-    fieldNames: ['title', 'description', 'category', 'status', 'anonymous'],
+    fieldNames: ['title', 'description', 'type', 'status', 'anonymous'],
   },
   {
     title: 'Audience',
-    fieldNames: ['audience', 'departmentId', 'teamId'],
+    fieldNames: ['target', 'departmentId'],
   },
   {
-    title: 'Schedule & Targets',
-    fieldNames: ['startDate', 'endDate', 'targetCount', 'responsesCount'],
+    title: 'Schedule',
+    fieldNames: ['deadline', 'startDate', 'endDate', 'targetCount', 'responsesCount'],
   },
   { title: 'Questions', fieldNames: ['questions'] },
 ];

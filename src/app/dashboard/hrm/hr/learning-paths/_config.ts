@@ -1,12 +1,30 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'name', label: 'Name', required: true, fullWidth: true },
+  { name: 'name', label: 'Title', required: true, fullWidth: true, placeholder: 'e.g. Frontend Engineering Track' },
   {
     name: 'description',
     label: 'Description',
     type: 'textarea',
     fullWidth: true,
+    placeholder: 'What will learners achieve by completing this path?',
+  },
+  {
+    name: 'assigned_to',
+    label: 'Assigned To',
+    placeholder: 'Employee ID, role, or "all"',
+    help: 'Enter an employee ID, a role name, or "all" to assign to everyone.',
+  },
+  { name: 'estimatedHours', label: 'Estimated Hours', type: 'number' },
+  {
+    name: 'status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { value: 'active', label: 'Active' },
+      { value: 'inactive', label: 'Inactive' },
+    ],
+    defaultValue: 'active',
   },
   {
     name: 'category',
@@ -22,7 +40,6 @@ export const fields: HrField[] = [
     ],
     defaultValue: 'other',
   },
-  { name: 'estimatedDuration', label: 'Estimated Duration' },
   {
     name: 'difficulty',
     label: 'Difficulty',
@@ -43,7 +60,7 @@ export const fields: HrField[] = [
   },
   {
     name: 'outcomes',
-    label: 'Outcomes',
+    label: 'Learning Outcomes',
     type: 'textarea',
     fullWidth: true,
   },
@@ -59,13 +76,14 @@ export const fields: HrField[] = [
   },
   {
     name: 'steps',
-    label: 'Steps',
+    label: 'Courses / Steps',
     type: 'array',
     fullWidth: true,
-    addLabel: 'Add Step',
+    addLabel: 'Add Course',
+    help: 'Add training IDs or course names in order.',
     subFields: [
-      { name: 'title', label: 'Title', type: 'text', required: true },
-      { name: 'link', label: 'Link', type: 'text', placeholder: 'https://...' },
+      { name: 'title', label: 'Title', type: 'text', required: true, placeholder: 'Course title or training ID' },
+      { name: 'link', label: 'Link', type: 'text', placeholder: 'https://…' },
       {
         name: 'type',
         label: 'Type',
@@ -78,8 +96,7 @@ export const fields: HrField[] = [
           { value: 'other', label: 'Other' },
         ],
       },
-      { name: 'duration', label: 'Duration', type: 'text' },
-      { name: 'description', label: 'Description', type: 'text' },
+      { name: 'duration', label: 'Duration', type: 'text', placeholder: '2h 30m' },
     ],
   },
 ];
@@ -87,16 +104,11 @@ export const fields: HrField[] = [
 export const sections = [
   {
     title: 'Overview',
-    fieldNames: ['name', 'description', 'category', 'difficulty', 'isPublished'],
+    fieldNames: ['name', 'description', 'category', 'difficulty', 'status', 'isPublished'],
   },
   {
-    title: 'Details',
-    fieldNames: [
-      'estimatedDuration',
-      'targetRole',
-      'prerequisites',
-      'outcomes',
-    ],
+    title: 'Assignment & Details',
+    fieldNames: ['assigned_to', 'estimatedHours', 'targetRole', 'prerequisites', 'outcomes'],
   },
-  { title: 'Steps', fieldNames: ['steps'] },
+  { title: 'Courses', fieldNames: ['steps'] },
 ];

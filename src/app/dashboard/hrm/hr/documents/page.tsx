@@ -1,7 +1,7 @@
 'use client';
 
 import { FileText } from 'lucide-react';
-import { HrEntityPage } from '../_components/hr-entity-page';
+import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
   getDocuments,
   saveDocument,
@@ -29,8 +29,17 @@ export default function DocumentsPage() {
       saveAction={saveDocument}
       deleteAction={deleteDocument}
       columns={[
-        { key: 'name', label: 'Name' },
-        { key: 'category', label: 'Category' },
+        { key: 'name', label: 'Document Name' },
+        {
+          key: 'category',
+          label: 'Category',
+          render: (row) =>
+            row.category ? (
+              <ClayBadge tone="neutral">{row.category}</ClayBadge>
+            ) : (
+              <span className="text-clay-ink-muted">—</span>
+            ),
+        },
         {
           key: 'employeeId',
           label: 'Employee',
@@ -40,10 +49,47 @@ export default function DocumentsPage() {
             </span>
           ),
         },
+        { key: 'documentNumber', label: 'Document #' },
+        {
+          key: 'issuedDate',
+          label: 'Issued',
+          render: (row) => <span>{formatDate((row as any).issuedDate)}</span>,
+        },
         {
           key: 'expiresAt',
           label: 'Expires',
           render: (row) => <span>{formatDate(row.expiresAt)}</span>,
+        },
+        {
+          key: 'isConfidential',
+          label: 'Confidential',
+          render: (row) => {
+            const yes =
+              row.isConfidential === true ||
+              (row.isConfidential as unknown as string) === 'yes';
+            return (
+              <ClayBadge tone={yes ? 'amber' : 'neutral'}>
+                {yes ? 'Yes' : 'No'}
+              </ClayBadge>
+            );
+          },
+        },
+        {
+          key: 'url',
+          label: 'File',
+          render: (row) =>
+            row.url ? (
+              <a
+                href={String(row.url)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[12px] text-clay-rose-ink underline-offset-2 hover:underline"
+              >
+                View
+              </a>
+            ) : (
+              <span className="text-clay-ink-muted">—</span>
+            ),
         },
       ]}
       fields={fields}

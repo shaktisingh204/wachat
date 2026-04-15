@@ -1,14 +1,14 @@
 import type { HrField } from '../_components/hr-entity-page';
 
 export const fields: HrField[] = [
-  { name: 'employeeId', label: 'Employee ID', required: true },
-  { name: 'name', label: 'Name', required: true, fullWidth: true },
-  { name: 'issuer', label: 'Issuer' },
-  { name: 'issuingOrganization', label: 'Issuing Organization' },
+  { name: 'employeeId', label: 'Employee', required: true, placeholder: 'Employee ID or name' },
+  { name: 'name', label: 'Certification Name', required: true, fullWidth: true, placeholder: 'e.g. AWS Solutions Architect' },
+  { name: 'issuer', label: 'Issuing Organisation', placeholder: 'e.g. Amazon Web Services' },
+  { name: 'issuingOrganization', label: 'Issuing Org (full name)' },
   { name: 'credentialId', label: 'Credential ID' },
-  { name: 'credentialUrl', label: 'Credential URL', type: 'url' },
-  { name: 'issuedAt', label: 'Issued At', type: 'date' },
-  { name: 'expiresAt', label: 'Expires At', type: 'date' },
+  { name: 'credentialUrl', label: 'Certificate URL', type: 'url', fullWidth: true, placeholder: 'https://…' },
+  { name: 'issuedAt', label: 'Issued Date', type: 'date', required: true },
+  { name: 'expiresAt', label: 'Expiry Date', type: 'date' },
   {
     name: 'doesNotExpire',
     label: 'Does Not Expire',
@@ -44,8 +44,8 @@ export const fields: HrField[] = [
       { value: 'expert', label: 'Expert' },
     ],
   },
-  { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
   { name: 'attachmentUrl', label: 'Attachment URL', type: 'url', fullWidth: true },
+  { name: 'notes', label: 'Notes', type: 'textarea', fullWidth: true },
 ];
 
 export const sections = [
@@ -55,12 +55,7 @@ export const sections = [
   },
   {
     title: 'Issuer Details',
-    fieldNames: [
-      'issuer',
-      'issuingOrganization',
-      'credentialId',
-      'credentialUrl',
-    ],
+    fieldNames: ['issuer', 'issuingOrganization', 'credentialId', 'credentialUrl'],
   },
   {
     title: 'Validity',

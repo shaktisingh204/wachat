@@ -2,21 +2,40 @@
 
 import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { LoaderCircle, Trash2, Building } from 'lucide-react';
+import { LoaderCircle, Trash2, Building, Pencil, Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getCrmDepartments, saveCrmDepartment, deleteCrmDepartment } from '@/app/actions/crm-employees.actions';
+import {
+    getCrmDepartments,
+    saveCrmDepartment,
+    deleteCrmDepartment,
+    getCrmEmployees,
+} from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmDepartment } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 const saveInitialState: any = { message: null, error: null };
 
-function SaveButton() {
+function SaveButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
         <ClayButton
@@ -25,98 +44,311 @@ function SaveButton() {
             disabled={pending}
             leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
         >
-            Add Department
+            {label}
         </ClayButton>
     );
 }
 
-function DeleteButton({ department, onDeleted }: { department: WithId<CrmDepartment>, onDeleted: () => void }) {
-    const [isPending, startTransition] = useTransition();
-    const { toast } = useToast();
-    const handleDelete = () => {
-        startTransition(async () => {
-            const result = await deleteCrmDepartment(department._id.toString());
-            if (result.success) {
-                toast({ title: 'Success', description: 'Department deleted.' });
-                onDeleted();
-            } else {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            }
-        });
-    }
-    return <Button variant="ghost" size="icon" onClick={handleDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}</Button>;
-}
-
 export default function DepartmentsPage() {
     const [departments, setDepartments] = useState<WithId<CrmDepartment>[]>([]);
+    const [employees, setEmployees] = useState<any[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [saveState, formAction] = useActionState(saveCrmDepartment, saveInitialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 
+    // Dialog state for add/edit
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [editing, setEditing] = useState<WithId<CrmDepartment> | null>(null);
+
+    // Controlled select values in dialog (useActionState + Select needs controlled state)
+    const [parentId, setParentId] = useState('__none__');
+    const [managerId, setManagerId] = useState('__none__');
+
     const fetchData = useCallback(() => {
         startLoading(async () => {
-            const data = await getCrmDepartments();
-            setDepartments(data);
+            const [depts, emps] = await Promise.all([
+                getCrmDepartments(),
+                getCrmEmployees(),
+            ]);
+            setDepartments(depts);
+            setEmployees(emps);
         });
     }, []);
 
-    useEffect(() => { fetchData() }, [fetchData]);
+    useEffect(() => { fetchData(); }, [fetchData]);
 
     useEffect(() => {
         if (saveState.message) {
             toast({ title: 'Success', description: saveState.message });
             fetchData();
             formRef.current?.reset();
+            setDialogOpen(false);
+            setEditing(null);
+            setParentId('__none__');
+            setManagerId('__none__');
         }
         if (saveState.error) {
             toast({ title: 'Error', description: saveState.error, variant: 'destructive' });
         }
     }, [saveState, toast, fetchData]);
 
+    const [deleteTransition, startDeleteTransition] = useTransition();
+
+    const handleDelete = (dept: WithId<CrmDepartment>) => {
+        startDeleteTransition(async () => {
+            const result = await deleteCrmDepartment(dept._id.toString());
+            if (result.success) {
+                toast({ title: 'Deleted', description: `"${dept.name}" removed.` });
+                fetchData();
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    };
+
+    const openAdd = () => {
+        setEditing(null);
+        setParentId('__none__');
+        setManagerId('__none__');
+        setDialogOpen(true);
+    };
+
+    const openEdit = (dept: WithId<CrmDepartment>) => {
+        setEditing(dept);
+        setParentId((dept as any).parent_department_id ?? '__none__');
+        setManagerId((dept as any).manager_id ?? '__none__');
+        setDialogOpen(true);
+    };
+
+    // Build employee count per department
+    const empCountByDept = employees.reduce<Record<string, number>>((acc, e) => {
+        if (e.departmentId) {
+            const key = e.departmentId.toString();
+            acc[key] = (acc[key] ?? 0) + 1;
+        }
+        return acc;
+    }, {});
+
+    // Parent dept name lookup
+    const deptNameById = departments.reduce<Record<string, string>>((acc, d) => {
+        acc[d._id.toString()] = d.name;
+        return acc;
+    }, {});
+
+    // Manager name lookup
+    const managerNameById = employees.reduce<Record<string, string>>((acc, e) => {
+        acc[e._id.toString()] = `${e.firstName} ${e.lastName}`;
+        return acc;
+    }, {});
+
     return (
         <div className="flex w-full flex-col gap-6">
             <CrmPageHeader
                 title="Departments"
-                subtitle="Organize your team into departments."
+                subtitle="Organize your team into departments with parent structure and managers."
                 icon={Building}
+                actions={
+                    <ClayButton
+                        variant="obsidian"
+                        leading={<Plus className="h-4 w-4" />}
+                        onClick={openAdd}
+                    >
+                        Add Department
+                    </ClayButton>
+                }
             />
 
-            <div className="grid items-start gap-6 md:grid-cols-2">
-                <ClayCard>
-                    <form action={formAction} ref={formRef}>
-                        <div className="mb-4">
-                            <h2 className="text-[16px] font-semibold text-clay-ink">Add New Department</h2>
+            <ClayCard>
+                <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-[16px] font-semibold text-clay-ink">All Departments</h2>
+                    <ClayBadge tone="neutral">{departments.length} total</ClayBadge>
+                </div>
+                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <table className="w-full text-left text-[13px]">
+                        <thead>
+                            <tr className="border-b border-clay-border bg-clay-surface-2">
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Department</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Parent Dept.</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Manager</th>
+                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Employees</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={5} className="h-24 text-center">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                    </td>
+                                </tr>
+                            ) : departments.length > 0 ? (
+                                departments.map((dept) => {
+                                    const parentName = (dept as any).parent_department_id
+                                        ? deptNameById[(dept as any).parent_department_id] ?? '—'
+                                        : '—';
+                                    const managerName = (dept as any).manager_id
+                                        ? managerNameById[(dept as any).manager_id] ?? '—'
+                                        : '—';
+                                    const count = empCountByDept[dept._id.toString()] ?? 0;
+                                    return (
+                                        <tr key={dept._id.toString()} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                            <td className="px-4 py-3">
+                                                <div className="font-medium text-clay-ink">{dept.name}</div>
+                                                {dept.description ? (
+                                                    <div className="text-[11.5px] text-clay-ink-muted">{dept.description}</div>
+                                                ) : null}
+                                            </td>
+                                            <td className="px-4 py-3 text-clay-ink-muted">{parentName}</td>
+                                            <td className="px-4 py-3 text-clay-ink">{managerName}</td>
+                                            <td className="px-4 py-3 text-center">
+                                                <ClayBadge tone="neutral">{count}</ClayBadge>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <ClayButton
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => openEdit(dept)}
+                                                        aria-label="Edit"
+                                                    >
+                                                        <Pencil className="h-3.5 w-3.5" />
+                                                    </ClayButton>
+                                                    <ClayButton
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleDelete(dept)}
+                                                        disabled={deleteTransition}
+                                                        aria-label="Delete"
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                                    </ClayButton>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                        No departments yet. Click "Add Department" to create one.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </ClayCard>
+
+            {/* Add / Edit dialog */}
+            <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-clay-ink">
+                            {editing ? 'Edit Department' : 'Add Department'}
+                        </DialogTitle>
+                        <DialogDescription className="text-clay-ink-muted">
+                            Fill in the department details. Only the name is required.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form action={formAction} ref={formRef} className="space-y-4">
+                        {editing?._id ? (
+                            <input type="hidden" name="_id" value={editing._id.toString()} />
+                        ) : null}
+
+                        {/* Hidden fields for controlled selects */}
+                        <input type="hidden" name="parent_department_id" value={parentId === '__none__' ? '' : parentId} />
+                        <input type="hidden" name="manager_id" value={managerId === '__none__' ? '' : managerId} />
+
+                        <div>
+                            <Label htmlFor="dept-name" className="text-[13px] text-clay-ink">
+                                Department Name <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                                id="dept-name"
+                                name="name"
+                                required
+                                defaultValue={editing?.name ?? ''}
+                                placeholder="e.g. Engineering"
+                                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                            />
                         </div>
-                        <div className="space-y-4">
-                            <div className="space-y-2"><Label htmlFor="name" className="text-[13px] text-clay-ink">Department Name</Label><Input id="name" name="name" required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" /></div>
-                            <div className="space-y-2"><Label htmlFor="description" className="text-[13px] text-clay-ink">Description (Optional)</Label><Input id="description" name="description" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" /></div>
+
+                        <div>
+                            <Label htmlFor="dept-desc" className="text-[13px] text-clay-ink">
+                                Description
+                            </Label>
+                            <Textarea
+                                id="dept-desc"
+                                name="description"
+                                rows={2}
+                                defaultValue={editing?.description ?? ''}
+                                placeholder="Optional description"
+                                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                            />
                         </div>
-                        <div className="mt-6"><SaveButton /></div>
+
+                        <div>
+                            <Label htmlFor="dept-parent" className="text-[13px] text-clay-ink">
+                                Parent Department
+                            </Label>
+                            <Select value={parentId} onValueChange={setParentId}>
+                                <SelectTrigger
+                                    id="dept-parent"
+                                    className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                >
+                                    <SelectValue placeholder="— Root (no parent) —" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">— Root (no parent) —</SelectItem>
+                                    {departments
+                                        .filter((d) => d._id.toString() !== editing?._id.toString())
+                                        .map((d) => (
+                                            <SelectItem key={d._id.toString()} value={d._id.toString()}>
+                                                {d.name}
+                                            </SelectItem>
+                                        ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div>
+                            <Label htmlFor="dept-manager" className="text-[13px] text-clay-ink">
+                                Manager
+                            </Label>
+                            <Select value={managerId} onValueChange={setManagerId}>
+                                <SelectTrigger
+                                    id="dept-manager"
+                                    className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                >
+                                    <SelectValue placeholder="— No manager assigned —" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">— No manager assigned —</SelectItem>
+                                    {employees.map((e) => (
+                                        <SelectItem key={e._id.toString()} value={e._id.toString()}>
+                                            {e.firstName} {e.lastName}
+                                            {e.designationName ? ` · ${e.designationName}` : ''}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <DialogFooter>
+                            <ClayButton
+                                type="button"
+                                variant="pill"
+                                onClick={() => setDialogOpen(false)}
+                                leading={<X className="h-3.5 w-3.5" />}
+                            >
+                                Cancel
+                            </ClayButton>
+                            <SaveButton label={editing ? 'Save Changes' : 'Add Department'} />
+                        </DialogFooter>
                     </form>
-                </ClayCard>
-                <ClayCard>
-                    <div className="mb-4">
-                        <h2 className="text-[16px] font-semibold text-clay-ink">Existing Departments</h2>
-                        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">The list of all departments in your organization.</p>
-                    </div>
-                    <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-                        <Table>
-                            <TableHeader><TableRow className="border-clay-border hover:bg-transparent"><TableHead className="text-clay-ink-muted">Name</TableHead><TableHead className="text-right text-clay-ink-muted">Actions</TableHead></TableRow></TableHeader>
-                            <TableBody>
-                                {isLoading ? <TableRow className="border-clay-border"><TableCell colSpan={2} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
-                                : departments.length > 0 ? departments.map(dept => (
-                                    <TableRow key={dept._id.toString()} className="border-clay-border">
-                                        <TableCell className="text-[13px] font-medium text-clay-ink">{dept.name}</TableCell>
-                                        <TableCell className="text-right"><DeleteButton department={dept} onDeleted={fetchData} /></TableCell>
-                                    </TableRow>
-                                ))
-                                : <TableRow className="border-clay-border"><TableCell colSpan={2} className="h-24 text-center text-[13px] text-clay-ink-muted">No departments created yet.</TableCell></TableRow>}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </ClayCard>
-            </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
