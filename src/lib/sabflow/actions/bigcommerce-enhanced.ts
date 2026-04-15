@@ -110,3 +110,6 @@ export async function executeBigcommerceEnhancedAction(actionName: string, input
         return { error: err.message || 'Unknown error' };
     }
 }
+
+// Alias with consistent casing for new router entries
+export const executeBigCommerceEnhancedAction = executeBigcommerceEnhancedAction;

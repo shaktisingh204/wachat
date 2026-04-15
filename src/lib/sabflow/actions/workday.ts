@@ -1,16 +1,13 @@
 'use server';
 
-export async function executeWorkdayAction(actionName: string, inputs: any, user: any, logger: any): Promise<{ output?: any; error?: string }> {
+export async function executeWorkdayAction(actionName: string, inputs: any, user: any, logger: any) {
     try {
         const accessToken = String(inputs.accessToken ?? '').trim();
         const tenant = String(inputs.tenant ?? '').trim();
-        const host = String(inputs.host ?? '').trim();
-
         if (!accessToken) throw new Error('accessToken is required.');
         if (!tenant) throw new Error('tenant is required.');
-        if (!host) throw new Error('host is required.');
 
-        const BASE_URL = `https://${host}/ccx/api/v1/${tenant}`;
+        const BASE_URL = `https://${tenant}.workday.com/api/v1`;
 
         const wdFetch = async (method: string, path: string, body?: any) => {
             logger?.log(`[Workday] ${method} ${path}`);
@@ -55,32 +52,22 @@ export async function executeWorkdayAction(actionName: string, inputs: any, user
                 const data = await wdFetch('PUT', `/workers/${workerId}`, body);
                 return { output: { worker: data } };
             }
-            case 'terminateWorker': {
-                const workerId = String(inputs.workerId ?? '').trim();
-                if (!workerId) throw new Error('workerId is required.');
-                const body = {
-                    terminationDate: inputs.terminationDate,
-                    primaryReasonReference: inputs.primaryReasonReference ?? null,
-                };
-                const data = await wdFetch('POST', `/workers/${workerId}/terminate`, body);
-                return { output: { result: data } };
-            }
-            case 'listPositions': {
+            case 'listJobs': {
                 const limit = Number(inputs.limit ?? 100);
                 const offset = Number(inputs.offset ?? 0);
-                const data = await wdFetch('GET', `/positions?limit=${limit}&offset=${offset}`);
-                return { output: { positions: data.data ?? data, total: data.total ?? null } };
+                const data = await wdFetch('GET', `/jobs?limit=${limit}&offset=${offset}`);
+                return { output: { jobs: data.data ?? data, total: data.total ?? null } };
             }
-            case 'getPosition': {
-                const positionId = String(inputs.positionId ?? '').trim();
-                if (!positionId) throw new Error('positionId is required.');
-                const data = await wdFetch('GET', `/positions/${positionId}`);
-                return { output: { position: data } };
+            case 'getJob': {
+                const jobId = String(inputs.jobId ?? '').trim();
+                if (!jobId) throw new Error('jobId is required.');
+                const data = await wdFetch('GET', `/jobs/${jobId}`);
+                return { output: { job: data } };
             }
-            case 'createPosition': {
-                const body = inputs.positionData ?? {};
-                const data = await wdFetch('POST', `/positions`, body);
-                return { output: { position: data } };
+            case 'createJob': {
+                const body = inputs.jobData ?? {};
+                const data = await wdFetch('POST', `/jobs`, body);
+                return { output: { job: data } };
             }
             case 'listOrganizations': {
                 const limit = Number(inputs.limit ?? 100);
@@ -133,11 +120,17 @@ export async function executeWorkdayAction(actionName: string, inputs: any, user
                 const data = await wdFetch('GET', path);
                 return { output: { timeOffRequests: data.data ?? data, total: data.total ?? null } };
             }
+            case 'getTimeOffBalance': {
+                const workerId = String(inputs.workerId ?? '').trim();
+                if (!workerId) throw new Error('workerId is required.');
+                const data = await wdFetch('GET', `/workers/${workerId}/timeOffBalance`);
+                return { output: { balance: data } };
+            }
             default:
-                return { error: `Unknown Workday action: ${actionName}` };
+                return { error: `Action "${actionName}" is not implemented.` };
         }
-    } catch (err: any) {
-        logger?.log(`[Workday] Error: ${err.message}`);
-        return { error: err.message ?? 'Workday action failed.' };
+    } catch (e: any) {
+        logger?.log(`[Workday] Error: ${e.message}`);
+        return { error: e.message || 'Action failed.' };
     }
 }

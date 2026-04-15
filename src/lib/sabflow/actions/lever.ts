@@ -1,6 +1,6 @@
 'use server';
 
-export async function executeLeverAction(actionName: string, inputs: any, user: any, logger: any): Promise<{ output?: any; error?: string }> {
+export async function executeLeverAction(actionName: string, inputs: any, user: any, logger: any) {
     try {
         const apiKey = String(inputs.apiKey ?? '').trim();
         if (!apiKey) throw new Error('apiKey is required.');
@@ -51,6 +51,13 @@ export async function executeLeverAction(actionName: string, inputs: any, user: 
                 const data = await leverFetch('PUT', `/opportunities/${opportunityId}`, body);
                 return { output: { opportunity: data.data ?? data } };
             }
+            case 'archiveOpportunity': {
+                const opportunityId = String(inputs.opportunityId ?? '').trim();
+                if (!opportunityId) throw new Error('opportunityId is required.');
+                const body = { reasonId: inputs.reasonId ?? '' };
+                const data = await leverFetch('POST', `/opportunities/${opportunityId}/archived`, body);
+                return { output: { result: data.data ?? data } };
+            }
             case 'listContacts': {
                 const limit = Number(inputs.limit ?? 100);
                 const offset = inputs.offset ? `&offset=${inputs.offset}` : '';
@@ -63,17 +70,23 @@ export async function executeLeverAction(actionName: string, inputs: any, user: 
                 const data = await leverFetch('GET', `/contacts/${contactId}`);
                 return { output: { contact: data.data ?? data } };
             }
-            case 'createContact': {
-                const body = inputs.contactData ?? {};
-                const data = await leverFetch('POST', `/contacts`, body);
-                return { output: { contact: data.data ?? data } };
+            case 'createNote': {
+                const opportunityId = String(inputs.opportunityId ?? '').trim();
+                if (!opportunityId) throw new Error('opportunityId is required.');
+                const body = {
+                    value: String(inputs.value ?? ''),
+                    secret: inputs.secret ?? false,
+                    score: inputs.score ?? null,
+                    notifyFollowers: inputs.notifyFollowers ?? false,
+                };
+                const data = await leverFetch('POST', `/opportunities/${opportunityId}/notes`, body);
+                return { output: { note: data.data ?? data } };
             }
-            case 'updateContact': {
-                const contactId = String(inputs.contactId ?? '').trim();
-                if (!contactId) throw new Error('contactId is required.');
-                const body = inputs.contactData ?? {};
-                const data = await leverFetch('PUT', `/contacts/${contactId}`, body);
-                return { output: { contact: data.data ?? data } };
+            case 'listNotes': {
+                const opportunityId = String(inputs.opportunityId ?? '').trim();
+                if (!opportunityId) throw new Error('opportunityId is required.');
+                const data = await leverFetch('GET', `/opportunities/${opportunityId}/notes`);
+                return { output: { notes: data.data ?? data, hasNext: data.hasNext ?? false } };
             }
             case 'listPostings': {
                 const limit = Number(inputs.limit ?? 100);
@@ -88,19 +101,13 @@ export async function executeLeverAction(actionName: string, inputs: any, user: 
                 const data = await leverFetch('GET', `/postings/${postingId}`);
                 return { output: { posting: data.data ?? data } };
             }
-            case 'createPosting': {
-                const body = inputs.postingData ?? {};
-                const data = await leverFetch('POST', `/postings`, body);
-                return { output: { posting: data.data ?? data } };
-            }
-            case 'updatePosting': {
+            case 'publishPosting': {
                 const postingId = String(inputs.postingId ?? '').trim();
                 if (!postingId) throw new Error('postingId is required.');
-                const body = inputs.postingData ?? {};
-                const data = await leverFetch('PUT', `/postings/${postingId}`, body);
+                const data = await leverFetch('POST', `/postings/${postingId}/publish`);
                 return { output: { posting: data.data ?? data } };
             }
-            case 'archivePosting': {
+            case 'closePosting': {
                 const postingId = String(inputs.postingId ?? '').trim();
                 if (!postingId) throw new Error('postingId is required.');
                 const data = await leverFetch('POST', `/postings/${postingId}/close`);
@@ -117,10 +124,10 @@ export async function executeLeverAction(actionName: string, inputs: any, user: 
                 return { output: { users: data.data ?? data, hasNext: data.hasNext ?? false } };
             }
             default:
-                return { error: `Unknown Lever action: ${actionName}` };
+                return { error: `Action "${actionName}" is not implemented.` };
         }
-    } catch (err: any) {
-        logger?.log(`[Lever] Error: ${err.message}`);
-        return { error: err.message ?? 'Lever action failed.' };
+    } catch (e: any) {
+        logger?.log(`[Lever] Error: ${e.message}`);
+        return { error: e.message || 'Action failed.' };
     }
 }

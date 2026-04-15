@@ -830,6 +830,9 @@ import { executeTypeformEnhancedAction } from './typeform-enhanced';
 import { executeJotFormEnhancedAction } from './jotform-enhanced';
 import { executeGoogleFormsEnhancedAction } from './googleforms-enhanced';
 
+// Form & Survey Tools Enhanced
+import { executeTallyFormsAction } from './tally-forms';
+
 // Email Validation / Verification / Data Enrichment / Security
 import { executeZeroBounceAction } from './zerobounce';
 import { executeNeverBounceAction } from './neverbounce';
@@ -862,6 +865,9 @@ import { executeHarvestEnhancedAction } from './harvest-enhanced';
 import { executeGitlabEnhancedAction } from './gitlab-enhanced';
 import { executeBitbucketEnhancedAction } from './bitbucket-enhanced';
 import { executeGiteaAction } from './gitea';
+// Version Control Platforms Enhanced
+import { executeGitHubEnhancedAction } from './github-enhanced';
+import { executeAzureDevOpsEnhancedAction } from './azure-devops-enhanced';
 import { executeCodecovAction } from './codecov';
 import { executeSonarQubeAction } from './sonarqube';
 import { executeAwsCognitoAction } from './aws-cognito';
@@ -915,6 +921,10 @@ import { executeHelloSignAction } from './hellosign';
 import { executeSignRequestAction } from './signrequest';
 import { executeSignNowEnhancedAction } from './signnow-enhanced';
 
+// E-Signature Platforms Enhanced
+import { executeAdobeSignEnhancedAction } from './adobe-sign-enhanced';
+import { executeFormstackDocumentsAction } from './formstack-documents';
+
 // Asian Messaging Platforms
 import { executeFeishuAction } from './feishu';
 import { executeDingTalkAction } from './dingtalk';
@@ -928,6 +938,9 @@ import { executeGoogleSheetsEnhancedAction } from './google-sheets-enhanced';
 import { executeGoogleCalendarEnhancedAction } from './google-calendar-enhanced';
 import { executeGmailEnhancedAction } from './gmail-enhanced';
 import { executeGoogleTasksAction as executeGoogleTasksEnhancedAction } from './google-tasks';
+
+// Google Workspace Enhanced
+import { executeGoogleGmailEnhancedAction } from './google-gmail-enhanced';
 
 // Video Hosting Platforms
 import { executeWistiaAction } from './wistia';
@@ -966,6 +979,7 @@ import { executeBaserowAction } from './baserow';
 // DevOps / CI-CD / Atlassian (new batch)
 import { executeJiraEnhancedAction } from './jira-enhanced';
 import { executeConfluenceEnhancedAction } from './confluence-enhanced';
+import { executeNotionEnhancedAction } from './notion-enhanced';
 import { executeAzureDevOpsAction as executeAzureDevOpsNewAction } from './azure-devops';
 import { executeBambooCiAction } from './bamboo-ci';
 import { executeOctopusDeployAction } from './octopus-deploy';
@@ -1121,6 +1135,10 @@ import { executeBigQueryEnhancedAction } from './bigquery-enhanced';
 import { executeSnowflakeEnhancedAction } from './snowflake-enhanced';
 import { executeClickHouseAction } from './clickhouse';
 import { executeSingleStoreAction } from './singlestore';
+
+// Data Warehouses Enhanced
+import { executeDatabricksEnhancedAction } from './databricks-enhanced';
+import { executeRedshiftAPIAction } from './redshift-api';
 
 // CMS Enhanced (new batch)
 import { executeContentfulEnhancedAction } from './contentful-enhanced';
@@ -1286,10 +1304,109 @@ import { executeVendastaAction } from './vendasta';
 import { executeMedusaEnhancedAction } from './medusa-enhanced';
 import { executeSaleorEnhancedAction } from './saleor-enhanced';
 
+// CRM Platforms Enhanced
+import { executeHubSpotEnhancedAction } from './hubspot-enhanced';
+import { executeZohoCRMEnhancedAction } from './zoho-crm-enhanced';
+
+// Project Management Enhanced
+import { executeWrikeEnhancedAction } from './wrike-enhanced';
+
 // Customer Support Platforms
 import { executeIntercomV3Action } from './intercom-v3';
 import { executeFrontAction } from './front';
 import { executeDixaAction } from './dixa';
+
+// Data Integration Platforms
+import { executeAzureDataFactoryAction } from './azure-data-factory';
+import { executeGoogleCloudDataflowAction } from './google-cloud-dataflow';
+import { executeFivetranEnhancedAction } from './fivetran-enhanced';
+import { executeStitchDataAction } from './stitch-data';
+
+// Payment Processing Enhanced
+import { executeStripeEnhancedAction } from './stripe-enhanced';
+
+// Communications Platforms Enhanced
+import { executeTwilioEnhancedAction as executeTwilioEnhancedActionNew } from './twilio-enhanced';
+import { executeVonageEnhancedAction } from './vonage-enhanced';
+
+// Team Messaging Platforms
+import { executeLarkFeishuAction } from './lark-feishu';
+import { executeFlockAction } from './flock';
+import { executePumbleAction } from './pumble';
+import { executeChantyAction } from './chanty';
+import { executeRocketChatAction } from './rocket-chat';
+
+// E-Commerce Platforms Enhanced
+import { executeShopifyEnhancedAction } from './shopify-enhanced';
+import { executeWooCommerceV3Action } from './woocommerce-v3';
+import { executeBigCommerceEnhancedAction } from './bigcommerce-enhanced';
+import { executeSquarespaceCommerceAction } from './squarespace-commerce';
+import { executeEcwidEnhancedAction } from './ecwid-enhanced';
+// Cloud Hosting Platforms Enhanced
+import { executeCloudflareEnhancedAction } from './cloudflare-enhanced';
+import { executeNetlifyEnhancedAction } from './netlify-enhanced';
+
+// AWS Services Enhanced
+import { executeAWSLambdaEnhancedAction } from './aws-lambda-enhanced';
+import { executeAWSS3EnhancedAction } from './aws-s3-enhanced';
+import { executeAWSSNSEnhancedAction } from './aws-sns-enhanced';
+import { executeAWSSQSEnhancedAction } from './aws-sqs-enhanced';
+
+// Marketing Automation Platforms
+import { executeSalesforceMarketingCloudAction } from './salesforce-marketing-cloud';
+import { executeMarketoEnhancedAction } from './marketo-enhanced';
+import { executeEloquaAction } from './eloqua';
+
+// Microsoft 365 Enhanced
+import { executeMicrosoftTeamsEnhancedAction } from './microsoft-teams-enhanced';
+import { executeOutlookEnhancedAction } from './outlook-enhanced';
+import { executeSharePointEnhancedAction } from './sharepoint-enhanced';
+import { executeOneDriveEnhancedAction } from './onedrive-enhanced';
+import { executeAzureActiveDirectoryAction } from './azure-active-directory';
+
+// Database REST APIs
+import { executePostgresAPIAction } from './postgres-api';
+import { executeMySQLAPIAction } from './mysql-api';
+import { executeRedisEnhancedAction } from './redis-enhanced';
+
+// AI/LLM Providers Enhanced
+import { executeOpenAiEnhancedAction as executeOpenAIEnhancedAction } from './openai-enhanced';
+import { executeTogetherAiAction as executeTogetherAiActionNew } from './together-ai';
+import { executeGroqAction } from './groq';
+
+// Low-Code & Database Platforms
+import { executeAirtableEnhancedAction } from './airtable-enhanced';
+import { executeSmartsheetEnhancedAction } from './smartsheet-enhanced';
+import { executeNocoDBAction } from './nocodb';
+import { executeAppSheetAction } from './appsheet';
+
+// Video & Webinar Platforms Enhanced
+import { executeLivestormAction } from './livestorm';
+import { executeDemioAction } from './demio';
+
+// AWS Services Extended
+import { executeAWSDynamoDBAction } from './aws-dynamodb';
+import { executeAwsCognitoAction as executeAWSCognitoAction } from './aws-cognito';
+import { executeAwsCloudWatchAction as executeAWSCloudWatchAction } from './aws-cloudwatch';
+import { executeAWSEC2Action } from './aws-ec2';
+import { executeAwsEcsAction as executeAWSECSAction } from './aws-ecs';
+
+// Help Desk & Ticketing Systems
+import { executeKayakoAction } from './kayako';
+
+// Scheduling & Calendar Tools
+import { executeAcuitySchedulingAction } from './acuity-scheduling';
+import { executeCalComAction } from './cal-com';
+import { executeYouCanBookMeAction } from './youcanbook-me';
+
+// Incident Management & Monitoring
+import { executeOpsgenieEnhancedAction } from './opsgenie-enhanced';
+import { executeVictorOpsAction } from './victorops';
+import { executeIncidentIOAction } from './incident-io';
+
+// Accounting & Finance Platforms Enhanced
+import { executeSageAccountingAction } from './sage-accounting';
+import { executeWaveAccountingAction as executeWaveAccountingEnhancedAction } from './wave-accounting';
 
 function getValueFromPath(obj: any, path: string): any {
     if (!path || typeof path !== 'string') return undefined;
@@ -2824,8 +2941,10 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'asana_enhanced':
             return await executeAsanaEnhancedAction(actionName, inputs, user, logger);
         case 'todoist_enhanced':
+        case 'todoist-enhanced':
             return await executeTodoistEnhancedAction(actionName, inputs, user, logger);
         case 'trello_enhanced':
+        case 'trello-enhanced':
             return await executeTrelloEnhancedAction(actionName, inputs, user, logger);
         case 'meistertask':
         case 'meister_task':
@@ -3158,16 +3277,22 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
 
         // Survey / Form Platforms (enhanced batch)
         case 'surveymonkey_enhanced':
+        case 'surveymonkey-enhanced':
             return await executeSurveyMonkeyEnhancedAction(actionName, interpolatedInputs, user, logger);
         case 'qualtrics':
             return await executeQualtricsAction(actionName, interpolatedInputs, user, logger);
         case 'typeform_enhanced':
+        case 'typeform-enhanced':
             return await executeTypeformEnhancedAction(actionName, interpolatedInputs, user, logger);
         case 'jotform_enhanced':
+        case 'jotform-enhanced':
             return await executeJotFormEnhancedAction(actionName, interpolatedInputs, user, logger);
         case 'googleforms_enhanced':
         case 'google_forms_enhanced':
             return await executeGoogleFormsEnhancedAction(actionName, interpolatedInputs, user, logger);
+        case 'tally_forms':
+        case 'tally-forms':
+            return await executeTallyFormsAction(actionName, interpolatedInputs, user, logger);
 
         // Customer Success / CS Platforms
         case 'gainsight':
@@ -3265,10 +3390,18 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'appsync':
             return await executeAwsAppSyncAction(actionName, interpolatedInputs, user, logger);
 
+        case 'github_enhanced':
+        case 'github-enhanced':
+            return executeGitHubEnhancedAction(actionName, inputs, user, logger);
         case 'gitlab_enhanced':
+        case 'gitlab-enhanced':
             return await executeGitlabEnhancedAction(actionName, inputs, user, logger);
         case 'bitbucket_enhanced':
+        case 'bitbucket-enhanced':
             return await executeBitbucketEnhancedAction(actionName, inputs, user, logger);
+        case 'azure_devops_enhanced':
+        case 'azure-devops-enhanced':
+            return executeAzureDevOpsEnhancedAction(actionName, inputs, user, logger);
         case 'gitea':
             return await executeGiteaAction(actionName, inputs, user, logger);
         case 'codecov':
@@ -3358,7 +3491,11 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'baserow': return executeBaserowAction(actionName, inputs, user, logger);
 
         case 'jira_enhanced': return executeJiraEnhancedAction(actionName, inputs, user, logger);
+        case 'jira-enhanced': return executeJiraEnhancedAction(actionName, inputs, user, logger);
         case 'confluence_enhanced': return executeConfluenceEnhancedAction(actionName, inputs, user, logger);
+        case 'confluence-enhanced': return executeConfluenceEnhancedAction(actionName, inputs, user, logger);
+        case 'notion_enhanced': return executeNotionEnhancedAction(actionName, inputs, user, logger);
+        case 'notion-enhanced': return executeNotionEnhancedAction(actionName, inputs, user, logger);
         case 'azure_devops': return executeAzureDevOpsNewAction(actionName, inputs, user, logger);
         case 'azure-devops': return executeAzureDevOpsNewAction(actionName, inputs, user, logger);
         case 'bamboo_ci': return executeBambooCiAction(actionName, inputs, user, logger);
@@ -3676,11 +3813,17 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'lago': return executeLagoAction(actionName, inputs, user, logger);
 
         case 'bigquery_enhanced': return executeBigQueryEnhancedAction(actionName, inputs, user, logger);
+        case 'bigquery-enhanced': return executeBigQueryEnhancedAction(actionName, inputs, user, logger);
         case 'snowflake_enhanced': return executeSnowflakeEnhancedAction(actionName, inputs, user, logger);
+        case 'snowflake-enhanced': return executeSnowflakeEnhancedAction(actionName, inputs, user, logger);
         case 'clickhouse': return executeClickHouseAction(actionName, inputs, user, logger);
         case 'click_house': return executeClickHouseAction(actionName, inputs, user, logger);
         case 'singlestore': return executeSingleStoreAction(actionName, inputs, user, logger);
         case 'single_store': return executeSingleStoreAction(actionName, inputs, user, logger);
+        case 'databricks_enhanced': return executeDatabricksEnhancedAction(actionName, inputs, user, logger);
+        case 'databricks-enhanced': return executeDatabricksEnhancedAction(actionName, inputs, user, logger);
+        case 'redshift_api': return executeRedshiftAPIAction(actionName, inputs, user, logger);
+        case 'redshift-api': return executeRedshiftAPIAction(actionName, inputs, user, logger);
 
         case 'bamboohr_enhanced': return executeBamboohrEnhancedAction(actionName, inputs, user, logger);
         case 'workday': return executeWorkdayAction(actionName, inputs, user, logger);
@@ -3790,11 +3933,16 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         // CDN / Edge / Hosting Platforms (new batch)
         case 'cloudflare_api': return executeCloudflareApiAction(actionName, inputs, user, logger);
         case 'cloudflare-api': return executeCloudflareApiAction(actionName, inputs, user, logger);
+        case 'cloudflare_enhanced': return executeCloudflareEnhancedAction(actionName, inputs, user, logger);
+        case 'cloudflare-enhanced': return executeCloudflareEnhancedAction(actionName, inputs, user, logger);
+        case 'netlify_enhanced': return executeNetlifyEnhancedAction(actionName, inputs, user, logger);
+        case 'netlify-enhanced': return executeNetlifyEnhancedAction(actionName, inputs, user, logger);
         case 'bunnycdn': return executeBunnyCDNAction(actionName, inputs, user, logger);
         case 'bunny_cdn': return executeBunnyCDNAction(actionName, inputs, user, logger);
         case 'akamai': return executeAkamaiAction(actionName, inputs, user, logger);
         case 'render_enhanced': return executeRenderEnhancedAction(actionName, inputs, user, logger);
         case 'railway_enhanced': return executeRailwayEnhancedAction(actionName, inputs, user, logger);
+        case 'railway-enhanced': return executeRailwayEnhancedAction(actionName, inputs, user, logger);
 
         case 'n8n_api': return executeN8NApiAction(actionName, inputs, user, logger);
         case 'n8n-api': return executeN8NApiAction(actionName, inputs, user, logger);
@@ -3911,6 +4059,162 @@ export async function executeSabFlowAction(executionId: ObjectId, node: SabFlowN
         case 'intercom-v3': return executeIntercomV3Action(actionName, inputs, user, logger);
         case 'front': return executeFrontAction(actionName, inputs, user, logger);
         case 'dixa': return executeDixaAction(actionName, inputs, user, logger);
+
+        case 'aws_glue': return executeAwsGlueAction(actionName, inputs, user, logger);
+        case 'aws-glue': return executeAwsGlueAction(actionName, inputs, user, logger);
+        case 'azure_data_factory': return executeAzureDataFactoryAction(actionName, inputs, user, logger);
+        case 'azure-data-factory': return executeAzureDataFactoryAction(actionName, inputs, user, logger);
+        case 'google_cloud_dataflow': return executeGoogleCloudDataflowAction(actionName, inputs, user, logger);
+        case 'google-cloud-dataflow': return executeGoogleCloudDataflowAction(actionName, inputs, user, logger);
+        case 'fivetran_enhanced': return executeFivetranEnhancedAction(actionName, inputs, user, logger);
+        case 'fivetran-enhanced': return executeFivetranEnhancedAction(actionName, inputs, user, logger);
+        case 'stitch_data': return executeStitchDataAction(actionName, inputs, user, logger);
+        case 'stitch-data': return executeStitchDataAction(actionName, inputs, user, logger);
+
+        case 'wrike_enhanced': return executeWrikeEnhancedAction(actionName, inputs, user, logger);
+        case 'wrike-enhanced': return executeWrikeEnhancedAction(actionName, inputs, user, logger);
+
+        case 'salesforce-enhanced': return executeSalesforceEnhancedAction(actionName, inputs, user, logger);
+        case 'hubspot_enhanced': return executeHubSpotEnhancedAction(actionName, inputs, user, logger);
+        case 'hubspot-enhanced': return executeHubSpotEnhancedAction(actionName, inputs, user, logger);
+        case 'pipedrive-enhanced': return executePipedriveEnhancedAction(actionName, inputs, user, logger);
+        case 'zoho-crm-enhanced': return executeZohoCRMEnhancedAction(actionName, inputs, user, logger);
+
+        case 'lark_feishu': return executeLarkFeishuAction(actionName, inputs, user, logger);
+        case 'lark-feishu': return executeLarkFeishuAction(actionName, inputs, user, logger);
+        case 'flock': return executeFlockAction(actionName, inputs, user, logger);
+        case 'pumble': return executePumbleAction(actionName, inputs, user, logger);
+        case 'chanty': return executeChantyAction(actionName, inputs, user, logger);
+        case 'rocket_chat': return executeRocketChatAction(actionName, inputs, user, logger);
+        case 'rocket-chat': return executeRocketChatAction(actionName, inputs, user, logger);
+
+        // Communications Platforms Enhanced (new)
+        case 'twilio-enhanced': return executeTwilioEnhancedActionNew(actionName, inputs, user, logger);
+        case 'vonage-enhanced': return executeVonageEnhancedAction(actionName, inputs, user, logger);
+        case 'plivo-enhanced': return executePlivoEnhancedAction(actionName, inputs, user, logger);
+        case 'messagebird-enhanced': return executeMessageBirdEnhancedAction(actionName, inputs, user, logger);
+
+        // Payment Processing Enhanced
+        case 'stripe_enhanced': return executeStripeEnhancedAction(actionName, inputs, user, logger);
+        case 'stripe-enhanced': return executeStripeEnhancedAction(actionName, inputs, user, logger);
+        case 'square-enhanced': return executeSquareEnhancedAction(actionName, inputs, user, logger);
+        case 'paypal-enhanced': return executePaypalEnhancedAction(actionName, inputs, user, logger);
+        case 'adyen-enhanced': return executeAdyenEnhancedAction(actionName, inputs, user, logger);
+
+        case 'shopify_enhanced': return executeShopifyEnhancedAction(actionName, inputs, user, logger);
+        case 'shopify-enhanced': return executeShopifyEnhancedAction(actionName, inputs, user, logger);
+        case 'woocommerce_v3': return executeWooCommerceV3Action(actionName, inputs, user, logger);
+        case 'woocommerce-v3': return executeWooCommerceV3Action(actionName, inputs, user, logger);
+        case 'bigcommerce_enhanced': return executeBigCommerceEnhancedAction(actionName, inputs, user, logger);
+        case 'bigcommerce-enhanced': return executeBigCommerceEnhancedAction(actionName, inputs, user, logger);
+        case 'squarespace_commerce': return executeSquarespaceCommerceAction(actionName, inputs, user, logger);
+        case 'squarespace-commerce': return executeSquarespaceCommerceAction(actionName, inputs, user, logger);
+        case 'ecwid_enhanced': return executeEcwidEnhancedAction(actionName, inputs, user, logger);
+        case 'ecwid-enhanced': return executeEcwidEnhancedAction(actionName, inputs, user, logger);
+
+        // Google Workspace Enhanced
+        case 'google_calendar_enhanced': return executeGoogleCalendarEnhancedAction(actionName, inputs, user, logger);
+        case 'google-calendar-enhanced': return executeGoogleCalendarEnhancedAction(actionName, inputs, user, logger);
+        case 'google_drive_enhanced': return executeGoogleDriveEnhancedAction(actionName, inputs, user, logger);
+        case 'google-drive-enhanced': return executeGoogleDriveEnhancedAction(actionName, inputs, user, logger);
+        case 'google_sheets_enhanced': return executeGoogleSheetsEnhancedAction(actionName, inputs, user, logger);
+        case 'google-sheets-enhanced': return executeGoogleSheetsEnhancedAction(actionName, inputs, user, logger);
+        case 'google_gmail_enhanced': return executeGoogleGmailEnhancedAction(actionName, inputs, user, logger);
+        case 'google-gmail-enhanced': return executeGoogleGmailEnhancedAction(actionName, inputs, user, logger);
+        case 'google_meet': return executeGoogleMeetAction(actionName, inputs, user, logger);
+        case 'google-meet': return executeGoogleMeetAction(actionName, inputs, user, logger);
+
+        case 'aws_lambda_enhanced': return executeAWSLambdaEnhancedAction(actionName, inputs, user, logger);
+        case 'aws-lambda-enhanced': return executeAWSLambdaEnhancedAction(actionName, inputs, user, logger);
+        case 'aws_s3_enhanced': return executeAWSS3EnhancedAction(actionName, inputs, user, logger);
+        case 'aws-s3-enhanced': return executeAWSS3EnhancedAction(actionName, inputs, user, logger);
+        case 'aws_sns_enhanced': return executeAWSSNSEnhancedAction(actionName, inputs, user, logger);
+        case 'aws-sns-enhanced': return executeAWSSNSEnhancedAction(actionName, inputs, user, logger);
+        case 'aws_sqs_enhanced': return executeAWSSQSEnhancedAction(actionName, inputs, user, logger);
+        case 'aws-sqs-enhanced': return executeAWSSQSEnhancedAction(actionName, inputs, user, logger);
+
+        case 'microsoft_teams_enhanced': return executeMicrosoftTeamsEnhancedAction(actionName, inputs, user, logger);
+        case 'microsoft-teams-enhanced': return executeMicrosoftTeamsEnhancedAction(actionName, inputs, user, logger);
+        case 'outlook_enhanced': return executeOutlookEnhancedAction(actionName, inputs, user, logger);
+        case 'outlook-enhanced': return executeOutlookEnhancedAction(actionName, inputs, user, logger);
+        case 'sharepoint_enhanced': return executeSharePointEnhancedAction(actionName, inputs, user, logger);
+        case 'sharepoint-enhanced': return executeSharePointEnhancedAction(actionName, inputs, user, logger);
+        case 'onedrive_enhanced': return executeOneDriveEnhancedAction(actionName, inputs, user, logger);
+        case 'onedrive-enhanced': return executeOneDriveEnhancedAction(actionName, inputs, user, logger);
+        case 'azure_active_directory': return executeAzureActiveDirectoryAction(actionName, inputs, user, logger);
+        case 'azure-active-directory': return executeAzureActiveDirectoryAction(actionName, inputs, user, logger);
+
+        case 'together-ai': return executeTogetherAiActionNew(actionName, inputs, user, logger);
+        case 'groq': return executeGroqAction(actionName, inputs, user, logger);
+
+        // Video & Webinar Platforms Enhanced
+        case 'zoom_enhanced': return executeZoomEnhancedAction(actionName, inputs, user, logger);
+        case 'zoom-enhanced': return executeZoomEnhancedAction(actionName, inputs, user, logger);
+        case 'webex_enhanced': return executeWebexEnhancedAction(actionName, inputs, user, logger);
+        case 'webex-enhanced': return executeWebexEnhancedAction(actionName, inputs, user, logger);
+        case 'gotowebinar': return executeGotowebinarAction(actionName, inputs, user, logger);
+        case 'goto_webinar': return executeGotowebinarAction(actionName, inputs, user, logger);
+        case 'livestorm': return executeLivestormAction(actionName, inputs, user, logger);
+        case 'demio': return executeDemioAction(actionName, inputs, user, logger);
+
+        // Help Desk & Ticketing Systems
+        case 'kayako': return executeKayakoAction(actionName, inputs, user, logger);
+        case 'helpscout-enhanced': return executeHelpScoutEnhancedAction(actionName, inputs, user, logger);
+
+
+        // Database REST APIs
+        case 'postgres_api': return executePostgresAPIAction(actionName, inputs, user, logger);
+        case 'postgres-api': return executePostgresAPIAction(actionName, inputs, user, logger);
+        case 'mysql_api': return executeMySQLAPIAction(actionName, inputs, user, logger);
+        case 'mysql-api': return executeMySQLAPIAction(actionName, inputs, user, logger);
+        case 'mongodb_atlas': return executeMongodbAtlasAction(actionName, inputs, user, logger);
+        case 'mongodb-atlas': return executeMongodbAtlasAction(actionName, inputs, user, logger);
+        case 'redis_enhanced': return executeRedisEnhancedAction(actionName, inputs, user, logger);
+        case 'redis-enhanced': return executeRedisEnhancedAction(actionName, inputs, user, logger);
+        case 'elasticsearch_enhanced': return executeElasticsearchEnhancedAction(actionName, inputs, user, logger);
+        case 'elasticsearch-enhanced': return executeElasticsearchEnhancedAction(actionName, inputs, user, logger);
+
+
+        // E-Signature Platforms Enhanced
+        case 'docusign_enhanced': return executeDocusignEnhancedAction(actionName, inputs, user, logger);
+        case 'docusign-enhanced': return executeDocusignEnhancedAction(actionName, inputs, user, logger);
+        case 'pandadoc_enhanced': return executePandadocEnhancedAction(actionName, inputs, user, logger);
+        case 'pandadoc-enhanced': return executePandadocEnhancedAction(actionName, inputs, user, logger);
+        case 'adobe_sign_enhanced': return executeAdobeSignEnhancedAction(actionName, inputs, user, logger);
+        case 'adobe-sign-enhanced': return executeAdobeSignEnhancedAction(actionName, inputs, user, logger);
+        case 'dropbox_sign': return executeDropboxSignAction(actionName, inputs, user, logger);
+        case 'dropbox-sign': return executeDropboxSignAction(actionName, inputs, user, logger);
+        case 'formstack_documents': return executeFormstackDocumentsAction(actionName, inputs, user, logger);
+        case 'formstack-documents': return executeFormstackDocumentsAction(actionName, inputs, user, logger);
+
+        case 'calendly-enhanced': return executeCalendlyEnhancedAction(actionName, inputs, user, logger);
+        case 'acuity_scheduling': return executeAcuitySchedulingAction(actionName, inputs, user, logger);
+        case 'acuity-scheduling': return executeAcuitySchedulingAction(actionName, inputs, user, logger);
+        case 'cal_com': return executeCalComAction(actionName, inputs, user, logger);
+        case 'cal-com': return executeCalComAction(actionName, inputs, user, logger);
+        case 'youcanbook_me': return executeYouCanBookMeAction(actionName, inputs, user, logger);
+        case 'youcanbook-me': return executeYouCanBookMeAction(actionName, inputs, user, logger);
+
+        case 'salesforce_marketing_cloud_enhanced': return executeSalesforceMarketingCloudAction(actionName, inputs, user, logger);
+        case 'salesforce-marketing-cloud': return executeSalesforceMarketingCloudAction(actionName, inputs, user, logger);
+        case 'marketo_enhanced': return executeMarketoEnhancedAction(actionName, inputs, user, logger);
+        case 'marketo-enhanced': return executeMarketoEnhancedAction(actionName, inputs, user, logger);
+        case 'eloqua': return executeEloquaAction(actionName, inputs, user, logger);
+        case 'oracle_eloqua': return executeEloquaAction(actionName, inputs, user, logger);
+
+        // CMS Platforms Enhanced
+        case 'sanity-enhanced': return executeSanityEnhancedAction(actionName, inputs, user, logger);
+        case 'strapi-enhanced': return executeStrapienHancedAction(actionName, inputs, user, logger);
+        case 'ghost-cms': return executeGhostCmsAction(actionName, inputs, user, logger);
+
+        // Accounting & Finance Platforms Enhanced
+        case 'quickbooks-enhanced': return executeQuickbooksEnhancedAction(actionName, inputs, user, logger);
+        case 'xero-enhanced': return executeXeroEnhancedAction(actionName, inputs, user, logger);
+        case 'freshbooks-enhanced': return executeFreshBooksEnhancedAction(actionName, inputs, user, logger);
+        case 'sage_accounting_enhanced': return executeSageAccountingAction(actionName, inputs, user, logger);
+        case 'sage-accounting': return executeSageAccountingAction(actionName, inputs, user, logger);
+        case 'wave_accounting_enhanced': return executeWaveAccountingEnhancedAction(actionName, inputs, user, logger);
+        case 'wave-accounting': return executeWaveAccountingEnhancedAction(actionName, inputs, user, logger);
 
         default:
             logger.log(`Error: Action app "${appId}" is not implemented.`);

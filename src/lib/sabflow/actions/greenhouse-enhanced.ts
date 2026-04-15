@@ -2,50 +2,67 @@
 
 export async function executeGreenhouseEnhancedAction(actionName: string, inputs: any, user: any, logger: any) {
     try {
-        const baseUrl = 'https://harvest.greenhouse.io/v1';
-        const encoded = Buffer.from(inputs.apiKey + ':').toString('base64');
+        const apiKey = String(inputs.apiKey ?? '').trim();
+        if (!apiKey) throw new Error('apiKey is required.');
 
+        const BASE_URL = 'https://harvest.greenhouse.io/v1';
+        const encoded = Buffer.from(`${apiKey}:`).toString('base64');
         const headers: Record<string, string> = {
-            'Authorization': `Basic ${encoded}`,
+            Authorization: `Basic ${encoded}`,
             'Content-Type': 'application/json',
-            'On-Behalf-Of': inputs.onBehalfOf || '',
         };
-
-        if (!inputs.onBehalfOf) {
-            delete headers['On-Behalf-Of'];
-        }
-
-        let url = '';
-        let method = 'GET';
-        let body: any = undefined;
+        if (inputs.onBehalfOf) headers['On-Behalf-Of'] = String(inputs.onBehalfOf);
 
         switch (actionName) {
-            case 'listJobs': {
+            case 'listCandidates': {
                 const params = new URLSearchParams();
-                if (inputs.status) params.set('status', inputs.status);
+                if (inputs.email) params.set('email', inputs.email);
                 if (inputs.perPage) params.set('per_page', String(inputs.perPage));
                 if (inputs.page) params.set('page', String(inputs.page));
-                url = `${baseUrl}/jobs?${params.toString()}`;
-                break;
+                const res = await fetch(`${BASE_URL}/candidates?${params}`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { candidates: data } };
             }
-            case 'getJob': {
-                url = `${baseUrl}/jobs/${inputs.jobId}`;
-                break;
+            case 'getCandidate': {
+                const candidateId = String(inputs.candidateId ?? '').trim();
+                if (!candidateId) throw new Error('candidateId is required.');
+                const res = await fetch(`${BASE_URL}/candidates/${candidateId}`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { candidate: data } };
             }
-            case 'createJob': {
-                method = 'POST';
-                url = `${baseUrl}/jobs`;
-                body = JSON.stringify({
-                    template_job_id: inputs.templateJobId,
-                    number_of_openings: inputs.numberOfOpenings || 1,
-                    job_post_name: inputs.jobPostName,
-                    job_name: inputs.jobName,
-                    department_id: inputs.departmentId,
-                    office_ids: inputs.officeIds || [],
-                    requisition_id: inputs.requisitionId,
-                    opening_ids: inputs.openingIds || [],
+            case 'createCandidate': {
+                const body = JSON.stringify({
+                    first_name: inputs.firstName,
+                    last_name: inputs.lastName,
+                    email_addresses: inputs.emailAddresses ?? [],
+                    phone_numbers: inputs.phoneNumbers ?? [],
+                    addresses: inputs.addresses ?? [],
+                    external_id: inputs.externalId,
+                    social_media_addresses: inputs.socialMediaAddresses ?? [],
+                    website_addresses: inputs.websiteAddresses ?? [],
+                    tags: inputs.tags ?? [],
                 });
-                break;
+                const res = await fetch(`${BASE_URL}/candidates`, { method: 'POST', headers, body });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { candidate: data } };
+            }
+            case 'updateCandidate': {
+                const candidateId = String(inputs.candidateId ?? '').trim();
+                if (!candidateId) throw new Error('candidateId is required.');
+                const body = JSON.stringify({
+                    first_name: inputs.firstName,
+                    last_name: inputs.lastName,
+                    email_addresses: inputs.emailAddresses,
+                    phone_numbers: inputs.phoneNumbers,
+                    tags: inputs.tags,
+                });
+                const res = await fetch(`${BASE_URL}/candidates/${candidateId}`, { method: 'PATCH', headers, body });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { candidate: data } };
             }
             case 'listApplications': {
                 const params = new URLSearchParams();
@@ -53,117 +70,115 @@ export async function executeGreenhouseEnhancedAction(actionName: string, inputs
                 if (inputs.status) params.set('status', inputs.status);
                 if (inputs.perPage) params.set('per_page', String(inputs.perPage));
                 if (inputs.page) params.set('page', String(inputs.page));
-                url = `${baseUrl}/applications?${params.toString()}`;
-                break;
+                const res = await fetch(`${BASE_URL}/applications?${params}`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { applications: data } };
             }
             case 'getApplication': {
-                url = `${baseUrl}/applications/${inputs.applicationId}`;
-                break;
+                const applicationId = String(inputs.applicationId ?? '').trim();
+                if (!applicationId) throw new Error('applicationId is required.');
+                const res = await fetch(`${BASE_URL}/applications/${applicationId}`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { application: data } };
             }
-            case 'advanceApplication': {
-                method = 'POST';
-                url = `${baseUrl}/applications/${inputs.applicationId}/advance`;
-                body = JSON.stringify({
-                    from_stage_id: inputs.fromStageId,
-                });
-                break;
-            }
-            case 'rejectApplication': {
-                method = 'POST';
-                url = `${baseUrl}/applications/${inputs.applicationId}/reject`;
-                body = JSON.stringify({
-                    rejection_reason_id: inputs.rejectionReasonId,
-                    rejection_email: inputs.rejectionEmail || null,
-                    notes: inputs.notes,
-                });
-                break;
-            }
-            case 'listCandidates': {
+            case 'listJobs': {
                 const params = new URLSearchParams();
-                if (inputs.email) params.set('email', inputs.email);
+                if (inputs.status) params.set('status', inputs.status);
                 if (inputs.perPage) params.set('per_page', String(inputs.perPage));
                 if (inputs.page) params.set('page', String(inputs.page));
-                url = `${baseUrl}/candidates?${params.toString()}`;
-                break;
+                const res = await fetch(`${BASE_URL}/jobs?${params}`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { jobs: data } };
             }
-            case 'getCandidate': {
-                url = `${baseUrl}/candidates/${inputs.candidateId}`;
-                break;
+            case 'getJob': {
+                const jobId = String(inputs.jobId ?? '').trim();
+                if (!jobId) throw new Error('jobId is required.');
+                const res = await fetch(`${BASE_URL}/jobs/${jobId}`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { job: data } };
             }
-            case 'createCandidate': {
-                method = 'POST';
-                url = `${baseUrl}/candidates`;
-                body = JSON.stringify({
-                    first_name: inputs.firstName,
-                    last_name: inputs.lastName,
-                    email_addresses: inputs.emailAddresses || [],
-                    phone_numbers: inputs.phoneNumbers || [],
-                    addresses: inputs.addresses || [],
-                    external_id: inputs.externalId,
-                    social_media_addresses: inputs.socialMediaAddresses || [],
-                    website_addresses: inputs.websiteAddresses || [],
-                    tags: inputs.tags || [],
+            case 'createJob': {
+                const body = JSON.stringify({
+                    template_job_id: inputs.templateJobId,
+                    number_of_openings: inputs.numberOfOpenings ?? 1,
+                    job_post_name: inputs.jobPostName,
+                    job_name: inputs.jobName,
+                    department_id: inputs.departmentId,
+                    office_ids: inputs.officeIds ?? [],
+                    requisition_id: inputs.requisitionId,
+                    opening_ids: inputs.openingIds ?? [],
                 });
-                break;
+                const res = await fetch(`${BASE_URL}/jobs`, { method: 'POST', headers, body });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { job: data } };
             }
-            case 'updateCandidate': {
-                method = 'PATCH';
-                url = `${baseUrl}/candidates/${inputs.candidateId}`;
-                body = JSON.stringify({
-                    first_name: inputs.firstName,
-                    last_name: inputs.lastName,
-                    email_addresses: inputs.emailAddresses,
-                    phone_numbers: inputs.phoneNumbers,
-                    tags: inputs.tags,
-                });
-                break;
+            case 'listJobStages': {
+                const jobId = String(inputs.jobId ?? '').trim();
+                if (!jobId) throw new Error('jobId is required.');
+                const res = await fetch(`${BASE_URL}/jobs/${jobId}/stages`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { stages: data } };
             }
-            case 'listInterviews': {
-                const params = new URLSearchParams();
-                if (inputs.jobId) params.set('job_id', String(inputs.jobId));
-                url = `${baseUrl}/scheduled_interviews?${params.toString()}`;
-                break;
-            }
-            case 'scheduleInterview': {
-                method = 'POST';
-                url = `${baseUrl}/applications/${inputs.applicationId}/interviews`;
-                body = JSON.stringify({
-                    interview_id: inputs.interviewId,
-                    interviewers: inputs.interviewers || [],
-                    start: inputs.start,
-                    end: inputs.end,
-                    location: inputs.location,
-                    video_conferencing_url: inputs.videoConferencingUrl,
-                });
-                break;
+            case 'getJobStage': {
+                const jobId = String(inputs.jobId ?? '').trim();
+                const stageId = String(inputs.stageId ?? '').trim();
+                if (!jobId) throw new Error('jobId is required.');
+                if (!stageId) throw new Error('stageId is required.');
+                const res = await fetch(`${BASE_URL}/jobs/${jobId}/stages/${stageId}`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { stage: data } };
             }
             case 'listOffers': {
-                url = `${baseUrl}/applications/${inputs.applicationId}/offers`;
-                break;
+                const applicationId = String(inputs.applicationId ?? '').trim();
+                if (!applicationId) throw new Error('applicationId is required.');
+                const res = await fetch(`${BASE_URL}/applications/${applicationId}/offers`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { offers: data } };
             }
             case 'getOffer': {
-                url = `${baseUrl}/applications/${inputs.applicationId}/offers/${inputs.offerId}`;
-                break;
+                const applicationId = String(inputs.applicationId ?? '').trim();
+                const offerId = String(inputs.offerId ?? '').trim();
+                if (!applicationId) throw new Error('applicationId is required.');
+                if (!offerId) throw new Error('offerId is required.');
+                const res = await fetch(`${BASE_URL}/applications/${applicationId}/offers/${offerId}`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { offer: data } };
+            }
+            case 'createOffer': {
+                const applicationId = String(inputs.applicationId ?? '').trim();
+                if (!applicationId) throw new Error('applicationId is required.');
+                const body = JSON.stringify(inputs.offerData ?? {});
+                const res = await fetch(`${BASE_URL}/applications/${applicationId}/offers`, {
+                    method: 'POST',
+                    headers,
+                    body,
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { offer: data } };
+            }
+            case 'listScorecards': {
+                const applicationId = String(inputs.applicationId ?? '').trim();
+                if (!applicationId) throw new Error('applicationId is required.');
+                const res = await fetch(`${BASE_URL}/applications/${applicationId}/scorecards`, { headers });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.message || `Greenhouse API error: ${res.status}`);
+                return { output: { scorecards: data } };
             }
             default:
-                return { error: `Unknown Greenhouse Enhanced action: ${actionName}` };
+                return { error: `Action "${actionName}" is not implemented.` };
         }
-
-        const fetchOptions: RequestInit = { method, headers };
-        if (body !== undefined) fetchOptions.body = body;
-
-        const response = await fetch(url, fetchOptions);
-        const text = await response.text();
-        let data: any;
-        try { data = JSON.parse(text); } catch { data = { raw: text }; }
-
-        if (!response.ok) {
-            return { error: `Greenhouse API error ${response.status}: ${text}` };
-        }
-
-        return { output: data };
-    } catch (err: any) {
-        logger.log(`Greenhouse Enhanced action error: ${err.message}`);
-        return { error: err.message || 'Unknown error in Greenhouse Enhanced action' };
+    } catch (e: any) {
+        logger?.log(`[GreenhouseEnhanced] Error: ${e.message}`);
+        return { error: e.message || 'Action failed.' };
     }
 }
