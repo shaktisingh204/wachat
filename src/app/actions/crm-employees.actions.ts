@@ -189,14 +189,14 @@ export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{
         lastName: formData.get('lastName') as string,
         employeeId: formData.get('employeeIdCode') as string,
         email: formData.get('email') as string,
-        phone: formData.get('phone') as string | undefined,
+        phone: (formData.get('phone') as string | null) || undefined,
         status: formData.get('status') as CrmEmployee['status'],
         dateOfJoining: new Date(formData.get('dateOfJoining') as string),
         departmentId: formData.get('departmentId') ? new ObjectId(formData.get('departmentId') as string) : undefined,
         designationId: formData.get('designationId') ? new ObjectId(formData.get('designationId') as string) : undefined,
-        workCountry: formData.get('workCountry') as string | undefined,
-        workState: formData.get('workState') as string | undefined,
-        workCity: formData.get('workCity') as string | undefined,
+        workCountry: (formData.get('workCountry') as string | null) || undefined,
+        workState: (formData.get('workState') as string | null) || undefined,
+        workCity: (formData.get('workCity') as string | null) || undefined,
         salaryDetails: {
             grossSalary: Number(formData.get('grossSalary') || 0),
             salaryStructureId: formData.get('salaryStructureId') ? new ObjectId(formData.get('salaryStructureId') as string) : undefined,
@@ -207,21 +207,71 @@ export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{
         return { error: 'Please fill all required fields.' };
     }
 
+    const g = (k: string) => (formData.get(k) as string | null) || undefined;
+    const gDate = (k: string) => { const v = formData.get(k) as string | null; return v ? new Date(v) : undefined; };
+    const gNum = (k: string) => { const v = formData.get(k) as string | null; return v ? Number(v) : undefined; };
+
+    const detailData: Record<string, any> = {
+        userId: new ObjectId(session.user._id),
+        about_me: g('about_me'),
+        marital_status: g('marital_status'),
+        gender: g('gender'),
+        date_of_birth: gDate('date_of_birth'),
+        blood_group: g('blood_group'),
+        religion: g('religion'),
+        nationality: g('nationality'),
+        languages: g('languages'),
+        hobbies: g('hobbies'),
+        address: g('address'),
+        marriage_anniversary_date: gDate('marriage_anniversary_date'),
+        employment_type: g('employment_type'),
+        probation_end_date: gDate('probation_end_date'),
+        last_date: gDate('last_date'),
+        notice_period_end_date: gDate('notice_period_end_date'),
+        internship_end_date: gDate('internship_end_date'),
+        contract_end_date: gDate('contract_end_date'),
+        notice_period: gNum('notice_period'),
+        reporting_to: g('ext_reporting_to'),
+        overtime_hourly_rate: gNum('overtime_hourly_rate'),
+        hourly_rate: gNum('hourly_rate'),
+        slack_username: g('slack_username'),
+        bank_account_number: g('bank_account_number'),
+        bank_name: g('bank_name'),
+        tax_regime: g('tax_regime'),
+        work_anniversary_notified: formData.get('work_anniversary_notified') === 'true',
+        updatedAt: new Date(),
+    };
+    // Remove undefined keys
+    Object.keys(detailData).forEach(k => detailData[k] === undefined && delete detailData[k]);
+
     try {
         const { db } = await connectToDatabase();
+        let resolvedEmployeeId: ObjectId;
+
         if (isEditing) {
+            resolvedEmployeeId = new ObjectId(employeeId!);
             await db.collection('crm_employees').updateOne(
-                { _id: new ObjectId(employeeId!) },
-                { $set: data }
+                { _id: resolvedEmployeeId },
+                { $set: { ...data, updatedAt: new Date() } }
             );
         } else {
-            await db.collection('crm_employees').insertOne({
+            const result = await db.collection('crm_employees').insertOne({
                 ...data,
                 createdAt: new Date(),
                 updatedAt: new Date()
             } as CrmEmployee);
+            resolvedEmployeeId = result.insertedId;
         }
+
+        // Upsert extended profile detail
+        await db.collection('crm_employee_details').updateOne(
+            { employee_id: resolvedEmployeeId.toString(), userId: new ObjectId(session.user._id) },
+            { $set: { ...detailData, employee_id: resolvedEmployeeId.toString() }, $setOnInsert: { createdAt: new Date() } },
+            { upsert: true }
+        );
+
         revalidatePath('/dashboard/hrm/payroll/employees');
+        revalidatePath('/dashboard/hrm/payroll/employees/profile');
         return { message: `Employee ${isEditing ? 'updated' : 'added'} successfully.` };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

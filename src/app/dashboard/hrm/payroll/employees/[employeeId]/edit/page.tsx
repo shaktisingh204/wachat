@@ -2,37 +2,31 @@ import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { getCrmDepartments, getCrmDesignations, getCrmEmployees } from '@/app/actions/crm-employees.actions';
+import { getEmployeeDetailByEmployeeId } from '@/app/actions/worksuite/hr-ext.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-
 import { ClayButton } from '@/components/clay';
 
 async function getEmployeeById(id: string) {
   if (!ObjectId.isValid(id)) return null;
-
   const { db } = await connectToDatabase();
-  const employee = await db
-    .collection('crm_employees')
-    .findOne({ _id: new ObjectId(id) });
-
+  const employee = await db.collection('crm_employees').findOne({ _id: new ObjectId(id) });
   return JSON.parse(JSON.stringify(employee));
 }
 
 export default async function EditEmployeePage(
-  props: {
-    params: Promise<{ employeeId: string }>;
-  }
+  props: { params: Promise<{ employeeId: string }> }
 ) {
   const params = await props.params;
   const employeeId = params.employeeId;
 
-  const [employee, departments, designations, managers] =
-    await Promise.all([
-      getEmployeeById(employeeId),
-      getCrmDepartments(),
-      getCrmDesignations(),
-      getCrmEmployees(),
-    ]);
+  const [employee, departments, designations, managers, detail] = await Promise.all([
+    getEmployeeById(employeeId),
+    getCrmDepartments(),
+    getCrmDesignations(),
+    getCrmEmployees(),
+    getEmployeeDetailByEmployeeId(employeeId),
+  ]);
 
   if (!employee) {
     return <p className="text-[13px] text-clay-ink-muted">Employee not found.</p>;
@@ -54,6 +48,7 @@ export default async function EditEmployeePage(
         departments={departments}
         designations={designations}
         managers={managers}
+        detail={detail}
       />
     </div>
   );

@@ -68,6 +68,10 @@ export async function getEmployeeDetails() {
 export async function getEmployeeDetailById(id: string) {
   return hrGetById<WsEmployeeDetail>(COL_DETAILS, id);
 }
+export async function getEmployeeDetailByEmployeeId(employeeId: string) {
+  const all = await hrList<WsEmployeeDetail>(COL_DETAILS);
+  return (all as any[]).find((d: any) => String(d.employee_id) === employeeId) ?? null;
+}
 export async function saveEmployeeDetail(_prev: any, formData: FormData) {
   return genericSave(COL_DETAILS, `${ROUTE_BASE}`, formData, {
     dateFields: [
