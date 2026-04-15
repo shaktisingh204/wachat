@@ -243,12 +243,23 @@ function isTeamRoute(pathname: string | null): boolean {
 /**
  * CRM routes get their own Clay context="crm" with a dedicated
  * sidebar for sales-crm, sales billing, contacts/deals/tasks,
- * inventory, purchases, accounting, banking, HR-payroll, reports.
+ * inventory, purchases, accounting, banking, reports.
  * Entry point: /dashboard/crm.
  */
 function isCrmRoute(pathname: string | null): boolean {
   if (!pathname) return false;
   return pathname === '/dashboard/crm' || pathname.startsWith('/dashboard/crm/');
+}
+
+/**
+ * HRM routes get their own Clay context="hrm" with a dedicated
+ * sidebar for recruitment, people, payroll, attendance, performance,
+ * learning, documents, and engagement.
+ * Entry point: /dashboard/hrm.
+ */
+function isHrmRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/hrm' || pathname.startsWith('/dashboard/hrm/');
 }
 
 /**
@@ -343,6 +354,17 @@ export function DashboardChromeDispatcher({
     !onQrCodeMaker &&
     !onTeam &&
     isCrmRoute(pathname);
+  const onHrm =
+    !onAdManager &&
+    !onInstagram &&
+    !onMetaSuite &&
+    !onSabFlow &&
+    !onTelegram &&
+    !onUrlShortener &&
+    !onQrCodeMaker &&
+    !onTeam &&
+    !onCrm &&
+    isHrmRoute(pathname);
   const onSettings =
     !onAdManager &&
     !onInstagram &&
@@ -353,6 +375,7 @@ export function DashboardChromeDispatcher({
     !onQrCodeMaker &&
     !onTeam &&
     !onCrm &&
+    !onHrm &&
     isSettingsRoute(pathname);
   const onWachat =
     !onAdManager &&
@@ -364,6 +387,7 @@ export function DashboardChromeDispatcher({
     !onQrCodeMaker &&
     !onTeam &&
     !onCrm &&
+    !onHrm &&
     !onSettings &&
     isWachatRoute(pathname);
 
@@ -386,6 +410,7 @@ export function DashboardChromeDispatcher({
     onQrCodeMaker ||
     onTeam ||
     onCrm ||
+    onHrm ||
     onSettings;
 
   useEffect(() => {
@@ -560,6 +585,25 @@ export function DashboardChromeDispatcher({
       >
         <AdManagerProvider>
           <ClayDashboardLayout context="crm" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── HRM branch: Clay chrome for HR, recruitment, payroll, compliance.
+  if (onHrm) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="hrm" user={user} plan={plan}>
             {children}
           </ClayDashboardLayout>
         </AdManagerProvider>

@@ -2,7 +2,7 @@
 
 import { Wallet } from 'lucide-react';
 
-import { HrEntityPage } from '../../hr/_components/hr-entity-page';
+import { HrEntityPage } from '../../_components/hr-entity-page';
 import { ClayBadge } from '@/components/clay';
 import {
   getOfflinePaymentMethods,

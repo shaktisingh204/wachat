@@ -179,6 +179,7 @@ export type ClayLayoutContext =
   | 'qr-code-maker'
   | 'team'
   | 'crm'
+  | 'hrm'
   | 'settings';
 
 export interface ClayDashboardLayoutProps {
@@ -238,6 +239,13 @@ const primaryNav: NavEntry[] = [
     icon: <LuBriefcase className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/crm',
     matches: ['/dashboard/crm'],
+  },
+  {
+    key: 'hrm',
+    label: 'HRM',
+    icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm',
+    matches: ['/dashboard/hrm'],
   },
   {
     key: 'settings',
@@ -1889,6 +1897,259 @@ const crmHr: NavEntry[] = [
   },
 ];
 
+/* ═══════════════════════════════════════════════════════════════════
+ *  HRM nav registry — loaded when context="hrm".
+ *  Standalone HR module: recruitment, people, payroll, compliance.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const hrmPrimary: NavEntry[] = [
+  {
+    key: 'hrm-overview',
+    label: 'Overview',
+    icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm',
+    matches: ['/dashboard/hrm'],
+  },
+  {
+    key: 'hrm-employees',
+    label: 'Employees',
+    icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/employees',
+    matches: ['/dashboard/hrm/payroll/employees'],
+  },
+  {
+    key: 'hrm-payroll',
+    label: 'Payroll',
+    icon: <LuBanknote className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/payroll',
+    matches: ['/dashboard/hrm/payroll/payroll'],
+  },
+  {
+    key: 'hrm-attendance',
+    label: 'Attendance',
+    icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/attendance',
+    matches: ['/dashboard/hrm/payroll/attendance'],
+  },
+  {
+    key: 'hrm-leave',
+    label: 'Leave',
+    icon: <LuUmbrella className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/leave',
+    matches: ['/dashboard/hrm/payroll/leave'],
+  },
+];
+
+const hrmRecruitment: NavEntry[] = [
+  {
+    key: 'hrm-jobs',
+    label: 'Job Postings',
+    icon: <LuTarget className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/jobs',
+    matches: ['/dashboard/hrm/hr/jobs', '/dashboard/hrm/hr/candidates', '/dashboard/hrm/hr/interviews', '/dashboard/hrm/hr/offers'],
+  },
+  {
+    key: 'hrm-careers-page',
+    label: 'Careers Page',
+    icon: <LuGlobe className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/careers-page',
+    matches: ['/dashboard/hrm/hr/careers-page'],
+  },
+  {
+    key: 'hrm-onboarding',
+    label: 'Onboarding',
+    icon: <LuUserCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/onboarding',
+    matches: ['/dashboard/hrm/hr/onboarding', '/dashboard/hrm/hr/welcome-kit', '/dashboard/hrm/hr/probation'],
+  },
+];
+
+const hrmPeople: NavEntry[] = [
+  {
+    key: 'hrm-directory',
+    label: 'Directory',
+    icon: <LuContact className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/directory',
+    matches: ['/dashboard/hrm/hr/directory'],
+  },
+  {
+    key: 'hrm-org-chart',
+    label: 'Org Chart',
+    icon: <LuNetwork className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/org-chart',
+    matches: ['/dashboard/hrm/hr/org-chart'],
+  },
+  {
+    key: 'hrm-departments',
+    label: 'Departments',
+    icon: <LuBriefcase className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/departments',
+    matches: ['/dashboard/hrm/payroll/departments'],
+  },
+  {
+    key: 'hrm-designations',
+    label: 'Designations',
+    icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/designations',
+    matches: ['/dashboard/hrm/payroll/designations'],
+  },
+  {
+    key: 'hrm-announcements',
+    label: 'Announcements',
+    icon: <LuMegaphone className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/announcements',
+    matches: ['/dashboard/hrm/hr/announcements', '/dashboard/hrm/hr/policies'],
+  },
+];
+
+const hrmPayroll: NavEntry[] = [
+  {
+    key: 'hrm-payslips',
+    label: 'Payslips',
+    icon: <LuReceiptText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/payslips',
+    matches: ['/dashboard/hrm/payroll/payslips'],
+  },
+  {
+    key: 'hrm-salary-structure',
+    label: 'Salary Structure',
+    icon: <LuCoins className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/salary-structure',
+    matches: ['/dashboard/hrm/payroll/salary-structure'],
+  },
+  {
+    key: 'hrm-shifts',
+    label: 'Shifts & Rotations',
+    icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/shifts',
+    matches: ['/dashboard/hrm/payroll/shifts', '/dashboard/hrm/payroll/shift-rotations', '/dashboard/hrm/payroll/shift-change-requests'],
+  },
+  {
+    key: 'hrm-holidays',
+    label: 'Holidays',
+    icon: <LuCalendarDays className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/holidays',
+    matches: ['/dashboard/hrm/payroll/holidays'],
+  },
+];
+
+const hrmCompliance: NavEntry[] = [
+  {
+    key: 'hrm-pf-esi',
+    label: 'PF & ESI',
+    icon: <LuShieldCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/pf-esi',
+    matches: ['/dashboard/hrm/payroll/pf-esi'],
+  },
+  {
+    key: 'hrm-tds',
+    label: 'TDS',
+    icon: <LuReceiptText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/tds',
+    matches: ['/dashboard/hrm/payroll/tds'],
+  },
+  {
+    key: 'hrm-professional-tax',
+    label: 'Professional Tax',
+    icon: <LuReceiptText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/professional-tax',
+    matches: ['/dashboard/hrm/payroll/professional-tax'],
+  },
+  {
+    key: 'hrm-form-16',
+    label: 'Form 16',
+    icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/form-16',
+    matches: ['/dashboard/hrm/payroll/form-16'],
+  },
+];
+
+const hrmPerformance: NavEntry[] = [
+  {
+    key: 'hrm-okrs',
+    label: 'OKRs & Goals',
+    icon: <LuTarget className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/okrs',
+    matches: ['/dashboard/hrm/hr/okrs'],
+  },
+  {
+    key: 'hrm-feedback-360',
+    label: '360 Feedback',
+    icon: <LuStar className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/feedback-360',
+    matches: ['/dashboard/hrm/hr/feedback-360', '/dashboard/hrm/hr/one-on-ones'],
+  },
+  {
+    key: 'hrm-appraisals',
+    label: 'Appraisals',
+    icon: <LuStar className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/appraisal-reviews',
+    matches: ['/dashboard/hrm/payroll/appraisal-reviews', '/dashboard/hrm/payroll/kpi-tracking', '/dashboard/hrm/payroll/goal-setting'],
+  },
+  {
+    key: 'hrm-training',
+    label: 'Training & Learning',
+    icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/training',
+    matches: ['/dashboard/hrm/hr/training', '/dashboard/hrm/hr/certifications', '/dashboard/hrm/hr/learning-paths'],
+  },
+];
+
+const hrmEngagement: NavEntry[] = [
+  {
+    key: 'hrm-recognition',
+    label: 'Recognition',
+    icon: <LuAward className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/recognition',
+    matches: ['/dashboard/hrm/hr/recognition', '/dashboard/hrm/hr/surveys'],
+  },
+  {
+    key: 'hrm-assets',
+    label: 'Assets',
+    icon: <LuPackage className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/assets',
+    matches: ['/dashboard/hrm/hr/assets', '/dashboard/hrm/hr/asset-assignments'],
+  },
+  {
+    key: 'hrm-documents',
+    label: 'Documents',
+    icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/documents',
+    matches: ['/dashboard/hrm/hr/documents', '/dashboard/hrm/hr/document-templates'],
+  },
+  {
+    key: 'hrm-timesheets',
+    label: 'Time & Expense',
+    icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/timesheets',
+    matches: ['/dashboard/hrm/hr/timesheets', '/dashboard/hrm/hr/travel', '/dashboard/hrm/hr/expense-claims'],
+  },
+];
+
+const hrmConfigure: NavEntry[] = [
+  {
+    key: 'hrm-reports',
+    label: 'Reports',
+    icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/reports',
+    matches: ['/dashboard/hrm/payroll/reports'],
+  },
+  {
+    key: 'hrm-exits',
+    label: 'Exit Management',
+    icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/hr/exits',
+    matches: ['/dashboard/hrm/hr/exits', '/dashboard/hrm/hr/succession', '/dashboard/hrm/hr/compensation-bands'],
+  },
+  {
+    key: 'hrm-settings',
+    label: 'HRM Settings',
+    icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/hrm/payroll/settings',
+    matches: ['/dashboard/hrm/payroll/settings'],
+  },
+];
+
 const crmServices: NavEntry[] = [
   {
     key: 'crm-projects',
@@ -2418,10 +2679,12 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
                     : context === 'team'
                       ? [teamPrimary, teamGovern, teamCollab, teamConfigure]
                       : context === 'crm'
-                        ? [crmPrimary, crmSales, crmSalesCrm, crmClients, crmServices, crmCatalog, crmFinance, crmHr, crmInsights, crmConfigure]
-                        : context === 'settings'
-                          ? [settingsPrimary, settingsDeveloper, settingsBilling]
-                          : [primaryNav, appsNav];
+                        ? [crmPrimary, crmSales, crmSalesCrm, crmClients, crmServices, crmCatalog, crmFinance, crmInsights, crmConfigure]
+                        : context === 'hrm'
+                          ? [hrmPrimary, hrmRecruitment, hrmPeople, hrmPayroll, hrmCompliance, hrmPerformance, hrmEngagement, hrmConfigure]
+                          : context === 'settings'
+                            ? [settingsPrimary, settingsDeveloper, settingsBilling]
+                            : [primaryNav, appsNav];
   let bestKey =
     context === 'ad-manager' ? 'adm-overview' :
     context === 'instagram' ? 'ig-dashboard' :
@@ -2433,6 +2696,7 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
     context === 'qr-code-maker' ? 'qr-generator' :
     context === 'team' ? 'team-overview' :
     context === 'crm' ? 'crm-overview' :
+    context === 'hrm' ? 'hrm-overview' :
     context === 'settings' ? 'set-overview' : 'home';
   let bestLen = 0;
   for (const group of registry) {
@@ -2785,6 +3049,7 @@ export function ClayDashboardLayout({
             context === 'qr-code-maker' ? 'QR Code Maker' :
             context === 'team' ? 'Team' :
             context === 'crm' ? 'CRM' :
+            context === 'hrm' ? 'HRM' :
             context === 'settings' ? 'Settings' : 'SabNode'
           }
           brand={
@@ -2798,6 +3063,7 @@ export function ClayDashboardLayout({
             context === 'qr-code-maker' ? <ClayQrCodeMakerBrand /> :
             context === 'team' ? <ClayTeamBrand /> :
             context === 'crm' ? <ClayCrmBrand /> :
+            context === 'hrm' ? <ClayCrmBrand /> :
             context === 'settings' ? <ClaySettingsBrand /> :
             undefined
           }
@@ -2905,13 +3171,28 @@ export function ClayDashboardLayout({
                     { title: 'Services', addable: false, items: crmServices.map(toNavItem) },
                     { title: 'Catalog', addable: false, items: crmCatalog.map(toNavItem) },
                     { title: 'Finance', addable: false, items: crmFinance.map(toNavItem) },
-                    { title: 'HR', addable: false, items: crmHr.map(toNavItem) },
                     { title: 'Insights', addable: false, items: crmInsights.map(toNavItem) },
                     {
                       title: 'Configure',
                       addable: true,
                       onAdd: () => router.push('/dashboard/crm/integrations'),
                       items: crmConfigure.map(toNavItem),
+                    },
+                  ]
+                : context === 'hrm'
+                ? [
+                    { items: hrmPrimary.map(toNavItem) },
+                    { title: 'Recruitment', addable: false, items: hrmRecruitment.map(toNavItem) },
+                    { title: 'People', addable: false, items: hrmPeople.map(toNavItem) },
+                    { title: 'Payroll', addable: false, items: hrmPayroll.map(toNavItem) },
+                    { title: 'Compliance', addable: false, items: hrmCompliance.map(toNavItem) },
+                    { title: 'Performance', addable: false, items: hrmPerformance.map(toNavItem) },
+                    { title: 'Engagement', addable: false, items: hrmEngagement.map(toNavItem) },
+                    {
+                      title: 'Configure',
+                      addable: true,
+                      onAdd: () => router.push('/dashboard/hrm/payroll/settings'),
+                      items: hrmConfigure.map(toNavItem),
                     },
                   ]
                 : context === 'settings'
@@ -2952,7 +3233,7 @@ export function ClayDashboardLayout({
             // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'settings') && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'settings') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -2960,7 +3241,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'settings') ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'settings') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child

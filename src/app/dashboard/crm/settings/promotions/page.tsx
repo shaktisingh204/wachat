@@ -1,7 +1,7 @@
 'use client';
 
 import { BadgePercent } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../../hr/_components/hr-entity-page';
+import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
 import {
   getPromotionsExt,
   savePromotionExt,

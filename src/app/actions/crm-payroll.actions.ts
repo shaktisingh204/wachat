@@ -50,7 +50,7 @@ export async function saveSalaryStructure(prevState: any, formData: FormData): P
             await db.collection('crm_salary_structures').insertOne({ ...payload, createdAt: new Date() } as CrmSalaryStructure);
         }
 
-        revalidatePath('/dashboard/crm/hr-payroll/salary-structure');
+        revalidatePath('/dashboard/hrm/payroll/salary-structure');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -72,7 +72,7 @@ export async function deleteSalaryStructure(id: string): Promise<{ success: bool
             _id: new ObjectId(id),
             userId: new ObjectId(session.user._id)
         });
-        revalidatePath('/dashboard/crm/hr-payroll/salary-structure');
+        revalidatePath('/dashboard/hrm/payroll/salary-structure');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };

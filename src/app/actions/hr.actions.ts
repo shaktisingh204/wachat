@@ -92,14 +92,14 @@ export async function getJobPostingById(id: string) {
   return hrGetById<HrJobPosting>('hr_job_postings', id);
 }
 export async function saveJobPosting(_prev: any, formData: FormData) {
-  return genericSave('hr_job_postings', '/dashboard/crm/hr/jobs', formData, {
+  return genericSave('hr_job_postings', '/dashboard/hrm/hr/jobs', formData, {
     dateFields: ['postedAt'],
     numericKeys: ['salaryMin', 'salaryMax'],
   });
 }
 export async function deleteJobPosting(id: string) {
   const r = await hrDelete('hr_job_postings', id);
-  revalidatePath('/dashboard/crm/hr/jobs');
+  revalidatePath('/dashboard/hrm/hr/jobs');
   return r;
 }
 
@@ -110,14 +110,14 @@ export async function getCandidateById(id: string) {
   return hrGetById<HrCandidate>('hr_candidates', id);
 }
 export async function saveCandidate(_prev: any, formData: FormData) {
-  return genericSave('hr_candidates', '/dashboard/crm/hr/candidates', formData, {
+  return genericSave('hr_candidates', '/dashboard/hrm/hr/candidates', formData, {
     idFields: ['jobId'],
     numericKeys: ['rating'],
   });
 }
 export async function deleteCandidate(id: string) {
   const r = await hrDelete('hr_candidates', id);
-  revalidatePath('/dashboard/crm/hr/candidates');
+  revalidatePath('/dashboard/hrm/hr/candidates');
   return r;
 }
 
@@ -128,7 +128,7 @@ export async function getInterviewById(id: string) {
   return hrGetById<HrInterview>('hr_interviews', id);
 }
 export async function saveInterview(_prev: any, formData: FormData) {
-  return genericSave('hr_interviews', '/dashboard/crm/hr/interviews', formData, {
+  return genericSave('hr_interviews', '/dashboard/hrm/hr/interviews', formData, {
     idFields: ['candidateId'],
     dateFields: ['scheduledAt'],
     numericKeys: ['roundNumber'],
@@ -136,7 +136,7 @@ export async function saveInterview(_prev: any, formData: FormData) {
 }
 export async function deleteInterview(id: string) {
   const r = await hrDelete('hr_interviews', id);
-  revalidatePath('/dashboard/crm/hr/interviews');
+  revalidatePath('/dashboard/hrm/hr/interviews');
   return r;
 }
 
@@ -147,7 +147,7 @@ export async function getOfferLetterById(id: string) {
   return hrGetById<HrOfferLetter>('hr_offer_letters', id);
 }
 export async function saveOfferLetter(_prev: any, formData: FormData) {
-  return genericSave('hr_offer_letters', '/dashboard/crm/hr/offers', formData, {
+  return genericSave('hr_offer_letters', '/dashboard/hrm/hr/offers', formData, {
     idFields: ['candidateId'],
     dateFields: ['joiningDate', 'sentAt', 'respondedAt'],
     numericKeys: ['ctc'],
@@ -155,7 +155,7 @@ export async function saveOfferLetter(_prev: any, formData: FormData) {
 }
 export async function deleteOfferLetter(id: string) {
   const r = await hrDelete('hr_offer_letters', id);
-  revalidatePath('/dashboard/crm/hr/offers');
+  revalidatePath('/dashboard/hrm/hr/offers');
   return r;
 }
 
@@ -164,7 +164,7 @@ export async function getCareersPageConfig(): Promise<WithId<HrCareersPageConfig
   return docs[0] || null;
 }
 export async function saveCareersPageConfig(_prev: any, formData: FormData) {
-  return genericSave('hr_careers_page', '/dashboard/crm/hr/careers-page', formData);
+  return genericSave('hr_careers_page', '/dashboard/hrm/hr/careers-page', formData);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -177,14 +177,14 @@ export async function getOnboardingTemplates() {
 export async function saveOnboardingTemplate(_prev: any, formData: FormData) {
   return genericSave(
     'hr_onboarding_templates',
-    '/dashboard/crm/hr/onboarding',
+    '/dashboard/hrm/hr/onboarding',
     formData,
     { jsonKeys: ['tasks'] },
   );
 }
 export async function deleteOnboardingTemplate(id: string) {
   const r = await hrDelete('hr_onboarding_templates', id);
-  revalidatePath('/dashboard/crm/hr/onboarding');
+  revalidatePath('/dashboard/hrm/hr/onboarding');
   return r;
 }
 
@@ -194,14 +194,14 @@ export async function getWelcomeKits() {
 export async function saveWelcomeKit(_prev: any, formData: FormData) {
   return genericSave(
     'hr_welcome_kits',
-    '/dashboard/crm/hr/welcome-kit',
+    '/dashboard/hrm/hr/welcome-kit',
     formData,
     { jsonKeys: ['items'] },
   );
 }
 export async function deleteWelcomeKit(id: string) {
   const r = await hrDelete('hr_welcome_kits', id);
-  revalidatePath('/dashboard/crm/hr/welcome-kit');
+  revalidatePath('/dashboard/hrm/hr/welcome-kit');
   return r;
 }
 
@@ -209,14 +209,14 @@ export async function getProbations() {
   return hrList<HrProbation>('hr_probations');
 }
 export async function saveProbation(_prev: any, formData: FormData) {
-  return genericSave('hr_probations', '/dashboard/crm/hr/probation', formData, {
+  return genericSave('hr_probations', '/dashboard/hrm/hr/probation', formData, {
     idFields: ['employeeId'],
     dateFields: ['startDate', 'endDate'],
   });
 }
 export async function deleteProbation(id: string) {
   const r = await hrDelete('hr_probations', id);
-  revalidatePath('/dashboard/crm/hr/probation');
+  revalidatePath('/dashboard/hrm/hr/probation');
   return r;
 }
 
@@ -228,14 +228,14 @@ export async function getAnnouncements() {
   return hrList<HrAnnouncement>('hr_announcements');
 }
 export async function saveAnnouncement(_prev: any, formData: FormData) {
-  return genericSave('hr_announcements', '/dashboard/crm/hr/announcements', formData, {
+  return genericSave('hr_announcements', '/dashboard/hrm/hr/announcements', formData, {
     idFields: ['departmentId'],
     dateFields: ['publishAt'],
   });
 }
 export async function deleteAnnouncement(id: string) {
   const r = await hrDelete('hr_announcements', id);
-  revalidatePath('/dashboard/crm/hr/announcements');
+  revalidatePath('/dashboard/hrm/hr/announcements');
   return r;
 }
 
@@ -243,13 +243,13 @@ export async function getPolicies() {
   return hrList<HrPolicy>('hr_policies');
 }
 export async function savePolicy(_prev: any, formData: FormData) {
-  return genericSave('hr_policies', '/dashboard/crm/hr/policies', formData, {
+  return genericSave('hr_policies', '/dashboard/hrm/hr/policies', formData, {
     dateFields: ['effectiveDate'],
   });
 }
 export async function deletePolicy(id: string) {
   const r = await hrDelete('hr_policies', id);
-  revalidatePath('/dashboard/crm/hr/policies');
+  revalidatePath('/dashboard/hrm/hr/policies');
   return r;
 }
 
@@ -257,14 +257,14 @@ export async function getDocuments() {
   return hrList<HrDocument>('hr_documents');
 }
 export async function saveDocument(_prev: any, formData: FormData) {
-  return genericSave('hr_documents', '/dashboard/crm/hr/documents', formData, {
+  return genericSave('hr_documents', '/dashboard/hrm/hr/documents', formData, {
     idFields: ['employeeId'],
     dateFields: ['expiresAt'],
   });
 }
 export async function deleteDocument(id: string) {
   const r = await hrDelete('hr_documents', id);
-  revalidatePath('/dashboard/crm/hr/documents');
+  revalidatePath('/dashboard/hrm/hr/documents');
   return r;
 }
 
@@ -274,14 +274,14 @@ export async function getDocumentTemplates() {
 export async function saveDocumentTemplate(_prev: any, formData: FormData) {
   return genericSave(
     'hr_document_templates',
-    '/dashboard/crm/hr/document-templates',
+    '/dashboard/hrm/hr/document-templates',
     formData,
     { jsonKeys: ['placeholders'] },
   );
 }
 export async function deleteDocumentTemplate(id: string) {
   const r = await hrDelete('hr_document_templates', id);
-  revalidatePath('/dashboard/crm/hr/document-templates');
+  revalidatePath('/dashboard/hrm/hr/document-templates');
   return r;
 }
 
@@ -293,13 +293,13 @@ export async function getTrainingPrograms() {
   return hrList<HrTrainingProgram>('hr_training_programs');
 }
 export async function saveTrainingProgram(_prev: any, formData: FormData) {
-  return genericSave('hr_training_programs', '/dashboard/crm/hr/training', formData, {
+  return genericSave('hr_training_programs', '/dashboard/hrm/hr/training', formData, {
     dateFields: ['startDate', 'endDate'],
   });
 }
 export async function deleteTrainingProgram(id: string) {
   const r = await hrDelete('hr_training_programs', id);
-  revalidatePath('/dashboard/crm/hr/training');
+  revalidatePath('/dashboard/hrm/hr/training');
   return r;
 }
 
@@ -307,14 +307,14 @@ export async function getCertifications() {
   return hrList<HrCertification>('hr_certifications');
 }
 export async function saveCertification(_prev: any, formData: FormData) {
-  return genericSave('hr_certifications', '/dashboard/crm/hr/certifications', formData, {
+  return genericSave('hr_certifications', '/dashboard/hrm/hr/certifications', formData, {
     idFields: ['employeeId'],
     dateFields: ['issuedAt', 'expiresAt'],
   });
 }
 export async function deleteCertification(id: string) {
   const r = await hrDelete('hr_certifications', id);
-  revalidatePath('/dashboard/crm/hr/certifications');
+  revalidatePath('/dashboard/hrm/hr/certifications');
   return r;
 }
 
@@ -322,13 +322,13 @@ export async function getLearningPaths() {
   return hrList<HrLearningPath>('hr_learning_paths');
 }
 export async function saveLearningPath(_prev: any, formData: FormData) {
-  return genericSave('hr_learning_paths', '/dashboard/crm/hr/learning-paths', formData, {
+  return genericSave('hr_learning_paths', '/dashboard/hrm/hr/learning-paths', formData, {
     jsonKeys: ['steps'],
   });
 }
 export async function deleteLearningPath(id: string) {
   const r = await hrDelete('hr_learning_paths', id);
-  revalidatePath('/dashboard/crm/hr/learning-paths');
+  revalidatePath('/dashboard/hrm/hr/learning-paths');
   return r;
 }
 
@@ -340,14 +340,14 @@ export async function getOkrs() {
   return hrList<HrOkr>('hr_okrs');
 }
 export async function saveOkr(_prev: any, formData: FormData) {
-  return genericSave('hr_okrs', '/dashboard/crm/hr/okrs', formData, {
+  return genericSave('hr_okrs', '/dashboard/hrm/hr/okrs', formData, {
     idFields: ['employeeId'],
     jsonKeys: ['keyResults'],
   });
 }
 export async function deleteOkr(id: string) {
   const r = await hrDelete('hr_okrs', id);
-  revalidatePath('/dashboard/crm/hr/okrs');
+  revalidatePath('/dashboard/hrm/hr/okrs');
   return r;
 }
 
@@ -355,7 +355,7 @@ export async function getFeedback360() {
   return hrList<HrFeedback360>('hr_feedback_360');
 }
 export async function saveFeedback360(_prev: any, formData: FormData) {
-  return genericSave('hr_feedback_360', '/dashboard/crm/hr/feedback-360', formData, {
+  return genericSave('hr_feedback_360', '/dashboard/hrm/hr/feedback-360', formData, {
     idFields: ['employeeId'],
     dateFields: ['submittedAt'],
     numericKeys: ['rating'],
@@ -363,7 +363,7 @@ export async function saveFeedback360(_prev: any, formData: FormData) {
 }
 export async function deleteFeedback360(id: string) {
   const r = await hrDelete('hr_feedback_360', id);
-  revalidatePath('/dashboard/crm/hr/feedback-360');
+  revalidatePath('/dashboard/hrm/hr/feedback-360');
   return r;
 }
 
@@ -371,14 +371,14 @@ export async function getOneOnOnes() {
   return hrList<HrOneOnOne>('hr_one_on_ones');
 }
 export async function saveOneOnOne(_prev: any, formData: FormData) {
-  return genericSave('hr_one_on_ones', '/dashboard/crm/hr/one-on-ones', formData, {
+  return genericSave('hr_one_on_ones', '/dashboard/hrm/hr/one-on-ones', formData, {
     idFields: ['employeeId'],
     dateFields: ['scheduledAt'],
   });
 }
 export async function deleteOneOnOne(id: string) {
   const r = await hrDelete('hr_one_on_ones', id);
-  revalidatePath('/dashboard/crm/hr/one-on-ones');
+  revalidatePath('/dashboard/hrm/hr/one-on-ones');
   return r;
 }
 
@@ -390,7 +390,7 @@ export async function getTimesheets() {
   return hrList<HrTimesheet>('hr_timesheets');
 }
 export async function saveTimesheet(_prev: any, formData: FormData) {
-  return genericSave('hr_timesheets', '/dashboard/crm/hr/timesheets', formData, {
+  return genericSave('hr_timesheets', '/dashboard/hrm/hr/timesheets', formData, {
     idFields: ['employeeId'],
     dateFields: ['weekStart'],
     numericKeys: ['totalHours'],
@@ -399,7 +399,7 @@ export async function saveTimesheet(_prev: any, formData: FormData) {
 }
 export async function deleteTimesheet(id: string) {
   const r = await hrDelete('hr_timesheets', id);
-  revalidatePath('/dashboard/crm/hr/timesheets');
+  revalidatePath('/dashboard/hrm/hr/timesheets');
   return r;
 }
 
@@ -407,7 +407,7 @@ export async function getTravelRequests() {
   return hrList<HrTravelRequest>('hr_travel_requests');
 }
 export async function saveTravelRequest(_prev: any, formData: FormData) {
-  return genericSave('hr_travel_requests', '/dashboard/crm/hr/travel', formData, {
+  return genericSave('hr_travel_requests', '/dashboard/hrm/hr/travel', formData, {
     idFields: ['employeeId'],
     dateFields: ['fromDate', 'toDate'],
     numericKeys: ['estimatedCost'],
@@ -415,7 +415,7 @@ export async function saveTravelRequest(_prev: any, formData: FormData) {
 }
 export async function deleteTravelRequest(id: string) {
   const r = await hrDelete('hr_travel_requests', id);
-  revalidatePath('/dashboard/crm/hr/travel');
+  revalidatePath('/dashboard/hrm/hr/travel');
   return r;
 }
 
@@ -423,7 +423,7 @@ export async function getExpenseClaims() {
   return hrList<HrExpenseClaim>('hr_expense_claims');
 }
 export async function saveExpenseClaim(_prev: any, formData: FormData) {
-  return genericSave('hr_expense_claims', '/dashboard/crm/hr/expense-claims', formData, {
+  return genericSave('hr_expense_claims', '/dashboard/hrm/hr/expense-claims', formData, {
     idFields: ['employeeId'],
     dateFields: ['incurredAt'],
     numericKeys: ['amount'],
@@ -431,7 +431,7 @@ export async function saveExpenseClaim(_prev: any, formData: FormData) {
 }
 export async function deleteExpenseClaim(id: string) {
   const r = await hrDelete('hr_expense_claims', id);
-  revalidatePath('/dashboard/crm/hr/expense-claims');
+  revalidatePath('/dashboard/hrm/hr/expense-claims');
   return r;
 }
 
@@ -443,13 +443,13 @@ export async function getAssets() {
   return hrList<HrAsset>('hr_assets');
 }
 export async function saveAsset(_prev: any, formData: FormData) {
-  return genericSave('hr_assets', '/dashboard/crm/hr/assets', formData, {
+  return genericSave('hr_assets', '/dashboard/hrm/hr/assets', formData, {
     dateFields: ['purchaseDate'],
   });
 }
 export async function deleteAsset(id: string) {
   const r = await hrDelete('hr_assets', id);
-  revalidatePath('/dashboard/crm/hr/assets');
+  revalidatePath('/dashboard/hrm/hr/assets');
   return r;
 }
 
@@ -459,7 +459,7 @@ export async function getAssetAssignments() {
 export async function saveAssetAssignment(_prev: any, formData: FormData) {
   return genericSave(
     'hr_asset_assignments',
-    '/dashboard/crm/hr/asset-assignments',
+    '/dashboard/hrm/hr/asset-assignments',
     formData,
     {
       idFields: ['assetId', 'employeeId'],
@@ -469,7 +469,7 @@ export async function saveAssetAssignment(_prev: any, formData: FormData) {
 }
 export async function deleteAssetAssignment(id: string) {
   const r = await hrDelete('hr_asset_assignments', id);
-  revalidatePath('/dashboard/crm/hr/asset-assignments');
+  revalidatePath('/dashboard/hrm/hr/asset-assignments');
   return r;
 }
 
@@ -481,7 +481,7 @@ export async function getRecognitions() {
   return hrList<HrRecognition>('hr_recognitions');
 }
 export async function saveRecognition(_prev: any, formData: FormData) {
-  return genericSave('hr_recognitions', '/dashboard/crm/hr/recognition', formData, {
+  return genericSave('hr_recognitions', '/dashboard/hrm/hr/recognition', formData, {
     idFields: ['employeeId'],
     dateFields: ['givenAt'],
     numericKeys: ['points'],
@@ -489,7 +489,7 @@ export async function saveRecognition(_prev: any, formData: FormData) {
 }
 export async function deleteRecognition(id: string) {
   const r = await hrDelete('hr_recognitions', id);
-  revalidatePath('/dashboard/crm/hr/recognition');
+  revalidatePath('/dashboard/hrm/hr/recognition');
   return r;
 }
 
@@ -497,14 +497,14 @@ export async function getSurveys() {
   return hrList<HrSurvey>('hr_surveys');
 }
 export async function saveSurvey(_prev: any, formData: FormData) {
-  return genericSave('hr_surveys', '/dashboard/crm/hr/surveys', formData, {
+  return genericSave('hr_surveys', '/dashboard/hrm/hr/surveys', formData, {
     jsonKeys: ['questions'],
     numericKeys: ['responsesCount'],
   });
 }
 export async function deleteSurvey(id: string) {
   const r = await hrDelete('hr_surveys', id);
-  revalidatePath('/dashboard/crm/hr/surveys');
+  revalidatePath('/dashboard/hrm/hr/surveys');
   return r;
 }
 
@@ -518,14 +518,14 @@ export async function getCompensationBands() {
 export async function saveCompensationBand(_prev: any, formData: FormData) {
   return genericSave(
     'hr_compensation_bands',
-    '/dashboard/crm/hr/compensation-bands',
+    '/dashboard/hrm/hr/compensation-bands',
     formData,
     { numericKeys: ['minSalary', 'maxSalary'] },
   );
 }
 export async function deleteCompensationBand(id: string) {
   const r = await hrDelete('hr_compensation_bands', id);
-  revalidatePath('/dashboard/crm/hr/compensation-bands');
+  revalidatePath('/dashboard/hrm/hr/compensation-bands');
   return r;
 }
 
@@ -533,7 +533,7 @@ export async function getExits() {
   return hrList<HrExit>('hr_exits');
 }
 export async function saveExit(_prev: any, formData: FormData) {
-  return genericSave('hr_exits', '/dashboard/crm/hr/exits', formData, {
+  return genericSave('hr_exits', '/dashboard/hrm/hr/exits', formData, {
     idFields: ['employeeId'],
     dateFields: ['resignationDate', 'lastWorkingDate'],
     numericKeys: ['fnfAmount'],
@@ -541,7 +541,7 @@ export async function saveExit(_prev: any, formData: FormData) {
 }
 export async function deleteExit(id: string) {
   const r = await hrDelete('hr_exits', id);
-  revalidatePath('/dashboard/crm/hr/exits');
+  revalidatePath('/dashboard/hrm/hr/exits');
   return r;
 }
 
@@ -549,12 +549,12 @@ export async function getSuccessionPlans() {
   return hrList<HrSuccessionPlan>('hr_succession_plans');
 }
 export async function saveSuccessionPlan(_prev: any, formData: FormData) {
-  return genericSave('hr_succession_plans', '/dashboard/crm/hr/succession', formData, {
+  return genericSave('hr_succession_plans', '/dashboard/hrm/hr/succession', formData, {
     jsonKeys: ['successors'],
   });
 }
 export async function deleteSuccessionPlan(id: string) {
   const r = await hrDelete('hr_succession_plans', id);
-  revalidatePath('/dashboard/crm/hr/succession');
+  revalidatePath('/dashboard/hrm/hr/succession');
   return r;
 }

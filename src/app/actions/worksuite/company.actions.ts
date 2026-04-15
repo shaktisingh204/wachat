@@ -52,8 +52,8 @@ const PATHS = {
   currency: '/dashboard/crm/settings/currencies',
   language: '/dashboard/crm/settings/languages',
   global: '/dashboard/crm/settings/global',
-  deptTree: '/dashboard/crm/hr-payroll/departments/hierarchy',
-  desigTree: '/dashboard/crm/hr-payroll/designations/hierarchy',
+  deptTree: '/dashboard/hrm/payroll/departments/hierarchy',
+  desigTree: '/dashboard/hrm/payroll/designations/hierarchy',
 } as const;
 
 async function genericSave(

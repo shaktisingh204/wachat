@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Columns3 } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../../hr/_components/hr-entity-page';
+import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
 import {
   getLeadPipelineStages,
   getLeadPipelines,

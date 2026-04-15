@@ -44,7 +44,7 @@ const COLL = {
   SETTINGS: 'crm_leave_settings',
 } as const;
 
-const ROUTE = '/dashboard/crm/hr-payroll/leave';
+const ROUTE = '/dashboard/hrm/payroll/leave';
 
 const DEFAULT_SETTINGS: Omit<WsLeaveSetting, '_id' | 'userId'> = {
   monthly_leaves_allowed: 2,

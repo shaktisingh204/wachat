@@ -41,7 +41,7 @@ export async function saveCrmDepartment(prevState: any, formData: FormData): Pro
             description: formData.get('description') as string | undefined,
         };
         const result = await db.collection('crm_departments').insertOne(data);
-        revalidatePath('/dashboard/crm/hr-payroll/departments');
+        revalidatePath('/dashboard/hrm/payroll/departments');
         return { message: 'Department added successfully.', newDepartment: { ...data, _id: result.insertedId } };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -55,7 +55,7 @@ export async function deleteCrmDepartment(id: string): Promise<{ success: boolea
     try {
         const { db } = await connectToDatabase();
         await db.collection('crm_departments').deleteOne({ _id: new ObjectId(id), userId: new ObjectId(session.user._id) });
-        revalidatePath('/dashboard/crm/hr-payroll/departments');
+        revalidatePath('/dashboard/hrm/payroll/departments');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -95,7 +95,7 @@ export async function saveCrmDesignation(prevState: any, formData: FormData): Pr
             description: formData.get('description') as string | undefined,
         };
         const result = await db.collection('crm_designations').insertOne(data);
-        revalidatePath('/dashboard/crm/hr-payroll/designations');
+        revalidatePath('/dashboard/hrm/payroll/designations');
         return { message: 'Designation added successfully.', newDesignation: { ...data, _id: result.insertedId } };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -109,7 +109,7 @@ export async function deleteCrmDesignation(id: string): Promise<{ success: boole
     try {
         const { db } = await connectToDatabase();
         await db.collection('crm_designations').deleteOne({ _id: new ObjectId(id), userId: new ObjectId(session.user._id) });
-        revalidatePath('/dashboard/crm/hr-payroll/designations');
+        revalidatePath('/dashboard/hrm/payroll/designations');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -185,7 +185,7 @@ export async function saveCrmEmployee(prevState: any, formData: FormData): Promi
                 updatedAt: new Date()
             } as CrmEmployee);
         }
-        revalidatePath('/dashboard/crm/hr-payroll/employees');
+        revalidatePath('/dashboard/hrm/payroll/employees');
         return { message: `Employee ${isEditing ? 'updated' : 'added'} successfully.` };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

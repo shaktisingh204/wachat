@@ -31,6 +31,7 @@ import {
 import {
     wachatMenuItems,
     crmMenuGroups,
+    hrmMenuGroups,
     adManagerMenuItems,
     sabChatMenuItems,
     sabflowMenuItems,
@@ -61,6 +62,7 @@ const APP_META: Record<string, { label: string; icon: any }> = {
     facebook:         { label: 'Meta Suite',     icon: MetaIcon },
     instagram:        { label: 'Instagram',      icon: Instagram },
     crm:              { label: 'CRM',            icon: Briefcase },
+    hrm:              { label: 'HRM',            icon: Users },
     sabchat:          { label: 'SabChat',        icon: Bot },
     email:            { label: 'Email',          icon: Mail },
     sms:              { label: 'SMS',            icon: Smartphone },
@@ -336,6 +338,14 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
 
             case 'crm':
                 return crmMenuGroups.map(group => (
+                    <React.Fragment key={group.title}>
+                        <GroupLabel title={group.title} />
+                        {group.items.map(item => <NavItem key={item.href} item={item} />)}
+                    </React.Fragment>
+                ));
+
+            case 'hrm':
+                return hrmMenuGroups.map(group => (
                     <React.Fragment key={group.title}>
                         <GroupLabel title={group.title} />
                         {group.items.map(item => <NavItem key={item.href} item={item} />)}

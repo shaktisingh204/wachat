@@ -140,12 +140,12 @@ export async function saveEmployeeShift(
         { _id: oid, userId: t.userId },
         { $set: doc },
       );
-      revalidatePath('/dashboard/crm/hr-payroll/shifts');
+      revalidatePath('/dashboard/hrm/payroll/shifts');
       return { success: true, id: input._id };
     }
 
     const result = await db.collection(COLL.SHIFTS).insertOne({ ...doc, createdAt: now });
-    revalidatePath('/dashboard/crm/hr-payroll/shifts');
+    revalidatePath('/dashboard/hrm/payroll/shifts');
     return { success: true, id: result.insertedId.toString() };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -160,7 +160,7 @@ export async function deleteEmployeeShift(id: string): Promise<ActionResult> {
   try {
     const { db } = await connectToDatabase();
     await db.collection(COLL.SHIFTS).deleteOne({ _id: oid, userId: t.userId });
-    revalidatePath('/dashboard/crm/hr-payroll/shifts');
+    revalidatePath('/dashboard/hrm/payroll/shifts');
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -231,7 +231,7 @@ export async function saveShiftSchedule(
         { _id: oid, userId: t.userId },
         { $set: doc },
       );
-      revalidatePath('/dashboard/crm/hr-payroll/shifts/schedule');
+      revalidatePath('/dashboard/hrm/payroll/shifts/schedule');
       return { success: true, id: input._id };
     }
 
@@ -241,7 +241,7 @@ export async function saveShiftSchedule(
       { $set: doc, $setOnInsert: { createdAt: now } },
       { upsert: true },
     );
-    revalidatePath('/dashboard/crm/hr-payroll/shifts/schedule');
+    revalidatePath('/dashboard/hrm/payroll/shifts/schedule');
     return {
       success: true,
       id: result.upsertedId ? result.upsertedId.toString() : undefined,
@@ -259,7 +259,7 @@ export async function deleteShiftSchedule(id: string): Promise<ActionResult> {
   try {
     const { db } = await connectToDatabase();
     await db.collection(COLL.SCHEDULE).deleteOne({ _id: oid, userId: t.userId });
-    revalidatePath('/dashboard/crm/hr-payroll/shifts/schedule');
+    revalidatePath('/dashboard/hrm/payroll/shifts/schedule');
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -318,7 +318,7 @@ export async function assignShiftToEmployee(
     }
 
     await Promise.all(ops);
-    revalidatePath('/dashboard/crm/hr-payroll/shifts/schedule');
+    revalidatePath('/dashboard/hrm/payroll/shifts/schedule');
     return { success: true, data: { inserted: count } };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -380,13 +380,13 @@ export async function saveShiftChangeRequest(
         { _id: oid, userId: t.userId },
         { $set: doc },
       );
-      revalidatePath('/dashboard/crm/hr-payroll/shift-change-requests');
+      revalidatePath('/dashboard/hrm/payroll/shift-change-requests');
       return { success: true, id: input._id };
     }
     const result = await db
       .collection(COLL.CHANGE_REQ)
       .insertOne({ ...doc, createdAt: now });
-    revalidatePath('/dashboard/crm/hr-payroll/shift-change-requests');
+    revalidatePath('/dashboard/hrm/payroll/shift-change-requests');
     return { success: true, id: result.insertedId.toString() };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -401,7 +401,7 @@ export async function deleteShiftChangeRequest(id: string): Promise<ActionResult
   try {
     const { db } = await connectToDatabase();
     await db.collection(COLL.CHANGE_REQ).deleteOne({ _id: oid, userId: t.userId });
-    revalidatePath('/dashboard/crm/hr-payroll/shift-change-requests');
+    revalidatePath('/dashboard/hrm/payroll/shift-change-requests');
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -457,8 +457,8 @@ export async function approveShiftChange(id: string): Promise<ActionResult> {
       { upsert: true },
     );
 
-    revalidatePath('/dashboard/crm/hr-payroll/shift-change-requests');
-    revalidatePath('/dashboard/crm/hr-payroll/shifts/schedule');
+    revalidatePath('/dashboard/hrm/payroll/shift-change-requests');
+    revalidatePath('/dashboard/hrm/payroll/shifts/schedule');
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -486,7 +486,7 @@ export async function rejectShiftChange(id: string, reason: string): Promise<Act
         },
       },
     );
-    revalidatePath('/dashboard/crm/hr-payroll/shift-change-requests');
+    revalidatePath('/dashboard/hrm/payroll/shift-change-requests');
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -554,13 +554,13 @@ export async function saveShiftRotation(
         { _id: oid, userId: t.userId },
         { $set: doc },
       );
-      revalidatePath('/dashboard/crm/hr-payroll/shift-rotations');
+      revalidatePath('/dashboard/hrm/payroll/shift-rotations');
       return { success: true, id: input._id };
     }
     const result = await db
       .collection(COLL.ROTATION)
       .insertOne({ ...doc, createdAt: now });
-    revalidatePath('/dashboard/crm/hr-payroll/shift-rotations');
+    revalidatePath('/dashboard/hrm/payroll/shift-rotations');
     return { success: true, id: result.insertedId.toString() };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -581,7 +581,7 @@ export async function deleteShiftRotation(id: string): Promise<ActionResult> {
     await db
       .collection(COLL.ROTATION_SEQ)
       .deleteMany({ userId: t.userId, shift_rotation_id: id });
-    revalidatePath('/dashboard/crm/hr-payroll/shift-rotations');
+    revalidatePath('/dashboard/hrm/payroll/shift-rotations');
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -636,13 +636,13 @@ export async function saveRotationSequence(
       await db
         .collection(COLL.ROTATION_SEQ)
         .updateOne({ _id: oid, userId: t.userId }, { $set: doc });
-      revalidatePath(`/dashboard/crm/hr-payroll/shift-rotations/${input.shift_rotation_id}`);
+      revalidatePath(`/dashboard/hrm/payroll/shift-rotations/${input.shift_rotation_id}`);
       return { success: true, id: input._id };
     }
     const result = await db
       .collection(COLL.ROTATION_SEQ)
       .insertOne({ ...doc, createdAt: now });
-    revalidatePath(`/dashboard/crm/hr-payroll/shift-rotations/${input.shift_rotation_id}`);
+    revalidatePath(`/dashboard/hrm/payroll/shift-rotations/${input.shift_rotation_id}`);
     return { success: true, id: result.insertedId.toString() };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -659,7 +659,7 @@ export async function deleteRotationSequence(id: string): Promise<ActionResult> 
     await db
       .collection(COLL.ROTATION_SEQ)
       .deleteOne({ _id: oid, userId: t.userId });
-    revalidatePath('/dashboard/crm/hr-payroll/shift-rotations');
+    revalidatePath('/dashboard/hrm/payroll/shift-rotations');
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -713,13 +713,13 @@ export async function saveAutomateShift(
       await db
         .collection(COLL.AUTOMATE)
         .updateOne({ _id: oid, userId: t.userId }, { $set: doc });
-      revalidatePath('/dashboard/crm/hr-payroll/shift-rotations/automate');
+      revalidatePath('/dashboard/hrm/payroll/shift-rotations/automate');
       return { success: true, id: input._id };
     }
     const result = await db
       .collection(COLL.AUTOMATE)
       .insertOne({ ...doc, createdAt: now });
-    revalidatePath('/dashboard/crm/hr-payroll/shift-rotations/automate');
+    revalidatePath('/dashboard/hrm/payroll/shift-rotations/automate');
     return { success: true, id: result.insertedId.toString() };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -736,7 +736,7 @@ export async function deleteAutomateShift(id: string): Promise<ActionResult> {
     await db
       .collection(COLL.AUTOMATE)
       .deleteOne({ _id: oid, userId: t.userId });
-    revalidatePath('/dashboard/crm/hr-payroll/shift-rotations/automate');
+    revalidatePath('/dashboard/hrm/payroll/shift-rotations/automate');
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -850,8 +850,8 @@ export async function runRotation(
       userId: t.userId,
     });
 
-    revalidatePath('/dashboard/crm/hr-payroll/shifts/schedule');
-    revalidatePath('/dashboard/crm/hr-payroll/shift-rotations/automate');
+    revalidatePath('/dashboard/hrm/payroll/shifts/schedule');
+    revalidatePath('/dashboard/hrm/payroll/shift-rotations/automate');
 
     return { success: true, data: { inserted, days } };
   } catch (e) {

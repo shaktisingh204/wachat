@@ -63,7 +63,7 @@ export async function saveCrmAppraisalReview(prevState: any, formData: FormData)
         } else {
             await db.collection('crm_appraisal_reviews').insertOne({ ...reviewData, createdAt: new Date() } as any);
         }
-        revalidatePath('/dashboard/crm/hr-payroll/appraisal-reviews');
+        revalidatePath('/dashboard/hrm/payroll/appraisal-reviews');
         return { message: 'Appraisal review saved successfully.' };
     } catch(e) {
         return { error: getErrorMessage(e) };
@@ -77,7 +77,7 @@ export async function deleteCrmAppraisalReview(id: string): Promise<{ success: b
     try {
         const { db } = await connectToDatabase();
         await db.collection('crm_appraisal_reviews').deleteOne({ _id: new ObjectId(id), userId: new ObjectId(session.user._id) });
-        revalidatePath('/dashboard/crm/hr-payroll/appraisal-reviews');
+        revalidatePath('/dashboard/hrm/payroll/appraisal-reviews');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };

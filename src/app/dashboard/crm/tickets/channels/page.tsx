@@ -1,7 +1,7 @@
 'use client';
 
 import { Radio } from 'lucide-react';
-import { HrEntityPage } from '../../hr/_components/hr-entity-page';
+import { HrEntityPage } from '../../_components/hr-entity-page';
 import {
   getTicketChannels,
   saveTicketChannel,

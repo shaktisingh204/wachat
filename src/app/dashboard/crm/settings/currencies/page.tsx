@@ -4,7 +4,7 @@ import { useTransition } from 'react';
 import { CircleDollarSign, Star } from 'lucide-react';
 
 import { ClayBadge } from '@/components/clay';
-import { HrEntityPage } from '../../hr/_components/hr-entity-page';
+import { HrEntityPage } from '../../_components/hr-entity-page';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import {

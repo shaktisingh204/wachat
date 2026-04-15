@@ -3,7 +3,7 @@
 import { MessagesSquare, Folder } from 'lucide-react';
 import Link from 'next/link';
 
-import { ClayBadge, HrEntityPage } from '../../hr/_components/hr-entity-page';
+import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
 import { ClayButton } from '@/components/clay';
 import {
   getDiscussions,

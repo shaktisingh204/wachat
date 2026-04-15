@@ -51,7 +51,7 @@ export async function markCrmAttendance(employeeId: string, status: CrmAttendanc
             { $set: { status, updatedAt: new Date() } },
             { upsert: true }
         );
-        revalidatePath('/dashboard/crm/hr-payroll/attendance');
+        revalidatePath('/dashboard/hrm/payroll/attendance');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -122,7 +122,7 @@ export async function applyForCrmLeave(prevState: any, formData: FormData): Prom
 
         await db.collection('crm_leave_requests').insertOne({ ...leaveData, createdAt: new Date() });
 
-        revalidatePath('/dashboard/crm/hr-payroll/leave');
+        revalidatePath('/dashboard/hrm/payroll/leave');
         return { message: 'Leave request submitted successfully.' };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -141,7 +141,7 @@ export async function approveOrRejectLeave(id: string, status: 'Approved' | 'Rej
             { _id: new ObjectId(id), userId: new ObjectId(session.user._id) },
             { $set: { status } }
         );
-        revalidatePath('/dashboard/crm/hr-payroll/leave');
+        revalidatePath('/dashboard/hrm/payroll/leave');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -186,7 +186,7 @@ export async function saveCrmHoliday(prevState: any, formData: FormData): Promis
             createdAt: new Date(),
         };
         await db.collection('crm_holidays').insertOne(holidayData);
-        revalidatePath('/dashboard/crm/hr-payroll/holidays');
+        revalidatePath('/dashboard/hrm/payroll/holidays');
         return { message: 'Holiday added successfully.' };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -203,7 +203,7 @@ export async function deleteCrmHoliday(id: string): Promise<{ success: boolean, 
             _id: new ObjectId(id),
             userId: new ObjectId(session.user._id),
         });
-        revalidatePath('/dashboard/crm/hr-payroll/holidays');
+        revalidatePath('/dashboard/hrm/payroll/holidays');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -254,7 +254,7 @@ export async function saveCrmGoal(prevState: any, formData: FormData): Promise<{
         } else {
             await db.collection('crm_goals').insertOne({ ...goalData, createdAt: new Date() } as any);
         }
-        revalidatePath('/dashboard/crm/hr-payroll/goal-setting');
+        revalidatePath('/dashboard/hrm/payroll/goal-setting');
         return { message: 'Goal saved successfully.' };
     } catch(e) {
         return { error: getErrorMessage(e) };
@@ -268,7 +268,7 @@ export async function deleteCrmGoal(id: string): Promise<{ success: boolean; err
     try {
         const { db } = await connectToDatabase();
         await db.collection('crm_goals').deleteOne({ _id: new ObjectId(id), userId: new ObjectId(session.user._id) });
-        revalidatePath('/dashboard/crm/hr-payroll/goal-setting');
+        revalidatePath('/dashboard/hrm/payroll/goal-setting');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -319,7 +319,7 @@ export async function saveCrmPtSlab(prevState: any, formData: FormData): Promise
             await db.collection('crm_pt_slabs').insertOne({ ...slabData, createdAt: new Date() });
         }
         
-        revalidatePath('/dashboard/crm/hr-payroll/professional-tax');
+        revalidatePath('/dashboard/hrm/payroll/professional-tax');
         return { message: 'Professional Tax slab saved successfully.' };
     } catch(e) {
         return { error: getErrorMessage(e) };
@@ -337,7 +337,7 @@ export async function deleteCrmPtSlab(slabId: string): Promise<{ success: boolea
     try {
         const { db } = await connectToDatabase();
         await db.collection('crm_pt_slabs').deleteOne({ _id: new ObjectId(slabId), userId: new ObjectId(session.user._id) });
-        revalidatePath('/dashboard/crm/hr-payroll/professional-tax');
+        revalidatePath('/dashboard/hrm/payroll/professional-tax');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };

@@ -16,7 +16,7 @@ import type {
 
 type FormState = { message?: string; error?: string; id?: string };
 
-const ROUTE_BASE = '/dashboard/crm/hr-payroll/employees';
+const ROUTE_BASE = '/dashboard/hrm/payroll/employees';
 
 async function genericSave(
   collection: string,

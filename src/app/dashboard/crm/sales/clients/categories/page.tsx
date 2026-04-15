@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Tags, Layers } from 'lucide-react';
-import { HrEntityPage } from '../../../hr/_components/hr-entity-page';
+import { HrEntityPage } from '../../../_components/hr-entity-page';
 import {
   getClientCategories,
   saveClientCategory,

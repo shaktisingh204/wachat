@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Heart } from 'lucide-react';
-import { HrEntityPage, ClayBadge } from '../../../hr/_components/hr-entity-page';
+import { HrEntityPage, ClayBadge } from '../../../_components/hr-entity-page';
 import {
   getAppreciations,
   saveAppreciation,
